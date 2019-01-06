@@ -1,0 +1,28 @@
+
+@font-face {
+	font-family: 'fontello';
+	src: url('fontello.woff2') format('woff2'),
+	     url('fontello.woff') format('woff');
+	font-variant: normal;
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'museo';
+	src: url('museo.woff2') format('woff2'),
+	     url('museo.woff') format('woff');
+	font-variant: normal;
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'museo';
+	src: url('museo-bold.woff2') format('woff2'),
+	     url('museo-bold.woff') format('woff');
+	font-variant: normal;
+	font-weight: bold;
+	font-style: normal;
+}
+

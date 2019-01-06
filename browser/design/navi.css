@@ -1,0 +1,64 @@
+
+aside#navi {
+	display: block;
+	position: fixed;
+	width: 32px;
+	height: auto;
+	top: 49px;
+	right: auto;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 8px;
+	background: #252530;
+	border: 0px solid transparent;
+	border-right: 1px solid #666666;
+	transform: translate(-48px, 0px);
+	transition: 250ms all ease-out;
+	z-index: 100;
+	user-select: none;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+aside#navi.active {
+	transform: translate(0px, 0px);
+}
+
+aside#navi::-webkit-scrollbar {
+	width: 2px;
+	border: 0px solid transparent;
+	background: transparent;
+}
+
+aside#navi::-webkit-scrollbar-thumb {
+	width: 2px;
+	background: #ffffff;
+}
+
+aside#navi button {
+	display: block;
+	width: 32px;
+	height: 32px;
+	margin: 0px 0px 8px 0px;
+	padding: 0px;
+	border: 0px solid transparent;
+	border-radius: 4px;
+	background-color: transparent;
+	background-image: none;
+	background-position: center center;
+	background-repeat: no-repeat;
+	transition: 250ms all ease-out;
+	appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+aside#navi button:hover {
+	background: rgba(255,255,255,0.1);
+}
+
+aside#navi button:last-of-type {
+	margin: 0px;
+}
+

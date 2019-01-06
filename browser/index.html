@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Stealth Browser</title>
+
+		<link rel="stylesheet" href="design/font/index.css">
+
+		<link rel="stylesheet" href="design/header.css">
+		<link rel="stylesheet" href="design/main.css">
+		<link rel="stylesheet" href="design/navi.css">
+		<link rel="stylesheet" href="design/site.css">
+
+		<!-- Thanks much, DOMContentLoaded with ES6 Modules. -->
+		<!-- One simply does not understand async imports.   -->
+		<script>BROWSER_BINDINGS=[];</script>
+
+	</head>
+	<body>
+		<header id="header">
+			<div id="header-history">
+				<button id="header-history-back" title="Visit earlier Site" disabled></button>
+				<button id="header-history-next" title="Visit later site" disabled></button>
+				<button id="header-history-load" title="Load/Refresh/Pause site" disabled></button>
+			</div>
+			<div id="header-address">
+				<ul>
+					<li id="header-address-protocol" class="secure" title="HTTPS/1.1 + TLS/1.3"></li>
+					<li>cookie.engineer</li>
+					<li>/index.html</li>
+				</ul>
+			</div>
+			<div class="header-right">
+				<div id="header-modes">
+					<button id="header-modes-offline" class="active" title="Offline"></button>
+					<button id="header-modes-covert" title="Covert"></button>
+					<button id="header-modes-stealth" title="Stealth"></button>
+					<button id="header-modes-online" title="Online"></button>
+				</div>
+				<div id="header-settings">
+					<button id="header-settings-modes" title="Site Modes"></button>
+					<button id="header-settings-requests" title="Site Requests"></button>
+					<button id="header-settings-browser" title="Browser Settings"></button>
+				</div>
+			</div>
+		</header>
+		<aside id="navi"></aside>
+		<main>
+			Browser Window
+		</main>
+		<aside id="site-modes">
+			<h3>Site Modes</h3>
+			<table>
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Media</th>
+						<th>Mode</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>old.reddit.com</td>
+						<td class="site-media">
+							<button title="Texts"></button>
+							<button title="Images"></button>
+							<button title="Videos"></button>
+							<button title="Downloads"></button>
+						</td>
+						<td class="site-mode">
+							<button title="Offline" disabled></button>
+						</td>
+					</tr>
+					<tr>
+						<td>i.imgur.com</td>
+						<td class="site-media">
+							<button title="Texts"></button>
+							<button title="Images" class="active"></button>
+							<button title="Videos" class="active"></button>
+							<button title="Downloads"></button>
+						</td>
+						<td class="site-mode">
+							<button title="Stealth" disabled></button>
+						</td>
+					</tr>
+					<tr>
+						<td>ddl.rarbg.to</td>
+						<td class="site-media">
+							<button title="Texts"></button>
+							<button title="Images" class="active"></button>
+							<button title="Videos"></button>
+							<button title="Downloads" class="active"></button>
+						</td>
+						<td class="site-mode">
+							<button title="Online" disabled></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</aside>
+		<aside id="site-requests">
+			<h3>Site Requests</h3>
+		</aside>
+
+
+		<!-- Browser Source -->
+		<script type="module">
+
+			import { Browser } from './source/Browser.mjs';
+			import { Peer    } from './source/Peer.mjs';
+			import { Sandbox } from './source/Sandbox.mjs';
+
+
+			const browser = window.browser = new Browser({
+				url: 'https://cookie.engineer'
+			});
+
+			if (BROWSER_BINDINGS.length > 0) {
+				BROWSER_BINDINGS.forEach(callback => callback(browser));
+				BROWSER_BINDINGS = [];
+			}
+
+			setTimeout(_ => {
+
+				let tab1 = browser.tab('https://cookie.engineer');
+				let tab2 = browser.tab('https://old.reddit.com/r/programming');
+
+				tab1.onload = _ => console.log('tab1.onload', tab1);
+				tab2.onload = _ => console.log('tab2.onload', tab2);
+
+				tab1.load();
+				tab2.load();
+
+				browser.tabs.push(tab1);
+				browser.tabs.push(tab2);
+
+				browser.fire('change-tab', [ tab2, browser.tabs ]);
+
+			}, 1000);
+
+			if (typeof require === 'function') {
+				require('nw.gui').Window.get().showDevTools();
+			}
+
+			console.log(browser);
+
+		</script>
+
+		<!-- Browser Design -->
+		<script src="design/header.js"></script>
+		<script src="design/main.js"></script>
+		<script src="design/navi.js"></script>
+		<script src="design/site.js"></script>
+	</body>
+</html>
+

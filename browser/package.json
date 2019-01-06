@@ -1,0 +1,25 @@
+{
+	"main":        "./index.html",
+	"name":        "stealth",
+	"title":       "Stealth Browser",
+	"version":     "2019.01",
+	"homepage":    "https://cookie.engineer",
+	"description": "The Hacker's opinionated privacy-respecting Browser to do research on the internet.",
+	"license":     "GPL-3.0",
+	"repository":  {
+		"type": "git",
+		"url": "https://github.com/cookiengineer/stealth-browser.git"
+	},
+	"window": {
+		"title":    "Stealth-Browser",
+		"icon":     "./icon.png",
+		"toolbar":  true,
+		"frame":    false,
+		"width":    1920,
+		"height":   1080,
+		"position": "center"
+	},
+	"webkit": {
+		"plugin": false
+	}
+}

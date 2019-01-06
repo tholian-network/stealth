@@ -1,0 +1,22 @@
+
+main {
+	display: block;
+	position: fixed;
+	top: 48px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 32px;
+	line-height: 16px;
+	font-family: 'museo';
+	font-size: 16px;
+	color: #ffffff;
+	background: #252530;
+	z-index: 50;
+}
+
+aside#navi.active + main {
+	left: 48px;
+}
+
