@@ -19,6 +19,8 @@
 		"height":   1080,
 		"position": "center"
 	},
+	"chromium-args": "--disable-web-security",
+	"nodejs": true,
 	"webkit": {
 		"plugin": false
 	}

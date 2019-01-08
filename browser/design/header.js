@@ -53,14 +53,10 @@
 
 		buttons.settings.browser.onclick = _ => {
 
-			let tab = browser.tab('about:settings');
+			let tab = browser.create('about:settings');
 			if (tab !== null) {
-
-				tab.onload = _ => {
-					console.log('TAB onload ...', tab);
-				};
+				tab.onload = _ => browser.show(tab);
 				tab.load();
-
 			}
 
 		};

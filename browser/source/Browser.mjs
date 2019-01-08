@@ -16,6 +16,8 @@ const Browser = function(data) {
 	// that writes automatically to a hosts-file
 	// this.dns  = new Nameservice();
 
+	this.tab  = null;
+
 	this.mode = 'offline';
 	this.tabs = [];
 	this.peer = new Peer({
@@ -209,7 +211,101 @@ Browser.prototype = {
 
 	},
 
-	tab: function(url) {
+	kill: function(tab, callback) {
+
+		tab      = tab instanceof Sandbox       ? tab      : null;
+		callback = callback instanceof Function ? callback : null;
+
+
+		if (tab !== null) {
+
+			if (this.tabs.includes(tab) === true) {
+
+				this.tabs.splice(this.tabs.indexOf(tab), 1);
+
+				if (typeof tab.kill === 'function') {
+					tab.kill();
+				}
+
+			}
+
+			this.fire('kill', [ tab, this.tabs ]);
+
+			if (this.tab === tab) {
+
+				if (this.tabs.length > 0) {
+					this.show(this.tabs[this.tabs.length - 1]);
+				}
+
+			} else {
+
+				this.tab = null;
+
+			}
+
+			if (callback !== null) {
+				callback(tab);
+			}
+
+			return true;
+
+		}
+
+	},
+
+	show: function(tab, callback) {
+
+		tab      = tab instanceof Sandbox       ? tab      : null;
+		callback = callback instanceof Function ? callback : null;
+
+
+		if (tab !== null) {
+
+			if (this.tabs.includes(tab) === false) {
+				this.tabs.push(tab);
+			}
+
+			if (this.tab !== null) {
+				this.fire('hide', [ this.tab, this.tabs ]);
+			}
+
+			this.tab = tab;
+
+			this.fire('show', [ tab, this.tabs ]);
+
+			if (callback !== null) {
+				callback(tab);
+			}
+
+			return true;
+
+		} else if (tab === null) {
+
+			if (this.tab !== null) {
+				this.fire('hide', [ this.tab, this.tabs ]);
+			}
+
+			if (this.tabs.length > 0) {
+				this.tab = this.tabs[this.tabs.length - 1];
+				this.fire('show', [ this.tab, this.tabs ]);
+			} else {
+				this.tab = null;
+			}
+
+			if (callback !== null) {
+				callback(tab);
+			}
+
+			return true;
+
+		}
+
+
+		return false;
+
+	},
+
+	create: function(url) {
 
 		url = typeof url === 'string' ? url : null;
 
@@ -225,11 +321,28 @@ Browser.prototype = {
 
 		}
 
-		let tab = new Sandbox({
-			peer: this.peer,
-			mode: mode,
-			url:  url
-		});
+
+		let tab = this.tabs.find(t => t.url === url) || null;
+		if (tab !== null) {
+
+			// TODO: Should changed mode trigger a reload?
+			// Probably bad user experience ...
+
+			return tab;
+
+		} else {
+
+			tab = new Sandbox({
+				peer: this.peer,
+				mode: mode,
+				url:  url
+			});
+
+			this.tabs.push(tab);
+			this.fire('create', [ tab, this.tabs ]);
+
+		}
+
 
 		return tab;
 

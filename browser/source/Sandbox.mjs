@@ -20,11 +20,18 @@ Sandbox.prototype = {
 
 	load: function() {
 
+		// TODO: this.document = document.createElement('iframe');
+		// this.document.setAttribute('src', '/render/?url=url&mode=mode');
+
 		// TODO: Somehow communicate via WebSocket
 		// and when file is loaded and response is
 		// here, then load the other files in the
 		// document. Dunno yet, I guess !?
 
+	},
+
+	kill: function() {
+		// TODO: Cleanup for GC and stuff
 	}
 
 };

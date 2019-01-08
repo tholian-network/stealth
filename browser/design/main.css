@@ -1,5 +1,15 @@
 
-main {
+html,
+body {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	background: #252530;
+}
+
+main#main {
 	display: block;
 	position: fixed;
 	top: 48px;
@@ -7,7 +17,7 @@ main {
 	bottom: 0px;
 	left: 0px;
 	margin: 0px;
-	padding: 32px;
+	padding: 0px;
 	line-height: 16px;
 	font-family: 'museo';
 	font-size: 16px;
@@ -16,7 +26,14 @@ main {
 	z-index: 50;
 }
 
-aside#navi.active + main {
-	left: 48px;
+main#main iframe#main-frame {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border: 0px solid transparent;
+}
+
+aside#navi.active + main#main {
+	left: 192px;
 }
 
