@@ -23,11 +23,8 @@
 				<button id="header-history-load" title="Load/Refresh/Pause site" disabled></button>
 			</div>
 			<div id="header-address">
-				<ul>
-					<li id="header-address-protocol" class="secure" title="HTTPS/1.1 + TLS/1.3"></li>
-					<li>cookie.engineer</li>
-					<li>/index.html</li>
-				</ul>
+				<ul><li id="header-address-protocol" class="secure" title="Secure via HTTPS"></li></ul>
+				<input class="active" type="text" placeholder="Enter URL or search query" spellcheck="false">
 			</div>
 			<div class="header-right">
 				<div id="header-modes">
@@ -124,14 +121,14 @@
 				let tab1 = browser.create('https://cookie.engineer');
 				let tab2 = browser.create('https://old.reddit.com/r/programming');
 				let tab3 = browser.create('https://google.com');
-				let tab4 = browser.create('http://motherfuckingwebsite.com');
+				let tab4 = browser.create('about:settings');
 
 				tab1.onload = _ => console.log('tab1.onload', tab1);
 				tab2.onload = _ => console.log('tab2.onload', tab2);
 				tab3.onload = _ => console.log('tab3.onload', tab3);
 				tab4.onload = _ => console.log('tab4.onload', tab4);
 
-				browser.show(tab2);
+				browser.show(tab4);
 
 				tab1.load();
 				tab2.load();
@@ -143,8 +140,6 @@
 			if (typeof require === 'function') {
 				require('nw.gui').Window.get().showDevTools();
 			}
-
-			console.log(browser);
 
 		</script>
 

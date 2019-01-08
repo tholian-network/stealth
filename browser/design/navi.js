@@ -7,20 +7,49 @@
 
 
 
-	const _create_button = function(url) {
+	const _create_button = function(browser, tab) {
 
-		let proto  = url.split('/')[0];
-		let domain = url.split('/').slice(2, 3).join('/');
+		let url      = tab.url;
+		let domain   = null;
+		let protocol = null;
+
+		if (url.startsWith('https://')) {
+			protocol = 'https://';
+			domain   = url.split('/').slice(2, 3).join('/');
+		} else if (url.startsWith('http://')) {
+			protocol = 'http://';
+			domain   = url.split('/').slice(2, 3).join('/');
+		} else if (url.startsWith('about:')) {
+			protocol = 'about:';
+			domain   = url.split('/')[0];
+		} else if (url.includes('://')) {
+			protocol = url.substr(0, url.indexOf('://') + 3);
+			domain   = url.substr(protocol.length).split('/')[0];
+		} else {
+			domain   = url.split('/')[0];
+		}
+
+
 		let button = doc.createElement('button');
 
-		browser.peer.load(proto + '//' + domain + '/favicon.ico', data => {
 
-			let buffer = data.buffer || null;
-			if (buffer !== null && buffer.type === 'image/x-icon') {
-				button.style.backgroundImage = 'url("' + buffer.serialize() + ')';
+		if (protocol === 'https://' || protocol === 'http://') {
+
+			if (domain !== null) {
+
+				browser.peer.load(protocol + '//' + domain + '/favicon.ico', data => {
+
+					let buffer = data.buffer || null;
+					if (buffer !== null && buffer.type === 'image/x-icon') {
+						button.style.backgroundImage = 'url("' + buffer.serialize() + ')';
+					}
+
+				});
+
 			}
 
-		});
+		}
+
 
 		button.innerHTML = domain;
 		button.title     = url;
@@ -85,7 +114,7 @@
 
 		browser.on('create', (tab, tabs) => {
 
-			let button = _create_button(tab.url);
+			let button = _create_button(browser, tab);
 			if (button !== null) {
 				navi.appendChild(button);
 			}
@@ -124,15 +153,15 @@
 
 
 
-	if (navi !== null) {
+	/*
+	 * INIT
+	 */
 
-		let browser = global.browser || null;
-		if (browser !== null) {
-			_init(browser);
-		} else {
-			BROWSER_BINDINGS.push(_init);
-		}
-
+	let browser = global.browser || null;
+	if (browser !== null) {
+		_init(browser);
+	} else {
+		BROWSER_BINDINGS.push(_init);
 	}
 
 })(typeof window !== 'undefined' ? window : this);

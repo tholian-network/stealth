@@ -269,12 +269,15 @@ Browser.prototype = {
 				this.fire('hide', [ this.tab, this.tabs ]);
 			}
 
-			this.tab = tab;
+			if (this.tab !== tab) {
 
-			this.fire('show', [ tab, this.tabs ]);
+				this.tab = tab;
+				this.fire('show', [ tab, this.tabs ]);
 
-			if (callback !== null) {
-				callback(tab);
+				if (callback !== null) {
+					callback(tab);
+				}
+
 			}
 
 			return true;

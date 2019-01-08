@@ -83,7 +83,10 @@ header #header-history-load.refresh:before { content: '\e802'; }
 header #header-history-load.pause:before   { content: '\e80b'; }
 
 header #header-address {
+	display: inline-block;
+	position: relative;
 	width: calc(100% - 108px - 284px);
+	height: 32px;
 	text-align: center;
 	overflow: hidden;
 	vertical-align: top;
@@ -91,11 +94,13 @@ header #header-address {
 
 header #header-address ul {
 	display: inline-block;
-	width: calc(100% - 32px - 8px);
+	position: relative;
+	width: calc(100% - 64px);
 	height: 32px;
-	margin: 0px;
+	margin: 0px 32px;
 	padding: 0px;
 	overflow: hidden;
+	z-index: 1;
 }
 
 header #header-address ul li {
@@ -110,17 +115,57 @@ header #header-address ul li {
 	transition: 250ms all ease-out;
 }
 
-header #header-address li:hover {
+header #header-address ul li:hover {
 	border-bottom: 2px solid #0f99cb;
 	cursor: text;
 }
 
-header #header-address li#header-address-protocol:before        { content: '\f13e'; }
-header #header-address li#header-address-protocol.secure:before { content: '\e808'; }
+header #header-address ul li#header-address-protocol:before         { content: '\f13e'; }
+header #header-address ul li#header-address-protocol.secure:before  { content: '\e808'; }
+header #header-address ul li#header-address-protocol.unknown:before { content: '\f128'; }
 
-header #header-address li#header-address-protocol:hover {
+header #header-address ul li#header-address-protocol:hover {
 	border-bottom: 2px solid transparent;
 	cursor: default;
+}
+
+header #header-address input {
+	display: block;
+	position: absolute;
+	width: 100%;
+	width: calc(100% - 64px);
+	height: 32px;
+	line-height: 32px;
+	top: 0px;
+	left: 32px;
+	margin: 0px;
+	padding: 0px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 16px;
+	text-align: center;
+	background: #252530;
+	border: 0px solid transparent;
+	transition: 250ms all ease-out;
+	opacity: 0;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	-o-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
+	outline: none;
+	overflow: hidden;
+	z-index: 0;
+}
+
+header #header-address input.active {
+	transition: 250ms all ease-out;
+	opacity: 1;
+	z-index: 2;
+}
+
+header #header-address input:focus {
+
 }
 
 header div.header-right {

@@ -116,8 +116,8 @@ Stealth.prototype = {
 
 						} else {
 
-							console.log('WTF! What nao?', raw);
-							socket.close();
+							socket.write('Sorry, telnet is not allowed.');
+							socket.end();
 
 						}
 
