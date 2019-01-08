@@ -137,9 +137,10 @@ header #header-address input {
 	height: 32px;
 	line-height: 32px;
 	top: 0px;
-	left: 32px;
+	left: 48px;
 	margin: 0px;
 	padding: 0px;
+	padding-top: 1px; /* WTF, Blink, WTF */
 	color: #ffffff;
 	font-family: 'museo';
 	font-size: 16px;

@@ -176,24 +176,60 @@
 
 			inputs.address.onblur = e => {
 
-				inputs.address.className = '';
-
-
 				let url = inputs.address.value.trim();
-				if (
-					url.startsWith('https://') === false
-					&& url.startsWith('http://') === false
-					&& url.startsWith('about:') === false
-					&& url.includes('://') === false
+				if (url === '') {
+
+					_update_address(browser.tab);
+
+				} else if (
+					url.startsWith('about:search') === false
+					&& url.includes(' ') === true
 				) {
-					inputs.address.value = 'https://' + url;
+
+					inputs.address.className = '';
+					url = 'about:search/?query=' + url;
+
+				} else if (
+					url === 'https://'
+					|| url === 'http://'
+					|| url.endsWith('://')
+				) {
+
+					_update_address(browser.tab);
+					url = '';
+
+				} else if (url === 'about:') {
+
+					inputs.address.className = '';
+					inputs.address.value     = 'about:welcome';
+					url = 'about:welcome';
+
+				} else if (
+					url.startsWith('https://')
+					|| url.startsWith('http://')
+					|| url.startsWith('about:')
+					|| url.includes('://')
+				) {
+
+					inputs.address.className = '';
+
+				} else {
+
+					inputs.address.className = '';
+					inputs.address.value     = 'https://' + url;
 					url = 'https://' + url;
+
 				}
 
-				let tab = browser.create(url);
-				if (tab !== null) {
-					browser.show(tab);
-					tab.load();
+
+				if (url !== '') {
+
+					let tab = browser.create(url);
+					if (tab !== null) {
+						browser.show(tab);
+						tab.load();
+					}
+
 				}
 
 			};
