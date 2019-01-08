@@ -14,6 +14,7 @@ const _redirect = function(socket, url) {
 	blob.push('');
 
 	socket.write(blob.join('\r\n'));
+	socket.end();
 
 };
 

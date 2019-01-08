@@ -133,10 +133,11 @@ Stealth.prototype = {
 
 			});
 
-			this.server.on('error', _ => server.close());
+			this.server.on('error', _ => this.server.close());
 			this.server.on('close', _ => {});
 
 
+			console.log('Stealth Service listening on http://' + this.host + ':' + this.port);
 			this.server.listen(this.port, this.host === 'localhost' ? null : this.host);
 
 		}
