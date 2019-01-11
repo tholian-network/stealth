@@ -1,10 +1,14 @@
 
+import { Emitter } from './Emitter.mjs';
 import { Peer    } from './Peer.mjs';
 import { Sandbox } from './Sandbox.mjs';
 
 
 
 const Browser = function(data) {
+
+	Emitter.call(this);
+
 
 	let settings = Object.assign({
 		host: 'localhost',
@@ -51,8 +55,6 @@ const Browser = function(data) {
 		downloads: false
 	}];
 
-	this.__events = {};
-
 };
 
 
@@ -64,81 +66,7 @@ Browser.MODES = [
 ];
 
 
-Browser.prototype = {
-
-	on: function(event, callback) {
-
-		event    = typeof event === 'string'    ? event    : null;
-		callback = callback instanceof Function ? callback : null;
-
-
-		if (event !== null) {
-
-			let events = this.__events[event] || null;
-			if (events === null) {
-				events = this.__events[event] = [];
-			}
-
-			events.push(callback);
-
-			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	fire: function(event, args) {
-
-		event = typeof event === 'string' ? event : null;
-		args  = args instanceof Array     ? args  : [];
-
-
-		if (event !== null) {
-
-			let events = this.__events[event] || null;
-			if (events !== null) {
-				events.forEach(c => c.apply(null, args));
-			}
-
-			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	off: function(event, callback) {
-
-		event    = typeof event === 'string'    ? event    : null;
-		callback = callback instanceof Function ? callback : null;
-
-
-		if (event !== null) {
-
-			let events = this.__events[event] || null;
-			if (events !== null) {
-
-				if (callback !== null) {
-					this.__events[event] = events.filter(c => c !== callback);
-				} else {
-					this.__events[event] = [];
-				}
-
-			}
-
-			return true;
-
-		}
-
-
-		return false;
-
-	},
+Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	config: function(url) {
 
@@ -229,7 +157,7 @@ Browser.prototype = {
 
 			}
 
-			this.fire('kill', [ tab, this.tabs ]);
+			this.emit('kill', [ tab, this.tabs ]);
 
 			if (this.tab === tab) {
 
@@ -266,13 +194,13 @@ Browser.prototype = {
 			}
 
 			if (this.tab !== null) {
-				this.fire('hide', [ this.tab, this.tabs ]);
+				this.emit('hide', [ this.tab, this.tabs ]);
 			}
 
 			if (this.tab !== tab) {
 
 				this.tab = tab;
-				this.fire('show', [ tab, this.tabs ]);
+				this.emit('show', [ tab, this.tabs ]);
 
 				if (callback !== null) {
 					callback(tab);
@@ -285,12 +213,12 @@ Browser.prototype = {
 		} else if (tab === null) {
 
 			if (this.tab !== null) {
-				this.fire('hide', [ this.tab, this.tabs ]);
+				this.emit('hide', [ this.tab, this.tabs ]);
 			}
 
 			if (this.tabs.length > 0) {
 				this.tab = this.tabs[this.tabs.length - 1];
-				this.fire('show', [ this.tab, this.tabs ]);
+				this.emit('show', [ this.tab, this.tabs ]);
 			} else {
 				this.tab = null;
 			}
@@ -342,7 +270,7 @@ Browser.prototype = {
 			});
 
 			this.tabs.push(tab);
-			this.fire('create', [ tab, this.tabs ]);
+			this.emit('create', [ tab, this.tabs ]);
 
 		}
 
@@ -376,7 +304,7 @@ Browser.prototype = {
 
 	}
 
-};
+});
 
 
 export { Browser };
