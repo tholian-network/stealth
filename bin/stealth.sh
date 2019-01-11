@@ -8,7 +8,7 @@ NODE=`which node`;
 if [ "$NODE" != "" ]; then
 
 	cd $ROOT;
-	$NODE --experimental-modules ./stealth/index.mjs "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8";
+	$NODE --experimental-modules ./stealth/stealth.mjs "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8";
 
 else
 

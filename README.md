@@ -2,7 +2,7 @@
 # Stealth Browser
 
 The Stealth Browser is a different kind of web browser that
-aims to achieve increased privacy, automation through
+aims to achieve increased privacy and automation through
 conventions and efficient bandwidth usage, no matter the cost.
 
 It is built by a former contributor to both Chromium and Firefox,
@@ -155,4 +155,34 @@ it would be forbidden by the Stealth Mode alone.
 As the Site Modes are a whitelist-based concept it means that
 no requests are done by default, unless the user tells Stealth
 Browser to do so.
+
+
+## Installation and Usage
+
+Quickstart:
+
+- Install `node` version `10+` for ES6 modules support.
+- Install either a Web Browser of your choice or [nw.js](https://nwjs.io/downloads).
+
+If you want to use your own Web Browser, do the following:
+
+```bash
+cd /path/to/stealth-browser;
+
+bash ./bin/stealth.sh;
+
+# Open in web browser
+gio open http://localhost:65432;
+```
+
+If you want a bundled nw.js installation, do the following:
+
+```bash
+cd /path/to/stealth-browser;
+
+bash ./bin/stealth-webview.sh;
+```
+
+Please read the `README.md` of both [Stealth](./stealth) and
+[Browser](./browser).
 

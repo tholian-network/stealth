@@ -68,6 +68,15 @@ Browser.MODES = [
 
 Browser.prototype = Object.assign({}, Emitter.prototype, {
 
+	back: function() {
+
+		let tab = this.tab || null;
+		if (tab !== null) {
+			tab.back();
+		}
+
+	},
+
 	config: function(url) {
 
 		url = typeof url === 'string' ? url : null;
@@ -159,17 +168,24 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.emit('kill', [ tab, this.tabs ]);
 
-			if (this.tab === tab) {
 
-				if (this.tabs.length > 0) {
-					this.show(this.tabs[this.tabs.length - 1]);
-				}
+			if (this.tabs.length > 0) {
 
-			} else {
+				this.tab = null;
+				this.show(this.tabs[this.tabs.length - 1]);
+
+			} else if (this.tabs.length === 0) {
 
 				this.tab = null;
 
+				let welcome = this.create('about:welcome');
+				if (welcome !== null) {
+					this.show(welcome);
+					welcome.load();
+				}
+
 			}
+
 
 			if (callback !== null) {
 				callback(tab);
@@ -177,6 +193,24 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			return true;
 
+		}
+
+	},
+
+	next: function() {
+
+		let tab = this.tab || null;
+		if (tab !== null) {
+			tab.next();
+		}
+
+	},
+
+	refresh: function() {
+
+		let tab = this.tab || null;
+		if (tab !== null) {
+			tab.load(true);
 		}
 
 	},
@@ -255,9 +289,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		let tab = this.tabs.find(t => t.url === url) || null;
 		if (tab !== null) {
-
-			// TODO: Should changed mode trigger a reload?
-			// Probably bad user experience ...
 
 			return tab;
 

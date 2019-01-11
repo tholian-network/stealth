@@ -1,21 +1,29 @@
 
-# Architecture
+# Stealth Browser
 
-TBD
+The Stealth Browser is a Browser User Interface that is
+implemented using Web Technologies, so that it is possible
+to change the Browser Engine (to render everything) without
+problems.
+
+Currently, there's only the `webview` implementation
+available - which is using `nw.js`. But in a later age
+of this infant project, there will probably be alternative
+UIs available (e.g. a `webkit-gtk` or `qt-webkit` port).
 
 
-# Work in Progress / TODO
+## Installation and Usage
 
-- Buffer data type with `serialize()` method, which is
-  used for raw data when no text document was loaded
-  via WebSocket.
+Quickstart:
 
-- Buffer.type should reflect all MIME types correctly,
-  for example 'image/x-icon' as binary and 'text/html'
-  as text-decodeable content.
+- Install a Web Browser of your choice.
 
-- Peer.prototype.load should call `/api/load` or similar
-  behind the scenes. The result has a `result.buffer`
-  property that reflects the buffer instance.
+```bash
+cd /path/to/stealth-browser;
 
+bash ./bin/stealth.sh;
+
+# Open in web browser
+gio open http://localhost:65432;
+```
 

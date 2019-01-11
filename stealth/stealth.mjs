@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 import { Stealth } from './source/Stealth.mjs';
 
@@ -56,7 +55,12 @@ if (typeof _FLAGS.profile === 'string') {
 	settings.profile = _FLAGS.profile;
 }
 
-const stealth = new Stealth(settings);
 
-stealth.init();
+(function(global) {
+
+	const stealth = global.stealth = new Stealth(settings);
+
+	stealth.init();
+
+})(typeof window !== 'undefined' ? window : global);
 

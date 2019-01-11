@@ -1,0 +1,163 @@
+
+body {
+	display: block;
+	margin: 0px;
+	padding: 32px;
+	overflow: auto;
+}
+
+* {
+	color: #ffffff;
+	background: transparent;
+	font-family: 'museo';
+	font-weight: normal;
+}
+
+article {
+	width: 640px;
+	margin: 64px auto;
+	padding: 32px;
+	border: 1px solid #666666;
+	border-radius: 8px;
+}
+
+article:first-of-type {
+	margin-top: 0px;
+}
+
+article > *:first-child {
+	margin-top: 0px;
+}
+
+article button {
+	display: inline-block;
+	min-width: 32px;
+	margin: 0px;
+	padding: 0px;
+	line-height: 32px;
+	height: 32px;
+	color: #666666;
+	font-size: 20px;
+	text-align: center;
+	background: transparent;
+	border: 0px solid transparent;
+	border-radius: 4px;
+	vertical-align: top;
+	transition: 250ms all ease-out;
+	appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+article button[disabled],
+article button[disabled]:hover {
+	color: #666666;
+	background: transparent;
+	cursor: default;
+}
+
+article button:hover {
+	color: #ffffff;
+	background: rgba(255,255,255,0.1);
+}
+
+article button[class^="icon-"]:before {
+	display: inline-block;
+	min-width: 32px;
+	font-family: 'fontello';
+	text-align: center;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+article button.icon-offline:before { content: '\e80e'; transform: rotate(45deg) scale(0.75) translate(0px, 2px); }
+article button.icon-covert:before  { content: '\f0fb'; }
+article button.icon-stealth:before { content: '\f197'; }
+article button.icon-online:before  { content: '\f135'; transform: rotate(45deg) scale(1.25) translate(-2px, 2px); }
+
+article h1, h2 {
+	display: block;
+	margin: 1em 0px 1em 0px;
+	padding: 0px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 32px;
+	font-weight: normal;
+	text-align: center;
+}
+
+article h3 {
+	display: block;
+	margin: 1em 0px 1em 0px;
+	padding: 0px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 24px;
+	font-weight: normal;
+	text-align: center;
+}
+
+article p {
+	margin: 1em 0px;
+}
+
+article table {
+	width: 100%;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 16px;
+	font-weight: normal;
+	text-align: center;
+}
+
+article table tr th {
+	font-size: 20px;
+	padding: 0px 0px 0.5em 0px;
+}
+
+article table tr td {
+	padding: 4px;
+	font-size: 16px;
+	border: 1px solid #666666;
+	transition: 250ms all ease-out;
+}
+
+article table tr:hover td {
+	border: 1px solid #ffffff;
+}
+
+article ul {
+	margin: 0px;
+	padding: 0px;
+}
+
+footer {
+	display: block;
+	position: fixed;
+	margin: 0px;
+	padding: 16px;
+	top: auto;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	color: #ffffff;
+	background: #252530;
+	text-align: center;
+	border: 0px solid transparent;
+	border-top: 1px solid #666666;
+}
+
+
+
+article p + table {
+	margin-top: 64px;
+}
+
+article table.mode-list tr td {
+	text-align: left;
+}
+
+article table.domain-list tr td:first-child {
+	text-align: left;
+}
+

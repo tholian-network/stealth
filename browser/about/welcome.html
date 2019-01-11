@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>about:welcome</title>
+		<link rel="stylesheet" href="../design/font/index.css">
+		<link rel="stylesheet" href="about.css">
+	</head>
+	<body>
+		<article>
+			<h3>Stealth Modes</h3>
+			<p>
+				The Stealth Browser respects the so-called Stealth Modes.
+				<br><br>
+				These Modes influence the behaviour of what type of content
+				is requested by default.
+			</p>
+			<p>
+				If there is additionally a site-specific mode, the site-specific
+				mode incrementally changes the behaviour in addition to the
+				default mode.
+				<br><br>
+				These site-specific modes are meant to whitelist certain domains
+				and their dynamically generated content, for example to allow
+				images and videos on "i.imgur.com", but not on "imgur.com".
+			</p>
+			<table class="mode-list">
+				<thead>
+					<tr>
+						<th colspan="2">Mode</th>
+						<th>Behaviour</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><button class="icon-offline" disabled></button></td>
+						<td>Offline</td>
+						<td>Request only from local cache (or peer-to-peer cache)</td>
+					</tr>
+					<tr>
+						<td><button class="icon-covert" disabled></button></td>
+						<td>Covert</td>
+						<td>Request only texts from the internet</td>
+					</tr>
+					<tr>
+						<td><button class="icon-stealth" disabled></button></td>
+						<td>Stealth</td>
+						<td>Request only texts and images from the internet</td>
+					</tr>
+					<tr>
+						<td><button class="icon-online" disabled></button></td>
+						<td>Online</td>
+						<td>Request texts, images, videos, downloads and APIs from the internet</td>
+					</tr>
+				</tbody>
+			</table>
+		</article>
+		<article>
+			<h3>Keyboard Shortcuts</h3>
+			<table>
+				<thead>
+					<tr>
+						<th>Binding</th>
+						<th>Behaviour</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>[ESC]</td>
+						<td>Unfocus Address Header, Hide all Sidebars</td>
+					</tr>
+					<tr>
+						<td>[F1]</td>
+						<td>Focus Address Header, ready to type</td>
+					</tr>
+					<tr>
+						<td>[F2]</td>
+						<td>Rotate through Stealth Modes</td>
+					</tr>
+					<tr>
+						<td>[F3]</td>
+						<td>Rotate through Site-specific Modes and Requests</td>
+					</tr>
+					<tr>
+						<td>[F4]</td>
+						<td>Open Stealth Browser Settings</td>
+					</tr>
+					<tr>
+						<td>[F5]</td>
+						<td>Rotate through Tabs backwards</td>
+					</tr>
+					<tr>
+						<td>[F6]</td>
+						<td>Rotate through Tabs forwards</td>
+					</tr>
+					<tr>
+						<td>[F7]</td>
+						<td>Kill the first Tab</td>
+					</tr>
+					<tr>
+						<td>[F8]</td>
+						<td>Kill the least Tab</td>
+					</tr>
+					<tr>
+						<td>[Ctrl]+[R]</td>
+						<td>Reload current Tab</td>
+					</tr>
+					<tr>
+						<td>[Ctrl]+[ESC]</td>
+						<td>Close current Tab</td>
+					</tr>
+				</tbody>
+			</table>
+		</article>
+		<article>
+			<h3>Internal Pages</h3>
+			<table>
+				<thead>
+					<tr>
+						<th>Page</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="about:welcome">about:welcome</a></td>
+						<td>quickstart guide</td>
+					</tr>
+					<tr>
+						<td><a href="about:media">about:media</a></td>
+						<td>web media player</td>
+					</tr>
+					<tr>
+						<td><a href="about:search">about:search</a></td>
+						<td>offline + online search</td>
+					</tr>
+					<tr>
+						<td><a href="about:settings">about:settings</a></td>
+						<td>stealth browser settings</td>
+					</tr>
+				</tbody>
+			</table>
+		</article>
+		<footer>
+			The Stealth Browser is a project by <a href="https://cookie.engineer">Cookie Engineer</a>.
+		</footer>
+		<script src="about.js"></script>
+	</body>
+</html>

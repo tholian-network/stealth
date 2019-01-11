@@ -1,6 +1,14 @@
 
 # Stealth Service
 
+The Stealth Service is a web daemon that allows to load, parse, filter
+and render web sites from both a local cache and the interwebz.
+
+The idea is that it can be used as both a web proxy (for your custom
+web browser interface) and a web browser if there's no other way to
+deliver a platform (e.g. you can use Android for Chrome and bookmark
+the Stealth Service `/browser/index.html` URL as a Web App).
+
 
 ## Command-Line Flags
 
@@ -47,4 +55,17 @@ settings in the `--profile/stealth.json` file.
 `service/resolve.mjs` returns a list of IPv4/IPv6 of a given `url` and
 their timestamps and allows the "Browser" to identify compromised
 domains quickly.
+
+
+## Installation and Usage
+
+Quickstart:
+
+- Install `node` version `10+` for ES6 Module support.
+
+```bash
+cd /path/to/stealth-browser;
+
+bash ./bin/stealth.sh --port=65432;
+```
 

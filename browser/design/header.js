@@ -4,11 +4,16 @@
 	const doc     = global.document;
 	const buttons = {
 		modes:    Array.from(doc.querySelectorAll('#header-modes button')),
-		settings: {
-			browser:  doc.querySelector('#header-settings-browser'),
-			modes:    doc.querySelector('#header-settings-modes'),
-			requests: doc.querySelector('#header-settings-requests')
-		}
+		sites:    [
+			doc.querySelector('#header-settings-modes'),
+			doc.querySelector('#header-settings-requests')
+		],
+		history: {
+			back: doc.querySelector('#header-history-back'),
+			next: doc.querySelector('#header-history-next'),
+			load: doc.querySelector('#header-history-load')
+		},
+		settings: doc.querySelector('#header-settings-browser')
 	};
 	const inputs  = {
 		address: doc.querySelector('#header-address input')
@@ -17,14 +22,14 @@
 		address:  doc.querySelector('#header-address ul'),
 		protocol: doc.querySelector('#header-address-protocol')
 	};
-	const site    = {
-		modes:    doc.querySelector('aside#site-modes'),
-		requests: doc.querySelector('aside#site-requests')
-	};
+	const sites   = [
+		doc.querySelector('aside#site-modes'),
+		doc.querySelector('aside#site-requests')
+	];
 
 
 
-	const _update_address = function(tab) {
+	const _update_address = function(browser, tab) {
 
 		if (tab !== null) {
 
@@ -108,8 +113,68 @@
 			if (outputs.address !== null) {
 				outputs.address.className = '';
 
-				// TODO: Set innerHTML of children instead
-				outputs.address.innerHTML = '';
+				let cache = Array.from(outputs.address.querySelectorAll('li')).slice(1);
+				if (cache.length > 0) {
+					cache.forEach(element => {
+						element.parentNode.removeChild(element);
+					});
+				}
+
+			}
+
+		}
+
+	};
+
+	const _update_history = function(browser, tab) {
+
+		if (tab !== null) {
+
+			if (buttons.history.back !== null) {
+
+				let check = tab.history.indexOf(tab.url) > 0;
+				if (check === true) {
+					buttons.history.back.removeAttribute('disabled');
+				}
+
+			}
+
+			if (buttons.history.next !== null) {
+
+				let check = tab.history.indexOf(tab.url) < tab.history.length - 1;
+				if (check === true) {
+					buttons.history.next.removeAttribute('disabled');
+				}
+
+			}
+
+			if (buttons.history.load !== null) {
+
+				buttons.history.load.removeAttribute('disabled');
+
+
+				let check = tab.requests.find(r => r.loading === true) || null;
+				if (check !== null) {
+					buttons.history.load.className = 'pause';
+				} else {
+					buttons.history.load.className = 'refresh';
+				}
+
+			}
+
+		} else {
+
+			if (buttons.history.back !== null) {
+				buttons.history.back.removeAttribute('disabled');
+			}
+
+			if (buttons.history.next !== null) {
+				buttons.history.next.removeAttribute('disabled');
+			}
+
+			if (buttons.history.load !== null) {
+				buttons.history.load.className = '';
+				buttons.history.load.removeAttribute('disabled');
 			}
 
 		}
@@ -120,16 +185,51 @@
 
 		browser.on('show', (tab, tabs) => {
 
-			console.log(tab);
-
 			if (tab !== null) {
-				_update_address(tab);
+
+				let url = tab.url;
+				if (url === 'about:settings') {
+					buttons.settings.className = 'active';
+				} else {
+					buttons.settings.className = '';
+				}
+
+
+				_update_address(browser, tab);
+				_update_history(browser, tab);
+
 			} else {
-				_update_address(null);
+
+				_update_address(browser, null);
+				_update_history(browser, null);
+
 			}
 
 		});
 
+
+		if (buttons.history.back !== null) {
+			buttons.history.back.onclick = _ => browser.back();
+		}
+
+		if (buttons.history.next !== null) {
+			buttons.history.next.onclick = _ => browser.next();
+		}
+
+		if (buttons.history.load !== null) {
+
+			buttons.history.load.onclick = _ => {
+
+				let action = buttons.history.load.className;
+				if (action === 'refresh') {
+					browser.refresh();
+				} else if (action === 'pause') {
+					browser.pause();
+				}
+
+			};
+
+		}
 
 		if (inputs.address !== null && outputs.address !== null) {
 
@@ -271,13 +371,13 @@
 	 * SETTINGS
 	 */
 
-	if (buttons.settings.browser !== null) {
+	if (buttons.settings !== null) {
 
-		buttons.settings.browser.onclick = _ => {
+		buttons.settings.onclick = _ => {
 
 			let tab = browser.create('about:settings');
 			if (tab !== null) {
-				tab.onload = _ => browser.show(tab);
+				browser.show(tab);
 				tab.load();
 			}
 
@@ -285,39 +385,30 @@
 
 	}
 
-	if (buttons.settings.modes !== null) {
+	if (buttons.sites.length > 0) {
 
-		buttons.settings.modes.onclick = _ => {
+		buttons.sites.forEach((button, s) => {
 
-			let visible = site.modes.className === 'active';
+			button.onclick = _ => {
 
-			Object.values(buttons.settings).forEach(b => (b.className = ''));
-			Object.values(site).forEach(s => (s.className = ''));
+				let site = sites[s] || null;
+				if (site !== null) {
 
-			if (visible === false) {
-				buttons.settings.modes.className = 'active';
-				site.modes.className = 'active';
-			}
+					let visible = site.className === 'active';
 
-		};
+					buttons.sites.forEach(b => (b.className = ''));
+					sites.forEach(o => (o.className = ''));
 
-	}
+					if (visible === false) {
+						button.className = 'active';
+						site.className   = 'active';
+					}
 
-	if (buttons.settings.requests !== null) {
+				}
 
-		buttons.settings.requests.onclick = _ => {
+			};
 
-			let visible = site.requests.className === 'active';
-
-			Object.values(buttons.settings).forEach(b => (b.className = ''));
-			Object.values(site).forEach(s => (s.className = ''));
-
-			if (visible === false) {
-				buttons.settings.requests.className = 'active';
-				site.requests.className = 'active';
-			}
-
-		};
+		});
 
 	}
 
@@ -327,12 +418,7 @@
 	 * INIT
 	 */
 
-	let browser = global.browser || null;
-	if (browser !== null) {
-		_init(browser);
-	} else {
-		BROWSER_BINDINGS.push(_init);
-	}
+	global.browser ? _init(browser) : BROWSER_BINDINGS.push(_init);
 
 })(typeof window !== 'undefined' ? window : this);
 

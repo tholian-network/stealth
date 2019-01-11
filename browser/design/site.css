@@ -65,13 +65,14 @@ aside#site-requests table {
 	text-align: center;
 }
 
-aside#site-modes table th,
-aside#site-requests table th {
+aside#site-modes table tr th,
+aside#site-requests table tr th {
+	padding: 0px 0px 0.5em 0px;
 	font-size: 20px;
 }
 
-aside#site-modes table td,
-aside#site-requests table td {
+aside#site-modes table tr td,
+aside#site-requests table tr td {
 	padding: 4px;
 	font-size: 16px;
 	border: 1px solid #666666;
@@ -83,8 +84,8 @@ aside#site-requests table tr:hover td {
 	border: 1px solid #ffffff;
 }
 
-aside#site-modes table td:first-child,
-aside#site-requests table td:first-child {
+aside#site-modes table tr td:first-child,
+aside#site-requests table tr td:first-child {
 	text-align: left;
 }
 

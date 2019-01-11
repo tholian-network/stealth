@@ -157,12 +157,7 @@
 	 * INIT
 	 */
 
-	let browser = global.browser || null;
-	if (browser !== null) {
-		_init(browser);
-	} else {
-		BROWSER_BINDINGS.push(_init);
-	}
+	global.browser ? _init(browser) : BROWSER_BINDINGS.push(_init);
 
 })(typeof window !== 'undefined' ? window : this);
 
