@@ -61,6 +61,22 @@ Sandbox.prototype = {
 
 	load: function(force) {
 
+		force = force === true;
+
+
+		// let url = _get_url(this);
+		// if (url !== '') {
+
+		// 	if (url !== this.url) {
+		// 		this.url = url;
+		// 		this.history.push(url);
+		// 		_WEBVIEW.src = url;
+		// 		console.log('what', _WEBVIEW.src);
+		// 	}
+
+		// }
+
+
 		// TODO: this.document = document.createElement('iframe');
 		// this.document.setAttribute('src', '/render/?url=url&mode=mode');
 

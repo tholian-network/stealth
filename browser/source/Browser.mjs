@@ -178,7 +178,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.tab = null;
 
-				let welcome = this.create('about:welcome');
+				let welcome = this.create('stealth:welcome');
 				if (welcome !== null) {
 					this.show(welcome);
 					welcome.load();

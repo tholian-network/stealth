@@ -7,8 +7,8 @@ setTimeout(_ => {
 
 		let tab1 = browser.create('https://cookie.engineer');
 		let tab2 = browser.create('https://old.reddit.com/r/programming');
-		let tab3 = browser.create('about:settings');
-		let tab4 = browser.create('about:welcome');
+		let tab3 = browser.create('stealth:settings');
+		let tab4 = browser.create('stealth:welcome');
 
 		tab1.onload = _ => console.log('tab1.onload', tab1);
 		tab2.onload = _ => console.log('tab2.onload', tab2);

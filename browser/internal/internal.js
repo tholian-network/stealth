@@ -18,15 +18,15 @@
 					url = '/stealth/' + url.split('/').slice(2).join('/');
 				} else if (url.includes('://')) {
 					url = '/stealth/' + url.split('/').slice(2).join('/');
-				} else if (url.startsWith('about:')) {
+				} else if (url.startsWith('stealth:')) {
 
 					let file  = url.split('?')[0].split(':')[1];
 					let query = url.split('?')[1] || '';
 
 					if (query !== '') {
-						url = '/browser/about/' + file + '.html?' + query;
+						url = '/browser/internal/' + file + '.html?' + query;
 					} else {
-						url = '/browser/about/' + file + '.html';
+						url = '/browser/internal/' + file + '.html';
 					}
 
 				}

@@ -49,7 +49,7 @@
 				} else if (tab.url.startsWith('http://')) {
 					type  = 'insecure';
 					title = 'Insecure via HTTP';
-				} else if (tab.url.startsWith('about:')) {
+				} else if (tab.url.startsWith('stealth:')) {
 					type  = 'secure';
 					title = 'Secure';
 				}
@@ -67,7 +67,7 @@
 
 				if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
 					chunks = tab.url.split('/').slice(2);
-				} else if (tab.url.startsWith('about:')) {
+				} else if (tab.url.startsWith('stealth:')) {
 					chunks = tab.url.split('/');
 				} else if (tab.url.includes('://')) {
 					chunks = tab.url.substr(tab.url.indexOf('://') + 3).split('/');
@@ -188,7 +188,7 @@
 			if (tab !== null) {
 
 				let url = tab.url;
-				if (url === 'about:settings') {
+				if (url === 'stealth:settings') {
 					buttons.settings.className = 'active';
 				} else {
 					buttons.settings.className = '';
@@ -282,12 +282,12 @@
 					_update_address(browser.tab);
 
 				} else if (
-					url.startsWith('about:search') === false
+					url.startsWith('stealth:search') === false
 					&& url.includes(' ') === true
 				) {
 
 					inputs.address.className = '';
-					url = 'about:search/?query=' + url;
+					url = 'stealth:search?query=' + encodeURIComponent(url);
 
 				} else if (
 					url === 'https://'
@@ -298,16 +298,16 @@
 					_update_address(browser.tab);
 					url = '';
 
-				} else if (url === 'about:') {
+				} else if (url === 'stealth:') {
 
 					inputs.address.className = '';
-					inputs.address.value     = 'about:welcome';
-					url = 'about:welcome';
+					inputs.address.value     = 'stealth:welcome';
+					url = 'stealth:welcome';
 
 				} else if (
 					url.startsWith('https://')
 					|| url.startsWith('http://')
-					|| url.startsWith('about:')
+					|| url.startsWith('stealth:')
 					|| url.includes('://')
 				) {
 
@@ -375,7 +375,7 @@
 
 		buttons.settings.onclick = _ => {
 
-			let tab = browser.create('about:settings');
+			let tab = browser.create('stealth:settings');
 			if (tab !== null) {
 				browser.show(tab);
 				tab.load();

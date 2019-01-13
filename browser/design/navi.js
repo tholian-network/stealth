@@ -19,8 +19,8 @@
 		} else if (url.startsWith('http://')) {
 			protocol = 'http://';
 			domain   = url.split('/').slice(2, 3).join('/');
-		} else if (url.startsWith('about:')) {
-			protocol = 'about:';
+		} else if (url.startsWith('stealth:')) {
+			protocol = 'stealth:';
 			domain   = url.split('/')[0];
 		} else if (url.includes('://')) {
 			protocol = url.substr(0, url.indexOf('://') + 3);
@@ -29,9 +29,12 @@
 			domain   = url.split('/')[0];
 		}
 
+		if (domain.includes('?')) {
+			domain = domain.split('?')[0];
+		}
+
 
 		let button = doc.createElement('button');
-
 
 		if (protocol === 'https://' || protocol === 'http://') {
 
@@ -49,7 +52,6 @@
 			}
 
 		}
-
 
 		button.innerHTML = domain;
 		button.title     = url;

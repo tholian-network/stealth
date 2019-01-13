@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>stealth:settings</title>
+		<link rel="stylesheet" href="../design/font/index.css">
+		<link rel="stylesheet" href="internal.css">
+	</head>
+	<body>
+		<article id="internet">
+			<h3>Internet</h3>
+			<div id="internet-message">
+				This machine has internet access.
+			</div>
+			<p>
+				The Stealth Browser supports using a TOR Proxy to
+				access the Darknet. Please note that the exchange
+				with local peers won't work when the TOR Proxy is
+				used.
+			</p>
+			<p id="internet-tor">
+				<input id="internet-tor-checkbox" type="checkbox">
+				<label for="internet-tor-checkbox">Use TOR Proxy</label>
+				<div id="internet-tor-message">This machine will use TOR Proxy when available.</div>
+			</p>
+		</article>
+		<article id="peers">
+			<h3>Peers</h3>
+			<p>
+				The Stealth Browser supports Peer-to-Peer transfer of
+				already archived and cached resources
+				<br><br>
+				The Mode for each Peer influences what types of resources
+				are loaded. If you're unsure what Modes do, take a look
+				at the <a href="stealth:welcome">stealth:welcome</a> page.
+			</p>
+			<table class="peer-list">
+				<thead>
+					<tr>
+						<th>Peer</th>
+						<th>Capacity</th>
+						<th>Mode</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>tinky</td>
+						<td><button class="icon-online" disabled></button></td>
+						<td><button class="icon-stealth"></button></td>
+						<td><button class="icon-remove"></button></td>
+					</tr>
+					<tr>
+						<td>wuup</td>
+						<td><button class="icon-offline" disabled></button></td>
+						<td><button class="icon-stealth"></button></td>
+						<td><button class="icon-remove"></button></td>
+					</tr>
+					<tr id="peer-list-menu">
+						<td><input type="text" placeholder="Hostame or IP"></td>
+						<td>-</button></td>
+						<td><button class="icon-stealth"></button></td>
+						<td><button class="icon-confirm"></button></td>
+					</tr>
+				</tbody>
+			</table>
+		</article>
+		<article>
+			<h3>Hosts</h3>
+			<p>
+				The Stealth Browser has its own DNS resolution cache in order
+				to prevent tracking capabilities of Internet Service Providers
+				when being online via 2G/3G/4G.
+				<br><br>
+				If a domain has an AAAA entry and supports IPv6, Stealth
+				Browser will connect to it via IPv6.
+			</p>
+			<table class="domain-list">
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>IPv4</th>
+						<th>IPv6</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>old.reddit.com</td>
+						<td>123.123.123.123</td>
+						<td>ff12:1234:1234:1234:1234:1234</td>
+						<td>
+							<button class="icon-refresh"></button>
+							<button class="icon-remove"></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</article>
+		<article>
+			<h3>Sites</h3>
+			<p>
+				The Stealth Browser has a Stealth Mode which will influence
+				on what is loaded by default. If a Domain has a Site-specific
+				Mode set, it is incrementally added to the default Stealth Mode.
+				<br><br>
+				That means if you do not trust a Domain anymore, you need to
+				remove its Site-specific Mode setting. On the other hand if
+				you trust a Domain, you can override its settings by using
+				this list here.
+			</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Media</th>
+						<th>Mode</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>old.reddit.com</td>
+						<td class="site-media">
+							<button title="Texts"></button>
+							<button title="Images" class="active"></button>
+							<button title="Videos"></button>
+							<button title="Downloads" class="active"></button>
+						</td>
+						<td class="site-mode"><button title="Online" disabled></button></td>
+						<td><button class="icon-remove"></button></td>
+					</tr>
+				</tbody>
+			</table>
+		</article>
+		<footer>
+			The Stealth Browser is a project by <a href="https://cookie.engineer">Cookie Engineer</a>.
+		</footer>
+		<script src="internal.js"></script>
+	</body>
+</html>

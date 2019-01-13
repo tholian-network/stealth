@@ -23,7 +23,10 @@
 				<button id="header-history-load" title="Load/Refresh/Pause site" disabled></button>
 			</div>
 			<div id="header-address">
-				<ul><li id="header-address-protocol" class="secure" title="Secure via HTTPS"></li></ul>
+				<ul>
+					<li id="header-address-protocol" class="secure" title="Secure via HTTPS"></li>
+					<li>stealth:welcome</li>
+				</ul>
 				<input class="active" type="text" placeholder="Enter URL or search query" spellcheck="false">
 			</div>
 			<div class="header-right">
@@ -42,7 +45,7 @@
 		</header>
 		<aside id="navi"></aside>
 		<main id="main">
-			<iframe id="main-webview" sandbox="allow-scripts allow-same-origin" src="http://localhost:65432/browser/about/welcome.html"></iframe>
+			<iframe id="main-webview" sandbox="allow-scripts allow-same-origin" src="http://localhost:65432/browser/internal/welcome.html"></iframe>
 		</main>
 		<aside id="site-modes">
 			<h3>Site Modes</h3>

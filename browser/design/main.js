@@ -25,6 +25,37 @@
 
 
 
+	const _get_url = function(tab) {
+
+		let url = null;
+
+		if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
+			url = '/stealth/' + tab.url.split('/').slice(2).join('/');
+		} else if (tab.url.startsWith('stealth:')) {
+
+			let tmp1 = tab.url.split('?')[0].split(':')[1];
+			let tmp2 = tab.url.split('?')[1] || '';
+
+			if (tmp1.endsWith('/')) {
+				tmp1 = tmp1.substr(0, tmp1.length - 1);
+			}
+
+			url = '/browser/internal/' + tmp1 + '.html';
+
+			if (tmp2 !== '') {
+				url += '?' + tmp2;
+			}
+
+		} else if (tab.url.includes('://')) {
+			url = '/stealth/' + tab.url.substr(tab.url.indexOf('://') + 3).split('/').join('/');
+		} else {
+			url = '/stealth/' + tab.url;
+		}
+
+		return url;
+
+	};
+
 	const _init_events = function(scope) {
 
 		if (scope !== null) {
@@ -107,7 +138,7 @@
 
 				} else if (key === 'f4') {
 
-					let tab = browser.create('about:settings');
+					let tab = browser.create('stealth:settings');
 					if (tab !== null) {
 						browser.show(tab);
 						tab.load();
@@ -194,6 +225,20 @@
 	};
 
 	const _init = function(browser) {
+
+		browser.on('show', (tab, tabs) => {
+
+			let url = _get_url(tab);
+			if (url !== null) {
+
+				if (webview.src !== url) {
+					webview.src = url;
+				}
+
+			}
+
+		});
+
 
 		_init_events(global);
 
