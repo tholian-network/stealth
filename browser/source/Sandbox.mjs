@@ -1,9 +1,12 @@
 
+let _id = 0;
+
 const Sandbox = function(data) {
 
 	let settings = Object.assign({}, data);
 
 
+	this.id      = 'sandbox-' + _id++;
 	this.history = [];
 
 	this.url  = settings.url  || null;

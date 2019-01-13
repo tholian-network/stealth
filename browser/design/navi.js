@@ -31,12 +31,12 @@
 
 		button.innerHTML = ref.domain;
 		button.title     = ref.url;
-		button.setAttribute('data-url', ref.url);
+		button.setAttribute('data-id', tab.id);
 
 		button.onclick = _ => {
 
-			let url = button.getAttribute('data-url');
-			let tab = browser.tabs.find(t => t.url === url) || null;
+			let id  = button.getAttribute('data-id');
+			let tab = browser.tabs.find(t => t.id === id) || null;
 			if (tab !== null) {
 				browser.show(tab);
 			}
@@ -45,8 +45,8 @@
 
 		button.ondblclick = _ => {
 
-			let url = button.getAttribute('data-url');
-			let tab = browser.tabs.find(t => t.url === url) || null;
+			let id  = button.getAttribute('data-id');
+			let tab = browser.tabs.find(t => t.id === id) || null;
 			if (tab !== null) {
 				browser.kill(tab);
 			}
@@ -64,7 +64,6 @@
 
 		button.innerHTML = ref.domain;
 		button.title     = ref.url;
-		button.setAttribute('data-url', ref.url);
 
 	};
 
@@ -117,7 +116,7 @@
 
 		browser.on('kill', (tab, tabs) => {
 
-			let button = Array.from(navi.querySelectorAll('button')).find(b => b.getAttribute('data-url') === tab.url) || null;
+			let button = Array.from(navi.querySelectorAll('button')).find(b => b.getAttribute('data-id') === tab.id) || null;
 			if (button !== null) {
 				button.parentNode.removeChild(button);
 			}
@@ -131,7 +130,7 @@
 			let buttons = Array.from(navi.querySelectorAll('button'));
 			if (buttons.length > 0) {
 				buttons.forEach(button => {
-					button.className = button.getAttribute('data-url') === tab.url ? 'active' : '';
+					button.className = button.getAttribute('data-id') === tab.id ? 'active' : '';
 				});
 			}
 
@@ -139,16 +138,9 @@
 
 		browser.on('refresh', (tab, tabs) => {
 
-			let old_url = tab.history[tab.history.length - 2] || null;
-			let new_url = tab.url || null;
-
-			if (old_url !== null && new_url !== null) {
-
-				let button  = Array.from(navi.querySelectorAll('button')).find(b => b.getAttribute('data-url') === old_url) || null;
-				if (button !== null) {
-					_refresh_button(browser, button, tab);
-				}
-
+			let button = Array.from(navi.querySelectorAll('button')).find(b => b.getAttribute('data-id') === tab.id) || null;
+			if (button !== null) {
+				_refresh_button(browser, button, tab);
 			}
 
 		});
