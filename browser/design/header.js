@@ -143,6 +143,8 @@
 				let check = tab.history.indexOf(tab.url) > 0;
 				if (check === true) {
 					buttons.history.back.removeAttribute('disabled');
+				} else {
+					buttons.history.back.setAttribute('disabled', 'true');
 				}
 
 			}
@@ -152,6 +154,8 @@
 				let check = tab.history.indexOf(tab.url) < tab.history.length - 1;
 				if (check === true) {
 					buttons.history.next.removeAttribute('disabled');
+				} else {
+					buttons.history.next.setAttribute('disabled', 'true');
 				}
 
 			}
@@ -192,6 +196,30 @@
 	const _init = function(browser) {
 
 		browser.on('show', (tab, tabs) => {
+
+			if (tab !== null) {
+
+				let url = tab.url;
+				if (url === 'stealth:settings') {
+					buttons.settings.className = 'active';
+				} else {
+					buttons.settings.className = '';
+				}
+
+
+				_update_address(browser, tab);
+				_update_history(browser, tab);
+
+			} else {
+
+				_update_address(browser, null);
+				_update_history(browser, null);
+
+			}
+
+		});
+
+		browser.on('refresh', (tab, tabs) => {
 
 			if (tab !== null) {
 

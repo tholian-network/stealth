@@ -232,12 +232,7 @@
 
 				let tab = browser.tab || null;
 				if (tab !== null) {
-
-					tab.url = link.getAttribute('href');
-					tab.history.push(tab.url);
-
-					browser.refresh();
-
+					browser.navigate(link.getAttribute('href'));
 				}
 
 				return false;

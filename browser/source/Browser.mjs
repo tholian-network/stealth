@@ -70,9 +70,21 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	back: function() {
 
-		let tab = this.tab || null;
-		if (tab !== null) {
-			tab.back();
+		if (this.tab !== null) {
+
+			let index = this.tab.history.indexOf(this.tab.url);
+			if (index !== -1) {
+
+				let url = this.tab.history[index - 1] || null;
+				if (url !== null) {
+
+					this.tab.url = url;
+					this.emit('refresh', [ this.tab, this.tabs ]);
+
+				}
+
+			}
+
 		}
 
 	},
@@ -197,11 +209,74 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	navigate: function(url) {
+
+		if (this.tab !== null) {
+
+			if (this.tab.url !== url) {
+
+				let index1 = this.tab.history.indexOf(this.tab.url);
+				if (index1 < this.tab.history.length - 1) {
+					this.tab.history.splice(index1 + 1);
+				}
+
+				this.tab.url = url;
+
+				let index2 = this.tab.history.indexOf(url);
+				if (index2 !== -1) {
+					this.tab.history.splice(index2, 1);
+				}
+
+				this.tab.history.push(url);
+
+			}
+
+			this.refresh();
+
+		} else {
+
+			let tab = this.create(url);
+			if (tab !== null) {
+
+				let index1 = tab.history.indexOf(tab.url);
+				if (index1 < tab.history.length - 1) {
+					tab.history.splice(index1 + 1);
+				}
+
+				tab.url = url;
+
+				let index2 = tab.history.indexOf(url);
+				if (index2 !== -1) {
+					tab.history.splice(index2, 1);
+				}
+
+				tab.history.push(url);
+
+				this.show(tab);
+
+			}
+
+		}
+
+	},
+
 	next: function() {
 
-		let tab = this.tab || null;
-		if (tab !== null) {
-			tab.next();
+		if (this.tab !== null) {
+
+			let index = this.tab.history.indexOf(this.tab.url);
+			if (index !== -1) {
+
+				let url = this.tab.history[index + 1] || null;
+				if (url !== null) {
+
+					this.tab.url = url;
+					this.emit('refresh', [ this.tab, this.tabs ]);
+
+				}
+
+			}
+
 		}
 
 	},
@@ -251,12 +326,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 	refresh: function() {
 
 		if (this.tab !== null) {
-
 			this.emit('refresh', [ this.tab, this.tabs ]);
-
-			// TODO: refresh event for webview
-			this.tab.load(true);
-
 		}
 
 	},

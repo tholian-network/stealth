@@ -29,28 +29,6 @@ const Sandbox = function(data) {
 
 Sandbox.prototype = {
 
-	back: function() {
-
-		let url = this.url;
-		if (url !== null) {
-
-			let index = this.history.indexOf(url);
-			if (index > 0) {
-
-				this.url = this.history[index - 1];
-				this.load();
-
-				return true;
-
-			}
-
-		}
-
-
-		return false;
-
-	},
-
 	kill: function() {
 		// TODO: Cleanup for GC and stuff
 	},
@@ -80,28 +58,6 @@ Sandbox.prototype = {
 		// and when file is loaded and response is
 		// here, then load the other files in the
 		// document. Dunno yet, I guess !?
-
-	},
-
-	next: function() {
-
-		let url = this.url;
-		if (url !== null) {
-
-			let index = this.history.indexOf(url);
-			if (index < this.history.length - 1) {
-
-				this.url = this.history[index + 1];
-				this.load();
-
-				return true;
-
-			}
-
-		}
-
-
-		return false;
 
 	}
 
