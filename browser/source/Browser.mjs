@@ -206,11 +206,57 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	parse: function(url) {
+
+		let protocol = null;
+		let domain   = null;
+		let path     = null;
+		let query    = null;
+
+
+		let tmp1 = url.split('?')[0] || '';
+		let tmp2 = url.split('?')[1] || '';
+
+		if (url.includes('://')) {
+
+			protocol = tmp1.substr(0, tmp1.indexOf('://'));
+			domain   = tmp1.substr(protocol.length + 3).split('/')[0];
+			path     = '/' + tmp1.substr(protocol.length + 3).split('/').slice(1).join('/');
+			query    = tmp2 !== '' ? tmp2 : null;
+
+		} else if (url.startsWith('stealth:')) {
+
+			protocol = 'stealth';
+			domain   = tmp1.substr(protocol.length + 1).split('/')[0];
+			path     = '/' + tmp1.substr(protocol.length + 1).split('/').slice(1).join('/');
+			query    = tmp2 !== '' ? tmp2 : null;
+
+		} else {
+
+			domain   = tmp1.split('/')[0];
+			path     = '/' + tmp1.split('/').slice(1).join('/');
+
+		}
+
+		return {
+			url:      url,
+			protocol: protocol,
+			domain:   domain,
+			path:     path,
+			query:    query
+		};
+
+	},
+
 	refresh: function() {
 
-		let tab = this.tab || null;
-		if (tab !== null) {
-			tab.load(true);
+		if (this.tab !== null) {
+
+			this.emit('refresh', [ this.tab, this.tabs ]);
+
+			// TODO: refresh event for webview
+			this.tab.load(true);
+
 		}
 
 	},

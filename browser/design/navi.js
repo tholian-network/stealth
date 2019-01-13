@@ -9,52 +9,29 @@
 
 	const _create_button = function(browser, tab) {
 
-		let url      = tab.url;
 		let domain   = null;
 		let protocol = null;
 
-		if (url.startsWith('https://')) {
-			protocol = 'https://';
-			domain   = url.split('/').slice(2, 3).join('/');
-		} else if (url.startsWith('http://')) {
-			protocol = 'http://';
-			domain   = url.split('/').slice(2, 3).join('/');
-		} else if (url.startsWith('stealth:')) {
-			protocol = 'stealth:';
-			domain   = url.split('/')[0];
-		} else if (url.includes('://')) {
-			protocol = url.substr(0, url.indexOf('://') + 3);
-			domain   = url.substr(protocol.length).split('/')[0];
-		} else {
-			domain   = url.split('/')[0];
-		}
 
-		if (domain.includes('?')) {
-			domain = domain.split('?')[0];
-		}
-
-
+		let ref    = browser.parse(tab.url);
 		let button = doc.createElement('button');
 
-		if (protocol === 'https://' || protocol === 'http://') {
+		if (ref.domain !== null && (ref.protocol === 'https' || ref.protocol === 'http')) {
 
-			if (domain !== null) {
+			browser.peer.load(ref.protocol + '://' + ref.domain + '/favicon.ico', data => {
 
-				browser.peer.load(protocol + '//' + domain + '/favicon.ico', data => {
+				let buffer = data.buffer || null;
+				if (buffer !== null && buffer.type === 'image/x-icon') {
+					button.style.backgroundImage = 'url("' + buffer.serialize() + ')';
+				}
 
-					let buffer = data.buffer || null;
-					if (buffer !== null && buffer.type === 'image/x-icon') {
-						button.style.backgroundImage = 'url("' + buffer.serialize() + ')';
-					}
-
-				});
-
-			}
+			});
 
 		}
 
-		button.innerHTML = domain;
-		button.title     = url;
+		button.innerHTML = ref.domain;
+		button.title     = ref.url;
+		button.setAttribute('data-url', ref.url);
 
 		button.onclick = _ => {
 
@@ -76,9 +53,18 @@
 
 		};
 
-		button.setAttribute('data-url', url);
 
 		return button;
+
+	};
+
+	const _refresh_button = function(browser, button, tab) {
+
+		let ref = browser.parse(tab.url);
+
+		button.innerHTML = ref.domain;
+		button.title     = ref.url;
+		button.setAttribute('data-url', ref.url);
 
 	};
 
@@ -147,6 +133,22 @@
 				buttons.forEach(button => {
 					button.className = button.getAttribute('data-url') === tab.url ? 'active' : '';
 				});
+			}
+
+		});
+
+		browser.on('refresh', (tab, tabs) => {
+
+			let old_url = tab.history[tab.history.length - 2] || null;
+			let new_url = tab.url || null;
+
+			if (old_url !== null && new_url !== null) {
+
+				let button  = Array.from(navi.querySelectorAll('button')).find(b => b.getAttribute('data-url') === old_url) || null;
+				if (button !== null) {
+					_refresh_button(browser, button, tab);
+				}
+
 			}
 
 		});

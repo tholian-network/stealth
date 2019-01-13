@@ -224,9 +224,47 @@
 
 	};
 
+	const _init_links = function(links) {
+
+		links.forEach(link => {
+
+			link.onclick = _ => {
+
+				let tab = browser.tab || null;
+				if (tab !== null) {
+
+					tab.url = link.getAttribute('href');
+					tab.history.push(tab.url);
+
+					browser.refresh();
+
+				}
+
+				return false;
+
+			};
+
+		});
+
+	};
+
+
 	const _init = function(browser) {
 
 		browser.on('show', (tab, tabs) => {
+
+			let url = _get_url(tab);
+			if (url !== null) {
+
+				if (webview.src !== url) {
+					webview.src = url;
+				}
+
+			}
+
+		});
+
+		browser.on('refresh', (tab, tabs) => {
 
 			let url = _get_url(tab);
 			if (url !== null) {
@@ -250,6 +288,11 @@
 				_init_events(win);
 			}
 
+			let doc = webview.contentWindow.document || null;
+			if (doc !== null) {
+				_init_links(Array.from(doc.querySelectorAll('a')));
+			}
+
 		}
 
 	};
@@ -263,6 +306,11 @@
 			let win = webview.contentWindow || null;
 			if (win !== null) {
 				_init_events(win);
+			}
+
+			let doc = webview.contentWindow.document || null;
+			if (doc !== null) {
+				_init_links(Array.from(doc.querySelectorAll('a')));
 			}
 
 		};

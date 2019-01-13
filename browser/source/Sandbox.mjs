@@ -15,18 +15,14 @@ const Sandbox = function(data) {
 		url:     'https://wat/is/this.jpg',
 		loading: true
 	}];
+	this.history = [];
+	this.onload  = null;
 	this.webview = null;
 
-	this.onload = null;
-
-	this.history = [
-		this.url,
-		'https://old.reddit.com/what/ever',
-		'https://old.reddit.com/what/ever',
-		'https://old.reddit.com/what/ever',
-		'https://old.reddit.com/what/ever',
-		'https://old.reddit.com/what/ever'
-	];
+	let url = this.url;
+	if (url !== null) {
+		this.history.push(url);
+	}
 
 };
 

@@ -33,6 +33,9 @@
 
 		if (tab !== null) {
 
+			let ref = browser.parse(tab.url);
+
+
 			if (inputs.address !== null) {
 				inputs.address.className = '';
 				inputs.address.value     = tab.url;
@@ -43,13 +46,13 @@
 				let type  = 'unknown';
 				let title = 'Unknown URL Scheme';
 
-				if (tab.url.startsWith('https://')) {
+				if (ref.protocol === 'https') {
 					type  = 'secure';
 					title = 'Secure via HTTPS';
-				} else if (tab.url.startsWith('http://')) {
+				} else if (ref.protocol === 'http') {
 					type  = 'insecure';
 					title = 'Insecure via HTTP';
-				} else if (tab.url.startsWith('stealth:')) {
+				} else if (ref.protocol === 'stealth') {
 					type  = 'secure';
 					title = 'Secure';
 				}
@@ -65,16 +68,21 @@
 				let chunks = [];
 
 
-				if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
-					chunks = tab.url.split('/').slice(2);
-				} else if (tab.url.startsWith('stealth:')) {
-					chunks = tab.url.split('/');
-				} else if (tab.url.includes('://')) {
-					chunks = tab.url.substr(tab.url.indexOf('://') + 3).split('/');
-				} else {
-					chunks = tab.url.split('/');
+				if (ref.domain !== null) {
+					chunks.push(ref.domain);
 				}
 
+				if (ref.path !== null && ref.path !== '/') {
+					ref.path.split('/').forEach(ch => {
+						if (ch !== '') {
+							chunks.push('/' + ch);
+						}
+					});
+				}
+
+				if (ref.query !== null) {
+					chunks.push('?' + ref.query);
+				}
 
 				chunks.forEach((chunk, c) => {
 
@@ -84,7 +92,7 @@
 						outputs.address.appendChild(element);
 					}
 
-					element.innerHTML = c === 0 ? chunk : ('/' + chunk);
+					element.innerHTML = chunk;
 
 				});
 
@@ -241,20 +249,23 @@
 				let target = e.target;
 				if (target.tagName.toLowerCase() === 'li') {
 
-					let url      = inputs.address.value;
-					let protocol = '';
-					if (url.startsWith('https://')) {
-						protocol = 'https://';
-					} else if (url.startsWith('http://')) {
-						protocol = 'http://';
-					} else if (url.includes('://')) {
-						protocol = url.substr(0, url.indexOf('://') + 3);
-					}
-
+					let url    = inputs.address.value;
+					let ref    = browser.parse(url);
 					let chunks = Array.from(outputs.address.querySelectorAll('li')).slice(1);
 					let chunk  = chunks.find(ch => ch === target);
 					let c      = chunks.indexOf(chunk);
-					let before = protocol + chunks.slice(0, c).map(ch => ch.innerHTML).join('');
+
+					let before = chunks.slice(0, c).map(ch => ch.innerHTML).join('');
+					if (ref.protocol !== null) {
+
+						if (ref.protocol === 'stealth') {
+							before = ref.protocol + ':' + before;
+						} else {
+							before = ref.protocol + '://' + before;
+						}
+
+					}
+
 					let offset = url.indexOf(before) + before.length;
 					let select = chunk.innerHTML;
 
