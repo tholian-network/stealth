@@ -53,8 +53,8 @@
 					type  = 'insecure';
 					title = 'Insecure via HTTP';
 				} else if (ref.protocol === 'stealth') {
-					type  = 'secure';
-					title = 'Secure';
+					type  = 'stealth';
+					title = 'Internal Page';
 				}
 
 				outputs.protocol.className = type;

@@ -5,26 +5,16 @@ setTimeout(_ => {
 	if (browser !== null) {
 		console.info('Browser ready :)');
 
-		let tab1 = browser.create('https://cookie.engineer');
-		let tab2 = browser.create('https://old.reddit.com/r/programming');
-		let tab3 = browser.create('stealth:settings');
-		let tab4 = browser.create('stealth:welcome');
+		let tabs = [];
 
-		tab1.onload = _ => console.log('tab1.onload', tab1);
-		tab2.onload = _ => console.log('tab2.onload', tab2);
-		tab3.onload = _ => console.log('tab3.onload', tab3);
-		tab4.onload = _ => console.log('tab4.onload', tab4);
+		tabs.push(browser.create('https://cookie.engineer'));
+		tabs.push(browser.create('https://old.reddit.com/r/programming'));
+		tabs.push(browser.create('https://reddit.com/r/programming'));
+		tabs.push(browser.create('https://www.reddit.com/r/programming'));
+		tabs.push(browser.create('stealth:settings'));
+		tabs.push(browser.create('stealth:welcome'));
 
-		browser.show(tab3);
-
-		// TODO: is the tab.load() API really necessary?
-		// It could be synchronized via browser.show()
-		// and browser.refresh() as browser has peer
-		// access and can do it in a cleaner manner
-		tab1.load();
-		tab2.load();
-		tab3.load();
-		tab4.load();
+		browser.show(tabs[tabs.length - 1]);
 
 	} else {
 		console.error('Browser not ready :(');

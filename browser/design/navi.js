@@ -16,21 +16,13 @@
 		let ref    = browser.parse(tab.url);
 		let button = doc.createElement('button');
 
-		if (ref.domain !== null && (ref.protocol === 'https' || ref.protocol === 'http')) {
-
-			browser.peer.load(ref.protocol + '://' + ref.domain + '/favicon.ico', data => {
-
-				let buffer = data.buffer || null;
-				if (buffer !== null && buffer.type === 'image/x-icon') {
-					button.style.backgroundImage = 'url("' + buffer.serialize() + ')';
-				}
-
-			});
-
+		if (ref.subdomain !== null) {
+			button.innerHTML = ref.subdomain + '.' + ref.domain;
+		} else {
+			button.innerHTML = ref.domain;
 		}
 
-		button.innerHTML = ref.domain;
-		button.title     = ref.url;
+		button.title = ref.url;
 		button.setAttribute('data-id', tab.id);
 
 		button.onclick = _ => {
@@ -62,8 +54,43 @@
 
 		let ref = browser.parse(tab.url);
 
-		button.innerHTML = ref.domain;
-		button.title     = ref.url;
+		if (ref.subdomain !== null) {
+			button.innerHTML = ref.subdomain + '.' + ref.domain;
+		} else {
+			button.innerHTML = ref.domain;
+		}
+
+		button.title = ref.url;
+
+	};
+
+	const _sort_by_domain = function(browser, a, b) {
+
+		if (a.tab !== null && b.tab !== null) {
+
+			let a_ref = browser.parse(a.tab.url);
+			let b_ref = browser.parse(b.tab.url);
+
+			if (a_ref.protocol === 'stealth' && b_ref.protocol !== 'stealth') return  1;
+			if (b_ref.protocol === 'stealth' && a_ref.protocol !== 'stealth') return -1;
+
+			if (a_ref.domain > b_ref.domain) return  1;
+			if (b_ref.domain > a_ref.domain) return -1;
+
+			if (a_ref.subdomain !== null && b_ref.subdomain !== null) {
+
+				if (a_ref.subdomain > b_ref.subdomain) return  1;
+				if (b_ref.subdomain > a_ref.subdomain) return -1;
+
+			}
+
+			if (a_ref.subdomain !== null && b_ref.subdomain === null) return  1;
+			if (b_ref.subdomain !== null && a_ref.subdomain === null) return -1;
+
+		}
+
+
+		return 0;
 
 	};
 
@@ -129,9 +156,27 @@
 
 			let buttons = Array.from(navi.querySelectorAll('button'));
 			if (buttons.length > 0) {
+
 				buttons.forEach(button => {
 					button.className = button.getAttribute('data-id') === tab.id ? 'active' : '';
 				});
+
+
+				let sorted = buttons.map(button => {
+
+					let id = button.getAttribute('data-id');
+
+					return {
+						button: button,
+						tab:    tabs.find(t => t.id === id) || null
+					};
+
+				}).sort((a, b) => _sort_by_domain(browser, a, b));
+
+				// TODO: Make this smarter
+				buttons.forEach(b => b.parentNode.removeChild(b));
+				sorted.forEach(b => navi.appendChild(b.button));
+
 			}
 
 		});

@@ -6,7 +6,7 @@ body {
 }
 
 body {
-	background: #252530;
+	background: #303030;
 }
 
 main#main {
@@ -22,7 +22,7 @@ main#main {
 	font-family: 'museo';
 	font-size: 16px;
 	color: #ffffff;
-	background: #252530;
+	background: #303030;
 	transition: 250ms left ease-out;
 	z-index: 50;
 }

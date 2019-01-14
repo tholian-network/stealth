@@ -42,7 +42,7 @@
 		</header>
 		<aside id="navi"></aside>
 		<main id="main">
-			<iframe id="main-webview" sandbox="allow-scripts allow-same-origin" src="http://localhost:65432/browser/internal/welcome.html"></iframe>
+			<iframe id="main-webview" sandbox="allow-scripts allow-same-origin" src="/browser/internal/welcome.html"></iframe>
 		</main>
 		<aside id="site-modes">
 			<h3>Site Modes</h3>
@@ -58,37 +58,25 @@
 					<tr>
 						<td>old.reddit.com</td>
 						<td class="site-media">
-							<button title="Texts"></button>
-							<button title="Images"></button>
-							<button title="Videos"></button>
-							<button title="Downloads"></button>
+							<button class="icon-text" title="Texts"></button>
+							<button class="icon-image" title="Images"></button>
+							<button class="icon-video" title="Videos"></button>
+							<button class="icon-download" title="Downloads"></button>
 						</td>
 						<td class="site-mode">
-							<button title="Offline" disabled></button>
+							<button class="icon-offline" title="Offline" disabled></button>
 						</td>
 					</tr>
 					<tr>
 						<td>i.imgur.com</td>
 						<td class="site-media">
-							<button title="Texts"></button>
-							<button title="Images" class="active"></button>
-							<button title="Videos" class="active"></button>
-							<button title="Downloads"></button>
+							<button class="icon-text" title="Texts"></button>
+							<button class="icon-image" title="Images" class="active"></button>
+							<button class="icon-video" title="Videos" class="active"></button>
+							<button class="icon-download" title="Downloads"></button>
 						</td>
 						<td class="site-mode">
-							<button title="Stealth" disabled></button>
-						</td>
-					</tr>
-					<tr>
-						<td>ddl.rarbg.to</td>
-						<td class="site-media">
-							<button title="Texts"></button>
-							<button title="Images" class="active"></button>
-							<button title="Videos"></button>
-							<button title="Downloads" class="active"></button>
-						</td>
-						<td class="site-mode">
-							<button title="Online" disabled></button>
+							<button class="icon-stealth" title="Stealth" disabled></button>
 						</td>
 					</tr>
 				</tbody>

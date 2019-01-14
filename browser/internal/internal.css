@@ -2,8 +2,9 @@
 body {
 	display: block;
 	margin: 0px;
-	padding: 32px;
+	padding: 0px;
 	overflow: auto;
+	background: #202020;
 }
 
 * {
@@ -17,12 +18,9 @@ article {
 	width: 640px;
 	margin: 64px auto;
 	padding: 32px;
+	background: #404040;
 	border: 1px solid #666666;
 	border-radius: 8px;
-}
-
-article:first-of-type {
-	margin-top: 0px;
 }
 
 article > *:first-child {
@@ -45,6 +43,8 @@ article button {
 	vertical-align: top;
 	transition: 250ms all ease-out;
 	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
 	outline: none;
 	cursor: pointer;
 }
@@ -61,6 +61,10 @@ article button:hover {
 	background: rgba(255,255,255,0.1);
 }
 
+article button.active {
+	color: #ffffff;
+}
+
 article button[class^="icon-"]:before {
 	display: inline-block;
 	min-width: 32px;
@@ -74,6 +78,16 @@ article button.icon-offline:before { content: '\e80e'; transform: rotate(45deg) 
 article button.icon-covert:before  { content: '\f0fb'; }
 article button.icon-stealth:before { content: '\f197'; }
 article button.icon-online:before  { content: '\f135'; transform: rotate(45deg) scale(1.25) translate(-2px, 2px); }
+
+article button.icon-text:before     { content: '\f0f6'; }
+article button.icon-image:before    { content: '\e812'; }
+article button.icon-video:before    { content: '\e813'; }
+article button.icon-download:before { content: '\e806'; }
+
+article button.icon-confirm:before { content: '\e803'; }
+article button.icon-refresh:before { content: '\e802'; }
+article button.icon-remove:before  { content: '\e804'; }
+article button.icon-unknown:before { content: '\f128'; }
 
 article h1, h2 {
 	display: block;
@@ -95,6 +109,59 @@ article h3 {
 	font-size: 24px;
 	font-weight: normal;
 	text-align: center;
+}
+
+article input[type="radio"] {
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	line-height: 32px;
+	margin: 0px;
+	padding: 0px;
+	color: #ffffff;
+	font-size: 24px;
+	text-align: center;
+	color: transparent;
+	background: transparent;
+	border: 0px solid transparent;
+	border-radius: 4px;
+	vertical-align: top;
+	transition: 250ms all ease-out;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+article input[type="radio"]:before {
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	margin: 0px;
+	padding: 0px;
+	content: '\e803';
+	font-family: 'fontello';
+	text-align: center;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+article input[type="radio"][disabled],
+article input[type="radio"][disabled]:hover {
+	color: #666666;
+	background: transparent;
+	cursor: default;
+}
+
+
+article input[type="radio"]:hover {
+	color: #ffffff;
+	background: rgba(255,255,255,0.1);
+}
+
+article input[type="radio"]:checked {
+	color: #ffffff;
 }
 
 article input[type="text"] {
@@ -133,7 +200,7 @@ article table tr th {
 }
 
 article table tr td {
-	padding: 4px;
+	padding: 8px;
 	font-size: 16px;
 	border: 1px solid #666666;
 	transition: 250ms all ease-out;
@@ -152,16 +219,27 @@ footer {
 	display: block;
 	position: fixed;
 	margin: 0px;
-	padding: 16px;
+	padding: 8px;
+	width: auto;
+	height: 32px;
+	line-height: 32px;
 	top: auto;
 	right: 0px;
 	bottom: 0px;
 	left: 0px;
 	color: #ffffff;
-	background: #252530;
+	background: #404040;
 	text-align: center;
+	vertical-align: middle;
 	border: 0px solid transparent;
 	border-top: 1px solid #666666;
+	box-sizing: content-box;
+	transition: 250ms all ease-out;
+	transform: translate(0%, 100%);
+}
+
+footer.active {
+	transform: translate(0%, 0%);
 }
 
 
@@ -170,11 +248,27 @@ article p + table {
 	margin-top: 64px;
 }
 
-article table.mode-list tr td {
-	text-align: left;
+article table tr td:last-child button {
+	display: block;
+	margin: 0px auto;
 }
 
-article table.domain-list tr td:first-child {
-	text-align: left;
+article table input[type="text"] {
+	display: block;
+	width: 100%;
+	text-align: center;
+}
+
+
+#internet-connection div,
+#internet-tor div {
+	line-height: 32px;
+	vertical-align: middle;
+}
+
+#peers-list-menu td,
+#hosts-list-menu td,
+#sites-list-menu td {
+	border-top: 2px solid #ffffff;
 }
 

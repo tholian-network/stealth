@@ -8,32 +8,64 @@
 	<body>
 		<article id="internet">
 			<h3>Internet</h3>
-			<div id="internet-message">
-				This machine has internet access.
+			<p>
+				The Stealth Browser supports both direct internet
+				access machines and peer-to-peer internet access
+				machines.
+				<br><br>
+				If this machine does not have internet access
+				whatsoever, select the peer-to-peer option. It
+				will get internet access once a configured
+				peer is found in the local network.
+			</p>
+			<div id="internet-connection">
+				<div>
+					<input id="internet-connection-radio-2" name="internet-connection" type="radio" value="broadband" checked>
+					<label for="internet-connection-radio-2">This machine has broadband internet access.</label>
+				</div>
+				<div>
+					<input id="internet-connection-radio-1" name="internet-connection" type="radio" value="mobile">
+					<label for="internet-connection-radio-1">This machine has mobile internet access.</label>
+				</div>
+				<div>
+					<input id="internet-connection-radio-3" name="internet-connection" type="radio" value="peer">
+					<label for="internet-connection-radio-3">This machine has peer-to-peer internet access.</label>
+				</div>
 			</div>
 			<p>
 				The Stealth Browser supports using a TOR Proxy to
-				access the Darknet. Please note that the exchange
-				with local peers won't work when the TOR Proxy is
-				used.
+				access the Deep Web.
+				<br><br>
+				If a <abbr title="The Onion Router protocol">TOR</abbr>
+				proxy is used, local peer discovery doesn't work
+				anymore, so this machine has to have mobile or
+				broadband internet access in order to connect to
+				sites on the internet.
 			</p>
-			<p id="internet-tor">
-				<input id="internet-tor-checkbox" type="checkbox">
-				<label for="internet-tor-checkbox">Use TOR Proxy</label>
-				<div id="internet-tor-message">This machine will use TOR Proxy when available.</div>
-			</p>
+			<div id="internet-tor">
+				<div>
+					<input id="internet-tor-radio-1" name="internet-tor" type="radio" value="true">
+					<label for="internet-tor-radio-1">Use the TOR proxy when available.</label>
+				</div>
+				<div>
+					<input id="internet-tor-radio-2" name="internet-tor" type="radio" value="false" checked>
+					<label for="internet-tor-radio-2">Don't use the TOR proxy.</label>
+				</div>
+			</div>
 		</article>
 		<article id="peers">
 			<h3>Peers</h3>
 			<p>
 				The Stealth Browser supports Peer-to-Peer transfer of
-				already archived and cached resources
+				already archived and cached resources among its trusted
+				Peers.
 				<br><br>
 				The Mode for each Peer influences what types of resources
-				are loaded. If you're unsure what Modes do, take a look
-				at the <a href="stealth:welcome">stealth:welcome</a> page.
+				can be exchanged. If you're unsure what Modes do, take a
+				look at the <a href="stealth:welcome">stealth:welcome</a>
+				page.
 			</p>
-			<table class="peer-list">
+			<table>
 				<thead>
 					<tr>
 						<th>Peer</th>
@@ -42,29 +74,29 @@
 						<th>Actions</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody id="peers-list">
 					<tr>
 						<td>tinky</td>
 						<td><button class="icon-online" disabled></button></td>
 						<td><button class="icon-stealth"></button></td>
-						<td><button class="icon-remove"></button></td>
+						<td><button class="icon-refresh"></button><button class="icon-remove"></button></td>
 					</tr>
 					<tr>
 						<td>wuup</td>
 						<td><button class="icon-offline" disabled></button></td>
 						<td><button class="icon-stealth"></button></td>
-						<td><button class="icon-remove"></button></td>
+						<td><button class="icon-refresh"></button><button class="icon-remove"></button></td>
 					</tr>
-					<tr id="peer-list-menu">
-						<td><input type="text" placeholder="Hostame or IP"></td>
-						<td>-</button></td>
-						<td><button class="icon-stealth"></button></td>
-						<td><button class="icon-confirm"></button></td>
+					<tr id="peers-list-menu">
+						<td><input id="peers-list-menu-domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
+						<td><button id="peers-list-menu-capacity" class="icon-unknown"></button></td>
+						<td><button id="peers-list-menu-mode" class="icon-offline"></button></td>
+						<td><button id="peers-list-menu-confirm" class="icon-confirm"></button></td>
 					</tr>
 				</tbody>
 			</table>
 		</article>
-		<article>
+		<article id="hosts">
 			<h3>Hosts</h3>
 			<p>
 				The Stealth Browser has its own DNS resolution cache in order
@@ -73,8 +105,13 @@
 				<br><br>
 				If a domain has an AAAA entry and supports IPv6, Stealth
 				Browser will connect to it via IPv6.
+				<br><br>
+				It is possible to use transparent IPv6 proxies here, so for
+				example when github.com only supports IPv4 and ikvjwd.com does
+				support IPv6, you can manually edit the IPv6 of github.com and
+				use the one of the IPv6 proxy there.
 			</p>
-			<table class="domain-list">
+			<table>
 				<thead>
 					<tr>
 						<th>Domain</th>
@@ -83,7 +120,7 @@
 						<th>Actions</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody id="hosts-list">
 					<tr>
 						<td>old.reddit.com</td>
 						<td>123.123.123.123</td>
@@ -93,10 +130,16 @@
 							<button class="icon-remove"></button>
 						</td>
 					</tr>
+					<tr id="hosts-list-menu">
+						<td><input id="hosts-list-menu-domain" type="text" placeholder="Domain"></td>
+						<td><input id="hosts-list-menu-ipv4" type="text" placeholder="IPv4"></td>
+						<td><input id="hosts-list-menu-ipv6" type="text" placeholder="IPv6"></td>
+						<td><button id="hosts-list-menu-create" class="icon-confirm"></button></td>
+					</tr>
 				</tbody>
 			</table>
 		</article>
-		<article>
+		<article id="sites">
 			<h3>Sites</h3>
 			<p>
 				The Stealth Browser has a Stealth Mode which will influence
@@ -117,23 +160,35 @@
 						<th>Actions</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody id="sites-list">
 					<tr>
 						<td>old.reddit.com</td>
 						<td class="site-media">
-							<button title="Texts"></button>
-							<button title="Images" class="active"></button>
-							<button title="Videos"></button>
-							<button title="Downloads" class="active"></button>
+							<button class="icon-text" title="Texts"></button>
+							<button class="icon-image active" title="Images"></button>
+							<button class="icon-video" title="Videos"></button>
+							<button class="icon-download active" title="Downloads"></button>
 						</td>
-						<td class="site-mode"><button title="Online" disabled></button></td>
+						<td class="site-mode"><button class="icon-online" title="Online" disabled></button></td>
 						<td><button class="icon-remove"></button></td>
+					</tr>
+					<tr id="sites-list-menu">
+						<td><input id="sites-list-menu-domain" type="text" placeholder="Domain"></td>
+						<td class="site-media">
+							<button class="icon-text" title="Texts"></button>
+							<button class="icon-image" title="Images"></button>
+							<button class="icon-video" title="Videos"></button>
+							<button class="icon-download" title="Downloads"></button>
+						</td>
+						<td class="site-mode"><button class="icon-offline" title="Offline" disabled></button></td>
+						<td><button id="sites-list-menu-create" class="icon-confirm"></button></td>
 					</tr>
 				</tbody>
 			</table>
 		</article>
 		<footer>
-			The Stealth Browser is a project by <a href="https://cookie.engineer">Cookie Engineer</a>.
+			<button class="icon-revert">Revert Changes</button>
+			<button class="icon-confirm">Save Changes</button>
 		</footer>
 		<script src="internal.js"></script>
 	</body>

@@ -9,14 +9,15 @@ header {
 	bottom: auto;
 	left: 0px;
 	margin: 0px;
-	padding: 8px 8px 8px 8px;
+	padding: 8px;
 	line-height: 32px;
 	font-family: 'museo';
 	font-size: 16px;
 	color: #ffffff;
-	background: #252530;
+	background: #303030;
 	border: 0px solid transparent;
 	border-bottom: 1px solid #666666;
+	box-sizing: content-box;
 	z-index: 100;
 	user-select: none;
 }
@@ -122,6 +123,7 @@ header #header-address ul li:hover {
 
 header #header-address ul li#header-address-protocol:before         { content: '\f13e'; }
 header #header-address ul li#header-address-protocol.secure:before  { content: '\e808'; }
+header #header-address ul li#header-address-protocol.stealth:before { content: '\f197'; }
 header #header-address ul li#header-address-protocol.unknown:before { content: '\f128'; }
 
 header #header-address ul li#header-address-protocol:hover {
@@ -145,7 +147,7 @@ header #header-address input {
 	font-family: 'museo';
 	font-size: 16px;
 	text-align: center;
-	background: #252530;
+	background: #303030;
 	border: 0px solid transparent;
 	transition: 250ms all ease-out;
 	opacity: 0;

@@ -283,10 +283,11 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	parse: function(url) {
 
-		let protocol = null;
-		let domain   = null;
-		let path     = null;
-		let query    = null;
+		let protocol  = null;
+		let domain    = null;
+		let path      = null;
+		let query     = null;
+		let subdomain = null;
 
 
 		let tmp1 = url.split('?')[0] || '';
@@ -313,12 +314,23 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
+		if (domain !== null && domain.includes('.') === true) {
+
+			let check = domain.split('.').slice(0, -2);
+			if (check.length > 0) {
+				domain    = domain.split('.').slice(-2).join('.');
+				subdomain = check.join('.');
+			}
+
+		}
+
 		return {
-			url:      url,
-			protocol: protocol,
-			domain:   domain,
-			path:     path,
-			query:    query
+			domain:    domain,
+			url:       url,
+			protocol:  protocol,
+			path:      path,
+			query:     query,
+			subdomain: subdomain
 		};
 
 	},
