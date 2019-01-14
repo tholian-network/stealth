@@ -34,10 +34,10 @@ article button {
 	min-width: 32px;
 	margin: 0px;
 	padding: 0px;
-	line-height: 32px;
 	height: 32px;
+	line-height: 32px;
 	color: #666666;
-	font-size: 20px;
+	font-size: 24px;
 	text-align: center;
 	background: transparent;
 	border: 0px solid transparent;
@@ -95,6 +95,23 @@ article h3 {
 	font-size: 24px;
 	font-weight: normal;
 	text-align: center;
+}
+
+article input[type="text"] {
+	display: inline-block;
+	height: 32px;
+	line-height: 32px;
+	color: #ffffff;
+	font-size: 16px;
+	text-align: left;
+	background: transparent;
+	border: 0px solid transparent;
+	border-radius: 4px;
+	vertical-align: top;
+	transition: 250ms all ease-out;
+	appearance: none;
+	outline: none;
+	cursor: text;
 }
 
 article p {

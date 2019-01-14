@@ -15,8 +15,12 @@ setTimeout(_ => {
 		tab3.onload = _ => console.log('tab3.onload', tab3);
 		tab4.onload = _ => console.log('tab4.onload', tab4);
 
-		browser.show(tab4);
+		browser.show(tab3);
 
+		// TODO: is the tab.load() API really necessary?
+		// It could be synchronized via browser.show()
+		// and browser.refresh() as browser has peer
+		// access and can do it in a cleaner manner
 		tab1.load();
 		tab2.load();
 		tab3.load();
