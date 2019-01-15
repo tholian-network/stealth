@@ -261,6 +261,8 @@
 					browser.refresh();
 				} else if (action === 'pause') {
 					browser.pause();
+				} else if (action === 'stop') {
+					browser.stop();
 				}
 
 			};
@@ -366,7 +368,6 @@
 					let tab = browser.create(url);
 					if (tab !== null) {
 						browser.show(tab);
-						tab.load();
 					}
 
 				}
@@ -417,7 +418,6 @@
 			let tab = browser.create('stealth:settings');
 			if (tab !== null) {
 				browser.show(tab);
-				tab.load();
 			}
 
 		};

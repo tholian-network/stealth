@@ -4,16 +4,23 @@
 		<title>stealth:welcome</title>
 		<link rel="stylesheet" href="../design/font/index.css">
 		<link rel="stylesheet" href="internal.css">
-		<style>footer { position: relative; }</style>
+		<style>
+		article#stealth-modes button[disabled],
+		article#stealth-modes button[disabled]:hover {
+			color: #ffffff;
+		}
+		footer {
+			position: relative;
+		}
+		</style>
 	</head>
 	<body>
-		<article>
+		<article id="stealth-modes">
 			<h3>Stealth Modes</h3>
 			<p>
-				The Stealth Browser respects the so-called Stealth Modes.
-				<br><br>
-				These Modes influence the behaviour of what type of content
-				is requested by default.
+				The Stealth Browser respects the so-called Stealth Modes. These
+				Modes influence the behaviour of what type of content is requested
+				by default.
 			</p>
 			<p>
 				If there is additionally a site-specific mode, the site-specific
@@ -24,7 +31,7 @@
 				and their dynamically generated content, for example to allow
 				images and videos on "i.imgur.com", but not on "imgur.com".
 			</p>
-			<table class="mode-list">
+			<table>
 				<thead>
 					<tr>
 						<th colspan="2">Mode</th>
@@ -55,7 +62,7 @@
 				</tbody>
 			</table>
 		</article>
-		<article>
+		<article id="keyboard-shortcuts">
 			<h3>Keyboard Shortcuts</h3>
 			<table>
 				<thead>
@@ -112,8 +119,8 @@
 				</tbody>
 			</table>
 		</article>
-		<article>
-			<h3>Internal User Pages</h3>
+		<article id="internal-pages">
+			<h3>Internal Pages</h3>
 			<table>
 				<thead>
 					<tr>
@@ -156,6 +163,5 @@
 		<footer class="active">
 			The Stealth Browser is an <a href="https://github.com/cookiengineer/stealth-browser">Open Source</a> Project by <a href="https://cookie.engineer">Cookie Engineer</a>.
 		</footer>
-		<script src="internal.js"></script>
 	</body>
 </html>

@@ -1,7 +1,7 @@
 
 import { Emitter } from './Emitter.mjs';
 import { Peer    } from './Peer.mjs';
-import { Sandbox } from './Sandbox.mjs';
+import { Tab     } from './Tab.mjs';
 
 
 
@@ -162,7 +162,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	kill: function(tab, callback) {
 
-		tab      = tab instanceof Sandbox       ? tab      : null;
+		tab      = tab instanceof Tab           ? Tab      : null;
 		callback = callback instanceof Function ? callback : null;
 
 
@@ -193,7 +193,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				let welcome = this.create('stealth:welcome');
 				if (welcome !== null) {
 					this.show(welcome);
-					welcome.load();
 				}
 
 			}
@@ -335,6 +334,12 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	pause: function() {
+
+		console.log('pause(): IMPLEMENT ME');
+
+	},
+
 	refresh: function() {
 
 		if (this.tab !== null) {
@@ -345,7 +350,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	show: function(tab, callback) {
 
-		tab      = tab instanceof Sandbox       ? tab      : null;
+		tab      = tab instanceof Tab           ? tab      : null;
 		callback = callback instanceof Function ? callback : null;
 
 
@@ -398,6 +403,12 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	stop: function() {
+
+		console.log('stop(): IMPLEMENT ME');
+
+	},
+
 	create: function(url) {
 
 		url = typeof url === 'string' ? url : null;
@@ -422,7 +433,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		} else {
 
-			tab = new Sandbox({
+			tab = new Tab({
 				peer: this.peer,
 				mode: mode,
 				url:  url
