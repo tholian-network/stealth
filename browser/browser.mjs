@@ -1,4 +1,38 @@
 
+import { Browser } from './source/Browser.mjs';
+
+const SETTINGS = (function(location) {
+
+	let settings = {};
+	let host     = null;
+	let port     = null;
+
+	let tmp = location.host || null;
+	if (tmp !== null) {
+
+		if (tmp.includes(':')) {
+			host = tmp.split(':')[0];
+			port = parseInt(tmp.split(':')[1], 10);
+		}
+
+	}
+
+	if (host !== null)                 settings.host = host;
+	if (port !== null && !isNaN(port)) settings.port = port;
+
+	return settings;
+
+})(window.location || {});
+
+
+const browser = window.browser = new Browser(SETTINGS);
+
+if (BROWSER_BINDINGS.length > 0) {
+	BROWSER_BINDINGS.forEach(callback => callback(browser));
+	BROWSER_BINDINGS.splice(0);
+}
+
+
 setTimeout(_ => {
 
 	let browser = window.browser || null;

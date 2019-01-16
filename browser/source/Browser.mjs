@@ -2,6 +2,7 @@
 import { Emitter } from './Emitter.mjs';
 import { Peer    } from './Peer.mjs';
 import { Tab     } from './Tab.mjs';
+import { URL     } from './URL.mjs';
 
 
 
@@ -16,44 +17,33 @@ const Browser = function(data) {
 	}, data);
 
 
-	// TODO: Local DNS resolver with persistent memory
-	// that writes automatically to a hosts-file
-	// this.dns  = new Nameservice();
-
-	this.tab  = null;
-
 	this.mode = 'offline';
+	this.peer = new Peer(this, {
+		host: settings.host || null,
+		port: settings.port || null
+	});
+	this.tab  = null;
 	this.tabs = [];
-	this.peer = new Peer({
-		host: settings.host,
-		port: settings.port
+
+
+	this.peer.connect(result => {
+
+		if (result === true) {
+			console.log('Peer "' + this.peer.host + ':' + this.peer.port + '" ready :)');
+		}
+
 	});
 
-	this.__configs = [{
-		domain:    'old.reddit.com',
-		texts:     true,
-		images:    true,
-		videos:    false,
-		downloads: true
-	}, {
-		domain:    'www.reddit.com',
-		texts:     false,
-		images:    true,
-		videos:    true,
-		downloads: false
-	}, {
-		domain:    'qux.reddit.com',
-		texts:     false,
-		images:    true,
-		videos:    true,
-		downloads: false
-	}, {
-		domain:    'bar.qux.reddit.com',
-		texts:     false,
-		images:    true,
-		videos:    true,
-		downloads: false
-	}];
+
+	this.settings = {
+		internet: {
+			connection: 'mobile',
+			torify:     false,
+		},
+		hosts: [],
+		peers: [],
+		sites: []
+	};
 
 };
 
@@ -104,18 +94,18 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (domain !== null) {
 
-				let configs = this.__configs.filter(cfg => domain.endsWith(cfg.domain));
-				if (configs.length > 1) {
+				let sites = this.settings.sites.filter(cfg => domain.endsWith(cfg.domain));
+				if (sites.length > 1) {
 
-					return configs.sort((a, b) => {
+					return sites.sort((a, b) => {
 						if (a.domain.length > b.domain.length) return -1;
 						if (b.domain.length > a.domain.length) return  1;
 						return 0;
 					})[0];
 
-				} else if (configs.length === 1) {
+				} else if (sites.length === 1) {
 
-					return configs[0];
+					return sites[0];
 
 				} else {
 
@@ -282,55 +272,10 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	parse: function(url) {
 
-		let protocol  = null;
-		let domain    = null;
-		let path      = null;
-		let query     = null;
-		let subdomain = null;
+		url = typeof url === 'string' ? url : '';
 
 
-		let tmp1 = url.split('?')[0] || '';
-		let tmp2 = url.split('?')[1] || '';
-
-		if (url.includes('://')) {
-
-			protocol = tmp1.substr(0, tmp1.indexOf('://'));
-			domain   = tmp1.substr(protocol.length + 3).split('/')[0];
-			path     = '/' + tmp1.substr(protocol.length + 3).split('/').slice(1).join('/');
-			query    = tmp2 !== '' ? tmp2 : null;
-
-		} else if (url.startsWith('stealth:')) {
-
-			protocol = 'stealth';
-			domain   = tmp1.substr(protocol.length + 1).split('/')[0];
-			path     = '/' + tmp1.substr(protocol.length + 1).split('/').slice(1).join('/');
-			query    = tmp2 !== '' ? tmp2 : null;
-
-		} else {
-
-			domain   = tmp1.split('/')[0];
-			path     = '/' + tmp1.split('/').slice(1).join('/');
-
-		}
-
-		if (domain !== null && domain.includes('.') === true) {
-
-			let check = domain.split('.').slice(0, -2);
-			if (check.length > 0) {
-				domain    = domain.split('.').slice(-2).join('.');
-				subdomain = check.join('.');
-			}
-
-		}
-
-		return {
-			domain:    domain,
-			url:       url,
-			protocol:  protocol,
-			path:      path,
-			query:     query,
-			subdomain: subdomain
-		};
+		return URL.parse(url);
 
 	},
 

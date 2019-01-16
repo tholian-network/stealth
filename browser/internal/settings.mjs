@@ -11,7 +11,6 @@ const SETTINGS = {
 		console.log('WHAAT', browser);
 	}
 
-
 };
 
 

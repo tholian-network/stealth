@@ -1,151 +1,108 @@
 
-import fs         from 'fs';
 import { Buffer } from 'buffer';
-import { MIME   } from './MIME.mjs';
 
 
 
-const _redirect = function(socket, url) {
+const HTTP = {
 
-	let blob = [];
+	receive: function(socket, blob, callback) {
 
-	blob.push('HTTP/1.1 301 Moved Permanently');
-	blob.push('Location: ' + url);
-	blob.push('');
-
-	socket.write(blob.join('\r\n'));
-	socket.end();
-
-};
-
-const _serve_404 = function(socket, url) {
-
-	console.log(url + ' -> 404');
-
-	let blob = [];
-
-	blob.push('HTTP/1.1 404 Not Found');
-	blob.push('');
-	blob.push('');
-
-	socket.write(blob.join('\r\n'));
-	socket.end();
-
-};
-
-const _serve = function(socket, url) {
-
-	let mime = MIME.get(url);
-	let root = this.root;
-
-
-	if (mime.binary === true) {
-
-		fs.readFile(root + url, (err, buffer) => {
-
-			if (!err) {
-
-				let blob = [];
-
-				blob.push('HTTP/1.1 200 OK');
-				blob.push('Content-Type: '   + mime.type);
-				blob.push('Content-Length: ' + Buffer.byteLength(buffer));
-				blob.push('');
-				blob.push('');
-
-				socket.write(blob.join('\r\n'));
-				socket.write(buffer);
-				socket.end();
-
-			} else {
-
-				_serve_404.call(this, socket, url);
-
-			}
-
-		});
-
-	} else {
-
-		fs.readFile(root + url, 'utf8', (err, buffer) => {
-
-			if (!err) {
-
-				let blob = [];
-
-				blob.push('HTTP/1.1 200 OK');
-				blob.push('Content-Type: '   + mime.type);
-				blob.push('Content-Length: ' + buffer.length);
-				blob.push('');
-				blob.push('');
-
-				socket.write(blob.join('\r\n'));
-				socket.write(buffer, 'utf8');
-				socket.end();
-
-			} else {
-
-				_serve_404.call(this, socket, url);
-
-			}
-
-		});
-
-	}
-
-};
-
-
-const HTTP = function(stealth) {
-
-	this.root = stealth.root;
-
-};
-
-
-HTTP.prototype = {
-
-	receive: function(socket, blob) {
-
-		let raw     = blob.toString('utf8').split('\n').map(line => line.trim());
-		let tmp     = raw[0].split(' ');
 		let headers = {};
+		let payload = null;
+		let raw_headers = '';
+		let raw_payload = '';
 
-		if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp[0])) {
-			headers['method'] = tmp[0];
+		let raw = blob.toString('utf8');
+		if (raw.includes('\r\n\r\n')) {
+			raw_headers = raw.split('\r\n\r\n')[0];
+			raw_payload = raw.split('\r\n\r\n').slice(1).join('\r\n\r\n');
+		} else {
+			raw_headers = raw;
+			raw_payload = '';
 		}
 
-		if (tmp[1].startsWith('/')) {
-			headers['url'] = tmp[1];
+
+		let tmp1 = raw_headers.split('\n').map(line => line.trim());
+		let tmp2 = tmp1.shift().split(' ');
+
+		if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp2[0])) {
+			headers['method'] = tmp2[0];
 		}
 
-		raw.slice(1).filter(line => line.trim() !== '').forEach(line => {
+		if (tmp2[1].startsWith('/')) {
+			headers['url'] = tmp2[1];
+		}
 
-			let key = line.split(':')[0].trim().toLowerCase();
-			let val = line.split(':').slice(1).join(':').trim();
 
-			headers[key] = val;
+		tmp1.filter(line => line !== '').forEach(line => {
+
+			if (line.includes(':')) {
+
+				let key = line.split(':')[0].trim().toLowerCase();
+				let val = line.split(':').slice(1).join(':').trim();
+
+				headers[key] = val;
+
+			}
 
 		});
 
+		if (raw_payload.startsWith('{') || raw_payload.startsWith('[')) {
 
-		if (headers['url'] === '/') {
-
-			_redirect.call(this, socket, '/browser/index.html');
-
-		} else if (headers['url'].startsWith('/browser')) {
-
-			_serve.call(this, socket, headers['url']);
-
-		} else if (headers['url'] === '/favicon.ico') {
-
-			_serve.call(this, socket, '/browser/favicon.ico');
-
-		} else {
-
-			_serve_404.call(this, socket, headers['url']);
+			try {
+				payload = JSON.parse(raw_payload);
+			} catch (err) {
+				payload = null;
+			}
 
 		}
+
+
+		callback({
+			headers: headers,
+			payload: payload
+		});
+
+	},
+
+	send: function(socket, data) {
+
+		data = data instanceof Object ? data : {};
+
+
+		let blob    = [];
+		let headers = data.headers || {};
+		let payload = data.payload || null;
+
+
+		if (typeof headers['@status'] === 'string') {
+			blob.push(headers['@status']);
+		} else {
+			blob.push('HTTP/1.1 200 OK');
+		}
+
+
+		Object.keys(headers).filter(h => h.startsWith('@') === false).forEach(key => {
+			blob.push(key + ': ' + headers[key]);
+		});
+
+
+		blob.push('');
+		blob.push('');
+
+		socket.write(blob.join('\r\n'));
+
+		if (payload !== null) {
+
+			if (typeof payload === 'string') {
+				socket.write(payload, 'utf8');
+			} else if (payload instanceof Buffer) {
+				socket.write(payload);
+			}
+
+		}
+
+		socket.end();
 
 	}
 

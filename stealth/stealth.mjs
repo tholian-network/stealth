@@ -60,7 +60,7 @@ if (typeof _FLAGS.profile === 'string') {
 
 	const stealth = global.stealth = new Stealth(settings);
 
-	stealth.init();
+	stealth.connect();
 
 })(typeof window !== 'undefined' ? window : global);
 

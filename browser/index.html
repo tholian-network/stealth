@@ -86,24 +86,6 @@
 			<h3>Site Requests</h3>
 		</aside>
 
-
-		<!-- Browser Source -->
-		<script type="module">
-
-			import { Browser } from './source/Browser.mjs';
-
-
-			const browser = window.browser = new Browser({
-				url: 'https://cookie.engineer'
-			});
-
-			if (BROWSER_BINDINGS.length > 0) {
-				BROWSER_BINDINGS.forEach(callback => callback(browser));
-				BROWSER_BINDINGS = [];
-			}
-
-		</script>
-
 		<!-- Browser Design -->
 		<script src="design/header.js"></script>
 		<script src="design/main.js"></script>
