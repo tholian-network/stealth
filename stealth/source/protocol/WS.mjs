@@ -3,6 +3,34 @@ import crypto     from 'crypto';
 import { Buffer } from 'buffer';
 
 
+
+const _decode_json = function(buffer) {
+
+	let data = null;
+
+	try {
+		data = JSON.parse(buffer.toString('utf8'));
+	} catch (err) {
+	}
+
+	return data;
+
+};
+
+const _encode_json = function(data) {
+
+	let buffer = null;
+
+	try {
+		let tmp = JSON.stringify(data, null, '\t');
+		buffer = Buffer.from(tmp, 'utf8');
+	} catch (err) {
+	}
+
+	return buffer;
+
+};
+
 const _decode = function(socket, buffer) {
 
 	let fragment = socket.__fragment || null;
@@ -13,27 +41,28 @@ const _decode = function(socket, buffer) {
 		};
 	}
 
-	let chunk = {
-		bytes:   -1,
-		headers: {},
-		payload: null
-	};
-
-
 	if (buffer.length <= 2) {
-		return chunk;
+		return null;
 	}
 
 
+	let chunk = {
+		close:    false,
+		fragment: false,
+		bytes:    -1,
+		headers:  {},
+		payload:  null,
+		response: null
+	};
+
+
 	let fin            = (buffer[0] & 128) === 128;
-	// let rsv1        = (buffer[0] & 64) === 64;
-	// let rsv2        = (buffer[0] & 32) === 32;
-	// let rsv3        = (buffer[0] & 16) === 16;
-	let operator       = buffer[0] & 15;
+	let operator       = (buffer[0] &  15);
 	let mask           = (buffer[1] & 128) === 128;
 	let mask_data      = Buffer.alloc(4);
 	let payload_length = buffer[1] & 127;
 	let payload_data   = null;
+
 
 	if (payload_length <= 125) {
 
@@ -51,11 +80,10 @@ const _decode = function(socket, buffer) {
 
 		payload_length = (buffer[2] << 8) + buffer[3];
 
-
 		if (payload_length > buffer.length) {
+			chunk.fragment = true;
 			return chunk;
 		}
-
 
 		if (mask === true) {
 			mask_data    = buffer.slice(4, 8);
@@ -75,11 +103,10 @@ const _decode = function(socket, buffer) {
 
 		payload_length = (hi * 4294967296) + lo;
 
-
 		if (payload_length > buffer.length) {
+			chunk.fragment = true;
 			return chunk;
 		}
-
 
 		if (mask === true) {
 			mask_data    = buffer.slice(10, 14);
@@ -99,8 +126,9 @@ const _decode = function(socket, buffer) {
 	}
 
 
-	// 0: Continuation Frame (Fragmentation)
 	if (operator === 0x00) {
+
+		// 0x00: Continuation Frame (Fragmentation Packet)
 
 		if (payload_data !== null) {
 
@@ -116,10 +144,10 @@ const _decode = function(socket, buffer) {
 
 		if (fin === true) {
 
-			let tmp0 = _JSON.decode(fragment.payload);
-			if (tmp0 !== null) {
-				chunk.headers = tmp0.headers || {};
-				chunk.payload = tmp0.payload || null;
+			let tmp = _decode_json(fragment.payload);
+			if (tmp !== null) {
+				chunk.headers = tmp.headers || {};
+				chunk.payload = tmp.payload || null;
 			}
 
 			fragment.operator = 0x00;
@@ -127,16 +155,16 @@ const _decode = function(socket, buffer) {
 
 		}
 
-
-	// 1: Text Frame
 	} else if (operator === 0x01) {
+
+		// 0x01: Text Frame (possibly fragmented)
 
 		if (fin === true) {
 
-			let tmp1 = _JSON.decode(payload_data);
-			if (tmp1 !== null) {
-				chunk.headers = tmp1.headers || {};
-				chunk.payload = tmp1.payload || null;
+			let tmp = _decode_json(payload_data);
+			if (tmp !== null) {
+				chunk.headers = tmp.headers || {};
+				chunk.payload = tmp.payload || null;
 			}
 
 		} else if (payload_data !== null) {
@@ -151,40 +179,183 @@ const _decode = function(socket, buffer) {
 
 		}
 
-
-	// 2: Binary Frame
 	} else if (operator === 0x02) {
 
-		chunk.payload = WS.close(1002);
+		// 0x02: Binary Frame (possibly fragmented)
 
-	// 8: Connection Close
+		let buffer = Buffer.alloc(4);
+		let code   = 1002; // protocol error
+
+		buffer[0] = 128 + 0x08; // close
+		buffer[1] =   0 + 0x02; // unmasked (client and server)
+
+		buffer[1] = (code >> 8) & 0xff;
+		buffer[2] = (code >> 0) & 0xff;
+
+		chunk.close    = true;
+		chunk.response = buffer;
+
 	} else if (operator === 0x08) {
 
-		chunk.payload = WS.close(1000);
+		// 0x08: Connection Close Frame
 
-	// 9: Ping Frame
+		let buffer = Buffer.alloc(4);
+		let code   = 1000; // normal connection close
+
+		buffer[0] = 128 + 0x08; // close
+		buffer[1] =   0 + 0x02; // unmasked (client and server)
+
+		buffer[1] = (code >> 8) & 0xff;
+		buffer[2] = (code >> 0) & 0xff;
+
+		chunk.close    = true;
+		chunk.response = buffer;
+
 	} else if (operator === 0x09) {
 
-		chunk.payload = _on_ping_frame.call(this);
+		// 0x09: Ping Frame
 
+		let buffer = Buffer.alloc(2);
 
-	// 10: Pong Frame
+		buffer[0] = 128 + 0x0a; // fin, pong
+		buffer[1] =   0 + 0x00; // unmasked (client to server)
+
 	} else if (operator === 0x0a) {
 
-		chunk.payload = _on_pong_frame.call(this);
+		// 0x0a: Pong Frame
 
+		let buffer = Buffer.alloc(6);
 
-	// 3-7: Reserved Non-Control Frames, 11-15: Reserved Control Frames
+		buffer[0] = 128 + 0x09; // fin, ping
+		buffer[1] = 128 + 0x00; // masked (server to client)
+
+		buffer[2] = (Math.random() * 0xff) | 0;
+		buffer[3] = (Math.random() * 0xff) | 0;
+		buffer[4] = (Math.random() * 0xff) | 0;
+		buffer[5] = (Math.random() * 0xff) | 0;
+
+		chunk.response = buffer;
+
 	} else {
 
-		chunk.payload = WS.close(1002);
+		let buffer = Buffer.alloc(4);
+		let code   = 1002; // protocol error
+
+		buffer[0] = 128 + 0x08; // close
+		buffer[1] =   0 + 0x02; // unmasked (client and server)
+
+		buffer[1] = (code >> 8) & 0xff;
+		buffer[2] = (code >> 0) & 0xff;
+
+		chunk.close    = true;
+		chunk.response = buffer;
 
 	}
 
 
 	return chunk;
 
+};
 
+const _encode = function(socket, data) {
+
+	let buffer         = null;
+	let mask           = false;
+	let mask_data      = null;
+	let payload_data   = null;
+	let payload_length = data.length;
+
+
+	let is_server = socket.__ws_server === true;
+	if (is_server === true) {
+
+		mask         = false;
+		mask_data    = Buffer.alloc(4);
+		payload_data = data.map(value => value);
+
+	} else {
+
+		mask      = true;
+		mask_data = Buffer.alloc(4);
+
+		mask_data[0] = (Math.random() * 0xff) | 0;
+		mask_data[1] = (Math.random() * 0xff) | 0;
+		mask_data[2] = (Math.random() * 0xff) | 0;
+		mask_data[3] = (Math.random() * 0xff) | 0;
+
+		payload_data = data.map((value, index) => value ^ mask_data[index % 4]);
+
+	}
+
+
+	if (payload_length > 0xffff) {
+
+		// 64 Bit Extended Payload Length
+
+		let lo = (payload_length |  0);
+		let hi = (payload_length - lo) / 4294967296;
+
+		buffer = Buffer.alloc((mask === true ? 14 : 10) + payload_length);
+
+		buffer[0] = 128 + 0x01;
+		buffer[1] = (mask === true ? 128 : 0) + 127;
+		buffer[2] = (hi >> 24) & 0xff;
+		buffer[3] = (hi >> 16) & 0xff;
+		buffer[4] = (hi >>  8) & 0xff;
+		buffer[5] = (hi >>  0) & 0xff;
+		buffer[6] = (lo >> 24) & 0xff;
+		buffer[7] = (lo >> 16) & 0xff;
+		buffer[8] = (lo >>  8) & 0xff;
+		buffer[9] = (lo >>  0) & 0xff;
+
+		if (mask === true) {
+
+			mask_data.copy(buffer, 10);
+			payload_data.copy(buffer, 14);
+
+		} else {
+
+			payload_data.copy(buffer, 10);
+
+		}
+
+	} else if (payload_length > 125) {
+
+		// 16 Bit Extended Payload Length
+
+		buffer = Buffer.alloc((mask === true ? 8 : 4) + payload_length);
+
+		buffer[0] = 128 + 0x01;
+		buffer[1] = (mask === true ? 128 : 0) + 126;
+		buffer[2] = (payload_length >> 8) & 0xff;
+		buffer[3] = (payload_length >> 0) & 0xff;
+
+		if (mask === true) {
+			mask_data.copy(buffer, 4);
+			payload_data.copy(buffer, 8);
+		} else {
+			payload_data.copy(buffer, 4);
+		}
+
+	} else {
+
+		// 7 Bit Payload Length
+
+		buffer = Buffer.alloc((mask === true ? 6 : 2) + payload_length);
+
+		buffer[0] = 128 + 0x01;
+		buffer[1] = (mask === true ? 128 : 0) + payload_length;
+
+		if (mask === true) {
+			mask_data.copy(buffer, 2);
+			payload_data.copy(buffer, 6);
+		} else {
+			payload_data.copy(buffer, 2);
+		}
+
+	}
+
+	return buffer;
 
 };
 
@@ -216,6 +387,7 @@ const WS = {
 				blob.push('');
 				blob.push('');
 
+				socket.__ws_server = true;
 				socket.write(blob.join('\r\n'));
 
 				if (callback !== null) {
@@ -238,21 +410,106 @@ const WS = {
 
 	},
 
-	receive: function(socket, blob) {
+	receive: function(socket, buffer, callback) {
 
-		// TODO: _decode(socket, blob);
+		buffer   = buffer instanceof Buffer     ? buffer   : null;
+		callback = callback instanceof Function ? callback : null;
 
-		console.log('WS.receive()', blob);
 
-		// TODO: Implement websocket frame parser,
-		// receive data from client.
-		// For simplification: JSON data only,
-		// -> ignore service flags
-		// -> delegate to service/Whatever.mjs
+		if (buffer !== null) {
+
+			let data = _decode(socket, buffer);
+			if (data !== null) {
+
+				if (data.response !== null) {
+
+					socket.write(data.response);
+
+				} else if (data.fragment === true) {
+
+					// XXX: Do nothing
+
+				} else {
+
+					if (callback !== null) {
+						callback({
+							headers: data.headers,
+							payload: data.payload
+						});
+					}
+
+					return {
+						headers: data.headers,
+						payload: data.payload
+					};
+
+				}
+
+
+				if (data.close === true) {
+					socket.end();
+				}
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			} else {
+				return null;
+			}
+
+		}
 
 	},
 
 	send: function(socket, data) {
+
+		data = data instanceof Object ? data : {};
+
+
+		let headers = data.headers || {};
+		let payload = data.payload || null;
+
+
+		if (typeof headers['@status'] === 'number') {
+
+			let buffer = Buffer.alloc(4);
+			let code   = headers['@status'];
+
+			buffer[0] = 128 + 0x08; // close
+			buffer[1] =   0 + 0x02; // unmasked (client and server)
+
+			buffer[1] = (code >> 8) & 0xff;
+			buffer[2] = (code >> 0) & 0xff;
+
+			socket.write(buffer);
+
+		} else {
+
+			let headers_keys = Object.keys(headers).filter(h => h.startsWith('@') === false);
+			if (headers_keys.length > 0 || payload !== null) {
+
+				let tmp = { headers: {}, payload: payload };
+				headers_keys.forEach(key => tmp.headers[key] = headers[key]);
+
+				let data = _encode_json(tmp);
+				if (data !== null) {
+
+					let buffer = _encode(socket, data);
+					if (buffer !== null) {
+						socket.write(buffer);
+					}
+
+				}
+
+			} else {
+				// TODO: Nothing to do
+			}
+
+		}
+
 	}
 
 };

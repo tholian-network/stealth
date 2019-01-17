@@ -5,63 +5,90 @@ import { Buffer } from 'buffer';
 
 const HTTP = {
 
-	receive: function(socket, blob, callback) {
+	receive: function(socket, buffer, callback) {
 
-		let headers = {};
-		let payload = null;
-		let raw_headers = '';
-		let raw_payload = '';
+		buffer   = buffer instanceof Buffer     ? buffer   : null;
+		callback = callback instanceof Function ? callback : null;
 
-		let raw = blob.toString('utf8');
-		if (raw.includes('\r\n\r\n')) {
-			raw_headers = raw.split('\r\n\r\n')[0];
-			raw_payload = raw.split('\r\n\r\n').slice(1).join('\r\n\r\n');
+
+		if (buffer !== null) {
+
+			let headers = {};
+			let payload = null;
+			let raw_headers = '';
+			let raw_payload = '';
+
+			let raw = buffer.toString('utf8');
+			if (raw.includes('\r\n\r\n')) {
+				raw_headers = raw.split('\r\n\r\n')[0];
+				raw_payload = raw.split('\r\n\r\n').slice(1).join('\r\n\r\n');
+			} else {
+				raw_headers = raw;
+				raw_payload = '';
+			}
+
+
+			let tmp1 = raw_headers.split('\n').map(line => line.trim());
+			let tmp2 = tmp1.shift().split(' ');
+
+			if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp2[0])) {
+				headers['method'] = tmp2[0];
+			}
+
+			if (tmp2[1].startsWith('/')) {
+				headers['url'] = tmp2[1];
+			}
+
+
+			tmp1.filter(line => line !== '').forEach(line => {
+
+				if (line.includes(':')) {
+
+					let key = line.split(':')[0].trim().toLowerCase();
+					let val = line.split(':').slice(1).join(':').trim();
+
+					headers[key] = val;
+
+				}
+
+			});
+
+			if (raw_payload.startsWith('{') || raw_payload.startsWith('[')) {
+
+				try {
+					payload = JSON.parse(raw_payload);
+				} catch (err) {
+					payload = null;
+				}
+
+			}
+
+
+			if (callback !== null) {
+
+				callback({
+					headers: headers,
+					payload: payload
+				});
+
+			} else {
+
+				return {
+					headers: headers,
+					payload: payload
+				};
+
+			}
+
 		} else {
-			raw_headers = raw;
-			raw_payload = '';
-		}
 
-
-		let tmp1 = raw_headers.split('\n').map(line => line.trim());
-		let tmp2 = tmp1.shift().split(' ');
-
-		if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp2[0])) {
-			headers['method'] = tmp2[0];
-		}
-
-		if (tmp2[1].startsWith('/')) {
-			headers['url'] = tmp2[1];
-		}
-
-
-		tmp1.filter(line => line !== '').forEach(line => {
-
-			if (line.includes(':')) {
-
-				let key = line.split(':')[0].trim().toLowerCase();
-				let val = line.split(':').slice(1).join(':').trim();
-
-				headers[key] = val;
-
-			}
-
-		});
-
-		if (raw_payload.startsWith('{') || raw_payload.startsWith('[')) {
-
-			try {
-				payload = JSON.parse(raw_payload);
-			} catch (err) {
-				payload = null;
+			if (callback !== null) {
+				callback(null);
+			} else {
+				return null;
 			}
 
 		}
-
-
-		callback({
-			headers: headers,
-			payload: payload
-		});
 
 	},
 

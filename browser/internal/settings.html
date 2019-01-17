@@ -9,9 +9,9 @@
 		<article id="internet">
 			<h3>Internet</h3>
 			<p>
-				The Stealth Browser supports both direct internet
-				access machines and peer-to-peer internet access
-				machines.
+				The Stealth Browser can connect to a website
+				through direct internet access machines and
+				peer-to-peer internet access machines.
 				<br><br>
 				If this machine does not have internet access
 				whatsoever, select the peer-to-peer option. It
@@ -52,6 +52,101 @@
 					<label for="internet-tor-radio-2">Don't use the TOR proxy.</label>
 				</div>
 			</div>
+		</article>
+		<article id="filters">
+			<h3>Filters</h3>
+			<p>
+				The Stealth Browser filters websites, which means that all
+				advertisements, annoyances and known malware sites embedded
+				in a website are blocked.
+			</p>
+			<p>
+				As the web keeps changing and malware developers keep changing
+				changing their domains and websites - you need to regularly
+				update these filter lists.
+			</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Type</th>
+						<th>Filters</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Adguard Filters</td>
+						<td>100 of 123</td>
+						<td>
+							<button class="icon-refresh"></button>
+						</td>
+					</tr>
+					<tr>
+						<td>Malware Domain List</td>
+						<td>100 of 123</td>
+						<td>
+							<button class="icon-refresh"></button>
+						</td>
+					</tr>
+					<tr>
+						<td>EasyList Filters</td>
+						<td>12 of 123</td>
+						<td>
+							<button class="icon-refresh"></button>
+						</td>
+					</tr>
+					<tr>
+						<td>uBlock filters</td>
+						<td>100 of 123</td>
+						<td>
+							<button class="icon-refresh"></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</article>
+		<article id="hosts">
+			<h3>Hosts</h3>
+			<p>
+				The Stealth Browser has its own DNS resolution cache in order
+				to prevent tracking capabilities of Internet Service Providers
+				when being online via 2G/3G/4G.
+				<br><br>
+				If a domain has an AAAA entry and supports IPv6, Stealth
+				Browser will connect to it via IPv6.
+				<br><br>
+				It is possible to use transparent IPv6 proxies here, so for
+				example when <code>github.com</code> only supports IPv4 and
+				<code>ikvjwd.com</code> supports IPv6, you can manually edit
+				the IPv6 of github.com and use the one of the IPv6 proxy.
+			</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>IPv4</th>
+						<th>IPv6</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="hosts-list">
+					<tr>
+						<td>old.reddit.com</td>
+						<td>123.123.123.123</td>
+						<td>ff12:1234:1234:1234:1234:1234</td>
+						<td>
+							<button class="icon-refresh"></button>
+							<button class="icon-remove"></button>
+						</td>
+					</tr>
+					<tr id="hosts-list-menu">
+						<td><input id="hosts-list-menu-domain" type="text" placeholder="Domain"></td>
+						<td><input id="hosts-list-menu-ipv4" type="text" placeholder="IPv4"></td>
+						<td><input id="hosts-list-menu-ipv6" type="text" placeholder="IPv6"></td>
+						<td><button id="hosts-list-menu-create" class="icon-confirm"></button></td>
+					</tr>
+				</tbody>
+			</table>
 		</article>
 		<article id="peers">
 			<h3>Peers</h3>
@@ -96,48 +191,8 @@
 				</tbody>
 			</table>
 		</article>
-		<article id="hosts">
-			<h3>Hosts</h3>
-			<p>
-				The Stealth Browser has its own DNS resolution cache in order
-				to prevent tracking capabilities of Internet Service Providers
-				when being online via 2G/3G/4G.
-				<br><br>
-				If a domain has an AAAA entry and supports IPv6, Stealth
-				Browser will connect to it via IPv6.
-				<br><br>
-				It is possible to use transparent IPv6 proxies here, so for
-				example when github.com only supports IPv4 and ikvjwd.com does
-				support IPv6, you can manually edit the IPv6 of github.com and
-				use the one of the IPv6 proxy there.
-			</p>
-			<table>
-				<thead>
-					<tr>
-						<th>Domain</th>
-						<th>IPv4</th>
-						<th>IPv6</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody id="hosts-list">
-					<tr>
-						<td>old.reddit.com</td>
-						<td>123.123.123.123</td>
-						<td>ff12:1234:1234:1234:1234:1234</td>
-						<td>
-							<button class="icon-refresh"></button>
-							<button class="icon-remove"></button>
-						</td>
-					</tr>
-					<tr id="hosts-list-menu">
-						<td><input id="hosts-list-menu-domain" type="text" placeholder="Domain"></td>
-						<td><input id="hosts-list-menu-ipv4" type="text" placeholder="IPv4"></td>
-						<td><input id="hosts-list-menu-ipv6" type="text" placeholder="IPv6"></td>
-						<td><button id="hosts-list-menu-create" class="icon-confirm"></button></td>
-					</tr>
-				</tbody>
-			</table>
+		<article id="scrapers">
+			<h3>Scrapers</h3>
 		</article>
 		<article id="sites">
 			<h3>Sites</h3>

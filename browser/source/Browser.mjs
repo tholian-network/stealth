@@ -40,9 +40,11 @@ const Browser = function(data) {
 			connection: 'mobile',
 			torify:     false,
 		},
-		hosts: [],
-		peers: [],
-		sites: []
+		filters:  [],
+		hosts:    [],
+		peers:    [],
+		scrapers: [],
+		sites:    []
 	};
 
 };

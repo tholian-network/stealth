@@ -89,23 +89,29 @@ Server.prototype = {
 
 											WS.receive(socket, blob, request => {
 
-												let service = this.services[request.headers.service] || null;
-												let method  = request.headers.method || null;
+												if (request !== null) {
 
-												if (service !== null && method !== null) {
+													let service = this.services[request.headers.service] || null;
+													let method  = request.headers.method || null;
 
-													if (typeof service[method] === 'function') {
+													console.log(request.headers, request.payload);
 
-														service[method](request.payload, response => {
-															if (response !== null) {
-																WS.send(socket, response);
-															}
-														});
+													if (service !== null && method !== null) {
+
+														if (typeof service[method] === 'function') {
+
+															service[method](request.payload, response => {
+																if (response !== null) {
+																	WS.send(socket, response);
+																}
+															});
+
+														}
 
 													}
 
-												} else if (request.headers['@status'] === 'ping') {
-													WS.pong(socket);
+												} else {
+													WS.close(null, response => WS.send(response));
 												}
 
 											});

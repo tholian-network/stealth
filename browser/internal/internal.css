@@ -154,7 +154,6 @@ article input[type="radio"][disabled]:hover {
 	cursor: default;
 }
 
-
 article input[type="radio"]:hover {
 	color: #ffffff;
 	background: rgba(255,255,255,0.1);
@@ -162,6 +161,10 @@ article input[type="radio"]:hover {
 
 article input[type="radio"]:checked {
 	color: #ffffff;
+}
+
+article input[type="radio"] + label[for] {
+	cursor: pointer;
 }
 
 article input[type="text"] {
