@@ -49,7 +49,6 @@ const _decode = function(socket, buffer) {
 	let chunk = {
 		close:    false,
 		fragment: false,
-		bytes:    -1,
 		headers:  {},
 		payload:  null,
 		response: null
@@ -69,11 +68,9 @@ const _decode = function(socket, buffer) {
 		if (mask === true) {
 			mask_data    = buffer.slice(2, 6);
 			payload_data = buffer.slice(6, 6 + payload_length);
-			chunk.bytes  = 6 + payload_length;
 		} else {
 			mask_data    = null;
 			payload_data = buffer.slice(2, 2 + payload_length);
-			chunk.bytes  = 2 + payload_length;
 		}
 
 	} else if (payload_length === 126) {
@@ -88,11 +85,9 @@ const _decode = function(socket, buffer) {
 		if (mask === true) {
 			mask_data    = buffer.slice(4, 8);
 			payload_data = buffer.slice(8, 8 + payload_length);
-			chunk.bytes  = 8 + payload_length;
 		} else {
 			mask_data    = null;
 			payload_data = buffer.slice(4, 4 + payload_length);
-			chunk.bytes  = 4 + payload_length;
 		}
 
 	} else if (payload_length === 127) {
@@ -111,11 +106,9 @@ const _decode = function(socket, buffer) {
 		if (mask === true) {
 			mask_data    = buffer.slice(10, 14);
 			payload_data = buffer.slice(14, 14 + payload_length);
-			chunk.bytes  = 14 + payload_length;
 		} else {
 			mask_data    = null;
 			payload_data = buffer.slice(10, 10 + payload_length);
-			chunk.bytes  = 10 + payload_length;
 		}
 
 	}
@@ -218,23 +211,15 @@ const _decode = function(socket, buffer) {
 		let buffer = Buffer.alloc(2);
 
 		buffer[0] = 128 + 0x0a; // fin, pong
-		buffer[1] =   0 + 0x00; // unmasked (client to server)
+		buffer[1] =   0 + 0x00; // unmasked
+
+		chunk.response = buffer;
 
 	} else if (operator === 0x0a) {
 
 		// 0x0a: Pong Frame
 
-		let buffer = Buffer.alloc(6);
-
-		buffer[0] = 128 + 0x09; // fin, ping
-		buffer[1] = 128 + 0x00; // masked (server to client)
-
-		buffer[2] = (Math.random() * 0xff) | 0;
-		buffer[3] = (Math.random() * 0xff) | 0;
-		buffer[4] = (Math.random() * 0xff) | 0;
-		buffer[5] = (Math.random() * 0xff) | 0;
-
-		chunk.response = buffer;
+		chunk.fragment = true;
 
 	} else {
 

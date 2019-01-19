@@ -1,188 +1,184 @@
 
 # Stealth Browser
 
-The Stealth Browser is a different kind of web browser that
-aims to achieve increased privacy and automation through
-conventions and efficient bandwidth usage, no matter the cost.
+The Stealth Browser is a different kind of Web Browser that aims to achieve increased privacy,
+increased automation through macro-like tasks and efficient bandwidth usage, no matter the cost.
 
-It is built by a former contributor to both Chromium and Firefox,
-and is built out of personal opinion on how Web Browsers should
-actually browse the web in regards of letting users decide what
-they want to see - and not web developers.
+It is built by a former contributor to both Chromium and Firefox, and is built out of personal
+opinion on how Web Browsers should try to understand the Semantic Web in regards on letting the
+user decide what they want to see - and not irresponsible web developers.
+
+
+## Downloads / Releases
+
+Currently the Stealth Browser is just a couple days old and is in a prototypical stage. If you
+are a Software Developer and want to help, you are welcome to join the project.
+
+Non-Development Users won't enjoy it much, currently - as things are quite buggy and not ready
+for the public yet. However, due to the concept of using node.js and focussing on a privacy-oriented
+audience, the Stealth Browser will initially be released for `MacOS` and `GNU/Linux`.
+
+(Download Links will be inserted here once the Stealth Browser is ready for the public)
 
 
 ## Architecture
 
-The "Browser" in this context is not a Web Browser as you might
-have it in mind. It is a completely separated "Frontend" view
-and remote control of the actual "Backend" that is implemented
-in node.js.
+The "Browser" in this context is not a Web Browser as you might have it in mind. The Browser is
+a completely separated web application and remote control of the actual "Stealth" instance
+that is running in the background and is implemented in pure node.js.
 
-When loading and parsing websites, nothing is done in the Browser
-that is not related to the presentation of a website and its
-contents. That means that the "Browser" and the rendering engine
-is interchangeable at any time.
+When loading and parsing websites, nothing is done in the Browser that is not related to the
+presentation of a website and its contents. The Browser and its Rendering Engine are
+interchangeable at any time, as its GUI is implemented with HTML, CSS and JS.
 
-The "Browser" itself is actually just a website (which can also
-be remotely used, for example with Chrome on Android connecting
-to a running Stealth instance on an Internet Gateway).
+The Browser itself is actually just a website which can also be remotely used, for example with
+Chrome on Android connecting to a running Stealth instance on an Internet Gateway.
 
------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 
-The "Backend" in this context is the Stealth instance that is
-running in the background. It is the program that loads, parses,
-filters and optimizes all content that is loaded via its public
-API.
+The "Stealth" instance in this context is a Web Browser as a Service (not kidding) that is
+running in the background. It is responsible for loading, parsing, filtering and rendering
+all assets and downloads (in the sense of generating the HTML and CSS code for the "Browser").
 
-The "Browser" is connected to the Stealth instance by using a
-peer-to-peer capable WebSocket (WS13+ with custom protocol)
-implementation, which has both remote control functionality
-and network services for doing requests and getting responses.
+The huge advantage this concept delivers is that the Stealth instance can run completely
+headless and can be used as a Web Scraper and Web Proxy in parallel. It also allows flexible
+manipulation and blocking of network requests, as the "Browser" itself does not have to have
+any kind of DOM API or Web API.
 
-As the Stealth instance is peer-to-peer, every "Browser" in the
-local network shares its resources by default, so that bandwidth
-is automatically reduced.
+Potentially malicious scripts or instructions never reach the Stealth Browser and are processed
+inside the Stealth service only. They are never executed, and there cannot be such a thing like
+an "Anti-Anti-Anti-AdBlocker" that prevents the Browser from making the website usable again.
 
-Additionally Stealth can be run completely isolated as a scraper,
-which means it only requires node.js and even runs on low-end
-ARM devices like a Raspberry PI or an odroid XU4.
+The Browser is connected to the Stealth instance with a peer-to-peer capable Web-Socket network
+implementation that allows all Stealth Browsers in the network to share their locally cached
+files with other peers in the network.
+
+This automatically saves huge amounts of bandwidth and allows continous offline-usage of every
+website that was already visited and archived locally in the network.
 
 
 ## Design Decisions
 
-**AdBlock Filter list support on Parser level**
 
-All requests and all loaded content is filtered. This means all
-"Browser" instances never receive any data related to advertisement
-or tracking networks.
+### Offline First, Online Second
 
-As you cannot rely on backends from Russia or China actually
-respecting the `Do-Not-Track` header, it's just a waste of time
-and it has to be enforced on the user-side anyways.
+If an asset or file is available in the local cache, it will always be loaded from there. Only if
+the User manually tells the Browser to reload the website in `Online` mode, files will be downloaded,
+parsed, filtered and optimized again.
 
-**CSS Filters**
+This guarantees offline-ready usage of all websites and assets, directly from the local cache. As
+all CDNs these days use cache-busting and several Web Browser Extensions tried to fix it and failed,
+this is the general behaviour of the Stealth Browser - download as less as possible to make the
+website usable, always.
 
-All loaded content is optimized. This means that also stylesheets
-are filtered for bad things in regards to user experience.
 
-No annoying "You are from EU, we track you with Cookie" popups
-that you always have to confirm. No `overflow:hidden` anymore,
-no `:hover` via background images to tracking backends. No
-CDN-side cache busting to track user behaviour. No webfonts,
-because webfonts never are cached; in any Web Browser.
+### HTML and CSS only, No JavaScript
 
-There's more to it than this. The different modes of the Stealh
-Browser influence how things are loaded, filtered (and replaced)
-and layouted.
+The Stealth Browser filters all JavaScript out on purpose in order to guarantee maximum anonymity
+and privacy of its users. There are no DOM APIs and no Web APIs accessible by concept. Imagine
+the Stealth Browser as some kind of "Reader Mode" on steroids, for every content you consume and
+that you want to read later, even while being offline or on an airplane.
 
-**HTML and CSS, no JS by default**
+If you've visited the website already, it will be in the cache - unless you told the Browser
+manually to forget it.
 
-JavaScript is deactivated by default and only available in
-`Online` mode and additionally in a Private Tab sandbox that
-runs in a completely isolated cache inside `/tmp/stealth-<random>`
-and can never influence any other Web Browser behaviour or
-other Sandboxes.
 
-Only trusted websites are allowed to load JavaScripts, and it
-is allowed only in `Online` mode. (See Stealth/Site Modes).
+### HTML and CSS Filters (AdBlock, uBlock and Host Filter Lists)
 
-**No Web APIs**
+HTML and CSS files are downloaded and filtered by the Stealth service. Files will be stored in
+the temporary cache folder until they are processed. Persistent files always are filtered and
+do not contain any kind of advertisement or tracking related scripts or instructions.
 
-This ain't your mama's Web Browser. As the intention of this
-Web Browser is doing research online, advanced (and
-privacy-compromising) Web APIs are simply stripped away and
-not implemented.
+The Stealth Service will filter out dangerous CSS rules, too, as many advertisement agencies
+learned to exploit cache-busting techniques to have `background-image` s transferred by their
+analytics backends.
 
-These include for example `WebGL`, `WebAudio`, `WebSocket`,
-`WebRTC`, `XMLHttpRequest`, `fetch`, `addEventListener('mousemove')`
-and other Web- or DOM Level APIs.
+Additionally to that, many things are fixed automatically; things like `overflow:hidden` or
+`position:fixed` overlays that are blocking the whole screen are filtered automatically to
+ensure a better user experience.
 
-So there's no way to track you via ultrasonic noise that runs
-in the background on your TV and is integrated with the
-Browser's ad network on your Desktop computer.
+
+### Temporary Cookies only, No Persistent Tracking Cookies
+
+Cookies are stored temporarily in order to allow websites to load when they require their
+"anti-bot anti-haxxor" detections to run through. Cookies are stored only in the trusted
+`Online` Mode and they will be deleted after you closed the Tab - always, without exception.
 
 
 ## Stealth/Site Modes
 
-The Stealth Browser embraces user-side control and disregards
-developer-side control on how websites behave. You can imagine
-it as the next-gen screen reader that embraces the semantic web
-and therefore tries to load as less content as possible in order
-to make the website readable.
+The Stealth Browser embraces user-side control and disregards developer-side control on how
+websites behave. You can imagine it as the next-gen screen reader that embraces the Semantic Web
+and therefore tries to load as less content as possible in order to make the website readable.
 
-This can be achieved using user-configured Site Modes.
+This is achieved using a defaulted Stealth Mode and additional user-configured Site Modes.
 
 **Stealth Modes**
 
-The Stealth Modes are changeable at any time (right next to the
-address bar) and influence how websites and their linked or
-embedded content are loaded.
+The Stealth Modes are changeable at any time (right next to the address bar) and influence how
+websites and their linked or embedded content are loaded.
 
-- `Offline` requests nothing from the internet, never ever. It
-  loads only from the local cache in a guaranteed manner.
+- `Offline` requests nothing from the internet, never ever. It loads only from the local cache
+  in a guaranteed manner.
 
-- `Covert` requests only texts (such as plain texts, pdf or
-  html/css files) from the internet and translates them to
-  commonmark and back before it renders them. This can be seen
-  as an improved `Reader Mode` in other Web Browsers and it
-  guarantees that malicious content is never displayed in the
-  "Browser".
+- `Covert` requests only texts (such as plain texts, pdf or html/css files) from the internet
+  and translates them to commonmark and back before it renders them. This can be seen as an
+  improved `Reader Mode` in other Web Browsers and it guarantees that malicious content is never
+  displayed in the Browser.
 
-- `Stealth` requests only texts and images from the internet,
-  excluding webfonts, background images or border images and
-  other bandwidth-consuming content that is not necessary to
-  display the website.
+- `Stealth` requests only texts and images from the internet, excluding webfonts, background images
+  or border images and other bandwidth-consuming content that is not necessary to display the
+  website.
 
-- `Online` requests texts, images, audios, videos and other
-  binary files from the internet, including web fonts and
-  background images or border images. This can be seen as the
-  default mode in other Web Browsers, though it will still
-  filter out all advertisements and other unnecessary
+- `Online` requests texts, images, audios, videos and other binary files from the internet,
+  including web fonts and background images or border images. This can be seen as the default mode
+  in other Web Browsers, though it will still filter out all advertisements and other unnecessary
   HTML and CSS.
 
 **Site Modes**
 
-As the default mode influences all requests that are done in
-the current session, the idea behind "Site Modes" embraces the
-whitelist-based concept.
+As the defaulted `Stealth Mode` influences all requests that are done in the current session, the
+idea behind `Site Modes` is to whitelist specific websites that the user trusts and visits on a
+regular basis.
 
-Site-specific Modes override the defaulted mode incrementally,
-which means that for example when the Stealth Mode is set to
-Covert, but the domain rule is set to Stealth, it will still
-load the necessary content incrementally from the website if
-it would be forbidden by the Stealth Mode alone.
+Site-specific Modes override the defaulted `Stealth Mode` incrementally, which means that for
+example when the `Stealth Mode` is set to `Covert`, but the domain rule is set to `Stealth`, it will
+still load the necessary content incrementally from the website if it would be forbidden by the
+`Stealth Mode` alone.
 
-As the Site Modes are a whitelist-based concept it means that
-no requests are done by default, unless the user tells Stealth
-Browser to do so.
+As the `Site Modes` are a whitelist-based concept it means that no requests are done by default,
+unless the user tells the Stealth Browser to do so.
 
 
 ## Installation and Usage
 
-Quickstart:
+The Stealth service is implemented in `node` and is using
+ECMAScript Modules (`.mjs`) in order to `export` and `import`
+code. This means that `node` version `10` or higher is required.
+
+
+**Quickstart**
 
 - Install `node` version `10+` for ES6 modules support.
 - Install either a Web Browser of your choice or [nw.js](https://nwjs.io/downloads).
 
-If you want to use your own Web Browser, do the following:
+Start the Stealth service:
 
 ```bash
 cd /path/to/stealth-browser;
 
 bash ./bin/stealth.sh;
 
-# Open in web browser
+# Open in Web Browser
 gio open http://localhost:65432;
 ```
 
-If you want a bundled nw.js installation, do the following:
+Please read the `README.md` of both [Stealth](./stealth) and [Browser](./browser) to get more
+insights about their architecture and interaction.
 
-```bash
-cd /path/to/stealth-browser;
 
-bash ./bin/stealth-webview.sh;
-```
+## License
 
-Please read the `README.md` of both [Stealth](./stealth) and
-[Browser](./browser).
+The license is currently unclear and depends on how to finance this project later.
+Therefore assume All Rights Reserved and (c) Cookie Engineer for now.
 
