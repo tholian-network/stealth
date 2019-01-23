@@ -7,6 +7,9 @@ import { Emitter } from '../Emitter.mjs';
 
 const File = function(stealth) {
 
+	Emitter.call(this);
+
+
 	this.stealth = stealth;
 
 };
@@ -23,7 +26,7 @@ File.prototype = Object.assign({}, Emitter.prototype, {
 		if (ref !== null && callback !== null) {
 
 			let path = ref.path || null;
-			let root = this.stealth.settings.root || null;
+			let root = this.stealth.server.__root || null;
 
 			if (path !== null && root !== null) {
 

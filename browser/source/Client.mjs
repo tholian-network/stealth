@@ -4,16 +4,13 @@ import { Settings } from './service/Settings.mjs';
 
 
 
-const Peer = function(browser, settings) {
+const Client = function(browser) {
 
 	Emitter.call(this);
 
 
-	this.host = settings.host || null;
-	this.port = settings.port || null;
-
 	this.services = {
-		settings: new Settings(browser)
+		settings: new Settings(browser, this)
 	};
 
 	this.__socket = null;
@@ -21,10 +18,12 @@ const Peer = function(browser, settings) {
 };
 
 
-Peer.prototype = Object.assign({}, Emitter.prototype, {
+Client.prototype = Object.assign({}, Emitter.prototype, {
 
-	connect: function(callback) {
+	connect: function(host, port, callback) {
 
+		host     = typeof host === 'string'     ? host     : 'localhost';
+		port     = typeof port === 'number'     ? port     : 65432;
 		callback = callback instanceof Function ? callback : null;
 
 
@@ -39,9 +38,6 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 
-		let host = this.host;
-		let port = this.port;
-
 		if (host !== null && port !== null) {
 
 			if (/:/g.test(host)) {
@@ -53,29 +49,40 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.__socket.onmessage = e => {
 
-				let data = null;
+				let request = null;
 
 				if (typeof e.data === 'string') {
 
 					try {
-						data = JSON.parse(e.data);
+						request = JSON.parse(e.data);
 					} catch (err) {
-						data = null;
+						request = null;
 					}
 
 				}
 
-				if (data !== null) {
+				if (request !== null) {
 
-					let service = data.service || null;
-					let method  = data.method  || null;
-					let payload = data.payload || null;
+					let service = request.headers.service || null;
+					let event   = request.headers.event   || null;
+					let method  = request.headers.method  || null;
 
-					if (service !== null && method !== null) {
+					if (service !== null && event !== null) {
 
 						let instance = this.services[service] || null;
 						if (instance !== null) {
-							instance.emit(method, [ payload ]);
+							instance.emit(event, [ request.payload ]);
+						}
+
+					} else if (service !== null && method !== null) {
+
+						let instance = this.services[service] || null;
+						if (instance !== null && typeof instance[method] === 'function') {
+							instance[method](request.payload, response => {
+								if (response !== null) {
+									this.__socket.send(JSON.stringify(response, null, '\t'));
+								}
+							});
 						}
 
 					}
@@ -146,22 +153,16 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	send: function(service, method, payload) {
+	send: function(data) {
 
-		service = typeof service === 'string' ? service : null;
-		method  = typeof method === 'string'  ? method  : null;
-		payload = payload instanceof Object   ? payload : null;
+		data = data instanceof Object ? data : null;
 
 
-		if (service !== null && method !== null) {
+		if (data !== null) {
 
 			if (this.__socket !== null) {
 
-				this.__socket.send(JSON.stringify({
-					service: service,
-					method:  method,
-					payload: payload
-				}, null, '\t'));
+				this.__socket.send(JSON.stringify(data, null, '\t'));
 
 				return true;
 
@@ -177,5 +178,5 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 });
 
 
-export { Peer };
+export { Client };
 

@@ -61,13 +61,21 @@ aside#navi button {
 	cursor: pointer;
 }
 
+aside#navi button[title^="http:"]:before,
+aside#navi button[title^="https:"]:before,
 aside#navi button[title^="stealth:"]:before {
-	display: inline;
-	font-family: 'fontello';
-	content: '\f197';
+	display: inline-block;
+	width: 1em;
 	margin-right: 8px;
+	font-family: 'fontello';
+	text-align: center;
+	vertical-align: middle;
 	speak: none;
 }
+
+aside#navi button[title^="http:"]:before    { content: '\f13e'; }
+aside#navi button[title^="https:"]:before   { content: '\e808'; }
+aside#navi button[title^="stealth:"]:before { content: '\f197'; }
 
 aside#navi button.active {
 	color: #ffffff;

@@ -6,18 +6,26 @@ import { WS       } from './protocol/WS.mjs';
 import { Error    } from './service/Error.mjs';
 import { File     } from './service/File.mjs';
 import { Redirect } from './service/Redirect.mjs';
+import { Settings } from './service/Settings.mjs';
+
+const _ROOT = process.env.PWD;
 
 
 
-const Server = function(stealth) {
+const Server = function(stealth, root) {
+
+	root = typeof root === 'string' ? root : _ROOT;
+
 
 	this.stealth  = stealth;
 	this.services = {
-		file:     new File(stealth),
 		error:    new Error(stealth),
-		redirect: new Redirect(stealth)
+		file:     new File(stealth),
+		redirect: new Redirect(stealth),
+		settings: new Settings(stealth)
 	};
 
+	this.__root   = root;
 	this.__server = null;
 
 };
@@ -26,6 +34,10 @@ const Server = function(stealth) {
 Server.prototype = {
 
 	connect: function(host, port) {
+
+		host = typeof host === 'string' ? host : null;
+		port = typeof port === 'number' ? port : 65432;
+
 
 		if (this.__server === null) {
 
@@ -91,21 +103,26 @@ Server.prototype = {
 
 												if (request !== null) {
 
-													let service = this.services[request.headers.service] || null;
-													let method  = request.headers.method || null;
+													let service = request.headers.service || null;
+													let event   = request.headers.event   || null;
+													let method  = request.headers.method  || null;
 
-													console.log(request.headers, request.payload);
+													if (service !== null && event !== null) {
 
-													if (service !== null && method !== null) {
+														let instance = this.services[service] || null;
+														if (instance !== null) {
+															instance.emit(event, [ request.payload ]);
+														}
 
-														if (typeof service[method] === 'function') {
+													} else if (service !== null && method !== null) {
 
-															service[method](request.payload, response => {
+														let instance = this.services[service] || null;
+														if (instance !== null && typeof instance[method] === 'function') {
+															instance[method](request.payload, response => {
 																if (response !== null) {
 																	WS.send(socket, response);
 																}
 															});
-
 														}
 
 													}

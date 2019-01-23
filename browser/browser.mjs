@@ -1,31 +1,38 @@
 
 import { Browser } from './source/Browser.mjs';
 
-const SETTINGS = (function(location) {
+const [ _HOST, _PORT ] = (function(location) {
 
-	let settings = {};
-	let host     = null;
-	let port     = null;
+	let host = 'localhost';
+	let port = 65432;
 
 	let tmp = location.host || null;
 	if (tmp !== null) {
 
 		if (tmp.includes(':')) {
-			host = tmp.split(':')[0];
-			port = parseInt(tmp.split(':')[1], 10);
+
+			let tmp1 = tmp.split(':')[0];
+			if (tmp1 !== 'localhost') {
+				host = tmp1;
+			}
+
+			let tmp2 = parseInt(tmp.split(':')[1], 10);
+			if (Number.isNaN(tmp2) === false) {
+				port = tmp2;
+			}
+
+		} else if (tmp !== 'localhost') {
+			host = tmp;
 		}
 
 	}
 
-	if (host !== null)                 settings.host = host;
-	if (port !== null && !isNaN(port)) settings.port = port;
-
-	return settings;
+	return [ host, port ];
 
 })(window.location || {});
 
 
-const browser = window.browser = new Browser(SETTINGS);
+let browser = window.browser = new Browser();
 
 if (BROWSER_BINDINGS.length > 0) {
 	BROWSER_BINDINGS.forEach(callback => callback(browser));
@@ -33,20 +40,21 @@ if (BROWSER_BINDINGS.length > 0) {
 }
 
 
+
 setTimeout(_ => {
 
 	let browser = window.browser || null;
 	if (browser !== null) {
-		console.info('Browser ready :)');
+
+		browser.connect(_HOST, _PORT);
+
 
 		let tabs = [];
 
 		tabs.push(browser.create('https://cookie.engineer'));
 		tabs.push(browser.create('https://old.reddit.com/r/programming'));
-		tabs.push(browser.create('https://reddit.com/r/programming'));
 		tabs.push(browser.create('https://www.reddit.com/r/programming'));
 		tabs.push(browser.create('stealth:settings'));
-		tabs.push(browser.create('stealth:welcome'));
 
 		browser.show(tabs[tabs.length - 1]);
 

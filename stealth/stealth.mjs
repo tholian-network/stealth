@@ -44,23 +44,21 @@ const _FLAGS   = (function() {
 
 
 const settings = {
-	root: _ROOT
+	profile: _FLAGS.profile || null,
+	root:    _ROOT
 };
-
-if (typeof _FLAGS.port === 'number') {
-	settings.port = _FLAGS.port;
-}
-
-if (typeof _FLAGS.profile === 'string') {
-	settings.profile = _FLAGS.profile;
-}
-
 
 (function(global) {
 
-	const stealth = global.stealth = new Stealth(settings);
+	let stealth = global.stealth = new Stealth(settings);
+	if (stealth !== null) {
 
-	stealth.connect();
+		stealth.connect(
+			_FLAGS.host || null,
+			_FLAGS.port || null
+		);
+
+	}
 
 })(typeof window !== 'undefined' ? window : global);
 

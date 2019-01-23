@@ -1,38 +1,20 @@
 
-import { Emitter } from './Emitter.mjs';
-import { Peer    } from './Peer.mjs';
-import { Tab     } from './Tab.mjs';
-import { URL     } from './URL.mjs';
+import { Emitter  } from './Emitter.mjs';
+import { Client   } from './Client.mjs';
+import { Tab      } from './Tab.mjs';
+import { URL      } from './URL.mjs';
 
 
 
-const Browser = function(data) {
+const Browser = function() {
 
 	Emitter.call(this);
 
 
-	let settings = Object.assign({
-		host: 'localhost',
-		port: 65432
-	}, data);
-
-
-	this.mode = 'offline';
-	this.peer = new Peer(this, {
-		host: settings.host || null,
-		port: settings.port || null
-	});
-	this.tab  = null;
-	this.tabs = [];
-
-
-	this.peer.connect(result => {
-
-		if (result === true) {
-			console.log('Peer "' + this.peer.host + ':' + this.peer.port + '" ready :)');
-		}
-
-	});
+	this.client = new Client(this);
+	this.mode   = 'offline';
+	this.tab    = null;
+	this.tabs   = [];
 
 
 	this.settings = {
@@ -40,11 +22,10 @@ const Browser = function(data) {
 			connection: 'mobile',
 			torify:     false,
 		},
-		filters:  [],
-		hosts:    [],
-		peers:    [],
-		scrapers: [],
-		sites:    []
+		filters: [],
+		hosts:   [],
+		peers:   [],
+		sites:   []
 	};
 
 };
@@ -149,6 +130,19 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		return null;
+
+	},
+
+	connect: function(host, port) {
+
+		let client = this.client;
+		if (client !== null) {
+			client.connect(host, port, result => {
+				if (result === true) {
+					client.services.settings.read(null, _ => {});
+				}
+			});
+		}
 
 	},
 
@@ -381,7 +375,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		} else {
 
 			tab = new Tab({
-				peer: this.peer,
 				mode: mode,
 				url:  url
 			});

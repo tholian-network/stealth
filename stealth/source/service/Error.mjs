@@ -2,6 +2,7 @@
 import { Emitter } from '../Emitter.mjs';
 
 
+
 const _CODES = {
 	301: 'Moved Permanently',
 	404: 'Not Found',
@@ -10,6 +11,11 @@ const _CODES = {
 
 
 const Error = function(stealth) {
+
+	Emitter.call(this);
+
+
+	this.stealth = stealth;
 
 };
 

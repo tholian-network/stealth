@@ -1,32 +1,28 @@
 
-import { Server } from './Server.mjs';
-import { URL    } from './URL.mjs';
+import { Server   } from './Server.mjs';
+import { Settings } from './Settings.mjs';
+import { URL      } from './URL.mjs';
 
 
 
 const Stealth = function(data) {
 
 	let settings = Object.assign({
-		host:    'localhost',
-		port:    65432,
-		profile: '/tmp/stealth',
+		profile: null,
 		root:    null
 	}, data);
 
-	this.settings = settings;
-	this.server   = new Server(this);
+	this.settings = new Settings(this, settings.profile);
+	this.server   = new Server(this, settings.root);
 
 };
 
 
 Stealth.prototype = {
 
-	connect: function() {
+	connect: function(host, port) {
 
-		let host = this.settings.host;
-		let port = this.settings.port;
-
-		if (host !== null && port !== null) {
+		if (this.server !== null) {
 			this.server.connect(host, port);
 		}
 

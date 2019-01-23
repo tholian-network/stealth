@@ -5,6 +5,11 @@ import { Emitter } from '../Emitter.mjs';
 
 const Redirect = function(stealth) {
 
+	Emitter.call(this);
+
+
+	this.stealth = stealth;
+
 };
 
 

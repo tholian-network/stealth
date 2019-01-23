@@ -10,7 +10,6 @@ const Tab = function(data) {
 	this.history  = [];
 	this.url      = settings.url  || null;
 	this.mode     = settings.mode || null;
-	this.peer     = settings.peer || null;
 	this.requests = [{
 		url:     'https://wat/is/this.jpg',
 		loading: true
