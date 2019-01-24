@@ -1,19 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
-ROOT=$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd);
-NODE=`which node`;
+root_dir="$(dirname "$(dirname "$(readlink -f "$0")")")"
+node_bin="$(which node)"
 
 
+if [[ -z "$node_bin" ]]; then
+	echo "Please install node.js first"
+	exit 1
+fi
 
-if [ "$NODE" != "" ]; then
-
-	cd $ROOT;
-	$NODE --experimental-modules ./stealth/stealth.mjs "$@";
-
-else
-
-	echo "Please install node.js first";
-	exit 1;
-
-fi;
+cd "$root_dir"
+"$node_bin" --experimental-modules ./stealth/stealth.mjs "$@"
 
