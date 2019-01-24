@@ -17,8 +17,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(data, callback) {
 
-		data     = data instanceof Object       ? data     : null;
-		callback = callback instanceof Function ? callback : null;
+		data     = data instanceof Object         ? data     : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		this.stealth.settings.read(result => {
@@ -55,8 +55,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(data, callback) {
 
-		data     = data instanceof Object       ? data     : null;
-		callback = callback instanceof Function ? callback : null;
+		data     = data instanceof Object         ? data     : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (data !== null && callback !== null) {

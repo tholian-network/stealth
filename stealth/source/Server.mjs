@@ -12,6 +12,18 @@ const _ROOT = process.env.PWD;
 
 
 
+const _includes = function(string, chunk) {
+
+	if (typeof string === 'string') {
+		return string.toLowerCase().includes(chunk.toLowerCase());
+	}
+
+	return false;
+
+};
+
+
+
 const Server = function(stealth, root) {
 
 	root = typeof root === 'string' ? root : _ROOT;
@@ -81,9 +93,9 @@ Server.prototype = {
 							});
 
 							if (
-								headers['connection'] === 'Upgrade'
-								&& headers['upgrade'] === 'websocket'
-								&& headers['sec-websocket-protocol'] === 'stealth'
+								_includes(headers['connection'], 'Upgrade')
+								&& _includes(headers['upgrade'], 'websocket')
+								&& _includes(headers['sec-websocket-protocol'], 'stealth')
 							) {
 
 								WS.upgrade(socket, headers, result => {

@@ -18,8 +18,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(data, callback) {
 
-		data     = data instanceof Object       ? data     : null;
-		callback = callback instanceof Function ? callback : null;
+		data     = data instanceof Object         ? data     : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (callback !== null) {

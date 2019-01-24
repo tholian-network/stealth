@@ -1,37 +1,36 @@
 
 const _TYPES = {
 
-	'appcache': { type: 'text',     binary: false, format: 'text/cache-manifest'      },
-	'default':  { type: 'download', binary: true,  format: 'application/octet-stream' },
+	'appcache': { type: 'text',  binary: false, format: 'text/cache-manifest'      },
+	'default':  { type: 'other', binary: true,  format: 'application/octet-stream' },
 
 	// application
-	'abw':   { type: 'download', binary: true,  format: 'application/x-abiword'                                                     },
-	'azw':   { type: 'download', binary: true,  format: 'application/vnd.amazon.ebook'                                              },
-	'bin':   { type: 'download', binary: true,  format: 'application/octet-stream'                                                  },
-	'csh':   { type: 'text',     binary: false, format: 'application/x-csh'                                                         },
-	'doc':   { type: 'download', binary: true,  format: 'application/msword'                                                        },
-	'docx':  { type: 'download', binary: true,  format: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'   },
-	'eot':   { type: 'font',     binary: true,  format: 'application/vnd.ms-fontobject'                                             },
-	'js':    { type: 'text',     binary: false, format: 'application/javascript'                                                    },
-	'json':  { type: 'text',     binary: false, format: 'application/json'                                                          },
-	'mjs':   { type: 'text',     binary: false, format: 'application/javascript'                                                    },
-	'odp':   { type: 'download', binary: true,  format: 'application/vnd.oasis.opendocument.presentation'                           },
-	'ods':   { type: 'download', binary: true,  format: 'application/vnd.oasis.opendocument.spreadsheet'                            },
-	'odt':   { type: 'download', binary: true,  format: 'application/vnd.oasis.opendocument.text'                                   },
-	'ogx':   { type: 'video',    binary: true,  format: 'application/ogg'                                                           },
-	'pdf':   { type: 'download', binary: true,  format: 'application/pdf'                                                           },
-	'ppt':   { type: 'download', binary: true,  format: 'application/vnd.ms-powerpoint'                                             },
-	'pptx':  { type: 'download', binary: true,  format: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' },
-	'rtf':   { type: 'download', binary: true,  format: 'application/rtf'                                                           },
-	'sh':    { type: 'text',     binary: false, format: 'application/x-sh'                                                          },
-	'ts':    { type: 'text',     binary: false, format: 'application/typescript'                                                    },
-	'vsd':   { type: 'download', binary: true,  format: 'application/vnd.visio'                                                     },
-	'xhtml': { type: 'text',     binary: false, format: 'application/xhtml+xml'                                                     },
-	'xls':   { type: 'download', binary: true,  format: 'application/vnd.ms-excel'                                                  },
-	'xlsx':  { type: 'download', binary: true,  format: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'         },
-	'xml':   { type: 'text',     binary: false, format: 'application/xml'                                                           },
-	'xul':   { type: 'text',     binary: false, format: 'application/vnd.mozilla.xul+xml'                                           },
-
+	'abw':   { type: 'other', binary: true,  format: 'application/x-abiword'                                                     },
+	'azw':   { type: 'other', binary: true,  format: 'application/vnd.amazon.ebook'                                              },
+	'bin':   { type: 'other', binary: true,  format: 'application/octet-stream'                                                  },
+	'csh':   { type: 'text',  binary: false, format: 'application/x-csh'                                                         },
+	'doc':   { type: 'other', binary: true,  format: 'application/msword'                                                        },
+	'docx':  { type: 'other', binary: true,  format: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'   },
+	'eot':   { type: 'font',  binary: true,  format: 'application/vnd.ms-fontobject'                                             },
+	'js':    { type: 'text',  binary: false, format: 'application/javascript'                                                    },
+	'json':  { type: 'text',  binary: false, format: 'application/json'                                                          },
+	'mjs':   { type: 'text',  binary: false, format: 'application/javascript'                                                    },
+	'odp':   { type: 'other', binary: true,  format: 'application/vnd.oasis.opendocument.presentation'                           },
+	'ods':   { type: 'other', binary: true,  format: 'application/vnd.oasis.opendocument.spreadsheet'                            },
+	'odt':   { type: 'other', binary: true,  format: 'application/vnd.oasis.opendocument.text'                                   },
+	'ogx':   { type: 'video', binary: true,  format: 'application/ogg'                                                           },
+	'pdf':   { type: 'other', binary: true,  format: 'application/pdf'                                                           },
+	'ppt':   { type: 'other', binary: true,  format: 'application/vnd.ms-powerpoint'                                             },
+	'pptx':  { type: 'other', binary: true,  format: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' },
+	'rtf':   { type: 'other', binary: true,  format: 'application/rtf'                                                           },
+	'sh':    { type: 'text',  binary: false, format: 'application/x-sh'                                                          },
+	'ts':    { type: 'text',  binary: false, format: 'application/typescript'                                                    },
+	'vsd':   { type: 'other', binary: true,  format: 'application/vnd.visio'                                                     },
+	'xhtml': { type: 'text',  binary: false, format: 'application/xhtml+xml'                                                     },
+	'xls':   { type: 'other', binary: true,  format: 'application/vnd.ms-excel'                                                  },
+	'xlsx':  { type: 'other', binary: true,  format: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'         },
+	'xml':   { type: 'text',  binary: false, format: 'application/xml'                                                           },
+	'xul':   { type: 'text',  binary: false, format: 'application/vnd.mozilla.xul+xml'                                           },
 
 	// audio
 	'3gp':   { type: 'audio', binary: true, format: 'audio/3gpp' },
@@ -51,7 +50,6 @@ const _TYPES = {
 	'ttf':   { type: 'font', binary: true, format: 'font/ttf'   },
 	'woff':  { type: 'font', binary: true, format: 'font/woff'  },
 	'woff2': { type: 'font', binary: true, format: 'font/woff2' },
-
 
 	// image
 	'bmp':  { type: 'image', binary: true, format: 'image/bmp'     },
@@ -84,17 +82,16 @@ const _TYPES = {
 	'ogv':  { type: 'video', binary: true, format: 'video/ogg'       },
 	'webm': { type: 'video', binary: true, format: 'video/webm'      },
 
-
-	// download archives
-	'7z':   { type: 'download', binary: true, format: 'application/x-7z-compressed'  },
-	'bz':   { type: 'download', binary: true, format: 'application/x-bzip'           },
-	'bz2':  { type: 'download', binary: true, format: 'application/x-bzip2'          },
-	'epub': { type: 'download', binary: true, format: 'application/epub+zip'         },
-	'gz':   { type: 'download', binary: true, format: 'application/x-gzip'           },
-	'jar':  { type: 'download', binary: true, format: 'application/jar-archive'      },
-	'rar':  { type: 'download', binary: true, format: 'application/x-rar-compressed' },
-	'tar':  { type: 'download', binary: true, format: 'application/x-tar'            },
-	'zip':  { type: 'download', binary: true, format: 'application/zip'              }
+	// other
+	'7z':   { type: 'other', binary: true, format: 'application/x-7z-compressed'  },
+	'bz':   { type: 'other', binary: true, format: 'application/x-bzip'           },
+	'bz2':  { type: 'other', binary: true, format: 'application/x-bzip2'          },
+	'epub': { type: 'other', binary: true, format: 'application/epub+zip'         },
+	'gz':   { type: 'other', binary: true, format: 'application/x-gzip'           },
+	'jar':  { type: 'other', binary: true, format: 'application/jar-archive'      },
+	'rar':  { type: 'other', binary: true, format: 'application/x-rar-compressed' },
+	'tar':  { type: 'other', binary: true, format: 'application/x-tar'            },
+	'zip':  { type: 'other', binary: true, format: 'application/zip'              }
 
 };
 

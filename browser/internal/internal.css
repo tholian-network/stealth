@@ -14,6 +14,16 @@ body {
 	font-weight: normal;
 }
 
+::selection {
+	color: #ffffff;
+	background: #0f99cb;
+}
+
+::-moz-selection {
+	color: #ffffff;
+	background: #0f99cb;
+}
+
 article {
 	width: 640px;
 	margin: 64px auto;
@@ -79,10 +89,10 @@ article button.icon-covert:before  { content: '\f0fb'; }
 article button.icon-stealth:before { content: '\f197'; }
 article button.icon-online:before  { content: '\f135'; transform: rotate(45deg) scale(1.25) translate(-2px, 2px); }
 
-article button.icon-text:before     { content: '\f0f6'; }
-article button.icon-image:before    { content: '\e812'; }
-article button.icon-video:before    { content: '\e813'; }
-article button.icon-download:before { content: '\e806'; }
+article button.icon-text:before  { content: '\f0f6'; }
+article button.icon-image:before { content: '\e812'; }
+article button.icon-video:before { content: '\e813'; }
+article button.icon-other:before { content: '\e806'; }
 
 article button.icon-confirm:before { content: '\e803'; }
 article button.icon-refresh:before { content: '\e802'; }
@@ -213,6 +223,11 @@ article table tr:hover td {
 	border: 1px solid #ffffff;
 }
 
+article table tfoot tr:hover td,
+article table tfoot tr td {
+	border-top: 2px solid #ffffff;
+}
+
 article ul {
 	margin: 0px;
 	padding: 0px;
@@ -264,14 +279,8 @@ article table input[type="text"] {
 
 
 #internet-connection div,
-#internet-tor div {
+#internet-torify div {
 	line-height: 32px;
 	vertical-align: middle;
-}
-
-#peers-list-menu td,
-#hosts-list-menu td,
-#sites-list-menu td {
-	border-top: 2px solid #ffffff;
 }
 

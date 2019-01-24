@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
+		<meta charset="utf-8">
 		<title>stealth:settings</title>
 		<link rel="stylesheet" href="../design/font/index.css">
 		<link rel="stylesheet" href="internal.css">
@@ -41,14 +42,14 @@
 				has to have mobile or broadband internet access in order to
 				connect to sites on the internet.
 			</p>
-			<div id="internet-tor">
+			<div id="internet-torify">
 				<div>
-					<input id="internet-tor-radio-1" name="internet-tor" type="radio" value="true">
-					<label for="internet-tor-radio-1">Use the TOR proxy when available.</label>
+					<input id="internet-torify-radio-1" name="internet-torify" type="radio" value="true">
+					<label for="internet-torify-radio-1">Use the TOR proxy when available.</label>
 				</div>
 				<div>
-					<input id="internet-tor-radio-2" name="internet-tor" type="radio" value="false" checked>
-					<label for="internet-tor-radio-2">Don't use the TOR proxy.</label>
+					<input id="internet-torify-radio-2" name="internet-torify" type="radio" value="false" checked>
+					<label for="internet-torify-radio-2">Don't use the TOR proxy.</label>
 				</div>
 			</div>
 		</article>
@@ -128,23 +129,15 @@
 						<th>Actions</th>
 					</tr>
 				</thead>
-				<tbody id="hosts-list">
+				<tbody></tbody>
+				<tfoot>
 					<tr>
-						<td>old.reddit.com</td>
-						<td>123.123.123.123</td>
-						<td>ff12:1234:1234:1234:1234:1234</td>
-						<td>
-							<button class="icon-refresh"></button>
-							<button class="icon-remove"></button>
-						</td>
+						<td><input id="hosts-list-domain" type="text" placeholder="Domain"></td>
+						<td><input id="hosts-list-ipv4" type="text" placeholder="IPv4"></td>
+						<td><input id="hosts-list-ipv6" type="text" placeholder="IPv6"></td>
+						<td><button id="hosts-list-create" class="icon-confirm"></button></td>
 					</tr>
-					<tr id="hosts-list-menu">
-						<td><input id="hosts-list-menu-domain" type="text" placeholder="Domain"></td>
-						<td><input id="hosts-list-menu-ipv4" type="text" placeholder="IPv4"></td>
-						<td><input id="hosts-list-menu-ipv6" type="text" placeholder="IPv6"></td>
-						<td><button id="hosts-list-menu-create" class="icon-confirm"></button></td>
-					</tr>
-				</tbody>
+				</tfoot>
 			</table>
 		</article>
 		<article id="peers">
@@ -168,26 +161,15 @@
 						<th>Actions</th>
 					</tr>
 				</thead>
-				<tbody id="peers-list">
+				<tbody></tbody>
+				<tfoot>
 					<tr>
-						<td>tinky</td>
-						<td><button class="icon-online" disabled></button></td>
-						<td><button class="icon-stealth"></button></td>
-						<td><button class="icon-refresh"></button><button class="icon-remove"></button></td>
+						<td><input id="peers-list-domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
+						<td><button id="peers-list-capacity" class="icon-unknown"></button></td>
+						<td><button id="peers-list-mode" class="icon-offline"></button></td>
+						<td><button id="peers-list-confirm" class="icon-confirm"></button></td>
 					</tr>
-					<tr>
-						<td>wuup</td>
-						<td><button class="icon-offline" disabled></button></td>
-						<td><button class="icon-stealth"></button></td>
-						<td><button class="icon-refresh"></button><button class="icon-remove"></button></td>
-					</tr>
-					<tr id="peers-list-menu">
-						<td><input id="peers-list-menu-domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
-						<td><button id="peers-list-menu-capacity" class="icon-unknown"></button></td>
-						<td><button id="peers-list-menu-mode" class="icon-offline"></button></td>
-						<td><button id="peers-list-menu-confirm" class="icon-confirm"></button></td>
-					</tr>
-				</tbody>
+				</tfoot>
 			</table>
 		</article>
 		<article id="plugins">
@@ -223,30 +205,20 @@
 						<th>Actions</th>
 					</tr>
 				</thead>
-				<tbody id="sites-list">
+				<tbody></tbody>
+				<tfoot>
 					<tr>
-						<td>old.reddit.com</td>
+						<td><input id="sites-list-domain" type="text" placeholder="Domain"></td>
 						<td class="site-media">
-							<button class="icon-text" title="Texts"></button>
-							<button class="icon-image active" title="Images"></button>
-							<button class="icon-video" title="Videos"></button>
-							<button class="icon-download active" title="Downloads"></button>
-						</td>
-						<td class="site-mode"><button class="icon-online" title="Online" disabled></button></td>
-						<td><button class="icon-remove"></button></td>
-					</tr>
-					<tr id="sites-list-menu">
-						<td><input id="sites-list-menu-domain" type="text" placeholder="Domain"></td>
-						<td class="site-media">
-							<button class="icon-text" title="Texts"></button>
-							<button class="icon-image" title="Images"></button>
-							<button class="icon-video" title="Videos"></button>
-							<button class="icon-download" title="Downloads"></button>
+							<button class="icon-text" title="Text"></button>
+							<button class="icon-image" title="Image"></button>
+							<button class="icon-video" title="Video"></button>
+							<button class="icon-other" title="Other"></button>
 						</td>
 						<td class="site-mode"><button class="icon-offline" title="Offline" disabled></button></td>
-						<td><button id="sites-list-menu-create" class="icon-confirm"></button></td>
+						<td><button id="sites-list-create" class="icon-confirm"></button></td>
 					</tr>
-				</tbody>
+				</tfoot>
 			</table>
 		</article>
 		<footer>

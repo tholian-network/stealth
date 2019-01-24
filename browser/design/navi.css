@@ -88,9 +88,15 @@ aside#navi button.active:first-of-type {
 	border-top: 1px solid transparent;
 }
 
+aside#navi button:focus,
 aside#navi button:hover {
 	color: #ffffff;
 	background: rgba(255,255,255,0.1);
+	outline: none;
+}
+
+aside#navi button::-moz-focus-inner {
+	border: 0px solid transparent;
 }
 
 aside#navi button:last-of-type {

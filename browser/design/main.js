@@ -209,6 +209,14 @@
 					e.preventDefault();
 					e.stopPropagation();
 
+				} else if (
+					(ctrl === true && key === 'x')
+					|| (ctrl === true && key === 'c')
+					|| (ctrl === true && key === 'v')
+				) {
+
+					// XXX: Do nothing
+
 				} else if (ctrl === true) {
 
 					// XXX: Stupid Browser be stupid, yo

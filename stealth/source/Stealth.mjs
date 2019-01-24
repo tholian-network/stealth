@@ -12,6 +12,12 @@ const Stealth = function(data) {
 		root:    null
 	}, data);
 
+
+	console.log('Stealth Settings are:');
+	Object.keys(settings).forEach(key => {
+		console.log(' > "' + key + '": "' + settings[key] + '"');
+	});
+
 	this.settings = new Settings(this, settings.profile);
 	this.server   = new Server(this, settings.root);
 

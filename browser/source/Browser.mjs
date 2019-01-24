@@ -93,29 +93,31 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				} else {
 
 					let config = {
-						domain:    domain,
-						texts:     false,
-						images:    false,
-						videos:    false,
-						downloads: false
+						domain: domain,
+						media:  {
+							text:  false,
+							image: false,
+							video: false,
+							other: false
+						}
 					};
 
 					let mode = this.mode;
 					if (mode === 'online') {
-						config.texts     = true;
-						config.images    = true;
-						config.videos    = true;
-						config.downloads = true;
+						config.media.text  = true;
+						config.media.image = true;
+						config.media.video = true;
+						config.media.other = true;
 					} else if (mode === 'stealth') {
-						config.texts     = true;
-						config.images    = true;
-						config.videos    = false;
-						config.downloads = false;
+						config.media.text  = true;
+						config.media.image = true;
+						config.media.video = false;
+						config.media.other = false;
 					} else if (mode === 'covert') {
-						config.texts     = true;
-						config.images    = false;
-						config.videos    = false;
-						config.downloads = false;
+						config.media.text  = true;
+						config.media.image = false;
+						config.media.video = false;
+						config.media.other = false;
 					} else if (mode === 'offline') {
 						// XXX: Don't load anything
 					}

@@ -59,13 +59,21 @@ header button[disabled]:hover {
 	cursor: default;
 }
 
+
 header button.active {
 	color: #ffffff;
 }
 
+header button:focus,
 header button:hover {
 	color: #ffffff;
 	background: rgba(255,255,255,0.1);
+	border: 0px solid transparent;
+	outline: none;
+}
+
+header button::-moz-focus-inner {
+	border: 0px solid transparent;
 }
 
 header div {
