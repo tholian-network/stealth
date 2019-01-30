@@ -233,13 +233,13 @@ const Settings = function(stealth, profile) {
 	this.peers   = [];
 	this.sites   = [];
 
-	this.__profile = profile;
+	this.profile = profile;
 
 
-	_read.call(this, this.__profile, result => {
+	_read.call(this, this.profile, result => {
 
 		if (result === true) {
-			console.info('Stealth Profile is at "' + this.__profile + '".');
+			console.info('Stealth Profile is at "' + this.profile + '".');
 		} else {
 			console.warn('Stealth Profile is at "/tmp/stealth".');
 		}
@@ -292,7 +292,7 @@ Settings.prototype = {
 		callback = callback instanceof Function ? callback : null;
 
 
-		_read.call(this, this.__profile, result => {
+		_read.call(this, this.profile, result => {
 
 			if (callback !== null) {
 				callback(result);
@@ -307,7 +307,7 @@ Settings.prototype = {
 		callback = callback instanceof Function ? callback : null;
 
 
-		_save.call(this, this.__profile, result => {
+		_save.call(this, this.profile, result => {
 
 			if (callback !== null) {
 				callback(result);

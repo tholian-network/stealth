@@ -17,7 +17,7 @@ const File = function(stealth) {
 
 File.prototype = Object.assign({}, Emitter.prototype, {
 
-	get: function(ref, callback) {
+	read: function(ref, callback) {
 
 		ref      = ref instanceof Object        ? ref      : null;
 		callback = callback instanceof Function ? callback : null;
@@ -29,9 +29,6 @@ File.prototype = Object.assign({}, Emitter.prototype, {
 			let root = this.stealth.server.__root || null;
 
 			if (path !== null && root !== null) {
-
-				// let stealth = this.stealth;
-				// let ref     = stealth.parse(path);
 
 				fs.readFile(root + path, (err, buffer) => {
 

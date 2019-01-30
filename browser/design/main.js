@@ -27,29 +27,38 @@
 
 	const _get_url = function(tab) {
 
-		let url = null;
+		let url  = null;
+		let ref  = browser.parse(tab.url);
+		let mime = ref.mime || null;
 
-		if (tab.url.startsWith('https://') || tab.url.startsWith('http://')) {
-			url = '/stealth/' + tab.url.split('/').slice(2).join('/');
-		} else if (tab.url.startsWith('stealth:')) {
+		if (mime !== null && (mime.type === 'audio' || mime.type === 'video')) {
 
-			let tmp1 = tab.url.split('?')[0].split(':')[1];
-			let tmp2 = tab.url.split('?')[1] || '';
+			url = '/browser/internal/media.html?url=' + ref.domain + ref.path;
 
-			if (tmp1.endsWith('/')) {
-				tmp1 = tmp1.substr(0, tmp1.length - 1);
+		} else if (ref.protocol === 'stealth') {
+
+			url = '/browser/internal/' + ref.domain + '.html';
+
+			if (ref.query !== null) {
+				url += '?' + ref.query;
 			}
 
-			url = '/browser/internal/' + tmp1 + '.html';
+		} else if (ref.protocol === 'https' || ref.protocol === 'http') {
 
-			if (tmp2 !== '') {
-				url += '?' + tmp2;
+			url = '/stealth/' + ref.domain + ref.path;
+
+			if (ref.query !== null) {
+				url += '?' + ref.query;
 			}
 
-		} else if (tab.url.includes('://')) {
-			url = '/stealth/' + tab.url.substr(tab.url.indexOf('://') + 3).split('/').join('/');
 		} else {
-			url = '/stealth/' + tab.url;
+
+			url = '/browser/internal/fix-url.html?url=' + ref.domain + ref.path;
+
+			if (ref.query !== null) {
+				url += '&' + ref.query;
+			}
+
 		}
 
 		return url;
@@ -138,7 +147,7 @@
 
 				} else if (key === 'f4') {
 
-					let tab = browser.create('stealth:settings');
+					let tab = browser.open('stealth:settings');
 					if (tab !== null) {
 						browser.show(tab);
 						tab.load();

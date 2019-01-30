@@ -3,24 +3,16 @@ import net from 'net';
 
 import { HTTP     } from './protocol/HTTP.mjs';
 import { WS       } from './protocol/WS.mjs';
+import { Cache    } from './service/Cache.mjs';
 import { Error    } from './service/Error.mjs';
 import { File     } from './service/File.mjs';
+import { Host     } from './service/Host.mjs';
+// import { Peer     } from './service/Peer.mjs';
 import { Redirect } from './service/Redirect.mjs';
 import { Settings } from './service/Settings.mjs';
+// import { Site     } from './service/Site.mjs';
 
 const _ROOT = process.env.PWD;
-
-
-
-const _includes = function(string, chunk) {
-
-	if (typeof string === 'string') {
-		return string.toLowerCase().includes(chunk.toLowerCase());
-	}
-
-	return false;
-
-};
 
 
 
@@ -31,10 +23,14 @@ const Server = function(stealth, root) {
 
 	this.stealth  = stealth;
 	this.services = {
+		cache:    new Cache(stealth),
 		error:    new Error(stealth),
 		file:     new File(stealth),
+		host:     new Host(stealth),
+//		peer:     new Peer(stealth),
 		redirect: new Redirect(stealth),
-		settings: new Settings(stealth)
+		settings: new Settings(stealth),
+//		site:     new Site(stealth)
 	};
 
 	this.__root   = root;
@@ -87,15 +83,18 @@ Server.prototype = {
 
 								let key = line.split(':')[0].trim().toLowerCase();
 								let val = line.split(':').slice(1).join(':').trim();
-
-								headers[key] = val;
+								if (key === 'sec-websocket-key') {
+									headers[key] = val;
+								} else {
+									headers[key] = val.toLowerCase();
+								}
 
 							});
 
 							if (
-								_includes(headers['connection'], 'Upgrade')
-								&& _includes(headers['upgrade'], 'websocket')
-								&& _includes(headers['sec-websocket-protocol'], 'stealth')
+								(headers['connection'] || '').includes('upgrade')
+								&& (headers['upgrade'] || '').includes('websocket')
+								&& (headers['sec-websocket-protocol'] || '').includes('stealth')
 							) {
 
 								WS.upgrade(socket, headers, result => {
@@ -165,20 +164,21 @@ Server.prototype = {
 
 									let ref = this.stealth.parse(request.headers['url']);
 
-
 									if (ref.path === '/') {
 
-										ref.path = '/browser/index.html';
-
-										this.services.redirect.get(ref, response => {
+										this.services.redirect.get({
+											code: 301,
+											path: '/browser/index.html'
+										}, response => {
 											HTTP.send(socket, response);
 										});
 
 									} else if (ref.path === '/favicon.ico') {
 
-										ref.path = '/browser/favicon.ico';
-
-										this.services.redirect.get(ref, response => {
+										this.services.redirect.get({
+											code: 301,
+											path: '/browser/favicon.ico'
+										}, response => {
 
 											if (response !== null) {
 												HTTP.send(socket, response);
@@ -192,7 +192,7 @@ Server.prototype = {
 
 									} else if (ref.path.startsWith('/browser')) {
 
-										this.services.file.get(ref, response => {
+										this.services.file.read(ref, response => {
 
 											if (response !== null && response.payload !== null) {
 												HTTP.send(socket, response);
@@ -204,10 +204,66 @@ Server.prototype = {
 
 										});
 
+									} else if (ref.path.startsWith('/stealth/')) {
+
+										let tmp     = ref.path.substr(9) + (ref.query !== null ? ('?' + ref.query) : '');
+										let url     = 'https://' + tmp;
+										let request = this.stealth.open(url);
+										if (request !== null) {
+
+											request.on('error', err => {
+
+												if (err.type === 'url') {
+
+													this.services.redirect.get({
+														code: 307,
+														path: '/browser/internal/fix-url.html?url=' + tmp
+													}, response => HTTP.send(socket, response));
+
+												} else if (err.type === 'connect') {
+
+													this.services.redirect.get({
+														code: 307,
+														path: '/browser/internal/fix-connect.html?url=' + tmp
+													}, response => HTTP.send(socket, response));
+
+												} else if (err.type === 'download') {
+
+													this.services.redirect.get({
+														code: 307,
+														path: '/browser/internal/fix-download.html?url=' + tmp
+													}, response => HTTP.send(socket, response));
+
+												}
+
+											});
+
+											request.on('ready', response => {
+
+												if (response !== null && response.payload !== null) {
+													HTTP.send(socket, response);
+												} else {
+													this.services.error.get({
+														code: 404
+													}, response => HTTP.send(socket, response));
+												}
+
+											});
+
+										} else {
+
+											this.services.error.get({
+												code: 500
+											}, response => HTTP.send(socket, response));
+
+										}
+
 									} else {
+
 										this.services.error.get({
 											code: 404
 										}, response => HTTP.send(socket, response));
+
 									}
 
 								});

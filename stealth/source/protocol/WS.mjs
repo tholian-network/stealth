@@ -489,8 +489,6 @@ const WS = {
 
 				}
 
-			} else {
-				// TODO: Nothing to do
 			}
 
 		}

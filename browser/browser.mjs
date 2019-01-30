@@ -51,16 +51,28 @@ setTimeout(_ => {
 
 		let tabs = [];
 
-		tabs.push(browser.create('https://cookie.engineer'));
-		tabs.push(browser.create('https://old.reddit.com/r/programming'));
-		tabs.push(browser.create('https://www.reddit.com/r/programming'));
-		tabs.push(browser.create('stealth:settings'));
+		tabs.push(browser.open('https://cookie.engineer'));
+		tabs.push(browser.open('https://old.reddit.com/r/programming'));
+		tabs.push(browser.open('https://www.reddit.com/r/programming'));
+		tabs.push(browser.open('stealth:settings'));
 
 		browser.show(tabs[tabs.length - 1]);
 
 	} else {
 		console.error('Browser not ready :(');
 	}
+
+
+	setTimeout(_ => {
+
+		let ref = browser.parse('https://old.reddit.com/what/ever.json');
+		console.log(ref);
+
+		browser.client.services.host.read(ref, result => {
+			console.log(result);
+		});
+
+	}, 3000);
 
 }, 1000);
 

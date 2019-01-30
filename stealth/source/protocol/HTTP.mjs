@@ -102,7 +102,9 @@ const HTTP = {
 		let payload = data.payload || null;
 
 
-		if (typeof headers['@status'] === 'string') {
+		if (typeof headers['@method'] === 'string' && typeof headers['@path'] === 'string') {
+			blob.push(headers['@method'] + ' ' + headers['@path'] + ' HTTP/1.1');
+		} else if (typeof headers['@status'] === 'string') {
 			blob.push(headers['@status']);
 		} else {
 			blob.push('HTTP/1.1 200 OK');
@@ -125,6 +127,8 @@ const HTTP = {
 				socket.write(payload, 'utf8');
 			} else if (payload instanceof Buffer) {
 				socket.write(payload);
+			} else if (payload instanceof Object) {
+				socket.write(JSON.stringify(payload, null, '\t'));
 			}
 
 		}

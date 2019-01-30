@@ -126,7 +126,7 @@
 		navi.className = browser.tabs.length > 1 ? 'active' : '';
 
 
-		browser.on('create', (tab, tabs) => {
+		browser.on('open', (tab, tabs) => {
 
 			let button = _create_button(browser, tab);
 			if (button !== null) {

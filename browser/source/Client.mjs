@@ -1,5 +1,6 @@
 
-import { Emitter }  from './Emitter.mjs';
+import { Emitter  } from './Emitter.mjs';
+import { Host     } from './service/Host.mjs';
 import { Settings } from './service/Settings.mjs';
 
 
@@ -10,6 +11,7 @@ const Client = function(browser) {
 
 
 	this.services = {
+		host:     new Host(browser, this),
 		settings: new Settings(browser, this)
 	};
 

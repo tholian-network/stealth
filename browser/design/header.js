@@ -365,7 +365,7 @@
 
 				if (url !== '') {
 
-					let tab = browser.create(url);
+					let tab = browser.open(url);
 					if (tab !== null) {
 						browser.show(tab);
 					}
@@ -415,7 +415,7 @@
 
 		buttons.settings.onclick = _ => {
 
-			let tab = browser.create('stealth:settings');
+			let tab = browser.open('stealth:settings');
 			if (tab !== null) {
 				browser.show(tab);
 			}

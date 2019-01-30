@@ -2,7 +2,7 @@
 import { Emitter  } from './Emitter.mjs';
 import { Client   } from './Client.mjs';
 import { Tab      } from './Tab.mjs';
-import { URL      } from './URL.mjs';
+import { URL      } from './parser/URL.mjs';
 
 
 
@@ -69,12 +69,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (url !== null) {
 
-			let domain = null;
-
-			if (url.startsWith('https://') || url.startsWith('http://')) {
-				domain = url.split('/').slice(2)[0];
-			}
-
+			let domain = this.parse(url).domain;
 			if (domain !== null) {
 
 				let sites = this.settings.sites.filter(cfg => domain.endsWith(cfg.domain));
@@ -178,7 +173,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.tab = null;
 
-				let welcome = this.create('stealth:welcome');
+				let welcome = this.open('stealth:welcome');
 				if (welcome !== null) {
 					this.show(welcome);
 				}
@@ -222,7 +217,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		} else {
 
-			let tab = this.create(url);
+			let tab = this.open(url);
 			if (tab !== null) {
 
 				let index1 = tab.history.indexOf(tab.url);
@@ -352,7 +347,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	create: function(url) {
+	open: function(url) {
 
 		url = typeof url === 'string' ? url : null;
 
@@ -382,7 +377,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			});
 
 			this.tabs.push(tab);
-			this.emit('create', [ tab, this.tabs ]);
+			this.emit('open', [ tab, this.tabs ]);
 
 		}
 
