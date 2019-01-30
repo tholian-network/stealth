@@ -9,21 +9,49 @@
 
 	const _create_button = function(browser, tab) {
 
-		let domain   = null;
-		let protocol = null;
+		let ref       = browser.parse(tab.url);
+		let domain    = ref.domain    || null;
+		let host      = ref.host      || null;
+		let port      = ref.port      || null;
+		let protocol  = ref.protocol  || null;
+		let subdomain = ref.subdomain || null;
 
-
-		let ref    = browser.parse(tab.url);
 		let button = doc.createElement('button');
+		let config = tab.config;
+		let label  = '';
 
-		if (ref.subdomain !== null) {
-			button.innerHTML = ref.subdomain + '.' + ref.domain;
-		} else {
-			button.innerHTML = ref.domain;
+		if (domain !== null) {
+
+			if (subdomain !== null) {
+				label += subdomain + '.' + domain;
+			} else {
+				label += domain;
+			}
+
+		} else if (host !== null) {
+
+			if (host.includes(':')) {
+				label += '[' + host + ']';
+			} else {
+				label += host;
+			}
+
 		}
 
-		button.title = ref.url;
+		if (protocol === 'https' && port !== 443) {
+			label += ':' + port;
+		} else if (protocol === 'http' && port !== 80) {
+			label += ':' + port;
+		}
+
+
+		button.innerHTML = label;
+		button.title     = ref.url;
 		button.setAttribute('data-id', tab.id);
+
+		if (config !== null && config.domain !== null) {
+			button.setAttribute('data-mode', config.mode);
+		}
 
 		button.onclick = _ => {
 
@@ -61,6 +89,13 @@
 		}
 
 		button.title = ref.url;
+
+		let config = tab.config;
+		if (config !== null && config.domain !== null) {
+			button.setAttribute('data-mode', config.mode);
+		} else {
+			button.removeAttribute('data-mode');
+		}
 
 	};
 

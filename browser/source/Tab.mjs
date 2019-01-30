@@ -1,4 +1,7 @@
 
+import { URL } from './parser/URL.mjs';
+
+
 let _id = 0;
 
 const Tab = function(data) {
@@ -8,16 +11,27 @@ const Tab = function(data) {
 
 	this.id       = 'sandbox-' + _id++;
 	this.history  = [];
-	this.url      = settings.url  || null;
-	this.mode     = settings.mode || null;
-	this.requests = [{
-		url:     'https://wat/is/this.jpg',
-		loading: true
-	}];
+	this.config   = settings.config || null;
+	this.ref      = null;
+	this.url      = null;
+	this.requests = [];
 
-	let url = this.url;
-	if (url !== null) {
-		this.history.push(url);
+
+	let ref = settings.ref || null;
+	let url = settings.url || null;
+
+	if (ref !== null) {
+
+		this.ref = ref;
+		this.url = this.ref.url;
+		this.history.push(this.ref.url);
+
+	} else if (url !== null) {
+
+		this.ref = URL.parse(url);
+		this.url = this.ref.url;
+		this.history.push(this.ref.url);
+
 	}
 
 };

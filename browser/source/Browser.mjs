@@ -31,7 +31,7 @@ const Browser = function() {
 };
 
 
-Browser.MODES = [
+export const MODES = Browser.MODES = [
 	'offline',
 	'covert',
 	'stealth',
@@ -52,6 +52,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				if (url !== null) {
 
 					this.tab.url = url;
+					this.tab.ref = this.parse(url);
 					this.emit('refresh', [ this.tab, this.tabs ]);
 
 				}
@@ -67,12 +68,35 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		url = typeof url === 'string' ? url : null;
 
 
+		let mode   = this.mode;
+		let config = {
+			domain: null,
+			mode:   mode,
+			mime:   {
+				text:  false,
+				image: false,
+				video: false,
+				other: false
+			}
+		};
+
 		if (url !== null) {
 
-			let domain = this.parse(url).domain;
-			if (domain !== null) {
+			let ref     = this.parse(url);
+			let rdomain = ref.domain || null;
+			if (rdomain !== null) {
 
-				let sites = this.settings.sites.filter(cfg => domain.endsWith(cfg.domain));
+				let rsubdomain = ref.subdomain || null;
+				if (rsubdomain !== null) {
+					rdomain = rsubdomain + '.' + rdomain;
+				}
+
+			}
+
+
+			if (rdomain !== null) {
+
+				let sites = this.settings.sites.filter(cfg => rdomain.endsWith(cfg.domain));
 				if (sites.length > 1) {
 
 					return sites.sort((a, b) => {
@@ -85,40 +109,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 					return sites[0];
 
-				} else {
-
-					let config = {
-						domain: domain,
-						media:  {
-							text:  false,
-							image: false,
-							video: false,
-							other: false
-						}
-					};
-
-					let mode = this.mode;
-					if (mode === 'online') {
-						config.media.text  = true;
-						config.media.image = true;
-						config.media.video = true;
-						config.media.other = true;
-					} else if (mode === 'stealth') {
-						config.media.text  = true;
-						config.media.image = true;
-						config.media.video = false;
-						config.media.other = false;
-					} else if (mode === 'covert') {
-						config.media.text  = true;
-						config.media.image = false;
-						config.media.video = false;
-						config.media.other = false;
-					} else if (mode === 'offline') {
-						// XXX: Don't load anything
-					}
-
-					return config;
-
 				}
 
 			}
@@ -126,7 +116,30 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 
-		return null;
+		if (mode === 'online') {
+			config.mime.text  = true;
+			config.mime.image = true;
+			config.mime.video = true;
+			config.mime.other = true;
+		} else if (mode === 'stealth') {
+			config.mime.text  = true;
+			config.mime.image = true;
+			config.mime.video = true;
+			config.mime.other = false;
+		} else if (mode === 'covert') {
+			config.mime.text  = true;
+			config.mime.image = false;
+			config.mime.video = false;
+			config.mime.other = false;
+		} else if (mode === 'offline') {
+			config.mime.text  = false;
+			config.mime.image = false;
+			config.mime.video = false;
+			config.mime.other = false;
+		}
+
+
+		return config;
 
 	},
 
@@ -253,6 +266,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				if (url !== null) {
 
 					this.tab.url = url;
+					this.tab.ref = this.parse(url);
 					this.emit('refresh', [ this.tab, this.tabs ]);
 
 				}
@@ -260,6 +274,40 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 		}
+
+	},
+
+	open: function(url) {
+
+		url = typeof url === 'string' ? url : null;
+
+
+		if (url !== null) {
+
+			let ref = this.parse(url);
+			let tab = this.tabs.find(t => t.url === ref.url) || null;
+			if (tab !== null) {
+
+				return tab;
+
+			} else {
+
+				tab = new Tab({
+					config: this.config(url),
+					ref:    ref,
+					url:    ref.url
+				});
+
+				this.tabs.push(tab);
+				this.emit('open', [ tab, this.tabs ]);
+
+				return tab;
+
+			}
+
+		}
+
+		return null;
 
 	},
 
@@ -347,45 +395,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	open: function(url) {
-
-		url = typeof url === 'string' ? url : null;
-
-
-		let mode = this.mode;
-
-		if (url !== null) {
-
-			let cfg = this.config(url);
-			if (cfg !== null) {
-				mode = cfg.mode;
-			}
-
-		}
-
-
-		let tab = this.tabs.find(t => t.url === url) || null;
-		if (tab !== null) {
-
-			return tab;
-
-		} else {
-
-			tab = new Tab({
-				mode: mode,
-				url:  url
-			});
-
-			this.tabs.push(tab);
-			this.emit('open', [ tab, this.tabs ]);
-
-		}
-
-
-		return tab;
-
-	},
-
 	setMode: function(mode) {
 
 		mode = typeof mode === 'string' ? mode : null;
@@ -395,8 +404,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			mode = mode.toLowerCase();
 
-			let check = Browser.MODES.includes(mode);
-			if (check === true) {
+			if (MODES.includes(mode)) {
 
 				this.mode = mode;
 

@@ -77,6 +77,12 @@ aside#navi button[title^="http:"]:before    { content: '\f13e'; }
 aside#navi button[title^="https:"]:before   { content: '\e808'; }
 aside#navi button[title^="stealth:"]:before { content: '\f197'; }
 
+aside#navi button[data-mode="offline"]:before { content: '\e80e'; transform: rotate(45deg) scale(0.75) translate(0px, 2px); }
+aside#navi button[data-mode="covert"]:before  { content: '\f0fb'; }
+aside#navi button[data-mode="stealth"]:before { content: '\f197'; }
+aside#navi button[data-mode="online"]:before  { content: '\f135'; transform: rotate(45deg) scale(1.25) translate(-2px, 2px); }
+
+
 aside#navi button.active {
 	color: #ffffff;
 	border-radius: 0px;

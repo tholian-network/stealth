@@ -207,11 +207,13 @@ cross-protocol (`HTTP`, `WS` and `DNS`) transfer of the `response` object.
 	// managed by Site Service
 	sites: [{
 		domain: 'old.reddit.com',
-		text:   true,
-		image:  true,
-		video:  false,
-		other:  false,
-		mode:   'stealth'
+		mode:   'stealth',
+		mime:   {
+			text:   true,
+			image:  true,
+			video:  false,
+			other:  false
+		}
 	}]
 
 }
@@ -229,9 +231,11 @@ cross-protocol (`HTTP`, `WS` and `DNS`) transfer of the `response` object.
 }
 ```
 
-- `save({ domain: String, payload: { text: Boolean, image: Boolean, video: Boolean, other: Boolean, mode: String } }, callback)`
+- `save({ domain: String, payload: { mime: Object, mode: String } }, callback)`
   saves a `site` setting to the local Stealth `profile` folder.
   The `mode` payload can be either of `offline`, `covert`, `stealth`, `online`.
+  If there's a `mime` object, the `mode` property will be auto-generated, unset
+  properties on `mime` will be defaulted with `false`.
   If there's already a configured site with the same domain, it will be changed.
 
 ```javascript
@@ -239,11 +243,13 @@ cross-protocol (`HTTP`, `WS` and `DNS`) transfer of the `response` object.
 {
 	domain: 'old.reddit.com',
 	payload: {
-		text:  true,
-		image: true,
-		video: false,
-		other: false,
-		mode:  'stealth'
+		mode: 'stealth',
+		mime: {
+			text:  true,
+			image: true,
+			video: false,
+			other: false
+		}
 	}
 }
 ```

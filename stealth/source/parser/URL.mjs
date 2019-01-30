@@ -253,6 +253,44 @@ const URL = {
 
 		}
 
+
+		let san_url = '';
+
+		if (protocol !== null) {
+			san_url += protocol + '://';
+		}
+
+		if (domain !== null) {
+
+			if (subdomain !== null) {
+				san_url += subdomain + '.' + domain;
+			} else {
+				san_url += domain;
+			}
+
+		} else if (host !== null) {
+
+			if (host.includes(':')) {
+				san_url += '[' + host + ']';
+			} else {
+				san_url += host;
+			}
+
+		}
+
+		if (protocol === 'https' && port !== 443) {
+			san_url += ':' + port;
+		} else if (protocol === 'http' && port !== 80) {
+			san_url += ':' + port;
+		}
+
+		san_url += path;
+
+		if (query !== null) {
+			san_url += '?' + query;
+		}
+
+
 		return {
 
 			domain:    domain,
@@ -263,7 +301,7 @@ const URL = {
 			protocol:  protocol,
 			query:     query,
 			subdomain: subdomain,
-			url:       url,
+			url:       san_url,
 
 			// Service API
 			payload:   null

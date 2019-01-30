@@ -33,8 +33,6 @@
 
 		if (tab !== null) {
 
-			let ref = browser.parse(tab.url);
-
 
 			if (inputs.address !== null) {
 				inputs.address.className = '';
@@ -46,13 +44,13 @@
 				let type  = 'unknown';
 				let title = 'Unknown URL Scheme';
 
-				if (ref.protocol === 'https') {
+				if (tab.ref.protocol === 'https') {
 					type  = 'secure';
 					title = 'Secure via HTTPS';
-				} else if (ref.protocol === 'http') {
+				} else if (tab.ref.protocol === 'http') {
 					type  = 'insecure';
 					title = 'Insecure via HTTP';
-				} else if (ref.protocol === 'stealth') {
+				} else if (tab.ref.protocol === 'stealth') {
 					type  = 'stealth';
 					title = 'Internal Page';
 				}
@@ -67,21 +65,52 @@
 				let cache  = Array.from(outputs.address.querySelectorAll('li')).slice(1);
 				let chunks = [];
 
+				let domain = tab.ref.domain || null;
+				let host   = tab.ref.host   || null;
 
-				if (ref.domain !== null) {
-					chunks.push(ref.domain);
+				if (domain !== null) {
+
+					let subdomain = tab.ref.subdomain || null;
+					if (subdomain !== null) {
+						domain = subdomain + '.' + domain;
+					}
+
+					if (tab.ref.protocol === 'https' && tab.ref.port !== 443) {
+						domain += ':' + tab.ref.port;
+					} else if (tab.ref.protocol === 'http' && tab.ref.port !== 80) {
+						domain += ':' + tab.ref.port;
+					}
+
+					chunks.push(domain);
+
+				} else if (host !== null) {
+
+					if (host.includes(':')) {
+						host = '[' + host + ']';
+					}
+
+					if (tab.ref.protocol === 'https' && tab.ref.port !== 443) {
+						host += ':' + tab.ref.port;
+					} else if (tab.ref.protocol === 'http' && tab.ref.port !== 80) {
+						host += ':' + tab.ref.port;
+					}
+
+					chunks.push(host);
+
 				}
 
-				if (ref.path !== null && ref.path !== '/') {
-					ref.path.split('/').forEach(ch => {
+				let path = tab.ref.path || '/';
+				if (path !== '/') {
+					path.split('/').forEach(ch => {
 						if (ch !== '') {
 							chunks.push('/' + ch);
 						}
 					});
 				}
 
-				if (ref.query !== null) {
-					chunks.push('?' + ref.query);
+				let query = tab.ref.query || null;
+				if (query !== null) {
+					chunks.push('?' + query);
 				}
 
 				chunks.forEach((chunk, c) => {
@@ -193,6 +222,27 @@
 
 	};
 
+	const _update_mode = function(browser, tab) {
+
+		let config = tab.config;
+		if (config !== null && config.domain !== null) {
+
+			let mode   = config.mode;
+			let button = buttons.modes.find(b => b.title.toLowerCase() === mode) || null;
+			if (button !== null) {
+
+				buttons.modes.forEach(other => {
+					other.className = other === button ? 'active' : '';
+				});
+
+				browser.setMode(mode);
+
+			}
+
+		}
+
+	};
+
 	const _init = function(browser) {
 
 		browser.on('show', (tab, tabs) => {
@@ -209,11 +259,13 @@
 
 				_update_address(browser, tab);
 				_update_history(browser, tab);
+				_update_mode(browser, tab);
 
 			} else {
 
 				_update_address(browser, null);
 				_update_history(browser, null);
+				_update_mode(browser, tab);
 
 			}
 
@@ -280,18 +332,19 @@
 				if (target.tagName.toLowerCase() === 'li') {
 
 					let url    = inputs.address.value;
-					let ref    = browser.parse(url);
 					let chunks = Array.from(outputs.address.querySelectorAll('li')).slice(1);
 					let chunk  = chunks.find(ch => ch === target);
 					let c      = chunks.indexOf(chunk);
-
 					let before = chunks.slice(0, c).map(ch => ch.innerHTML).join('');
-					if (ref.protocol !== null) {
 
-						if (ref.protocol === 'stealth') {
-							before = ref.protocol + ':' + before;
+					let ref     = browser.parse(url);
+					let protocol = ref.protocol;
+					if (protocol !== null) {
+
+						if (protocol === 'stealth') {
+							before = protocol + ':' + before;
 						} else {
-							before = ref.protocol + '://' + before;
+							before = protocol + '://' + before;
 						}
 
 					}

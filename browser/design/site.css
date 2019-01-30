@@ -140,10 +140,10 @@ aside#site-requests button:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-aside#site-modes td.site-media button.icon-text:before  { content: '\f0f6'; }
-aside#site-modes td.site-media button.icon-image:before { content: '\e812'; }
-aside#site-modes td.site-media button.icon-video:before { content: '\e813'; }
-aside#site-modes td.site-media button.icon-other:before { content: '\e806'; }
+aside#site-modes td.site-mime button.icon-text:before  { content: '\f0f6'; }
+aside#site-modes td.site-mime button.icon-image:before { content: '\e812'; }
+aside#site-modes td.site-mime button.icon-video:before { content: '\e813'; }
+aside#site-modes td.site-mime button.icon-other:before { content: '\e806'; }
 
 aside#site-modes td.site-mode button,
 aside#site-modes td.site-mode button:hover {
