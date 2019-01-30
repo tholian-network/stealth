@@ -38,16 +38,23 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (ref !== null && callback !== null) {
 
-			let mime = ref.mime || null;
-			if (mime === null) {
-				mime = URL.parse('https://' + ref.domain + ref.path).mime;
+			let domain    = ref.domain || null;
+			let subdomain = ref.subdomain || null;
+			if (subdomain !== null) {
+				domain = subdomain + '.' + domain;
 			}
 
-			let path    = (ref.domain + ref.path) || '';
+
 			let profile = this.stealth.settings.profile || null;
 
-			if (path !== '' && profile !== null) {
+			if (domain !== null && profile !== null) {
 
+				let mime = ref.mime || null;
+				if (mime === null) {
+					mime = URL.parse('https://' + domain + ref.path).mime;
+				}
+
+				let path = (domain + ref.path) || '';
 				if (path.endsWith('/')) {
 					path += 'index' + (mime.ext !== null ? ('.' + mime.ext) : '');
 				}
@@ -104,17 +111,24 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (ref !== null && callback !== null) {
 
-			let mime = ref.mime || null;
-			if (mime === null) {
-				mime = URL.parse('https://' + ref.domain + ref.path).mime;
+			let domain    = ref.domain || null;
+			let subdomain = ref.subdomain || null;
+			if (subdomain !== null) {
+				domain = subdomain + '.' + domain;
 			}
 
-			let path    = (ref.domain + ref.path) || '';
+
 			let payload = _validate_payload(ref.payload || null);
 			let profile = this.stealth.settings.profile || null;
 
-			if (path !== '' && payload !== null && profile !== null) {
+			if (domain !== null && payload !== null && profile !== null) {
 
+				let mime = ref.mime || null;
+				if (mime === null) {
+					mime = URL.parse('https://' + domain + ref.path).mime;
+				}
+
+				let path = (domain + ref.path) || '';
 				if (path.endsWith('/')) {
 					path += 'index' + (mime.ext !== null ? ('.' + mime.ext) : '');
 				}

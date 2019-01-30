@@ -16,7 +16,7 @@ the Stealth Service `/browser/index.html` URL as a Web App).
   The default value is `65432`.
 
 - `--profile` is the absolute path to the profile folder.
-  The default value is `/home/$USER/Stealth'.
+  The default value is `/home/$USER/Stealth`.
 
 
 ## Services
@@ -210,7 +210,8 @@ cross-protocol (`HTTP`, `WS` and `DNS`) transfer of the `response` object.
 		text:   true,
 		image:  true,
 		video:  false,
-		other:  false
+		other:  false,
+		mode:   'stealth'
 	}]
 
 }
@@ -228,8 +229,9 @@ cross-protocol (`HTTP`, `WS` and `DNS`) transfer of the `response` object.
 }
 ```
 
-- `save({ domain: String, payload: { text: Boolean, image: Boolean, video: Boolean, other: Boolean } }, callback)`
+- `save({ domain: String, payload: { text: Boolean, image: Boolean, video: Boolean, other: Boolean, mode: String } }, callback)`
   saves a `site` setting to the local Stealth `profile` folder.
+  The `mode` payload can be either of `offline`, `covert`, `stealth`, `online`.
   If there's already a configured site with the same domain, it will be changed.
 
 ```javascript
@@ -237,10 +239,11 @@ cross-protocol (`HTTP`, `WS` and `DNS`) transfer of the `response` object.
 {
 	domain: 'old.reddit.com',
 	payload: {
-		text:   true,
-		image:  true,
-		video:  false,
-		other:  false
+		text:  true,
+		image: true,
+		video: false,
+		other: false,
+		mode:  'stealth'
 	}
 }
 ```

@@ -1,7 +1,6 @@
 
-import { DNS     } from '../protocol/DNS.mjs';
+import { MODES   } from '../Stealth.mjs';
 import { Emitter } from '../Emitter.mjs';
-import { IP      } from '../parser/IP.mjs';
 
 
 
@@ -9,12 +8,12 @@ const _validate_payload = function(payload) {
 
 	if (payload instanceof Object) {
 
-		let ipv4 = payload.ipv4 || null;
-		let ipv6 = payload.ipv6 || null;
+		let capacity = payload.capacity || 'offline';
+		let mode     = payload.mode     || 'offline';
 
 		if (
-			(typeof ipv4 === 'string' || ipv4 === null)
-			&& (typeof ipv6 === 'string' || ipv6 === null)
+			MODES.includes(capacity) === true
+			&& MODES.includes(mode) === true
 		) {
 			return payload;
 		}
@@ -27,7 +26,7 @@ const _validate_payload = function(payload) {
 
 
 
-const Host = function(stealth) {
+const Peer = function(stealth) {
 
 	Emitter.call(this);
 
@@ -37,7 +36,7 @@ const Host = function(stealth) {
 };
 
 
-Host.prototype = Object.assign({}, Emitter.prototype, {
+Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(ref, callback) {
 
@@ -47,7 +46,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (ref !== null && callback !== null) {
 
-			let host     = null;
+			let peer     = null;
 			let settings = this.stealth.settings;
 
 			let rdomain = ref.domain || null;
@@ -60,51 +59,33 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 					rdomain = rsubdomain + '.' + rdomain;
 				}
 
-				host = settings.hosts.find(h => h.domain === rdomain) || null;
+				peer = settings.peers.find(p => p.domain === rdomain) || null;
 
 			} else if (rhost !== null) {
 
-				host = settings.hosts.find(h => (h.ipv4 === host || h.ipv6 === host)) || null;
+				peer = settings.peers.find(p => p.domain === rhost) || null;
 
 			}
 
 
-			if (host !== null) {
+			if (peer !== null) {
 
 				callback({
 					headers: {
-						service: 'host',
+						service: 'peer',
 						event:   'read'
 					},
-					payload: host
+					payload: peer
 				});
 
 			} else {
 
-				DNS.resolve(ref, response => {
-
-					let payload = response.payload || null;
-					if (payload !== null) {
-
-						let host = {
-							domain: rdomain,
-							ipv4:   payload.ipv4,
-							ipv6:   payload.ipv6
-						};
-
-						settings.hosts.push(host);
-						settings.save();
-
-						callback({
-							headers: {
-								service: 'host',
-								event:   'read'
-							},
-							payload: host
-						});
-
-					}
-
+				callback({
+					headers: {
+						service: 'peer',
+						event:   'read'
+					},
+					payload: null
 				});
 
 			}
@@ -113,7 +94,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'host',
+					service: 'peer',
 					event:   'read'
 				},
 				payload: null
@@ -131,7 +112,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (ref !== null && callback !== null) {
 
-			let host     = null;
+			let peer     = null;
 			let settings = this.stealth.settings;
 
 			let rdomain  = ref.domain || null;
@@ -145,33 +126,26 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 					rdomain = rsubdomain + '.' + rdomain;
 				}
 
-				host = settings.hosts.find(p => p.domain === rdomain) || null;
+				peer = settings.peers.find(p => p.domain === rdomain) || null;
+
+			} else if (rhost !== null) {
+
+				peer = settings.peers.find(p => p.domain === rhost) || null;
 
 			}
 
 
-			if (host !== null && rpayload !== null) {
+			if (peer !== null && rpayload !== null) {
 
-				let ipv4 = IP.parse(rpayload.ipv4);
-				let ipv6 = IP.parse(rpayload.ipv6);
+				peer.capacity = rpayload.capacity || 'offline';
+				peer.mode     = rpayload.mode     || 'offline';
 
-				if (ipv4.type === 'v4') {
-					host.ipv4 = ipv4.ip;
-				}
+			} else if (rdomain !== null || rhost !== null) {
 
-				if (ipv6.type === 'v6') {
-					host.ipv6 = ipv6.ip;
-				}
-
-			} else if (rdomain !== null) {
-
-				let ipv4 = IP.parse(rpayload.ipv4);
-				let ipv6 = IP.parse(rpayload.ipv6);
-
-				settings.hosts.push({
-					domain: rdomain,
-					ipv4:   ipv4.type === 'v4' ? ipv4.ip : null,
-					ipv6:   ipv6.type === 'v6' ? ipv6.ip : null
+				settings.peers.push({
+					domain:   rdomain || rhost,
+					capacity: rpayload.capacity || 'offline',
+					mode:     rpayload.mode     || 'offline'
 				});
 
 			}
@@ -181,7 +155,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 				callback({
 					headers: {
-						service: 'host',
+						service: 'peer',
 						event:   'save'
 					},
 					payload: {
@@ -195,7 +169,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'host',
+					service: 'peer',
 					event:   'save'
 				},
 				payload: {
@@ -210,5 +184,5 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 });
 
 
-export { Host };
+export { Peer };
 

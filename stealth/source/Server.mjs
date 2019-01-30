@@ -7,7 +7,7 @@ import { Cache    } from './service/Cache.mjs';
 import { Error    } from './service/Error.mjs';
 import { File     } from './service/File.mjs';
 import { Host     } from './service/Host.mjs';
-// import { Peer     } from './service/Peer.mjs';
+import { Peer     } from './service/Peer.mjs';
 import { Redirect } from './service/Redirect.mjs';
 import { Settings } from './service/Settings.mjs';
 // import { Site     } from './service/Site.mjs';
@@ -27,7 +27,7 @@ const Server = function(stealth, root) {
 		error:    new Error(stealth),
 		file:     new File(stealth),
 		host:     new Host(stealth),
-//		peer:     new Peer(stealth),
+		peer:     new Peer(stealth),
 		redirect: new Redirect(stealth),
 		settings: new Settings(stealth),
 //		site:     new Site(stealth)

@@ -1,4 +1,7 @@
 
+import { IP } from './IP.mjs';
+
+
 const _DEFAULT = {
 	ext:    null,
 	type:   'other',
@@ -111,8 +114,10 @@ const URL = {
 
 		let protocol  = null;
 		let domain    = null;
+		let host      = null;
 		let mime      = null;
 		let path      = null;
+		let port      = null;
 		let query     = null;
 		let subdomain = null;
 
@@ -138,6 +143,7 @@ const URL = {
 
 			protocol = 'file';
 			domain   = null;
+			host     = null;
 			path     = tmp1;
 			query    = tmp2 !== '' ? tmp2 : null;
 
@@ -148,15 +154,76 @@ const URL = {
 
 		}
 
-		if (domain !== null && domain.includes('.') === true) {
+		if (domain !== null && domain.startsWith('[') && domain.includes(']')) {
 
-			let check = domain.split('.').slice(0, -2);
-			if (check.length > 0) {
-				domain    = domain.split('.').slice(-2).join('.');
-				subdomain = check.join('.');
+			if (domain.startsWith('[')) {
+				domain = domain.substr(1);
+			}
+
+			if (domain.includes(']:')) {
+
+				let tmp1 = domain.split(']:');
+				let tmp2 = parseInt(tmp1[1], 10);
+
+				domain = tmp1[0];
+
+				if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
+					port = tmp2;
+				}
+
+			} else if (domain.includes(']')) {
+				domain = domain.split(']')[0];
+			}
+
+
+			let ip = IP.parse(domain);
+			if (ip.type === 'v6') {
+				domain = null;
+				host   = ip.ip;
+			}
+
+		} else if (domain !== null && domain.includes('.')) {
+
+			if (domain.includes('[')) {
+				domain = domain.split('[').join('');
+			}
+
+			if (domain.includes(']')) {
+				domain = domain.split(']').join('');
+			}
+
+			if (domain.includes(':')) {
+
+				let tmp1 = domain.split(':');
+				let tmp2 = parseInt(tmp1[1], 10);
+
+				domain = tmp1[0];
+
+				if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
+					port = tmp2;
+				}
+
+			}
+
+
+			let ip = IP.parse(domain);
+			if (ip.type === 'v4') {
+
+				domain = null;
+				host   = ip.ip;
+
+			} else {
+
+				let check = domain.split('.').slice(0, -2);
+				if (check.length > 0) {
+					domain    = domain.split('.').slice(-2).join('.');
+					subdomain = check.join('.');
+				}
+
 			}
 
 		}
+
 
 		if (path !== null && path.includes('.')) {
 
@@ -176,18 +243,27 @@ const URL = {
 
 		}
 
+		if (protocol !== null && port === null) {
+
+			if (protocol === 'https') {
+				port = 443;
+			} else if (protocol === 'http') {
+				port = 80;
+			}
+
+		}
+
 		return {
 
 			domain:    domain,
+			host:      host,
 			mime:      mime,
-			protocol:  protocol,
 			path:      path,
+			port:      port,
+			protocol:  protocol,
 			query:     query,
 			subdomain: subdomain,
 			url:       url,
-
-			// Request API
-			host:      null,
 
 			// Service API
 			payload:   null
