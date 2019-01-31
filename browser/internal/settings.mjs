@@ -3,28 +3,42 @@ const browser  = window.browser || parent.browser || null;
 const doc      = window.document;
 const elements = {
 	internet: {
-		connection: doc.querySelectorAll('#internet-connection input'),
-		torify:     doc.querySelectorAll('#internet-torify input')
+		connection: Array.from(doc.querySelectorAll('#internet-connection input')),
+		torify:     Array.from(doc.querySelectorAll('#internet-torify input'))
 	},
-	hosts: doc.querySelector('#hosts table tbody'),
-	peers: doc.querySelector('#peers table tbody'),
-	sites: doc.querySelector('#sites table tbody'),
+	hosts:  doc.querySelector('#hosts table tbody'),
+	peers:  doc.querySelector('#peers table tbody'),
+	sites:  doc.querySelector('#sites table tbody'),
+	footer: doc.querySelector('footer'),
+	confirm: doc.querySelector('footer #settings-confirm')
 };
 
 
 
 const _render_host = (host) => `
 <td><input type="text" value="${host.domain}"></td>
-<td><input type="text" placeholder="IPv4" value="${host.ipv4}"></td>
-<td><input type="text" placeholder="IPv6" value="${host.ipv6}"></td>
+<td><input type="text" placeholder="IPv4" value="${(host.ipv4 !== null ? host.ipv4 : '')}"></td>
+<td><input type="text" placeholder="IPv6" value="${(host.ipv6 !== null ? host.ipv6 : '')}"></td>
 <td><button class="icon-refresh"></button><button class="icon-remove"></button></td>
 `;
 
 const _render_peer = (peer) => `
-<td><input type="text" value="${peer.name}"></td>
+<td><input type="text" value="${peer.domain}"></td>
 <td><button class="icon-${peer.capacity}" disabled></button></td>
 <td><button class="icon-${peer.mode}"></button></td>
 <td><button class="icon-refresh"></button><button class="icon-remove"></button></td>
+`;
+
+const _render_site = (site) => `
+<td><input id="sites-list-domain" type="text" placeholder="Domain" value="${site.domain}"></td>
+<td class="site-mime">
+	<button class="icon-text  ${site.mime.text  === true ? 'active' : ''}" title="Text"></button>
+	<button class="icon-image ${site.mime.image === true ? 'active' : ''}" title="Image"></button>
+	<button class="icon-video ${site.mime.video === true ? 'active' : ''}" title="Video"></button>
+	<button class="icon-other ${site.mime.other === true ? 'active' : ''}" title="Other"></button>
+</td>
+<td class="site-mode"><button class="icon-${site.mode}" title="${site.mode}" disabled></button></td>
+<td><button class="icon-remove"></button></td>
 `;
 
 
@@ -72,6 +86,16 @@ const _update = function(settings) {
 		elements.peers.appendChild(row);
 	});
 
+	Array.from(elements.sites.querySelectorAll('tr')).forEach(row => {
+		row.parentNode.removeChild(row);
+	});
+
+	settings.sites.map(site => _render_site(site)).forEach(html => {
+		let row = doc.createElement('tr');
+		row.innerHTML = html;
+		elements.sites.appendChild(row);
+	});
+
 };
 
 
@@ -86,7 +110,41 @@ const SETTINGS = {
 		}
 
 
-		// TODO: Initialize event listeners
+		elements.internet.connection.forEach((element, e, others) => {
+
+			element.onchange = _ => {
+
+				let active = others.find(e => e.checked === true) || null;
+				if (active !== null) {
+					browser.settings.internet.connection = active.value;
+					elements.footer.className = 'active';
+				}
+
+			};
+
+		});
+
+		elements.internet.torify.forEach((element, e, others) => {
+
+			element.onchange = _ => {
+
+				let active = others.find(e => e.checked === true) || null;
+				if (active !== null) {
+					browser.settings.internet.torify = active.value === 'true' ? true : false;
+					elements.footer.className = 'active';
+				}
+
+			};
+
+		});
+
+		elements.confirm.onclick = _ => {
+
+			browser.client.services.settings.save({}, result => {
+				elements.footer.className = '';
+			});
+
+		};
 
 	}
 

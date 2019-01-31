@@ -37,7 +37,12 @@ article > *:first-child {
 	margin-top: 0px;
 }
 
-article button {
+article b {
+	font-weight: bold;
+}
+
+article button,
+footer button {
 	display: inline-block;
 	min-width: 32px;
 	margin: 0px;
@@ -60,13 +65,16 @@ article button {
 }
 
 article button[disabled],
-article button[disabled]:hover {
+article button[disabled]:hover,
+footer button[disabled],
+footer button[disabled]:hover {
 	color: #666666;
 	background: transparent;
 	cursor: default;
 }
 
-article button:hover {
+article button:hover,
+footer button:hover {
 	color: #ffffff;
 	background: rgba(255,255,255,0.1);
 }
@@ -75,7 +83,8 @@ article button.active {
 	color: #ffffff;
 }
 
-article button[class^="icon-"]:before {
+article button[class^="icon-"]:before,
+footer button[class^="icon-"]:before {
 	display: inline-block;
 	min-width: 32px;
 	font-family: 'fontello';
@@ -233,6 +242,21 @@ article ul {
 	padding: 0px;
 }
 
+article p + table {
+	margin-top: 64px;
+}
+
+article table tr td:last-child button {
+	display: block;
+	margin: 0px auto;
+}
+
+article table input[type="text"] {
+	display: block;
+	width: 100%;
+	text-align: center;
+}
+
 footer {
 	display: block;
 	position: fixed;
@@ -260,23 +284,11 @@ footer.active {
 	transform: translate(0%, 0%);
 }
 
-
-
-article p + table {
-	margin-top: 64px;
+footer button {
+	padding: 0px 8px 0px 0px;
 }
 
-article table tr td:last-child button {
-	display: block;
-	margin: 0px auto;
-}
-
-article table input[type="text"] {
-	display: block;
-	width: 100%;
-	text-align: center;
-}
-
+footer button.icon-confirm:before { content: '\e803'; }
 
 #internet-connection div,
 #internet-torify div {

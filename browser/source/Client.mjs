@@ -1,7 +1,22 @@
 
 import { Emitter  } from './Emitter.mjs';
 import { Host     } from './service/Host.mjs';
+import { Peer     } from './service/Peer.mjs';
 import { Settings } from './service/Settings.mjs';
+import { Site     } from './service/Site.mjs';
+
+
+
+const _update_session = function(session) {
+
+	this.__id = session;
+
+	try {
+		document.cookie = 'session=' + session + ';path=/stealth';
+	} catch (err) {
+	}
+
+};
 
 
 
@@ -12,9 +27,12 @@ const Client = function(browser) {
 
 	this.services = {
 		host:     new Host(browser, this),
-		settings: new Settings(browser, this)
+		peer:     new Peer(browser, this),
+		settings: new Settings(browser, this),
+		site:     new Site(browser, this)
 	};
 
+	this.__id     = null;
 	this.__socket = null;
 
 };
@@ -65,9 +83,14 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (request !== null) {
 
-					let service = request.headers.service || null;
 					let event   = request.headers.event   || null;
+					let service = request.headers.service || null;
+					let session = request.headers.session || null;
 					let method  = request.headers.method  || null;
+
+					if (session !== null) {
+						_update_session.call(this, session);
+					}
 
 					if (service !== null && event !== null) {
 
@@ -111,6 +134,10 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 				if (callback !== null) {
 					callback(true);
 				}
+			};
+
+			this.__socket.onclose = _ => {
+				_update_session.call(this, null);
 			};
 
 

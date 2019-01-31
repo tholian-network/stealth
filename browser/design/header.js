@@ -245,6 +245,17 @@
 
 	const _init = function(browser) {
 
+		browser.on('mode', mode => {
+
+			buttons.modes.forEach(b => (b.className = ''));
+
+			let button = buttons.modes.find(b => b.getAttribute('title').toLowerCase() === mode) || null;
+			if (button !== null) {
+				button.className = 'active';
+			}
+
+		});
+
 		browser.on('show', (tab, tabs) => {
 
 			if (tab !== null) {

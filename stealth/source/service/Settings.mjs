@@ -163,7 +163,9 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						service: 'settings',
 						event:   'save'
 					},
-					payload: true
+					payload: {
+						result: true
+					}
 				});
 
 			});
@@ -175,7 +177,51 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'settings',
 					event:   'save'
 				},
-				payload: false
+				payload: {
+					result: false
+				}
+			});
+
+		}
+
+	},
+
+	set: function(data, callback) {
+
+		data     = data instanceof Object         ? data     : null;
+		callback = typeof callback === 'function' ? callback : null;
+
+
+		if (data !== null && callback !== null) {
+
+			let result = false;
+
+			let mode = data.mode || null;
+			if (mode !== null) {
+				result = this.stealth.setMode(mode);
+			}
+
+
+			callback({
+				headers: {
+					service: 'settings',
+					event:   'set'
+				},
+				payload: {
+					result: result
+				}
+			});
+
+		} else if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'settings',
+					event:   'set'
+				},
+				payload: {
+					result: false
+				}
 			});
 
 		}

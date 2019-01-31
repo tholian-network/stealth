@@ -3,7 +3,7 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const Host = function(browser, client) {
+const Site = function(browser, client) {
 
 	Emitter.call(this);
 
@@ -14,7 +14,7 @@ const Host = function(browser, client) {
 };
 
 
-Host.prototype = Object.assign({}, Emitter.prototype, {
+Site.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(ref, callback) {
 
@@ -30,7 +30,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.client.send({
 				headers: {
-					service: 'host',
+					service: 'site',
 					method:  'read'
 				},
 				payload: ref
@@ -62,7 +62,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.client.send({
 				headers: {
-					service: 'host',
+					service: 'site',
 					method:  'save'
 				},
 				payload: ref
@@ -77,5 +77,5 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 });
 
 
-export { Host };
+export { Site };
 

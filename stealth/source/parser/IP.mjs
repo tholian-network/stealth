@@ -103,6 +103,9 @@ const IP = {
 
 	parse: function(str) {
 
+		str = typeof str === 'string' ? str : '';
+
+
 		let type = null;
 		let ip   = null;
 

@@ -17,6 +17,86 @@ const _ROOT = process.env.PWD;
 
 
 
+const _get_useragent = function(agent) {
+
+	let browser = null;
+	let system  = null;
+
+	if (/crios/.test(agent)) {
+		browser = 'Chrome for iOS';
+	} else if (/edge/.test(agent)) {
+		browser = 'Edge';
+	} else if (/android/.test(agent) && /silk\//.test(agent)) {
+		browser = 'Silk';
+	} else if (/chrome/.test(agent)) {
+		browser = 'Chrome';
+	} else if (/firefox/.test(agent)) {
+		browser = 'Firefox';
+	} else if (/android/.test(agent)) {
+		browser = 'AOSP';
+	} else if (/msie|trident/.test(agent)) {
+		browser = 'IE';
+	} else if (/safari\//.test(agent)) {
+		browser = 'Safari';
+	} else if (/applewebkit/.test(agent)) {
+		browser = 'WebKit';
+	}
+
+	if (/android/.test(agent)) {
+		system = 'Android';
+	} else if (/iphone|ipad|ipod/.test(agent)) {
+		system = 'iOS';
+	} else if (/windows/.test(agent)) {
+		system = 'Windows';
+	} else if (/mac os x/.test(agent)) {
+		system = 'Mac OS';
+	} else if (/cros/.test(agent)) {
+		system = 'Chrome OS';
+	} else if (/linux/.test(agent)) {
+		system = 'Linux';
+	} else if (/firefox/.test(agent)) {
+		system = 'Firefox OS';
+	}
+
+
+	return {
+		browser: browser || 'Unknown',
+		system:  system  || 'Unknown'
+	};
+
+};
+
+const _get_session_from_cookie = function(cookie) {
+
+	let id = null;
+
+
+	let tmp = cookie.split(';').map(c => c.trim()).find(c => c.startsWith('session=')) || '';
+	if (tmp !== '' && tmp.includes('=')) {
+
+		let val = tmp.split('=')[1] || '';
+		if (val.startsWith('"')) val = val.substr(1);
+		if (val.endsWith('"'))   val = val.substr(0, val.length - 1);
+
+		let num = parseInt(val, 10);
+		if (Number.isNaN(num) === false) {
+			id = num;
+		}
+
+	}
+
+	if (id !== null) {
+		return this.sessions.find(s => s.id === id) || null;
+	}
+
+
+	return null;
+
+};
+
+
+let _session = 1;
+
 const Server = function(stealth, root) {
 
 	root = typeof root === 'string' ? root : _ROOT;
@@ -34,6 +114,7 @@ const Server = function(stealth, root) {
 		settings: new Settings(stealth),
 		site:     new Site(stealth)
 	};
+	this.sessions = [];
 
 	this.__root   = root;
 	this.__server = null;
@@ -116,9 +197,9 @@ Server.prototype = {
 
 												if (request !== null) {
 
-													let service = request.headers.service || null;
 													let event   = request.headers.event   || null;
 													let method  = request.headers.method  || null;
+													let service = request.headers.service || null;
 
 													if (service !== null && event !== null) {
 
@@ -148,6 +229,48 @@ Server.prototype = {
 
 										});
 
+
+										let id = _session++;
+
+										socket.id = id;
+										socket.on('end', _ => {
+
+											let session = this.sessions.find(s => s.id === socket.id) || null;
+											if (session !== null) {
+												session.requests.forEach(r => r.kill());
+												this.sessions.splice(this.sessions.indexOf(session), 1);
+											}
+
+											console.log('> peer #' + session.id + ' disconnected.');
+
+										});
+
+
+										WS.send(socket, {
+											headers: {
+												session: socket.id
+											},
+											payload: null
+										});
+
+
+										let { browser, system } = _get_useragent(headers['user-agent'] || '');
+
+										if (browser !== 'Unknown' && system !== 'Unknown') {
+											console.log('> peer #' + id + ' (' + browser + ' on ' + system + ') connected.');
+										} else {
+											console.log('> peer #' + id + ' connected.');
+										}
+
+										this.sessions.push({
+											id:       id,
+											browser:  browser,
+											mode:     this.stealth.mode,
+											requests: [],
+											socket:   socket,
+											system:   system
+										});
+
 									} else {
 										socket.close();
 									}
@@ -164,56 +287,23 @@ Server.prototype = {
 
 								HTTP.receive(socket, blob, request => {
 
-									let ref = this.stealth.parse(request.headers['url']);
+									let session = _get_session_from_cookie.call(this, request.headers['cookie'] || '');
+									let url     = request.headers['url'];
+									if (session !== null && url.startsWith('/stealth/')) {
 
-									if (ref.path === '/') {
+										url = url.substr('/stealth/'.length);
 
-										this.services.redirect.get({
-											code: 301,
-											path: '/browser/index.html'
-										}, response => {
-											HTTP.send(socket, response);
-										});
+										console.log('> peer #' + session.id + ' requests ' + url + '.');
 
-									} else if (ref.path === '/favicon.ico') {
-
-										this.services.redirect.get({
-											code: 301,
-											path: '/browser/favicon.ico'
-										}, response => {
-
-											if (response !== null) {
-												HTTP.send(socket, response);
-											} else {
-												this.services.error.get({
-													code: 404
-												}, response => HTTP.send(socket, response));
-											}
-
-										});
-
-									} else if (ref.path.startsWith('/browser')) {
-
-										this.services.file.read(ref, response => {
-
-											if (response !== null && response.payload !== null) {
-												HTTP.send(socket, response);
-											} else {
-												this.services.error.get({
-													code: 404
-												}, response => HTTP.send(socket, response));
-											}
-
-										});
-
-									} else if (ref.path.startsWith('/stealth/')) {
-
-										let tmp     = ref.path.substr(9) + (ref.query !== null ? ('?' + ref.query) : '');
-										let url     = 'https://' + tmp;
-										let request = this.stealth.open(url);
+										let request = this.stealth.open(url, session);
 										if (request !== null) {
 
 											request.on('error', err => {
+
+												let index = session.requests.indexOf(request);
+												if (index !== -1) {
+													session.requests.splice(index, 1);
+												}
 
 												if (err.type === 'url') {
 
@@ -242,6 +332,66 @@ Server.prototype = {
 
 											request.on('ready', response => {
 
+												let index = session.requests.indexOf(request);
+												if (index !== -1) {
+													session.requests.splice(index, 1);
+												}
+
+												if (response !== null && response.payload !== null) {
+													HTTP.send(socket, response);
+												} else {
+													this.services.error.get({
+														code: 404
+													}, response => HTTP.send(socket, response));
+												}
+
+											});
+
+											session.requests.push(request);
+
+											request.init();
+
+										} else {
+
+											this.services.error.get({
+												code: 404
+											}, response => HTTP.send(socket, response));
+
+										}
+
+									} else {
+
+										let ref = this.stealth.parse(request.headers['url']);
+										if (ref.path === '/') {
+
+											this.services.redirect.get({
+												code: 301,
+												path: '/browser/index.html'
+											}, response => {
+												HTTP.send(socket, response);
+											});
+
+										} else if (ref.path === '/favicon.ico') {
+
+											this.services.redirect.get({
+												code: 301,
+												path: '/browser/favicon.ico'
+											}, response => {
+
+												if (response !== null) {
+													HTTP.send(socket, response);
+												} else {
+													this.services.error.get({
+														code: 404
+													}, response => HTTP.send(socket, response));
+												}
+
+											});
+
+										} else if (ref.path.startsWith('/browser')) {
+
+											this.services.file.read(ref, response => {
+
 												if (response !== null && response.payload !== null) {
 													HTTP.send(socket, response);
 												} else {
@@ -259,12 +409,6 @@ Server.prototype = {
 											}, response => HTTP.send(socket, response));
 
 										}
-
-									} else {
-
-										this.services.error.get({
-											code: 404
-										}, response => HTTP.send(socket, response));
 
 									}
 

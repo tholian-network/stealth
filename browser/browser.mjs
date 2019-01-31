@@ -62,6 +62,8 @@ setTimeout(_ => {
 
 		browser.show(tabs[tabs.length - 1]);
 
+		window.onbeforeunload = _ => browser.disconnect();
+
 	} else {
 		console.error('Browser not ready :(');
 	}

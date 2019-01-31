@@ -112,6 +112,9 @@ const URL = {
 
 	parse: function(url) {
 
+		url = typeof url === 'string' ? url : '';
+
+
 		let protocol  = null;
 		let domain    = null;
 		let host      = null;

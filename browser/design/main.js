@@ -28,7 +28,7 @@
 	const _get_url = function(tab) {
 
 		let url  = null;
-		let ref  = browser.parse(tab.url);
+		let ref  = tab.ref;
 		let mime = ref.mime || null;
 
 		if (mime !== null && (mime.type === 'audio' || mime.type === 'video')) {
@@ -45,19 +45,11 @@
 
 		} else if (ref.protocol === 'https' || ref.protocol === 'http') {
 
-			url = '/stealth/' + ref.domain + ref.path;
-
-			if (ref.query !== null) {
-				url += '?' + ref.query;
-			}
+			url = '/stealth/' + ref.url;
 
 		} else {
 
-			url = '/browser/internal/fix-url.html?url=' + ref.domain + ref.path;
-
-			if (ref.query !== null) {
-				url += '&' + ref.query;
-			}
+			url = '/browser/internal/fix-url.html?url=' + ref.url;
 
 		}
 

@@ -65,45 +65,7 @@
 				changing their domains and websites - you need to regularly
 				update these filter lists.
 			</p>
-			<table>
-				<thead>
-					<tr>
-						<th>Type</th>
-						<th>Filters</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Adguard Filters</td>
-						<td>100 of 123</td>
-						<td>
-							<button class="icon-refresh"></button>
-						</td>
-					</tr>
-					<tr>
-						<td>Malware Domain List</td>
-						<td>100 of 123</td>
-						<td>
-							<button class="icon-refresh"></button>
-						</td>
-					</tr>
-					<tr>
-						<td>EasyList Filters</td>
-						<td>12 of 123</td>
-						<td>
-							<button class="icon-refresh"></button>
-						</td>
-					</tr>
-					<tr>
-						<td>uBlock filters</td>
-						<td>100 of 123</td>
-						<td>
-							<button class="icon-refresh"></button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<p><b>... Coming Soon ...</b></p>
 		</article>
 		<article id="hosts">
 			<h3>Hosts</h3>
@@ -132,10 +94,10 @@
 				<tbody></tbody>
 				<tfoot>
 					<tr>
-						<td><input id="hosts-list-domain" type="text" placeholder="Domain"></td>
-						<td><input id="hosts-list-ipv4" type="text" placeholder="IPv4"></td>
-						<td><input id="hosts-list-ipv6" type="text" placeholder="IPv6"></td>
-						<td><button id="hosts-list-create" class="icon-confirm"></button></td>
+						<td><input id="hosts-domain" type="text" placeholder="Domain"></td>
+						<td><input id="hosts-ipv4" type="text" placeholder="IPv4"></td>
+						<td><input id="hosts-ipv6" type="text" placeholder="IPv6"></td>
+						<td><button id="hosts-confirm" class="icon-confirm"></button></td>
 					</tr>
 				</tfoot>
 			</table>
@@ -164,10 +126,10 @@
 				<tbody></tbody>
 				<tfoot>
 					<tr>
-						<td><input id="peers-list-domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
-						<td><button id="peers-list-capacity" class="icon-unknown"></button></td>
-						<td><button id="peers-list-mode" class="icon-offline"></button></td>
-						<td><button id="peers-list-confirm" class="icon-confirm"></button></td>
+						<td><input id="peers-domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
+						<td><button id="peers-capacity" class="icon-unknown"></button></td>
+						<td><button id="peers-mode" class="icon-offline"></button></td>
+						<td><button id="peers-confirm" class="icon-confirm"></button></td>
 					</tr>
 				</tfoot>
 			</table>
@@ -183,6 +145,7 @@
 				If a plugin is selected, it will be used for every request
 				that leads to its matching domain.
 			</p>
+			<p><b>... Coming Soon ...</b></p>
 		</article>
 		<article id="sites">
 			<h3>Sites</h3>
@@ -208,22 +171,21 @@
 				<tbody></tbody>
 				<tfoot>
 					<tr>
-						<td><input id="sites-list-domain" type="text" placeholder="Domain"></td>
-						<td class="site-mime">
+						<td><input id="sites-domain" type="text" placeholder="Domain"></td>
+						<td id="sites-mime">
 							<button class="icon-text" title="Text"></button>
 							<button class="icon-image" title="Image"></button>
 							<button class="icon-video" title="Video"></button>
 							<button class="icon-other" title="Other"></button>
 						</td>
-						<td class="site-mode"><button class="icon-offline" title="Offline" disabled></button></td>
-						<td><button id="sites-list-create" class="icon-confirm"></button></td>
+						<td><button id="sites-mode" class="icon-offline" title="Offline" disabled></button></td>
+						<td><button id="sites-confirm" class="icon-confirm"></button></td>
 					</tr>
 				</tfoot>
 			</table>
 		</article>
 		<footer>
-			<button class="icon-revert">Revert Changes</button>
-			<button class="icon-confirm">Save Changes</button>
+			<button id="settings-confirm" class="icon-confirm">Save Changes</button>
 		</footer>
 		<script type="module" src="settings.mjs"></script>
 	</body>

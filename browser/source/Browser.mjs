@@ -156,6 +156,15 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	disconnect: function() {
+
+		let client = this.client;
+		if (client !== null) {
+			client.disconnect();
+		}
+
+	},
+
 	kill: function(tab, callback) {
 
 		tab      = tab instanceof Tab           ? Tab      : null;
@@ -293,7 +302,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			} else {
 
 				tab = new Tab({
-					config: this.config(url),
+					config: this.config(ref.url),
 					ref:    ref,
 					url:    ref.url
 				});
@@ -306,6 +315,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 		}
+
 
 		return null;
 
@@ -406,7 +416,18 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (MODES.includes(mode)) {
 
-				this.mode = mode;
+				this.client.services.settings.set({
+					mode: mode
+				}, result => {
+
+					if (result === true) {
+
+						this.mode = mode;
+						this.emit('mode', [ this.mode ]);
+
+					}
+
+				});
 
 				return true;
 

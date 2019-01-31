@@ -9,12 +9,12 @@ const Tab = function(data) {
 	let settings = Object.assign({}, data);
 
 
-	this.id       = 'sandbox-' + _id++;
+	this.id       = 'tab-' + _id++;
 	this.history  = [];
 	this.config   = settings.config || null;
 	this.ref      = null;
-	this.url      = null;
 	this.requests = [];
+	this.url      = null;
 
 
 	let ref = settings.ref || null;
