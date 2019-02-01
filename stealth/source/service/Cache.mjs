@@ -6,6 +6,49 @@ import { URL     } from '../parser/URL.mjs';
 
 
 
+const _mkdir = function(path, callback) {
+
+	callback = typeof callback === 'function' ? callback : null;
+
+
+	fs.lstat(path, (err, stat) => {
+
+		if (err.code === 'ENOENT') {
+
+			try {
+				fs.mkdirSync(path, {
+					recursive: true
+				});
+				stat = fs.lstatSync(path);
+			} catch (err) {
+			}
+
+		}
+
+		if (stat !== null) {
+
+			if (callback !== null) {
+				callback(stat.isDirectory());
+			}
+
+		}
+
+	});
+
+};
+
+const _validate_headers = function(headers) {
+
+	if (headers instanceof Buffer) {
+		return headers;
+	} else if (headers instanceof Object) {
+		return Buffer.from(JSON.stringify(headers, null, '\t'), 'utf8');
+	}
+
+	return null;
+
+};
+
 const _validate_payload = function(payload) {
 
 	if (payload instanceof Buffer) {
@@ -60,33 +103,57 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 
-				fs.readFile(profile + '/cache/' + path, (err, buffer) => {
+				fs.readFile(profile + '/cache/persistent/headers/' + path, (err, raw_headers) => {
+
+					let headers = {};
 
 					if (!err) {
 
-						callback({
-							headers: {
-								'Content-Type':   mime.format,
-								'Content-Length': Buffer.byteLength(buffer)
-							},
-							payload: buffer
-						});
-
-					} else if (callback !== null) {
-
-						callback({
-							headers: {},
-							payload: null
-						});
+						try {
+							headers = JSON.parse(raw_headers.toString('utf8'));
+						} catch (err) {
+						}
 
 					}
+
+					fs.readFile(profile + '/cache/persistent/payload/' + path, (err, payload) => {
+
+						if (!err) {
+
+							callback({
+								headers: Object.assign({
+									service: 'cache',
+									event:   'read'
+								}, headers, {
+									'Content-Type':   mime.format,
+									'Content-Length': Buffer.byteLength(payload)
+								}),
+								payload: payload
+							});
+
+						} else if (callback !== null) {
+
+							callback({
+								headers: {
+									service: 'cache',
+									event:   'read'
+								},
+								payload: null
+							});
+
+						}
+
+					});
 
 				});
 
 			} else if (callback !== null) {
 
 				callback({
-					headers: {},
+					headers: {
+						service: 'cache',
+						event:   'read'
+					},
 					payload: null
 				});
 
@@ -95,7 +162,10 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 		} else if (callback !== null) {
 
 			callback({
-				headers: {},
+				headers: {
+					service: 'cache',
+					event:   'read'
+				},
 				payload: null
 			});
 
@@ -118,10 +188,11 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 
+			let headers = _validate_headers(ref.headers || {});
 			let payload = _validate_payload(ref.payload || null);
 			let profile = this.stealth.settings.profile || null;
 
-			if (domain !== null && payload !== null && profile !== null) {
+			if (domain !== null && headers !== null && payload !== null && profile !== null) {
 
 				let mime = ref.mime || null;
 				if (mime === null) {
@@ -136,59 +207,58 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 				let folder = path.split('/').slice(0, -1).join('/');
 
-				fs.lstat(profile + '/cache/' + folder, (err, stat) => {
+				_mkdir(profile + '/cache/persistent/headers/' + folder, _ => {
 
-					if (err.code === 'ENOENT') {
+					_mkdir(profile + '/cache/persistent/payload/' + folder, _ => {
 
-						try {
-							fs.mkdirSync(profile + '/cache/' + folder, {
-								recursive: true
+						fs.writeFile(profile + '/cache/persistent/headers/' + path, headers, (err_headers) => {
+
+							fs.writeFile(profile + '/cache/persistent/payload/' + path, payload, (err_payload) => {
+
+								if (!err_headers && !err_payload) {
+
+									callback({
+										headers: {
+											service: 'cache',
+											event:   'save'
+										},
+										payload: {
+											result: true
+										}
+									});
+
+								} else {
+
+									callback({
+										headers: {
+											service: 'cache',
+											event:   'save'
+										},
+										payload: {
+											result: false
+										}
+									});
+
+								}
+
 							});
-							stat = fs.lstatSync(profile + '/cache/' + folder);
-						} catch (err) {
-						}
-
-					}
-
-					let check = stat || null;
-					if (check !== null && check.isDirectory() === true) {
-
-						fs.writeFile(profile + '/cache/' + path, payload, (err) => {
-
-							if (!err) {
-
-								callback({
-									headers: {},
-									payload: { result: true }
-								});
-
-							} else {
-
-								callback({
-									headers: {},
-									payload: { result: false }
-								});
-
-							}
 
 						});
 
-					} else {
-
-						callback({
-							headers: {},
-							payload: { result: false }
-						});
-
-					}
+					});
 
 				});
 
 			} else {
 
 				callback({
-					headers: {},
-					payload: { result: false }
+					headers: {
+						service: 'cache',
+						event:   'save'
+					},
+					payload: {
+						result: false
+					}
 				});
 
 			}
@@ -196,8 +266,13 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 		} else if (callback !== null) {
 
 			callback({
-				headers: {},
-				payload: { result: false }
+				headers: {
+					service: 'cache',
+					event:   'save'
+				},
+				payload: {
+					result: false
+				}
 			});
 
 		}

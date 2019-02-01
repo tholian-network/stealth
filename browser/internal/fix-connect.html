@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>stealth:fix-connect</title>
+		<link rel="stylesheet" href="../design/font/index.css">
+		<link rel="stylesheet" href="internal.css">
+	</head>
+	<body>
+		<article>
+			<h3>Connect Error</h3>
+			<p>
+				The Stealth Browser could not connect to the
+				server of the given URL.
+				The following reasons are most likely why this happened:
+			</p>
+			<ul>
+				<li>This machine has no internet access</li>
+				<li>The host cache is corrupted and the server has new IP(s)</li>
+				<li>The server is offline</li>
+			</ul>
+		</article>
+		<article id="fix-connect">
+			<h3>Fix Host Cache</h3>
+			<p>
+				This requires internet access. In order to make
+				sure that the host cache is up-to-date, you can
+				try to refresh the known host IP addresses here
+				manually.
+				<br><br>
+				If they don't change, it's usually a sign that
+				the server is offline or not reachable by its
+				IP address.
+			</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>IPv4</th>
+						<th>IPv6</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</article>
+		<footer>
+			<button id="footer-refresh" class="icon-refresh" title="Refresh this Tab instead">Refresh this Tab</button>
+		</footer>
+		<script type="module" src="fix-connect.mjs"></script>
+	</body>
+</html>
+

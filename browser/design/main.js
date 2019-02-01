@@ -25,7 +25,7 @@
 
 
 
-	const _get_url = function(tab) {
+	const _get_url = function(browser, tab) {
 
 		let url  = null;
 		let ref  = tab.ref;
@@ -33,7 +33,7 @@
 
 		if (mime !== null && (mime.type === 'audio' || mime.type === 'video')) {
 
-			url = '/browser/internal/media.html?url=' + ref.domain + ref.path;
+			url = '/browser/internal/media.html?url=' + encodeURIComponent(ref.url);
 
 		} else if (ref.protocol === 'stealth') {
 
@@ -45,11 +45,11 @@
 
 		} else if (ref.protocol === 'https' || ref.protocol === 'http') {
 
-			url = '/stealth/' + ref.url;
+			url = '/stealth/tab:' + tab.id + '/' + ref.url;
 
 		} else {
 
-			url = '/browser/internal/fix-url.html?url=' + ref.url;
+			url = '/browser/internal/fix-url.html?url=' + encodeURIComponent(ref.url);
 
 		}
 
@@ -257,7 +257,7 @@
 
 		browser.on('show', (tab, tabs) => {
 
-			let url = _get_url(tab);
+			let url = _get_url(browser, tab);
 			if (url !== null) {
 
 				if (webview.src !== url) {
@@ -270,7 +270,7 @@
 
 		browser.on('refresh', (tab, tabs) => {
 
-			let url = _get_url(tab);
+			let url = _get_url(browser, tab);
 			if (url !== null) {
 
 				if (webview.src !== url) {

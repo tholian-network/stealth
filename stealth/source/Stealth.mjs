@@ -23,6 +23,7 @@ const Stealth = function(data) {
 	this.mode     = 'offline';
 	this.settings = new Settings(this, settings.profile);
 	this.server   = new Server(this, settings.root);
+	this.sessions = [];
 
 };
 
@@ -133,11 +134,26 @@ Stealth.prototype = {
 		if (url !== null) {
 
 			let ref     = this.parse(url);
-			let request = new Request({
-				config: this.config(ref.url),
-				ref:    ref,
-				url:    ref.url
-			}, this);
+			let request = null;
+
+			for (let s = 0, sl = this.sessions.length; s < sl; s++) {
+
+				let session = this.sessions[s];
+				let cached  = session.get(ref.url);
+				if (cached !== null) {
+					request = cached;
+					break;
+				}
+
+			}
+
+			if (request === null) {
+				request = new Request({
+					config: this.config(ref.url),
+					ref:    ref,
+					url:    ref.url
+				}, this);
+			}
 
 			return request;
 

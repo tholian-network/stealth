@@ -1,7 +1,7 @@
 
-import fs      from 'fs';
-import os      from 'os';
-import process from 'process';
+import fs          from 'fs';
+import os          from 'os';
+import process     from 'process';
 
 
 
@@ -58,32 +58,49 @@ const _read_file = function(path, data) {
 
 			if (tmp instanceof Array && data instanceof Array) {
 
-				let hashes = data.map(v => JSON.stringify(v));
+				tmp.forEach(object => {
 
-				for (let t = 0, tl = tmp.length; t < tl; t++) {
+					if ('domain' in object) {
 
-					let check = false;
-					let temp  = tmp[0];
-					if (temp instanceof Object) {
-						check = hashes.includes(JSON.stringify(temp));
-					} else if (typeof temp === 'string') {
-						check = data.includes(temp);
-					} else if (typeof temp === 'number') {
-						check = data.includes(temp);
+						let check = data.find(d => d.domain === object.domain) || null;
+						if (check !== null) {
+
+							for (let prop in object) {
+
+								if (data[prop] === undefined) {
+									data[prop] = object[prop];
+								} else if (data[prop] === null && object[prop] !== null) {
+									data[prop] = object[prop];
+								}
+
+							}
+
+						} else {
+							data.push(object);
+						}
+
+					} else if ('id' in object) {
+
+						let check = data.find(d => d.id === object.id) || null;
+						if (check !== null) {
+
+							for (let prop in object) {
+
+								if (data[prop] === undefined) {
+									data[prop] = object[prop];
+								} else if (data[prop] === null && object[prop] !== null) {
+									data[prop] = object[prop];
+								}
+
+							}
+
+						} else {
+							data.push(object);
+						}
+
 					}
 
-					if (check === false) {
-						data.push(temp);
-					}
-
-				}
-
-				// XXX: Above algorithm might be broken in some cases
-				// (iterable property order in ES6+ is fucked, yo)
-				// data.splice(0);
-				// tmp.forEach(val => {
-				// 	data.push(val);
-				// });
+				});
 
 			} else if (tmp instanceof Object && data instanceof Object) {
 

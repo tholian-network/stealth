@@ -10,6 +10,7 @@ import { File     } from './service/File.mjs';
 import { Host     } from './service/Host.mjs';
 import { Peer     } from './service/Peer.mjs';
 import { Redirect } from './service/Redirect.mjs';
+import { Session  } from './Session.mjs';
 import { Settings } from './service/Settings.mjs';
 import { Site     } from './service/Site.mjs';
 
@@ -68,8 +69,7 @@ const _get_useragent = function(agent) {
 
 const _get_session_from_cookie = function(cookie) {
 
-	let id = null;
-
+	let session = null;
 
 	let tmp = cookie.split(';').map(c => c.trim()).find(c => c.startsWith('session=')) || '';
 	if (tmp !== '' && tmp.includes('=')) {
@@ -78,24 +78,15 @@ const _get_session_from_cookie = function(cookie) {
 		if (val.startsWith('"')) val = val.substr(1);
 		if (val.endsWith('"'))   val = val.substr(0, val.length - 1);
 
-		let num = parseInt(val, 10);
-		if (Number.isNaN(num) === false) {
-			id = num;
-		}
+		session = this.stealth.sessions.find(s => s.id === val) || null;
 
 	}
 
-	if (id !== null) {
-		return this.sessions.find(s => s.id === id) || null;
-	}
-
-
-	return null;
+	return session;
 
 };
 
 
-let _session = 1;
 
 const Server = function(stealth, root) {
 
@@ -114,7 +105,6 @@ const Server = function(stealth, root) {
 		settings: new Settings(stealth),
 		site:     new Site(stealth)
 	};
-	this.sessions = [];
 
 	this.__root   = root;
 	this.__server = null;
@@ -230,46 +220,25 @@ Server.prototype = {
 										});
 
 
-										let id = _session++;
+										let { browser, system } = _get_useragent(headers['user-agent'] || '');
+										let session = new Session({
+											browser: browser,
+											mode:    this.stealth.mode,
+											socket:  socket,
+											system:  system
+										});
 
-										socket.id = id;
 										socket.on('end', _ => {
 
-											let session = this.sessions.find(s => s.id === socket.id) || null;
-											if (session !== null) {
-												session.requests.forEach(r => r.kill());
-												this.sessions.splice(this.sessions.indexOf(session), 1);
+											let index = this.stealth.sessions.indexOf(session);
+											if (index !== -1) {
+												this.stealth.sessions.splice(index, 1);
 											}
 
-											console.log('> peer #' + session.id + ' disconnected.');
-
 										});
 
-
-										WS.send(socket, {
-											headers: {
-												session: socket.id
-											},
-											payload: null
-										});
-
-
-										let { browser, system } = _get_useragent(headers['user-agent'] || '');
-
-										if (browser !== 'Unknown' && system !== 'Unknown') {
-											console.log('> peer #' + id + ' (' + browser + ' on ' + system + ') connected.');
-										} else {
-											console.log('> peer #' + id + ' connected.');
-										}
-
-										this.sessions.push({
-											id:       id,
-											browser:  browser,
-											mode:     this.stealth.mode,
-											requests: [],
-											socket:   socket,
-											system:   system
-										});
+										this.stealth.sessions.push(session);
+										session.init();
 
 									} else {
 										socket.close();
@@ -289,41 +258,50 @@ Server.prototype = {
 
 									let session = _get_session_from_cookie.call(this, request.headers['cookie'] || '');
 									let url     = request.headers['url'];
+
 									if (session !== null && url.startsWith('/stealth/')) {
 
-										url = url.substr('/stealth/'.length);
+										let tab = null;
+										if (url.startsWith('/stealth/tab:')) {
+											tab = url.substr(9).split('/')[0].substr(4);
+											url = url.substr(9 + 4 + tab.length + 1);
+										} else {
+											url = url.substr(9);
+										}
 
-										console.log('> peer #' + session.id + ' requests ' + url + '.');
-
-										let request = this.stealth.open(url, session);
+										let request = this.stealth.open(url);
 										if (request !== null) {
 
-											request.on('error', err => {
+											session.track(request, tab);
 
-												let index = session.requests.indexOf(request);
-												if (index !== -1) {
-													session.requests.splice(index, 1);
-												}
+											request.on('error', err => {
 
 												if (err.type === 'url') {
 
 													this.services.redirect.get({
 														code: 307,
-														path: '/browser/internal/fix-url.html?url=' + tmp
+														path: '/browser/internal/fix-url.html?url=' + encodeURIComponent(url)
+													}, response => HTTP.send(socket, response));
+
+												} else if (err.type === 'cache') {
+
+													this.services.redirect.get({
+														code: 307,
+														path: '/browser/internal/fix-cache.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
 												} else if (err.type === 'connect') {
 
 													this.services.redirect.get({
 														code: 307,
-														path: '/browser/internal/fix-connect.html?url=' + tmp
+														path: '/browser/internal/fix-connect.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
 												} else if (err.type === 'download') {
 
 													this.services.redirect.get({
 														code: 307,
-														path: '/browser/internal/fix-download.html?url=' + tmp
+														path: '/browser/internal/fix-download.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
 												}
@@ -331,11 +309,6 @@ Server.prototype = {
 											});
 
 											request.on('ready', response => {
-
-												let index = session.requests.indexOf(request);
-												if (index !== -1) {
-													session.requests.splice(index, 1);
-												}
 
 												if (response !== null && response.payload !== null) {
 													HTTP.send(socket, response);
@@ -346,8 +319,6 @@ Server.prototype = {
 												}
 
 											});
-
-											session.requests.push(request);
 
 											request.init();
 
@@ -435,7 +406,7 @@ Server.prototype = {
 
 			});
 
-			this.__server.on('error', _ => this.server.close());
+			this.__server.on('error', _ => this.__server.close());
 			this.__server.on('close', _ => {
 				this.__server = null;
 			});

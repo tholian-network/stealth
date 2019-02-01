@@ -41,8 +41,7 @@ article b {
 	font-weight: bold;
 }
 
-article button,
-footer button {
+button {
 	display: inline-block;
 	min-width: 32px;
 	margin: 0px;
@@ -64,27 +63,24 @@ footer button {
 	cursor: pointer;
 }
 
-article button[disabled],
-article button[disabled]:hover,
-footer button[disabled],
-footer button[disabled]:hover {
+button[disabled],
+button[disabled]:hover {
 	color: #666666;
 	background: transparent;
 	cursor: default;
 }
 
-article button:hover,
-footer button:hover {
+button:hover {
 	color: #ffffff;
 	background: rgba(255,255,255,0.1);
 }
 
-article button.active {
+button.active {
 	color: #ffffff;
 }
 
-article button[class^="icon-"]:before,
-footer button[class^="icon-"]:before {
+button[class^="icon-"]:before,
+button[class^="icon-"]:before {
 	display: inline-block;
 	min-width: 32px;
 	font-family: 'fontello';
@@ -93,22 +89,32 @@ footer button[class^="icon-"]:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-article button.icon-offline:before { content: '\e80e'; transform: rotate(45deg) scale(0.75) translate(0px, 2px); }
-article button.icon-covert:before  { content: '\f0fb'; }
-article button.icon-stealth:before { content: '\f197'; }
-article button.icon-online:before  { content: '\f135'; transform: rotate(45deg) scale(1.25) translate(-2px, 2px); }
+button.icon-offline:before { content: '\e80e'; transform: rotate(45deg) scale(0.75) translate(0px, 2px); }
+button.icon-covert:before  { content: '\f0fb'; }
+button.icon-stealth:before { content: '\f197'; }
+button.icon-online:before  { content: '\f135'; transform: rotate(45deg) scale(1.25) translate(-2px, 2px); }
 
-article button.icon-text:before  { content: '\f0f6'; }
-article button.icon-image:before { content: '\e812'; }
-article button.icon-video:before { content: '\e813'; }
-article button.icon-other:before { content: '\e806'; }
+button.icon-text:before  { content: '\f0f6'; }
+button.icon-image:before { content: '\e812'; }
+button.icon-video:before { content: '\e813'; }
+button.icon-other:before { content: '\e806'; }
 
-article button.icon-confirm:before { content: '\e803'; }
-article button.icon-refresh:before { content: '\e802'; }
-article button.icon-remove:before  { content: '\e804'; }
-article button.icon-unknown:before { content: '\f128'; }
+button.icon-confirm:before { content: '\e803'; }
+button.icon-refresh:before { content: '\e802'; }
+button.icon-remove:before  { content: '\e804'; }
+button.icon-unknown:before { content: '\f128'; }
 
-article h1, h2 {
+button.busy:before {
+	animation: infinite linear 1s rotate;
+}
+
+@keyframes rotate {
+	0%   { transform: rotate(0deg);   }
+	50%  { transform: rotate(180deg); }
+	100% { transform: rotate(360deg); }
+}
+
+h1, h2 {
 	display: block;
 	margin: 1em 0px 1em 0px;
 	padding: 0px;
@@ -119,7 +125,7 @@ article h1, h2 {
 	text-align: center;
 }
 
-article h3 {
+h3 {
 	display: block;
 	margin: 1em 0px 1em 0px;
 	padding: 0px;
@@ -130,7 +136,7 @@ article h3 {
 	text-align: center;
 }
 
-article input[type="radio"] {
+input[type="radio"] {
 	display: inline-block;
 	width: 32px;
 	height: 32px;
@@ -153,7 +159,7 @@ article input[type="radio"] {
 	cursor: pointer;
 }
 
-article input[type="radio"]:before {
+input[type="radio"]:before {
 	display: inline-block;
 	width: 32px;
 	height: 32px;
@@ -166,27 +172,23 @@ article input[type="radio"]:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-article input[type="radio"][disabled],
-article input[type="radio"][disabled]:hover {
+input[type="radio"][disabled],
+input[type="radio"][disabled]:hover {
 	color: #666666;
 	background: transparent;
 	cursor: default;
 }
 
-article input[type="radio"]:hover {
+input[type="radio"]:hover {
 	color: #ffffff;
 	background: rgba(255,255,255,0.1);
 }
 
-article input[type="radio"]:checked {
+input[type="radio"]:checked {
 	color: #ffffff;
 }
 
-article input[type="radio"] + label[for] {
-	cursor: pointer;
-}
-
-article input[type="text"] {
+input[type="text"] {
 	display: inline-block;
 	height: 32px;
 	line-height: 32px;
@@ -203,11 +205,11 @@ article input[type="text"] {
 	cursor: text;
 }
 
-article p {
+p {
 	margin: 1em 0px;
 }
 
-article table {
+table {
 	width: 100%;
 	color: #ffffff;
 	font-family: 'museo';
@@ -216,42 +218,38 @@ article table {
 	text-align: center;
 }
 
-article table tr th {
+table tr th {
 	font-size: 20px;
 	padding: 0px 0px 0.5em 0px;
 }
 
-article table tr td {
+table tr td {
 	padding: 8px;
 	font-size: 16px;
 	border: 1px solid #666666;
 	transition: 250ms all ease-out;
 }
 
-article table tr:hover td {
+table tr:hover td {
 	border: 1px solid #ffffff;
 }
 
-article table tfoot tr:hover td,
-article table tfoot tr td {
+table tfoot tr:hover td,
+table tfoot tr td {
 	border-top: 2px solid #ffffff;
 }
 
-article ul {
+ul {
 	margin: 0px;
 	padding: 0px;
 }
 
-article p + table {
-	margin-top: 64px;
-}
-
-article table tr td:last-child button {
+table tr td:last-child button {
 	display: block;
 	margin: 0px auto;
 }
 
-article table input[type="text"] {
+table input[type="text"] {
 	display: block;
 	width: 100%;
 	text-align: center;
@@ -284,12 +282,29 @@ footer.active {
 	transform: translate(0%, 0%);
 }
 
+
+
+article input[type="radio"] + label[for] {
+	cursor: pointer;
+}
+
+article p + table {
+	margin-top: 64px;
+}
+
 footer button {
 	padding: 0px 8px 0px 0px;
 }
 
-footer button.icon-confirm:before { content: '\e803'; }
 
+/* welcome */
+#stealth-modes button[disabled],
+#stealth-modes button[disabled]:hover {
+	color: #ffffff;
+}
+
+
+/* settings */
 #internet-connection div,
 #internet-torify div {
 	line-height: 32px;

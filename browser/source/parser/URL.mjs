@@ -307,6 +307,7 @@ const URL = {
 			url:       san_url,
 
 			// Service API
+			headers:   null,
 			payload:   null
 
 		};

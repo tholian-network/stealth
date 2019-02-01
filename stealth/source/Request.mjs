@@ -15,9 +15,21 @@ const Request = function(data, stealth) {
 
 	this.id      = 'request-' + _id++;
 	this.config  = settings.config || null;
+	this.prefix  = settings.prefix || '/stealth/';
 	this.ref     = null;
 	this.stealth = stealth;
 	this.url     = null;
+	this.timeline = {
+		init:     null,
+		kill:     null,
+		cache:    null,
+		connect:  null,
+		download: null,
+		filter:   null,
+		optimize: null,
+		error:    null,
+		ready:    null
+	};
 
 
 	let ref = settings.ref || null;
@@ -43,7 +55,9 @@ const Request = function(data, stealth) {
 
 		this.stealth.server.services.cache.read(this.ref, response => {
 
-			if (response !== null) {
+			this.timeline.cache = Date.now();
+
+			if (response.payload !== null) {
 				this.emit('ready', [{
 					headers: response.headers,
 					payload: response.payload
@@ -58,17 +72,18 @@ const Request = function(data, stealth) {
 
 	this.on('connect', _ => {
 
-		console.log('connect()');
-
 		if (this.ref.host !== null) {
 
+			this.timeline.connect = Date.now();
 			this.emit('download');
 
 		} else {
 
 			this.stealth.server.services.host.read(this.ref, response => {
 
-				if (response !== null) {
+				this.timeline.connect = Date.now();
+
+				if (response.payload !== null) {
 
 					if (response.ipv6 !== null) {
 						this.ref.host = response.ipv6;
@@ -77,8 +92,6 @@ const Request = function(data, stealth) {
 					}
 
 				}
-
-				console.log(this.ref.url, this.ref.host);
 
 				if (this.ref.host !== null) {
 					this.emit('download');
@@ -97,19 +110,31 @@ const Request = function(data, stealth) {
 	this.on('download', _ => {
 
 		// TODO: download stuff via net.Socket()
+		// TODO: After download is completed, call cache.save()
+		// TODO: If download was partial, resume download
+
+		this.emit('error', [{
+			type: 'connect'
+		}]);
+		console.log(this.url, this.config);
 
 	});
 
 	this.on('filter', _ => {
 
-		// TODO: filter stuff via optimizers/<MIME>.mjs#filter()
+		// TODO: filter stuff via optimizer/<MIME>.mjs#filter()
 
 	});
 
 	this.on('optimize', _ => {
 
-		// TODO: optimize stuff via optimizers/<MIME>.mjs#filter()
+		// TODO: optimize stuff via optimizer/<MIME>.mjs#optimize()
 
+	});
+
+	this.on('render', _ => {
+		// TODO: render stuff with different URLs
+		// and prefix everything to /stealth
 	});
 
 };
@@ -119,9 +144,10 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	init: function() {
 
-		console.log(this.url, this.config);
-
-		// this.emit('cache');
+		if (this.timeline.init === null) {
+			this.timeline.init = Date.now();
+			this.emit('cache');
+		}
 
 	},
 

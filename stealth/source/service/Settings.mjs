@@ -117,7 +117,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			peers.forEach(peer => {
 
-				let other = settings.peers.find(p => p.name === peer.name) || null;
+				let other = settings.peers.find(p => p.domain === peer.domain) || null;
 				if (other !== null) {
 
 					for (let key in peer) {

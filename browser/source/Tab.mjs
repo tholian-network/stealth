@@ -9,7 +9,7 @@ const Tab = function(data) {
 	let settings = Object.assign({}, data);
 
 
-	this.id       = 'tab-' + _id++;
+	this.id       = '' + _id++;
 	this.history  = [];
 	this.config   = settings.config || null;
 	this.ref      = null;
