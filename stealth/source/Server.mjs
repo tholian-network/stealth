@@ -1,6 +1,7 @@
 
 import net from 'net';
 
+import { console  } from './console.mjs';
 import { HTTP     } from './protocol/HTTP.mjs';
 import { WS       } from './protocol/WS.mjs';
 import { Cache    } from './service/Cache.mjs';
@@ -98,7 +99,7 @@ const Server = function(stealth, root) {
 		cache:    new Cache(stealth),
 		error:    new Error(stealth),
 		file:     new File(stealth),
-//		filter:   new Filter(stealth),
+		// filter:   new Filter(stealth),
 		host:     new Host(stealth),
 		peer:     new Peer(stealth),
 		redirect: new Redirect(stealth),
@@ -228,7 +229,7 @@ Server.prototype = {
 											system:  system
 										});
 
-										socket.on('end', _ => {
+										socket.on('end', () => {
 
 											let index = this.stealth.sessions.indexOf(session);
 											if (index !== -1) {
@@ -304,18 +305,38 @@ Server.prototype = {
 														path: '/browser/internal/fix-download.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
+												} else if (typeof err.code === 'number') {
+
+													this.services.error.get({
+														code: err.code
+													}, response => HTTP.send(socket, response));
+
+												} else {
+
+													this.services.error.get({
+														code: 500
+													}, response => HTTP.send(socket, response));
+
 												}
 
 											});
 
 											request.on('ready', response => {
 
+												// TODO: How to replace the URLs in
+												// HTML and CSS files correctly with
+												// the '/stealth/tab:' + tab prefix?
+
 												if (response !== null && response.payload !== null) {
+
 													HTTP.send(socket, response);
+
 												} else {
+
 													this.services.error.get({
 														code: 404
 													}, response => HTTP.send(socket, response));
+
 												}
 
 											});
@@ -398,21 +419,37 @@ Server.prototype = {
 
 				});
 
-				socket.on('error',   _ => {});
-				socket.on('close',   _ => {});
-				socket.on('timeout', _ => socket.close());
+				socket.on('error',   () => {});
+				socket.on('close',   () => {});
+				socket.on('timeout', () => socket.close());
 
 				socket.resume();
 
 			});
 
-			this.__server.on('error', _ => this.__server.close());
-			this.__server.on('close', _ => {
+			this.__server.on('error', (err) => {
+
+				if (err.code === 'EADDRINUSE') {
+					console.warn('Stealth Service stopped because it is already running.');
+				} else {
+					console.warn('Stealth Service stopped.');
+				}
+
+				this.__server.close();
+
+			});
+
+			this.__server.on('close', () => {
 				this.__server = null;
 			});
 
 
-			console.log('Stealth Service listening on http://' + host + ':' + port);
+			if (host !== null) {
+				console.info('Stealth Service started on http://' + host + ':' + port + '.');
+			} else {
+				console.info('Stealth Service started on http://localhost:' + port + '.');
+			}
+
 			this.__server.listen(port, host === 'localhost' ? null : host);
 
 		}

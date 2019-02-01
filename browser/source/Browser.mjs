@@ -149,7 +149,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		if (client !== null) {
 			client.connect(host, port, result => {
 				if (result === true) {
-					client.services.settings.read(null, _ => {});
+					client.services.settings.read(null);
 				}
 			});
 		}

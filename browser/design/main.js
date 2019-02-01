@@ -57,7 +57,11 @@
 
 	};
 
-	const _init_events = function(scope) {
+	const _init_events = function(browser, scope, webview) {
+
+		scope   = scope !== undefined ? scope : null;
+		webview = webview === true;
+
 
 		if (scope !== null) {
 
@@ -231,13 +235,23 @@
 
 		}
 
+
+		if (scope !== null && webview === true) {
+
+			let doc = scope.document || null;
+			if (doc !== null) {
+				_init_links(browser, Array.from(doc.querySelectorAll('a')));
+			}
+
+		}
+
 	};
 
-	const _init_links = function(links) {
+	const _init_links = function(browser, links) {
 
 		links.forEach(link => {
 
-			link.onclick = _ => {
+			link.onclick = () => {
 
 				let tab = browser.tab || null;
 				if (tab !== null) {
@@ -255,7 +269,7 @@
 
 	const _init = function(browser) {
 
-		browser.on('show', (tab, tabs) => {
+		browser.on('show', (tab) => {
 
 			let url = _get_url(browser, tab);
 			if (url !== null) {
@@ -268,7 +282,7 @@
 
 		});
 
-		browser.on('refresh', (tab, tabs) => {
+		browser.on('refresh', (tab) => {
 
 			let url = _get_url(browser, tab);
 			if (url !== null) {
@@ -282,20 +296,18 @@
 		});
 
 
-		_init_events(global);
+		_init_events(browser, global, false);
 
 
 		if (webview !== null) {
 
-			let win = webview.contentWindow || null;
-			if (win !== null) {
-				_init_events(win);
-			}
+			(function() {
+				_init_events(browser, webview.contentWindow || null, true);
+			})();
 
-			let doc = webview.contentWindow.document || null;
-			if (doc !== null) {
-				_init_links(Array.from(doc.querySelectorAll('a')));
-			}
+			webview.onload = () => {
+				_init_events(browser, webview.contentWindow || null, true);
+			};
 
 		}
 
@@ -303,31 +315,11 @@
 
 
 
-	if (webview !== null) {
-
-		webview.onload = _ => {
-
-			let win = webview.contentWindow || null;
-			if (win !== null) {
-				_init_events(win);
-			}
-
-			let doc = webview.contentWindow.document || null;
-			if (doc !== null) {
-				_init_links(Array.from(doc.querySelectorAll('a')));
-			}
-
-		};
-
-	}
-
-
-
 	/*
 	 * INIT
 	 */
 
-	global.browser ? _init(browser) : BROWSER_BINDINGS.push(_init);
+	global.browser ? _init(global.browser) : global.BROWSER_BINDINGS.push(_init);
 
 })(typeof window !== 'undefined' ? window : this);
 

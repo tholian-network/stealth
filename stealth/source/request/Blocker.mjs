@@ -88,7 +88,15 @@ const Blocker = {
 
 				for (let h = 0, hl = hosts.length; h < hl; h++) {
 
-					// TODO: If host.domain === ref.domain
+					let host = hosts[h];
+					if (host.domain === ref.domain) {
+
+						if (host.subdomain === ref.subdomain) {
+							blocked = true;
+							break;
+						}
+
+					}
 
 				}
 

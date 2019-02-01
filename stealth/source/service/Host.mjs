@@ -248,9 +248,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 			let host     = null;
 			let settings = this.stealth.settings;
 
-			let rdomain  = ref.domain || null;
-			let rpayload = _validate_payload(ref.payload || null);
-
+			let rdomain = ref.domain || null;
 			if (rdomain !== null) {
 
 				let rsubdomain = ref.subdomain || null;

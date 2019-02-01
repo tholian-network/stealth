@@ -1,4 +1,5 @@
 
+import { console   } from './console.mjs';
 import { Request   } from './Request.mjs';
 import { Server    } from './Server.mjs';
 import { Settings  } from './Settings.mjs';
@@ -13,12 +14,8 @@ const Stealth = function(data) {
 		root:    null
 	}, data);
 
-
-	console.log('Stealth Settings are:');
-	Object.keys(settings).forEach(key => {
-		console.log(' > "' + key + '": "' + settings[key] + '"');
-	});
-
+	console.log('Stealth Service Command-Line Arguments:');
+	console.log(settings);
 
 	this.mode     = 'offline';
 	this.settings = new Settings(this, settings.profile, settings.root + '/profile');

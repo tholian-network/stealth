@@ -57,80 +57,92 @@ const _update = function(host) {
 
 
 
-if (browser !== null) {
+const WIZARD = {
 
-	if (elements.hosts !== null) {
+	init: function(browser) {
 
-		elements.hosts.addEventListener('click', e => {
+		if (elements.hosts !== null) {
 
-			let element = e.target;
-			let state   = element.className;
-			let tagname = element.tagName.toLowerCase();
-			if (tagname === 'button') {
+			elements.hosts.addEventListener('click', e => {
 
-				let method  = element.getAttribute('data-method') || null;
-				let service = browser.client.services.host;
-				if (service !== null && typeof service[method] === 'function') {
+				let element = e.target;
+				let state   = element.className;
+				let tagname = element.tagName.toLowerCase();
+				if (tagname === 'button') {
 
-					element.className += ' busy';
+					let method  = element.getAttribute('data-method') || null;
+					let service = browser.client.services.host;
+					if (service !== null && typeof service[method] === 'function') {
 
-					service[method](ref, payload => {
+						element.className += ' busy';
 
-						element.className = state;
+						service[method](ref, payload => {
 
-						if (typeof payload.result === 'boolean') {
-							// Do nothing
-						} else if (payload !== null) {
-							_update(payload);
-						}
+							element.className = state;
 
-					});
+							if (typeof payload.result === 'boolean') {
+								// Do nothing
+							} else if (payload !== null) {
+								_update(payload);
+							}
+
+						});
+
+					} else {
+						element.setAttribute('disabled', true);
+					}
+
+				}
+
+			});
+
+		}
+
+
+		if (elements.footer !== null && elements.refresh !== null) {
+			elements.refresh.onclick = () => browser.refresh();
+			elements.footer.className = 'active';
+		}
+
+
+		if (ref.domain !== '') {
+
+			browser.client.services.host.read(ref, host => {
+
+				if (host !== null) {
+
+					_update(host);
 
 				} else {
-					element.setAttribute('disabled', true);
+
+					let element = elements.fix_connect || null;
+					if (element !== null) {
+						element.parentNode.removeChild(element);
+					}
+
 				}
 
+			});
+
+		} else {
+
+			let element = elements.fix_connect || null;
+			if (element !== null) {
+				element.parentNode.removeChild(element);
 			}
 
-		});
-
-	}
-
-
-	if (elements.footer !== null && elements.refresh !== null) {
-		elements.refresh.onclick = _ => browser.refresh();
-		elements.footer.className = 'active';
-	}
-
-
-	if (ref.domain !== '') {
-
-		browser.client.services.host.read(ref, host => {
-
-			if (host !== null) {
-
-				_update(host);
-
-			} else {
-
-				let element = elements.fix_connect || null;
-				if (element !== null) {
-					element.parentNode.removeChild(element);
-				}
-
-			}
-
-		});
-
-	} else {
-
-		let element = elements.fix_connect || null;
-		if (element !== null) {
-			element.parentNode.removeChild(element);
 		}
 
 	}
 
+};
+
+
+export { WIZARD };
+
+
+if (browser !== null) {
+	WIZARD.init(browser);
 } else {
 
 	let element = elements.fix_connect || null;

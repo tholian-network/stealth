@@ -106,13 +106,13 @@ const SETTINGS = {
 
 		let client = browser.client;
 		if (client !== null) {
-			client.services.settings.read(null, _ => _update(browser.settings));
+			client.services.settings.read(null, () => _update(browser.settings));
 		}
 
 
 		elements.internet.connection.forEach((element, e, others) => {
 
-			element.onchange = _ => {
+			element.onchange = () => {
 
 				let active = others.find(e => e.checked === true) || null;
 				if (active !== null) {
@@ -126,7 +126,7 @@ const SETTINGS = {
 
 		elements.internet.torify.forEach((element, e, others) => {
 
-			element.onchange = _ => {
+			element.onchange = () => {
 
 				let active = others.find(e => e.checked === true) || null;
 				if (active !== null) {
@@ -138,9 +138,9 @@ const SETTINGS = {
 
 		});
 
-		elements.confirm.onclick = _ => {
+		elements.confirm.onclick = () => {
 
-			browser.client.services.settings.save({}, result => {
+			browser.client.services.settings.save({}, () => {
 				elements.footer.className = '';
 			});
 
@@ -156,7 +156,5 @@ export { SETTINGS };
 
 if (browser !== null) {
 	SETTINGS.init(browser);
-} else {
-	console.error('No Browser accessible :(');
 }
 

@@ -1,4 +1,5 @@
 
+import { log     } from './console.mjs';
 import { Request } from './Request.mjs';
 import { WS      } from './protocol/WS.mjs';
 
@@ -73,9 +74,9 @@ Session.prototype = {
 				payload: null
 			});
 
-		}
+			log('session #' + this.id + ' connected.');
 
-		console.log('session #' + this.id + ' connected.');
+		}
 
 	},
 
@@ -94,7 +95,7 @@ Session.prototype = {
 
 			if (cache.includes(request) === false) {
 
-				request.on('error', _ => {
+				request.on('error', () => {
 
 					let index = cache.indexOf(request);
 					if (index !== -1) {
@@ -103,7 +104,7 @@ Session.prototype = {
 
 				});
 
-				request.on('ready', _ => {
+				request.on('ready', () => {
 
 					let index = cache.indexOf(request);
 					if (index !== -1) {
@@ -112,7 +113,7 @@ Session.prototype = {
 
 				});
 
-				console.log('session #' + this.id + ' tab #' + tab + ' tracks ' + request.url);
+				log('session #' + this.id + ' tab #' + tab + ' tracks ' + request.url);
 
 				cache.push(request);
 
@@ -127,11 +128,13 @@ Session.prototype = {
 		// TODO: Stop requests or let them continue?
 
 		if (this.socket !== null) {
+
 			this.socket.end();
 			this.socket = null;
-		}
 
-		console.log('session #' + this.id + ' disconnected.');
+			log('session #' + this.id + ' disconnected.');
+
+		}
 
 	}
 

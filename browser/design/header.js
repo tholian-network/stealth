@@ -256,7 +256,7 @@
 
 		});
 
-		browser.on('show', (tab, tabs) => {
+		browser.on('show', (tab) => {
 
 			if (tab !== null) {
 
@@ -282,7 +282,7 @@
 
 		});
 
-		browser.on('refresh', (tab, tabs) => {
+		browser.on('refresh', (tab) => {
 
 			if (tab !== null) {
 
@@ -308,16 +308,16 @@
 
 
 		if (buttons.history.back !== null) {
-			buttons.history.back.onclick = _ => browser.back();
+			buttons.history.back.onclick = () => browser.back();
 		}
 
 		if (buttons.history.next !== null) {
-			buttons.history.next.onclick = _ => browser.next();
+			buttons.history.next.onclick = () => browser.next();
 		}
 
 		if (buttons.history.load !== null) {
 
-			buttons.history.load.onclick = _ => {
+			buttons.history.load.onclick = () => {
 
 				let action = buttons.history.load.className;
 				if (action === 'refresh') {
@@ -334,7 +334,7 @@
 
 		if (inputs.address !== null && outputs.address !== null) {
 
-			outputs.address.onclick = e => {
+			outputs.address.onclick = (e) => {
 
 				inputs.address.className = 'active';
 
@@ -370,7 +370,7 @@
 
 			};
 
-			inputs.address.onkeyup = e => {
+			inputs.address.onkeyup = (e) => {
 
 				let key = e.key.toLowerCase();
 				if (key === 'enter') {
@@ -379,7 +379,7 @@
 
 			};
 
-			inputs.address.onblur = e => {
+			inputs.address.onblur = () => {
 
 				let url = inputs.address.value.trim();
 				if (url === '') {
@@ -440,59 +440,48 @@
 
 		}
 
-	};
+		if (buttons.modes.length > 0) {
 
+			buttons.modes.forEach(button => {
 
+				button.onclick = () => {
 
+					buttons.modes.forEach(b => (b.className = ''));
+					button.className = 'active';
 
-	/*
-	 * MODES
-	 */
+					let tmp = button.getAttribute('title');
+					if (tmp !== null) {
+						browser.setMode(tmp);
+					}
 
-	if (buttons.modes.length > 0) {
+				};
 
-		buttons.modes.forEach(button => {
+			});
 
-			button.onclick = _ => {
+		}
 
-				buttons.modes.forEach(b => (b.className = ''));
-				button.className = 'active';
+		if (buttons.settings !== null) {
 
-				let tmp = button.getAttribute('title');
-				if (tmp !== null) {
-					browser.setMode(tmp);
+			buttons.settings.onclick = () => {
+
+				let tab = browser.open('stealth:settings');
+				if (tab !== null) {
+					browser.show(tab);
 				}
 
 			};
 
-		});
+		}
 
-	}
+	};
 
 
-
-	/*
-	 * SETTINGS
-	 */
-
-	if (buttons.settings !== null) {
-
-		buttons.settings.onclick = _ => {
-
-			let tab = browser.open('stealth:settings');
-			if (tab !== null) {
-				browser.show(tab);
-			}
-
-		};
-
-	}
 
 	if (buttons.sites.length > 0) {
 
 		buttons.sites.forEach((button, s) => {
 
-			button.onclick = _ => {
+			button.onclick = () => {
 
 				let site = sites[s] || null;
 				if (site !== null) {
@@ -521,7 +510,7 @@
 	 * INIT
 	 */
 
-	global.browser ? _init(browser) : BROWSER_BINDINGS.push(_init);
+	global.browser ? _init(global.browser) : global.BROWSER_BINDINGS.push(_init);
 
 })(typeof window !== 'undefined' ? window : this);
 

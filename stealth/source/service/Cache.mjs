@@ -21,6 +21,7 @@ const _mkdir = function(path, callback) {
 				});
 				stat = fs.lstatSync(path);
 			} catch (err) {
+				stat = null;
 			}
 
 		}
@@ -112,6 +113,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 						try {
 							headers = JSON.parse(raw_headers.toString('utf8'));
 						} catch (err) {
+							headers = {};
 						}
 
 					}
@@ -207,9 +209,9 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 				let folder = path.split('/').slice(0, -1).join('/');
 
-				_mkdir(profile + '/cache/persistent/headers/' + folder, _ => {
+				_mkdir(profile + '/cache/persistent/headers/' + folder, () => {
 
-					_mkdir(profile + '/cache/persistent/payload/' + folder, _ => {
+					_mkdir(profile + '/cache/persistent/payload/' + folder, () => {
 
 						fs.writeFile(profile + '/cache/persistent/headers/' + path, headers, (err_headers) => {
 

@@ -34,6 +34,8 @@ const Request = function(data, stealth) {
 		ready:    null
 	};
 
+	this.__downloader = null;
+
 
 	let ref = settings.ref || null;
 	let url = settings.url || null;
@@ -54,7 +56,7 @@ const Request = function(data, stealth) {
 	// this.emit('error', [ { type: 'url' } ]);
 	// this.emit('ready', [ { headers: {}, payload: null } ]);
 
-	this.on('cache', _ => {
+	this.on('cache', () => {
 
 		this.stealth.server.services.cache.read(this.ref, response => {
 
@@ -71,26 +73,47 @@ const Request = function(data, stealth) {
 
 	});
 
-	this.on('block', _ => {
+	this.on('block', () => {
 
+		let type     = this.ref.mime.type;
+		let allowed  = this.config.mime[type] === true;
 		let blockers = this.stealth.settings.blockers || null;
-		if (blockers !== null) {
+
+		if (allowed === true && blockers !== null) {
 
 			Blocker.check(blockers, this.ref, blocked => {
 
 				if (blocked === true) {
-					this.emit('ready', [ null ]);
+
+					this.config.mode       = 'offline';
+					this.config.mime.text  = false;
+					this.config.mime.image = false;
+					this.config.mime.video = false;
+					this.config.mime.other = false;
+
+					this.emit('error', [{ code: 403 }]);
+
 				} else {
+
 					this.emit('connect');
+
 				}
 
 			});
+
+		} else if (allowed === true) {
+
+			this.emit('connect');
+
+		} else {
+
+			this.emit('error', [{ code: 403 }]);
 
 		}
 
 	});
 
-	this.on('connect', _ => {
+	this.on('connect', () => {
 
 		if (this.ref.host !== null) {
 
@@ -127,7 +150,7 @@ const Request = function(data, stealth) {
 
 	});
 
-	this.on('download', _ => {
+	this.on('download', () => {
 
 		// TODO: download stuff via net.Socket()
 		// TODO: After download is completed, call cache.save()
@@ -136,23 +159,24 @@ const Request = function(data, stealth) {
 		this.emit('error', [{
 			type: 'connect'
 		}]);
+
 		console.log(this.url, this.config);
 
 	});
 
-	this.on('filter', _ => {
+	this.on('filter', () => {
 
 		// TODO: filter stuff via optimizer/<MIME>.mjs#filter()
 
 	});
 
-	this.on('optimize', _ => {
+	this.on('optimize', () => {
 
 		// TODO: optimize stuff via optimizer/<MIME>.mjs#optimize()
 
 	});
 
-	this.on('render', _ => {
+	this.on('render', () => {
 		// TODO: render stuff with different URLs
 		// and prefix everything to /stealth
 	});
@@ -172,6 +196,11 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 	},
 
 	kill: function() {
+
+		if (this.timeline.kill === null) {
+			this.timeline.kill = Date.now();
+
+		}
 
 		// TODO: Stop download(s)
 

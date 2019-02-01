@@ -2,8 +2,7 @@
 import fs          from 'fs';
 import os          from 'os';
 import process     from 'process';
-
-
+import { console } from './console.mjs';
 
 const _PROFILE = (function(env, platform) {
 
@@ -19,6 +18,10 @@ const _PROFILE = (function(env, platform) {
 	return profile;
 
 })(process.env, os.platform());
+
+const _USER = (function(env) {
+	return env.SUDO_USER || env.USER;
+})(process.env);
 
 
 
@@ -38,6 +41,7 @@ const _read_file = function(path, data) {
 	try {
 		stat = fs.lstatSync(path);
 	} catch (err) {
+		stat = null;
 	}
 
 
@@ -46,11 +50,13 @@ const _read_file = function(path, data) {
 		try {
 			fs.writeFileSync(path, JSON.stringify(data, null, '\t'), 'utf8');
 		} catch (err) {
+			// Do nothing
 		}
 
 		try {
 			stat = fs.lstatSync(path);
 		} catch (err) {
+			stat = null;
 		}
 
 	}
@@ -62,6 +68,7 @@ const _read_file = function(path, data) {
 		try {
 			tmp = JSON.parse(fs.readFileSync(path, 'utf8'));
 		} catch (err) {
+			tmp = null;
 		}
 
 		if (tmp !== null) {
@@ -171,6 +178,7 @@ const _save_file = function(path, data) {
 		fs.writeFileSync(path, JSON.stringify(data, null, '\t'), 'utf8');
 		result = true;
 	} catch (err) {
+		result = false;
 	}
 
 	return result;
@@ -207,6 +215,38 @@ const _save = function(profile, callback) {
 
 };
 
+const _setup_dir = function(folder) {
+
+	let result = false;
+
+	try {
+
+		let stat = fs.lstatSync(folder);
+		if (stat.isDirectory()) {
+			result = true;
+		}
+
+	} catch (err) {
+
+		fs.mkdirSync(folder);
+
+		try {
+
+			let stat = fs.lstatSync(folder);
+			if (stat.isDirectory()) {
+				result = true;
+			}
+
+		} catch (err) {
+			result = false;
+		}
+
+	}
+
+	return result;
+
+};
+
 const _setup = function(profile, callback) {
 
 	fs.lstat(profile, (err, stat) => {
@@ -219,34 +259,50 @@ const _setup = function(profile, callback) {
 
 				if (!err) {
 
-					try {
-						fs.mkdirSync(profile + '/cache');
-						fs.mkdirSync(profile + '/download');
-						fs.mkdirSync(profile + '/blockers');
-						fs.mkdirSync(profile + '/scrapers');
-					} catch (err) {
+					let results = [
+						_setup_dir(profile + '/cache'),
+						_setup_dir(profile + '/download'),
+						_setup_dir(profile + '/blockers'),
+						_setup_dir(profile + '/scrapers')
+					];
+
+					let check = results.filter(r => r === true);
+					if (check.length !== results.length) {
+						console.error('Stealth Profile at "' + profile + '" is not writeable!');
 					}
 
-					callback(true);
+					if (callback !== null) {
+						callback(check.length === results.length);
+					}
 
 				} else {
+					console.error('Stealth Profile at "' + profile + '" is not writeable!');
 					callback(false);
 				}
 
 			});
 
-		} else {
+		} else if (stat.isDirectory()) {
 
-			try {
-				fs.mkdirSync(profile + '/cache');
-				fs.mkdirSync(profile + '/download');
-				fs.mkdirSync(profile + '/blockers');
-				fs.mkdirSync(profile + '/scrapers');
-			} catch (err) {
+			let results = [
+				_setup_dir(profile + '/cache'),
+				_setup_dir(profile + '/download'),
+				_setup_dir(profile + '/blockers'),
+				_setup_dir(profile + '/scrapers')
+			];
+
+			let check = results.filter(r => r === true);
+			if (check.length !== results.length) {
+				console.error('Stealth Profile at "' + profile + '" is not writeable!');
 			}
 
-			callback(true);
+			if (callback !== null) {
+				callback(check.length === results.length);
+			}
 
+		} else {
+			console.error('Stealth Profile at "' + profile + '" is not a directory!');
+			callback(false);
 		}
 
 	});
@@ -307,7 +363,15 @@ const Settings = function(stealth, profile, defaults) {
 
 		} else {
 
-			console.warn('Stealth Profile loaded from "/tmp/stealth".');
+			this.profile = '/tmp/stealth-' + _USER;
+
+			_read.call(this, this.profile, result => {
+
+				if (result === true) {
+					console.warn('Stealth Profile loaded from "' + this.profile + '".');
+				}
+
+			});
 
 		}
 

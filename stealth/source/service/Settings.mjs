@@ -164,7 +164,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						event:   'save'
 					},
 					payload: {
-						result: true
+						result: result
 					}
 				});
 

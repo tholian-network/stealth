@@ -1,7 +1,6 @@
 
-import https      from 'https';
-import { Buffer } from 'buffer';
-import { IP     } from '../parser/IP.mjs';
+import https  from 'https';
+import { IP } from '../parser/IP.mjs';
 
 
 const _POOL = [
@@ -35,12 +34,13 @@ const _query = function(server, name, type, callback) {
 		let blob = '';
 
 		response.on('data', chunk => blob += chunk.toString('utf8'));
-		response.on('end', _ => {
+		response.on('end', () => {
 
 			let data = null;
 			try {
 				data = JSON.parse(blob);
 			} catch (err) {
+				data = null;
 			}
 
 			if (data instanceof Object) {
@@ -80,9 +80,7 @@ const _query = function(server, name, type, callback) {
 
 	});
 
-	socket.on('error', e => {
-		callback(null);
-	});
+	socket.on('error', () => callback(null));
 
 	socket.write('');
 	socket.end();

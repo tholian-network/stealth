@@ -16,5 +16,5 @@ cp ./stealth/source/Emitter.mjs    ./browser/source/Emitter.mjs;
 cp ./stealth/source/parser/IP.mjs  ./browser/source/parser/IP.mjs;
 cp ./stealth/source/parser/URL.mjs ./browser/source/parser/URL.mjs;
 
-"$node_bin" --experimental-modules ./stealth/stealth.mjs "$@";
+"$node_bin" --no-warnings --experimental-modules ./stealth/stealth.mjs "$@";
 

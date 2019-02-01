@@ -53,7 +53,7 @@
 			button.setAttribute('data-mode', config.mode);
 		}
 
-		button.onclick = _ => {
+		button.onclick = () => {
 
 			let id  = button.getAttribute('data-id');
 			let tab = browser.tabs.find(t => t.id === id) || null;
@@ -63,7 +63,7 @@
 
 		};
 
-		button.ondblclick = _ => {
+		button.ondblclick = () => {
 
 			let id  = button.getAttribute('data-id');
 			let tab = browser.tabs.find(t => t.id === id) || null;
@@ -168,11 +168,11 @@
 				navi.appendChild(button);
 			}
 
-			setTimeout(_ => _update_navi(tabs), 0);
+			setTimeout(() => _update_navi(tabs), 0);
 
 		});
 
-		browser.on('hide', (tab, tabs) => {
+		browser.on('hide', () => {
 			// XXX: Nothing to do
 		});
 
@@ -183,7 +183,7 @@
 				button.parentNode.removeChild(button);
 			}
 
-			setTimeout(_ => _update_navi(tabs), 0);
+			setTimeout(() => _update_navi(tabs), 0);
 
 		});
 
@@ -216,7 +216,7 @@
 
 		});
 
-		browser.on('refresh', (tab, tabs) => {
+		browser.on('refresh', (tab) => {
 
 			let button = Array.from(navi.querySelectorAll('button')).find(b => b.getAttribute('data-id') === tab.id) || null;
 			if (button !== null) {
@@ -233,7 +233,7 @@
 	 * INIT
 	 */
 
-	global.browser ? _init(browser) : BROWSER_BINDINGS.push(_init);
+	global.browser ? _init(global.browser) : global.BROWSER_BINDINGS.push(_init);
 
 })(typeof window !== 'undefined' ? window : this);
 

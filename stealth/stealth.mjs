@@ -1,10 +1,9 @@
 
 import { Stealth } from './source/Stealth.mjs';
 
-const _ARGS    = Array.from(process.argv).slice(2).filter(v => v.trim() !== '');
-const _PROFILE = '/home/' + (process.env.SUDO_USER || process.env.USER) + '/Stealth';
-const _ROOT    = process.env.PWD;
-const _FLAGS   = (function() {
+const _ARGS  = Array.from(process.argv).slice(2).filter(v => v.trim() !== '');
+const _ROOT  = process.env.PWD;
+const _FLAGS = (function() {
 
 	let flags = {};
 
@@ -60,5 +59,5 @@ const settings = {
 
 	}
 
-})(typeof window !== 'undefined' ? window : global);
+})(global);
 

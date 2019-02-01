@@ -11,6 +11,7 @@ const _decode_json = function(buffer) {
 	try {
 		data = JSON.parse(buffer.toString('utf8'));
 	} catch (err) {
+		data = null;
 	}
 
 	return data;
@@ -25,6 +26,7 @@ const _encode_json = function(data) {
 		let tmp = JSON.stringify(data, null, '\t');
 		buffer = Buffer.from(tmp, 'utf8');
 	} catch (err) {
+		buffer = null;
 	}
 
 	return buffer;

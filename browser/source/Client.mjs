@@ -116,27 +116,27 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 			};
 
-			this.__socket.ontimeout = _ => {
+			this.__socket.ontimeout = () => {
 				if (this.__socket !== null) {
 					this.__socket.close();
 					this.__socket = null;
 				}
 			};
 
-			this.__socket.onerror = _ => {
+			this.__socket.onerror = () => {
 				if (this.__socket !== null) {
 					this.__socket.close();
 					this.__socket = null;
 				}
 			};
 
-			this.__socket.onopen = _ => {
+			this.__socket.onopen = () => {
 				if (callback !== null) {
 					callback(true);
 				}
 			};
 
-			this.__socket.onclose = _ => {
+			this.__socket.onclose = () => {
 				_update_session.call(this, null);
 			};
 

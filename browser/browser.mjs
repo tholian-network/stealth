@@ -41,7 +41,7 @@ if (BROWSER_BINDINGS.length > 0) {
 
 
 
-setTimeout(_ => {
+setTimeout(() => {
 
 	let browser = window.browser || null;
 	if (browser !== null) {
@@ -62,10 +62,8 @@ setTimeout(_ => {
 
 		browser.show(tabs[tabs.length - 1]);
 
-		window.onbeforeunload = _ => browser.disconnect();
+		window.onbeforeunload = () => browser.disconnect();
 
-	} else {
-		console.error('Browser not ready :(');
 	}
 
 }, 1000);
