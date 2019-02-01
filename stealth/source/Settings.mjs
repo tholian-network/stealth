@@ -123,7 +123,7 @@ const _read_file = function(path, data) {
 
 const _read = function(profile, callback) {
 
-	callback = callback instanceof Function ? callback : null;
+	callback = typeof callback === 'function' ? callback : null;
 
 
 	fs.lstat(profile, (err, stat) => {
@@ -186,7 +186,7 @@ const _save_file = function(path, data) {
 
 const _save = function(profile, callback) {
 
-	callback = callback instanceof Function ? callback : null;
+	callback = typeof callback === 'function' ? callback : null;
 
 
 	fs.lstat(profile, (err, stat) => {
@@ -306,7 +306,7 @@ Settings.prototype = {
 
 	read: function(callback) {
 
-		callback = callback instanceof Function ? callback : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		_read.call(this, this.profile, result => {
@@ -321,7 +321,7 @@ Settings.prototype = {
 
 	save: function(callback) {
 
-		callback = callback instanceof Function ? callback : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		_save.call(this, this.profile, result => {

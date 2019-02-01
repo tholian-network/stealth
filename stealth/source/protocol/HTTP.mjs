@@ -7,8 +7,8 @@ const HTTP = {
 
 	receive: function(socket, buffer, callback) {
 
-		buffer   = buffer instanceof Buffer     ? buffer   : null;
-		callback = callback instanceof Function ? callback : null;
+		buffer   = buffer instanceof Buffer       ? buffer   : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (buffer !== null) {

@@ -167,8 +167,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	kill: function(tab, callback) {
 
-		tab      = tab instanceof Tab           ? Tab      : null;
-		callback = callback instanceof Function ? callback : null;
+		tab      = tab instanceof Tab             ? Tab      : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (tab !== null) {
@@ -346,8 +346,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	show: function(tab, callback) {
 
-		tab      = tab instanceof Tab           ? tab      : null;
-		callback = callback instanceof Function ? callback : null;
+		tab      = tab instanceof Tab             ? tab      : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (tab !== null) {

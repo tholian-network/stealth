@@ -40,8 +40,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(ref, callback) {
 
-		ref      = ref instanceof Object        ? ref      : null;
-		callback = callback instanceof Function ? callback : null;
+		ref      = ref instanceof Object          ? ref      : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (ref !== null && callback !== null) {
@@ -106,8 +106,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(ref, callback) {
 
-		ref      = ref instanceof Object        ? ref      : null;
-		callback = callback instanceof Function ? callback : null;
+		ref      = ref instanceof Object          ? ref      : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (ref !== null && callback !== null) {

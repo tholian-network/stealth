@@ -42,9 +42,9 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	connect: function(host, port, callback) {
 
-		host     = typeof host === 'string'     ? host     : 'localhost';
-		port     = typeof port === 'number'     ? port     : 65432;
-		callback = callback instanceof Function ? callback : null;
+		host     = typeof host === 'string'       ? host     : 'localhost';
+		port     = typeof port === 'number'       ? port     : 65432;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (this.__socket !== null) {
@@ -157,7 +157,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function(callback) {
 
-		callback = callback instanceof Function ? callback : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (this.__socket !== null) {

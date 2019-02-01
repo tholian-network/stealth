@@ -49,8 +49,8 @@ Emitter.prototype = {
 
 	on: function(event, callback) {
 
-		event    = typeof event === 'string'    ? event    : null;
-		callback = callback instanceof Function ? callback : null;
+		event    = typeof event === 'string'      ? event    : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (event !== null) {
@@ -76,8 +76,8 @@ Emitter.prototype = {
 
 	off: function(event, callback) {
 
-		event    = typeof event === 'string'    ? event    : null;
-		callback = callback instanceof Function ? callback : null;
+		event    = typeof event === 'string'      ? event    : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (event !== null) {
@@ -104,8 +104,8 @@ Emitter.prototype = {
 
 	once: function(event, callback) {
 
-		event    = typeof event === 'string'    ? event    : null;
-		callback = callback instanceof Function ? callback : null;
+		event    = typeof event === 'string'      ? event    : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (event !== null) {

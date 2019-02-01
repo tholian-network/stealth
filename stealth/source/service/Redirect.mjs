@@ -25,8 +25,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	get: function(data, callback) {
 
-		data     = data instanceof Object       ? data     : null;
-		callback = callback instanceof Function ? callback : null;
+		data     = data instanceof Object         ? data     : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (data !== null && callback !== null) {

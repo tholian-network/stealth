@@ -350,8 +350,8 @@ const WS = {
 
 	upgrade: function(socket, headers, callback) {
 
-		headers  = headers instanceof Object    ? headers  : null;
-		callback = callback instanceof Function ? callback : null;
+		headers  = headers instanceof Object      ? headers  : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (headers !== null) {
@@ -397,8 +397,8 @@ const WS = {
 
 	receive: function(socket, buffer, callback) {
 
-		buffer   = buffer instanceof Buffer     ? buffer   : null;
-		callback = callback instanceof Function ? callback : null;
+		buffer   = buffer instanceof Buffer       ? buffer   : null;
+		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (buffer !== null) {

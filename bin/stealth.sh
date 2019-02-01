@@ -12,6 +12,7 @@ fi
 cd "$root_dir";
 
 # Shared source between stealth and browser
+cp ./stealth/source/Emitter.mjs    ./browser/source/Emitter.mjs;
 cp ./stealth/source/parser/IP.mjs  ./browser/source/parser/IP.mjs;
 cp ./stealth/source/parser/URL.mjs ./browser/source/parser/URL.mjs;
 
