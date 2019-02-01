@@ -21,7 +21,7 @@ const Stealth = function(data) {
 
 
 	this.mode     = 'offline';
-	this.settings = new Settings(this, settings.profile);
+	this.settings = new Settings(this, settings.profile, settings.root + '/profile');
 	this.server   = new Server(this, settings.root);
 	this.sessions = [];
 

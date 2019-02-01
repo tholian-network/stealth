@@ -1,6 +1,8 @@
 
 import { Emitter } from './Emitter.mjs';
 import { URL     } from './parser/URL.mjs';
+import { Blocker } from './request/Blocker.mjs';
+// import { Downloader } from './request/Downloader.mjs';
 
 
 let _id = 0;
@@ -13,12 +15,13 @@ const Request = function(data, stealth) {
 	Emitter.call(this);
 
 
-	this.id      = 'request-' + _id++;
-	this.config  = settings.config || null;
-	this.prefix  = settings.prefix || '/stealth/';
-	this.ref     = null;
-	this.stealth = stealth;
-	this.url     = null;
+	this.id       = 'request-' + _id++;
+	this.config   = settings.config || null;
+	this.prefix   = settings.prefix || '/stealth/';
+	this.ref      = null;
+	this.response = null;
+	this.stealth  = stealth;
+	this.url      = null;
 	this.timeline = {
 		init:     null,
 		kill:     null,
@@ -58,15 +61,32 @@ const Request = function(data, stealth) {
 			this.timeline.cache = Date.now();
 
 			if (response.payload !== null) {
-				this.emit('ready', [{
-					headers: response.headers,
-					payload: response.payload
-				}]);
+				this.response = response;
+				this.emit('ready', [ this.response ]);
 			} else {
-				this.emit('connect');
+				this.emit('block');
 			}
 
 		});
+
+	});
+
+	this.on('block', _ => {
+
+		let blockers = this.stealth.settings.blockers || null;
+		if (blockers !== null) {
+
+			Blocker.check(blockers, this.ref, blocked => {
+
+				if (blocked === true) {
+					this.emit('ready', [ null ]);
+				} else {
+					this.emit('connect');
+				}
+
+			});
+
+		}
 
 	});
 

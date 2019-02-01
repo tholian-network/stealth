@@ -22,6 +22,16 @@ const _PROFILE = (function(env, platform) {
 
 
 
+const _info = (settings) => `
+${settings.filters.length} filter${settings.filters.length === 1 ? '' : 's'}, \
+${settings.hosts.length} host${settings.hosts.length === 1 ? '' : 's'}, \
+${settings.peers.length} peer${settings.peers.length === 1 ? '' : 's'}, \
+${settings.sites.length} site${settings.sites.length === 1 ? '' : 's'}.
+${settings.blockers.hosts.length} blocked host${settings.blockers.hosts.length === 1 ? '' : 's'}, \
+${settings.blockers.filters.length} blocked url${settings.blockers.filters.length === 1 ? '' : 's'}.
+`;
+
+
 const _read_file = function(path, data) {
 
 	let stat = null;
@@ -126,11 +136,13 @@ const _read = function(profile, callback) {
 	callback = typeof callback === 'function' ? callback : null;
 
 
-	fs.lstat(profile, (err, stat) => {
+	_setup(profile, result => {
 
-		if (!err) {
+		if (result === true) {
 
-			let result = [
+			let results = [
+				_read_file.call(this, profile + '/blockers/hosts.json',   this.blockers.hosts),
+				_read_file.call(this, profile + '/blockers/filters.json', this.blockers.filters),
 				_read_file.call(this, profile + '/internet.json', this.internet),
 				_read_file.call(this, profile + '/filters.json',  this.filters),
 				_read_file.call(this, profile + '/hosts.json',    this.hosts),
@@ -138,32 +150,13 @@ const _read = function(profile, callback) {
 				_read_file.call(this, profile + '/sites.json',    this.sites)
 			];
 
-			let check = result.filter(r => r === true);
+			let check = results.filter(r => r === true);
 			if (callback !== null) {
-				callback(check.length === result.length);
+				callback(check.length === results.length);
 			}
 
-		} else if (err.code === 'ENOENT') {
-
-			fs.mkdir(profile, {
-				recursive: true
-			}, (err) => {
-
-				let result = [
-					_read_file.call(this, profile + '/internet.json', this.internet),
-					_read_file.call(this, profile + '/filters.json',  this.filters),
-					_read_file.call(this, profile + '/hosts.json',    this.hosts),
-					_read_file.call(this, profile + '/peers.json',    this.peers),
-					_read_file.call(this, profile + '/sites.json',    this.sites)
-				];
-
-				let check = result.filter(r => r === true);
-				if (callback !== null) {
-					callback(check.length === result.length);
-				}
-
-			});
-
+		} else {
+			callback(false);
 		}
 
 	});
@@ -189,11 +182,11 @@ const _save = function(profile, callback) {
 	callback = typeof callback === 'function' ? callback : null;
 
 
-	fs.lstat(profile, (err, stat) => {
+	_setup(profile, result => {
 
-		if (!err) {
+		if (result === true) {
 
-			let result = [
+			let results = [
 				_save_file.call(this, profile + '/internet.json', this.internet),
 				_save_file.call(this, profile + '/filters.json',  this.filters),
 				_save_file.call(this, profile + '/hosts.json',    this.hosts),
@@ -201,31 +194,58 @@ const _save = function(profile, callback) {
 				_save_file.call(this, profile + '/sites.json',    this.sites)
 			];
 
-			let check = result.filter(r => r === true);
+			let check = results.filter(r => r === true);
 			if (callback !== null) {
-				callback(check.length === result.length);
+				callback(check.length === results.length);
 			}
 
-		} else if (err.code === 'ENOENT') {
+		} else {
+			callback(false);
+		}
+
+	});
+
+};
+
+const _setup = function(profile, callback) {
+
+	fs.lstat(profile, (err, stat) => {
+
+		if (err) {
 
 			fs.mkdir(profile, {
 				recursive: true
 			}, (err) => {
 
-				let result = [
-					_save_file.call(this, profile + '/internet.json', this.internet),
-					_save_file.call(this, profile + '/filters.json',  this.filters),
-					_save_file.call(this, profile + '/hosts.json',    this.hosts),
-					_save_file.call(this, profile + '/peers.json',    this.peers),
-					_save_file.call(this, profile + '/sites.json',    this.sites)
-				];
+				if (!err) {
 
-				let check = result.filter(r => r === true);
-				if (callback !== null) {
-					callback(check.length === result.length);
+					try {
+						fs.mkdirSync(profile + '/cache');
+						fs.mkdirSync(profile + '/download');
+						fs.mkdirSync(profile + '/blockers');
+						fs.mkdirSync(profile + '/scrapers');
+					} catch (err) {
+					}
+
+					callback(true);
+
+				} else {
+					callback(false);
 				}
 
 			});
+
+		} else {
+
+			try {
+				fs.mkdirSync(profile + '/cache');
+				fs.mkdirSync(profile + '/download');
+				fs.mkdirSync(profile + '/blockers');
+				fs.mkdirSync(profile + '/scrapers');
+			} catch (err) {
+			}
+
+			callback(true);
 
 		}
 
@@ -235,9 +255,10 @@ const _save = function(profile, callback) {
 
 
 
-const Settings = function(stealth, profile) {
+const Settings = function(stealth, profile, defaults) {
 
-	profile = typeof profile === 'string' ? profile : _PROFILE;
+	profile  = typeof profile === 'string'  ? profile  : _PROFILE;
+	defaults = typeof defaults === 'string' ? defaults : null;
 
 
 	this.internet = {
@@ -245,20 +266,49 @@ const Settings = function(stealth, profile) {
 		torify:     false
 	};
 
-	this.filters = [];
-	this.hosts   = [];
-	this.peers   = [];
-	this.sites   = [];
+	this.blockers = { hosts: [], filters: [] };
+	this.filters  = [];
+	this.hosts    = [];
+	this.peers    = [];
+	this.sites    = [];
 
 	this.profile = profile;
 
 
+	if (defaults !== null) {
+
+		_read.call(this, defaults, result => {
+
+			if (result === true) {
+
+				console.info('Stealth Defaults loaded.');
+
+				let info = _info(this).trim();
+				if (info.length > 0) {
+					info.split('\n').forEach(i => console.log('> ' + i));
+				}
+
+			}
+
+		});
+
+	}
+
 	_read.call(this, this.profile, result => {
 
 		if (result === true) {
-			console.info('Stealth Profile is at "' + this.profile + '".');
+
+			console.info('Stealth Profile loaded from "' + this.profile + '".');
+
+			let info = _info(this).trim();
+			if (info.length > 0) {
+				info.split('\n').forEach(i => console.log('> ' + i));
+			}
+
 		} else {
-			console.warn('Stealth Profile is at "/tmp/stealth".');
+
+			console.warn('Stealth Profile loaded from "/tmp/stealth".');
+
 		}
 
 	});
