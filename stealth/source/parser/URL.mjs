@@ -157,7 +157,19 @@ const URL = {
 
 		}
 
-		if (domain !== null && domain.startsWith('[') && domain.includes(']')) {
+
+		let check_ipv6 = false;
+		let check_ipv4 = false;
+
+		if (domain !== null && domain.includes(':')) {
+			check_ipv6 = domain.split(':').length > 2;
+		}
+
+		if (domain !== null && domain.includes('.')) {
+			check_ipv4 = /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/g.test(domain.split(':')[0]);
+		}
+
+		if (check_ipv6 === true) {
 
 			if (domain.startsWith('[')) {
 				domain = domain.substr(1);
@@ -175,7 +187,7 @@ const URL = {
 				}
 
 			} else if (domain.includes(']')) {
-				domain = domain.split(']')[0];
+				domain = domain.split(']').join('');
 			}
 
 
@@ -185,7 +197,7 @@ const URL = {
 				host   = ip.ip;
 			}
 
-		} else if (domain !== null && domain.includes('.')) {
+		} else if (check_ipv4 === true) {
 
 			if (domain.includes('[')) {
 				domain = domain.split('[').join('');

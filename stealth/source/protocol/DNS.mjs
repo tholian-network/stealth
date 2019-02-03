@@ -80,7 +80,10 @@ const _query = function(server, name, type, callback) {
 
 	});
 
-	socket.on('error', () => callback(null));
+	socket.setTimeout(30 * 1000);
+
+	socket.on('error',   () => callback(null));
+	socket.on('timeout', () => callback(null));
 
 	socket.write('');
 	socket.end();
