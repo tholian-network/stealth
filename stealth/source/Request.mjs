@@ -72,35 +72,32 @@ const Request = function(data, stealth) {
 
 	this.on('block', () => {
 
-		let type     = this.ref.mime.type;
-		let allowed  = this.config.mime[type] === true;
-		let blockers = this.stealth.settings.blockers || null;
+		let mime     = this.ref.mime;
+		let allowed  = this.config.mime[mime.type] === true;
+		let blockers = this.stealth.settings.blockers;
 
-		if (allowed === true && blockers !== null) {
 
-			Blocker.check(blockers, this.ref, blocked => {
+		Blocker.check(blockers, this.ref, blocked => {
 
-				if (blocked === true) {
+			if (blocked === true) {
 
-					this.config.mode       = 'offline';
-					this.config.mime.text  = false;
-					this.config.mime.image = false;
-					this.config.mime.video = false;
-					this.config.mime.other = false;
+				this.config.mode       = 'offline';
+				this.config.mime.text  = false;
+				this.config.mime.image = false;
+				this.config.mime.video = false;
+				this.config.mime.other = false;
 
-					this.emit('error', [{ code: 403 }]);
+				this.emit('error', [{ code: 403 }]);
 
-				} else {
-					this.emit('connect');
-				}
+			} else if (allowed === true) {
+				this.emit('connect');
+			} else if (mime.ext === 'html') {
+				this.emit('error', [{ type: 'site' }]);
+			} else {
+				this.emit('error', [{ code: 403 }]);
+			}
 
-			});
-
-		} else if (allowed === true) {
-			this.emit('connect');
-		} else {
-			this.emit('error', [{ code: 403 }]);
-		}
+		});
 
 	});
 
@@ -130,7 +127,7 @@ const Request = function(data, stealth) {
 				if (this.ref.host !== null) {
 					this.emit('request');
 				} else {
-					this.emit('error', [{ type: 'connect' }]);
+					this.emit('error', [{ type: 'host' }]);
 				}
 
 			});

@@ -38,23 +38,41 @@ const _mkdir = function(path, callback) {
 
 };
 
-const _validate_headers = function(headers) {
+const _payloadify = function(payload) {
 
-	if (headers instanceof Buffer) {
-		return headers;
-	} else if (headers instanceof Object) {
-		return Buffer.from(JSON.stringify(headers, null, '\t'), 'utf8');
-	}
+	if (payload instanceof Object) {
 
-	return null;
+		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
+		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
+		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
 
-};
+		payload.path = typeof payload.path === 'string' ? payload.path : '/';
+		payload.mime = URL.parse('https://' + payload.domain + payload.path).mime;
 
-const _validate_payload = function(payload) {
+		if (payload.path.endsWith('/')) {
+			payload.path += 'index' + (payload.mime.ext !== null ? ('.' + payload.mime.ext) : '');
+		}
 
-	if (payload instanceof Buffer) {
+		if (payload.headers instanceof Buffer) {
+			// Do nothing
+		} else if (payload.headers instanceof Object) {
+			payload.headers = Buffer.from(JSON.stringify(payload.headers, null, '\t'), 'utf8');
+		} else {
+			payload.headers = null;
+		}
+
+		if (payload.payload instanceof Buffer) {
+			// Do nothing
+		} else if (payload.payload instanceof Object) {
+			payload.payload = Buffer.from(JSON.stringify(payload.payload, null, '\t'), 'utf8');
+		} else {
+			payload.payload = null;
+		}
+
 		return payload;
+
 	}
+
 
 	return null;
 
@@ -74,37 +92,37 @@ const Cache = function(stealth) {
 
 Cache.prototype = Object.assign({}, Emitter.prototype, {
 
-	read: function(ref, callback) {
+	read: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			let domain    = ref.domain || null;
-			let subdomain = ref.subdomain || null;
-			if (subdomain !== null) {
-				domain = subdomain + '.' + domain;
+			let file    = null;
+			let profile = this.stealth.settings.profile || null;
+
+			if (payload.domain !== null) {
+
+				if (payload.subdomain !== null) {
+					file = payload.subdomain + '.' + payload.domain;
+				} else {
+					file = payload.domain;
+				}
+
+			} else if (payload.host !== null) {
+				file = payload.host;
+			}
+
+			if (payload.path !== null) {
+				file += payload.path;
 			}
 
 
-			let profile = this.stealth.settings.profile || null;
+			if (profile !== null && file !== null) {
 
-			if (domain !== null && profile !== null) {
-
-				let mime = ref.mime || null;
-				if (mime === null) {
-					mime = URL.parse('https://' + domain + ref.path).mime;
-				}
-
-				let path = (domain + ref.path) || '';
-				if (path.endsWith('/')) {
-					path += 'index' + (mime.ext !== null ? ('.' + mime.ext) : '');
-				}
-
-
-				fs.readFile(profile + '/cache/persistent/headers/' + path, (err, raw_headers) => {
+				fs.readFile(profile + '/cache/headers/' + file, (err, raw_headers) => {
 
 					let headers = {};
 
@@ -118,7 +136,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 					}
 
-					fs.readFile(profile + '/cache/persistent/payload/' + path, (err, payload) => {
+					fs.readFile(profile + '/cache/payload/' + file, (err, raw_payload) => {
 
 						if (!err) {
 
@@ -127,10 +145,10 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 									service: 'cache',
 									event:   'read'
 								}, headers, {
-									'Content-Type':   mime.format,
-									'Content-Length': Buffer.byteLength(payload)
+									'Content-Type':   payload.mime.format,
+									'Content-Length': Buffer.byteLength(raw_payload)
 								}),
-								payload: payload
+								payload: raw_payload
 							});
 
 						} else if (callback !== null) {
@@ -175,80 +193,65 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	save: function(ref, callback) {
+	save: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			let domain    = ref.domain || null;
-			let subdomain = ref.subdomain || null;
-			if (subdomain !== null) {
-				domain = subdomain + '.' + domain;
+			let file    = null;
+			let profile = this.stealth.settings.profile || null;
+
+			if (payload.domain !== null) {
+
+				if (payload.subdomain !== null) {
+					file = payload.subdomain + '.' + payload.domain;
+				} else {
+					file = payload.domain;
+				}
+
+			} else if (payload.host !== null) {
+				file = payload.host;
+			}
+
+			if (payload.path !== null) {
+				file += payload.path;
 			}
 
 
-			let headers = _validate_headers(ref.headers || {});
-			let payload = _validate_payload(ref.payload || null);
-			let profile = this.stealth.settings.profile || null;
+			if (file !== null && profile !== null) {
 
-			if (domain !== null && headers !== null && payload !== null && profile !== null) {
+				let folder = file.split('/').slice(0, -1).join('/');
+				let result = false;
 
-				let mime = ref.mime || null;
-				if (mime === null) {
-					mime = URL.parse('https://' + domain + ref.path).mime;
-				}
+				if (payload.headers !== null) {
 
-				let path = (domain + ref.path) || '';
-				if (path.endsWith('/')) {
-					path += 'index' + (mime.ext !== null ? ('.' + mime.ext) : '');
-				}
-
-
-				let folder = path.split('/').slice(0, -1).join('/');
-
-				_mkdir(profile + '/cache/persistent/headers/' + folder, () => {
-
-					_mkdir(profile + '/cache/persistent/payload/' + folder, () => {
-
-						fs.writeFile(profile + '/cache/persistent/headers/' + path, headers, (err_headers) => {
-
-							fs.writeFile(profile + '/cache/persistent/payload/' + path, payload, (err_payload) => {
-
-								if (!err_headers && !err_payload) {
-
-									callback({
-										headers: {
-											service: 'cache',
-											event:   'save'
-										},
-										payload: {
-											result: true
-										}
-									});
-
-								} else {
-
-									callback({
-										headers: {
-											service: 'cache',
-											event:   'save'
-										},
-										payload: {
-											result: false
-										}
-									});
-
-								}
-
-							});
-
-						});
-
+					_mkdir(profile + '/cache/headers/' + folder, () => {
+						fs.writeFile(profile + '/cache/headers/' + file, payload.headers, () => {});
 					});
 
+					result = true;
+
+				}
+
+				if (payload.payload !== null) {
+
+					result = true;
+
+					_mkdir(profile + '/cache/payload/' + folder, () => {
+						fs.writeFile(profile + '/cache/payload/' + file, payload.payload, () => {});
+					});
+
+				}
+
+				callback({
+					headers: {
+						service: 'cache',
+						event:   'save'
+					},
+					payload: result
 				});
 
 			} else {
@@ -258,9 +261,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 						service: 'cache',
 						event:   'save'
 					},
-					payload: {
-						result: false
-					}
+					payload: false
 				});
 
 			}
@@ -272,9 +273,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'cache',
 					event:   'save'
 				},
-				payload: {
-					result: false
-				}
+				payload: false
 			});
 
 		}

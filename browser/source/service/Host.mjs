@@ -16,24 +16,22 @@ const Host = function(browser, client) {
 
 Host.prototype = Object.assign({}, Emitter.prototype, {
 
-	read: function(ref, callback) {
+	read: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			this.once('read', host => {
-				callback(host);
-			});
+			this.once('read', response => callback(response));
 
 			this.client.send({
 				headers: {
 					service: 'host',
 					method:  'read'
 				},
-				payload: ref
+				payload: payload
 			});
 
 		} else if (callback !== null) {
@@ -42,24 +40,22 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	refresh: function(ref, callback) {
+	refresh: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			this.once('refresh', host => {
-				callback(host);
-			});
+			this.once('refresh', response => callback(response));
 
 			this.client.send({
 				headers: {
 					service: 'host',
 					method:  'refresh'
 				},
-				payload: ref
+				payload: payload
 			});
 
 		} else if (callback !== null) {
@@ -68,30 +64,22 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	remove: function(ref, callback) {
+	remove: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			this.once('remove', data => {
-
-				if (data !== null) {
-					callback(data.result || false);
-				} else {
-					callback(false);
-				}
-
-			});
+			this.once('remove', result => callback(result));
 
 			this.client.send({
 				headers: {
 					service: 'host',
 					method:  'remove'
 				},
-				payload: ref
+				payload: payload
 			});
 
 		} else if (callback !== null) {
@@ -100,30 +88,22 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	save: function(ref, callback) {
+	save: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			this.once('save', data => {
-
-				if (data !== null) {
-					callback(data.result || false);
-				} else {
-					callback(false);
-				}
-
-			});
+			this.once('save', result => callback(result));
 
 			this.client.send({
 				headers: {
 					service: 'host',
 					method:  'save'
 				},
-				payload: ref
+				payload: payload
 			});
 
 		} else if (callback !== null) {

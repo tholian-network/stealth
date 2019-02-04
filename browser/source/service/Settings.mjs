@@ -3,6 +3,25 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
+const _responsify = function(payload) {
+
+	if (payload instanceof Object) {
+
+		payload.internet = payload.internet instanceof Object ? payload.internet : null;
+		payload.filters  = payload.filters  instanceof Array  ? payload.filters  : null;
+		payload.hosts    = payload.hosts    instanceof Array  ? payload.hosts    : null;
+		payload.peers    = payload.peers    instanceof Array  ? payload.peers    : null;
+		payload.sites    = payload.sites    instanceof Array  ? payload.sites    : null;
+
+		return payload;
+
+	}
+
+	return null;
+
+};
+
+
 const Settings = function(browser, client) {
 
 	Emitter.call(this);
@@ -16,43 +35,43 @@ const Settings = function(browser, client) {
 
 Settings.prototype = Object.assign({}, Emitter.prototype, {
 
-	read: function(data, callback) {
+	read: function(payload, callback) {
 
-		data     = data instanceof Object         ? data     : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (callback !== null) {
 
-			this.once('read', data => {
+			this.once('read', response => {
+
+				response = response instanceof Object ? _responsify(response) : null;
+
 
 				let settings = this.browser.settings;
 
-				let internet = data.internet || null;
-				if (internet !== null) {
-					settings.internet = internet;
-				}
+				if (response !== null) {
 
-				let filters = data.filters || null;
-				if (filters !== null) {
-					settings.filters = filters;
-				}
+					if (response.internet !== null) {
+						settings.internet = response.internet;
+					}
 
-				let hosts = data.hosts || null;
-				if (hosts !== null) {
-					settings.hosts = hosts;
-				}
+					if (response.filters !== null) {
+						settings.filters = response.filters;
+					}
 
-				let peers = data.peers || null;
-				if (peers !== null) {
-					settings.peers = peers;
-				}
+					if (response.hosts !== null) {
+						settings.hosts = response.hosts;
+					}
 
-				// TODO: data.plugins
+					if (response.peers !== null) {
+						settings.peers = response.peers;
+					}
 
-				let sites = data.sites || null;
-				if (sites !== null) {
-					settings.sites = sites;
+					if (response.sites !== null) {
+						settings.sites = response.sites;
+					}
+
 				}
 
 				callback(settings);
@@ -71,23 +90,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	save: function(data, callback) {
+	save: function(payload, callback) {
 
-		data     = data instanceof Object         ? data     : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
 		if (callback !== null) {
 
-			this.once('save', data => {
-
-				if (data !== null) {
-					callback(data.result || false);
-				} else {
-					callback(false);
-				}
-
-			});
+			this.once('save', result => callback(result));
 
 			this.client.send({
 				headers: {
@@ -101,23 +112,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	set: function(data, callback) {
+	set: function(payload, callback) {
 
-		data     = data instanceof Object         ? data     : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		if (data !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			this.once('set', data => {
-
-				if (data !== null) {
-					callback(data.result || false);
-				} else {
-					callback(false);
-				}
-
-			});
+			this.once('set', result => callback(result));
 
 			this.client.send({
 				headers: {
@@ -125,7 +128,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 					method:  'set'
 				},
 				payload: {
-					mode: data.mode || null
+					mode: payload.mode || null
 				}
 			});
 

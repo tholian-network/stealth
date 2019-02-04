@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>stealth:fix-site</title>
+		<link rel="stylesheet" href="../design/font/index.css">
+		<link rel="stylesheet" href="internal.css">
+	</head>
+	<body>
+		<article>
+			<h3>Mode Error</h3>
+			<p>
+				The Stealth Browser could not allow to connect
+				to the given URL because of the current config.
+				The following reasons are most likely why this
+				happened:
+			</p>
+			<ul>
+				<li>Stealth Browser is in Offline Mode</li>
+				<li>Site Mode does not allow to request this media type</li>
+			</ul>
+		</article>
+		<article id="fix-site">
+			<h3>Fix Site Mode</h3>
+			<p>
+				The Site-specific Mode will only be applied
+				when the Stealth Browser is not in Offline Mode.
+				<br><br>
+				The Site Mode allows to request media types by
+				using a whitelist-based configuration. The Site
+				Mode incrementally overrides the defaulted Stealth
+				Mode.
+			</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Media</th>
+						<th>Mode</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</article>
+		<footer>
+			<button id="footer-refresh" class="icon-refresh" title="Refresh this Tab instead">Refresh this Tab</button>
+		</footer>
+		<script type="module" src="fix-site.mjs"></script>
+	</body>
+</html>
+

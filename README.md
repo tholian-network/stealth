@@ -177,6 +177,11 @@ Please read the `README.md` of both [Stealth](./stealth) and [Browser](./browser
 insights about their architecture and interaction.
 
 
+## Developer Guide
+
+The [Stealth Browser Guide](./guide/README.md) contains all documentation
+about the Stealth Browser and the Stealth Service.
+
 ## License
 
 The license is currently unclear and depends on how to finance this project later.

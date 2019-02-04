@@ -4,19 +4,18 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const _validate_payload = function(payload) {
+const _payloadify = function(payload) {
 
 	if (payload instanceof Object) {
 
-		let capacity = payload.capacity || 'offline';
-		let mode     = payload.mode     || 'offline';
+		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
+		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
+		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
 
-		if (
-			MODES.includes(capacity) === true
-			&& MODES.includes(mode) === true
-		) {
-			return payload;
-		}
+		payload.capacity = MODES.includes(payload.capacity) ? payload.capacity : 'offline';
+		payload.mode     = MODES.includes(payload.mode)     ? payload.mode     : 'offline';
+
+		return payload;
 
 	}
 
@@ -38,57 +37,38 @@ const Peer = function(stealth) {
 
 Peer.prototype = Object.assign({}, Emitter.prototype, {
 
-	read: function(ref, callback) {
+	read: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
 			let peer     = null;
 			let settings = this.stealth.settings;
 
-			let rdomain = ref.domain || null;
-			let rhost   = ref.host   || null;
+			if (payload.domain !== null) {
 
-			if (rdomain !== null) {
-
-				let rsubdomain = ref.subdomain || null;
-				if (rsubdomain !== null) {
-					rdomain = rsubdomain + '.' + rdomain;
+				let subdomain = payload.subdomain || null;
+				if (subdomain !== null) {
+					peer = settings.peers.find(p => p.domain === payload.subdomain + '.' + payload.domain) || null;
+				} else{
+					peer = settings.peers.find(p => p.domain === payload.domain) || null;
 				}
 
-				peer = settings.peers.find(p => p.domain === rdomain) || null;
-
-			} else if (rhost !== null) {
-
-				peer = settings.peers.find(p => p.domain === rhost) || null;
-
+			} else if (payload.host !== null) {
+				peer = settings.peers.find(p => p.domain === payload.host) || null;
 			}
 
 
-			if (peer !== null) {
-
-				callback({
-					headers: {
-						service: 'peer',
-						event:   'read'
-					},
-					payload: peer
-				});
-
-			} else {
-
-				callback({
-					headers: {
-						service: 'peer',
-						event:   'read'
-					},
-					payload: null
-				});
-
-			}
+			callback({
+				headers: {
+					service: 'peer',
+					event:   'read'
+				},
+				payload: peer
+			});
 
 		} else if (callback !== null) {
 
@@ -104,65 +84,130 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	save: function(ref, callback) {
+	remove: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
+
+			let peer = null;
+			let settings = this.stealth.settings;
+
+			if (payload.domain !== null) {
+
+				let subdomain = payload.subdomain || null;
+				if (subdomain !== null) {
+					peer = settings.peers.find(p => p.domain === payload.subdomain + '.' + payload.domain) || null;
+				} else{
+					peer = settings.peers.find(p => p.domain === payload.domain) || null;
+				}
+
+			}
+
+
+			if (peer !== null) {
+
+				let index = settings.peers.indexOf(peer);
+				if (index !== -1) {
+					settings.peers.splice(index, 1);
+				}
+
+				settings.save();
+
+			}
+
+			callback({
+				headers: {
+					service: 'peer',
+					event:   'remove'
+				},
+				payload: true
+			});
+
+		} else if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'peer',
+					event:   'remove'
+				},
+				payload: false
+			});
+
+		}
+
+	},
+
+	save: function(payload, callback) {
+
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
+
+
+		if (payload !== null && callback !== null) {
 
 			let peer     = null;
 			let settings = this.stealth.settings;
 
-			let rdomain  = ref.domain || null;
-			let rhost    = ref.host   || null;
-			let rpayload = _validate_payload(ref.payload || null);
+			if (payload.domain !== null) {
 
-			if (rdomain !== null) {
-
-				let rsubdomain = ref.subdomain || null;
-				if (rsubdomain !== null) {
-					rdomain = rsubdomain + '.' + rdomain;
+				let subdomain = payload.subdomain || null;
+				if (subdomain !== null) {
+					peer = settings.peers.find(p => p.domain === payload.subdomain + '.' + payload.domain) || null;
+				} else{
+					peer = settings.peers.find(p => p.domain === payload.domain) || null;
 				}
 
-				peer = settings.peers.find(p => p.domain === rdomain) || null;
+			} else if (payload.host !== null) {
+				peer = settings.peers.find(p => p.domain === payload.host) || null;
+			}
 
-			} else if (rhost !== null) {
 
-				peer = settings.peers.find(p => p.domain === rhost) || null;
+			if (peer !== null) {
+
+				peer.capacity = payload.capacity || 'offline';
+				peer.mode     = payload.mode     || 'offline';
+
+				settings.save();
+
+			} else if (payload.domain !== null) {
+
+				if (payload.subdomain !== null) {
+					payload.domain    = payload.subdomain + '.' + payload.domain;
+					payload.subdomain = null;
+				}
+
+				peer = {
+					domain:   payload.domain,
+					capacity: payload.capacity || 'offline',
+					mode:     payload.mode     || 'offline'
+				};
+
+				settings.peers.push(peer);
+				settings.save();
+
+			} else if (payload.host !== null) {
+
+				peer = {
+					domain:   payload.host,
+					capacity: payload.capacity || 'offline',
+					mode:     payload.mode     || 'offline'
+				};
+
+				settings.peers.push(peer);
+				settings.save();
 
 			}
 
 
-			if (peer !== null && rpayload !== null) {
-
-				peer.capacity = rpayload.capacity || 'offline';
-				peer.mode     = rpayload.mode     || 'offline';
-
-			} else if (rdomain !== null || rhost !== null) {
-
-				settings.peers.push({
-					domain:   rdomain || rhost,
-					capacity: rpayload.capacity || 'offline',
-					mode:     rpayload.mode     || 'offline'
-				});
-
-			}
-
-
-			settings.save(result => {
-
-				callback({
-					headers: {
-						service: 'peer',
-						event:   'save'
-					},
-					payload: {
-						result: result
-					}
-				});
-
+			callback({
+				headers: {
+					service: 'peer',
+					event:   'save'
+				},
+				payload: true
 			});
 
 		} else if (callback !== null) {
@@ -172,9 +217,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'peer',
 					event:   'save'
 				},
-				payload: {
-					result: false
-				}
+				payload: false
 			});
 
 		}

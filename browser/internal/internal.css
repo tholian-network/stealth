@@ -105,6 +105,7 @@ button.icon-remove:before  { content: '\e804'; }
 button.icon-unknown:before { content: '\f128'; }
 
 button.busy:before {
+	content: '\e802';
 	animation: infinite linear 1s rotate;
 }
 

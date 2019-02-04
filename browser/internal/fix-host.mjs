@@ -2,12 +2,12 @@
 const browser  = window.browser || parent.browser || null;
 const doc      = window.document;
 const elements = {
-	fix_connect: doc.querySelector('#fix-connect'),
-	hosts:       doc.querySelector('#fix-connect table tbody'),
-	footer:      doc.querySelector('footer'),
-	refresh:     doc.querySelector('footer #footer-refresh')
+	wizard:  doc.querySelector('#fix-host'),
+	hosts:   doc.querySelector('#fix-host table tbody'),
+	footer:  doc.querySelector('footer'),
+	refresh: doc.querySelector('footer #footer-refresh')
 };
-const ref = (function(query) {
+const REFERENCE = (function(query) {
 
 	let url = null;
 
@@ -42,6 +42,8 @@ const _update = function(host) {
 	if (cache !== null) {
 		cache.ipv4 = host.ipv4;
 		cache.ipv6 = host.ipv6;
+	} else if (cache === null) {
+		browser.settings.hosts.push(host);
 	}
 
 	let old_row = elements.hosts.querySelector('tr');
@@ -76,14 +78,18 @@ const WIZARD = {
 
 						element.className += ' busy';
 
-						service[method](ref, payload => {
+						service[method]({
+							domain:    REFERENCE.domain,
+							subdomain: REFERENCE.subdomain,
+							host:      REFERENCE.host
+						}, response => {
 
 							element.className = state;
 
-							if (typeof payload.result === 'boolean') {
+							if (typeof response === 'boolean') {
 								// Do nothing
-							} else if (payload !== null) {
-								_update(payload);
+							} else if (response !== null) {
+								_update(response);
 							}
 
 						});
@@ -105,9 +111,13 @@ const WIZARD = {
 		}
 
 
-		if (ref.domain !== '') {
+		if (REFERENCE.domain !== null) {
 
-			browser.client.services.host.read(ref, host => {
+			browser.client.services.host.read({
+				domain:    REFERENCE.domain,
+				subdomain: REFERENCE.subdomain,
+				host:      REFERENCE.host
+			}, host => {
 
 				if (host !== null) {
 
@@ -115,7 +125,7 @@ const WIZARD = {
 
 				} else {
 
-					let element = elements.fix_connect || null;
+					let element = elements.wizard || null;
 					if (element !== null) {
 						element.parentNode.removeChild(element);
 					}
@@ -126,7 +136,7 @@ const WIZARD = {
 
 		} else {
 
-			let element = elements.fix_connect || null;
+			let element = elements.wizard || null;
 			if (element !== null) {
 				element.parentNode.removeChild(element);
 			}
@@ -145,7 +155,7 @@ if (browser !== null) {
 	WIZARD.init(browser);
 } else {
 
-	let element = elements.fix_connect || null;
+	let element = elements.wizard || null;
 	if (element !== null) {
 		element.parentNode.removeChild(element);
 	}

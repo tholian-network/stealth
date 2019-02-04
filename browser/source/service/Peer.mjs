@@ -16,24 +16,22 @@ const Peer = function(browser, client) {
 
 Peer.prototype = Object.assign({}, Emitter.prototype, {
 
-	read: function(ref, callback) {
+	read: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			this.once('read', data => {
-				callback(data);
-			});
+			this.once('read', response => callback(response));
 
 			this.client.send({
 				headers: {
 					service: 'peer',
 					method:  'read'
 				},
-				payload: ref
+				payload: payload
 			});
 
 		} else if (callback !== null) {
@@ -42,30 +40,46 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	save: function(ref, callback) {
+	remove: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			this.once('save', data => {
+			this.once('remove', result => callback(result));
 
-				if (data !== null) {
-					callback(data.result || false);
-				} else {
-					callback(false);
-				}
-
+			this.client.send({
+				headers: {
+					service: 'peer',
+					method:  'remove'
+				},
+				payload: payload
 			});
+
+		} else if (callback !== null) {
+			callback(false);
+		}
+
+	},
+
+	save: function(payload, callback) {
+
+		payload  = payload instanceof Object      ? payload  : null;
+		callback = typeof callback === 'function' ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			this.once('save', result => callback(result));
 
 			this.client.send({
 				headers: {
 					service: 'peer',
 					method:  'save'
 				},
-				payload: ref
+				payload: payload
 			});
 
 		} else if (callback !== null) {

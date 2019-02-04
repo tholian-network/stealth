@@ -55,42 +55,43 @@ const _get_mode = function(text, image, video, other) {
 
 };
 
-const _validate_payload = function(payload) {
+const _payloadify = function(payload) {
 
-	if (payload instanceof Object && payload.mime instanceof Object) {
+	if (payload instanceof Object) {
 
-		let text  = payload.mime.text  || false;
-		let image = payload.mime.image || false;
-		let video = payload.mime.video || false;
-		let other = payload.mime.other || false;
+		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
+		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
+		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
 
-		if (
-			typeof text === 'boolean'
-			&& typeof image === 'boolean'
-			&& typeof video === 'boolean'
-			&& typeof other === 'boolean'
-		) {
+		if (payload.mime instanceof Object) {
 
-			// XXX: Always enforce correct mode
-			payload.mode = _get_mode(text, image, video, other);
+			let text  = payload.mime.text  || false;
+			let image = payload.mime.image || false;
+			let video = payload.mime.video || false;
+			let other = payload.mime.other || false;
 
-			return payload;
+			if (
+				typeof text === 'boolean'
+				&& typeof image === 'boolean'
+				&& typeof video === 'boolean'
+				&& typeof other === 'boolean'
+			) {
+				payload.mode = _get_mode(text, image, video, other);
+			}
 
-		}
+		} else if (typeof payload.mode === 'string') {
 
-	} else if (payload instanceof Object && typeof payload.mode === 'string') {
-
-		let mode = payload.mode;
-		if (MODES.includes(mode)) {
-
-			// XXX: Always enforce correct mime
-			payload.mime = _get_mime(mode);
-
-			return payload;
+			let mode = payload.mode;
+			if (MODES.includes(mode)) {
+				payload.mime = _get_mime(mode);
+			}
 
 		}
+
+		return payload;
 
 	}
+
 
 	return null;
 
@@ -110,51 +111,36 @@ const Site = function(stealth) {
 
 Site.prototype = Object.assign({}, Emitter.prototype, {
 
-	read: function(ref, callback) {
+	read: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
 			let site     = null;
 			let settings = this.stealth.settings;
 
-			let rdomain = ref.domain || null;
-			if (rdomain !== null) {
+			if (payload.domain !== null) {
 
-				let rsubdomain = ref.subdomain || null;
-				if (rsubdomain !== null) {
-					rdomain = rsubdomain + '.' + rdomain;
+				let subdomain = payload.subdomain || null;
+				if (subdomain !== null) {
+					site = settings.sites.find(s => s.domain === payload.subdomain + '.' + payload.domain) || null;
+				} else{
+					site = settings.sites.find(s => s.domain === payload.domain) || null;
 				}
 
-				site = settings.sites.find(s => s.domain === rdomain) || null;
-
 			}
 
 
-			if (site !== null) {
-
-				callback({
-					headers: {
-						service: 'site',
-						event:   'read'
-					},
-					payload: site
-				});
-
-			} else {
-
-				callback({
-					headers: {
-						service: 'site',
-						event:   'read'
-					},
-					payload: null
-				});
-
-			}
+			callback({
+				headers: {
+					service: 'site',
+					event:   'read'
+				},
+				payload: site
+			});
 
 		} else if (callback !== null) {
 
@@ -170,68 +156,126 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	save: function(ref, callback) {
+	remove: function(payload, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
 			let site     = null;
 			let settings = this.stealth.settings;
 
-			let rdomain  = ref.domain || null;
-			let rpayload = _validate_payload(ref.payload || null);
+			if (payload.domain !== null) {
 
-			if (rdomain !== null) {
-
-				let rsubdomain = ref.subdomain || null;
-				if (rsubdomain !== null) {
-					rdomain = rsubdomain + '.' + rdomain;
+				let subdomain = payload.subdomain || null;
+				if (subdomain !== null) {
+					site = settings.sites.find(s => s.domain === payload.subdomain + '.' + payload.domain) || null;
+				} else{
+					site = settings.sites.find(s => s.domain === payload.domain) || null;
 				}
 
-				site = settings.sites.find(s => s.domain === rdomain) || null;
+			}
+
+
+			if (site !== null) {
+
+				let index = settings.sites.indexOf(site);
+				if (index !== -1) {
+					settings.sites.splice(index, 1);
+				}
+
+				settings.save();
+
+			}
+
+			callback({
+				headers: {
+					service: 'site',
+					event:   'remove'
+				},
+				payload: true
+			});
+
+		} else if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'site',
+					event:   'remove'
+				},
+				payload: false
+			});
+
+		}
+
+	},
+
+	save: function(payload, callback) {
+
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			let site     = null;
+			let settings = this.stealth.settings;
+
+
+			if (payload.domain !== null) {
+
+				let subdomain = payload.subdomain || null;
+				if (subdomain !== null) {
+					site = settings.sites.find(s => s.domain === payload.subdomain + '.' + payload.domain) || null;
+				} else{
+					site = settings.sites.find(s => s.domain === payload.domain) || null;
+				}
 
 			}
 
 
-			if (site !== null && rpayload !== null) {
+			if (site !== null) {
 
-				site.mode       = rpayload.mode       || 'offline';
-				site.mime.text  = rpayload.mime.text  || false;
-				site.mime.image = rpayload.mime.image || false;
-				site.mime.video = rpayload.mime.video || false;
-				site.mime.other = rpayload.mime.other || false;
+				site.mode       = payload.mode       || 'offline';
+				site.mime.text  = payload.mime.text  || false;
+				site.mime.image = payload.mime.image || false;
+				site.mime.video = payload.mime.video || false;
+				site.mime.other = payload.mime.other || false;
 
-			} else if (rdomain !== null) {
+				settings.save();
 
-				settings.sites.push({
-					domain: rdomain,
-					mode:   rpayload.mode || 'offline',
+			} else if (payload.domain !== null) {
+
+				if (payload.subdomain !== null) {
+					payload.domain    = payload.subdomain + '.' + payload.domain;
+					payload.subdomain = null;
+				}
+
+				site = {
+					domain: payload.domain,
+					mode:   payload.mode || 'offline',
 					mime:   {
-						text:  rpayload.mime.text  || false,
-						image: rpayload.mime.image || false,
-						video: rpayload.mime.video || false,
-						other: rpayload.mime.other || false
+						text:  payload.mime.text  || false,
+						image: payload.mime.image || false,
+						video: payload.mime.video || false,
+						other: payload.mime.other || false
 					}
-				});
+				};
+
+				settings.sites.push(site);
+				settings.save();
 
 			}
 
 
-			settings.save(result => {
-
-				callback({
-					headers: {
-						service: 'site',
-						event:   'save'
-					},
-					payload: {
-						result: result
-					}
-				});
-
+			callback({
+				headers: {
+					service: 'site',
+					event:   'save'
+				},
+				payload: true
 			});
 
 		} else if (callback !== null) {
@@ -241,9 +285,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'site',
 					event:   'save'
 				},
-				payload: {
-					result: false
-				}
+				payload: false
 			});
 
 		}

@@ -3,6 +3,40 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
+const _payloadify = function(payload) {
+
+	if (payload instanceof Object) {
+
+		payload.internet = payload.internet instanceof Object ? payload.internet : {};
+		payload.filters  = payload.filters  instanceof Array  ? payload.filters  : [];
+		payload.hosts    = payload.hosts    instanceof Array  ? payload.hosts    : [];
+		payload.peers    = payload.peers    instanceof Array  ? payload.peers    : [];
+		payload.sites    = payload.sites    instanceof Array  ? payload.sites    : [];
+
+		return payload;
+
+	}
+
+	return null;
+
+};
+
+const _settify = function(payload) {
+
+	if (payload instanceof Object) {
+
+		payload.mode = typeof payload.mode === 'string' ? payload.mode : null;
+
+		return payload;
+
+	}
+
+	return null;
+
+};
+
+
+
 const Settings = function(stealth) {
 
 	Emitter.call(this);
@@ -15,9 +49,9 @@ const Settings = function(stealth) {
 
 Settings.prototype = Object.assign({}, Emitter.prototype, {
 
-	read: function(data, callback) {
+	read: function(payload, callback) {
 
-		data     = data instanceof Object         ? data     : null;
+		payload  = payload instanceof Object      ? payload  : null;
 		callback = typeof callback === 'function' ? callback : null;
 
 
@@ -53,41 +87,33 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	save: function(data, callback) {
+	save: function(payload, callback) {
 
-		data     = data instanceof Object         ? data     : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? _payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback             : null;
 
 
-		if (data !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
 			let settings = this.stealth.settings;
-			let internet = data.internet || {};
-			let filters  = data.filters  || [];
-			let hosts    = data.hosts    || [];
-			let peers    = data.peers    || [];
-			let sites    = data.sites    || [];
 
-
-			Object.keys(internet).forEach(key => {
+			Object.keys(payload.internet).forEach(key => {
 
 				if (settings.internet[key] !== undefined) {
-					settings.internet[key] = data.internet[key];
+					settings.internet[key] = payload.internet[key];
 				}
 
 			});
 
-			filters.forEach(filter => {
+			payload.filters.forEach(filter => {
 
 				let other = settings.filters.find(f => f.name === filter.name) || null;
 				if (other !== null) {
 
 					for (let key in filter) {
-
 						if (other[key] !== undefined) {
 							other[key] = filter[key];
 						}
-
 					}
 
 				} else {
@@ -96,17 +122,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-			hosts.forEach(host => {
+			payload.hosts.forEach(host => {
 
 				let other = settings.hosts.find(h => h.domain === host.domain) || null;
 				if (other !== null) {
 
 					for (let key in host) {
-
 						if (other[key] !== undefined) {
 							other[key] = host[key];
 						}
-
 					}
 
 				} else {
@@ -115,17 +139,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-			peers.forEach(peer => {
+			payload.peers.forEach(peer => {
 
 				let other = settings.peers.find(p => p.domain === peer.domain) || null;
 				if (other !== null) {
 
 					for (let key in peer) {
-
 						if (other[key] !== undefined) {
 							other[key] = peer[key];
 						}
-
 					}
 
 				} else {
@@ -134,19 +156,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-			// TODO: data.plugins
-
-			sites.forEach(site => {
+			payload.sites.forEach(site => {
 
 				let other = settings.sites.find(s => s.domain === site.domain) || null;
 				if (other !== null) {
 
 					for (let key in site) {
-
 						if (other[key] !== undefined) {
 							other[key] = site[key];
 						}
-
 					}
 
 				} else {
@@ -163,9 +181,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						service: 'settings',
 						event:   'save'
 					},
-					payload: {
-						result: result
-					}
+					payload: result
 				});
 
 			});
@@ -177,28 +193,23 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'settings',
 					event:   'save'
 				},
-				payload: {
-					result: false
-				}
+				payload: false
 			});
 
 		}
 
 	},
 
-	set: function(data, callback) {
+	set: function(payload, callback) {
 
-		data     = data instanceof Object         ? data     : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? _settify(payload) : null;
+		callback = typeof callback === 'function' ? callback          : null;
 
 
-		if (data !== null && callback !== null) {
+		if (payload !== null && callback !== null) {
 
-			let result = false;
-
-			let mode = data.mode || null;
-			if (mode !== null) {
-				result = this.stealth.setMode(mode);
+			if (payload.mode !== null) {
+				this.stealth.setMode(payload.mode);
 			}
 
 
@@ -207,9 +218,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'settings',
 					event:   'set'
 				},
-				payload: {
-					result: result
-				}
+				payload: true
 			});
 
 		} else if (callback !== null) {
@@ -219,9 +228,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'settings',
 					event:   'set'
 				},
-				payload: {
-					result: false
-				}
+				payload: false
 			});
 
 		}

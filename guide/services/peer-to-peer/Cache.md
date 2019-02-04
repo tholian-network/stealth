@@ -1,0 +1,35 @@
+
+# Cache Service
+
+## read()
+
+`read({ domain: String, subdomain: String, path: String }, callback)`
+
+reads a cached file from the Stealth `profile/cache` folder.
+
+```javascript
+// read(payload) example
+{
+	domain: 'cookie.engineer',
+	path:   '/index.html'
+}
+```
+
+## save()
+
+`save({ domain: String, subdomain: String, path: String, headers: Buffer, payload: Buffer }, callback)`
+
+saves a buffer to the Stealth `profile/cache` folder.
+
+```javascript
+// save(payload) example
+{
+	domain: 'cookie.engineer',
+	path:   '/index.html',
+	headers: Buffer.from(JSON.stringify({
+		X-Server: 'Awesome'
+	}, null, '\t'), 'utf8'),
+	payload: Buffer.from('<!DOCTYPE html><body>Hello, world!</body>', 'utf8')
+}
+```
+

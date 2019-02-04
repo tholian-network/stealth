@@ -277,18 +277,18 @@ Server.prototype = {
 
 											request.on('error', err => {
 
-												if (err.type === 'cache') {
+												if (err.type === 'host') {
 
 													this.services.redirect.get({
 														code: 307,
-														path: '/browser/internal/fix-cache.html?url=' + encodeURIComponent(url)
+														path: '/browser/internal/fix-host.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
-												} else if (err.type === 'connect') {
+												} else if (err.type === 'site') {
 
 													this.services.redirect.get({
 														code: 307,
-														path: '/browser/internal/fix-connect.html?url=' + encodeURIComponent(url)
+														path: '/browser/internal/fix-site.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
 												} else if (err.type === 'request') {
