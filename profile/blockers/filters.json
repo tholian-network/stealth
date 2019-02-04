@@ -1,1 +1,4153 @@
-[]
+[
+	{
+		"domain": "1023xlc.com",
+		"subdomain": null,
+		"prefix": "/upload/",
+		"midfix": "_background_",
+		"suffix": null
+	},
+	{
+		"domain": "24hourwristbands.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".googleadservices.com/"
+	},
+	{
+		"domain": "2hot4fb.com",
+		"subdomain": null,
+		"prefix": "/img/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "2hot4fb.com",
+		"subdomain": null,
+		"prefix": "/img/",
+		"midfix": null,
+		"suffix": ".jpg"
+	},
+	{
+		"domain": "360haven.com",
+		"subdomain": null,
+		"prefix": "/forums/",
+		"midfix": null,
+		"suffix": ".advertising.com/"
+	},
+	{
+		"domain": "4chan.org",
+		"subdomain": null,
+		"prefix": "/b/",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "4fuckr.com",
+		"subdomain": null,
+		"prefix": "/static/",
+		"midfix": null,
+		"suffix": "-banner."
+	},
+	{
+		"domain": "7host.ru",
+		"subdomain": null,
+		"prefix": "/tr/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "9anime.vip",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "callback",
+		"suffix": null
+	},
+	{
+		"domain": "abc.com",
+		"subdomain": null,
+		"prefix": "/abcvideo/",
+		"midfix": "/mp4/",
+		"suffix": "_Promo_"
+	},
+	{
+		"domain": "absolutcheats.com",
+		"subdomain": null,
+		"prefix": "/images/changemy",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "activewin.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "_ad.gif"
+	},
+	{
+		"domain": "activistpost.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": "/abiturl",
+		"suffix": null
+	},
+	{
+		"domain": "ad.atdmt.com",
+		"subdomain": null,
+		"prefix": "/i/",
+		"midfix": "=",
+		"suffix": null
+	},
+	{
+		"domain": "adamvstheman.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/AVTM_banner.jpg"
+	},
+	{
+		"domain": "addthiscdn.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "adf.ly",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "adf.ly",
+		"subdomain": null,
+		"prefix": "/external/",
+		"midfix": null,
+		"suffix": "/int.php"
+	},
+	{
+		"domain": "adf.ly",
+		"subdomain": null,
+		"prefix": "/omni",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "ads.rubiconproject.com",
+		"subdomain": null,
+		"prefix": "/ad/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "adultdvd.com",
+		"subdomain": null,
+		"prefix": "/plugins/",
+		"midfix": null,
+		"suffix": "/store.html"
+	},
+	{
+		"domain": "aim-ads.com",
+		"subdomain": null,
+		"prefix": "/multimedia-themonitor-com/wwwroot/",
+		"midfix": "_twitter_",
+		"suffix": null
+	},
+	{
+		"domain": "akamai.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".babylon.com/trans_box/"
+	},
+	{
+		"domain": "akamai.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/Prerolls/Campaigns/",
+		"suffix": null
+	},
+	{
+		"domain": "akamaihd.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "akamaihd.net",
+		"subdomain": null,
+		"prefix": "/preroll",
+		"midfix": null,
+		"suffix": ".mp4"
+	},
+	{
+		"domain": "akamaihd.net",
+		"subdomain": null,
+		"prefix": "/ssa/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "allhiphop.com",
+		"subdomain": null,
+		"prefix": "/site_resources/ui-images/",
+		"midfix": null,
+		"suffix": "-conduit-banner.gif"
+	},
+	{
+		"domain": "allmyvideos.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "%",
+		"suffix": null
+	},
+	{
+		"domain": "alternate.de",
+		"subdomain": null,
+		"prefix": "/pix/themeworld/takeOvers/",
+		"midfix": "/Newsletteranmeldung_",
+		"suffix": "_takeover_pur.jpg"
+	},
+	{
+		"domain": "amazon.com",
+		"subdomain": null,
+		"prefix": "/gp/",
+		"midfix": "&linkCode",
+		"suffix": null
+	},
+	{
+		"domain": "amazonaws.com",
+		"subdomain": null,
+		"prefix": "/betpawa-",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "amazonaws.com",
+		"subdomain": null,
+		"prefix": "/newscloud-production/",
+		"midfix": "/backgrounds/",
+		"suffix": null
+	},
+	{
+		"domain": "amd.com",
+		"subdomain": null,
+		"prefix": "/publishingimages/",
+		"midfix": "/master_",
+		"suffix": null
+	},
+	{
+		"domain": "androidpolice.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": "/images/das/",
+		"suffix": null
+	},
+	{
+		"domain": "angelbc.com",
+		"subdomain": null,
+		"prefix": "/clients/",
+		"midfix": "/banners/",
+		"suffix": null
+	},
+	{
+		"domain": "animenewsnetwork.com",
+		"subdomain": null,
+		"prefix": "/stylesheets/",
+		"midfix": "skin",
+		"suffix": null
+	},
+	{
+		"domain": "anonym.to",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "findandtry.com"
+	},
+	{
+		"domain": "aolcdn.com",
+		"subdomain": null,
+		"prefix": "/os/movies/css-js/sprite/",
+		"midfix": "-wallpaper",
+		"suffix": null
+	},
+	{
+		"domain": "aolcdn.com",
+		"subdomain": null,
+		"prefix": "/os/music/img/",
+		"midfix": null,
+		"suffix": "-skin.jpg"
+	},
+	{
+		"domain": "api.bit.ly",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/clicks",
+		"suffix": null
+	},
+	{
+		"domain": "api.collarity.com",
+		"subdomain": null,
+		"prefix": "/cws/",
+		"midfix": "http",
+		"suffix": null
+	},
+	{
+		"domain": "api.linkedin.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/shares",
+		"suffix": null
+	},
+	{
+		"domain": "api.pinterest.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/urls/count.json"
+	},
+	{
+		"domain": "api.twitter.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/count.json"
+	},
+	{
+		"domain": "apis.google.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/sharebutton",
+		"suffix": null
+	},
+	{
+		"domain": "apis.google.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/socialgraph/",
+		"suffix": null
+	},
+	{
+		"domain": "apis.google.com",
+		"subdomain": null,
+		"prefix": "/_/apps-static/_/js/gapi/",
+		"midfix": "plusone/",
+		"suffix": null
+	},
+	{
+		"domain": "apis.google.com",
+		"subdomain": null,
+		"prefix": "/_/scs/apps-static/",
+		"midfix": "=page,plusone/",
+		"suffix": null
+	},
+	{
+		"domain": "apnonline.com.au",
+		"subdomain": null,
+		"prefix": "/img/marketplace/",
+		"midfix": null,
+		"suffix": "_ct50x50.gif"
+	},
+	{
+		"domain": "arionmovies.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/popup.php"
+	},
+	{
+		"domain": "armorgames.com",
+		"subdomain": null,
+		"prefix": "/assets/",
+		"midfix": "_skin_",
+		"suffix": null
+	},
+	{
+		"domain": "arstechnica.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".ars"
+	},
+	{
+		"domain": "ascii-art-generator.org",
+		"subdomain": null,
+		"prefix": "/cnc/",
+		"midfix": "&p=rightcol",
+		"suffix": null
+	},
+	{
+		"domain": "australiantimes.co.uk",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "_google_pl.jpg"
+	},
+	{
+		"domain": "babylon.com",
+		"subdomain": null,
+		"prefix": "/trans_box/",
+		"midfix": "&affiliate=",
+		"suffix": null
+	},
+	{
+		"domain": "bagslap.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "bamboobaycondo.com",
+		"subdomain": null,
+		"prefix": "/uploads/",
+		"midfix": null,
+		"suffix": "/4388939.png"
+	},
+	{
+		"domain": "bamboobaycondo.com",
+		"subdomain": null,
+		"prefix": "/uploads/",
+		"midfix": null,
+		"suffix": "/9772065.png"
+	},
+	{
+		"domain": "bango.net",
+		"subdomain": null,
+		"prefix": "/exid/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "bango.net",
+		"subdomain": null,
+		"prefix": "/id/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "batmanstream.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "beardedperv.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "berush.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_semrush_",
+		"suffix": null
+	},
+	{
+		"domain": "bestvpn.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/mosttrustedname_260x300_",
+		"suffix": null
+	},
+	{
+		"domain": "bilder.augsburger-allgemeine.de",
+		"subdomain": null,
+		"prefix": "/img/incoming/",
+		"midfix": "/Mobilportal-Promo-Smartphone-Portrait-",
+		"suffix": "px.png"
+	},
+	{
+		"domain": "bitcoinist.net",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "/630x80-bitcoinist.gif"
+	},
+	{
+		"domain": "bitcoinist.net",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "/fb.png"
+	},
+	{
+		"domain": "bitcoinist.net",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "/g+.png"
+	},
+	{
+		"domain": "bitcoinist.net",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "/inst.png"
+	},
+	{
+		"domain": "bitcoinist.net",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "/yt.png"
+	},
+	{
+		"domain": "bitcoinist.net",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "_250x250_",
+		"suffix": null
+	},
+	{
+		"domain": "bitcoinreviewer.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/banner-luckybit.jpg"
+	},
+	{
+		"domain": "bkmag.com",
+		"subdomain": null,
+		"prefix": "/binary/",
+		"midfix": "/1380x800_",
+		"suffix": null
+	},
+	{
+		"domain": "blacklistednews.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "banner",
+		"suffix": null
+	},
+	{
+		"domain": "blbclassic.org",
+		"subdomain": null,
+		"prefix": "/assets/images/",
+		"midfix": "banners/",
+		"suffix": null
+	},
+	{
+		"domain": "blindferret.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_skin_",
+		"suffix": null
+	},
+	{
+		"domain": "bralesscelebs.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "banner",
+		"suffix": null
+	},
+	{
+		"domain": "breitlingsource.com",
+		"subdomain": null,
+		"prefix": "/images/govberg",
+		"midfix": null,
+		"suffix": ".jpg"
+	},
+	{
+		"domain": "broadcastingworld.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "-promo.jpg"
+	},
+	{
+		"domain": "bustocoach.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/banner_",
+		"suffix": null
+	},
+	{
+		"domain": "buy.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/textlinks.aspx"
+	},
+	{
+		"domain": "cannabisjobs.us",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/OCWeedReview.jpg"
+	},
+	{
+		"domain": "capitolfax.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "ad."
+	},
+	{
+		"domain": "capitolfax.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": "Ad_",
+		"suffix": null
+	},
+	{
+		"domain": "cardsharing.info",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/ALLS.jpg"
+	},
+	{
+		"domain": "carsguide.com.au",
+		"subdomain": null,
+		"prefix": "/images/uploads/",
+		"midfix": null,
+		"suffix": "_bg."
+	},
+	{
+		"domain": "cdmagurus.com",
+		"subdomain": null,
+		"prefix": "/img/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "celebstoner.com",
+		"subdomain": null,
+		"prefix": "/assets/images/img/sidebar/",
+		"midfix": null,
+		"suffix": "/freedomleaf.png"
+	},
+	{
+		"domain": "cfr.org",
+		"subdomain": null,
+		"prefix": "/js/ga.",
+		"midfix": "js",
+		"suffix": null
+	},
+	{
+		"domain": "channel4.com",
+		"subdomain": null,
+		"prefix": "/bips/",
+		"midfix": "/brand/",
+		"suffix": null
+	},
+	{
+		"domain": "chaturbate.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/",
+		"suffix": null
+	},
+	{
+		"domain": "cheapflights.com",
+		"subdomain": null,
+		"prefix": "/ic/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "chtah.com",
+		"subdomain": null,
+		"prefix": "/a/",
+		"midfix": null,
+		"suffix": "/spacer-0.gif"
+	},
+	{
+		"domain": "chtah.net",
+		"subdomain": null,
+		"prefix": "/a/",
+		"midfix": null,
+		"suffix": "/spacer-0.gif"
+	},
+	{
+		"domain": "city1016.ae",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": "-Skin_",
+		"suffix": null
+	},
+	{
+		"domain": "cjtube.com",
+		"subdomain": null,
+		"prefix": "/tp/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "clickbank.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "offer_id=",
+		"suffix": null
+	},
+	{
+		"domain": "cloudfront.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/facebook.png"
+	},
+	{
+		"domain": "cloudfront.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/twitter.png"
+	},
+	{
+		"domain": "cloudfront.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/takeover/",
+		"suffix": null
+	},
+	{
+		"domain": "cloudfront.net",
+		"subdomain": null,
+		"prefix": "/photo/",
+		"midfix": "_tp_",
+		"suffix": ".jpg"
+	},
+	{
+		"domain": "computerarts.co.uk",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "consoletarget.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "content.ad",
+		"subdomain": null,
+		"prefix": "/Scripts/widget",
+		"midfix": null,
+		"suffix": ".aspx"
+	},
+	{
+		"domain": "cooksunited.co.uk",
+		"subdomain": null,
+		"prefix": "/counter",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "coolmath.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "-medrect.html"
+	},
+	{
+		"domain": "copblock.org",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/covert-handcuff-key-AD-",
+		"suffix": null
+	},
+	{
+		"domain": "crazymotion.net",
+		"subdomain": null,
+		"prefix": "/video_",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "cryptocoinsnews.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/7281.gif"
+	},
+	{
+		"domain": "cryptocoinsnews.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/ccn.png"
+	},
+	{
+		"domain": "cryptocoinsnews.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/xbt-social.png"
+	},
+	{
+		"domain": "cryptocoinsnews.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/xbt.jpg"
+	},
+	{
+		"domain": "cryptocoinsnews.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/728_",
+		"suffix": null
+	},
+	{
+		"domain": "custom.search.yahoo.co.jp",
+		"subdomain": null,
+		"prefix": "/images/window/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "custompcreview.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "-bg-banner.jpg"
+	},
+	{
+		"domain": "dailyblogtips.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "data.ninemsn.com.au",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "GetAdCalls",
+		"suffix": null
+	},
+	{
+		"domain": "daterly.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".widget.php"
+	},
+	{
+		"domain": "deals4thecure.com",
+		"subdomain": null,
+		"prefix": "/widgets/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "deepdotweb.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/allserviceslogo.gif"
+	},
+	{
+		"domain": "deepdotweb.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/banner.gif"
+	},
+	{
+		"domain": "deepdotweb.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/billpayhelp2.png"
+	},
+	{
+		"domain": "deepdotweb.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/free_ross.jpg"
+	},
+	{
+		"domain": "deepdotweb.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/helix.gif"
+	},
+	{
+		"domain": "deusm.com",
+		"subdomain": null,
+		"prefix": "/informationweek/editor-",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "devour.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "skin",
+		"suffix": null
+	},
+	{
+		"domain": "dexerto.com",
+		"subdomain": null,
+		"prefix": "/app/uploads/",
+		"midfix": null,
+		"suffix": "-300600."
+	},
+	{
+		"domain": "dexerto.com",
+		"subdomain": null,
+		"prefix": "/app/uploads/",
+		"midfix": "_300600-",
+		"suffix": null
+	},
+	{
+		"domain": "digitaltveurope.net",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "_wallpaper_",
+		"suffix": null
+	},
+	{
+		"domain": "discordapp.com",
+		"subdomain": null,
+		"prefix": "/api/servers/",
+		"midfix": null,
+		"suffix": "/widget.json"
+	},
+	{
+		"domain": "disqus.com",
+		"subdomain": null,
+		"prefix": "/api/",
+		"midfix": null,
+		"suffix": "/listRelated.json"
+	},
+	{
+		"domain": "dmtrk.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/o.gif"
+	},
+	{
+		"domain": "dnsstuff.com",
+		"subdomain": null,
+		"prefix": "/dnsmedia/images/",
+		"midfix": null,
+		"suffix": "_banner.jpg"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/ch_news.com/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/pfadx/lin."
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/N2/pfadx/video.",
+		"midfix": null,
+		"suffix": ".wsj.com/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/N4117/pfadx/",
+		"midfix": null,
+		"suffix": ".sbs.com.au/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/adj/",
+		"midfix": null,
+		"suffix": ".collegehumor/sec=videos_originalcontent"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/adx/",
+		"midfix": null,
+		"suffix": ".NPR.MUSIC/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/adx/",
+		"midfix": null,
+		"suffix": ".NPR/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/adx/",
+		"midfix": null,
+		"suffix": ".collegehumor/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/adx/",
+		"midfix": null,
+		"suffix": ".ted/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".ABC.com/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".BLIPTV/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".ESPN/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".MCNONLINE/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".MTV-Viacom/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".NBCUNI.COM/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".NBCUNIVERSAL-CNBC/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".NBCUNIVERSAL/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".VIACOMINTERNATIONAL/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".WALTDISNEYINTERNETGROU/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".mtvi"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".muzu/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".nbc.com/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".reuters/"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": null,
+		"suffix": ".sevenload.com_"
+	},
+	{
+		"domain": "doubleclick.net",
+		"subdomain": null,
+		"prefix": "/pfadx/",
+		"midfix": "/kidstv/",
+		"suffix": null
+	},
+	{
+		"domain": "downloadprovider.me",
+		"subdomain": null,
+		"prefix": "/en/search/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "dreamhost.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".cgi"
+	},
+	{
+		"domain": "drivereasy.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/sidebar-DriverEasy-buy.jpg"
+	},
+	{
+		"domain": "ebayobjects.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "ebaystatic.com",
+		"subdomain": null,
+		"prefix": "/aw/pics/signin/",
+		"midfix": "_signInSkin_",
+		"suffix": null
+	},
+	{
+		"domain": "ebaystatic.com",
+		"subdomain": null,
+		"prefix": "/aw/signin/",
+		"midfix": "_wallpaper_",
+		"suffix": null
+	},
+	{
+		"domain": "eegay.com",
+		"subdomain": null,
+		"prefix": "/php/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "email.aol.com",
+		"subdomain": null,
+		"prefix": "/cgi-bin",
+		"midfix": "/flosensing",
+		"suffix": null
+	},
+	{
+		"domain": "empireamateurs.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "banner",
+		"suffix": null
+	},
+	{
+		"domain": "eteknix.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "skin",
+		"suffix": null
+	},
+	{
+		"domain": "etonline.com",
+		"subdomain": null,
+		"prefix": "/media/",
+		"midfix": null,
+		"suffix": "/ctvconviva.swf"
+	},
+	{
+		"domain": "etoro.com",
+		"subdomain": null,
+		"prefix": "/B",
+		"midfix": "_A",
+		"suffix": "_TGet.aspx"
+	},
+	{
+		"domain": "extremetube.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "=",
+		"suffix": null
+	},
+	{
+		"domain": "facebook.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/plugins/page.php"
+	},
+	{
+		"domain": "facebook.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/plugins/send_to_messenger.php"
+	},
+	{
+		"domain": "facebook.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/plugins/share_button.php"
+	},
+	{
+		"domain": "facebook.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/plugins/",
+		"suffix": null
+	},
+	{
+		"domain": "facebook.com",
+		"subdomain": null,
+		"prefix": "/ajax/",
+		"midfix": null,
+		"suffix": "/log.php"
+	},
+	{
+		"domain": "facebook.com",
+		"subdomain": null,
+		"prefix": "/ajax/",
+		"midfix": null,
+		"suffix": "logging."
+	},
+	{
+		"domain": "facebook.com",
+		"subdomain": null,
+		"prefix": "/connect/connect.",
+		"midfix": "connections",
+		"suffix": null
+	},
+	{
+		"domain": "feeds.feedburner.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "fenixm.com",
+		"subdomain": null,
+		"prefix": "/actions/",
+		"midfix": "Skin",
+		"suffix": "."
+	},
+	{
+		"domain": "files.wordpress.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "-reskin."
+	},
+	{
+		"domain": "filterlists.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "financialsamurai.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/sliced-alternative-10000.jpg"
+	},
+	{
+		"domain": "fingerslam.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "flatpanelshd.com",
+		"subdomain": null,
+		"prefix": "/pictures/",
+		"midfix": "banner",
+		"suffix": null
+	},
+	{
+		"domain": "focus.de",
+		"subdomain": null,
+		"prefix": "/resources/",
+		"midfix": null,
+		"suffix": "/singlepost_complain_q.png"
+	},
+	{
+		"domain": "focus.lv",
+		"subdomain": null,
+		"prefix": "/social_",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "foxandhoundsdaily.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-AD.gif"
+	},
+	{
+		"domain": "foxsoccer2go.com",
+		"subdomain": null,
+		"prefix": "/namedImage/",
+		"midfix": null,
+		"suffix": "/backgroundSkin.jpg"
+	},
+	{
+		"domain": "foxsports.com",
+		"subdomain": null,
+		"prefix": "/component/",
+		"midfix": "_wallpaper_",
+		"suffix": null
+	},
+	{
+		"domain": "ftlauderdalewebcam.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "webcambanner",
+		"suffix": null
+	},
+	{
+		"domain": "fyygame.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "gamecopyworld.click",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "gamecopyworld.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "gamecopyworld.eu",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "gameserpent.com",
+		"subdomain": null,
+		"prefix": "/kit",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "gameserpent.com",
+		"subdomain": null,
+		"prefix": "/vc",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "ganool.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/Javtoys300250..gif"
+	},
+	{
+		"domain": "ganool.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/matrix303.gif"
+	},
+	{
+		"domain": "gethigh.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/pass_a_drug_test_get_high_banner.jpg"
+	},
+	{
+		"domain": "gfi.com",
+		"subdomain": null,
+		"prefix": "/blog/wp-content/uploads/",
+		"midfix": "-BlogBanner",
+		"suffix": null
+	},
+	{
+		"domain": "girlsgames.biz",
+		"subdomain": null,
+		"prefix": "/games/partner",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "gocdkeys.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_400x300_",
+		"suffix": null
+	},
+	{
+		"domain": "goodanime.net",
+		"subdomain": null,
+		"prefix": "/images/crazy",
+		"midfix": null,
+		"suffix": ".jpg"
+	},
+	{
+		"domain": "google.com",
+		"subdomain": null,
+		"prefix": "/appserve/mkt/img/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "google.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_promo_",
+		"suffix": null
+	},
+	{
+		"domain": "gpawireservices.com",
+		"subdomain": null,
+		"prefix": "/input/files/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "grapevine.is",
+		"subdomain": null,
+		"prefix": "/media/flash/",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "graphcomment.com",
+		"subdomain": null,
+		"prefix": "/api/thread/",
+		"midfix": "/stats",
+		"suffix": null
+	},
+	{
+		"domain": "greatandhra.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_ga_",
+		"suffix": null
+	},
+	{
+		"domain": "haouzy.info",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "hardwareheaven.com",
+		"subdomain": null,
+		"prefix": "/styles/",
+		"midfix": null,
+		"suffix": "/frontpage/backdrop.jpg"
+	},
+	{
+		"domain": "hardwareheaven.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": "_skin_",
+		"suffix": null
+	},
+	{
+		"domain": "hardwareheaven.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "-site-skin-",
+		"suffix": null
+	},
+	{
+		"domain": "haxmaps.com",
+		"subdomain": null,
+		"prefix": "/home",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "haymarket-whistleout.s3.amazonaws.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "_ad.html"
+	},
+	{
+		"domain": "hdzog.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "heatworld.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_83x76_",
+		"suffix": null
+	},
+	{
+		"domain": "hentai-foundry.com",
+		"subdomain": null,
+		"prefix": "/themes/",
+		"midfix": "/add",
+		"suffix": null
+	},
+	{
+		"domain": "hentaihaven.org",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "herold.at",
+		"subdomain": null,
+		"prefix": "/fs/orgimg/",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "heyjackass.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "_300x225_",
+		"suffix": null
+	},
+	{
+		"domain": "hollyscoop.com",
+		"subdomain": null,
+		"prefix": "/sites/",
+		"midfix": "/skins/",
+		"suffix": null
+	},
+	{
+		"domain": "hollywoodoops.com",
+		"subdomain": null,
+		"prefix": "/img/",
+		"midfix": "banner",
+		"suffix": null
+	},
+	{
+		"domain": "hollywoodreporter.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/signup-r-rail",
+		"suffix": null
+	},
+	{
+		"domain": "homedesignlover.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/pin.jpg"
+	},
+	{
+		"domain": "honda-tech.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "-140x90.gif"
+	},
+	{
+		"domain": "hop.clickbank.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "&transaction_id=",
+		"suffix": "&offer_id="
+	},
+	{
+		"domain": "hotmovs.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "htcsource.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/icons.png"
+	},
+	{
+		"domain": "http.atlas.cdn.yimg.com",
+		"subdomain": null,
+		"prefix": "/yamplus/video_",
+		"midfix": null,
+		"suffix": ".mp4"
+	},
+	{
+		"domain": "hubpages.com",
+		"subdomain": null,
+		"prefix": "/c/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "hulu.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "&beaconevent",
+		"suffix": null
+	},
+	{
+		"domain": "hulu.com",
+		"subdomain": null,
+		"prefix": "/beacon/",
+		"midfix": "=adauditerror",
+		"suffix": null
+	},
+	{
+		"domain": "hulu.com",
+		"subdomain": null,
+		"prefix": "/watch/",
+		"midfix": null,
+		"suffix": "track.url-1.com"
+	},
+	{
+		"domain": "huluim.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "&beaconevent",
+		"suffix": null
+	},
+	{
+		"domain": "humanclick.com",
+		"subdomain": null,
+		"prefix": "/hc/",
+		"midfix": "/",
+		"suffix": null
+	},
+	{
+		"domain": "hurriyetdailynews.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_100x250_",
+		"suffix": null
+	},
+	{
+		"domain": "hypercomments.com",
+		"subdomain": null,
+		"prefix": "/widget/",
+		"midfix": null,
+		"suffix": "/analytics.html"
+	},
+	{
+		"domain": "i.i.com.com",
+		"subdomain": null,
+		"prefix": "/cnwk.1d/",
+		"midfix": null,
+		"suffix": "/tt_post_dl.jpg"
+	},
+	{
+		"domain": "i.ligatus.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "-placements/",
+		"suffix": null
+	},
+	{
+		"domain": "ia.media-imdb.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/imdb/html/facebook-",
+		"suffix": null
+	},
+	{
+		"domain": "ibsrv.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "214x30."
+	},
+	{
+		"domain": "ibsrv.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "_215x30."
+	},
+	{
+		"domain": "ibsrv.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "_215x30_",
+		"suffix": null
+	},
+	{
+		"domain": "idg.com.au",
+		"subdomain": null,
+		"prefix": "/ggg/images/",
+		"midfix": null,
+		"suffix": "_home.jpg"
+	},
+	{
+		"domain": "idg.com.au",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_promo",
+		"suffix": null
+	},
+	{
+		"domain": "ifilm.com",
+		"subdomain": null,
+		"prefix": "/website/",
+		"midfix": "_skin_",
+		"suffix": null
+	},
+	{
+		"domain": "images-amazon.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/associates/widgets/",
+		"suffix": null
+	},
+	{
+		"domain": "images-amazon.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/third-party/tracker",
+		"suffix": null
+	},
+	{
+		"domain": "images.mmorpg.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "skin",
+		"suffix": null
+	},
+	{
+		"domain": "images.sharkscope.com",
+		"subdomain": null,
+		"prefix": "/acr/",
+		"midfix": "_Ad-",
+		"suffix": null
+	},
+	{
+		"domain": "imageshack.us",
+		"subdomain": null,
+		"prefix": "/images/contests/",
+		"midfix": null,
+		"suffix": "/lp-bg.jpg"
+	},
+	{
+		"domain": "imagetwist.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "imdb.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "/scriptloader."
+	},
+	{
+		"domain": "imdb.com",
+		"subdomain": null,
+		"prefix": "/video/",
+		"midfix": "/metrics_",
+		"suffix": null
+	},
+	{
+		"domain": "imgbox.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "imgfarm.com",
+		"subdomain": null,
+		"prefix": "/images/nocache/tr/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "ipornia.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "=",
+		"suffix": "&"
+	},
+	{
+		"domain": "irctctourism.com",
+		"subdomain": null,
+		"prefix": "/ttrs/railtourism/Designs/html/images/tourism_right_banners/",
+		"midfix": "DealsBanner_",
+		"suffix": null
+	},
+	{
+		"domain": "irv2.com",
+		"subdomain": null,
+		"prefix": "/forums/",
+		"midfix": "show_banner",
+		"suffix": null
+	},
+	{
+		"domain": "isitdownrightnow.com",
+		"subdomain": null,
+		"prefix": "/graphics/speedupmypc",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "itv.com",
+		"subdomain": null,
+		"prefix": "/adexplore/",
+		"midfix": null,
+		"suffix": "/config.xml"
+	},
+	{
+		"domain": "jetsetter.ua",
+		"subdomain": null,
+		"prefix": "/thema/",
+		"midfix": "/img/bg_home/",
+		"suffix": null
+	},
+	{
+		"domain": "johngaltfla.com",
+		"subdomain": null,
+		"prefix": "/wordpress/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/TB2K_LOGO.jpg"
+	},
+	{
+		"domain": "johngaltfla.com",
+		"subdomain": null,
+		"prefix": "/wordpress/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/jmcs_specaialbanner.jpg"
+	},
+	{
+		"domain": "joindota.com",
+		"subdomain": null,
+		"prefix": "/img/",
+		"midfix": "LB_",
+		"suffix": null
+	},
+	{
+		"domain": "joindota.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "jozikids.co.za",
+		"subdomain": null,
+		"prefix": "/uploadimages/",
+		"midfix": "_140x140_",
+		"suffix": null
+	},
+	{
+		"domain": "js.letvcdn.com",
+		"subdomain": null,
+		"prefix": "/js/",
+		"midfix": "/stats/",
+		"suffix": null
+	},
+	{
+		"domain": "justsomething.co",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-250x250."
+	},
+	{
+		"domain": "keezmovies.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "=",
+		"suffix": null
+	},
+	{
+		"domain": "keygen-fm.ru",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "kitguru.net",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-Skin."
+	},
+	{
+		"domain": "kongregate.com",
+		"subdomain": null,
+		"prefix": "/images/help_devs_",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "kron.com",
+		"subdomain": null,
+		"prefix": "/uploads/",
+		"midfix": "-ad-",
+		"suffix": null
+	},
+	{
+		"domain": "kukudas.com",
+		"subdomain": null,
+		"prefix": "/skin/board/JBoard/img/sns_",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "kukuplay.com",
+		"subdomain": null,
+		"prefix": "/upload/",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "l.yimg.com",
+		"subdomain": null,
+		"prefix": "/a/i/",
+		"midfix": "_wallpaper",
+		"suffix": null
+	},
+	{
+		"domain": "lawprofessorblogs.com",
+		"subdomain": null,
+		"prefix": "/responsive-template/",
+		"midfix": null,
+		"suffix": "advert."
+	},
+	{
+		"domain": "lawprofessors.typepad.com",
+		"subdomain": null,
+		"prefix": "/responsive-template/",
+		"midfix": null,
+		"suffix": "advert.jpg"
+	},
+	{
+		"domain": "learn2crack.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "-336x280.jpg"
+	},
+	{
+		"domain": "lfgcomic.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/PageSkin_",
+		"suffix": null
+	},
+	{
+		"domain": "lifebel.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "link.ex.fm",
+		"subdomain": null,
+		"prefix": "/img/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "linkbird.com",
+		"subdomain": null,
+		"prefix": "/static/upload/",
+		"midfix": "/banner/",
+		"suffix": null
+	},
+	{
+		"domain": "list.fightforthefuture.org",
+		"subdomain": null,
+		"prefix": "/mpss/o/",
+		"midfix": null,
+		"suffix": "/o.gif"
+	},
+	{
+		"domain": "liveperson.net",
+		"subdomain": null,
+		"prefix": "/hc/",
+		"midfix": "/",
+		"suffix": null
+	},
+	{
+		"domain": "llnwd.net",
+		"subdomain": null,
+		"prefix": "/o28/assets/",
+		"midfix": "-sponsored-",
+		"suffix": null
+	},
+	{
+		"domain": "lm.pcworld.com",
+		"subdomain": null,
+		"prefix": "/db/",
+		"midfix": null,
+		"suffix": "/1.gif"
+	},
+	{
+		"domain": "lostfilm.info",
+		"subdomain": null,
+		"prefix": "/css",
+		"midfix": "/b/",
+		"suffix": null
+	},
+	{
+		"domain": "madamenoire.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": "_Reskin-",
+		"suffix": null
+	},
+	{
+		"domain": "mail.ebay.com",
+		"subdomain": null,
+		"prefix": "/img/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "majorgeeks.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "_336x280.jpg"
+	},
+	{
+		"domain": "manager-magazin.de",
+		"subdomain": null,
+		"prefix": "/js/http/",
+		"midfix": ",testat_",
+		"suffix": null
+	},
+	{
+		"domain": "marijuanapolitics.com",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "-ad."
+	},
+	{
+		"domain": "marijuanapolitics.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/icbc1.png"
+	},
+	{
+		"domain": "marijuanapolitics.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/icbc2.png"
+	},
+	{
+		"domain": "marketingpilgrim.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/trackur.com-"
+	},
+	{
+		"domain": "media-imdb.com",
+		"subdomain": null,
+		"prefix": "/images",
+		"midfix": "/facebook-",
+		"suffix": null
+	},
+	{
+		"domain": "media-imdb.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/imdbads/js/beacon-",
+		"suffix": null
+	},
+	{
+		"domain": "media-imdb.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/imdbads/js/collections/ads-tarnhelm-",
+		"suffix": null
+	},
+	{
+		"domain": "media.myspace.com",
+		"subdomain": null,
+		"prefix": "/play/",
+		"midfix": "/featured-videos-",
+		"suffix": null
+	},
+	{
+		"domain": "media.news.com.au",
+		"subdomain": null,
+		"prefix": "/cs/nca/latest/public/js/p/",
+		"midfix": "/promo-display",
+		"suffix": null
+	},
+	{
+		"domain": "mediafire.com",
+		"subdomain": null,
+		"prefix": "/images/backgrounds/download/",
+		"midfix": "promo",
+		"suffix": null
+	},
+	{
+		"domain": "mediaweek.com.au",
+		"subdomain": null,
+		"prefix": "/storage/",
+		"midfix": null,
+		"suffix": "_234x234.jpg"
+	},
+	{
+		"domain": "meduza.io",
+		"subdomain": null,
+		"prefix": "/api/",
+		"midfix": "/social",
+		"suffix": null
+	},
+	{
+		"domain": "meetic.com",
+		"subdomain": null,
+		"prefix": "/js/",
+		"midfix": "/site_under_",
+		"suffix": null
+	},
+	{
+		"domain": "mfcdn.net",
+		"subdomain": null,
+		"prefix": "/media/",
+		"midfix": "left",
+		"suffix": null
+	},
+	{
+		"domain": "mgprofit.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "x",
+		"suffix": null
+	},
+	{
+		"domain": "mikejung.biz",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/728x90xLiquidWeb_",
+		"suffix": null
+	},
+	{
+		"domain": "mlb.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_videoskin_",
+		"suffix": ".jpg"
+	},
+	{
+		"domain": "mmoculture.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "-background-",
+		"suffix": null
+	},
+	{
+		"domain": "mmohuts.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "_Skin-",
+		"suffix": null
+	},
+	{
+		"domain": "mmorpg.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "_hots_r0.jpg"
+	},
+	{
+		"domain": "mnn.com",
+		"subdomain": null,
+		"prefix": "/sites/",
+		"midfix": "/popups/AllstatePopup",
+		"suffix": null
+	},
+	{
+		"domain": "monitor.co.ug",
+		"subdomain": null,
+		"prefix": "/image/view/",
+		"midfix": "/120/",
+		"suffix": null
+	},
+	{
+		"domain": "morefree.net",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/mauritanie.gif"
+	},
+	{
+		"domain": "motherman.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "mozilla.org",
+		"subdomain": null,
+		"prefix": "/includes/min/",
+		"midfix": "=js_stats",
+		"suffix": null
+	},
+	{
+		"domain": "mozilla.org",
+		"subdomain": null,
+		"prefix": "/page/",
+		"midfix": null,
+		"suffix": "/open.gif"
+	},
+	{
+		"domain": "mp.adverts.itv.com",
+		"subdomain": null,
+		"prefix": "/priority/",
+		"midfix": null,
+		"suffix": ".mp4"
+	},
+	{
+		"domain": "msecnd.net",
+		"subdomain": null,
+		"prefix": "/scripts/",
+		"midfix": null,
+		"suffix": ".pop."
+	},
+	{
+		"domain": "msxml.excite.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "muchmusic.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "-skin.png"
+	},
+	{
+		"domain": "mydirtyhobby.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "mypbrand.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "banner",
+		"suffix": null
+	},
+	{
+		"domain": "mypornstarbook.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "myspace.com",
+		"subdomain": null,
+		"prefix": "/play/myspace/",
+		"midfix": "&locationId",
+		"suffix": null
+	},
+	{
+		"domain": "myspacecdn.com",
+		"subdomain": null,
+		"prefix": "/cms/",
+		"midfix": "_skin_",
+		"suffix": null
+	},
+	{
+		"domain": "mytoysgroup.scene7.com",
+		"subdomain": null,
+		"prefix": "/is/image/myToysGroup/",
+		"midfix": "_nl-anmeldung",
+		"suffix": null
+	},
+	{
+		"domain": "nanoinvestgroup.com",
+		"subdomain": null,
+		"prefix": "/images/banner",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "narutoget.us",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "nationmobi.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/analyse.php"
+	},
+	{
+		"domain": "neatorama.com",
+		"subdomain": null,
+		"prefix": "/story/view/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "netindian.in",
+		"subdomain": null,
+		"prefix": "/frontsquare",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "news.com.au",
+		"subdomain": null,
+		"prefix": "/cs/",
+		"midfix": null,
+		"suffix": "/bg-body.jpg"
+	},
+	{
+		"domain": "newstatesman.com",
+		"subdomain": null,
+		"prefix": "/sites/all/themes/",
+		"midfix": null,
+		"suffix": "_1280x2000."
+	},
+	{
+		"domain": "nextbigwhat.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "ccavenue",
+		"suffix": null
+	},
+	{
+		"domain": "nichepursuits.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/long-tail-pro-banner.gif"
+	},
+	{
+		"domain": "nudez.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "nuvid.com",
+		"subdomain": null,
+		"prefix": "/_",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "ohmygore.com",
+		"subdomain": null,
+		"prefix": "/ef_pub",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "onhockey.tv",
+		"subdomain": null,
+		"prefix": "/stopadblock",
+		"midfix": null,
+		"suffix": ".jpg"
+	},
+	{
+		"domain": "onrpg.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "_Skin-",
+		"suffix": null
+	},
+	{
+		"domain": "oogh8ot0el.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "opencurrency.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-aocs-sidebar-commodity-bank.png"
+	},
+	{
+		"domain": "originalweedrecipes.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-Medium.jpg"
+	},
+	{
+		"domain": "orissadiary.com",
+		"subdomain": null,
+		"prefix": "/img/",
+		"midfix": null,
+		"suffix": "-banner.gif"
+	},
+	{
+		"domain": "outofaces.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "pagesinventory.com",
+		"subdomain": null,
+		"prefix": "/_data/img/",
+		"midfix": "_125x400_",
+		"suffix": null
+	},
+	{
+		"domain": "pasted.co",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "paypalobjects.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/m/mid.swf"
+	},
+	{
+		"domain": "pcpro.co.uk",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_siteskin",
+		"suffix": null
+	},
+	{
+		"domain": "pcworld.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_vidmod_316x202_",
+		"suffix": null
+	},
+	{
+		"domain": "perfectforex.biz",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "x",
+		"suffix": null
+	},
+	{
+		"domain": "pettube.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "-partner."
+	},
+	{
+		"domain": "phncdn.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "_skin."
+	},
+	{
+		"domain": "phncdn.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_skin_",
+		"suffix": null
+	},
+	{
+		"domain": "phoronix.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/facebook.png"
+	},
+	{
+		"domain": "phoronix.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/googlep.png"
+	},
+	{
+		"domain": "phoronix.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/twitter.png"
+	},
+	{
+		"domain": "pimpandhost.com",
+		"subdomain": null,
+		"prefix": "/static/i/",
+		"midfix": null,
+		"suffix": "-pah.jpg"
+	},
+	{
+		"domain": "plarium.com",
+		"subdomain": null,
+		"prefix": "/play/",
+		"midfix": "adCampaign=",
+		"suffix": null
+	},
+	{
+		"domain": "plus.net",
+		"subdomain": null,
+		"prefix": "/images/referrals/",
+		"midfix": "_banner_",
+		"suffix": null
+	},
+	{
+		"domain": "politicalwire.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "-sponsor.jpg"
+	},
+	{
+		"domain": "pornrabbit.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "porntube.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "pornturbo.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "pornvideoq.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "powvideo.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "preppersmallbiz.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/PSB-Support.jpg"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-250x250.jpg"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/DeadwoodStove-PW.gif"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/FME-Red-CAP.jpg"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/PW-Ad.jpg"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/apmgoldmembership250x250.jpg"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/jihad.jpg"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/tsepulveda-1.jpg"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "_250x150.png"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "_250x250.jpg"
+	},
+	{
+		"domain": "prepperwebsite.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/250x250-",
+		"suffix": null
+	},
+	{
+		"domain": "professionalmuscle.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "banner",
+		"suffix": null
+	},
+	{
+		"domain": "propakistani.pk",
+		"subdomain": null,
+		"prefix": "/wp-content/",
+		"midfix": null,
+		"suffix": "/warid.jpg"
+	},
+	{
+		"domain": "psgroove.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": ".jpg|"
+	},
+	{
+		"domain": "pubexchange.com",
+		"subdomain": null,
+		"prefix": "/module/",
+		"midfix": "-prod",
+		"suffix": null
+	},
+	{
+		"domain": "pwpwpoker.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/strip_poker_",
+		"suffix": null
+	},
+	{
+		"domain": "qrz.com",
+		"subdomain": null,
+		"prefix": "/pix/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "queermenow.net",
+		"subdomain": null,
+		"prefix": "/blog/wp-content/uploads/",
+		"midfix": "-Banner",
+		"suffix": null
+	},
+	{
+		"domain": "r.search.yahoo.com",
+		"subdomain": null,
+		"prefix": "/_ylt=",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "r18.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "utm_source",
+		"suffix": null
+	},
+	{
+		"domain": "rackcdn.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "Rails_",
+		"suffix": null
+	},
+	{
+		"domain": "radiotown.com",
+		"subdomain": null,
+		"prefix": "/splash/images/",
+		"midfix": "_960x600_",
+		"suffix": null
+	},
+	{
+		"domain": "ragezone.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/HV-banner-300-200.jpg"
+	},
+	{
+		"domain": "rapidgator.net",
+		"subdomain": null,
+		"prefix": "/images/pics/",
+		"midfix": "_300%D1%85250_",
+		"suffix": null
+	},
+	{
+		"domain": "rapidlibrary.com",
+		"subdomain": null,
+		"prefix": "/baner",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "rapidlibrary.com",
+		"subdomain": null,
+		"prefix": "/banner_",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "ratemystrain.com",
+		"subdomain": null,
+		"prefix": "/files/",
+		"midfix": null,
+		"suffix": "-300x250."
+	},
+	{
+		"domain": "raysindex.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/dolmansept2012flash.swf"
+	},
+	{
+		"domain": "rc.feedsportal.com",
+		"subdomain": null,
+		"prefix": "/r/",
+		"midfix": null,
+		"suffix": "/rc.img"
+	},
+	{
+		"domain": "realhomesex.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "realstylenetwork.com",
+		"subdomain": null,
+		"prefix": "/celebrities/",
+		"midfix": "&action=inc_popup",
+		"suffix": null
+	},
+	{
+		"domain": "redditstatic.com",
+		"subdomain": null,
+		"prefix": "/button/button",
+		"midfix": ".",
+		"suffix": null
+	},
+	{
+		"domain": "replyat.com",
+		"subdomain": null,
+		"prefix": "/gadgetpagecounter",
+		"midfix": null,
+		"suffix": ".asp"
+	},
+	{
+		"domain": "reutersmedia.net",
+		"subdomain": null,
+		"prefix": "/resources_",
+		"midfix": "/",
+		"suffix": null
+	},
+	{
+		"domain": "rghost.ru",
+		"subdomain": null,
+		"prefix": "/download/a/",
+		"midfix": "/banner_download_",
+		"suffix": null
+	},
+	{
+		"domain": "rislivetv.com",
+		"subdomain": null,
+		"prefix": "/ad",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "roblox.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "&rbx_",
+		"suffix": null
+	},
+	{
+		"domain": "rocksound.tv",
+		"subdomain": null,
+		"prefix": "/images/uploads/",
+		"midfix": "-rocksound-1920x1000_",
+		"suffix": null
+	},
+	{
+		"domain": "russiasexygirls.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/727x90",
+		"suffix": null
+	},
+	{
+		"domain": "s-assets.tp-cdn.com",
+		"subdomain": null,
+		"prefix": "/widgets/",
+		"midfix": "/vwid/",
+		"suffix": ".html"
+	},
+	{
+		"domain": "s3s-bofm.net",
+		"subdomain": null,
+		"prefix": "/ouv2/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "saabsunited.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-banner."
+	},
+	{
+		"domain": "saabsunited.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "-banner-",
+		"suffix": null
+	},
+	{
+		"domain": "saf.org",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/theGunMagbanner.png"
+	},
+	{
+		"domain": "saf.org",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/women_guns192x50.png"
+	},
+	{
+		"domain": "sandai.me",
+		"subdomain": null,
+		"prefix": "/assets/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "secureprovide1.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "=tracking",
+		"suffix": null
+	},
+	{
+		"domain": "seedboxco.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "sex.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/banner_",
+		"suffix": null
+	},
+	{
+		"domain": "sex01.org",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "sexmo.org",
+		"subdomain": null,
+		"prefix": "/static/images/",
+		"midfix": "_banners_",
+		"suffix": null
+	},
+	{
+		"domain": "sexu.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "sgtreport.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-180x350."
+	},
+	{
+		"domain": "sgtreport.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/180_350."
+	},
+	{
+		"domain": "sgtreport.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/180x350."
+	},
+	{
+		"domain": "sgtreport.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "_Side_Banner."
+	},
+	{
+		"domain": "sgtreport.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "_Side_Banner_",
+		"suffix": null
+	},
+	{
+		"domain": "sharemods.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "shopify.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/page",
+		"suffix": null
+	},
+	{
+		"domain": "shortlist.com",
+		"subdomain": null,
+		"prefix": "/resource/cache/",
+		"midfix": "skin",
+		"suffix": null
+	},
+	{
+		"domain": "site5.com",
+		"subdomain": null,
+		"prefix": "/creative/",
+		"midfix": null,
+		"suffix": "/234x60.gif"
+	},
+	{
+		"domain": "slyck.com",
+		"subdomain": null,
+		"prefix": "/pics/",
+		"midfix": "304x83_",
+		"suffix": null
+	},
+	{
+		"domain": "sockshare.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "softpedia-static.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": ".jpg"
+	},
+	{
+		"domain": "softpedia-static.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "softpedia.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "_longrect."
+	},
+	{
+		"domain": "softpedia.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "_rect."
+	},
+	{
+		"domain": "softpedia.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "_square."
+	},
+	{
+		"domain": "songspk.cc",
+		"subdomain": null,
+		"prefix": "/pop",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "sourcefed.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/netflix4.jpg"
+	},
+	{
+		"domain": "spankwire.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "=",
+		"suffix": null
+	},
+	{
+		"domain": "speedtestbeta.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "spielesite.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/share/",
+		"suffix": null
+	},
+	{
+		"domain": "splurgy.com",
+		"subdomain": null,
+		"prefix": "/bacon/",
+		"midfix": null,
+		"suffix": "_ct.gif"
+	},
+	{
+		"domain": "sportsmole.co.uk",
+		"subdomain": null,
+		"prefix": "/track",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "ssl-images-amazon.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/banner/",
+		"suffix": null
+	},
+	{
+		"domain": "ssl-images-amazon.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "/common/1x1._",
+		"suffix": ".gif"
+	},
+	{
+		"domain": "stalliongold.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "x",
+		"suffix": null
+	},
+	{
+		"domain": "stargames.com",
+		"subdomain": null,
+		"prefix": "/web/",
+		"midfix": "&cid=",
+		"suffix": "&pid="
+	},
+	{
+		"domain": "starofmysore.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-banner-karbonn."
+	},
+	{
+		"domain": "static.hd-trailers.net",
+		"subdomain": null,
+		"prefix": "/js/javascript_",
+		"midfix": null,
+		"suffix": ".js|"
+	},
+	{
+		"domain": "staticworld.net",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_skin_",
+		"suffix": null
+	},
+	{
+		"domain": "streetinsider.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "structuredchannel.com",
+		"subdomain": null,
+		"prefix": "/sw/swchannel/images/MarketingAssets/",
+		"midfix": "/BannerAd",
+		"suffix": null
+	},
+	{
+		"domain": "survivaltop50.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/Survival215x150Link.png"
+	},
+	{
+		"domain": "svcs.ebay.com",
+		"subdomain": null,
+		"prefix": "/services/search/FindingService/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "swfchan.org",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "t-online.de",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/tid_cms-list-alternative-inventory",
+		"suffix": null
+	},
+	{
+		"domain": "tastro.org",
+		"subdomain": null,
+		"prefix": "/x/ads",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "tdfimg.com",
+		"subdomain": null,
+		"prefix": "/go/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "techinsider.net",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-300x500."
+	},
+	{
+		"domain": "theburningplatform.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "_180x150.gif"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/ad-iodine.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/ad-nutritionrecharge.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/ad-rangerbucket.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/ad-survivalapril2017.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/adamerigeddon2016dvd.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/adnumana350x250-1.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/adsqmetals.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/hagmannbook.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/nightvisionadnew.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/numanna-hoiz400x100.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/panama-300-x-250.jpg"
+	},
+	{
+		"domain": "thecommonsenseshow.com",
+		"subdomain": null,
+		"prefix": "/siteupload/",
+		"midfix": null,
+		"suffix": "/trekkerportablewater.jpg"
+	},
+	{
+		"domain": "thecompassionchronicles.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-banner."
+	},
+	{
+		"domain": "thecompassionchronicles.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "-banner-",
+		"suffix": null
+	},
+	{
+		"domain": "thehealthcareblog.com",
+		"subdomain": null,
+		"prefix": "/files/",
+		"midfix": null,
+		"suffix": "/THCB-Validic-jpg-opt.jpg"
+	},
+	{
+		"domain": "thehealthcareblog.com",
+		"subdomain": null,
+		"prefix": "/files/",
+		"midfix": null,
+		"suffix": "/athena-300.jpg"
+	},
+	{
+		"domain": "thehealthcareblog.com",
+		"subdomain": null,
+		"prefix": "/files/",
+		"midfix": "/American-Resident-Project-Logo-",
+		"suffix": null
+	},
+	{
+		"domain": "thehindu.com",
+		"subdomain": null,
+		"prefix": "/multimedia/",
+		"midfix": "/sivananda_sponsorch_",
+		"suffix": null
+	},
+	{
+		"domain": "thejointblog.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "-235x",
+		"suffix": null
+	},
+	{
+		"domain": "themittani.com",
+		"subdomain": null,
+		"prefix": "/sites/",
+		"midfix": "-skin",
+		"suffix": null
+	},
+	{
+		"domain": "thepreparednessreview.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "_175x175.jpg"
+	},
+	{
+		"domain": "thepreparednessreview.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "_185x185.jpg"
+	},
+	{
+		"domain": "thepreparednessreview.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/250x125-",
+		"suffix": null
+	},
+	{
+		"domain": "thessdreview.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/930x64_",
+		"suffix": null
+	},
+	{
+		"domain": "theticketmiami.com",
+		"subdomain": null,
+		"prefix": "/Pics/listenlive/",
+		"midfix": null,
+		"suffix": "-Left.jpg"
+	},
+	{
+		"domain": "theticketmiami.com",
+		"subdomain": null,
+		"prefix": "/Pics/listenlive/",
+		"midfix": null,
+		"suffix": "-Right.jpg"
+	},
+	{
+		"domain": "thevideo.me",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "thevideo.me",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": ":",
+		"suffix": null
+	},
+	{
+		"domain": "thinkingwithportals.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "-skyscraper."
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-ad."
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "-vertical."
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/Johnson-Grow-Lights.gif"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/Judge-Lenny-001.jpg"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/WeedSeedShop.jpg"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/cannafo.jpg"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/dakine420.png"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/gorillabanner728.gif"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/herbies-1.gif"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/scrogger.gif"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/sensi2.jpg"
+	},
+	{
+		"domain": "time4hemp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "/dynamic_banner_",
+		"suffix": null
+	},
+	{
+		"domain": "timeinc.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "/i/oba-compliance.png"
+	},
+	{
+		"domain": "tnaflix.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "torrentz.eu",
+		"subdomain": null,
+		"prefix": "/search",
+		"midfix": "=",
+		"suffix": null
+	},
+	{
+		"domain": "totalguitar.net",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "_125X125.jpg"
+	},
+	{
+		"domain": "trackitdown.net",
+		"subdomain": null,
+		"prefix": "/skins/",
+		"midfix": "_campaign/",
+		"suffix": null
+	},
+	{
+		"domain": "tribktla.files.wordpress.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "-639x125-sponsorship.jpg"
+	},
+	{
+		"domain": "tripadvisor.com",
+		"subdomain": null,
+		"prefix": "/WidgetEmbed-",
+		"midfix": "&partnerId=",
+		"suffix": null
+	},
+	{
+		"domain": "tsk5.com",
+		"subdomain": null,
+		"prefix": "/17",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "tunein.com",
+		"subdomain": null,
+		"prefix": "/account/newiframe/signup/",
+		"midfix": "conversionPopup",
+		"suffix": null
+	},
+	{
+		"domain": "turksinemasi.com",
+		"subdomain": null,
+		"prefix": "/wp-content/themes/ts/images/paylas-",
+		"midfix": null,
+		"suffix": ".jpg"
+	},
+	{
+		"domain": "tweaktown.com",
+		"subdomain": null,
+		"prefix": "/cms/includes/i",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "twitter.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "statuses/user_timeline/",
+		"suffix": null
+	},
+	{
+		"domain": "twitter.com",
+		"subdomain": null,
+		"prefix": "/i/cards/tfw/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "u.bb",
+		"subdomain": null,
+		"prefix": "/omni",
+		"midfix": null,
+		"suffix": ".swf|"
+	},
+	{
+		"domain": "uberhumor.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "btf.html"
+	},
+	{
+		"domain": "ukfindit.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "_125x125.gif"
+	},
+	{
+		"domain": "ukrd.com",
+		"subdomain": null,
+		"prefix": "/image/",
+		"midfix": null,
+		"suffix": "-160x133.jpg"
+	},
+	{
+		"domain": "ukrd.com",
+		"subdomain": null,
+		"prefix": "/image/",
+		"midfix": null,
+		"suffix": "-160x160.png"
+	},
+	{
+		"domain": "unibet.co.uk",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "affiliate",
+		"suffix": null
+	},
+	{
+		"domain": "upcat.custvox.org",
+		"subdomain": null,
+		"prefix": "/survey/",
+		"midfix": null,
+		"suffix": "/countOpen.gif"
+	},
+	{
+		"domain": "upi.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/stat/",
+		"suffix": null
+	},
+	{
+		"domain": "upload.ee",
+		"subdomain": null,
+		"prefix": "/image/",
+		"midfix": null,
+		"suffix": "/B_descarga_tipo12.gif"
+	},
+	{
+		"domain": "uploadcore.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "-Lad.jpg"
+	},
+	{
+		"domain": "uploadcore.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "-Rad.png"
+	},
+	{
+		"domain": "uploadcore.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "-mad.jpg"
+	},
+	{
+		"domain": "uptolike.com",
+		"subdomain": null,
+		"prefix": "/widgets/",
+		"midfix": "/imp",
+		"suffix": null
+	},
+	{
+		"domain": "urlcash.net",
+		"subdomain": null,
+		"prefix": "/random",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "usatodayhss.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "skin",
+		"suffix": null
+	},
+	{
+		"domain": "v.fwmrm.net",
+		"subdomain": null,
+		"prefix": "/ad/",
+		"midfix": "defaultImpression",
+		"suffix": null
+	},
+	{
+		"domain": "vds_dyn.rightster.com",
+		"subdomain": null,
+		"prefix": "/v/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "viamichelin.co.uk",
+		"subdomain": null,
+		"prefix": "/htm/cmn/afs",
+		"midfix": null,
+		"suffix": ".htm"
+	},
+	{
+		"domain": "video.thestaticvube.com",
+		"subdomain": null,
+		"prefix": "/video/",
+		"midfix": null,
+		"suffix": ".mp4"
+	},
+	{
+		"domain": "videogamer.com",
+		"subdomain": null,
+		"prefix": "/videogamer",
+		"midfix": "/skins/",
+		"suffix": null
+	},
+	{
+		"domain": "vidmo.org",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_banuers_",
+		"suffix": null
+	},
+	{
+		"domain": "vidoza.net",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "bootstrap."
+	},
+	{
+		"domain": "vidto.me",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "bootstrap."
+	},
+	{
+		"domain": "vidzi.tv",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "bootstrap."
+	},
+	{
+		"domain": "view.vzaar.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/player",
+		"suffix": null
+	},
+	{
+		"domain": "visiblemeasures.com",
+		"subdomain": null,
+		"prefix": "/swf/",
+		"midfix": null,
+		"suffix": "/vmcdmplugin.swf"
+	},
+	{
+		"domain": "visit-x.net",
+		"subdomain": null,
+		"prefix": "/cams/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "vkpass.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "vogue.in",
+		"subdomain": null,
+		"prefix": "/node/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "vondroid.com",
+		"subdomain": null,
+		"prefix": "/site-img/",
+		"midfix": "-adv-ex-",
+		"suffix": null
+	},
+	{
+		"domain": "watchuseek.com",
+		"subdomain": null,
+		"prefix": "/media/",
+		"midfix": "-banner-",
+		"suffix": null
+	},
+	{
+		"domain": "waybig.com",
+		"subdomain": null,
+		"prefix": "/blog/wp-content/uploads/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "webmd.com",
+		"subdomain": null,
+		"prefix": "/dtmcms/live/webmd/",
+		"midfix": "/newsletter/",
+		"suffix": null
+	},
+	{
+		"domain": "weebly.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": "_signup.php"
+	},
+	{
+		"domain": "wer-weiss-was.de",
+		"subdomain": null,
+		"prefix": "/indication/clue_",
+		"midfix": null,
+		"suffix": ".gif"
+	},
+	{
+		"domain": "whozacunt.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": null,
+		"suffix": "-300x250."
+	},
+	{
+		"domain": "whozacunt.com",
+		"subdomain": null,
+		"prefix": "/images/",
+		"midfix": "_300x200_",
+		"suffix": null
+	},
+	{
+		"domain": "wikinvest.com",
+		"subdomain": null,
+		"prefix": "/plugin/",
+		"midfix": "=metricpv",
+		"suffix": null
+	},
+	{
+		"domain": "wired.com",
+		"subdomain": null,
+		"prefix": "/images/xrail/",
+		"midfix": "/samsung_layar_",
+		"suffix": null
+	},
+	{
+		"domain": "womenshealthmag.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/files/wh-newsletter-signup",
+		"suffix": null
+	},
+	{
+		"domain": "wordreference.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/publ/",
+		"suffix": null
+	},
+	{
+		"domain": "wp.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".postaffiliatepro.com/"
+	},
+	{
+		"domain": "wp.com",
+		"subdomain": null,
+		"prefix": "/adnetsreview.com/wp-content/uploads/",
+		"midfix": "banner",
+		"suffix": null
+	},
+	{
+		"domain": "wp.com",
+		"subdomain": null,
+		"prefix": "/gizchina.it/wp-content/uploads/",
+		"midfix": null,
+		"suffix": "/banner-gizdeals.png"
+	},
+	{
+		"domain": "wp.com",
+		"subdomain": null,
+		"prefix": "/wp-content/themes/vip/tctechcrunch/images/tc_",
+		"midfix": null,
+		"suffix": "_skin.jpg"
+	},
+	{
+		"domain": "wp.com",
+		"subdomain": null,
+		"prefix": "/www.proiezionidiborsa.it/",
+		"midfix": "/google-news-",
+		"suffix": null
+	},
+	{
+		"domain": "wrko.com",
+		"subdomain": null,
+		"prefix": "/sites/wrko.com/files/poll/",
+		"midfix": null,
+		"suffix": "_285x95.jpg"
+	},
+	{
+		"domain": "wrmf.com",
+		"subdomain": null,
+		"prefix": "/upload/",
+		"midfix": "_Webskin_",
+		"suffix": null
+	},
+	{
+		"domain": "ws.amazon.com",
+		"subdomain": null,
+		"prefix": "/widgets/",
+		"midfix": "=gettrackingid|",
+		"suffix": null
+	},
+	{
+		"domain": "www.infowars.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "xcafe.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".jsx"
+	},
+	{
+		"domain": "xgaming.com",
+		"subdomain": null,
+		"prefix": "/rotate",
+		"midfix": null,
+		"suffix": ".php"
+	},
+	{
+		"domain": "xxxxsextube.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "yardbarker.com",
+		"subdomain": null,
+		"prefix": "/asset/asset_source/",
+		"midfix": "",
+		"suffix": null
+	},
+	{
+		"domain": "ybinst2.ec.yimg.com",
+		"subdomain": null,
+		"prefix": "/ec/",
+		"midfix": null,
+		"suffix": "&Type=Event.CPT&"
+	},
+	{
+		"domain": "yimg.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "300x250",
+		"suffix": null
+	},
+	{
+		"domain": "yimg.com",
+		"subdomain": null,
+		"prefix": "/cv/",
+		"midfix": "/billboard/",
+		"suffix": null
+	},
+	{
+		"domain": "yimg.com",
+		"subdomain": null,
+		"prefix": "/cv/eng/",
+		"midfix": null,
+		"suffix": ".webm"
+	},
+	{
+		"domain": "yimg.com",
+		"subdomain": null,
+		"prefix": "/cv/eng/",
+		"midfix": "/635x100_",
+		"suffix": null
+	},
+	{
+		"domain": "yimg.com",
+		"subdomain": null,
+		"prefix": "/dh/ap/default/",
+		"midfix": "/skins_",
+		"suffix": null
+	},
+	{
+		"domain": "yimg.com",
+		"subdomain": null,
+		"prefix": "/hl/ap/",
+		"midfix": "_takeover_",
+		"suffix": null
+	},
+	{
+		"domain": "yimg.com",
+		"subdomain": null,
+		"prefix": "/hl/ap/default/",
+		"midfix": "_background",
+		"suffix": null
+	},
+	{
+		"domain": "youaresogay.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "youconvertit.com",
+		"subdomain": null,
+		"prefix": "/_images/",
+		"midfix": null,
+		"suffix": "ad.png"
+	},
+	{
+		"domain": "youtube.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "_204",
+		"suffix": null
+	},
+	{
+		"domain": "youtube.com",
+		"subdomain": null,
+		"prefix": "/v/",
+		"midfix": "autoplay",
+		"suffix": null
+	},
+	{
+		"domain": "youwatch.org",
+		"subdomain": null,
+		"prefix": "/vids",
+		"midfix": null,
+		"suffix": ".html"
+	},
+	{
+		"domain": "ypcdn.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "/webyp",
+		"suffix": null
+	},
+	{
+		"domain": "zam.com",
+		"subdomain": null,
+		"prefix": "/i/promos/",
+		"midfix": null,
+		"suffix": "-skin."
+	},
+	{
+		"domain": "zappos.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": null,
+		"suffix": ".cgi"
+	},
+	{
+		"domain": "zemanta.com",
+		"subdomain": null,
+		"prefix": "/reblog_",
+		"midfix": null,
+		"suffix": ".png"
+	},
+	{
+		"domain": "zombiegamer.co.za",
+		"subdomain": null,
+		"prefix": "/wp-content/uploads/",
+		"midfix": "-skin-",
+		"suffix": null
+	},
+	{
+		"domain": "zoomin.tv",
+		"subdomain": null,
+		"prefix": "/video/",
+		"midfix": null,
+		"suffix": ".flv"
+	},
+	{
+		"domain": "ztod.com",
+		"subdomain": null,
+		"prefix": "/flash/wall",
+		"midfix": null,
+		"suffix": ".swf"
+	},
+	{
+		"domain": "zubehost.com",
+		"subdomain": null,
+		"prefix": "/",
+		"midfix": "",
+		"suffix": null
+	}
+]

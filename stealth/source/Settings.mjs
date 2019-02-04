@@ -31,7 +31,8 @@ ${settings.hosts.length} host${settings.hosts.length === 1 ? '' : 's'}, \
 ${settings.peers.length} peer${settings.peers.length === 1 ? '' : 's'}, \
 ${settings.sites.length} site${settings.sites.length === 1 ? '' : 's'}.
 ${settings.blockers.hosts.length} blocked host${settings.blockers.hosts.length === 1 ? '' : 's'}, \
-${settings.blockers.filters.length} blocked url${settings.blockers.filters.length === 1 ? '' : 's'}.
+${settings.blockers.filters.length} filter${settings.blockers.filters.length === 1 ? '' : 's'}, \
+${settings.blockers.optimizers.length} optimizer${settings.blockers.optimizers.length === 1 ? '' : 's'}.
 `;
 
 
@@ -148,8 +149,9 @@ const _read = function(profile, callback) {
 		if (result === true) {
 
 			let results = [
-				_read_file.call(this, profile + '/blockers/hosts.json',   this.blockers.hosts),
-				_read_file.call(this, profile + '/blockers/filters.json', this.blockers.filters),
+				_read_file.call(this, profile + '/blockers/hosts.json',      this.blockers.hosts),
+				_read_file.call(this, profile + '/blockers/filters.json',    this.blockers.filters),
+				_read_file.call(this, profile + '/blockers/optimizers.json', this.blockers.optimizers),
 				_read_file.call(this, profile + '/internet.json', this.internet),
 				_read_file.call(this, profile + '/filters.json',  this.filters),
 				_read_file.call(this, profile + '/hosts.json',    this.hosts),
@@ -261,7 +263,7 @@ const _setup = function(profile, callback) {
 
 					let results = [
 						_setup_dir(profile + '/cache'),
-						_setup_dir(profile + '/download'),
+						_setup_dir(profile + '/requests'),
 						_setup_dir(profile + '/blockers'),
 						_setup_dir(profile + '/scrapers')
 					];
@@ -286,7 +288,7 @@ const _setup = function(profile, callback) {
 
 			let results = [
 				_setup_dir(profile + '/cache'),
-				_setup_dir(profile + '/download'),
+				_setup_dir(profile + '/requests'),
 				_setup_dir(profile + '/blockers'),
 				_setup_dir(profile + '/scrapers')
 			];
@@ -322,11 +324,16 @@ const Settings = function(stealth, profile, defaults) {
 		torify:     false
 	};
 
-	this.blockers = { hosts: [], filters: [] };
-	this.filters  = [];
-	this.hosts    = [];
-	this.peers    = [];
-	this.sites    = [];
+	this.blockers = {
+		hosts:      [],
+		filters:    [],
+		optimizers: []
+	};
+
+	this.filters = [];
+	this.hosts   = [];
+	this.peers   = [];
+	this.sites   = [];
 
 	this.profile = profile;
 

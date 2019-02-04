@@ -158,6 +158,11 @@ const URL = {
 		}
 
 
+		if (domain !== null && /^([a-zA-z0-9\.:-]+)$/.test(domain) === false) {
+			domain = null;
+		}
+
+
 		let check_ipv6 = false;
 		let check_ipv4 = false;
 

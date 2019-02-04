@@ -277,14 +277,7 @@ Server.prototype = {
 
 											request.on('error', err => {
 
-												if (err.type === 'url') {
-
-													this.services.redirect.get({
-														code: 307,
-														path: '/browser/internal/fix-url.html?url=' + encodeURIComponent(url)
-													}, response => HTTP.send(socket, response));
-
-												} else if (err.type === 'cache') {
+												if (err.type === 'cache') {
 
 													this.services.redirect.get({
 														code: 307,
@@ -298,11 +291,11 @@ Server.prototype = {
 														path: '/browser/internal/fix-connect.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
-												} else if (err.type === 'download') {
+												} else if (err.type === 'request') {
 
 													this.services.redirect.get({
 														code: 307,
-														path: '/browser/internal/fix-download.html?url=' + encodeURIComponent(url)
+														path: '/browser/internal/fix-request.html?url=' + encodeURIComponent(url) + '&status=' + err.status
 													}, response => HTTP.send(socket, response));
 
 												} else if (typeof err.code === 'number') {
@@ -321,7 +314,7 @@ Server.prototype = {
 
 											});
 
-											request.on('ready', response => {
+											request.on('response', response => {
 
 												// TODO: How to replace the URLs in
 												// HTML and CSS files correctly with

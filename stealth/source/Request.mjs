@@ -1,8 +1,10 @@
 
-import { Emitter } from './Emitter.mjs';
-import { URL     } from './parser/URL.mjs';
-import { Blocker } from './request/Blocker.mjs';
-// import { Downloader } from './request/Downloader.mjs';
+import { Emitter    } from './Emitter.mjs';
+import { URL        } from './parser/URL.mjs';
+import { Blocker    } from './request/Blocker.mjs';
+import { Downloader } from './request/Downloader.mjs';
+import { Optimizer  } from './request/Optimizer.mjs';
+
 
 
 let _id = 0;
@@ -24,17 +26,15 @@ const Request = function(data, stealth) {
 	this.url      = null;
 	this.timeline = {
 		init:     null,
+		error:    null,
 		kill:     null,
 		cache:    null,
+		block:    null,
 		connect:  null,
-		download: null,
-		filter:   null,
+		request:  null,
 		optimize: null,
-		error:    null,
-		ready:    null
+		response: null
 	};
-
-	this.__downloader = null;
 
 
 	let ref = settings.ref || null;
@@ -53,9 +53,6 @@ const Request = function(data, stealth) {
 	}
 
 
-	// this.emit('error', [ { type: 'url' } ]);
-	// this.emit('ready', [ { headers: {}, payload: null } ]);
-
 	this.on('cache', () => {
 
 		this.stealth.server.services.cache.read(this.ref, response => {
@@ -64,7 +61,7 @@ const Request = function(data, stealth) {
 
 			if (response.payload !== null) {
 				this.response = response;
-				this.emit('ready', [ this.response ]);
+				this.emit('response', [ this.response ]);
 			} else {
 				this.emit('block');
 			}
@@ -94,21 +91,15 @@ const Request = function(data, stealth) {
 					this.emit('error', [{ code: 403 }]);
 
 				} else {
-
 					this.emit('connect');
-
 				}
 
 			});
 
 		} else if (allowed === true) {
-
 			this.emit('connect');
-
 		} else {
-
 			this.emit('error', [{ code: 403 }]);
-
 		}
 
 	});
@@ -118,7 +109,7 @@ const Request = function(data, stealth) {
 		if (this.ref.host !== null) {
 
 			this.timeline.connect = Date.now();
-			this.emit('download');
+			this.emit('request');
 
 		} else {
 
@@ -137,11 +128,9 @@ const Request = function(data, stealth) {
 				}
 
 				if (this.ref.host !== null) {
-					this.emit('download');
+					this.emit('request');
 				} else {
-					this.emit('error', [{
-						type: 'connect'
-					}]);
+					this.emit('error', [{ type: 'connect' }]);
 				}
 
 			});
@@ -150,35 +139,68 @@ const Request = function(data, stealth) {
 
 	});
 
-	this.on('download', () => {
+	this.on('request', () => {
 
-		// TODO: download stuff via net.Socket()
-		// TODO: After download is completed, call cache.save()
-		// TODO: If download was partial, resume download
+		Downloader.check(this.ref, this.config, result => {
 
-		this.emit('error', [{
-			type: 'connect'
-		}]);
+			if (result === true) {
 
-		console.log(this.url, this.config);
+				Downloader.download(this.ref, this.config, request => {
 
-	});
+					if (request !== null) {
 
-	this.on('filter', () => {
+						request.on('error', error => {
+							// error.status = 404
+							this.emit('error', [ error ]);
+						});
 
-		// TODO: filter stuff via optimizer/<MIME>.mjs#filter()
+						request.on('response', response => {
+							console.log(response);
+						});
+
+					} else {
+						this.emit('error', [{ type: 'request' }]);
+					}
+
+				});
+
+			} else {
+				this.emit('error', [{ code: 403 }]);
+			}
+
+		});
 
 	});
 
 	this.on('optimize', () => {
 
-		// TODO: optimize stuff via optimizer/<MIME>.mjs#optimize()
+		Optimizer.check(this.ref, this.config, result => {
+
+			if (result === true) {
+
+				Optimizer.optimize(this.ref, this.config, this.response, response => {
+
+					console.log('optimize()', response);
+
+				});
+
+			} else {
+				this.emit('response', [ this.response ]);
+			}
+
+		});
 
 	});
 
 	this.on('render', () => {
 		// TODO: render stuff with different URLs
 		// and prefix everything to /stealth
+	});
+
+	this.on('response', () => {
+
+		// TODO: write to cache
+
 	});
 
 };

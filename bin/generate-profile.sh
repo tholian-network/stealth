@@ -39,8 +39,25 @@ if [[ -z "$wget_bin" ]]; then
 	exit 1;
 fi;
 
+
+# Host Blockers
 _download "http://winhelp2002.mvps.org/hosts.txt";
 _download "http://someonewhocares.org/hosts/hosts";
+_download "https://filters.adtidy.org/extension/chromium/filters/15.txt"; # AdGuard Domain
+
+_download "https://easylist-downloads.adblockplus.org/fanboy-annoyance.txt";
+_download "https://easylist-downloads.adblockplus.org/fanboy-social.txt";
+_download "https://easylist-downloads.adblockplus.org/easylist_noelemhide.txt";
+_download "https://easylist-downloads.adblockplus.org/easyprivacy.txt";
+
+# Filters and Optimizers
+# XXX: Shittiest Download Servers on the Internet
+# _download "https://filters.adtidy.org/extension/chromium/filters/1.txt";  # AdGuard Russian
+# _download "https://filters.adtidy.org/extension/chromium/filters/2.txt";  # AdGuard Base
+# _download "https://filters.adtidy.org/extension/chromium/filters/4.txt";  # AdGuard Social Media
+# _download "https://filters.adtidy.org/extension/chromium/filters/6.txt";  # AdGuard German
+# _download "https://filters.adtidy.org/extension/chromium/filters/14.txt"; # AdGuard Annoyances
+# _download "https://filters.adtidy.org/extension/chromium/filters/16.txt"; # AdGuard French
 
 
 
@@ -55,6 +72,6 @@ fi;
 
 cd "$root_dir";
 
-"$node_bin" --experimental-modules ./bin/generate-default-profile.mjs;
+"$node_bin" --experimental-modules ./bin/generate-profile.mjs;
 
 
