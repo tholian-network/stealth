@@ -1,6 +1,7 @@
 
 import { Emitter  } from './Emitter.mjs';
 import { Cache    } from './service/Cache.mjs';
+import { Filter   } from './service/Filter.mjs';
 import { Host     } from './service/Host.mjs';
 import { Peer     } from './service/Peer.mjs';
 import { Settings } from './service/Settings.mjs';
@@ -28,6 +29,7 @@ const Client = function(browser) {
 
 	this.services = {
 		cache:    new Cache(browser, this),
+		filter:   new Filter(browser, this),
 		host:     new Host(browser, this),
 		peer:     new Peer(browser, this),
 		settings: new Settings(browser, this),

@@ -7,7 +7,7 @@ import { WS       } from './protocol/WS.mjs';
 import { Cache    } from './service/Cache.mjs';
 import { Error    } from './service/Error.mjs';
 import { File     } from './service/File.mjs';
-// import { Filter   } from './service/Filter.mjs';
+import { Filter   } from './service/Filter.mjs';
 import { Host     } from './service/Host.mjs';
 import { Peer     } from './service/Peer.mjs';
 import { Redirect } from './service/Redirect.mjs';
@@ -99,7 +99,7 @@ const Server = function(stealth, root) {
 		cache:    new Cache(stealth),
 		error:    new Error(stealth),
 		file:     new File(stealth),
-		// filter:   new Filter(stealth),
+		filter:   new Filter(stealth),
 		host:     new Host(stealth),
 		peer:     new Peer(stealth),
 		redirect: new Redirect(stealth),

@@ -22,8 +22,14 @@ Both the requests and responses have the same `headers` format:
 - `method (optional String)` is the name of the method on the service's interface.
 - `event (optional String)` is the name of the event that is `emit()`ed on the service's interface.
 
-The `payload` can be either of the following:
+The `payload request` can be either of the following:
 
+- `Object` when there's a `query()`, `read()`, `refresh()`, `remove()` or `save()` operation.
+- `Array` of `Object`s when there's a `save()` operation (only in the `Filters` API).
+
+The `payload response` can be either of the following:
+
+- `Array` or `null` when there's a `query()` operation.
 - `Object` or `null` when there's a `read()` or `refresh()` operation.
 - `true` or `false` when there's a `remove()` or `save()` operation.
 
@@ -68,7 +74,9 @@ socket.onopen = () => {
 These services are available peer-to-peer.
 
 - [Cache](./services/peer-to-peer/Cache.md)
+- [Filter](./services/peer-to-peer/Filter.md)
 - [Host](./services/peer-to-peer/Host.md)
+- [Peer](./services/peer-to-peer/Peer.md)
 - [Settings](./services/peer-to-peer/Settings.md)
 - [Site](./services/peer-to-peer/Site.md)
 
