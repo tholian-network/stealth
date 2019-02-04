@@ -1,8 +1,4 @@
 
-import { Buffer } from 'buffer';
-
-
-
 const Blocker = {
 
 	check: function(blockers, ref, callback) {

@@ -16,6 +16,7 @@ const _update_session = function(session) {
 	try {
 		document.cookie = 'session=' + session + ';path=/stealth';
 	} catch (err) {
+		// Do nothing
 	}
 
 };

@@ -12,7 +12,7 @@ const _parse = function(payload) {
 		let lines = buffer.map(b => b.trim()).filter(b => b !== '' && !b.startsWith('!') && !b.startsWith('#'));
 		if (lines.length > 0) {
 
-            let blockers = {
+			let blockers = {
 				hosts:      [],
 				filters:    [],
 				optimizers: []
