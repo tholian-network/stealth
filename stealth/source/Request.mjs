@@ -110,16 +110,18 @@ const Request = function(data, stealth) {
 
 		} else {
 
-			this.stealth.server.services.host.read(this.ref, response => {
+			this.stealth.server.services.host.read(Object.assign({}, this.ref), response => {
+
+				console.log('dns response?', response);
 
 				this.timeline.connect = Date.now();
 
 				if (response.payload !== null) {
 
-					if (response.ipv6 !== null) {
-						this.ref.host = response.ipv6;
-					} else if (response.ipv4 !== null) {
-						this.ref.host = response.ipv4;
+					if (response.payload.ipv6 !== null) {
+						this.ref.host = response.payload.ipv6;
+					} else if (response.payload.ipv4 !== null) {
+						this.ref.host = response.payload.ipv4;
 					}
 
 				}

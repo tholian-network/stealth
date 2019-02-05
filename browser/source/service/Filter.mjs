@@ -18,8 +18,8 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 	query: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payload  : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = Object.isObject(payload)      ? payload  : null;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -42,8 +42,8 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payload  : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = Object.isObject(payload)      ? payload  : null;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -66,8 +66,8 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payloads, callback) {
 
-		payloads = payloads instanceof Array      ? payloads : [];
-		callback = typeof callback === 'function' ? callback : null;
+		payloads = Array.isArray(payloads)       ? payloads : [];
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (payloads.length > 0 && callback !== null) {

@@ -1,8 +1,13 @@
 
-import { Emitter  } from './Emitter.mjs';
-import { Client   } from './Client.mjs';
-import { Tab      } from './Tab.mjs';
-import { URL      } from './parser/URL.mjs';
+import { Emitter   } from './Emitter.mjs';
+import { Client    } from './Client.mjs';
+import { Tab       } from './Tab.mjs';
+import { URL       } from './parser/URL.mjs';
+
+// XXX: Necessary for all type validation due to
+// instanceof not working in different frames or
+// sandboxes ... yeah, that kinda fucked.
+import { POLYFILLS } from './POLYFILLS.mjs';
 
 
 
@@ -65,7 +70,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	config: function(url) {
 
-		url = typeof url === 'string' ? url : null;
+		url = String.isString(url) ? url : null;
 
 
 		let mode   = this.mode;
@@ -168,7 +173,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 	kill: function(tab, callback) {
 
 		tab      = tab instanceof Tab             ? Tab      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (tab !== null) {
@@ -177,7 +182,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.tabs.splice(this.tabs.indexOf(tab), 1);
 
-				if (typeof tab.kill === 'function') {
+				if (Function.isFunction(tab.kill)) {
 					tab.kill();
 				}
 
@@ -288,7 +293,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	open: function(url) {
 
-		url = typeof url === 'string' ? url : null;
+		url = String.isString(url) ? url : null;
 
 
 		if (url !== null) {
@@ -323,7 +328,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	parse: function(url) {
 
-		url = typeof url === 'string' ? url : '';
+		url = String.isString(url) ? url : null;
 
 
 		return URL.parse(url);
@@ -346,8 +351,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	show: function(tab, callback) {
 
-		tab      = tab instanceof Tab             ? tab      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		tab      = tab instanceof Tab            ? tab      : null;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (tab !== null) {
@@ -407,7 +412,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	setMode: function(mode) {
 
-		mode = typeof mode === 'string' ? mode : null;
+		mode = String.isString(mode) ? mode : null;
 
 
 		if (mode !== null) {

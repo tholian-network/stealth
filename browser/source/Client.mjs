@@ -47,9 +47,9 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	connect: function(host, port, callback) {
 
-		host     = typeof host === 'string'       ? host     : 'localhost';
-		port     = typeof port === 'number'       ? port     : 65432;
-		callback = typeof callback === 'function' ? callback : null;
+		host     = String.isString(host)         ? host     : 'localhost';
+		port     = Number.isNumber(port)         ? port     : 65432;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (this.__socket !== null) {
@@ -76,7 +76,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				let request = null;
 
-				if (typeof e.data === 'string') {
+				if (String.isString(e.data)) {
 
 					try {
 						request = JSON.parse(e.data);
@@ -107,7 +107,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 					} else if (service !== null && method !== null) {
 
 						let instance = this.services[service] || null;
-						if (instance !== null && typeof instance[method] === 'function') {
+						if (instance !== null && Function.isFunction(instance[method])) {
 							instance[method](request.payload, response => {
 								if (response !== null) {
 									this.__socket.send(JSON.stringify(response, null, '\t'));
@@ -162,7 +162,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function(callback) {
 
-		callback = typeof callback === 'function' ? callback : null;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (this.__socket !== null) {
@@ -189,7 +189,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	send: function(data) {
 
-		data = data instanceof Object ? data : null;
+		data = Object.isObject(data) ? data : null;
 
 
 		if (data !== null) {

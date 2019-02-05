@@ -51,7 +51,7 @@ setTimeout(() => {
 
 		let tabs = [];
 
-		tabs.push(browser.open('https://cookie.engineer'));
+		// tabs.push(browser.open('https://cookie.engineer'));
 		tabs.push(browser.open('https://old.reddit.com/r/programming'));
 		// tabs.push(browser.open('https://www.reddit.com/r/programming'));
 		// tabs.push(browser.open('http://127.0.0.1:80/what/ever.html'));
@@ -63,6 +63,8 @@ setTimeout(() => {
 		browser.show(tabs[tabs.length - 1]);
 
 		window.onbeforeunload = () => browser.disconnect();
+
+		setTimeout(() => browser.setMode('stealth'), 500);
 
 	}
 

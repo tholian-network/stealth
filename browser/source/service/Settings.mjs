@@ -5,13 +5,13 @@ import { Emitter } from '../Emitter.mjs';
 
 const _responsify = function(payload) {
 
-	if (payload instanceof Object) {
+	if (Object.isObject(payload)) {
 
-		payload.internet = payload.internet instanceof Object ? payload.internet : null;
-		payload.filters  = payload.filters  instanceof Array  ? payload.filters  : null;
-		payload.hosts    = payload.hosts    instanceof Array  ? payload.hosts    : null;
-		payload.peers    = payload.peers    instanceof Array  ? payload.peers    : null;
-		payload.sites    = payload.sites    instanceof Array  ? payload.sites    : null;
+		payload.internet = Object.isObject(payload.internet) ? payload.internet : null;
+		payload.filters  = Array.isArray(payload.filters)    ? payload.filters  : null;
+		payload.hosts    = Array.isArray(payload.hosts)      ? payload.hosts    : null;
+		payload.peers    = Array.isArray(payload.peers)      ? payload.peers    : null;
+		payload.sites    = Array.isArray(payload.sites)      ? payload.sites    : null;
 
 		return payload;
 
@@ -37,15 +37,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payload  : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = Object.isObject(payload)      ? payload  : null;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (callback !== null) {
 
 			this.once('read', response => {
 
-				response = response instanceof Object ? _responsify(response) : null;
+				response = Object.isObject(response) ? _responsify(response) : null;
 
 
 				let settings = this.browser.settings;
@@ -92,8 +92,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payload  : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = Object.isObject(payload)      ? payload  : null;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (callback !== null) {
@@ -114,8 +114,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	set: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payload  : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = Object.isObject(payload)      ? payload  : null;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
 		if (payload !== null && callback !== null) {

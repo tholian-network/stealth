@@ -139,8 +139,9 @@ const _read_file = function(path, data) {
 
 };
 
-const _read = function(profile, callback) {
+const _read = function(profile, complete, callback) {
 
+	complete = typeof complete === 'boolean'  ? complete : false;
 	callback = typeof callback === 'function' ? callback : null;
 
 
@@ -149,15 +150,20 @@ const _read = function(profile, callback) {
 		if (result === true) {
 
 			let results = [
-				_read_file.call(this, profile + '/blockers/hosts.json',      this.blockers.hosts),
-				_read_file.call(this, profile + '/blockers/filters.json',    this.blockers.filters),
-				_read_file.call(this, profile + '/blockers/optimizers.json', this.blockers.optimizers),
 				_read_file.call(this, profile + '/internet.json', this.internet),
 				_read_file.call(this, profile + '/filters.json',  this.filters),
 				_read_file.call(this, profile + '/hosts.json',    this.hosts),
 				_read_file.call(this, profile + '/peers.json',    this.peers),
 				_read_file.call(this, profile + '/sites.json',    this.sites)
 			];
+
+
+			if (complete === true) {
+				results.push(_read_file.call(this, profile + '/blockers/hosts.json',      this.blockers.hosts));
+				results.push(_read_file.call(this, profile + '/blockers/filters.json',    this.blockers.filters));
+				results.push(_read_file.call(this, profile + '/blockers/optimizers.json', this.blockers.optimizers));
+			}
+
 
 			let check = results.filter(r => r === true);
 			if (callback !== null) {
@@ -340,7 +346,7 @@ const Settings = function(stealth, profile, defaults) {
 
 	if (defaults !== null) {
 
-		_read.call(this, defaults, result => {
+		_read.call(this, defaults, true, result => {
 
 			if (result === true) {
 
@@ -357,7 +363,7 @@ const Settings = function(stealth, profile, defaults) {
 
 	}
 
-	_read.call(this, this.profile, result => {
+	_read.call(this, this.profile, true, result => {
 
 		if (result === true) {
 
@@ -372,7 +378,7 @@ const Settings = function(stealth, profile, defaults) {
 
 			this.profile = '/tmp/stealth-' + _USER;
 
-			_read.call(this, this.profile, result => {
+			_read.call(this, this.profile, false, result => {
 
 				if (result === true) {
 					console.warn('Stealth Profile loaded from "' + this.profile + '".');
@@ -425,12 +431,13 @@ Settings.prototype = {
 
 	},
 
-	read: function(callback) {
+	read: function(complete, callback) {
 
+		complete = typeof complete === 'boolean'  ? complete : false;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		_read.call(this, this.profile, result => {
+		_read.call(this, this.profile, complete, result => {
 
 			if (callback !== null) {
 				callback(result);
@@ -440,12 +447,13 @@ Settings.prototype = {
 
 	},
 
-	save: function(callback) {
+	save: function(complete, callback) {
 
+		complete = typeof complete === 'boolean'  ? complete : false;
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		_save.call(this, this.profile, result => {
+		_save.call(this, this.profile, complete, result => {
 
 			if (callback !== null) {
 				callback(result);

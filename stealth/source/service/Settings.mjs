@@ -55,7 +55,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 		callback = typeof callback === 'function' ? callback : null;
 
 
-		this.stealth.settings.read(result => {
+		this.stealth.settings.read(false, result => {
 
 			if (callback !== null) {
 
@@ -174,7 +174,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 			});
 
 
-			settings.save(result => {
+			settings.save(false, result => {
 
 				callback({
 					headers: {
