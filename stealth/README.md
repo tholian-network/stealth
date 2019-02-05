@@ -18,6 +18,8 @@ the Stealth Service `/browser/index.html` URL as a Web App).
 - `--profile` is the absolute path to the profile folder.
   The default value is `/home/$USER/Stealth`.
 
+- `--debug` is a boolean flag to toggle loading/debugging of the profile.
+  The default value is `false`.
 
 ## Installation and Usage
 

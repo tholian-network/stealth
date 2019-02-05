@@ -57,7 +57,7 @@ that can serve its own User Interface that is implemented in HTML5 and CSS3.
   allowed features (or media types) to the defaulted current `Stealth Mode`.
 
 - It never requests anything unnecessary. The cache is persistent until the user tells
-  it to refresh manually - or until the website is visited in `Sealth Mode` set to
+  it to refresh manually - or until the website is visited in `Stealth Mode` set to
   `Online` again.
 
 - All downloaded websites and assets can be reused across all `Stealth Browser` peers
