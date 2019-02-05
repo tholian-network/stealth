@@ -26,6 +26,15 @@ audience, the Stealth Browser will initially be released for `MacOS` and `GNU/Li
 The Stealth Browser is both a `Browser` and `Stealth`, which is a Web Scraper/Proxy
 that can serve its own User Interface that is implemented in HTML5 and CSS3.
 
+- It is secure by default, without compromise. It only supports `DNS via HTTPS`,
+  and uses explicitely `https://` first, and fallsback to `http://` only when
+  necessary and only when the website was not MITM-ed.
+
+- It offers intelligent wizards on errors that help fix it. A `DNS` host cache
+  wizard, a web archive download assistant, or a web site mode configuration
+  assistant will help the user to automate everything based on rules, not based
+  on situations.
+
 - It is peer-to-peer and always uses the most efficient way to share resources
   and to reduce bandwidth.
 
