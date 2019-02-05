@@ -45,10 +45,13 @@ that can serve its own User Interface that is implemented in HTML5 and CSS3.
 - It uses so-called optimizers to render only the good parts of HTML and CSS. These
   optimizers make sure that no client or peer ever receives any malicious or unwanted
   content, and it is written on-disk-cache (which is shared later to other peers) to
-  ensure that particularly.
+  ensure that particularly. All optimizers are across all modes, the modes decide
+  what content is included (e.g. `mode >= 'stealth'` includes images and videos).
 
 - It has a `Stealth Mode` that decides what to load, incrementally changing what the
-  requested website is allowed to do.
+  requested website is allowed to do. The mode can be `offline` (load only from cache
+  or locally connected peers), `covert` (load only text files), `stealth` (load only
+  text, images and videos) or `online` (load text, images, videos, downloads and apis).
 
 - It uses whitelist-based `Site Modes` that decide what to load, with incrementally
   allowed features (or media types) to the defaulted current `Stealth Mode`.
