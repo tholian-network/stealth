@@ -22,8 +22,8 @@ _download() {
 
 		cd "$root_dir";
 
-		mkdir -p "$root_dir/profile/cache/$folder";
-		wget "$url" -O "$root_dir/profile/cache/$path";
+		mkdir -p "$root_dir/profile/cache/payload/$folder";
+		wget "$url" -O "$root_dir/profile/cache/payload/$path";
 
 	fi;
 

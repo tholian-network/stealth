@@ -269,7 +269,11 @@ const _setup = function(profile, callback) {
 
 					let results = [
 						_setup_dir(profile + '/cache'),
+						_setup_dir(profile + '/cache/headers'),
+						_setup_dir(profile + '/cache/payload'),
 						_setup_dir(profile + '/requests'),
+						_setup_dir(profile + '/requests/headers'),
+						_setup_dir(profile + '/requests/payload'),
 						_setup_dir(profile + '/blockers'),
 						_setup_dir(profile + '/scrapers')
 					];
@@ -293,8 +297,13 @@ const _setup = function(profile, callback) {
 		} else if (stat.isDirectory()) {
 
 			let results = [
+
 				_setup_dir(profile + '/cache'),
+				_setup_dir(profile + '/cache/headers'),
+				_setup_dir(profile + '/cache/payload'),
 				_setup_dir(profile + '/requests'),
+				_setup_dir(profile + '/requests/headers'),
+				_setup_dir(profile + '/requests/payload'),
 				_setup_dir(profile + '/blockers'),
 				_setup_dir(profile + '/scrapers')
 			];
