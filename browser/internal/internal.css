@@ -24,6 +24,19 @@ body {
 	background: #0f99cb;
 }
 
+::-webkit-scrollbar {
+	width: 4px;
+	border: 0px solid transparent;
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	width: 4px;
+	background: #ffffff;
+}
+
+
+
 article {
 	width: 640px;
 	margin: 64px auto;

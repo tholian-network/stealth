@@ -29,13 +29,13 @@ aside#site.active {
 }
 
 aside#site::-webkit-scrollbar {
-	width: 2px;
+	width: 4px;
 	border: 0px solid transparent;
 	background: transparent;
 }
 
 aside#site::-webkit-scrollbar-thumb {
-	width: 2px;
+	width: 4px;
 	background: #ffffff;
 }
 

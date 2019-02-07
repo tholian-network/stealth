@@ -35,6 +35,21 @@ main#main webview#main-webview {
 	border: 0px solid transparent;
 }
 
+::-webkit-scrollbar,
+main#main iframe#main-webview html::-webkit-scrollbar,
+main#main webview#main-webview html::-webkit-scrollbar {
+	width: 4px !important;
+	border: 0px solid transparent !important;
+	background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb,
+main#main iframe#main-webview html::-webkit-scrollbar-thumb,
+main#main webview#main-webview html::-webkit-scrollbar-thumb {
+	width: 4px !important;
+	background: #ffffff !important;
+}
+
 aside#navi.active + main#main {
 	left: 192px;
 }
