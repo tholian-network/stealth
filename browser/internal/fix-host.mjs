@@ -33,7 +33,7 @@ const _render_host = (host) => `
 <td>${host.domain}</td>
 <td>${(host.ipv4 !== null ? host.ipv4 : '(none)')}</td>
 <td>${(host.ipv6 !== null ? host.ipv6 : '(none)')}</td>
-<td><button class="icon-refresh" data-method="refresh"></button></td>
+<td><button data-action="refresh"></button></td>
 `;
 
 const _update = function(host) {
@@ -68,35 +68,25 @@ const WIZARD = {
 			elements.hosts.addEventListener('click', e => {
 
 				let element = e.target;
-				let state   = element.className;
-				let tagname = element.tagName.toLowerCase();
-				if (tagname === 'button') {
+				let action  = element.getAttribute('data-action') || null;
 
-					let method  = element.getAttribute('data-method') || null;
-					let service = browser.client.services.host;
-					if (service !== null && typeof service[method] === 'function') {
+				if (action === 'refresh') {
 
-						element.className += ' busy';
+					element.className = 'busy';
 
-						service[method]({
-							domain:    REFERENCE.domain,
-							subdomain: REFERENCE.subdomain,
-							host:      REFERENCE.host
-						}, response => {
+					browser.client.services.host.refresh({
+						domain:    REFERENCE.domain,
+						subdomain: REFERENCE.subdomain,
+						host:      REFERENCE.host
+					}, response => {
 
-							element.className = state;
+						element.className = '';
 
-							if (typeof response === 'boolean') {
-								// Do nothing
-							} else if (response !== null) {
-								_update(response);
-							}
+						if (response !== null) {
+							_update(response);
+						}
 
-						});
-
-					} else {
-						element.setAttribute('disabled', true);
-					}
+					});
 
 				}
 

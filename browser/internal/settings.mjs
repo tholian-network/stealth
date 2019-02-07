@@ -16,29 +16,35 @@ const elements = {
 
 
 const _render_host = (host) => `
-<td><input type="text" value="${host.domain}"></td>
-<td><input type="text" placeholder="IPv4" value="${(host.ipv4 !== null ? host.ipv4 : '')}"></td>
-<td><input type="text" placeholder="IPv6" value="${(host.ipv6 !== null ? host.ipv6 : '')}"></td>
-<td><button class="icon-refresh"></button><button class="icon-remove"></button></td>
+<tr>
+	<td>${host.domain}</td>
+	<td><input type="text" placeholder="IPv4" value="${(host.ipv4 !== null ? host.ipv4 : '')}"></td>
+	<td><input type="text" placeholder="IPv6" value="${(host.ipv6 !== null ? host.ipv6 : '')}"></td>
+	<td><button data-action="refresh"></button><button data-action="remove"></button></td>
+</tr>
 `;
 
 const _render_peer = (peer) => `
-<td><input type="text" value="${peer.domain}"></td>
-<td><button class="icon-${peer.capacity}" disabled></button></td>
-<td><button class="icon-${peer.mode}"></button></td>
-<td><button class="icon-refresh"></button><button class="icon-remove"></button></td>
+<tr>
+	<td>${peer.domain}</td>
+	<td><button data-connection="${peer.connection}"></button></td>
+	<td><button data-status="${peer.status}"></button></td>
+	<td><button data-action="refresh"></button><button data-action="remove"></button></td>
+</tr>
 `;
 
 const _render_site = (site) => `
-<td><input id="sites-list-domain" type="text" placeholder="Domain" value="${site.domain}"></td>
-<td class="site-mime">
-	<button class="icon-text  ${site.mime.text  === true ? 'active' : ''}" title="Text"></button>
-	<button class="icon-image ${site.mime.image === true ? 'active' : ''}" title="Image"></button>
-	<button class="icon-video ${site.mime.video === true ? 'active' : ''}" title="Video"></button>
-	<button class="icon-other ${site.mime.other === true ? 'active' : ''}" title="Other"></button>
-</td>
-<td class="site-mode"><button class="icon-${site.mode}" title="${site.mode}" disabled></button></td>
-<td><button class="icon-remove"></button></td>
+<tr>
+	<td>${site.domain}</td>
+	<td>
+		<button data-mode="text"  class="${site.mode.text  === true ? 'active' : ''}" title="Allow/Disallow Text"></button>
+		<button data-mode="image" class="${site.mode.image === true ? 'active' : ''}" title="Allow/Disallow Image"></button>
+		<button data-mode="audio" class="${site.mode.audio === true ? 'active' : ''}" title="Allow/Disallow Audio"></button>
+		<button data-mode="video" class="${site.mode.video === true ? 'active' : ''}" title="Allow/Disallow Video"></button>
+		<button data-mode="other" class="${site.mode.other === true ? 'active' : ''}" title="Allow/Disallow Other"></button>
+	</td>
+	<td><button data-action="remove"></button></td>
+</tr>
 `;
 
 
@@ -66,35 +72,14 @@ const _update = function(settings) {
 
 	});
 
-	Array.from(elements.hosts.querySelectorAll('tr')).forEach(row => {
-		row.parentNode.removeChild(row);
-	});
+	elements.hosts.innerHTML = '';
+	elements.hosts.innerHTML = settings.hosts.map(h => _render_host(h)).join('');
 
-	settings.hosts.map(host => _render_host(host)).forEach(html => {
-		let row = doc.createElement('tr');
-		row.innerHTML = html;
-		elements.hosts.appendChild(row);
-	});
+	elements.peers.innerHTML = '';
+	elements.peers.innerHTML = settings.peers.map(p => _render_peer(p)).join('');
 
-	Array.from(elements.peers.querySelectorAll('tr')).forEach(row => {
-		row.parentNode.removeChild(row);
-	});
-
-	settings.peers.map(peer => _render_peer(peer)).forEach(html => {
-		let row = doc.createElement('tr');
-		row.innerHTML = html;
-		elements.peers.appendChild(row);
-	});
-
-	Array.from(elements.sites.querySelectorAll('tr')).forEach(row => {
-		row.parentNode.removeChild(row);
-	});
-
-	settings.sites.map(site => _render_site(site)).forEach(html => {
-		let row = doc.createElement('tr');
-		row.innerHTML = html;
-		elements.sites.appendChild(row);
-	});
+	elements.sites.innerHTML = '';
+	elements.sites.innerHTML = settings.sites.map(s => _render_site(s)).join('');
 
 };
 

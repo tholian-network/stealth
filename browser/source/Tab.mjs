@@ -11,7 +11,16 @@ const Tab = function(data) {
 
 	this.id       = '' + _id++;
 	this.history  = [];
-	this.config   = settings.config || null;
+	this.config   = settings.config || {
+		domain: null,
+		mode: {
+			text:  false,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	};
 	this.ref      = null;
 	this.requests = [];
 	this.url      = null;

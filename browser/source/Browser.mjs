@@ -16,12 +16,7 @@ const Browser = function() {
 	Emitter.call(this);
 
 
-	this.client = new Client(this);
-	this.mode   = 'offline';
-	this.tab    = null;
-	this.tabs   = [];
-
-
+	this.client   = new Client(this);
 	this.settings = {
 		internet: {
 			connection: 'mobile',
@@ -32,16 +27,10 @@ const Browser = function() {
 		peers:   [],
 		sites:   []
 	};
+	this.tab      = null;
+	this.tabs     = [];
 
 };
-
-
-export const MODES = Browser.MODES = [
-	'offline',
-	'covert',
-	'stealth',
-	'online'
-];
 
 
 Browser.prototype = Object.assign({}, Emitter.prototype, {
@@ -68,18 +57,54 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	config: function(url) {
+	connect: function(host, port, callback) {
+
+		host     = String.isString(host)         ? host     : null;
+		port     = Number.isNumber(port)         ? port     : null;
+		callback = Function.isFunction(callback) ? callback : null;
+
+
+		let client = this.client;
+		if (client !== null && host !== null && port !== null) {
+
+			client.connect(host, port, result => {
+				if (result === true) {
+					client.services.settings.read(null, result => {
+
+						if (callback !== null) {
+							callback(result);
+						}
+
+					});
+				}
+			});
+
+		} else if (callback !== null) {
+			callback(false);
+		}
+
+	},
+
+	disconnect: function() {
+
+		let client = this.client;
+		if (client !== null) {
+			client.disconnect();
+		}
+
+	},
+
+	get: function(url) {
 
 		url = String.isString(url) ? url : null;
 
 
-		let mode   = this.mode;
 		let config = {
 			domain: null,
-			mode:   mode,
-			mime:   {
+			mode:   {
 				text:  false,
 				image: false,
+				audio: false,
 				video: false,
 				other: false
 			}
@@ -98,10 +123,18 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			}
 
+			let rprotocol = ref.protocol || null;
+			if (rprotocol === 'stealth') {
 
-			if (rdomain !== null) {
+				config.mode.text  = true;
+				config.mode.image = true;
+				config.mode.audio = true;
+				config.mode.video = true;
+				config.mode.other = true;
 
-				let sites = this.settings.sites.filter(cfg => rdomain.endsWith(cfg.domain));
+			} else if (rdomain !== null) {
+
+				let sites = this.settings.sites.filter(s => rdomain.endsWith(s.domain));
 				if (sites.length > 1) {
 
 					return sites.sort((a, b) => {
@@ -120,59 +153,13 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
-
-		if (mode === 'online') {
-			config.mime.text  = true;
-			config.mime.image = true;
-			config.mime.video = true;
-			config.mime.other = true;
-		} else if (mode === 'stealth') {
-			config.mime.text  = true;
-			config.mime.image = true;
-			config.mime.video = true;
-			config.mime.other = false;
-		} else if (mode === 'covert') {
-			config.mime.text  = true;
-			config.mime.image = false;
-			config.mime.video = false;
-			config.mime.other = false;
-		} else if (mode === 'offline') {
-			config.mime.text  = false;
-			config.mime.image = false;
-			config.mime.video = false;
-			config.mime.other = false;
-		}
-
-
 		return config;
-
-	},
-
-	connect: function(host, port) {
-
-		let client = this.client;
-		if (client !== null) {
-			client.connect(host, port, result => {
-				if (result === true) {
-					client.services.settings.read(null);
-				}
-			});
-		}
-
-	},
-
-	disconnect: function() {
-
-		let client = this.client;
-		if (client !== null) {
-			client.disconnect();
-		}
 
 	},
 
 	kill: function(tab, callback) {
 
-		tab      = tab instanceof Tab             ? Tab      : null;
+		tab      = tab instanceof Tab            ? tab      : null;
 		callback = Function.isFunction(callback) ? callback : null;
 
 
@@ -230,6 +217,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 				this.tab.url = url;
+				this.tab.ref = this.parse(url);
 
 				let index2 = this.tab.history.indexOf(url);
 				if (index2 !== -1) {
@@ -307,7 +295,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			} else {
 
 				tab = new Tab({
-					config: this.config(ref.url),
+					config: this.get(ref.url),
 					ref:    ref,
 					url:    ref.url
 				});
@@ -349,10 +337,122 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	show: function(tab, callback) {
+	set: function(config) {
 
-		tab      = tab instanceof Tab            ? tab      : null;
-		callback = Function.isFunction(callback) ? callback : null;
+		config = Object.isObject(config) ? config : null;
+
+
+		if (config !== null && Object.isObject(config.mode)) {
+
+			let domain = config.domain || null;
+			if (domain !== null) {
+
+				let tmp1 = this.get(domain);
+				let tmp2 = {
+					domain: config.domain,
+					mode:   {
+						text:  false,
+						image: false,
+						audio: false,
+						video: false,
+						other: false
+					}
+				};
+
+				Object.keys(config.mode).forEach(type => {
+					tmp2.mode[type] = config.mode[type] === true;
+				});
+
+
+				config = null;
+
+				if (tmp1.domain === null) {
+
+					config = tmp2;
+					this.settings.sites.push(config);
+					this.client.services.site.save(config, () => {});
+
+				} else if (tmp1.domain === tmp2.domain) {
+
+					config = tmp1;
+
+					let diff = false;
+
+					Object.keys(tmp1.mode).forEach(type => {
+						if (tmp1.mode[type] !== tmp2.mode[type]) {
+							tmp1.mode[type] = tmp2.mode[type];
+							diff = true;
+						}
+					});
+
+					if (diff === true) {
+						this.client.services.site.save(tmp1, () => {});
+					}
+
+				} else if (tmp1.domain !== tmp2.domain) {
+
+					config = tmp2;
+					this.settings.sites.push(config);
+					this.client.services.site.save(config, () => {});
+
+				}
+
+
+				if (config !== null) {
+
+					this.tabs.forEach(tab => {
+
+						let tconfig = tab.config;
+						if (tconfig.domain !== null && config.domain !== null) {
+
+							if (
+								tconfig.domain === config.domain
+								&& tconfig !== config
+							) {
+								tab.config = config;
+							}
+
+						} else if (tconfig.domain === null && config.domain !== null) {
+
+							let tdomain = tab.ref.domain || null;
+							if (tdomain !== null) {
+
+								let tsubdomain = tab.ref.subdomain || null;
+								if (tsubdomain !== null) {
+									tdomain = tsubdomain + '.' + tdomain;
+								}
+
+								if (tdomain === config.domain && tconfig !== config) {
+									tab.config = config;
+								}
+
+							}
+
+						}
+
+					});
+
+					if (this.tab !== null && this.tab.config === config) {
+						this.emit('change', [ this.tab ]);
+					}
+
+				}
+
+
+				return true;
+
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	show: function(tab) {
+
+		tab = tab instanceof Tab ? tab : null;
 
 
 		if (tab !== null) {
@@ -366,14 +466,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			if (this.tab !== tab) {
-
 				this.tab = tab;
-				this.emit('show', [ tab, this.tabs ]);
-
-				if (callback !== null) {
-					callback(tab);
-				}
-
+				this.emit('show', [ this.tab, this.tabs ]);
 			}
 
 			return true;
@@ -391,52 +485,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				this.tab = null;
 			}
 
-			if (callback !== null) {
-				callback(tab);
-			}
-
 			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	stop: function() {
-
-		console.log('stop(): IMPLEMENT ME');
-
-	},
-
-	setMode: function(mode) {
-
-		mode = String.isString(mode) ? mode : null;
-
-
-		if (mode !== null) {
-
-			mode = mode.toLowerCase();
-
-			if (MODES.includes(mode)) {
-
-				this.client.services.settings.set({
-					mode: mode
-				}, result => {
-
-					if (result === true) {
-
-						this.mode = mode;
-						this.emit('mode', [ this.mode ]);
-
-					}
-
-				});
-
-				return true;
-
-			}
 
 		}
 

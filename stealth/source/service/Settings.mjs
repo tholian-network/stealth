@@ -21,20 +21,6 @@ const _payloadify = function(payload) {
 
 };
 
-const _settify = function(payload) {
-
-	if (payload instanceof Object) {
-
-		payload.mode = typeof payload.mode === 'string' ? payload.mode : null;
-
-		return payload;
-
-	}
-
-	return null;
-
-};
-
 
 
 const Settings = function(stealth) {
@@ -192,41 +178,6 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 				headers: {
 					service: 'settings',
 					event:   'save'
-				},
-				payload: false
-			});
-
-		}
-
-	},
-
-	set: function(payload, callback) {
-
-		payload  = payload instanceof Object      ? _settify(payload) : null;
-		callback = typeof callback === 'function' ? callback          : null;
-
-
-		if (payload !== null && callback !== null) {
-
-			if (payload.mode !== null) {
-				this.stealth.setMode(payload.mode);
-			}
-
-
-			callback({
-				headers: {
-					service: 'settings',
-					event:   'set'
-				},
-				payload: true
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'settings',
-					event:   'set'
 				},
 				payload: false
 			});

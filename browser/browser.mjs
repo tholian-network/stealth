@@ -46,25 +46,25 @@ setTimeout(() => {
 	let browser = window.browser || null;
 	if (browser !== null) {
 
-		browser.connect(_HOST, _PORT);
+		browser.connect(_HOST, _PORT, result => {
 
+			let tabs = [];
 
-		let tabs = [];
+			// tabs.push(browser.open('https://cookie.engineer'));
+			tabs.push(browser.open('https://old.reddit.com/r/programming'));
+			// tabs.push(browser.open('https://www.reddit.com/r/programming'));
+			// tabs.push(browser.open('http://127.0.0.1:80/what/ever.html'));
+			// tabs.push(browser.open('http://127.0.0.1:123/what/ever.html'));
+			// tabs.push(browser.open('https://github.com:1234/what/ever.html'));
+			// tabs.push(browser.open('http://[::1]:8080/what/ever.html'));
+			// tabs.push(browser.open('stealth:settings'));
+			tabs.push(browser.open('stealth:welcome'));
 
-		// tabs.push(browser.open('https://cookie.engineer'));
-		tabs.push(browser.open('https://old.reddit.com/r/programming'));
-		// tabs.push(browser.open('https://www.reddit.com/r/programming'));
-		// tabs.push(browser.open('http://127.0.0.1:80/what/ever.html'));
-		// tabs.push(browser.open('http://127.0.0.1:123/what/ever.html'));
-		// tabs.push(browser.open('https://github.com:1234/what/ever.html'));
-		// tabs.push(browser.open('http://[::1]:8080/what/ever.html'));
-		// tabs.push(browser.open('stealth:settings'));
+			browser.show(tabs[tabs.length - 1]);
 
-		browser.show(tabs[tabs.length - 1]);
+		});
 
 		window.onbeforeunload = () => browser.disconnect();
-
-		setTimeout(() => browser.setMode('stealth'), 500);
 
 	}
 

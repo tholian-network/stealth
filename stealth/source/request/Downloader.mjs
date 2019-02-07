@@ -122,7 +122,7 @@ const Downloader = {
 			let type     = ref.mime.type;
 
 			if (protocol === 'https' || protocol === 'http') {
-				callback(config.mime[type] === true);
+				callback(config.mode[type] === true);
 			} else {
 				callback(false);
 			}
@@ -145,7 +145,7 @@ const Downloader = {
 			let protocol = ref.protocol;
 			let type     = ref.mime.type;
 
-			let allowed = config.mime[type] === true;
+			let allowed = config.mode[type] === true;
 			if (allowed === true) {
 				callback(new _Request(ref));
 			} else {

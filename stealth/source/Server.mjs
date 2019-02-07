@@ -224,7 +224,6 @@ Server.prototype = {
 										let { browser, system } = _get_useragent(headers['user-agent'] || '');
 										let session = new Session({
 											browser: browser,
-											mode:    this.stealth.mode,
 											socket:  socket,
 											system:  system
 										});
@@ -235,6 +234,8 @@ Server.prototype = {
 											if (index !== -1) {
 												this.stealth.sessions.splice(index, 1);
 											}
+
+											session.kill();
 
 										});
 

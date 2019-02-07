@@ -118,8 +118,8 @@
 				<thead>
 					<tr>
 						<th>Domain</th>
-						<th>Capacity</th>
-						<th>Mode</th>
+						<th>Connection</th>
+						<th>Status</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -127,25 +127,12 @@
 				<tfoot>
 					<tr>
 						<td><input id="peers-domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
-						<td><button id="peers-capacity" class="icon-unknown"></button></td>
-						<td><button id="peers-mode" class="icon-offline"></button></td>
-						<td><button id="peers-confirm" class="icon-confirm"></button></td>
+						<td><button id="peers-connection" data-connection="unknown" disabled></button></td>
+						<td><button id="peers-status" data-status="disconnected" disabled></button></td>
+						<td><button id="peers-refresh" data-action="refresh"></button></td>
 					</tr>
 				</tfoot>
 			</table>
-		</article>
-		<article id="plugins">
-			<h3>Plugins</h3>
-			<p>
-				The Stealth Browser offers a Plugin API that allows to more
-				efficiently query websites and their data using their API
-				instead of downloading and filtering the HTML file and its
-				linked resources.
-				<br><br>
-				If a plugin is selected, it will be used for every request
-				that leads to its matching domain.
-			</p>
-			<p><b>... Coming Soon ...</b></p>
 		</article>
 		<article id="sites">
 			<h3>Sites</h3>
@@ -163,8 +150,7 @@
 				<thead>
 					<tr>
 						<th>Domain</th>
-						<th>Media</th>
-						<th>Mode</th>
+						<th>Site Mode</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -172,20 +158,20 @@
 				<tfoot>
 					<tr>
 						<td><input id="sites-domain" type="text" placeholder="Domain"></td>
-						<td id="sites-mime">
-							<button class="icon-text" title="Text"></button>
-							<button class="icon-image" title="Image"></button>
-							<button class="icon-video" title="Video"></button>
-							<button class="icon-other" title="Other"></button>
+						<td id="sites-mode">
+							<button data-mode="text"  title="Allow/Disallow Text"></button>
+							<button data-mode="image" title="Allow/Disallow Image"></button>
+							<button data-mode="audio" title="Allow/Disallow Audio"></button>
+							<button data-mode="video" title="Allow/Disallow Video"></button>
+							<button data-mode="other" title="Allow/Disallow Other"></button>
 						</td>
-						<td><button id="sites-mode" class="icon-offline" title="Offline" disabled></button></td>
-						<td><button id="sites-confirm" class="icon-confirm"></button></td>
+						<td><button id="sites-confirm" data-action="confirm"></button></td>
 					</tr>
 				</tfoot>
 			</table>
 		</article>
 		<footer>
-			<button id="settings-confirm" class="icon-confirm">Save Changes</button>
+			<button id="settings-confirm" data-action="confirm">Save Changes</button>
 		</footer>
 		<script type="module" src="settings.mjs"></script>
 	</body>

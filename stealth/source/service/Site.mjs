@@ -1,59 +1,7 @@
 
-import { MODES   } from '../Stealth.mjs';
 import { Emitter } from '../Emitter.mjs';
 
 
-
-const _get_mime = function(mode) {
-
-	let mime = {
-		text:  false,
-		image: false,
-		video: false,
-		other: false
-	};
-
-	if (mode === 'online') {
-		mime.text  = true;
-		mime.image = true;
-		mime.video = true;
-		mime.other = true;
-	} else if (mode === 'stealth') {
-		mime.text  = true;
-		mime.image = true;
-		mime.video = true;
-		mime.other = false;
-	} else if (mode === 'covert') {
-		mime.text  = true;
-		mime.image = false;
-		mime.video = false;
-		mime.other = false;
-	} else if (mode === 'offline') {
-		mime.text  = false;
-		mime.image = false;
-		mime.video = false;
-		mime.other = false;
-	}
-
-	return mime;
-
-};
-
-const _get_mode = function(text, image, video, other) {
-
-	let mode = 'offline';
-
-	if (other === true) {
-		mode = 'online';
-	} else if (image === true || video === true) {
-		mode = 'stealth';
-	} else if (text === true) {
-		mode = 'covert';
-	}
-
-	return mode;
-
-};
 
 const _payloadify = function(payload) {
 
@@ -63,28 +11,13 @@ const _payloadify = function(payload) {
 		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
 		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
 
-		if (payload.mime instanceof Object) {
+		if (payload.mode instanceof Object) {
 
-			let text  = payload.mime.text  || false;
-			let image = payload.mime.image || false;
-			let video = payload.mime.video || false;
-			let other = payload.mime.other || false;
-
-			if (
-				typeof text === 'boolean'
-				&& typeof image === 'boolean'
-				&& typeof video === 'boolean'
-				&& typeof other === 'boolean'
-			) {
-				payload.mode = _get_mode(text, image, video, other);
-			}
-
-		} else if (typeof payload.mode === 'string') {
-
-			let mode = payload.mode;
-			if (MODES.includes(mode)) {
-				payload.mime = _get_mime(mode);
-			}
+			payload.mode.text  = typeof payload.mode.text === 'boolean'  ? payload.mode.text  : false;
+			payload.mode.image = typeof payload.mode.image === 'boolean' ? payload.mode.image : false;
+			payload.mode.audio = typeof payload.mode.audio === 'boolean' ? payload.mode.audio : false;
+			payload.mode.video = typeof payload.mode.video === 'boolean' ? payload.mode.video : false;
+			payload.mode.other = typeof payload.mode.other === 'boolean' ? payload.mode.other : false;
 
 		}
 
@@ -238,11 +171,11 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (site !== null) {
 
-				site.mode       = payload.mode       || 'offline';
-				site.mime.text  = payload.mime.text  || false;
-				site.mime.image = payload.mime.image || false;
-				site.mime.video = payload.mime.video || false;
-				site.mime.other = payload.mime.other || false;
+				site.mode.text  = payload.mode.text  || false;
+				site.mode.image = payload.mode.image || false;
+				site.mode.audio = payload.mode.audio || false;
+				site.mode.video = payload.mode.video || false;
+				site.mode.other = payload.mode.other || false;
 
 				settings.save();
 
@@ -255,12 +188,12 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 				site = {
 					domain: payload.domain,
-					mode:   payload.mode || 'offline',
-					mime:   {
-						text:  payload.mime.text  || false,
-						image: payload.mime.image || false,
-						video: payload.mime.video || false,
-						other: payload.mime.other || false
+					mode:   {
+						text:  payload.mode.text  || false,
+						image: payload.mode.image || false,
+						audio: payload.mode.audio || false,
+						video: payload.mode.video || false,
+						other: payload.mode.other || false
 					}
 				};
 

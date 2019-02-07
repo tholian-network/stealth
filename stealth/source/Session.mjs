@@ -113,7 +113,7 @@ Session.prototype = {
 
 				});
 
-				log('session #' + this.id + ' tab #' + tab + ' tracks ' + request.url);
+				log('session #' + this.id + ' tab #' + tab + ' requests ' + request.url);
 
 				cache.push(request);
 
@@ -131,6 +131,15 @@ Session.prototype = {
 
 			this.socket.end();
 			this.socket = null;
+
+
+			for (let tab in this.tabs) {
+
+				this.tabs[tab].forEach(request => {
+					log('session #' + this.id + ' tab #' + tab + ' remains ' + request.url);
+				});
+
+			}
 
 			log('session #' + this.id + ' disconnected.');
 

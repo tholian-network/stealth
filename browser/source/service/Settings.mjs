@@ -128,7 +128,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 					method:  'set'
 				},
 				payload: {
-					mode: payload.mode || null
+					config: payload.config || null
 				}
 			});
 

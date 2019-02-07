@@ -67,21 +67,16 @@ aside#navi button[title^="stealth:"]:before {
 	display: inline-block;
 	width: 1em;
 	margin-right: 8px;
-	font-family: 'fontello';
+	font-family: 'icon';
 	text-align: center;
 	vertical-align: middle;
 	speak: none;
 }
 
-aside#navi button[title^="http:"]:before    { content: '\f13e'; }
-aside#navi button[title^="https:"]:before   { content: '\e808'; }
+aside#navi button[title]:before             { content: '\f128'; }
+aside#navi button[title^="http:"]:before    { content: '\e641'; }
+aside#navi button[title^="https:"]:before   { content: '\e897'; }
 aside#navi button[title^="stealth:"]:before { content: '\f197'; }
-
-aside#navi button[data-mode="offline"]:before { content: '\e80e'; transform: rotate(45deg) scale(0.75) translate(0px, 2px); }
-aside#navi button[data-mode="covert"]:before  { content: '\f0fb'; }
-aside#navi button[data-mode="stealth"]:before { content: '\f197'; }
-aside#navi button[data-mode="online"]:before  { content: '\f135'; transform: rotate(45deg) scale(1.25) translate(-2px, 2px); }
-
 
 aside#navi button.active {
 	color: #ffffff;

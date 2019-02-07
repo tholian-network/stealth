@@ -1,22 +1,21 @@
 
-aside#site-modes,
-aside#site-requests {
+aside#site {
 	display: block;
 	position: fixed;
-	min-width: calc(298px - 16px);
-	width: 33%;
-	/* width: calc(298px - 16px); */
+	width: auto;
 	height: auto;
 	top: 49px;
 	right: 0px;
 	bottom: 0px;
-	left: auto;
+	left: 0px;
 	margin: 0px;
-	padding: 8px;
+	padding: 32px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-weight: normal;
 	background: #303030;
 	border: 0px solid transparent;
-	border-left: 1px solid #666666;
-	transform: translate(calc(100% - 1px), 0px);
+	transform: translate(100%, 0px);
 	transition: 250ms transform ease-out;
 	z-index: 100;
 	user-select: none;
@@ -24,27 +23,36 @@ aside#site-requests {
 	overflow-y: auto;
 }
 
-aside#site-modes.active,
-aside#site-requests.active {
+aside#site.active {
 	transform: translate(0px, 0px);
 	z-index: 101;
 }
 
-aside#site-modes::-webkit-scrollbar,
-aside#site-requests::-webkit-scrollbar {
+aside#site::-webkit-scrollbar {
 	width: 2px;
 	border: 0px solid transparent;
 	background: transparent;
 }
 
-aside#site-modes::-webkit-scrollbar-thumb,
-aside#site-requests::-webkit-scrollbar-thumb {
+aside#site::-webkit-scrollbar-thumb {
 	width: 2px;
 	background: #ffffff;
 }
 
-aside#site-modes h3,
-aside#site-requests h3 {
+aside#site article {
+	width: 640px;
+	margin: 64px auto;
+	padding: 32px;
+	background: #404040;
+	border: 1px solid #666666;
+	border-radius: 8px;
+}
+
+aside#site article > *:first-child {
+	margin-top: 0px;
+}
+
+aside#site h3 {
 	display: block;
 	margin: 1em 0px 1em 0px;
 	padding: 0px;
@@ -55,42 +63,7 @@ aside#site-requests h3 {
 	text-align: center;
 }
 
-aside#site-modes table,
-aside#site-requests table {
-	width: 100%;
-	color: #ffffff;
-	font-family: 'museo';
-	font-size: 16px;
-	font-weight: normal;
-	text-align: center;
-}
-
-aside#site-modes table tr th,
-aside#site-requests table tr th {
-	padding: 0px 0px 0.5em 0px;
-	font-size: 20px;
-}
-
-aside#site-modes table tr td,
-aside#site-requests table tr td {
-	padding: 4px;
-	font-size: 16px;
-	border: 1px solid #666666;
-	transition: 250ms all ease-out;
-}
-
-aside#site-modes table tr:hover td,
-aside#site-requests table tr:hover td {
-	border: 1px solid #ffffff;
-}
-
-aside#site-modes table tr td:first-child,
-aside#site-requests table tr td:first-child {
-	text-align: left;
-}
-
-aside#site-modes button,
-aside#site-requests button {
+aside#site button {
 	display: inline-block;
 	min-width: 32px;
 	margin: 0px;
@@ -110,48 +83,99 @@ aside#site-requests button {
 	cursor: pointer;
 }
 
-aside#site-modes button[disabled],
-aside#site-modes button[disabled]:hover,
-aside#site-requests button[disabled],
-aside#site-requests button[disabled]:hover {
+aside#site button[disabled],
+aside#site button[disabled]:hover {
 	color: #666666;
 	background: transparent;
 	cursor: default;
 }
 
-aside#site-modes button:hover,
-aside#site-requests button:hover {
+aside#site button:hover {
 	color: #ffffff;
 	background: rgba(255,255,255,0.1);
 }
 
-aside#site-modes button.active,
-aside#site-requests button.active {
+aside#site button.active {
 	color: #ffffff;
 }
 
-aside#site-modes button:before,
-aside#site-requests button:before {
+aside#site button[data-action]:before,
+aside#site button[data-event]:before,
+aside#site button[data-mode]:before {
 	display: inline-block;
 	min-width: 32px;
-	font-family: 'fontello';
+	font-family: 'icon';
 	text-align: center;
 	speak: none;
 	-webkit-font-smoothing: antialiased;
 }
 
-aside#site-modes td.site-mime button.icon-text:before  { content: '\f0f6'; }
-aside#site-modes td.site-mime button.icon-image:before { content: '\e812'; }
-aside#site-modes td.site-mime button.icon-video:before { content: '\e813'; }
-aside#site-modes td.site-mime button.icon-other:before { content: '\e806'; }
+button[data-action="confirm"]:before { content: '\e5ca'; }
+button[data-action="refresh"]:before { content: '\e5d5'; }
+button[data-action="remove"]:before  { content: '\e5cd'; }
 
-aside#site-modes td.site-mode button,
-aside#site-modes td.site-mode button:hover {
+button[data-event="init"]:before     { content: '\e037'; }
+button[data-event="error"]:before    { content: '\e5cd'; }
+button[data-event="kill"]:before     { content: '\e5cd'; }
+button[data-event="cache"]:before    { content: '\e84f'; }
+button[data-event="block"]:before    { content: '\e32a'; }
+button[data-event="connect"]:before  { content: '\e1e2'; }
+button[data-event="request"]:before  { content: '\e2c6'; }
+button[data-event="optimize"]:before { content: '\e86a'; }
+button[data-event="response"]:before { content: '\e884'; }
+
+aside#site button[data-mode="text"]:before  { content: '\e06f'; }
+aside#site button[data-mode="image"]:before { content: '\e432'; }
+aside#site button[data-mode="audio"]:before { content: '\e049'; }
+aside#site button[data-mode="video"]:before { content: '\e404'; }
+aside#site button[data-mode="other"]:before { content: '\e048'; }
+
+aside#site button[data-event][disabled] {
 	color: #ffffff;
 }
 
-aside#site-modes td.site-mode button.icon-offline:before { content: '\e80e'; transform: rotate(45deg) scale(0.75) translate(0px, 2px); }
-aside#site-modes td.site-mode button.icon-covert:before  { content: '\f0fb'; }
-aside#site-modes td.site-mode button.icon-stealth:before { content: '\f197'; }
-aside#site-modes td.site-mode button.icon-online:before  { content: '\f135'; transform: rotate(45deg) scale(1.25) translate(-2px, 2px); }
+
+aside#site p {
+	text-align: justify;
+}
+
+aside#site div + table,
+aside#site p + table {
+	margin-top: 64px;
+}
+
+aside#site table {
+	width: 100%;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 16px;
+	font-weight: normal;
+	text-align: center;
+}
+
+aside#site table tr th {
+	font-size: 20px;
+	padding: 0px 0px 0.5em 0px;
+}
+
+aside#site table tr td {
+	padding: 8px;
+	font-size: 16px;
+	border: 1px solid #666666;
+	transition: 250ms all ease-out;
+}
+
+aside#site table tr:hover td {
+	border: 1px solid #ffffff;
+}
+
+aside#site table tfoot tr:hover td,
+aside#site table tfoot tr td {
+	border-top: 2px solid #ffffff;
+}
+
+aside#site table tr td:last-child button {
+	display: block;
+	margin: 0px auto;
+}
 

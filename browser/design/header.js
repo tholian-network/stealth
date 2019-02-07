@@ -3,16 +3,13 @@
 
 	const doc     = global.document;
 	const buttons = {
-		modes:    Array.from(doc.querySelectorAll('#header-modes button')),
-		sites:    [
-			doc.querySelector('#header-settings-modes'),
-			doc.querySelector('#header-settings-requests')
-		],
 		history: {
-			back: doc.querySelector('#header-history-back'),
-			next: doc.querySelector('#header-history-next'),
-			load: doc.querySelector('#header-history-load')
+			back:  doc.querySelector('#header-history-back'),
+			next:  doc.querySelector('#header-history-next'),
+			state: doc.querySelector('#header-history-state')
 		},
+		config: Array.from(doc.querySelectorAll('#header-config button')),
+		site: doc.querySelector('#header-settings-site'),
 		settings: doc.querySelector('#header-settings-browser')
 	};
 	const inputs  = {
@@ -22,12 +19,67 @@
 		address:  doc.querySelector('#header-address ul'),
 		protocol: doc.querySelector('#header-address-protocol')
 	};
-	const sites   = [
-		doc.querySelector('aside#site-modes'),
-		doc.querySelector('aside#site-requests')
-	];
+	const sidebars = {
+		site: doc.querySelector('aside#site')
+	};
 
 
+
+	const _get_config = function(browser) {
+
+		let config = {
+			domain: null,
+			mode: {
+				text:  false,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		};
+
+		let url = null;
+		if (inputs.address !== null) {
+			url = inputs.address.value;
+		}
+
+		if (buttons.config.length > 0) {
+
+			buttons.config.forEach(button => {
+
+				let type = button.getAttribute('data-mode') || null;
+				if (type !== null) {
+					config.mode[type] = button.className === 'active';
+				}
+
+			});
+
+		}
+
+
+		let ref       = browser.parse(url);
+		let rdomain   = ref.domain || null;
+		let rprotocol = ref.protocol || null;
+
+		if (rprotocol === 'stealth') {
+			// Do not allow configs for Internal Pages
+			return null;
+		}
+
+		if (rdomain !== null) {
+
+			let rsubdomain = ref.subdomain || null;
+			if (rsubdomain !== null) {
+				rdomain = rsubdomain + '.' + rdomain;
+			}
+
+			config.domain = rdomain;
+
+		}
+
+		return config;
+
+	};
 
 	const _update_address = function(browser, tab) {
 
@@ -189,16 +241,16 @@
 
 			}
 
-			if (buttons.history.load !== null) {
+			if (buttons.history.state !== null) {
 
-				buttons.history.load.removeAttribute('disabled');
+				buttons.history.state.removeAttribute('disabled');
 
 
-				let check = tab.requests.find(r => r.loading === true) || null;
-				if (check !== null) {
-					buttons.history.load.className = 'pause';
+				let is_loading = tab.requests.find(r => r.loading === true) || null;
+				if (is_loading !== null) {
+					buttons.history.state.setAttribute('data-action', 'pause');
 				} else {
-					buttons.history.load.className = 'refresh';
+					buttons.history.state.setAttribute('data-action', 'refresh');
 				}
 
 			}
@@ -213,31 +265,39 @@
 				buttons.history.next.removeAttribute('disabled');
 			}
 
-			if (buttons.history.load !== null) {
-				buttons.history.load.className = '';
-				buttons.history.load.removeAttribute('disabled');
+			if (buttons.history.state !== null) {
+				buttons.history.state.removeAttribute('disabled');
 			}
 
 		}
 
 	};
 
-	const _update_mode = function(browser, tab) {
+	const _update_config = function(browser, tab) {
 
-		let config = tab.config;
-		if (config !== null && config.domain !== null) {
+		if (tab !== null) {
 
-			let mode   = config.mode;
-			let button = buttons.modes.find(b => b.title.toLowerCase() === mode) || null;
-			if (button !== null) {
-
-				buttons.modes.forEach(other => {
-					other.className = other === button ? 'active' : '';
-				});
-
-				browser.setMode(mode);
-
+			let protocol = tab.ref.protocol || null;
+			if (protocol === 'stealth') {
+				buttons.config.forEach(b => (b.setAttribute('disabled', 'true')));
+				buttons.site.setAttribute('disabled', 'true');
+			} else {
+				buttons.config.forEach(b => (b.removeAttribute('disabled')));
+				buttons.site.removeAttribute('disabled');
 			}
+
+			Object.keys(tab.config.mode).forEach(type => {
+
+				let button = buttons.config.find(b => b.getAttribute('data-mode') === type) || null;
+				if (button !== null) {
+					button.className = tab.config.mode[type] === true ? 'active' : '';
+				}
+
+			});
+
+		} else {
+
+			buttons.config.forEach(b => (b.className = ''));
 
 		}
 
@@ -245,15 +305,8 @@
 
 	const _init = function(browser) {
 
-		browser.on('mode', mode => {
-
-			buttons.modes.forEach(b => (b.className = ''));
-
-			let button = buttons.modes.find(b => b.getAttribute('title').toLowerCase() === mode) || null;
-			if (button !== null) {
-				button.className = 'active';
-			}
-
+		browser.on('change', (tab) => {
+			_update_config(browser, tab);
 		});
 
 		browser.on('show', (tab) => {
@@ -270,13 +323,13 @@
 
 				_update_address(browser, tab);
 				_update_history(browser, tab);
-				_update_mode(browser, tab);
+				_update_config(browser, tab);
 
 			} else {
 
 				_update_address(browser, null);
 				_update_history(browser, null);
-				_update_mode(browser, tab);
+				_update_config(browser, null);
 
 			}
 
@@ -315,17 +368,15 @@
 			buttons.history.next.onclick = () => browser.next();
 		}
 
-		if (buttons.history.load !== null) {
+		if (buttons.history.state !== null) {
 
-			buttons.history.load.onclick = () => {
+			buttons.history.state.onclick = () => {
 
-				let action = buttons.history.load.className;
+				let action = buttons.history.state.getAttribute('data-action');
 				if (action === 'refresh') {
 					browser.refresh();
 				} else if (action === 'pause') {
 					browser.pause();
-				} else if (action === 'stop') {
-					browser.stop();
 				}
 
 			};
@@ -440,23 +491,49 @@
 
 		}
 
-		if (buttons.modes.length > 0) {
+		if (buttons.config.length > 0) {
 
-			buttons.modes.forEach(button => {
+			buttons.config.forEach(button => {
 
 				button.onclick = () => {
 
-					buttons.modes.forEach(b => (b.className = ''));
-					button.className = 'active';
+					button.className = button.className === 'active' ? '' : 'active';
 
-					let tmp = button.getAttribute('title');
-					if (tmp !== null) {
-						browser.setMode(tmp);
+					let config = _get_config(browser);
+					if (config !== null) {
+						browser.set(config);
 					}
 
 				};
 
 			});
+
+		}
+
+		if (buttons.site !== null) {
+
+			buttons.site.onclick = () => {
+
+				let tab = browser.tab;
+				if (tab !== null && tab.ref.protocol !== 'stealth') {
+
+					let sidebar = sidebars.site || null;
+					if (sidebar !== null) {
+
+						let visible = sidebar.className === 'active';
+						if (visible === true) {
+							buttons.site.className = '';
+							sidebar.className = '';
+						} else if (visible === false) {
+							buttons.site.className = 'active';
+							sidebar.className = 'active';
+						}
+
+					}
+
+				}
+
+			};
 
 		}
 
@@ -466,7 +543,10 @@
 
 				let tab = browser.open('stealth:settings');
 				if (tab !== null) {
+					buttons.site.className  = '';
+					sidebars.site.className = '';
 					browser.show(tab);
+
 				}
 
 			};
@@ -474,35 +554,6 @@
 		}
 
 	};
-
-
-
-	if (buttons.sites.length > 0) {
-
-		buttons.sites.forEach((button, s) => {
-
-			button.onclick = () => {
-
-				let site = sites[s] || null;
-				if (site !== null) {
-
-					let visible = site.className === 'active';
-
-					buttons.sites.forEach(b => (b.className = ''));
-					sites.forEach(o => (o.className = ''));
-
-					if (visible === false) {
-						button.className = 'active';
-						site.className   = 'active';
-					}
-
-				}
-
-			};
-
-		});
-
-	}
 
 
 

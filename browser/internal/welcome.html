@@ -11,48 +11,42 @@
 	</head>
 	<body>
 		<article id="stealth-modes">
-			<h3>Stealth Modes</h3>
+			<h3>Site Modes</h3>
 			<p>
-				The Stealth Browser respects the so-called Stealth Modes. These
-				Modes influence the behaviour of what type of content is requested
-				by default.
+				The Stealth Browser respects the so-called Site Modes. These Modes influence what
+				type of content and media is requested from from that particular domain.
 			</p>
 			<p>
-				If there is additionally a site-specific mode, the site-specific
-				mode incrementally changes the behaviour in addition to the
-				default mode.
-				<br><br>
-				These site-specific modes are meant to whitelist certain domains
-				and their dynamically generated content, for example to allow
-				images and videos on "i.imgur.com", but not on "imgur.com".
+				By default, the Stealth Browser will not request anything to ensure maximum
+				control over your privacy and security.
 			</p>
 			<table>
 				<thead>
 					<tr>
-						<th colspan="2">Mode</th>
-						<th>Behaviour</th>
+						<th>Site Mode</th>
+						<th>Request Behaviour</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<td><button class="icon-offline" disabled></button></td>
-						<td>Offline</td>
-						<td>Request only from local cache (or peer-to-peer cache)</td>
+						<td><button data-mode="text" disabled></button></td>
+						<td>Requests Texts from Peers or the Internet</td>
 					</tr>
 					<tr>
-						<td><button class="icon-covert" disabled></button></td>
-						<td>Covert</td>
-						<td>Request only texts from the internet</td>
+						<td><button data-mode="image" disabled></button></td>
+						<td>Requests Images from Peers or the Internet</td>
 					</tr>
 					<tr>
-						<td><button class="icon-stealth" disabled></button></td>
-						<td>Stealth</td>
-						<td>Request only texts and images from the internet</td>
+						<td><button data-mode="audio" disabled></button></td>
+						<td>Requests Audios from Peers or the Internet</td>
 					</tr>
 					<tr>
-						<td><button class="icon-online" disabled></button></td>
-						<td>Online</td>
-						<td>Request texts, images, videos, downloads and APIs from the internet</td>
+						<td><button data-mode="video" disabled></button></td>
+						<td>Requests Videos from Peers or the Internet</td>
+					</tr>
+					<tr>
+						<td><button data-mode="other" disabled></button></td>
+						<td>Requests Downloads from Peers or the Internet</td>
 					</tr>
 				</tbody>
 			</table>
@@ -81,7 +75,7 @@
 					</tr>
 					<tr>
 						<td>[F3]</td>
-						<td>Rotate through Site-specific Modes and Requests</td>
+						<td>Toggle Site Modes sidebar</td>
 					</tr>
 					<tr>
 						<td>[F4]</td>
@@ -160,12 +154,12 @@
 						<td>host ipv4/ipv6 fix assistant</td>
 					</tr>
 					<tr>
-						<td><a href="stealth:fix-site">stealth:fix-site</a></td>
-						<td>stealth/site mode fix assistant</td>
-					</tr>
-					<tr>
 						<td><a href="stealth:fix-request">stealth:fix-request</a></td>
 						<td>web archive fix assistant</td>
+					</tr>
+					<tr>
+						<td><a href="stealth:fix-site">stealth:fix-site</a></td>
+						<td>stealth/site mode fix assistant</td>
 					</tr>
 				</tbody>
 			</table>

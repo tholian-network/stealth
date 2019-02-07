@@ -4,24 +4,20 @@
 	const doc     = global.document;
 	const webview = doc.querySelector('#main-webview');
 	const buttons = {
-		modes:    Array.from(doc.querySelectorAll('#header-modes button')),
-		sites:    [
-			doc.querySelector('#header-settings-modes'),
-			doc.querySelector('#header-settings-requests')
-		],
 		history: {
-			back: doc.querySelector('#header-history-back'),
-			next: doc.querySelector('#header-history-next'),
-			load: doc.querySelector('#header-history-load')
-		}
+			back:  doc.querySelector('#header-history-back'),
+			next:  doc.querySelector('#header-history-next'),
+			state: doc.querySelector('#header-history-state')
+		},
+		config: Array.from(doc.querySelectorAll('#header-config button')),
+		site: doc.querySelector('#header-settings-site')
 	};
 	const inputs  = {
 		address: doc.querySelector('#header-address input')
 	};
-	const sites   = [
-		doc.querySelector('aside#site-modes'),
-		doc.querySelector('aside#site-requests')
-	];
+	const sidebars = {
+		site: doc.querySelector('aside#site')
+	};
 
 
 
@@ -95,12 +91,9 @@
 
 				} else if (key === 'escape') {
 
+					buttons.site.className   = '';
 					inputs.address.className = '';
-
-					buttons.sites.forEach((button, s) => {
-						button.className = '';
-						sites[s].className = '';
-					});
+					sidebars.site.className   = '';
 
 				} else if (key === 'f1') {
 
@@ -113,14 +106,17 @@
 
 				} else if (key === 'f2') {
 
-					let index = buttons.modes.findIndex(m => m.className === 'active') + 1;
-					if (index >= buttons.modes.length) {
-						index %= buttons.modes.length;
-					}
+					let check = buttons.config.filter(b => b.getAttribute('disabled') === 'true');
+					if (check.length !== buttons.config.length) {
 
-					let button = buttons.modes[index] || null;
-					if (button !== null) {
-						button.click();
+						let next = buttons.config.find(b => b.className !== 'active') || null;
+						if (next !== null) {
+							next.click();
+						} else {
+							buttons.config.forEach(b => (b.className = ''));
+							buttons.config[0].click();
+						}
+
 					}
 
 					e.preventDefault();
@@ -128,15 +124,7 @@
 
 				} else if (key === 'f3') {
 
-					let index = sites.findIndex(s => s.className === 'active') + 1;
-					if (index >= sites.length) {
-						index %= sites.length;
-					}
-
-					let button = buttons.sites[index] || null;
-					if (button !== null) {
-						button.click();
-					}
+					buttons.site.click();
 
 					e.preventDefault();
 					e.stopPropagation();
@@ -146,7 +134,6 @@
 					let tab = browser.open('stealth:settings');
 					if (tab !== null) {
 						browser.show(tab);
-						tab.load();
 					}
 
 				} else if (key === 'f5') {
@@ -163,7 +150,6 @@
 
 					e.preventDefault();
 					e.stopPropagation();
-
 
 				} else if (key === 'f6') {
 
@@ -182,9 +168,13 @@
 
 				} else if (key === 'f7') {
 
-					let tab = browser.tabs[0] || null;
-					if (tab !== null) {
-						browser.kill(tab);
+					if (browser.tabs.length > 0) {
+
+						let tab = browser.tabs[0] || null;
+						if (tab !== null) {
+							browser.kill(tab);
+						}
+
 					}
 
 					e.preventDefault();
@@ -206,9 +196,13 @@
 
 				} else if (ctrl === true && key === 'r') {
 
-					let load = buttons.history.load || null;
-					if (load.disabled !== true) {
-						load.click();
+					if (buttons.history.state !== null) {
+
+						let allowed = buttons.history.getAttribute('disabled') !== '';
+						if (allowed === true) {
+							buttons.history.state.click();
+						}
+
 					}
 
 					e.preventDefault();
@@ -285,12 +279,18 @@
 		browser.on('refresh', (tab) => {
 
 			let url = _get_url(browser, tab);
-			if (url !== null) {
+			if (webview !== null && url !== null) {
+				webview.src = url;
+			}
 
-				if (webview.src !== url) {
-					webview.src = url;
-				}
+		});
 
+		browser.client.on('session', (session) => {
+
+			try {
+				doc.cookie = 'session=' + session + ';path=/stealth';
+			} catch (err) {
+				// Do nothing
 			}
 
 		});

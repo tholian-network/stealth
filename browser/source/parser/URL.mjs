@@ -277,7 +277,13 @@ const URL = {
 		let san_url = '';
 
 		if (protocol !== null) {
-			san_url += protocol + '://';
+
+			if (protocol === 'stealth') {
+				san_url += protocol + ':';
+			} else {
+				san_url += protocol + '://';
+			}
+
 		}
 
 		if (domain !== null) {
@@ -304,7 +310,9 @@ const URL = {
 			san_url += ':' + port;
 		}
 
-		san_url += path;
+		if (protocol !== 'stealth') {
+			san_url += path;
+		}
 
 		if (query !== null) {
 			san_url += '?' + query;

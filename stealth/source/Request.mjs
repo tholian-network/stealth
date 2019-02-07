@@ -18,12 +18,20 @@ const Request = function(data, stealth) {
 
 
 	this.id       = 'request-' + _id++;
-	this.config   = settings.config || null;
+	this.config   = settings.config || {
+		domain: null,
+		mode: {
+			text:  false,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	};
 	this.prefix   = settings.prefix || '/stealth/';
 	this.ref      = null;
 	this.response = null;
 	this.stealth  = stealth;
-	this.url      = null;
 	this.timeline = {
 		init:     null,
 		error:    null,
@@ -35,6 +43,7 @@ const Request = function(data, stealth) {
 		optimize: null,
 		response: null
 	};
+	this.url      = null;
 
 
 	let ref = settings.ref || null;
@@ -55,6 +64,8 @@ const Request = function(data, stealth) {
 
 	this.on('cache', () => {
 
+		return this.emit('error', [{ type: 'site' }]);
+
 		this.stealth.server.services.cache.read(this.ref, response => {
 
 			this.timeline.cache = Date.now();
@@ -73,7 +84,7 @@ const Request = function(data, stealth) {
 	this.on('block', () => {
 
 		let mime     = this.ref.mime;
-		let allowed  = this.config.mime[mime.type] === true;
+		let allowed  = this.config.mode[mime.type] === true;
 		let blockers = this.stealth.settings.blockers;
 
 
@@ -81,11 +92,11 @@ const Request = function(data, stealth) {
 
 			if (blocked === true) {
 
-				this.config.mode       = 'offline';
-				this.config.mime.text  = false;
-				this.config.mime.image = false;
-				this.config.mime.video = false;
-				this.config.mime.other = false;
+				this.config.mode.text  = false;
+				this.config.mode.image = false;
+				this.config.mode.audio = false;
+				this.config.mode.video = false;
+				this.config.mode.other = false;
 
 				this.emit('error', [{ code: 403 }]);
 

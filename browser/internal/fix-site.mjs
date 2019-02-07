@@ -30,59 +30,43 @@ const REFERENCE = (function(query) {
 
 
 const _render_site = (site) => `
-<td>${site.domain}</td>
-<td class="site-mime">
-	<button class="icon-text  ${site.mime.text  === true ? 'active' : ''}" data-type="text"  title="Text"></button>
-	<button class="icon-image ${site.mime.image === true ? 'active' : ''}" data-type="image" title="Image"></button>
-	<button class="icon-video ${site.mime.video === true ? 'active' : ''}" data-type="video" title="Video"></button>
-	<button class="icon-other ${site.mime.other === true ? 'active' : ''}" data-type="other" title="Other"></button>
-</td>
-<td class="site-mode"><button class="icon-${site.mode}" title="${site.mode}" disabled></button></td>
-<td><button class="icon-confirm" data-method="save"></button></td>
+<tr>
+	<td>${site.domain}</td>
+	<td>
+		<button data-mode="text"  class="${site.mode.text  === true ? 'active' : ''}" title="Allow/Disallow Text"></button>
+		<button data-mode="image" class="${site.mode.image === true ? 'active' : ''}" title="Allow/Disallow Image"></button>
+		<button data-mode="audio" class="${site.mode.audio === true ? 'active' : ''}" title="Allow/Disallow Audio"></button>
+		<button data-mode="video" class="${site.mode.video === true ? 'active' : ''}" title="Allow/Disallow Video"></button>
+		<button data-mode="other" class="${site.mode.other === true ? 'active' : ''}" title="Allow/Disallow Other"></button>
+	</td>
+	<td><button data-action="confirm"></button></td>
+</tr>
 `;
 
 let _SITE = null;
 
 const _update = function(site) {
 
-	let cache = browser.settings.sites.find(s => s.domain === site.domain) || null;
-	if (cache !== null) {
-		cache.mode       = site.mode;
-		cache.mime.text  = site.mime.text;
-		cache.mime.image = site.mime.image;
-		cache.mime.video = site.mime.video;
-		cache.mime.other = site.mime.other;
-	} else if (cache === null) {
-		browser.settings.sites.push(site);
-	}
-
+	elements.sites.innerHTML = '';
+	elements.sites.innerHTML = _render_site(site);
 	_SITE = site;
-
-	let old_row = elements.sites.querySelector('tr');
-	if (old_row !== null) {
-		old_row.parentNode.removeChild(old_row);
-	}
-
-	let new_row = doc.createElement('tr');
-	new_row.innerHTML = _render_site(site);
-	elements.sites.appendChild(new_row);
 
 };
 
-const _update_mode = function(site) {
+const _update_config = function(config) {
 
-	let mode = 'offline';
-	let mime = site.mime;
+	Object.keys(config.mode).forEach(type => {
 
-	if (mime.other === true) {
-		mode = 'online';
-	} else if (mime.image === true || mime.video === true) {
-		mode = 'stealth';
-	} else if (mime.text === true) {
-		mode = 'covert';
-	}
+		let button = elements.sites.querySelector('button[data-mode="' + type + '"]');
+		if (button !== null) {
+			button.className = config.mode[type] === true ? 'active' : '';
+		}
 
-	site.mode = mode;
+		if (_SITE !== null) {
+			_SITE.mode[type] = config.mode[type] === true;
+		}
+
+	});
 
 };
 
@@ -97,64 +81,30 @@ const WIZARD = {
 			elements.sites.addEventListener('click', e => {
 
 				let element = e.target;
-				let state   = element.className;
-				let tagname = element.tagName.toLowerCase();
-				if (tagname === 'button') {
+				let action  = element.getAttribute('data-action') || null;
+				let mode    = element.getAttribute('data-mode')   || null;
 
-					let row = element.parentNode.parentNode;
+				if (action === 'confirm') {
 
-					if (state.includes('confirm')) {
+					let site = _SITE;
+					if (site !== null) {
 
-						let method  = element.getAttribute('data-method') || null;
-						let service = browser.client.services.site;
-						if (service !== null && typeof service[method] === 'function') {
+						element.className = 'busy';
 
-							element.className += ' busy';
-
-							service[method](_SITE, response => {
-
-								element.className = state;
-
-								if (typeof response === 'boolean') {
-									// Do nothing
-								} else if (response !== null) {
-									_update(response);
-								}
-
-							});
-
-						} else {
-							element.setAttribute('disabled', true);
-						}
-
-					} else if (
-						state.includes('text')
-						|| state.includes('image')
-						|| state.includes('video')
-						|| state.includes('other')
-					) {
-
-						let type = element.getAttribute('data-type') || null;
-						if (type !== null && _SITE !== null) {
-
-							_SITE.mime[type] = !_SITE.mime[type];
-							_update_mode(_SITE);
-
-							if (_SITE.mime[type] === true) {
-								element.className = 'icon-' + type + ' active';
-							} else {
-								element.className = 'icon-' + type;
-							}
-
-							let mode = row.querySelector('.site-mode button');
-							if (mode !== null) {
-								mode.className = 'icon-' + _SITE.mode;
-								mode.title     = _SITE.mode;
-							}
-
+						let result = browser.set(_SITE);
+						if (result === true) {
+							element.className = '';
 						}
 
 					}
+
+				} else if (mode !== null) {
+
+					if (_SITE !== null) {
+						_SITE.mode[mode] = !_SITE.mode[mode];
+					}
+
+					element.className = _SITE.mode[mode] === true ? 'active' : '';
 
 				}
 
@@ -183,18 +133,22 @@ const WIZARD = {
 
 				} else {
 
-					site = browser.config(REFERENCE.url);
+					let config = browser.tab.config;
 
 					if (REFERENCE.subdomain !== null) {
-						site.domain = REFERENCE.subdomain + '.' + REFERENCE.domain;
+						config.domain = REFERENCE.subdomain + '.' + REFERENCE.domain;
 					} else {
-						site.domain = REFERENCE.domain;
+						config.domain = REFERENCE.domain;
 					}
 
-					_update(site);
+					_update(config);
 
 				}
 
+			});
+
+			browser.on('change', (tab) => {
+				_update_config(tab.config);
 			});
 
 		} else {

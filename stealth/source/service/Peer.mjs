@@ -1,19 +1,30 @@
 
-import { MODES   } from '../Stealth.mjs';
 import { Emitter } from '../Emitter.mjs';
 
+
+
+const _CONNECTION = [
+	'broadband',
+	'mobile',
+	'peer',
+	'offline'
+];
+
+const _STATUS = [
+	'connected',
+	'disconnected'
+];
 
 
 const _payloadify = function(payload) {
 
 	if (payload instanceof Object) {
 
-		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
-		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
-		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
-
-		payload.capacity = MODES.includes(payload.capacity) ? payload.capacity : 'offline';
-		payload.mode     = MODES.includes(payload.mode)     ? payload.mode     : 'offline';
+		payload.domain     = typeof payload.domain === 'string'       ? payload.domain     : null;
+		payload.subdomain  = typeof payload.subdomain === 'string'    ? payload.subdomain  : null;
+		payload.host       = typeof payload.host === 'string'         ? payload.host       : null;
+		payload.connection = _CONNECTION.includes(payload.connection) ? payload.connection : 'offline';
+		payload.status     = _STATUS.includes(payload.status)         ? payload.status     : 'disconnected';
 
 		return payload;
 
@@ -167,8 +178,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (peer !== null) {
 
-				peer.capacity = payload.capacity || 'offline';
-				peer.mode     = payload.mode     || 'offline';
+				peer.connection = payload.connection || 'offline';
+				peer.status     = payload.status     || 'disconnected';
 
 				settings.save();
 
@@ -180,9 +191,9 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 				peer = {
-					domain:   payload.domain,
-					capacity: payload.capacity || 'offline',
-					mode:     payload.mode     || 'offline'
+					domain:     payload.domain,
+					connection: payload.connection || 'offline',
+					status:     payload.status     || 'disconnected'
 				};
 
 				settings.peers.push(peer);
@@ -191,9 +202,9 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 			} else if (payload.host !== null) {
 
 				peer = {
-					domain:   payload.host,
-					capacity: payload.capacity || 'offline',
-					mode:     payload.mode     || 'offline'
+					domain:     payload.host,
+					connection: payload.connection || 'offline',
+					status:     payload.status     || 'disconnected'
 				};
 
 				settings.peers.push(peer);

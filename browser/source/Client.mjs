@@ -9,20 +9,6 @@ import { Site     } from './service/Site.mjs';
 
 
 
-const _update_session = function(session) {
-
-	this.__id = session;
-
-	try {
-		document.cookie = 'session=' + session + ';path=/stealth';
-	} catch (err) {
-		// Do nothing
-	}
-
-};
-
-
-
 const Client = function(browser) {
 
 	Emitter.call(this);
@@ -37,7 +23,6 @@ const Client = function(browser) {
 		site:     new Site(browser, this)
 	};
 
-	this.__id     = null;
 	this.__socket = null;
 
 };
@@ -94,7 +79,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 					let method  = request.headers.method  || null;
 
 					if (session !== null) {
-						_update_session.call(this, session);
+						this.emit('session', [ session ]);
 					}
 
 					if (service !== null && event !== null) {
@@ -142,7 +127,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 			};
 
 			this.__socket.onclose = () => {
-				_update_session.call(this, null);
+				this.emit('session', [ null ]);
 			};
 
 
