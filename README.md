@@ -21,6 +21,12 @@ audience, the Stealth Browser will initially be released for `MacOS` and `GNU/Li
 (Download Links will be inserted here once the Stealth Browser is ready for the public)
 
 
+## Screenshots
+
+![stealth:welcome](./guide/screenshots/stealth:welcome.png)
+![stealth:settings](./guide/screenshots/stealth:settings.png)
+![stealth:fix-site](./guide/screenshots/stealth:fix-site.png)
+
 ## Pitch me - What's this?
 
 The Stealth Browser is both a `Browser` and `Stealth`, which is a Web Scraper/Proxy
@@ -48,17 +54,12 @@ that can serve its own User Interface that is implemented in HTML5 and CSS3.
   ensure that particularly. All optimizers are across all modes, the modes decide
   what content is included (e.g. `mode >= 'stealth'` includes images and videos).
 
-- It has a `Stealth Mode` that decides what to load, incrementally changing what the
-  requested website is allowed to do. The mode can be `offline` (load only from cache
-  or locally connected peers), `covert` (load only text files), `stealth` (load only
-  text, images and videos) or `online` (load text, images, videos, downloads and apis).
-
 - It uses whitelist-based `Site Modes` that decide what to load, with incrementally
-  allowed features (or media types) to the defaulted current `Stealth Mode`.
+  allowed features (or media types). By default, the Stealth Browser will load
+  nothing. The Site Mode next to the address bar decides what is loaded.
 
 - It never requests anything unnecessary. The cache is persistent until the user tells
-  it to refresh manually - or until the website is visited in `Stealth Mode` set to
-  `Online` again.
+  it to refresh the Site manually (or a scheduled Scraper task is run for that URL).
 
 - All downloaded websites and assets can be reused across all `Stealth Browser` peers
   in the local network. Additionally, as the Stealth Service serves its own Browser UI,
@@ -89,7 +90,7 @@ that can serve its own User Interface that is implemented in HTML5 and CSS3.
 - [Guide Index](./guide/README.md)
 - [Stealth Concept Design](./guides/concept/Design.md)
 - [Stealth Concept Architecture](./guides/concept/Design.md) (TBD)
-- [Stealth/Site Modes](./guides/concept/Modes.md)
+- [Stealth Site Modes](./guides/concept/Modes.md)
 - [Stealth Service API Usage](./guides/services/Usage.md)
 
 Peer-to-Peer Services:
