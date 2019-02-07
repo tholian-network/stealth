@@ -1,42 +1,16 @@
 
-const browser  = window.browser || parent.browser || null;
-const doc      = window.document;
+import { BROWSER, REFERENCE, init, listen, render } from './internal.mjs';
+
+
+
 const elements = {
-	wizard:  doc.querySelector('#fix-host'),
-	hosts:   doc.querySelector('#fix-host table tbody'),
-	footer:  doc.querySelector('footer'),
-	refresh: doc.querySelector('footer #footer-refresh')
+	wizard:  document.querySelector('#fix-host'),
+	hosts:   document.querySelector('#fix-host table tbody'),
+	footer:  document.querySelector('footer'),
+	refresh: document.querySelector('footer #footer-refresh')
 };
-const REFERENCE = (function(query) {
 
-	let url = null;
-
-	if (query.startsWith('?')) {
-
-		query.substr(1).split('&').map(t => t.split('=')).forEach(chunk => {
-
-			if (chunk[0] === 'url') {
-				url = decodeURIComponent(chunk[1]);
-			}
-
-		});
-
-	}
-
-	return browser.parse(url);
-
-})(doc.location.search);
-
-
-
-const _render_host = (host) => `
-<td>${host.domain}</td>
-<td>${(host.ipv4 !== null ? host.ipv4 : '(none)')}</td>
-<td>${(host.ipv6 !== null ? host.ipv6 : '(none)')}</td>
-<td><button data-action="refresh"></button></td>
-`;
-
-const _update = function(host) {
+const _update = function(browser, host) {
 
 	let cache = browser.settings.hosts.find(h => h.domain === host.domain) || null;
 	if (cache !== null) {
@@ -46,59 +20,55 @@ const _update = function(host) {
 		browser.settings.hosts.push(host);
 	}
 
-	let old_row = elements.hosts.querySelector('tr');
-	if (old_row !== null) {
-		old_row.parentNode.removeChild(old_row);
-	}
-
-	let new_row = doc.createElement('tr');
-	new_row.innerHTML = _render_host(host);
-	elements.hosts.appendChild(new_row);
+	elements.hosts.innerHTML = render('host', host, false);
 
 };
 
 
 
-const WIZARD = {
+init([
+	elements.wizard,
+	elements.hosts,
+	elements.footer,
+	elements.refresh
+], (browser, result) => {
 
-	init: function(browser) {
+	if (result === true) {
 
-		if (elements.hosts !== null) {
+		listen(elements.hosts, (action, data, done) => {
 
-			elements.hosts.addEventListener('click', e => {
-
-				let element = e.target;
-				let action  = element.getAttribute('data-action') || null;
+			let service = browser.client.services.host || null;
+			if (service !== null) {
 
 				if (action === 'refresh') {
 
-					element.className = 'busy';
-
-					browser.client.services.host.refresh({
+					service.refresh({
 						domain:    REFERENCE.domain,
 						subdomain: REFERENCE.subdomain,
 						host:      REFERENCE.host
-					}, response => {
+					}, (host) => {
 
-						element.className = '';
+						done(true);
 
-						if (response !== null) {
-							_update(response);
+						if (host !== null) {
+							_update(browser, host);
 						}
 
 					});
 
+				} else {
+					done(false);
 				}
 
-			});
+			} else {
+				done(false);
+			}
 
-		}
+		});
 
 
-		if (elements.footer !== null && elements.refresh !== null) {
-			elements.refresh.onclick = () => browser.refresh();
-			elements.footer.className = 'active';
-		}
+		elements.refresh.onclick = () => browser.refresh();
+		elements.footer.className = 'active';
 
 
 		if (REFERENCE.domain !== null) {
@@ -107,48 +77,24 @@ const WIZARD = {
 				domain:    REFERENCE.domain,
 				subdomain: REFERENCE.subdomain,
 				host:      REFERENCE.host
-			}, host => {
+			}, (host) => {
 
 				if (host !== null) {
-
-					_update(host);
-
-				} else {
-
-					let element = elements.wizard || null;
-					if (element !== null) {
-						element.parentNode.removeChild(element);
-					}
-
+					_update(browser, host);
 				}
 
 			});
 
-		} else {
+		}
 
-			let element = elements.wizard || null;
-			if (element !== null) {
-				element.parentNode.removeChild(element);
-			}
+	} else {
 
+		let element = elements.wizard || null;
+		if (element !== null) {
+			element.parentNode.removeChild(element);
 		}
 
 	}
 
-};
-
-
-export { WIZARD };
-
-
-if (browser !== null) {
-	WIZARD.init(browser);
-} else {
-
-	let element = elements.wizard || null;
-	if (element !== null) {
-		element.parentNode.removeChild(element);
-	}
-
-}
+});
 

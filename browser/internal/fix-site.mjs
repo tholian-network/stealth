@@ -1,69 +1,26 @@
 
-const browser  = window.browser || parent.browser || null;
-const doc      = window.document;
+import { BROWSER, REFERENCE, init, listen, render } from './internal.mjs';
+
+
+
 const elements = {
-	wizard:  doc.querySelector('#fix-site'),
-	sites:   doc.querySelector('#fix-site table tbody'),
-	footer:  doc.querySelector('footer'),
-	refresh: doc.querySelector('footer #footer-refresh')
+	wizard:  document.querySelector('#fix-site'),
+	sites:   document.querySelector('#fix-site table tbody'),
+	footer:  document.querySelector('footer'),
+	refresh: document.querySelector('footer #footer-refresh')
 };
-const REFERENCE = (function(query) {
 
-	let url = null;
-
-	if (query.startsWith('?')) {
-
-		query.substr(1).split('&').map(t => t.split('=')).forEach(chunk => {
-
-			if (chunk[0] === 'url') {
-				url = decodeURIComponent(chunk[1]);
-			}
-
-		});
-
-	}
-
-	return browser.parse(url);
-
-})(doc.location.search);
-
-
-
-const _render_site = (site) => `
-<tr>
-	<td>${site.domain}</td>
-	<td>
-		<button data-mode="text"  class="${site.mode.text  === true ? 'active' : ''}" title="Allow/Disallow Text"></button>
-		<button data-mode="image" class="${site.mode.image === true ? 'active' : ''}" title="Allow/Disallow Image"></button>
-		<button data-mode="audio" class="${site.mode.audio === true ? 'active' : ''}" title="Allow/Disallow Audio"></button>
-		<button data-mode="video" class="${site.mode.video === true ? 'active' : ''}" title="Allow/Disallow Video"></button>
-		<button data-mode="other" class="${site.mode.other === true ? 'active' : ''}" title="Allow/Disallow Other"></button>
-	</td>
-	<td><button data-action="confirm"></button></td>
-</tr>
-`;
-
-let _SITE = null;
-
-const _update = function(site) {
-
-	elements.sites.innerHTML = '';
-	elements.sites.innerHTML = _render_site(site);
-	_SITE = site;
-
+const _update = function(browser, site) {
+	elements.sites.innerHTML = render('site', site, true);
 };
 
 const _update_config = function(config) {
 
-	Object.keys(config.mode).forEach(type => {
+	Object.keys(config.mode).forEach(mode => {
 
-		let button = elements.sites.querySelector('button[data-mode="' + type + '"]');
+		let button = elements.sites.querySelector('button[data-key="mode.' + mode + '"]');
 		if (button !== null) {
-			button.className = config.mode[type] === true ? 'active' : '';
-		}
-
-		if (_SITE !== null) {
-			_SITE.mode[type] = config.mode[type] === true;
+			button.setAttribute('data-val', '' + config.mode[mode]);
 		}
 
 	});
@@ -72,51 +29,77 @@ const _update_config = function(config) {
 
 
 
-const WIZARD = {
+init([
+	elements.wizard,
+	elements.sites,
+	elements.footer,
+	elements.refresh
+], (browser, result) => {
 
-	init: function(browser) {
+	if (result === true) {
 
-		if (elements.sites !== null) {
+		listen(elements.sites, (action, data, done) => {
 
-			elements.sites.addEventListener('click', e => {
+			let service = browser.client.services.site || null;
+			if (service !== null) {
 
-				let element = e.target;
-				let action  = element.getAttribute('data-action') || null;
-				let mode    = element.getAttribute('data-mode')   || null;
+				if (action === 'read') {
 
-				if (action === 'confirm') {
+					service.read({
+						domain:    REFERENCE.domain,
+						subdomain: REFERENCE.subdomain
+					}, (site) => {
 
-					let site = _SITE;
-					if (site !== null) {
+						done(true);
 
-						element.className = 'busy';
-
-						let result = browser.set(_SITE);
-						if (result === true) {
-							element.className = '';
+						if (site !== null) {
+							_update(browser, site);
 						}
 
+					});
+
+				} else if (action === 'remove') {
+
+					service.remove({
+						domain:    REFERENCE.domain,
+						subdomain: REFERENCE.subdomain
+					}, (result) => {
+
+						done(result);
+
+						if (result === true) {
+							elements.sites.innerHTML = '<tr><td colspan="3">(config has been removed)</td></tr>';
+						}
+
+					});
+
+				} else if (action === 'save') {
+
+					let result = browser.set(data);
+					if (result === true) {
+						done(true);
+					} else {
+						done(false);
 					}
 
-				} else if (mode !== null) {
-
-					if (_SITE !== null) {
-						_SITE.mode[mode] = !_SITE.mode[mode];
-					}
-
-					element.className = _SITE.mode[mode] === true ? 'active' : '';
-
+				} else {
+					done(false);
 				}
 
-			});
+			} else {
+				done(false);
+			}
 
-		}
+		});
 
 
-		if (elements.footer !== null && elements.refresh !== null) {
-			elements.refresh.onclick = () => browser.refresh();
-			elements.footer.className = 'active';
-		}
+		elements.refresh.onclick = () => browser.refresh();
+		elements.footer.className = 'active';
+
+
+		browser.on('change', (tab) => {
+			_update_config(tab.config);
+		});
 
 
 		if (REFERENCE.domain !== null) {
@@ -129,7 +112,7 @@ const WIZARD = {
 
 				if (site !== null) {
 
-					_update(site);
+					_update(browser, site);
 
 				} else {
 
@@ -141,41 +124,22 @@ const WIZARD = {
 						config.domain = REFERENCE.domain;
 					}
 
-					_update(config);
+					_update(browser, config);
 
 				}
 
 			});
 
-			browser.on('change', (tab) => {
-				_update_config(tab.config);
-			});
+		}
 
-		} else {
+	} else {
 
-			let element = elements.wizard || null;
-			if (element !== null) {
-				element.parentNode.removeChild(element);
-			}
-
+		let element = elements.wizard || null;
+		if (element !== null) {
+			element.parentNode.removeChild(element);
 		}
 
 	}
 
-};
-
-
-export { WIZARD };
-
-
-if (browser !== null) {
-	WIZARD.init(browser);
-} else {
-
-	let element = elements.wizard || null;
-	if (element !== null) {
-		element.parentNode.removeChild(element);
-	}
-
-}
+});
 

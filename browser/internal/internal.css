@@ -88,14 +88,9 @@ button:hover {
 	background: rgba(255,255,255,0.1);
 }
 
-button.active {
-	color: #ffffff;
-}
-
 button[data-action]:before,
-button[data-connection]:before,
-button[data-mode]:before,
-button[data-status]:before {
+button[data-key]:before,
+button[data-val]:before {
 	display: inline-block;
 	min-width: 32px;
 	font-family: 'icon';
@@ -107,22 +102,25 @@ button[data-status]:before {
 
 button[data-action="confirm"]:before { content: '\e5ca'; }
 button[data-action="refresh"]:before { content: '\e5d5'; }
+button[data-action="read"]:before    { content: '\e5d5'; }
 button[data-action="remove"]:before  { content: '\e5cd'; }
+button[data-action="save"]:before    { content: '\e5ca'; }
 
-button[data-connection="unknown"]:before   { content: '\f128'; }
-button[data-connection="broadband"]:before { content: '\e1ba'; }
-button[data-connection="mobile"]:before    { content: '\e1b9'; }
-button[data-connection="peer"]:before      { content: '\e1e2'; }
+button[data-key="connection"][data-val="unknown"]:before   { content: '\f128'; }
+button[data-key="connection"][data-val="broadband"]:before { content: '\e1ba'; }
+button[data-key="connection"][data-val="mobile"]:before    { content: '\e1b9'; }
+button[data-key="connection"][data-val="peer"]:before      { content: '\e1e2'; }
 
-button[data-mode="text"]:before  { content: '\e06f'; }
-button[data-mode="image"]:before { content: '\e432'; }
-button[data-mode="audio"]:before { content: '\e049'; }
-button[data-mode="video"]:before { content: '\e404'; }
-button[data-mode="other"]:before { content: '\e048'; }
+button[data-key="mode.text"]:before       { content: '\e06f'; }
+button[data-key="mode.image"]:before      { content: '\e432'; }
+button[data-key="mode.audio"]:before      { content: '\e049'; }
+button[data-key="mode.video"]:before      { content: '\e404'; }
+button[data-key="mode.other"]:before      { content: '\e048'; }
+button[data-key^="mode"][data-val="true"] { color: #ffffff;   }
 
-button[data-status="unknown"]:before      { content: '\f128'; }
-button[data-status="disconnected"]:before { content: '\e0ce'; }
-button[data-status="connected"]:before    { content: '\e1e2'; }
+button[data-key="status"][data-val="unknown"]:before { content: '\f128'; }
+button[data-key="status"][data-val="online"]:before  { content: '\e1e2'; }
+button[data-key="status"][data-val="offline"]:before { content: '\e0ce'; }
 
 button[data-action].busy:before {
 	content: '\e86a';
