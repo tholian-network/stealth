@@ -170,7 +170,6 @@ const _render_host_edit = (host) => `
 	<td>
 		<button data-action="refresh"></button>
 		<button data-action="remove"></button>
-		<button data-action="save"></button>
 	</td>
 </tr>
 `;
@@ -194,7 +193,6 @@ const _render_peer_edit = (peer) => `
 	<td>
 		<button data-action="refresh"></button>
 		<button data-action="remove"></button>
-		<button data-action="save"></button>
 	</td>
 </tr>
 `;
@@ -211,6 +209,7 @@ const _render_site = (site) => `
 	</td>
 	<td>
 		<button data-action="refresh"></button>
+		<button data-action="remove"></button>
 	</td>
 </tr>
 `;
@@ -226,9 +225,7 @@ const _render_site_edit = (site) => `
 		<button data-key="mode.other" data-val="${site.mode.other === true ? 'true' : 'false'}" title="Allow/Disallow Other"></button>
 	</td>
 	<td>
-		<button data-action="read"></button>
 		<button data-action="remove"></button>
-		<button data-action="save"></button>
 	</td>
 </tr>
 `;

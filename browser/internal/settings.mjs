@@ -1,51 +1,54 @@
 
-const browser  = window.browser || parent.browser || null;
-const doc      = window.document;
+import { BROWSER, init, listen, render } from './internal.mjs';
+
+
+
 const elements = {
 	internet: {
-		connection: Array.from(doc.querySelectorAll('#internet-connection input')),
-		torify:     Array.from(doc.querySelectorAll('#internet-torify input'))
+		connection: Array.from(document.querySelectorAll('#internet-connection input')),
+		torify:     Array.from(document.querySelectorAll('#internet-torify input'))
 	},
-	hosts:  doc.querySelector('#hosts table tbody'),
-	peers:  doc.querySelector('#peers table tbody'),
-	sites:  doc.querySelector('#sites table tbody'),
-	footer: doc.querySelector('footer'),
-	confirm: doc.querySelector('footer #settings-confirm')
+	hosts:   document.querySelector('#hosts table tbody'),
+	peers:   document.querySelector('#peers table tbody'),
+	sites:   document.querySelector('#sites table tbody'),
+	footer:  document.querySelector('footer'),
+	confirm: document.querySelector('footer #settings-confirm')
 };
 
 
 
-const _render_host = (host) => `
-<tr>
-	<td>${host.domain}</td>
-	<td><input type="text" placeholder="IPv4" value="${(host.ipv4 !== null ? host.ipv4 : '')}"></td>
-	<td><input type="text" placeholder="IPv6" value="${(host.ipv6 !== null ? host.ipv6 : '')}"></td>
-	<td><button data-action="refresh"></button><button data-action="remove"></button></td>
-</tr>
-`;
+const _sort_by_domain = (a, b) => {
 
-const _render_peer = (peer) => `
-<tr>
-	<td>${peer.domain}</td>
-	<td><button data-connection="${peer.connection}"></button></td>
-	<td><button data-status="${peer.status}"></button></td>
-	<td><button data-action="refresh"></button><button data-action="remove"></button></td>
-</tr>
-`;
+	let a_domains = a.domain.split('.').reverse();
+	let b_domains = b.domain.split('.').reverse();
 
-const _render_site = (site) => `
-<tr>
-	<td>${site.domain}</td>
-	<td>
-		<button data-mode="text"  class="${site.mode.text  === true ? 'active' : ''}" title="Allow/Disallow Text"></button>
-		<button data-mode="image" class="${site.mode.image === true ? 'active' : ''}" title="Allow/Disallow Image"></button>
-		<button data-mode="audio" class="${site.mode.audio === true ? 'active' : ''}" title="Allow/Disallow Audio"></button>
-		<button data-mode="video" class="${site.mode.video === true ? 'active' : ''}" title="Allow/Disallow Video"></button>
-		<button data-mode="other" class="${site.mode.other === true ? 'active' : ''}" title="Allow/Disallow Other"></button>
-	</td>
-	<td><button data-action="remove"></button></td>
-</tr>
-`;
+	let max = Math.max(a_domains.length, b_domains.length);
+
+	for (let d = 0; d < max; d++) {
+
+		let a_domain = a_domains[d] || null;
+		let b_domain = b_domains[d] || null;
+
+		if (a_domain === null) {
+
+			if (b_domain === null) {
+				return 0;
+			} else {
+				return -1;
+			}
+
+		} else if (b_domain === null) {
+			return 1;
+		}
+
+		if (a_domain > b_domain) return  1;
+		if (b_domain > a_domain) return -1;
+
+	}
+
+	return 0;
+
+};
 
 
 const _update = function(settings) {
@@ -72,74 +75,75 @@ const _update = function(settings) {
 
 	});
 
-	elements.hosts.innerHTML = '';
-	elements.hosts.innerHTML = settings.hosts.map(h => _render_host(h)).join('');
 
-	elements.peers.innerHTML = '';
-	elements.peers.innerHTML = settings.peers.map(p => _render_peer(p)).join('');
+	let hosts_html = settings.hosts.sort(_sort_by_domain).map(host => render('host', host, true)).join('');
+	if (hosts_html !== '') {
+		elements.hosts.innerHTML = hosts_html;
+	}
 
-	elements.sites.innerHTML = '';
-	elements.sites.innerHTML = settings.sites.map(s => _render_site(s)).join('');
+	let peers_html = settings.peers.sort(_sort_by_domain).map(peer => render('peer', peer, true)).join('');
+	if (peers_html !== '') {
+		elements.peers.innerHTML = peers_html;
+	}
 
-};
-
-
-
-const SETTINGS = {
-
-	init: function(browser) {
-
-		let client = browser.client;
-		if (client !== null) {
-			client.services.settings.read(null, () => _update(browser.settings));
-		}
-
-
-		elements.internet.connection.forEach((element, e, others) => {
-
-			element.onchange = () => {
-
-				let active = others.find(e => e.checked === true) || null;
-				if (active !== null) {
-					browser.settings.internet.connection = active.value;
-					elements.footer.className = 'active';
-				}
-
-			};
-
-		});
-
-		elements.internet.torify.forEach((element, e, others) => {
-
-			element.onchange = () => {
-
-				let active = others.find(e => e.checked === true) || null;
-				if (active !== null) {
-					browser.settings.internet.torify = active.value === 'true' ? true : false;
-					elements.footer.className = 'active';
-				}
-
-			};
-
-		});
-
-		elements.confirm.onclick = () => {
-
-			browser.client.services.settings.save({}, () => {
-				elements.footer.className = '';
-			});
-
-		};
-
+	let sites_html = settings.sites.sort(_sort_by_domain).map(site => render('site', site, true)).join('');
+	if (sites_html !== '') {
+		elements.sites.innerHTML = sites_html;
 	}
 
 };
 
 
-export { SETTINGS };
+
+init([
+	elements.hosts,
+	elements.peers,
+	elements.sites,
+	elements.footer,
+	elements.confirm
+], (browser, result) => {
+
+	let client = browser.client;
+	if (client !== null) {
+		client.services.settings.read(null, () => _update(browser.settings));
+	}
 
 
-if (browser !== null) {
-	SETTINGS.init(browser);
-}
+	elements.internet.connection.forEach((element, e, others) => {
+
+		element.onchange = () => {
+
+			let active = others.find(e => e.checked === true) || null;
+			if (active !== null) {
+				browser.settings.internet.connection = active.value;
+				elements.footer.className = 'active';
+			}
+
+		};
+
+	});
+
+	elements.internet.torify.forEach((element, e, others) => {
+
+		element.onchange = () => {
+
+			let active = others.find(e => e.checked === true) || null;
+			if (active !== null) {
+				browser.settings.internet.torify = active.value === 'true' ? true : false;
+				elements.footer.className = 'active';
+			}
+
+		};
+
+	});
+
+	elements.confirm.onclick = () => {
+
+		browser.client.services.settings.save({}, () => {
+			elements.footer.className = '';
+		});
+
+	};
+
+});
 

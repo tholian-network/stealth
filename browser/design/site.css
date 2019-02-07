@@ -54,13 +54,14 @@ aside#site article > *:first-child {
 
 aside#site h3 {
 	display: block;
-	margin: 1em 0px 1em 0px;
-	padding: 0px;
+	margin: 3em 0px 1em 0px;
+	padding: 0px 0px 0.5em 0px;
 	color: #ffffff;
 	font-family: 'museo';
 	font-size: 24px;
 	font-weight: normal;
 	text-align: center;
+	border-bottom: 2px solid #ffffff;
 }
 
 aside#site button {

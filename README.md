@@ -36,7 +36,7 @@ that can serve its own User Interface that is implemented in HTML5 and CSS3.
   and uses explicitely `https://` first, and fallsback to `http://` only when
   necessary and only when the website was not MITM-ed.
 
-- It offers intelligent wizards on errors that help fix it. A `DNS` host cache
+- It offers intelligent wizards on errors that help fix it. A DNS host cache
   wizard, a web archive download assistant, or a web site mode configuration
   assistant will help the user to automate everything based on rules, not based
   on situations.
@@ -51,8 +51,8 @@ that can serve its own User Interface that is implemented in HTML5 and CSS3.
 - It uses so-called optimizers to render only the good parts of HTML and CSS. These
   optimizers make sure that no client or peer ever receives any malicious or unwanted
   content, and it is written on-disk-cache (which is shared later to other peers) to
-  ensure that particularly. All optimizers are across all modes, the modes decide
-  what content is included (e.g. `mode >= 'stealth'` includes images and videos).
+  ensure that particularly. All optimizers are applied across all modes, and the
+  modes decide what content or media is included.
 
 - It uses whitelist-based `Site Modes` that decide what to load, with incrementally
   allowed features (or media types). By default, the Stealth Browser will load
