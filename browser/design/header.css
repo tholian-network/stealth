@@ -80,16 +80,16 @@ header div {
 	display: inline-block;
 }
 
-header #header-history {
+#header-history {
 	vertical-align: top;
 }
 
-header #header-history-back:before                         { content: '\e5c4'; }
-header #header-history-next:before                         { content: '\e5c8'; }
-header #header-history-state[data-action="refresh"]:before { content: '\e5d5'; }
-header #header-history-state[data-action="pause"]:before   { content: '\e034'; }
+#header-history-back:before                         { content: '\e5c4'; }
+#header-history-next:before                         { content: '\e5c8'; }
+#header-history-state[data-action="refresh"]:before { content: '\e5d5'; }
+#header-history-state[data-action="pause"]:before   { content: '\e034'; }
 
-header #header-address {
+#header-address {
 	display: inline-block;
 	position: relative;
 	width: calc(100% - 108px - 284px);
@@ -99,7 +99,7 @@ header #header-address {
 	vertical-align: top;
 }
 
-header #header-address ul {
+#header-address ul {
 	display: inline-block;
 	position: relative;
 	width: calc(100% - 64px);
@@ -110,7 +110,7 @@ header #header-address ul {
 	z-index: 1;
 }
 
-header #header-address ul li {
+#header-address ul li {
 	display: inline-block;
 	list-style: none;
 	height: calc(32px - 2px);
@@ -122,22 +122,22 @@ header #header-address ul li {
 	transition: 250ms all ease-out;
 }
 
-header #header-address ul li:hover {
+#header-address ul li:hover {
 	border-bottom: 2px solid #0f99cb;
 	cursor: text;
 }
 
-header #header-address ul li#header-address-protocol:before         { content: '\e641'; }
-header #header-address ul li#header-address-protocol.secure:before  { content: '\e897'; }
-header #header-address ul li#header-address-protocol.stealth:before { content: '\f197'; }
-header #header-address ul li#header-address-protocol.unknown:before { content: '\f128'; }
+#header-address ul li#header-address-protocol:before         { content: '\e641'; }
+#header-address ul li#header-address-protocol.secure:before  { content: '\e897'; }
+#header-address ul li#header-address-protocol.stealth:before { content: '\f197'; }
+#header-address ul li#header-address-protocol.unknown:before { content: '\f128'; }
 
-header #header-address ul li#header-address-protocol:hover {
+#header-address ul li#header-address-protocol:hover {
 	border-bottom: 2px solid transparent;
 	cursor: default;
 }
 
-header #header-address input {
+#header-address input {
 	display: block;
 	position: absolute;
 	width: 100%;
@@ -167,13 +167,13 @@ header #header-address input {
 	z-index: 0;
 }
 
-header #header-address input.active {
+#header-address input.active {
 	transition: 250ms all ease-out;
 	opacity: 1;
 	z-index: 2;
 }
 
-header #header-address input:focus {
+#header-address input:focus {
 
 }
 
@@ -181,30 +181,30 @@ header div.header-right {
 	float: right;
 }
 
-header #header-config {
+#header-config {
 	vertical-align: top;
 }
 
-header #header-config:hover > button {
+#header-config:hover > button {
 	color: #666666;
 }
 
-header #header-config > button.active,
-header #header-config > button:hover {
+#header-config > button:hover {
 	color: #ffffff;
 }
 
-header #header-config button[data-mode="text"]:before  { content: '\e06f'; }
-header #header-config button[data-mode="image"]:before { content: '\e432'; }
-header #header-config button[data-mode="audio"]:before { content: '\e049'; }
-header #header-config button[data-mode="video"]:before { content: '\e404'; }
-header #header-config button[data-mode="other"]:before { content: '\e048'; }
+#header-config button[data-key="text"]:before  { content: '\e06f'; }
+#header-config button[data-key="image"]:before { content: '\e432'; }
+#header-config button[data-key="audio"]:before { content: '\e049'; }
+#header-config button[data-key="video"]:before { content: '\e404'; }
+#header-config button[data-key="other"]:before { content: '\e048'; }
+#header-config button[data-val="true"]         { color: #ffffff;   }
 
-header #header-settings {
+#header-settings {
 	margin-left: 32px;
 	vertical-align: top;
 }
 
-header #header-settings-site:before     { content: '\e8b8'; }
-header #header-settings-browser:before  { content: '\e429'; }
+#header-settings-site:before     { content: '\e8b8'; }
+#header-settings-browser:before  { content: '\e429'; }
 

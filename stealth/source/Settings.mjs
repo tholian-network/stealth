@@ -26,17 +26,18 @@ const _USER = (function(env) {
 
 
 const _info = (settings) => `
+${settings.blockers.length} blocker${settings.blockers.length === 1 ? '' : 's'}, \
 ${settings.filters.length} filter${settings.filters.length === 1 ? '' : 's'}, \
 ${settings.hosts.length} host${settings.hosts.length === 1 ? '' : 's'}, \
 ${settings.peers.length} peer${settings.peers.length === 1 ? '' : 's'}, \
 ${settings.sites.length} site${settings.sites.length === 1 ? '' : 's'}.
-${settings.blockers.hosts.length} blocked host${settings.blockers.hosts.length === 1 ? '' : 's'}, \
-${settings.blockers.filters.length} filter${settings.blockers.filters.length === 1 ? '' : 's'}, \
-${settings.blockers.optimizers.length} optimizer${settings.blockers.optimizers.length === 1 ? '' : 's'}.
 `;
 
 
-const _read_file = function(path, data) {
+const _read_file = function(path, data, complete) {
+
+	complete = typeof complete === 'boolean' ? complete : false;
+
 
 	let stat = null;
 	try {
@@ -76,49 +77,59 @@ const _read_file = function(path, data) {
 
 			if (tmp instanceof Array && data instanceof Array) {
 
-				tmp.forEach(object => {
+				if (complete === true) {
 
-					if ('domain' in object) {
+					tmp.forEach(object => {
+						data.push(object);
+					});
 
-						let check = data.find(d => d.domain === object.domain) || null;
-						if (check !== null) {
+				} else {
 
-							for (let prop in object) {
+					tmp.forEach(object => {
 
-								if (data[prop] === undefined) {
-									data[prop] = object[prop];
-								} else if (data[prop] === null && object[prop] !== null) {
-									data[prop] = object[prop];
+						if ('domain' in object) {
+
+							let check = data.find(d => d.domain === object.domain) || null;
+							if (check !== null) {
+
+								for (let prop in object) {
+
+									if (data[prop] === undefined) {
+										data[prop] = object[prop];
+									} else if (data[prop] === null && object[prop] !== null) {
+										data[prop] = object[prop];
+									}
+
 								}
 
+							} else {
+								data.push(object);
 							}
 
-						} else {
-							data.push(object);
-						}
+						} else if ('id' in object) {
 
-					} else if ('id' in object) {
+							let check = data.find(d => d.id === object.id) || null;
+							if (check !== null) {
 
-						let check = data.find(d => d.id === object.id) || null;
-						if (check !== null) {
+								for (let prop in object) {
 
-							for (let prop in object) {
+									if (data[prop] === undefined) {
+										data[prop] = object[prop];
+									} else if (data[prop] === null && object[prop] !== null) {
+										data[prop] = object[prop];
+									}
 
-								if (data[prop] === undefined) {
-									data[prop] = object[prop];
-								} else if (data[prop] === null && object[prop] !== null) {
-									data[prop] = object[prop];
 								}
 
+							} else {
+								data.push(object);
 							}
 
-						} else {
-							data.push(object);
 						}
 
-					}
+					});
 
-				});
+				}
 
 			} else if (tmp instanceof Object && data instanceof Object) {
 
@@ -159,9 +170,8 @@ const _read = function(profile, complete, callback) {
 
 
 			if (complete === true) {
-				results.push(_read_file.call(this, profile + '/blockers/hosts.json',      this.blockers.hosts));
-				results.push(_read_file.call(this, profile + '/blockers/filters.json',    this.blockers.filters));
-				results.push(_read_file.call(this, profile + '/blockers/optimizers.json', this.blockers.optimizers));
+				this.blockers = [];
+				results.push(_read_file.call(this, profile + '/blockers.json', this.blockers, true));
 			}
 
 
@@ -274,7 +284,6 @@ const _setup = function(profile, callback) {
 						_setup_dir(profile + '/requests'),
 						_setup_dir(profile + '/requests/headers'),
 						_setup_dir(profile + '/requests/payload'),
-						_setup_dir(profile + '/blockers'),
 						_setup_dir(profile + '/scrapers')
 					];
 
@@ -304,7 +313,6 @@ const _setup = function(profile, callback) {
 				_setup_dir(profile + '/requests'),
 				_setup_dir(profile + '/requests/headers'),
 				_setup_dir(profile + '/requests/payload'),
-				_setup_dir(profile + '/blockers'),
 				_setup_dir(profile + '/scrapers')
 			];
 
@@ -339,16 +347,11 @@ const Settings = function(stealth, profile, defaults) {
 		torify:     false
 	};
 
-	this.blockers = {
-		hosts:      [],
-		filters:    [],
-		optimizers: []
-	};
-
-	this.filters = [];
-	this.hosts   = [];
-	this.peers   = [];
-	this.sites   = [];
+	this.blockers = [];
+	this.filters  = [];
+	this.hosts    = [];
+	this.peers    = [];
+	this.sites    = [];
 
 	this.profile = profile;
 

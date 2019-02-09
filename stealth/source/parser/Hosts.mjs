@@ -9,22 +9,29 @@ const _parse = function(payload) {
 	let buffer = payload.toString('utf8').split('\n');
 	if (buffer.length > 0) {
 
-		let lines = buffer.map(b => b.trim()).filter(b => b !== '' && !b.startsWith('#'));
+		let lines = buffer.map(b => b.trim()).filter(b => b !== '').filter(b => {
+			return b.startsWith('!') === false && b.startsWith('#') === false;
+		});
+
 		if (lines.length > 0) {
 
-			let blockers = {
-				hosts:      [],
-				filters:    [],
-				optimizers: []
-			};
+			let domains = {};
 
 			lines.forEach(line => {
 
-				if (line.includes('#')) {
-					line = line.split('#')[0].trim();
+				let i0 = line.indexOf('#');
+				if (i0 !== -1) {
+					line = line.substr(0, i0).trim();
 				}
 
-				let tmp   = line.split(' ');
+				let tmp = '';
+
+				if (line.includes('\t')) {
+					tmp = line.split('\t').filter(v => v !== '');
+				} else {
+					tmp = line.split(' ').filter(v => v !== '');
+				}
+
 				let ip    = tmp[0].trim();
 				let hosts = tmp.slice(1).map(h => h.trim()).filter(host => {
 					return host !== 'localhost' && host !== 'localhost.localdomain';
@@ -35,44 +42,39 @@ const _parse = function(payload) {
 					if (hosts.length > 1) {
 
 						hosts.forEach(host => {
-
-							let ref = URL.parse(host);
-							if (ref.domain !== null) {
-
-								let check = blockers.hosts.find(f => f.domain === ref.domain && f.subdomain === ref.subdomain) || null;
-								if (check === null) {
-									blockers.hosts.push({
-										domain:    ref.domain,
-										subdomain: ref.subdomain
-									});
-								}
-
-							}
-
+							domains[host] = true;
 						});
 
 					} else if (hosts.length === 1) {
-
-						let ref = URL.parse(hosts[0]);
-						if (ref.domain !== null) {
-
-							let check = blockers.hosts.find(f => f.domain === ref.domain && f.subdomain === ref.subdomain) || null;
-							if (check === null) {
-								blockers.hosts.push({
-									domain:    ref.domain,
-									subdomain: ref.subdomain
-								});
-							}
-
-						}
-
+						domains[hosts[0]] = true;
 					}
 
+				} else if (ip.includes(':')) {
+					// ignore localhost bindings
+				} else if (ip.includes('.')) {
+					domains[ip] = true;
 				}
 
 			});
 
-			return blockers;
+
+			return Object.keys(domains).map(domain => {
+
+				let ref = URL.parse(domain);
+				if (ref.domain !== null && ref.subdomain !== null) {
+					return {
+						domain:    ref.domain,
+						subdomain: ref.subdomain
+					};
+				} else if (ref.domain !== null) {
+					return {
+						domain: ref.domain
+					};
+				} else {
+					return null;
+				}
+
+			}).filter(r => r !== null);
 
 		}
 

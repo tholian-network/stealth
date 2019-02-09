@@ -2,6 +2,184 @@
 import { IP } from './IP.mjs';
 
 
+const _TOPLEVELDOMAINS = [
+	'aba.ae',
+	'ac.id',
+	'ac.in',
+	'ac.th',
+	'adv.br',
+	'at.ua',
+	'az.pl',
+	'cn.com',
+	'co.at',
+	'co.cc',
+	'co.cr',
+	'co.id',
+	'co.il',
+	'co.in',
+	'co.jp',
+	'co.ke',
+	'co.kr',
+	'co.ls',
+	'co.mz',
+	'co.nf',
+	'co.nz',
+	'co.rs',
+	'co.th',
+	'co.tv',
+	'co.tz',
+	'co.ua',
+	'co.ug',
+	'co.uk',
+	'co.vu',
+	'co.za',
+	'co.zw',
+	'com.ar',
+	'com.au',
+	'com.bd',
+	'com.bo',
+	'com.br',
+	'com.cn',
+	'com.co',
+	'com.cy',
+	'com.de',
+	'com.do',
+	'com.ec',
+	'com.eg',
+	'com.es',
+	'com.gt',
+	'com.hk',
+	'com.kh',
+	'com.lb',
+	'com.mk',
+	'com.mx',
+	'com.my',
+	'com.ng',
+	'com.np',
+	'com.pe',
+	'com.ph',
+	'com.pk',
+	'com.pl',
+	'com.pt',
+	'com.py',
+	'com.ru',
+	'com.sa',
+	'com.sg',
+	'com.sv',
+	'com.tr',
+	'com.tw',
+	'com.ua',
+	'com.uy',
+	'com.ve',
+	'com.vn',
+	'cz.cc',
+	'da.ru',
+	'de.vu',
+	'do.am',
+	'dol.ru',
+	'dp.ua',
+	'edu.ar',
+	'edu.au',
+	'edu.bd',
+	'edu.br',
+	'edu.cn',
+	'edu.co',
+	'edu.in',
+	'edu.mx',
+	'edu.my',
+	'edu.ng',
+	'edu.np',
+	'edu.pe',
+	'edu.pk',
+	'edu.pl',
+	'edu.tw',
+	'edu.vn',
+	'eng.br',
+	'esy.es',
+	'far.ru',
+	'flu.cc',
+	'fr.am',
+	'gen.tr',
+	'go.com',
+	'go.id',
+	'go.ro',
+	'go.th',
+	'gob.mx',
+	'gob.pe',
+	'gov.bd',
+	'gov.br',
+	'gov.cn',
+	'gov.it',
+	'gov.ph',
+	'had.su',
+	'hol.es',
+	'hop.ru',
+	'in.th',
+	'in.ua',
+	'ind.br',
+	'inf.br',
+	'me.uk',
+	'mm.am',
+	'ne.jp',
+	'net.au',
+	'net.br',
+	'net.cn',
+	'net.in',
+	'net.nz',
+	'net.pk',
+	'net.pl',
+	'net.ru',
+	'net.ua',
+	'nl.am',
+	'nut.cc',
+	'or.id',
+	'or.jp',
+	'or.ke',
+	'or.kr',
+	'org.ar',
+	'org.au',
+	'org.bd',
+	'org.br',
+	'org.il',
+	'org.in',
+	'org.mx',
+	'org.my',
+	'org.ng',
+	'org.np',
+	'org.nz',
+	'org.pe',
+	'org.pk',
+	'org.pl',
+	'org.rs',
+	'org.ru',
+	'org.tr',
+	'org.tw',
+	'org.ua',
+	'org.uk',
+	'org.ve',
+	'org.za',
+	'pe.hu',
+	'pp.ru',
+	'pp.ua',
+	'prv.pl',
+	'qc.ca',
+	'rr.nu',
+	'sh.cn',
+	'spb.ru',
+	'tbn.ru',
+	'tur.br',
+	'vi.net',
+	'waw.pl',
+	'wz.cz',
+	'xt.pl',
+	'yi.org',
+	'za.net',
+	'za.pl',
+	'zyr.su',
+	'zz.mu'
+];
+
+
 const _DEFAULT = {
 	ext:    null,
 	type:   'other',
@@ -228,18 +406,35 @@ const URL = {
 
 			let ip = IP.parse(domain);
 			if (ip.type === 'v4') {
-
 				domain = null;
 				host   = ip.ip;
+			}
 
-			} else {
+		} else if (domain !== null && domain.includes('.')) {
 
-				let check = domain.split('.').slice(0, -2);
-				if (check.length > 0) {
-					domain    = domain.split('.').slice(-2).join('.');
-					subdomain = check.join('.');
+			let tmp_tld = domain.split('.').slice(-2).join('.');
+			let tmp_sub = domain.split('.').slice(0, -2);
+
+			if (_TOPLEVELDOMAINS.includes(tmp_tld) === true && tmp_sub.length > 0) {
+
+				domain = tmp_sub.pop() + '.' + tmp_tld;
+
+				if (tmp_sub.length > 0) {
+					subdomain = tmp_sub.join('.');
+				} else {
+					subdomain = null;
 				}
 
+			} else if (tmp_sub.length > 0) {
+				domain    = tmp_tld;
+				subdomain = tmp_sub.join('.');
+			} else {
+				domain    = tmp_tld;
+				subdomain = null;
+			}
+
+			if (domain.startsWith('-')) {
+				domain = null;
 			}
 
 		}

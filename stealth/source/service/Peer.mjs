@@ -11,8 +11,8 @@ const _CONNECTION = [
 ];
 
 const _STATUS = [
-	'connected',
-	'disconnected'
+	'online',
+	'offline'
 ];
 
 
@@ -24,7 +24,7 @@ const _payloadify = function(payload) {
 		payload.subdomain  = typeof payload.subdomain === 'string'    ? payload.subdomain  : null;
 		payload.host       = typeof payload.host === 'string'         ? payload.host       : null;
 		payload.connection = _CONNECTION.includes(payload.connection) ? payload.connection : 'offline';
-		payload.status     = _STATUS.includes(payload.status)         ? payload.status     : 'disconnected';
+		payload.status     = _STATUS.includes(payload.status)         ? payload.status     : 'offline';
 
 		return payload;
 
@@ -179,7 +179,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 			if (peer !== null) {
 
 				peer.connection = payload.connection || 'offline';
-				peer.status     = payload.status     || 'disconnected';
+				peer.status     = payload.status     || 'offline';
 
 				settings.save();
 
@@ -193,7 +193,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 				peer = {
 					domain:     payload.domain,
 					connection: payload.connection || 'offline',
-					status:     payload.status     || 'disconnected'
+					status:     payload.status     || 'offline'
 				};
 
 				settings.peers.push(peer);
@@ -204,7 +204,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 				peer = {
 					domain:     payload.host,
 					connection: payload.connection || 'offline',
-					status:     payload.status     || 'disconnected'
+					status:     payload.status     || 'offline'
 				};
 
 				settings.peers.push(peer);

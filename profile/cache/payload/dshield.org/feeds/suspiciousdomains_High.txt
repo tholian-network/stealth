@@ -1,0 +1,45 @@
+#
+#   DShield.org Suspicious Domain List
+#    (c) 2019 DShield.org
+#   some rights reserved. Details http://creativecommons.org/licenses/by-nc-sa/2.5/
+#   use on your own risk. No warranties implied.
+#   primary URL: http://www.dshield.org/feeds/suspiciousdomains_High.txt
+#
+#   comments: info@dshield.org
+#    updated: Fri Feb  8 04:04:02 2019 UTC
+#   
+#    This list consists of High Level Sensitivity website URLs
+#     Columns (tab delimited):
+#
+#      (1) site
+#
+Site
+g4dhhg53jsdjnnkjwjrfyiouh3o4u4th.vinerteen.com
+4w5wihkwyhsav2ha.dreamtest.at
+ojmekzw4mujvqeju.dreamtest.at
+i01001.dgn.vn
+x5sbb5gesp6kzwsh.homewind.pl
+honourableud.top
+aa12111.top
+ohpbdikmrrhr.pw
+nlpqflkbvkdde.eu
+xvchcbeqxkd.pw
+uuwflbmjmi.eu
+qqtphtlhny.pw
+ibjgnqsthdyp.pw
+wqxvsxppjivs.pw
+lvanwwbyabcfevyi.pw
+lyrnvane.pw
+rqfsctpgpuani.pw
+eppilxqwyqdhmpdsn.pw
+pagaldaily.com
+#
+# STATISTICS
+#
+# Total In Database: 107920
+# Total In Report:   19
+# Percent of Total:  0.02 %
+#
+# END
+#
+#  finished list generation: Fri Feb  8 04:04:02 2019 UTC

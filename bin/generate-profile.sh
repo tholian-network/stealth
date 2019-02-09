@@ -23,7 +23,7 @@ _download() {
 		cd "$root_dir";
 
 		mkdir -p "$root_dir/profile/cache/payload/$folder";
-		wget "$url" -O "$root_dir/profile/cache/payload/$path";
+		wget -c "$url" -O "$root_dir/profile/cache/payload/$path";
 
 	fi;
 
@@ -40,24 +40,36 @@ if [[ -z "$wget_bin" ]]; then
 fi;
 
 
-# Host Blockers
-_download "http://winhelp2002.mvps.org/hosts.txt";
+
+# Blockers: Hosts
+_download "https://ransomwaretracker.abuse.ch/downloads/CW_C2_DOMBL.txt";
+_download "https://ransomwaretracker.abuse.ch/downloads/LY_C2_DOMBL.txt";
+_download "https://ransomwaretracker.abuse.ch/downloads/TC_C2_DOMBL.txt";
+_download "https://ransomwaretracker.abuse.ch/downloads/TL_C2_DOMBL.txt";
+_download "https://ransomwaretracker.abuse.ch/downloads/RW_DOMBL.txt";
+_download "https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist";
+_download "https://adaway.org/hosts.txt";
+_download "https://dshield.org/feeds/suspiciousdomains_Low.txt";
+_download "https://dshield.org/feeds/suspiciousdomains_Medium.txt";
+_download "https://dshield.org/feeds/suspiciousdomains_High.txt";
+_download "https://hostsfile.org/Downloads/hosts.txt";
+_download "https://hosts-file.net/ad_servers.txt";
+_download "https://hosts-file.net/emd.txt";
+_download "https://hosts-file.net/exp.txt";
+_download "https://hosts-file.net/grm.txt";
+_download "https://hosts-file.net/psh.txt";
+_download "https://hostsfile.mine.nu/hosts0.txt";
+_download "https://v.firebog.net/hosts/BillStearns.txt";
+_download "https://v.firebog.net/hosts/Easylist.txt";
+_download "https://v.firebog.net/hosts/Easyprivacy.txt";
+_download "https://v.firebog.net/hosts/Kowabit.txt";
+_download "https://v.firebog.net/hosts/Prigent-Ads.txt";
+_download "https://phishing.army/download/phishing_army_blocklist_extended.txt";
 _download "http://someonewhocares.org/hosts/hosts";
-_download "https://filters.adtidy.org/extension/chromium/filters/15.txt"; # AdGuard Domain
+_download "http://winhelp2002.mvps.org/hosts.txt";
 
-_download "https://easylist-downloads.adblockplus.org/fanboy-annoyance.txt";
-_download "https://easylist-downloads.adblockplus.org/fanboy-social.txt";
-_download "https://easylist-downloads.adblockplus.org/easylist_noelemhide.txt";
-_download "https://easylist-downloads.adblockplus.org/easyprivacy.txt";
-
-# Filters and Optimizers
-# XXX: Shittiest Download Servers on the Internet
-# _download "https://filters.adtidy.org/extension/chromium/filters/1.txt";  # AdGuard Russian
-# _download "https://filters.adtidy.org/extension/chromium/filters/2.txt";  # AdGuard Base
-# _download "https://filters.adtidy.org/extension/chromium/filters/4.txt";  # AdGuard Social Media
-# _download "https://filters.adtidy.org/extension/chromium/filters/6.txt";  # AdGuard German
-# _download "https://filters.adtidy.org/extension/chromium/filters/14.txt"; # AdGuard Annoyances
-# _download "https://filters.adtidy.org/extension/chromium/filters/16.txt"; # AdGuard French
+# Blockers: AdGuard
+_download "https://filters.adtidy.org/extension/chromium/filters/15.txt";
 
 
 

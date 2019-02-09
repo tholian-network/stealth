@@ -34,6 +34,7 @@ const _validate_ipv4 = function(ipv4) {
 const _validate_ipv6 = function(ipv6) {
 
 	let valid = true;
+	let chunk = [];
 
 	if (ipv6.includes('::')) {
 
@@ -53,6 +54,8 @@ const _validate_ipv6 = function(ipv6) {
 			if (v.length < 4) return '0000'.substr(0, 4 - v.length) + v;
 			return v;
 		}).forEach(v => {
+
+			chunk.push(v);
 
 			let num = parseInt(v, 16);
 			if (num === 0) {
@@ -76,6 +79,8 @@ const _validate_ipv6 = function(ipv6) {
 			return v;
 		}).forEach(v => {
 
+			chunk.push(v);
+
 			let num = parseInt(v, 16);
 			if (num === 0) {
 
@@ -93,7 +98,13 @@ const _validate_ipv6 = function(ipv6) {
 
 	}
 
-	return valid === true ? ipv6 : null;
+
+	if (valid === true) {
+		return chunk.join(':');
+	}
+
+
+	return null;
 
 };
 

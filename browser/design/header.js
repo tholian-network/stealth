@@ -47,9 +47,9 @@
 
 			buttons.config.forEach(button => {
 
-				let type = button.getAttribute('data-mode') || null;
-				if (type !== null) {
-					config.mode[type] = button.className === 'active';
+				let key = button.getAttribute('data-key') || null;
+				if (key !== null) {
+					config.mode[key] = button.getAttribute('data-val') === 'true';
 				}
 
 			});
@@ -286,18 +286,18 @@
 				buttons.site.removeAttribute('disabled');
 			}
 
-			Object.keys(tab.config.mode).forEach(type => {
+			Object.keys(tab.config.mode).forEach(key => {
 
-				let button = buttons.config.find(b => b.getAttribute('data-mode') === type) || null;
+				let button = buttons.config.find(b => b.getAttribute('data-key') === key) || null;
 				if (button !== null) {
-					button.className = tab.config.mode[type] === true ? 'active' : '';
+					button.setAttribute('data-val', tab.config.mode[key] === true ? 'true' : 'false');
 				}
 
 			});
 
 		} else {
 
-			buttons.config.forEach(b => (b.className = ''));
+			buttons.config.forEach(b => (b.setAttribute('data-val', 'false')));
 
 		}
 
@@ -497,7 +497,7 @@
 
 				button.onclick = () => {
 
-					button.className = button.className === 'active' ? '' : 'active';
+					button.setAttribute('data-val', button.getAttribute('data-val') === 'true' ? 'false' : 'true');
 
 					let config = _get_config(browser);
 					if (config !== null) {
