@@ -11,7 +11,7 @@ const elements = {
 };
 
 const _update = function(browser, site) {
-	elements.sites.innerHTML = render('site', site, true);
+	elements.sites.innerHTML = render('site', site, [ 'save' ]);
 };
 
 const _update_config = function(config) {
@@ -43,37 +43,7 @@ init([
 			let service = browser.client.services.site || null;
 			if (service !== null) {
 
-				if (action === 'read') {
-
-					service.read({
-						domain:    REFERENCE.domain,
-						subdomain: REFERENCE.subdomain
-					}, (site) => {
-
-						done(true);
-
-						if (site !== null) {
-							_update(browser, site);
-						}
-
-					});
-
-				} else if (action === 'remove') {
-
-					service.remove({
-						domain:    REFERENCE.domain,
-						subdomain: REFERENCE.subdomain
-					}, (result) => {
-
-						done(result);
-
-						if (result === true) {
-							elements.sites.innerHTML = '<tr><td colspan="3">(config has been removed)</td></tr>';
-						}
-
-					});
-
-				} else if (action === 'save') {
+				if (action === 'save') {
 
 					let result = browser.set(data);
 					if (result === true) {

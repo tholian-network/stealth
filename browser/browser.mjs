@@ -70,3 +70,16 @@ setTimeout(() => {
 
 }, 1000);
 
+
+(function(navigator) {
+
+	if ('serviceWorker' in navigator) {
+
+		navigator.serviceWorker.register('service.js').then(service => {
+			console.info('Service Worker connected.', service.scope);
+		}).catch(() => {});
+
+	}
+
+})(window.navigator || {});
+

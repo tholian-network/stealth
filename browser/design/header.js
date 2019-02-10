@@ -546,7 +546,6 @@
 					buttons.site.className  = '';
 					sidebars.site.className = '';
 					browser.show(tab);
-
 				}
 
 			};
@@ -554,6 +553,22 @@
 		}
 
 	};
+
+
+
+	let _is_fullscreen = false;
+
+	const _go_fullscreen = function() {
+
+		if (_is_fullscreen === false) {
+			_is_fullscreen = true;
+			doc.body.requestFullscreen();
+			doc.body.removeEventListener('click', _go_fullscreen, true);
+		}
+
+	};
+
+	doc.body.addEventListener('click', _go_fullscreen, true);
 
 
 

@@ -374,6 +374,21 @@ Server.prototype = {
 
 											});
 
+										} else if (ref.path === '/browser/index.html') {
+
+											this.services.file.read(ref, response => {
+
+												if (response !== null && response.payload !== null) {
+													response.headers['Service-Worker-Allowed'] = '/browser';
+													HTTP.send(socket, response);
+												} else {
+													this.services.error.get({
+														code: 404
+													}, response => HTTP.send(socket, response));
+												}
+
+											});
+
 										} else if (ref.path.startsWith('/browser')) {
 
 											this.services.file.read(ref, response => {

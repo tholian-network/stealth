@@ -143,6 +143,13 @@ gio open http://localhost:65432;
 ```
 
 
+## Work in Progress
+
+- [ ] Internal Page for `stealthfix-request` ( `internal/fix-request{html,mjs}`).
+- [ ] Site Mode and Site Filters sidebar (`design/site.js`).
+
+
+
 ## License
 
 The license is currently unclear and depends on how to finance this project later.

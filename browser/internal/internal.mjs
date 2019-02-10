@@ -1,5 +1,6 @@
 
-import { URL } from '../source/parser/URL.mjs';
+import { POLYFILLS } from '../source/POLYFILLS.mjs';
+import { URL       } from '../source/parser/URL.mjs';
 
 
 export const BROWSER = (function(global) {
@@ -197,56 +198,39 @@ const _render_peer_edit = (peer) => `
 </tr>
 `;
 
-const _render_site = (site) => `
+const _render_site = (site, actions) => `
 <tr>
 	<td data-key="domain">${site.domain}</td>
 	<td>
-		<button data-key="mode.text"  data-val="${site.mode.text  === true ? 'true' : 'false'}" disabled></button>
-		<button data-key="mode.image" data-val="${site.mode.image === true ? 'true' : 'false'}" disabled></button>
-		<button data-key="mode.audio" data-val="${site.mode.audio === true ? 'true' : 'false'}" disabled></button>
-		<button data-key="mode.video" data-val="${site.mode.video === true ? 'true' : 'false'}" disabled></button>
-		<button data-key="mode.other" data-val="${site.mode.other === true ? 'true' : 'false'}" disabled></button>
+		<button data-key="mode.text"  data-val="${site.mode.text  === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+		<button data-key="mode.image" data-val="${site.mode.image === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+		<button data-key="mode.audio" data-val="${site.mode.audio === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+		<button data-key="mode.video" data-val="${site.mode.video === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+		<button data-key="mode.other" data-val="${site.mode.other === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
 	</td>
 	<td>
-		<button data-action="refresh"></button>
-		<button data-action="remove"></button>
-	</td>
-</tr>
-`;
-
-const _render_site_edit = (site) => `
-<tr>
-	<td data-key="domain">${site.domain}</td>
-	<td>
-		<button data-key="mode.text"  data-val="${site.mode.text  === true ? 'true' : 'false'}" title="Allow/Disallow Text"></button>
-		<button data-key="mode.image" data-val="${site.mode.image === true ? 'true' : 'false'}" title="Allow/Disallow Image"></button>
-		<button data-key="mode.audio" data-val="${site.mode.audio === true ? 'true' : 'false'}" title="Allow/Disallow Audio"></button>
-		<button data-key="mode.video" data-val="${site.mode.video === true ? 'true' : 'false'}" title="Allow/Disallow Video"></button>
-		<button data-key="mode.other" data-val="${site.mode.other === true ? 'true' : 'false'}" title="Allow/Disallow Other"></button>
-	</td>
-	<td>
-		<button data-action="remove"></button>
+		${actions.map(action => '<button data-action="' + action + '"></button>').join('')}
 	</td>
 </tr>
 `;
 
 
 
-export const render = function(type, data, edit) {
+export const render = function(type, data, actions) {
 
-	type = typeof type === 'string' ? type : null;
-	data = typeof data === 'object' ? data : null;
-	edit = edit === true;
+	type    = String.isString(type)  ? type    : null;
+	data    = Object.isObject(data)  ? data    : null;
+	actions = Array.isArray(actions) ? actions : [];
 
 
-	if (type !== null) {
+	if (type !== null && data !== null) {
 
 		if (type === 'host') {
-			return (edit === true ? _render_host_edit(data) : _render_host(data));
+			return _render_host(data, actions);
 		} else if (type === 'peer') {
-			return (edit === true ? _render_peer_edit(data) : _render_peer(data));
+			return _render_peer(data, actions);
 		} else if (type === 'site') {
-			return (edit === true ? _render_site_edit(data) : _render_site(data));
+			return _render_site(data, actions);
 		}
 
 	}
@@ -257,8 +241,8 @@ export const render = function(type, data, edit) {
 
 export const listen = function(element, callback) {
 
-	element  = element !== undefined          ? element  : null;
-	callback = typeof callback === 'function' ? callback : null;
+	element  = element !== undefined         ? element  : null;
+	callback = Function.isFunction(callback) ? callback : null;
 
 
 	if (element !== null && callback !== null) {
@@ -306,8 +290,8 @@ export const listen = function(element, callback) {
 
 export const init = function(elements, callback) {
 
-	elements = Array.isArray(elements)        ? elements : [];
-	callback = typeof callback === 'function' ? callback : null;
+	elements = Array.isArray(elements)       ? elements : [];
+	callback = Function.isFunction(callback) ? callback : null;
 
 
 	let result = true;
