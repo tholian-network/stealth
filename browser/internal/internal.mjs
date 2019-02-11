@@ -194,6 +194,18 @@ const _reset_data = (element) => {
 
 
 
+const _render_filter = (filter, actions) => `
+<tr>
+	<td data-key="domain">${filter.domain}</td>
+	<td data-key="filter.prefix">${filter.filter.prefix !== null ? filter.filter.prefix : '(none)'}</td>
+	<td data-key="filter.midfix">${filter.filter.midfix !== null ? filter.filter.midfix : '(none)'}</td>
+	<td data-key="filter.suffix">${filter.filter.suffix !== null ? filter.filter.suffix : '(none)'}</td>
+	<td>
+		${actions.map(action => '<button data-action="' + action + '"></button>').join('')}
+	</td>
+</tr>
+`;
+
 const _render_host = (host, actions) => `
 <tr>
 	<td data-key="domain">${host.domain}</td>
@@ -205,27 +217,27 @@ const _render_host = (host, actions) => `
 </tr>
 `;
 
-const _render_peer = (peer, actions) => `
+const _render_mode = (mode, actions) => `
 <tr>
-	<td data-key="domain">${peer.domain}</td>
-	<td><button data-key="connection" data-val="${peer.connection}" disabled></button></td>
-	<td><button data-key="status" data-val="${peer.status}" disabled></button></td>
+	<td data-key="domain">${mode.domain}</td>
+	<td>
+		<button data-key="mode.text"  data-val="${mode.mode.text  === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+		<button data-key="mode.image" data-val="${mode.mode.image === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+		<button data-key="mode.audio" data-val="${mode.mode.audio === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+		<button data-key="mode.video" data-val="${mode.mode.video === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+		<button data-key="mode.other" data-val="${mode.mode.other === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
+	</td>
 	<td>
 		${actions.map(action => '<button data-action="' + action + '"></button>').join('')}
 	</td>
 </tr>
 `;
 
-const _render_site = (site, actions) => `
+const _render_peer = (peer, actions) => `
 <tr>
-	<td data-key="domain">${site.domain}</td>
-	<td>
-		<button data-key="mode.text"  data-val="${site.mode.text  === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
-		<button data-key="mode.image" data-val="${site.mode.image === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
-		<button data-key="mode.audio" data-val="${site.mode.audio === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
-		<button data-key="mode.video" data-val="${site.mode.video === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
-		<button data-key="mode.other" data-val="${site.mode.other === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
-	</td>
+	<td data-key="domain">${peer.domain}</td>
+	<td><button data-key="connection" data-val="${peer.connection}" disabled></button></td>
+	<td><button data-key="status" data-val="${peer.status}" disabled></button></td>
 	<td>
 		${actions.map(action => '<button data-action="' + action + '"></button>').join('')}
 	</td>
@@ -327,24 +339,28 @@ export const render = function(type, data, actions, callback) {
 
 	if (type !== null && data !== null && callback !== null) {
 
-		if (type === 'host') {
+		if (type === 'filter') {
+			callback(_render_filter(data, actions));
+		} else if (type === 'host') {
 			callback(_render_host(data, actions));
+		} else if (type === 'mode') {
+			callback(_render_mode(data, actions));
 		} else if (type === 'peer') {
 			callback(_render_peer(data, actions));
-		} else if (type === 'site') {
-			callback(_render_site(data, actions));
 		} else {
 			callback(null);
 		}
 
 	} else if (type !== null && data !== null) {
 
-		if (type === 'host') {
+		if (type === 'filter') {
+			return _render_filter(data, actions);
+		} else if (type === 'host') {
 			return _render_host(data, actions);
+		} else if (type === 'mode') {
+			return _render_mode(data, actions);
 		} else if (type === 'peer') {
 			return _render_peer(data, actions);
-		} else if (type === 'site') {
-			return _render_site(data, actions);
 		} else {
 			return null;
 		}

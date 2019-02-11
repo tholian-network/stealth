@@ -21,8 +21,8 @@
 		<header id="header">
 			<div id="header-history">
 				<button id="header-history-back" title="Visit earlier Site" disabled></button>
-				<button id="header-history-next" title="Visit later site" disabled></button>
-				<button id="header-history-state" title="Refresh/Pause site" disabled></button>
+				<button id="header-history-next" title="Visit later Site" disabled></button>
+				<button id="header-history-state" title="Refresh/Pause current Site" disabled></button>
 			</div>
 			<div id="header-address">
 				<ul><li id="header-address-protocol" class="secure" title="Secure via HTTPS"></li><li>stealth:welcome</li></ul>
@@ -30,11 +30,11 @@
 			</div>
 			<div class="header-right">
 				<div id="header-config">
-					<button data-key="text"  data-val="false" title="Allow Texts on Site"></button>
-					<button data-key="image" data-val="false" title="Allow Images on Site"></button>
-					<button data-key="audio" data-val="false" title="Allow Audios on Site"></button>
-					<button data-key="video" data-val="false" title="Allow Videos on Site"></button>
-					<button data-key="other" data-val="false" title="Allow Others on Site"></button>
+					<button data-key="text"  data-val="false" title="Allow/Disallow Text on current Site"></button>
+					<button data-key="image" data-val="false" title="Allow/Disallow Image on current Site"></button>
+					<button data-key="audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>
+					<button data-key="video" data-val="false" title="Allow/Disallow Video on current Site"></button>
+					<button data-key="other" data-val="false" title="Allow/Disallow Other on current Site"></button>
 				</div>
 				<div id="header-settings">
 					<button id="header-settings-site" title="Site Settings"></button>
@@ -70,11 +70,11 @@
 						<tr>
 							<td>old.reddit.com</td>
 							<td class="site-mode">
-								<button data-mode="text"  title="Allow Texts on Site"></button>
-								<button data-mode="image" title="Allow Images on Site"></button>
-								<button data-mode="audio" title="Allow Audios on Site"></button>
-								<button data-mode="video" title="Allow Videos on Site"></button>
-								<button data-mode="other" title="Allow Others on Site"></button>
+								<button data-mode="text"></button>
+								<button data-mode="image"></button>
+								<button data-mode="audio"></button>
+								<button data-mode="video"></button>
+								<button data-mode="other"></button>
 							</td>
 							<td><button data-action="confirm" data-method="save"></button></td>
 						</tr>

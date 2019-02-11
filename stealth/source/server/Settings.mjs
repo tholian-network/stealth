@@ -10,8 +10,8 @@ const _payloadify = function(payload) {
 		payload.internet = payload.internet instanceof Object ? payload.internet : {};
 		payload.filters  = payload.filters  instanceof Array  ? payload.filters  : [];
 		payload.hosts    = payload.hosts    instanceof Array  ? payload.hosts    : [];
+		payload.modes    = payload.modes    instanceof Array  ? payload.modes    : [];
 		payload.peers    = payload.peers    instanceof Array  ? payload.peers    : [];
-		payload.sites    = payload.sites    instanceof Array  ? payload.sites    : [];
 
 		return payload;
 
@@ -142,19 +142,19 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-			payload.sites.forEach(site => {
+			payload.modes.forEach(mode => {
 
-				let other = settings.sites.find(s => s.domain === site.domain) || null;
+				let other = settings.modes.find(m => m.domain === mode.domain) || null;
 				if (other !== null) {
 
-					for (let key in site) {
+					for (let key in mode) {
 						if (other[key] !== undefined) {
-							other[key] = site[key];
+							other[key] = mode[key];
 						}
 					}
 
 				} else {
-					settings.sites.push(site);
+					settings.modes.push(mode);
 				}
 
 			});

@@ -1,11 +1,11 @@
 
 import { Emitter  } from './Emitter.mjs';
-import { Cache    } from './service/Cache.mjs';
-import { Filter   } from './service/Filter.mjs';
-import { Host     } from './service/Host.mjs';
-import { Peer     } from './service/Peer.mjs';
-import { Settings } from './service/Settings.mjs';
-import { Site     } from './service/Site.mjs';
+import { Cache    } from './client/Cache.mjs';
+import { Filter   } from './client/Filter.mjs';
+import { Host     } from './client/Host.mjs';
+import { Mode     } from './client/Mode.mjs';
+import { Peer     } from './client/Peer.mjs';
+import { Settings } from './client/Settings.mjs';
 
 
 
@@ -18,9 +18,9 @@ const Client = function(browser) {
 		cache:    new Cache(browser, this),
 		filter:   new Filter(browser, this),
 		host:     new Host(browser, this),
+		mode:     new Mode(browser, this),
 		peer:     new Peer(browser, this),
-		settings: new Settings(browser, this),
-		site:     new Site(browser, this)
+		settings: new Settings(browser, this)
 	};
 
 	this.__socket = null;

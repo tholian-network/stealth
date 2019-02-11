@@ -8,12 +8,14 @@ const elements = {
 		connection: Array.from(document.querySelectorAll('#internet-connection input')),
 		torify:     Array.from(document.querySelectorAll('#internet-torify input'))
 	},
+	filter:  document.querySelector('#sites table#sites-filters tfoot'),
+	filters: document.querySelector('#sites table#sites-filters tbody'),
 	host:  document.querySelector('#hosts table tfoot'),
 	hosts: document.querySelector('#hosts table tbody'),
+	mode:  document.querySelector('#sites table#sites-modes tfoot'),
+	modes: document.querySelector('#sites table#sites-modes tbody'),
 	peer:  document.querySelector('#peers table tfoot'),
 	peers: document.querySelector('#peers table tbody'),
-	site:  document.querySelector('#sites table tfoot'),
-	sites: document.querySelector('#sites table tbody')
 };
 
 
@@ -106,9 +108,19 @@ const _on_update = function(settings) {
 
 	}
 
+	let filters = settings.filters || null;
+	if (filters !== null) {
+		elements.filters.innerHTML = filters.sort(_sort_by_domain).map(filter => render('filter', filter, [ 'remove' ])).join('');
+	}
+
 	let hosts = settings.hosts || null;
 	if (hosts !== null) {
 		elements.hosts.innerHTML = hosts.sort(_sort_by_domain).map(host => render('host', host, [ 'refresh', 'remove', 'save' ])).join('');
+	}
+
+	let modes = settings.modes || null;
+	if (modes !== null) {
+		elements.modes.innerHTML = modes.sort(_sort_by_domain).map(mode => render('mode', mode, [ 'remove', 'save' ])).join('');
 	}
 
 	let peers = settings.peers || null;
@@ -116,19 +128,15 @@ const _on_update = function(settings) {
 		elements.peers.innerHTML = peers.sort(_sort_by_domain).map(peer => render('peer', peer, [ 'refresh', 'remove', 'save' ])).join('');
 	}
 
-	let sites = settings.sites || null;
-	if (sites !== null) {
-		elements.sites.innerHTML = sites.sort(_sort_by_domain).map(site => render('site', site, [ 'remove', 'save' ])).join('');
-	}
-
 };
 
 
 
 init([
+	elements.filters,
 	elements.hosts,
-	elements.peers,
-	elements.sites
+	elements.modes,
+	elements.peers
 ], (browser, result) => {
 
 	if (result === true) {
@@ -197,7 +205,7 @@ init([
 
 
 	/*
-	 * Refresh/Remove/Save
+	 * Table Body
 	 */
 
 	listen(elements.hosts, (action, data, done) => {
@@ -362,9 +370,9 @@ init([
 
 	});
 
-	listen(elements.sites, (action, data, done) => {
+	listen(elements.modes, (action, data, done) => {
 
-		let service = browser.client.services.site || null;
+		let service = browser.client.services.mode || null;
 		if (service !== null) {
 
 			if (action === 'remove') {
@@ -373,18 +381,18 @@ init([
 
 					if (result === true) {
 
-						let cache = browser.settings.sites.find(s => s.domain === data.domain) || null;
+						let cache = browser.settings.modes.find(m => m.domain === data.domain) || null;
 						if (cache !== null) {
 
-							let index = browser.settings.sites.indexOf(cache);
+							let index = browser.settings.modes.indexOf(cache);
 							if (index !== -1) {
-								browser.settings.sites.splice(index, 1);
+								browser.settings.modes.splice(index, 1);
 							}
 
 						}
 
 						_on_update({
-							sites: browser.settings.sites
+							modes: browser.settings.modes
 						});
 
 					}
@@ -399,7 +407,7 @@ init([
 
 					if (result === true) {
 
-						let cache = browser.settings.sites.find(s => s.domain === data.domain) || null;
+						let cache = browser.settings.modes.find(m => m.domain === data.domain) || null;
 						if (cache !== null) {
 							cache.mode.text  = data.mode.text === true;
 							cache.mode.image = data.mode.image === true;
@@ -424,12 +432,62 @@ init([
 
 	});
 
+	listen(elements.filters, (action, data, done) => {
+
+		let service = browser.client.services.filter || null;
+		if (service !== null) {
+
+			if (action === 'remove') {
+
+				service.remove(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.filters.find(f => {
+							return (
+								f.domain === data.domain
+								&& f.filter.prefix === data.filter.prefix
+								&& f.filter.midfix === data.filter.midfix
+								&& f.filter.suffix === data.filter.suffix
+							);
+						}) || null;
+
+						if (cache !== null) {
+
+							let index = browser.settings.filters.indexOf(cache);
+							if (index !== -1) {
+								browser.settings.filters.splice(index, 1);
+							}
+
+							_on_update({
+								filters: browser.settings.filters
+							});
+
+						}
+
+					}
+
+					done(result);
+
+				});
+
+			} else {
+				done(false);
+			}
+
+		} else {
+			done(false);
+		}
+
+	});
+
 
 
 	/*
-	 * Refresh/Confirm
+	 * Table Footer
 	 */
 
+	reset(elements.host);
 	listen(elements.host, (action, data, done) => {
 
 		let service = browser.client.services.host || null;
@@ -472,6 +530,7 @@ init([
 
 	});
 
+	reset(elements.peer);
 	listen(elements.peer, (action, data, done) => {
 
 		let button  = elements.peer.querySelector('button[data-action]');
@@ -566,14 +625,15 @@ init([
 
 	});
 
-	listen(elements.site, (action, data, done) => {
+	reset(elements.mode);
+	listen(elements.mode, (action, data, done) => {
 
-		let service = browser.client.services.site || null;
+		let service = browser.client.services.mode || null;
 		if (service !== null) {
 
 			if (action === 'confirm') {
 
-				let cache = browser.settings.sites.find(s => s.domain === data.domain) || null;
+				let cache = browser.settings.modes.find(m => m.domain === data.domain) || null;
 				if (cache !== null) {
 					cache.mode.text  = data.mode.text === true;
 					cache.mode.image = data.mode.image === true;
@@ -582,7 +642,7 @@ init([
 					cache.mode.other = data.mode.other === true;
 					data = cache;
 				} else {
-					browser.settings.sites.push(data);
+					browser.settings.modes.push(data);
 				}
 
 				service.save(data, (result) => {
@@ -590,10 +650,10 @@ init([
 					if (result === true) {
 
 						_on_update({
-							sites: browser.settings.sites
+							modes: browser.settings.modes
 						});
 
-						reset(elements.site);
+						reset(elements.mode);
 
 					}
 
@@ -611,9 +671,56 @@ init([
 
 	});
 
-	reset(elements.host);
-	reset(elements.peer);
-	reset(elements.site);
+	reset(elements.filter);
+	listen(elements.filter, (action, data, done) => {
+
+		let service = browser.client.services.filter || null;
+		if (service !== null) {
+
+			if (action === 'confirm') {
+
+				let cache = browser.settings.filters.find(f => {
+					return (
+						f.domain === data.domain
+						&& f.filter.prefix === data.filter.prefix
+						&& f.filter.midfix === data.filter.midfix
+						&& f.filter.suffix === data.filter.suffix
+					);
+				}) || null;
+
+				if (cache === null) {
+
+					browser.settings.filters.push(data);
+
+					service.save(data, (result) => {
+
+						if (result === true) {
+
+							_on_update({
+								filters: browser.settings.filters
+							});
+
+							reset(elements.filter);
+
+						}
+
+						done(result);
+
+					});
+
+				} else {
+					done(false);
+				}
+
+			} else {
+				done(false);
+			}
+
+		} else {
+			done(false);
+		}
+
+	});
 
 });
 

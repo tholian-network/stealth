@@ -3,10 +3,6 @@ import { Emitter   } from './Emitter.mjs';
 import { Client    } from './Client.mjs';
 import { Tab       } from './Tab.mjs';
 import { URL       } from './parser/URL.mjs';
-
-// XXX: Necessary for all type validation due to
-// instanceof not working in different frames or
-// sandboxes ... yeah, that kinda fucked.
 import { POLYFILLS } from './POLYFILLS.mjs';
 
 
@@ -24,8 +20,8 @@ const Browser = function() {
 		},
 		filters: [],
 		hosts:   [],
-		peers:   [],
-		sites:   []
+		modes:   [],
+		peers:   []
 	};
 	this.tab      = null;
 	this.tabs     = [];
@@ -134,18 +130,18 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			} else if (rdomain !== null) {
 
-				let sites = this.settings.sites.filter(s => rdomain.endsWith(s.domain));
-				if (sites.length > 1) {
+				let modes = this.settings.modes.filter(m => rdomain.endsWith(m.domain));
+				if (modes.length > 1) {
 
-					return sites.sort((a, b) => {
+					return modes.sort((a, b) => {
 						if (a.domain.length > b.domain.length) return -1;
 						if (b.domain.length > a.domain.length) return  1;
 						return 0;
 					})[0];
 
-				} else if (sites.length === 1) {
+				} else if (modes.length === 1) {
 
-					return sites[0];
+					return modes[0];
 
 				}
 
@@ -369,8 +365,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				if (tmp1.domain === null) {
 
 					config = tmp2;
-					this.settings.sites.push(config);
-					this.client.services.site.save(config, () => {});
+					this.settings.modes.push(config);
+					this.client.services.mode.save(config, () => {});
 
 				} else if (tmp1.domain === tmp2.domain) {
 
@@ -386,14 +382,14 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 					});
 
 					if (diff === true) {
-						this.client.services.site.save(tmp1, () => {});
+						this.client.services.mode.save(tmp1, () => {});
 					}
 
 				} else if (tmp1.domain !== tmp2.domain) {
 
 					config = tmp2;
-					this.settings.sites.push(config);
-					this.client.services.site.save(config, () => {});
+					this.settings.modes.push(config);
+					this.client.services.mode.save(config, () => {});
 
 				}
 

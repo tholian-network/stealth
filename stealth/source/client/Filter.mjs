@@ -3,7 +3,7 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const Site = function(browser, client) {
+const Filter = function(browser, client) {
 
 	Emitter.call(this);
 
@@ -14,9 +14,9 @@ const Site = function(browser, client) {
 };
 
 
-Site.prototype = Object.assign({}, Emitter.prototype, {
+Filter.prototype = Object.assign({}, Emitter.prototype, {
 
-	read: function(payload, callback) {
+	query: function(payload, callback) {
 
 		payload  = Object.isObject(payload)      ? payload  : null;
 		callback = Function.isFunction(callback) ? callback : null;
@@ -24,12 +24,12 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			this.once('read', response => callback(response));
+			this.once('query', response => callback(response));
 
 			this.client.send({
 				headers: {
-					service: 'site',
-					method:  'read'
+					service: 'filter',
+					method:  'query'
 				},
 				payload: payload
 			});
@@ -52,7 +52,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.client.send({
 				headers: {
-					service: 'site',
+					service: 'filter',
 					method:  'remove'
 				},
 				payload: payload
@@ -64,22 +64,22 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	save: function(payload, callback) {
+	save: function(payloads, callback) {
 
-		payload  = Object.isObject(payload)      ? payload  : null;
+		payloads = Array.isArray(payloads)       ? payloads : [];
 		callback = Function.isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		if (payloads.length > 0 && callback !== null) {
 
 			this.once('save', result => callback(result));
 
 			this.client.send({
 				headers: {
-					service: 'site',
+					service: 'filter',
 					method:  'save'
 				},
-				payload: payload
+				payload: payloads
 			});
 
 		} else if (callback !== null) {
@@ -91,5 +91,6 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 });
 
 
-export { Site };
+export { Filter };
+
 

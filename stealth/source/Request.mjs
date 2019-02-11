@@ -64,7 +64,7 @@ const Request = function(data, stealth) {
 
 	this.on('cache', () => {
 
-		return this.emit('error', [{ type: 'site' }]);
+		return this.emit('error', [{ type: 'mode' }]);
 
 		this.stealth.server.services.cache.read(this.ref, response => {
 
@@ -103,7 +103,7 @@ const Request = function(data, stealth) {
 			} else if (allowed === true) {
 				this.emit('connect');
 			} else if (mime.ext === 'html') {
-				this.emit('error', [{ type: 'site' }]);
+				this.emit('error', [{ type: 'mode' }]);
 			} else {
 				this.emit('error', [{ code: 403 }]);
 			}
@@ -111,6 +111,9 @@ const Request = function(data, stealth) {
 		});
 
 	});
+
+	// TODO: mode event
+	// TODO: filter event
 
 	this.on('connect', () => {
 

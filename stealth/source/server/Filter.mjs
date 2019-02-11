@@ -11,9 +11,13 @@ const _payloadify = function(payload) {
 		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
 		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
 
-		payload.prefix = typeof payload.prefix === 'string' ? payload.prefix : null;
-		payload.midfix = typeof payload.midfix === 'string' ? payload.midfix : null;
-		payload.suffix = typeof payload.suffix === 'string' ? payload.suffix : null;
+		if (payload.filter instanceof Object) {
+
+			payload.filter.prefix = typeof payload.filter.prefix === 'string' ? payload.filter.prefix : null;
+			payload.filter.midfix = typeof payload.filter.midfix === 'string' ? payload.filter.midfix : null;
+			payload.filter.suffix = typeof payload.filter.suffix === 'string' ? payload.filter.suffix : null;
+
+		}
 
 		return payload;
 
@@ -175,18 +179,18 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 						filter = settings.filters.find(f => {
 							return (
 								f.domain === payload.subdomain + '.' + payload.domain
-								&& f.prefix === payload.prefix
-								&& f.midfix === payload.midfix
-								&& f.suffix === payload.suffix
+								&& f.filter.prefix === payload.filter.prefix
+								&& f.filter.midfix === payload.filter.midfix
+								&& f.filter.suffix === payload.filter.suffix
 							);
 						}) || null;
 					} else{
 						filter = settings.filters.find(f => {
 							return (
 								f.domain === payload.domain
-								&& f.prefix === payload.prefix
-								&& f.midfix === payload.midfix
-								&& f.suffix === payload.suffix
+								&& f.filter.prefix === payload.filter.prefix
+								&& f.filter.midfix === payload.filter.midfix
+								&& f.filter.suffix === payload.filter.suffix
 							);
 						}) || null;
 					}
@@ -195,9 +199,11 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 						filter = {
 							domain: payload.domain,
-							prefix: payload.prefix || null,
-							midfix: payload.midfix || null,
-							suffix: payload.suffix || null
+							filter: {
+								prefix: payload.filter.prefix || null,
+								midfix: payload.filter.midfix || null,
+								suffix: payload.filter.suffix || null
+							}
 						};
 
 						settings.filters.push(filter);

@@ -32,7 +32,7 @@ const _payloadify = function(payload) {
 
 
 
-const Site = function(stealth) {
+const Mode = function(stealth) {
 
 	Emitter.call(this);
 
@@ -42,7 +42,7 @@ const Site = function(stealth) {
 };
 
 
-Site.prototype = Object.assign({}, Emitter.prototype, {
+Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
@@ -52,16 +52,16 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			let site     = null;
+			let mode     = null;
 			let settings = this.stealth.settings;
 
 			if (payload.domain !== null) {
 
 				let subdomain = payload.subdomain || null;
 				if (subdomain !== null) {
-					site = settings.sites.find(s => s.domain === payload.subdomain + '.' + payload.domain) || null;
+					mode = settings.modes.find(m => m.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
-					site = settings.sites.find(s => s.domain === payload.domain) || null;
+					mode = settings.modes.find(m => m.domain === payload.domain) || null;
 				}
 
 			}
@@ -69,17 +69,17 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'site',
+					service: 'mode',
 					event:   'read'
 				},
-				payload: site
+				payload: mode
 			});
 
 		} else if (callback !== null) {
 
 			callback({
 				headers: {
-					service: 'site',
+					service: 'mode',
 					event:   'read'
 				},
 				payload: null
@@ -97,26 +97,26 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			let site     = null;
+			let mode     = null;
 			let settings = this.stealth.settings;
 
 			if (payload.domain !== null) {
 
 				let subdomain = payload.subdomain || null;
 				if (subdomain !== null) {
-					site = settings.sites.find(s => s.domain === payload.subdomain + '.' + payload.domain) || null;
+					mode = settings.modes.find(m => m.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
-					site = settings.sites.find(s => s.domain === payload.domain) || null;
+					mode = settings.modes.find(m => m.domain === payload.domain) || null;
 				}
 
 			}
 
 
-			if (site !== null) {
+			if (mode !== null) {
 
-				let index = settings.sites.indexOf(site);
+				let index = settings.modes.indexOf(mode);
 				if (index !== -1) {
-					settings.sites.splice(index, 1);
+					settings.modes.splice(index, 1);
 				}
 
 				settings.save();
@@ -125,7 +125,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'site',
+					service: 'mode',
 					event:   'remove'
 				},
 				payload: true
@@ -135,7 +135,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'site',
+					service: 'mode',
 					event:   'remove'
 				},
 				payload: false
@@ -153,7 +153,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			let site     = null;
+			let mode     = null;
 			let settings = this.stealth.settings;
 
 
@@ -161,21 +161,21 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 				let subdomain = payload.subdomain || null;
 				if (subdomain !== null) {
-					site = settings.sites.find(s => s.domain === payload.subdomain + '.' + payload.domain) || null;
+					mode = settings.modes.find(m => m.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
-					site = settings.sites.find(s => s.domain === payload.domain) || null;
+					mode = settings.modes.find(m => m.domain === payload.domain) || null;
 				}
 
 			}
 
 
-			if (site !== null) {
+			if (mode !== null) {
 
-				site.mode.text  = payload.mode.text  || false;
-				site.mode.image = payload.mode.image || false;
-				site.mode.audio = payload.mode.audio || false;
-				site.mode.video = payload.mode.video || false;
-				site.mode.other = payload.mode.other || false;
+				mode.mode.text  = payload.mode.text  || false;
+				mode.mode.image = payload.mode.image || false;
+				mode.mode.audio = payload.mode.audio || false;
+				mode.mode.video = payload.mode.video || false;
+				mode.mode.other = payload.mode.other || false;
 
 				settings.save();
 
@@ -186,7 +186,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 					payload.subdomain = null;
 				}
 
-				site = {
+				mode = {
 					domain: payload.domain,
 					mode:   {
 						text:  payload.mode.text  || false,
@@ -197,7 +197,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 					}
 				};
 
-				settings.sites.push(site);
+				settings.modes.push(mode);
 				settings.save();
 
 			}
@@ -205,7 +205,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'site',
+					service: 'mode',
 					event:   'save'
 				},
 				payload: true
@@ -215,7 +215,7 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'site',
+					service: 'mode',
 					event:   'save'
 				},
 				payload: false
@@ -228,5 +228,5 @@ Site.prototype = Object.assign({}, Emitter.prototype, {
 });
 
 
-export { Site };
+export { Mode };
 

@@ -39,18 +39,18 @@ const _get_config = function(url) {
 
 		if (rdomain !== null) {
 
-			let sites = this.settings.sites.filter(cfg => rdomain.endsWith(cfg.domain));
-			if (sites.length > 1) {
+			let modes = this.settings.modes.filter(m => rdomain.endsWith(m.domain));
+			if (modes.length > 1) {
 
-				return sites.sort((a, b) => {
+				return modes.sort((a, b) => {
 					if (a.domain.length > b.domain.length) return -1;
 					if (b.domain.length > a.domain.length) return  1;
 					return 0;
 				})[0];
 
-			} else if (sites.length === 1) {
+			} else if (modes.length === 1) {
 
-				return sites[0];
+				return modes[0];
 
 			}
 

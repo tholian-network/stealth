@@ -4,30 +4,30 @@ import { BROWSER, REFERENCE, init, listen, render } from './internal.mjs';
 
 
 const elements = {
-	wizard:  document.querySelector('#fix-site'),
-	sites:   document.querySelector('#fix-site table tbody'),
+	wizard:  document.querySelector('#fix-mode'),
+	modes:   document.querySelector('#fix-mode table tbody'),
 	footer:  document.querySelector('footer'),
 	refresh: document.querySelector('footer #footer-refresh')
 };
 
-const _on_update = function(settings, site) {
-	elements.sites.innerHTML = render('site', site, [ 'save' ]);
+const _on_update = function(settings, mode) {
+	elements.modes.innerHTML = render('mode', mode, [ 'save' ]);
 };
 
 
 
 init([
 	elements.wizard,
-	elements.sites,
+	elements.modes,
 	elements.footer,
 	elements.refresh
 ], (browser, result) => {
 
 	if (result === true) {
 
-		listen(elements.sites, (action, data, done) => {
+		listen(elements.modes, (action, data, done) => {
 
-			let service = browser.client.services.site || null;
+			let service = browser.client.services.mode || null;
 			if (service !== null) {
 
 				if (action === 'save') {
@@ -49,9 +49,9 @@ init([
 
 		browser.on('change', (tab) => {
 
-			Object.keys(tab.config.mode).forEach(mode => {
+			Object.keys(tab.config.mode).forEach((mode) => {
 
-				let button = elements.sites.querySelector('button[data-key="mode.' + mode + '"]');
+				let button = elements.modes.querySelector('button[data-key="mode.' + mode + '"]');
 				if (button !== null) {
 					button.setAttribute('data-val', '' + tab.config.mode[mode]);
 				}
@@ -63,25 +63,25 @@ init([
 
 		if (REFERENCE.domain !== null) {
 
-			browser.client.services.site.read({
+			browser.client.services.mode.read({
 				domain:    REFERENCE.domain,
 				subdomain: REFERENCE.subdomain,
 				host:      REFERENCE.host
-			}, site => {
+			}, (mode) => {
 
-				if (site === null) {
+				if (mode === null) {
 
-					site = browser.tab.config;
+					mode = browser.tab.config;
 
 					if (REFERENCE.subdomain !== null) {
-						site.domain = REFERENCE.subdomain + '.' + REFERENCE.domain;
+						mode.domain = REFERENCE.subdomain + '.' + REFERENCE.domain;
 					} else {
-						site.domain = REFERENCE.domain;
+						mode.domain = REFERENCE.domain;
 					}
 
 				}
 
-				_on_update(browser.settings, site);
+				_on_update(browser.settings, mode);
 
 			});
 

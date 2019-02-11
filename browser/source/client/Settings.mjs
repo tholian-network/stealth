@@ -10,8 +10,8 @@ const _responsify = function(payload) {
 		payload.internet = Object.isObject(payload.internet) ? payload.internet : null;
 		payload.filters  = Array.isArray(payload.filters)    ? payload.filters  : null;
 		payload.hosts    = Array.isArray(payload.hosts)      ? payload.hosts    : null;
+		payload.modes    = Array.isArray(payload.modes)      ? payload.modes    : null;
 		payload.peers    = Array.isArray(payload.peers)      ? payload.peers    : null;
-		payload.sites    = Array.isArray(payload.sites)      ? payload.sites    : null;
 
 		return payload;
 
@@ -64,12 +64,12 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						settings.hosts = response.hosts;
 					}
 
-					if (response.peers !== null) {
-						settings.peers = response.peers;
+					if (response.modes !== null) {
+						settings.modes = response.modes;
 					}
 
-					if (response.sites !== null) {
-						settings.sites = response.sites;
+					if (response.peers !== null) {
+						settings.peers = response.peers;
 					}
 
 				}

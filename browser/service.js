@@ -22,10 +22,10 @@ self.addEventListener('install', event => {
 			'design/site.js',
 			'internal/fix-host.html',
 			'internal/fix-host.mjs',
+			'internal/fix-mode.html',
+			'internal/fix-mode.mjs',
 			'internal/fix-request.html',
 			'internal/fix-request.mjs',
-			'internal/fix-site.html',
-			'internal/fix-site.mjs',
 			'internal/internal.css',
 			'internal/internal.mjs',
 			'internal/settings.html',
@@ -38,12 +38,12 @@ self.addEventListener('install', event => {
 			'source/Tab.mjs',
 			'source/parser/URL.mjs',
 			'source/parser/IP.mjs',
-			'source/service/Cache.mjs',
-			'source/service/Filter.mjs',
-			'source/service/Host.mjs',
-			'source/service/Peer.mjs',
-			'source/service/Settings.mjs',
-			'source/service/Site.mjs'
+			'source/client/Cache.mjs',
+			'source/client/Filter.mjs',
+			'source/client/Host.mjs',
+			'source/client/Mode.mjs',
+			'source/client/Peer.mjs',
+			'source/client/Settings.mjs'
 		]).catch(err => {
 			console.error(err);
 		}))

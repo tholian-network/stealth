@@ -4,16 +4,16 @@ import net from 'net';
 import { console  } from './console.mjs';
 import { HTTP     } from './protocol/HTTP.mjs';
 import { WS       } from './protocol/WS.mjs';
-import { Cache    } from './service/Cache.mjs';
-import { Error    } from './service/Error.mjs';
-import { File     } from './service/File.mjs';
-import { Filter   } from './service/Filter.mjs';
-import { Host     } from './service/Host.mjs';
-import { Peer     } from './service/Peer.mjs';
-import { Redirect } from './service/Redirect.mjs';
+import { Cache    } from './server/Cache.mjs';
+import { Error    } from './server/Error.mjs';
+import { File     } from './server/File.mjs';
+import { Filter   } from './server/Filter.mjs';
+import { Host     } from './server/Host.mjs';
+import { Mode     } from './server/Mode.mjs';
+import { Peer     } from './server/Peer.mjs';
+import { Redirect } from './server/Redirect.mjs';
 import { Session  } from './Session.mjs';
-import { Settings } from './service/Settings.mjs';
-import { Site     } from './service/Site.mjs';
+import { Settings } from './server/Settings.mjs';
 
 const _ROOT = process.env.PWD;
 
@@ -101,10 +101,10 @@ const Server = function(stealth, root) {
 		file:     new File(stealth),
 		filter:   new Filter(stealth),
 		host:     new Host(stealth),
+		mode:     new Mode(stealth),
 		peer:     new Peer(stealth),
 		redirect: new Redirect(stealth),
-		settings: new Settings(stealth),
-		site:     new Site(stealth)
+		settings: new Settings(stealth)
 	};
 
 	this.__root   = root;
@@ -285,11 +285,11 @@ Server.prototype = {
 														path: '/browser/internal/fix-host.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
-												} else if (err.type === 'site') {
+												} else if (err.type === 'mode') {
 
 													this.services.redirect.get({
 														code: 307,
-														path: '/browser/internal/fix-site.html?url=' + encodeURIComponent(url)
+														path: '/browser/internal/fix-mode.html?url=' + encodeURIComponent(url)
 													}, response => HTTP.send(socket, response));
 
 												} else if (err.type === 'request') {

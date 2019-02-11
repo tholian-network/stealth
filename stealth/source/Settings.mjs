@@ -29,8 +29,8 @@ const _info = (settings) => `
 ${settings.blockers.length} blocker${settings.blockers.length === 1 ? '' : 's'}, \
 ${settings.filters.length} filter${settings.filters.length === 1 ? '' : 's'}, \
 ${settings.hosts.length} host${settings.hosts.length === 1 ? '' : 's'}, \
-${settings.peers.length} peer${settings.peers.length === 1 ? '' : 's'}, \
-${settings.sites.length} site${settings.sites.length === 1 ? '' : 's'}.
+${settings.modes.length} mode${settings.modes.length === 1 ? '' : 's'}, \
+${settings.peers.length} peer${settings.peers.length === 1 ? '' : 's'}.
 `;
 
 
@@ -164,8 +164,8 @@ const _read = function(profile, complete, callback) {
 				_read_file.call(this, profile + '/internet.json', this.internet),
 				_read_file.call(this, profile + '/filters.json',  this.filters),
 				_read_file.call(this, profile + '/hosts.json',    this.hosts),
-				_read_file.call(this, profile + '/peers.json',    this.peers),
-				_read_file.call(this, profile + '/sites.json',    this.sites)
+				_read_file.call(this, profile + '/modes.json',    this.modes),
+				_read_file.call(this, profile + '/peers.json',    this.peers)
 			];
 
 
@@ -216,8 +216,8 @@ const _save = function(profile, callback) {
 				_save_file.call(this, profile + '/internet.json', this.internet),
 				_save_file.call(this, profile + '/filters.json',  this.filters),
 				_save_file.call(this, profile + '/hosts.json',    this.hosts),
-				_save_file.call(this, profile + '/peers.json',    this.peers),
-				_save_file.call(this, profile + '/sites.json',    this.sites)
+				_save_file.call(this, profile + '/modes.json',    this.modes),
+				_save_file.call(this, profile + '/peers.json',    this.peers)
 			];
 
 			let check = results.filter(r => r === true);
@@ -350,8 +350,8 @@ const Settings = function(stealth, profile, defaults) {
 	this.blockers = [];
 	this.filters  = [];
 	this.hosts    = [];
+	this.modes    = [];
 	this.peers    = [];
-	this.sites    = [];
 
 	this.profile = profile;
 
@@ -413,10 +413,9 @@ Settings.prototype = {
 			internet: {},
 			filters:  [],
 			hosts:    [],
-			peers:    [],
-			sites:    []
+			modes:    [],
+			peers:    []
 		};
-
 
 		Object.keys(this.internet).forEach(key => {
 			data.internet[key] = this.internet[key];
@@ -430,14 +429,13 @@ Settings.prototype = {
 			data.hosts.push(host);
 		});
 
+		this.modes.forEach(mode => {
+			data.modes.push(mode);
+		});
+
 		this.peers.forEach(peer => {
 			data.peers.push(peer);
 		});
-
-		this.sites.forEach(site => {
-			data.sites.push(site);
-		});
-
 
 		return data;
 

@@ -44,7 +44,9 @@ abbr {
 }
 
 article {
-	width: 640px;
+	display: block;
+	min-width: 640px;
+	max-width: 800px;
 	margin: 64px auto;
 	padding: 32px;
 	background: #404040;
@@ -337,6 +339,20 @@ footer button {
 
 
 
+/* media queries */
+@media screen and (max-width: 706px) {
+
+	article {
+		min-width: unset;
+		max-width: unset;
+		margin: 0px auto;
+		padding: 8px;
+	}
+
+}
+
+
+
 /* welcome */
 #stealth-modes button[disabled],
 #stealth-modes button[disabled]:hover {
@@ -368,7 +384,7 @@ footer button {
 }
 
 #fix-host table,
-#fix-site table,
+#fix-mode table,
 #hosts table,
 #peers table,
 #sites table {
@@ -377,8 +393,8 @@ footer button {
 
 #fix-host table tr:hover td:last-child,
 #fix-host table tr:hover th:last-child,
-#fix-site table tr:hover td:last-child,
-#fix-site table tr:hover th:last-child,
+#fix-mode table tr:hover td:last-child,
+#fix-mode table tr:hover th:last-child,
 #hosts table tr:hover td:last-child,
 #hosts table tr:hover th:last-child,
 #peers table tr:hover td:last-child,
@@ -390,8 +406,8 @@ footer button {
 
 #fix-host table tr td:last-child,
 #fix-host table tr th:last-child,
-#fix-site table tr td:last-child,
-#fix-site table tr th:last-child,
+#fix-mode table tr td:last-child,
+#fix-mode table tr th:last-child,
 #hosts table tr td:last-child,
 #hosts table tr th:last-child,
 #peers table tr td:last-child,
@@ -402,4 +418,5 @@ footer button {
 	padding: 0px 0px 0px 4px;
 	border-color: transparent;
 }
+
 
