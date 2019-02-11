@@ -336,6 +336,7 @@ footer button {
 }
 
 
+
 /* welcome */
 #stealth-modes button[disabled],
 #stealth-modes button[disabled]:hover {
@@ -358,6 +359,7 @@ footer button {
 }
 
 
+
 /* settings */
 #internet-connection div,
 #internet-torify div {
@@ -365,13 +367,18 @@ footer button {
 	vertical-align: middle;
 }
 
+#fix-host table,
+#fix-site table,
 #hosts table,
 #peers table,
 #sites table {
 	table-layout: fixed;
 }
 
-
+#fix-host table tr:hover td:last-child,
+#fix-host table tr:hover th:last-child,
+#fix-site table tr:hover td:last-child,
+#fix-site table tr:hover th:last-child,
 #hosts table tr:hover td:last-child,
 #hosts table tr:hover th:last-child,
 #peers table tr:hover td:last-child,
@@ -381,6 +388,10 @@ footer button {
 	background: transparent;
 }
 
+#fix-host table tr td:last-child,
+#fix-host table tr th:last-child,
+#fix-site table tr td:last-child,
+#fix-site table tr th:last-child,
 #hosts table tr td:last-child,
 #hosts table tr th:last-child,
 #peers table tr td:last-child,

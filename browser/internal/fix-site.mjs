@@ -10,21 +10,8 @@ const elements = {
 	refresh: document.querySelector('footer #footer-refresh')
 };
 
-const _update = function(browser, site) {
+const _on_update = function(settings, site) {
 	elements.sites.innerHTML = render('site', site, [ 'save' ]);
-};
-
-const _update_config = function(config) {
-
-	Object.keys(config.mode).forEach(mode => {
-
-		let button = elements.sites.querySelector('button[data-key="mode.' + mode + '"]');
-		if (button !== null) {
-			button.setAttribute('data-val', '' + config.mode[mode]);
-		}
-
-	});
-
 };
 
 
@@ -44,14 +31,7 @@ init([
 			if (service !== null) {
 
 				if (action === 'save') {
-
-					let result = browser.set(data);
-					if (result === true) {
-						done(true);
-					} else {
-						done(false);
-					}
-
+					done(browser.set(data) === true);
 				} else {
 					done(false);
 				}
@@ -68,7 +48,16 @@ init([
 
 
 		browser.on('change', (tab) => {
-			_update_config(tab.config);
+
+			Object.keys(tab.config.mode).forEach(mode => {
+
+				let button = elements.sites.querySelector('button[data-key="mode.' + mode + '"]');
+				if (button !== null) {
+					button.setAttribute('data-val', '' + tab.config.mode[mode]);
+				}
+
+			});
+
 		});
 
 
@@ -80,23 +69,19 @@ init([
 				host:      REFERENCE.host
 			}, site => {
 
-				if (site !== null) {
+				if (site === null) {
 
-					_update(browser, site);
-
-				} else {
-
-					let config = browser.tab.config;
+					site = browser.tab.config;
 
 					if (REFERENCE.subdomain !== null) {
-						config.domain = REFERENCE.subdomain + '.' + REFERENCE.domain;
+						site.domain = REFERENCE.subdomain + '.' + REFERENCE.domain;
 					} else {
-						config.domain = REFERENCE.domain;
+						site.domain = REFERENCE.domain;
 					}
 
-					_update(browser, config);
-
 				}
+
+				_on_update(browser.settings, site);
 
 			});
 

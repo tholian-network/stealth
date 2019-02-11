@@ -10,17 +10,17 @@ const elements = {
 	refresh: document.querySelector('footer #footer-refresh')
 };
 
-const _update = function(browser, host) {
+const _on_update = function(settings, host) {
 
-	let cache = browser.settings.hosts.find(h => h.domain === host.domain) || null;
+	let cache = settings.hosts.find(h => h.domain === host.domain) || null;
 	if (cache !== null) {
 		cache.ipv4 = host.ipv4;
 		cache.ipv6 = host.ipv6;
 	} else if (cache === null) {
-		browser.settings.hosts.push(host);
+		settings.hosts.push(host);
 	}
 
-	elements.hosts.innerHTML = render('host', host, false);
+	elements.hosts.innerHTML = render('host', host, [ 'refresh' ]);
 
 };
 
@@ -48,11 +48,11 @@ init([
 						host:      REFERENCE.host
 					}, (host) => {
 
-						done(true);
-
 						if (host !== null) {
-							_update(browser, host);
+							_on_update(browser.settings, host);
 						}
+
+						done(host !== null);
 
 					});
 
@@ -80,7 +80,7 @@ init([
 			}, (host) => {
 
 				if (host !== null) {
-					_update(browser, host);
+					_on_update(browser.settings, host);
 				}
 
 			});

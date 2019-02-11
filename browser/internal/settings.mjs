@@ -8,11 +8,9 @@ const elements = {
 		connection: Array.from(document.querySelectorAll('#internet-connection input')),
 		torify:     Array.from(document.querySelectorAll('#internet-torify input'))
 	},
-	hosts:   document.querySelector('#hosts table tbody'),
-	peers:   document.querySelector('#peers table tbody'),
-	sites:   document.querySelector('#sites table tbody'),
-	footer:  document.querySelector('footer'),
-	confirm: document.querySelector('footer #settings-confirm')
+	hosts: document.querySelector('#hosts table tbody'),
+	peers: document.querySelector('#peers table tbody'),
+	sites: document.querySelector('#sites table tbody')
 };
 
 
@@ -50,45 +48,74 @@ const _sort_by_domain = (a, b) => {
 
 };
 
+const _update = function(browser) {
 
-const _update = function(settings) {
+	let service = browser.client.services.settings || null;
+	if (service !== null) {
+		service.read(null, () => _on_update(browser.settings));
+	}
 
-	let choices = {
-		connection: [ 'broadband', 'mobile', 'peer' ],
-		torify:     [ true, false ]
-	};
+};
 
-	choices.connection.forEach((choice, c) => {
+const _on_update = function(settings) {
 
-		let element = elements.internet.connection[c];
-		let value   = settings.internet.connection;
+	let internet = settings.internet || null;
+	if (internet !== null) {
 
-		if (element !== null) {
+		let choices = {
+			connection: [ 'broadband', 'mobile', 'peer' ],
+			torify:     [ true, false ]
+		};
 
-			if (choice === value) {
-				element.setAttribute('checked', 'true');
-			} else {
-				element.removeAttribute('checked');
+		choices.connection.forEach((choice, c) => {
+
+			let element = elements.internet.connection[c];
+			let value   = settings.internet.connection;
+
+			if (element !== null) {
+
+				if (choice === value) {
+					element.setAttribute('checked', 'true');
+				} else {
+					element.removeAttribute('checked');
+				}
+
 			}
 
-		}
+		});
 
-	});
+		choices.torify.forEach((choice, c) => {
 
+			let element = elements.internet.torify[c];
+			let value   = settings.internet.torify;
 
-	let hosts_html = settings.hosts.sort(_sort_by_domain).map(host => render('host', host, true)).join('');
-	if (hosts_html !== '') {
-		elements.hosts.innerHTML = hosts_html;
+			if (element !== null) {
+
+				if (choice === value) {
+					element.setAttribute('checked', 'true');
+				} else {
+					element.removeAttribute('checked');
+				}
+
+			}
+
+		});
+
 	}
 
-	let peers_html = settings.peers.sort(_sort_by_domain).map(peer => render('peer', peer, true)).join('');
-	if (peers_html !== '') {
-		elements.peers.innerHTML = peers_html;
+	let hosts = settings.hosts || null;
+	if (hosts !== null) {
+		elements.hosts.innerHTML = hosts.sort(_sort_by_domain).map(host => render('host', host, [ 'refresh', 'remove', 'save' ])).join('');
 	}
 
-	let sites_html = settings.sites.sort(_sort_by_domain).map(site => render('site', site, true)).join('');
-	if (sites_html !== '') {
-		elements.sites.innerHTML = sites_html;
+	let peers = settings.peers || null;
+	if (peers !== null) {
+		elements.peers.innerHTML = peers.sort(_sort_by_domain).map(peer => render('peer', peer, [ 'refresh', 'remove', 'save' ])).join('');
+	}
+
+	let sites = settings.sites || null;
+	if (sites !== null) {
+		elements.sites.innerHTML = sites.sort(_sort_by_domain).map(site => render('site', site, [ 'remove', 'save' ])).join('');
 	}
 
 };
@@ -98,15 +125,10 @@ const _update = function(settings) {
 init([
 	elements.hosts,
 	elements.peers,
-	elements.sites,
-	elements.footer,
-	elements.confirm
+	elements.sites
 ], (browser, result) => {
 
-	let client = browser.client;
-	if (client !== null) {
-		client.services.settings.read(null, () => _update(browser.settings));
-	}
+	_update(browser);
 
 
 	elements.internet.connection.forEach((element, e, others) => {
@@ -115,8 +137,23 @@ init([
 
 			let active = others.find(e => e.checked === true) || null;
 			if (active !== null) {
-				browser.settings.internet.connection = active.value;
-				elements.footer.className = 'active';
+
+				let cur_val = browser.settings.internet.connection;
+				let new_val = active.value;
+
+				if (cur_val !== new_val) {
+
+					browser.settings.internet.connection = new_val;
+
+					let service = browser.client.services.settings || null;
+					if (service !== null) {
+						service.save({
+							internet: browser.settings.internet
+						}, () => {});
+					}
+
+				}
+
 			}
 
 		};
@@ -129,21 +166,244 @@ init([
 
 			let active = others.find(e => e.checked === true) || null;
 			if (active !== null) {
-				browser.settings.internet.torify = active.value === 'true' ? true : false;
-				elements.footer.className = 'active';
+
+				let cur_val = browser.settings.internet.torify;
+				let new_val = active.value === 'true' ? true : false;
+
+				if (cur_val !== new_val) {
+
+					browser.settings.internet.torify = new_val;
+
+					let service = browser.client.services.settings || null;
+					if (service !== null) {
+						service.save({
+							internet: browser.settings.internet
+						}, () => {});
+					}
+
+				}
+
 			}
 
 		};
 
 	});
 
-	elements.confirm.onclick = () => {
 
-		browser.client.services.settings.save({}, () => {
-			elements.footer.className = '';
-		});
+	listen(elements.hosts, (action, data, done) => {
 
-	};
+		let service = browser.client.services.host || null;
+		if (service !== null) {
+
+			if (action === 'refresh') {
+
+				service.refresh(data, (host) => {
+
+					if (host !== null) {
+
+						let cache = browser.settings.hosts.find(h => h.domain === host.domain) || null;
+						if (cache !== null) {
+							cache.ipv4 = host.ipv4 || null;
+							cache.ipv6 = host.ipv6 || null;
+						}
+
+						_on_update(browser.settings);
+
+					}
+
+					done(host !== null);
+
+				});
+
+			} else if (action === 'remove') {
+
+				service.remove(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.hosts.find(h => h.domain === data.domain) || null;
+						if (cache !== null) {
+
+							let index = browser.settings.hosts.indexOf(cache);
+							if (index !== -1) {
+								browser.settings.hosts.splice(index, 1);
+							}
+
+						}
+
+						_on_update(browser.settings);
+
+					}
+
+
+					done(result);
+
+				});
+
+			} else if (action === 'save') {
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.hosts.find(h => h.domain === data.domain) || null;
+						if (cache !== null) {
+							cache.ipv4 = data.ipv4 || null;
+							cache.ipv6 = data.ipv6 || null;
+						}
+
+					}
+
+					done(result);
+
+				});
+
+			} else {
+				done(false);
+			}
+
+		} else {
+			done(false);
+		}
+
+	});
+
+	listen(elements.peers, (action, data, done) => {
+
+		let service = browser.client.services.peer || null;
+		if (service !== null) {
+
+			if (action === 'refresh') {
+
+				service.refresh(data, (peer) => {
+
+					if (peer !== null) {
+
+						let cache = browser.settings.peers.find(p => p.domain === peer.domain) || null;
+						if (cache !== null) {
+							cache.connection = peer.connection;
+							cache.status     = peer.status;
+						}
+
+						_on_update(browser.settings);
+
+					}
+
+					done(peer !== null);
+
+				});
+
+			} else if (action === 'remove') {
+
+				service.remove(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.peers.find(p => p.domain === data.domain) || null;
+						if (cache !== null) {
+
+							let index = browser.settings.peers.indexOf(cache);
+							if (index !== -1) {
+								browser.settings.peers.splice(index, 1);
+							}
+
+						}
+
+						_on_update(browser.settings);
+
+					}
+
+					done(result);
+
+				});
+
+			} else if (action === 'save') {
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.peers.find(p => p.domain === data.domain) || null;
+						if (cache !== null) {
+							cache.connection = data.connection;
+							cache.status     = data.status;
+						}
+
+					}
+
+					done(result);
+
+				});
+
+			} else {
+				done(false);
+			}
+
+		} else {
+			done(false);
+		}
+
+	});
+
+	listen(elements.sites, (action, data, done) => {
+
+		let service = browser.client.services.site || null;
+		if (service !== null) {
+
+			if (action === 'remove') {
+
+				service.remove(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.sites.find(s => s.domain === data.domain) || null;
+						if (cache !== null) {
+
+							let index = browser.settings.sites.indexOf(cache);
+							if (index !== -1) {
+								browser.settings.sites.splice(index, -1);
+							}
+
+						}
+
+					}
+
+					_on_update(browser.settings);
+
+					done(result);
+
+				});
+
+			} else if (action === 'save') {
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.sites.find(s => s.domain === data.domain) || null;
+						if (cache !== null) {
+							cache.mode.text  = data.mode.text === true;
+							cache.mode.image = data.mode.image === true;
+							cache.mode.audio = data.mode.audio === true;
+							cache.mode.video = data.mode.video === true;
+							cache.mode.other = data.mode.other === true;
+						}
+
+					}
+
+					done(result);
+
+				});
+
+			} else {
+				done(false);
+			}
+
+		} else {
+			done(false);
+		}
+
+	});
 
 });
 

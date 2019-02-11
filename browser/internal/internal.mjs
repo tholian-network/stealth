@@ -154,46 +154,25 @@ const _get_data = (element) => {
 };
 
 
-const _render_host = (host) => `
-<tr>
-	<td data-key="domain">${host.domain}</td>
-	<td data-key="ipv4">${(host.ipv4 !== null ? host.ipv4 : '(none)')}</td>
-	<td data-key="ipv6">${(host.ipv6 !== null ? host.ipv6 : '(none)')}</td>
-	<td><button data-action="refresh"></button></td>
-</tr>
-`;
 
-const _render_host_edit = (host) => `
+const _render_host = (host, actions) => `
 <tr>
 	<td data-key="domain">${host.domain}</td>
-	<td><input data-key="ipv4" type="text" placeholder="IPv4" value="${(host.ipv4 !== null ? host.ipv4 : '')}"></td>
-	<td><input data-key="ipv6" type="text" placeholder="IPv6" value="${(host.ipv6 !== null ? host.ipv6 : '')}"></td>
+	${actions.includes('save') === true ? '<td><input data-key="ipv4" type="text" placeholder="IPv4" value="' + (host.ipv4 !== null ? host.ipv4 : '') + '"></td>' : '<td data-key="ipv4">' + (host.ipv4 !== null ? host.ipv4 : '(none)') + '</td>'}
+	${actions.includes('save') === true ? '<td><input data-key="ipv6" type="text" placeholder="IPv6" value="' + (host.ipv6 !== null ? host.ipv6 : '') + '"></td>' : '<td data-key="ipv6">' + (host.ipv6 !== null ? host.ipv6 : '(none)') + '</td>'}
 	<td>
-		<button data-action="refresh"></button>
-		<button data-action="remove"></button>
+		${actions.map(action => '<button data-action="' + action + '"></button>').join('')}
 	</td>
 </tr>
 `;
 
-const _render_peer = (peer) => `
+const _render_peer = (peer, actions) => `
 <tr>
 	<td data-key="domain">${peer.domain}</td>
 	<td><button data-key="connection" data-val="${peer.connection}" disabled></button></td>
 	<td><button data-key="status" data-val="${peer.status}" disabled></button></td>
 	<td>
-		<button data-action="refresh"></button>
-	</td>
-</tr>
-`;
-
-const _render_peer_edit = (peer) => `
-<tr>
-	<td data-key="domain">${peer.domain}</td>
-	<td><button data-key="connection" data-val="${peer.connection}" disabled></button></td>
-	<td><button data-key="status" data-val="${peer.status}" disabled></button></td>
-	<td>
-		<button data-action="refresh"></button>
-		<button data-action="remove"></button>
+		${actions.map(action => '<button data-action="' + action + '"></button>').join('')}
 	</td>
 </tr>
 `;
