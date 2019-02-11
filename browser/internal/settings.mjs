@@ -1,5 +1,5 @@
 
-import { BROWSER, init, listen, render } from './internal.mjs';
+import { BROWSER, init, listen, render, reset } from './internal.mjs';
 
 
 
@@ -8,8 +8,11 @@ const elements = {
 		connection: Array.from(document.querySelectorAll('#internet-connection input')),
 		torify:     Array.from(document.querySelectorAll('#internet-torify input'))
 	},
+	host:  document.querySelector('#hosts table tfoot'),
 	hosts: document.querySelector('#hosts table tbody'),
+	peer:  document.querySelector('#peers table tfoot'),
 	peers: document.querySelector('#peers table tbody'),
+	site:  document.querySelector('#sites table tfoot'),
 	sites: document.querySelector('#sites table tbody')
 };
 
@@ -128,7 +131,9 @@ init([
 	elements.sites
 ], (browser, result) => {
 
-	_update(browser);
+	if (result === true) {
+		_update(browser);
+	}
 
 
 	elements.internet.connection.forEach((element, e, others) => {
@@ -190,6 +195,11 @@ init([
 	});
 
 
+
+	/*
+	 * Refresh/Remove/Save
+	 */
+
 	listen(elements.hosts, (action, data, done) => {
 
 		let service = browser.client.services.host || null;
@@ -207,7 +217,9 @@ init([
 							cache.ipv6 = host.ipv6 || null;
 						}
 
-						_on_update(browser.settings);
+						_on_update({
+							hosts: browser.settings.hosts
+						});
 
 					}
 
@@ -229,12 +241,13 @@ init([
 								browser.settings.hosts.splice(index, 1);
 							}
 
+							_on_update({
+								hosts: browser.settings.hosts
+							});
+
 						}
 
-						_on_update(browser.settings);
-
 					}
-
 
 					done(result);
 
@@ -285,7 +298,9 @@ init([
 							cache.status     = peer.status;
 						}
 
-						_on_update(browser.settings);
+						_on_update({
+							peers: browser.settings.peers
+						});
 
 					}
 
@@ -307,9 +322,11 @@ init([
 								browser.settings.peers.splice(index, 1);
 							}
 
-						}
+							_on_update({
+								peers: browser.settings.peers
+							});
 
-						_on_update(browser.settings);
+						}
 
 					}
 
@@ -361,14 +378,16 @@ init([
 
 							let index = browser.settings.sites.indexOf(cache);
 							if (index !== -1) {
-								browser.settings.sites.splice(index, -1);
+								browser.settings.sites.splice(index, 1);
 							}
 
 						}
 
-					}
+						_on_update({
+							sites: browser.settings.sites
+						});
 
-					_on_update(browser.settings);
+					}
 
 					done(result);
 
@@ -404,6 +423,197 @@ init([
 		}
 
 	});
+
+
+
+	/*
+	 * Refresh/Confirm
+	 */
+
+	listen(elements.host, (action, data, done) => {
+
+		let service = browser.client.services.host || null;
+		if (service !== null) {
+
+			if (action === 'confirm') {
+
+				let cache = browser.settings.hosts.find(h => h.domain === data.domain) || null;
+				if (cache !== null) {
+					cache.ipv4 = data.ipv4;
+					cache.ipv6 = data.ipv6;
+					data = cache;
+				} else {
+					browser.settings.hosts.push(data);
+				}
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						_on_update({
+							hosts: browser.settings.hosts
+						});
+
+						reset(elements.host);
+
+					}
+
+					done(result);
+
+				});
+
+			} else {
+				done(false);
+			}
+
+		} else {
+			done(false);
+		}
+
+	});
+
+	listen(elements.peer, (action, data, done) => {
+
+		let button  = elements.peer.querySelector('button[data-action]');
+		let service = browser.client.services.peer || null;
+		if (service !== null) {
+
+			if (action === 'refresh') {
+
+				button.setAttribute('data-action', 'confirm');
+				button.setAttribute('disabled', 'true');
+
+				service.refresh(data, (peer) => {
+
+					if (peer !== null) {
+
+						let cache = browser.settings.peers.find(p => p.domain === peer.domain) || null;
+						if (cache !== null) {
+							cache.connection = peer.connection;
+							cache.status     = peer.status;
+						}
+
+						let button_connection = elements.peer.querySelector('button[data-key="connection"]');
+						if (button_connection !== null) {
+							button_connection.setAttribute('data-val', peer.connection);
+						}
+
+						let button_status = elements.peer.querySelector('button[data-key="status"]');
+						if (button_status !== null) {
+							button_status.setAttribute('data-val', peer.status);
+						}
+
+						button.setAttribute('data-action', 'confirm');
+						button.removeAttribute('disabled');
+
+					} else {
+
+						button.setAttribute('data-action', 'refresh');
+						button.removeAttribute('disabled');
+
+					}
+
+					done(peer !== null);
+
+				});
+
+			} else if (action === 'confirm') {
+
+				let cache = browser.settings.peers.find(p => p.domain === data.domain) || null;
+				if (cache !== null) {
+					cache.connection = data.connection;
+					cache.status     = data.status;
+					data = cache;
+				} else {
+					browser.settings.peers.push(data);
+				}
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						_on_update({
+							peers: browser.settings.peers
+						});
+
+						reset(elements.peer);
+
+					}
+
+					done(result);
+
+				});
+
+			} else {
+
+				button.removeAttribute('disabled');
+				button.setAttribute('data-action', 'refresh');
+
+				reset(elements.peer);
+				done(false);
+
+			}
+
+		} else {
+
+			button.removeAttribute('disabled');
+			button.setAttribute('data-action', 'refresh');
+
+			reset(elements.peer);
+			done(false);
+
+		}
+
+	});
+
+	listen(elements.site, (action, data, done) => {
+
+		let service = browser.client.services.site || null;
+		if (service !== null) {
+
+			if (action === 'confirm') {
+
+				let cache = browser.settings.sites.find(s => s.domain === data.domain) || null;
+				if (cache !== null) {
+					cache.mode.text  = data.mode.text === true;
+					cache.mode.image = data.mode.image === true;
+					cache.mode.audio = data.mode.audio === true;
+					cache.mode.video = data.mode.video === true;
+					cache.mode.other = data.mode.other === true;
+					data = cache;
+				} else {
+					browser.settings.sites.push(data);
+				}
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						_on_update({
+							sites: browser.settings.sites
+						});
+
+						reset(elements.site);
+
+					}
+
+					done(result);
+
+				});
+
+			} else {
+				done(false);
+			}
+
+		} else {
+			done(false);
+		}
+
+	});
+
+	reset(elements.host);
+	reset(elements.peer);
+	reset(elements.site);
 
 });
 

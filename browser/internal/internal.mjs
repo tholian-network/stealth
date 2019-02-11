@@ -47,7 +47,7 @@ export const REFERENCE = (function(search) {
 
 
 
-const _set = function(object, path, value) {
+const _set = (object, path, value) => {
 
 	let num_int = parseInt(value, 10);
 	if (Number.isNaN(num_int) === false && (num_int).toString() === value) {
@@ -153,6 +153,45 @@ const _get_data = (element) => {
 
 };
 
+const _reset_data = (element) => {
+
+	let parent = element;
+	if (parent.tagName.toLowerCase() === 'td') {
+		parent = element.parentNode;
+	} else if (parent.tagName.toLowerCase() === 'tfoot') {
+		parent = parent.querySelector('tr');
+	}
+
+	if (parent.tagName.toLowerCase() === 'tr') {
+
+		Array.from(parent.querySelectorAll('*[data-key]')).forEach(element => {
+
+			let type = element.tagName.toLowerCase();
+			if (type === 'button') {
+
+				let val = element.getAttribute('data-val');
+				if (val === 'true' || val === 'false') {
+					element.setAttribute('data-val', 'false');
+				} else if (val !== null) {
+					element.setAttribute('data-val', 'unknown');
+				}
+
+			} else if (type === 'input') {
+				element.value = '';
+			} else {
+				element.innerHTML = '';
+			}
+
+		});
+
+		return true;
+
+	}
+
+	return false;
+
+};
+
 
 
 const _render_host = (host, actions) => `
@@ -195,26 +234,31 @@ const _render_site = (site, actions) => `
 
 
 
-export const render = function(type, data, actions) {
+export const init = function(elements, callback) {
 
-	type    = String.isString(type)  ? type    : null;
-	data    = Object.isObject(data)  ? data    : null;
-	actions = Array.isArray(actions) ? actions : [];
+	elements = Array.isArray(elements)       ? elements : [];
+	callback = Function.isFunction(callback) ? callback : null;
 
 
-	if (type !== null && data !== null) {
+	let result = true;
 
-		if (type === 'host') {
-			return _render_host(data, actions);
-		} else if (type === 'peer') {
-			return _render_peer(data, actions);
-		} else if (type === 'site') {
-			return _render_site(data, actions);
-		}
+	if (elements.length > 0) {
+
+		elements.forEach(element => {
+
+			if (element === null) {
+				result = false;
+			}
+
+		});
 
 	}
 
-	return null;
+	if (callback !== null) {
+		callback(BROWSER, result);
+	} else {
+		return result;
+	}
 
 };
 
@@ -263,34 +307,76 @@ export const listen = function(element, callback) {
 
 		});
 
+		return true;
+
+	} else if (element !== null) {
+		return false;
+	} else {
+		return false;
 	}
 
 };
 
-export const init = function(elements, callback) {
+export const render = function(type, data, actions, callback) {
 
-	elements = Array.isArray(elements)       ? elements : [];
+	type     = String.isString(type)         ? type    : null;
+	data     = Object.isObject(data)         ? data    : null;
+	actions  = Array.isArray(actions)        ? actions : [];
 	callback = Function.isFunction(callback) ? callback : null;
 
 
-	let result = true;
+	if (type !== null && data !== null && callback !== null) {
 
-	if (elements.length > 0) {
+		if (type === 'host') {
+			callback(_render_host(data, actions));
+		} else if (type === 'peer') {
+			callback(_render_peer(data, actions));
+		} else if (type === 'site') {
+			callback(_render_site(data, actions));
+		} else {
+			callback(null);
+		}
 
-		elements.forEach(element => {
+	} else if (type !== null && data !== null) {
 
-			if (element === null) {
-				result = false;
-			}
+		if (type === 'host') {
+			return _render_host(data, actions);
+		} else if (type === 'peer') {
+			return _render_peer(data, actions);
+		} else if (type === 'site') {
+			return _render_site(data, actions);
+		} else {
+			return null;
+		}
 
-		});
-
+	} else if (callback !== null) {
+		callback(null);
+	} else {
+		return null;
 	}
 
-	if (callback !== null) {
-		callback(BROWSER, result);
+};
+
+export const reset = function(element, callback) {
+
+	element  = element !== undefined         ? element  : null;
+	callback = Function.isFunction(callback) ? callback : null;
+
+
+	if (element !== null && callback !== null) {
+
+		_reset_data(element);
+		callback(true);
+
+	} else if (element !== null) {
+
+		_reset_data(element);
+		return true;
+
+	} else if (callback !== null) {
+		callback(false);
 	} else {
-		return result;
+		return false;
 	}
 
 };
