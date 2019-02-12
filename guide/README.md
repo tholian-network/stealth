@@ -91,10 +91,10 @@ These services are available peer-to-peer.
 - [Cache](./services/peer-to-peer/Cache.md)
 - [Filter](./services/peer-to-peer/Filter.md)
 - [Host](./services/peer-to-peer/Host.md)
+- [Mode](./services/peer-to-peer/Mode.md)
 - [Peer](./services/peer-to-peer/Peer.md)
 - [Request](./services/peer-to-peer/Request.md)
 - [Settings](./services/peer-to-peer/Settings.md)
-- [Site](./services/peer-to-peer/Site.md)
 
 
 ## Local Services

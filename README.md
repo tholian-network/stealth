@@ -88,26 +88,26 @@ that can serve its own User Interface that is implemented in HTML5 and CSS3.
 ## Stealth Browser Guide (for Hackers?)
 
 - [Guide Index](./guide/README.md)
-- [Stealth Concept Design](./guides/concept/Design.md)
-- [Stealth Concept Architecture](./guides/concept/Design.md) (TBD)
-- [Stealth Site Modes](./guides/concept/Modes.md)
-- [Stealth Service API Usage](./guides/services/Usage.md)
+- [Stealth Concept Design](./guide/concept/Design.md)
+- [Stealth Concept Architecture](./guide/concept/Design.md) (TBD)
+- [Stealth Site Modes](./guide/concept/Modes.md)
+- [Stealth Service API Usage](./guide/services/Usage.md)
 
 Peer-to-Peer Services:
 
-- [Cache](./services/peer-to-peer/Cache.md)
-- [Filter](./services/peer-to-peer/Filter.md)
-- [Host](./services/peer-to-peer/Host.md)
-- [Peer](./services/peer-to-peer/Peer.md)
-- [Request](./services/peer-to-peer/Request.md)
-- [Settings](./services/peer-to-peer/Settings.md)
-- [Site](./services/peer-to-peer/Site.md)
+- [Cache](./guide/services/peer-to-peer/Cache.md)
+- [Filter](./guide/services/peer-to-peer/Filter.md)
+- [Host](./guide/services/peer-to-peer/Host.md)
+- [Mode](./guide/services/peer-to-peer/Mode.md)
+- [Peer](./guide/services/peer-to-peer/Peer.md)
+- [Request](./guide/services/peer-to-peer/Request.md)
+- [Settings](./guide/services/peer-to-peer/Settings.md)
 
 Local Services:
 
-- [Error](./services/local/Error.md)
-- [File](./services/local/File.md)
-- [Redirect](./services/local/Redirect.md)
+- [Error](./guide/services/local/Error.md)
+- [File](./guide/services/local/File.md)
+- [Redirect](./guide/services/local/Redirect.md)
 
 
 ## Quickstart

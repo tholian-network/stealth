@@ -32,7 +32,7 @@ removes all matching `filter` settings from the local Stealth `profile` folder.
 
 ## save()
 
-`save([{ domain: String, subdomain: String, prefix: String, midfix: String, suffix: String }], callback)`
+`save([{ domain: String, subdomain: String, filter: { prefix: String, midfix: String, suffix: String }}], callback)`
 
 saves `filter` settings to the local Stealth `profile` folder.
 
@@ -43,9 +43,11 @@ scenario, it is recommended to do a `remove()` call before a `save()` call.
 // save(payloads) example
 [{
 	domain: 'reddit.com',
-	prefix: '/chat',
-	midfix: null,
-	suffix: null
+	filter: {
+		prefix: '/chat',
+		midfix: null,
+		suffix: null
+	}
 }]
 ```
 
