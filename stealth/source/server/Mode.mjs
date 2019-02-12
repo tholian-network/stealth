@@ -34,10 +34,8 @@ const _payloadify = function(payload) {
 
 const Mode = function(stealth) {
 
-	Emitter.call(this);
-
-
 	this.stealth = stealth;
+	Emitter.call(this);
 
 };
 

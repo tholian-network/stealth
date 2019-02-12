@@ -495,6 +495,24 @@ const WS = {
 
 		}
 
+	},
+
+	ping: function(socket) {
+
+		let buffer = Buffer.alloc(6);
+
+		buffer[0] = 128 + 0x09; // ping
+		buffer[1] = 128 + 0x00; // masked (client)
+
+		buffer[2] = (Math.random() * 0xff) | 0;
+		buffer[3] = (Math.random() * 0xff) | 0;
+		buffer[4] = (Math.random() * 0xff) | 0;
+		buffer[5] = (Math.random() * 0xff) | 0;
+
+		socket.write(buffer);
+
+		return false;
+
 	}
 
 };

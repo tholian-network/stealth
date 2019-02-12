@@ -3,13 +3,10 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const Peer = function(browser, client) {
+const Peer = function(client) {
 
+	this.client = client;
 	Emitter.call(this);
-
-
-	this.browser = browser;
-	this.client  = client || browser.client;
 
 };
 

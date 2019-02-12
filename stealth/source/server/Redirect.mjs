@@ -13,10 +13,8 @@ const _CODES = {
 
 const Redirect = function(stealth) {
 
-	Emitter.call(this);
-
-
 	this.stealth = stealth;
+	Emitter.call(this);
 
 };
 

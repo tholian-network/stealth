@@ -3,13 +3,10 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const Host = function(browser, client) {
+const Host = function(client) {
 
+	this.client = client;
 	Emitter.call(this);
-
-
-	this.browser = browser;
-	this.client  = client || browser.client;
 
 };
 

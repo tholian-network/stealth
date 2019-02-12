@@ -7,10 +7,8 @@ import { Emitter } from '../Emitter.mjs';
 
 const File = function(stealth) {
 
-	Emitter.call(this);
-
-
 	this.stealth = stealth;
+	Emitter.call(this);
 
 };
 

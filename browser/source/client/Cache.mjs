@@ -3,13 +3,10 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const Cache = function(browser, client) {
+const Cache = function(client) {
 
+	this.client = client;
 	Emitter.call(this);
-
-
-	this.browser = browser;
-	this.client  = client || browser.client;
 
 };
 
@@ -42,8 +39,15 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		// XXX: Cache is read-only for Stealth Browser
-		callback(false);
+		payload  = Object.isObject(payload)      ? payload  : null;
+		callback = Function.isFunction(callback) ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+			callback(false);
+		} else if (callback !== null) {
+			callback(false);
+		}
 
 	}
 

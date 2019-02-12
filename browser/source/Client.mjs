@@ -9,21 +9,77 @@ import { Settings } from './client/Settings.mjs';
 
 
 
+const _settingsify = function(payload) {
+
+	if (Object.isObject(payload)) {
+
+		payload.internet = Object.isObject(payload.internet) ? payload.internet : null;
+		payload.filters  = Array.isArray(payload.filters)    ? payload.filters  : null;
+		payload.hosts    = Array.isArray(payload.hosts)      ? payload.hosts    : null;
+		payload.modes    = Array.isArray(payload.modes)      ? payload.modes    : null;
+		payload.peers    = Array.isArray(payload.peers)      ? payload.peers    : null;
+
+		return payload;
+
+	}
+
+	return null;
+
+};
+
+
+
 const Client = function(browser) {
 
+	this.browser = browser;
 	Emitter.call(this);
 
 
 	this.services = {
-		cache:    new Cache(browser, this),
-		filter:   new Filter(browser, this),
-		host:     new Host(browser, this),
-		mode:     new Mode(browser, this),
-		peer:     new Peer(browser, this),
-		settings: new Settings(browser, this)
+		cache:    new Cache(this),
+		filter:   new Filter(this),
+		host:     new Host(this),
+		mode:     new Mode(this),
+		peer:     new Peer(this),
+		settings: new Settings(this)
 	};
 
 	this.__socket = null;
+
+
+	this.services.settings.on('read', (response) => {
+
+		let data = _settingsify(response);
+		if (data !== null) {
+
+			let internet = data.internet || null;
+			if (internet !== null) {
+				browser.settings.internet = internet;
+			}
+
+			let filters = data.filters || null;
+			if (filters !== null) {
+				browser.settings.filters = filters;
+			}
+
+			let hosts = data.hosts || null;
+			if (hosts !== null) {
+				browser.settings.hosts = hosts;
+			}
+
+			let modes = data.modes || null;
+			if (modes !== null) {
+				browser.settings.modes = modes;
+			}
+
+			let peers = data.peers || null;
+			if (peers !== null) {
+				browser.settings.peers = peers;
+			}
+
+		}
+
+	});
 
 };
 

@@ -82,10 +82,8 @@ const _payloadify = function(payload) {
 
 const Cache = function(stealth) {
 
-	Emitter.call(this);
-
-
 	this.stealth = stealth;
+	Emitter.call(this);
 
 };
 

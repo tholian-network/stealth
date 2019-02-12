@@ -39,10 +39,8 @@ const _CODES = {
 
 const Error = function(stealth) {
 
-	Emitter.call(this);
-
-
 	this.stealth = stealth;
+	Emitter.call(this);
 
 };
 

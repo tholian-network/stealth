@@ -175,6 +175,7 @@ Server.prototype = {
 
 									if (result === true) {
 
+										socket.__ws_server = true;
 										socket.allowHalfOpen = true;
 										socket.setTimeout(0);
 										socket.setNoDelay(true);
@@ -182,9 +183,9 @@ Server.prototype = {
 										socket.removeAllListeners('timeout');
 
 										socket.removeAllListeners('data');
-										socket.on('data', blob => {
+										socket.on('data', (blob) => {
 
-											WS.receive(socket, blob, request => {
+											WS.receive(socket, blob, (request) => {
 
 												if (request !== null) {
 
@@ -203,7 +204,7 @@ Server.prototype = {
 
 														let instance = this.services[service] || null;
 														if (instance !== null && typeof instance[method] === 'function') {
-															instance[method](request.payload, response => {
+															instance[method](request.payload, (response) => {
 																if (response !== null) {
 																	WS.send(socket, response);
 																}
@@ -213,7 +214,7 @@ Server.prototype = {
 													}
 
 												} else {
-													WS.close(null, response => WS.send(response));
+													WS.close(null, (response) => WS.send(response));
 												}
 
 											});

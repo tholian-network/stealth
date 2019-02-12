@@ -38,10 +38,8 @@ const _payloadify = function(payload) {
 
 const Peer = function(stealth) {
 
-	Emitter.call(this);
-
-
 	this.stealth = stealth;
+	Emitter.call(this);
 
 };
 

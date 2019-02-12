@@ -41,10 +41,8 @@ const _saveify = function(payloads) {
 
 const Filter = function(stealth) {
 
-	Emitter.call(this);
-
-
 	this.stealth = stealth;
+	Emitter.call(this);
 
 };
 

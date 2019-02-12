@@ -3,32 +3,10 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const _responsify = function(payload) {
+const Settings = function(client) {
 
-	if (Object.isObject(payload)) {
-
-		payload.internet = Object.isObject(payload.internet) ? payload.internet : null;
-		payload.filters  = Array.isArray(payload.filters)    ? payload.filters  : null;
-		payload.hosts    = Array.isArray(payload.hosts)      ? payload.hosts    : null;
-		payload.modes    = Array.isArray(payload.modes)      ? payload.modes    : null;
-		payload.peers    = Array.isArray(payload.peers)      ? payload.peers    : null;
-
-		return payload;
-
-	}
-
-	return null;
-
-};
-
-
-const Settings = function(browser, client) {
-
+	this.client = client;
 	Emitter.call(this);
-
-
-	this.browser = browser;
-	this.client  = client || browser.client;
 
 };
 
@@ -43,40 +21,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (callback !== null) {
 
-			this.once('read', response => {
-
-				response = Object.isObject(response) ? _responsify(response) : null;
-
-
-				let settings = this.browser.settings;
-
-				if (response !== null) {
-
-					if (response.internet !== null) {
-						settings.internet = response.internet;
-					}
-
-					if (response.filters !== null) {
-						settings.filters = response.filters;
-					}
-
-					if (response.hosts !== null) {
-						settings.hosts = response.hosts;
-					}
-
-					if (response.modes !== null) {
-						settings.modes = response.modes;
-					}
-
-					if (response.peers !== null) {
-						settings.peers = response.peers;
-					}
-
-				}
-
-				callback(settings);
-
-			});
+			this.once('read', response => callback(response));
 
 			this.client.send({
 				headers: {
@@ -96,7 +41,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 		callback = Function.isFunction(callback) ? callback : null;
 
 
-		if (callback !== null) {
+		if (payload !== null && callback !== null) {
 
 			this.once('save', result => callback(result));
 
@@ -105,9 +50,11 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'settings',
 					method:  'save'
 				},
-				payload: this.browser.settings
+				payload: payload
 			});
 
+		} else if (callback !== null) {
+			callback(false);
 		}
 
 	},
