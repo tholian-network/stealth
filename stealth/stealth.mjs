@@ -1,4 +1,5 @@
 
+import process     from 'process';
 import { Stealth } from './source/Stealth.mjs';
 
 const _ARGS  = Array.from(process.argv).slice(2).filter(v => v.trim() !== '');
@@ -59,6 +60,19 @@ const settings = {
 		);
 
 	}
+
+
+	process.on('SIGINT', () => {
+
+		let result = true;
+
+		if (stealth !== null) {
+			result = stealth.disconnect();
+		}
+
+		process.exit(result === true ? 0 : 1);
+
+	});
 
 })(global);
 

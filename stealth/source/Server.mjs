@@ -499,6 +499,8 @@ Server.prototype = {
 
 		if (this.__server !== null) {
 
+			console.warn('Stealth Service stopped.');
+
 			this.__server.close();
 			this.__server = null;
 

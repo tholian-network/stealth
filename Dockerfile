@@ -1,4 +1,6 @@
 FROM node:11-alpine
 COPY ./ /browser
-ENTRYPOINT /browser/bin/stealth.sh
+RUN mkdir /profile
 EXPOSE 65432
+ENTRYPOINT ["/browser/bin/stealth.sh"]
+CMD ["--profile=/profile"]
