@@ -1,5 +1,5 @@
 
-import { Stealth   } from './source/Stealth.mjs';
+import { Stealth } from './source/Stealth.mjs';
 
 const _ARGS  = Array.from(process.argv).slice(2).filter(v => v.trim() !== '');
 const _ROOT  = process.env.PWD;

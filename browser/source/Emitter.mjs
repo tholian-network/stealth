@@ -19,12 +19,17 @@ Emitter.prototype = {
 			let events = this.__events[event] || null;
 			if (events !== null) {
 
+				let data = null;
+
 				for (let e = 0, el = events.length; e < el; e++) {
 
 					let event = events[e];
 					if (event.once === true) {
 
-						event.callback.apply(null, args);
+						let result = event.callback.apply(null, args) || null;
+						if (result !== null) {
+							data = result;
+						}
 
 						events.splice(e, 1);
 						el--;
@@ -36,14 +41,14 @@ Emitter.prototype = {
 
 				}
 
-			}
+				return data;
 
-			return true;
+			}
 
 		}
 
 
-		return false;
+		return null;
 
 	},
 

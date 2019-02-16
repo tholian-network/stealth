@@ -142,18 +142,31 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 						let instance = this.services[service] || null;
 						if (instance !== null) {
-							instance.emit(event, [ request.payload ]);
+							let response = instance.emit(event, [ request.payload ]);
+							if (response !== null) {
+								this.__socket.send(JSON.stringify(response, null, '\t'));
+							}
+						} else {
+							let response = this.emit('request', [ request ]);
+							if (response !== null) {
+								this.__socket.send(JSON.stringify(response, null, '\t'));
+							}
 						}
 
 					} else if (service !== null && method !== null) {
 
 						let instance = this.services[service] || null;
 						if (instance !== null && Function.isFunction(instance[method])) {
-							instance[method](request.payload, response => {
+							instance[method](request.payload, (response) => {
 								if (response !== null) {
 									this.__socket.send(JSON.stringify(response, null, '\t'));
 								}
 							});
+						} else {
+							let response = this.emit('request', [ request ]);
+							if (response !== null) {
+								this.__socket.send(JSON.stringify(response, null, '\t'));
+							}
 						}
 
 					}

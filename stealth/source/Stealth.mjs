@@ -4,6 +4,7 @@ import { Request   } from './Request.mjs';
 import { Server    } from './Server.mjs';
 import { Settings  } from './Settings.mjs';
 import { URL       } from './parser/URL.mjs';
+import { POLYFILLS } from './POLYFILLS.mjs';
 
 
 
@@ -87,10 +88,54 @@ const Stealth = function(data) {
 
 Stealth.prototype = {
 
-	connect: function(host, port) {
+	connect: function(host, port, callback) {
+
+		host     = String.isString(host)         ? host     : 'localhost';
+		port     = Number.isNumber(port)         ? port     : 65432;
+		callback = Function.isFunction(callback) ? callback : null;
+
 
 		if (this.server !== null) {
-			this.server.connect(host, port);
+
+			if (callback !== null) {
+				this.server.connect(host, port, (result) => callback(result));
+			} else {
+				return this.server.connect(host, port);
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			}
+
+			return false;
+
+		}
+
+	},
+
+	disconnect: function(callback) {
+
+		callback = Function.isFunction(callback) ? callback : null;
+
+
+		if (this.server !== null) {
+
+			if (callback !== null) {
+				this.server.disconnect((result) => callback(result));
+			} else {
+				return this.server.disconnect();
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			}
+
+			return false;
+
 		}
 
 	},

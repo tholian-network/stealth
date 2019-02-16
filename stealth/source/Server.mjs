@@ -115,13 +115,25 @@ const Server = function(stealth, root) {
 
 Server.prototype = {
 
-	connect: function(host, port) {
+	connect: function(host, port, callback) {
 
-		host = typeof host === 'string' ? host : null;
-		port = typeof port === 'number' ? port : 65432;
+		host     = String.isString(host)         ? host     : null;
+		port     = Number.isNumber(port)         ? port     : 65432;
+		callback = Function.isFunction(callback) ? callback : null;
 
 
-		if (this.__server === null) {
+		if (this.__server !== null) {
+
+			if (callback !== null) {
+				callback(true);
+			}
+
+			return true;
+
+		}
+
+
+		if (port !== null) {
 
 			this.__server = new net.Server({
 				allowHalfOpen:  true,
@@ -454,13 +466,55 @@ Server.prototype = {
 			});
 
 
-			if (host !== null) {
+			if (host !== null && host !== 'localhost') {
 				console.info('Stealth Service started on http://' + host + ':' + port + '.');
+				this.__server.listen(port, host);
 			} else {
 				console.info('Stealth Service started on http://localhost:' + port + '.');
+				this.__server.listen(port, null);
 			}
 
-			this.__server.listen(port, host === 'localhost' ? null : host);
+
+			if (callback !== null) {
+				callback(true);
+			}
+
+			return true;
+
+		}
+
+
+		if (callback !== null) {
+			callback(true);
+		}
+
+		return false;
+
+	},
+
+	disconnect: function(callback) {
+
+		callback = Function.isFunction(callback) ? callback : null;
+
+
+		if (this.__server !== null) {
+
+			this.__server.close();
+			this.__server = null;
+
+			if (callback !== null) {
+				callback(true);
+			}
+
+			return true;
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			}
+
+			return false;
 
 		}
 
