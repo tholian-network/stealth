@@ -31,5 +31,5 @@ cp ./stealth/source/parser/URL.mjs      ./browser/source/parser/URL.mjs;
 
 
 
-"$node_bin" --no-warnings --experimental-modules ./stealth/stealth.mjs "$@";
+exec "$node_bin" --no-warnings --experimental-modules ./stealth/stealth.mjs "$@";
 
