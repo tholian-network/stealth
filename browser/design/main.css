@@ -1,0 +1,56 @@
+
+html,
+body {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	background: #303030;
+}
+
+main#main {
+	display: block;
+	position: fixed;
+	top: 48px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+	line-height: 16px;
+	font-family: 'museo';
+	font-size: 16px;
+	color: #ffffff;
+	background: #303030;
+	transition: 250ms left ease-out;
+	z-index: 50;
+}
+
+main#main iframe#main-webview,
+main#main webview#main-webview {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border: 0px solid transparent;
+}
+
+::-webkit-scrollbar,
+main#main iframe#main-webview html::-webkit-scrollbar,
+main#main webview#main-webview html::-webkit-scrollbar {
+	width: 4px !important;
+	border: 0px solid transparent !important;
+	background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb,
+main#main iframe#main-webview html::-webkit-scrollbar-thumb,
+main#main webview#main-webview html::-webkit-scrollbar-thumb {
+	width: 4px !important;
+	background: #ffffff !important;
+}
+
+aside#navi.active + main#main {
+	left: 192px;
+}
+

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>stealth:fix-filter</title>
+		<link rel="stylesheet" href="../design/font/index.css">
+		<link rel="stylesheet" href="internal.css">
+	</head>
+	<body>
+		<article id="fix-filter">
+			<h3>Fix Site Filters</h3>
+			<p>
+				The current Site Filters did not allow to request the entered URL.
+			</p>
+			<p>
+				Site Filters allow to request specific URLs by using a whitelist-based config.
+				The list shows already configured Site Filters and their rules for this domain.
+			</p>
+			<table id="sites-filters">
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Prefix</th>
+						<th>Midfix</th>
+						<th>Suffix</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td><input data-key="domain" type="text" placeholder="Domain"></td>
+						<td><input data-key="filter.prefix" type="text" placeholder="Prefix"></td>
+						<td><input data-key="filter.midfix" type="text" placeholder="Midfix"></td>
+						<td><input data-key="filter.suffix" type="text" placeholder="Suffix"></td>
+						<td><button data-action="confirm"></button></td>
+					</tr>
+				</tfoot>
+			</table>
+		</article>
+		<article id="add-filter">
+			<h3>Add Site Filter</h3>
+			<code id="add-filter-url">https://example.com/index.html</code>
+			<p>
+				Please select a suggested rule on how to whitelist the current URL.
+			</p>
+			<div id="add-filter-assistant"></div>
+		</article>
+		<script type="module" src="fix-filter.mjs"></script>
+	</body>
+</html>
+

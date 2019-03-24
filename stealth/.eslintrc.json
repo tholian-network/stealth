@@ -1,0 +1,38 @@
+{
+	"env": {
+		"browser": false,
+		"es6": true,
+		"node": true
+	},
+	"extends": "eslint:recommended",
+	"parserOptions": {
+		"ecmaVersion": 2018,
+		"sourceType": "module"
+	},
+	"overrides": [{
+		"files": [ "source/POLYFILLS.mjs" ],
+		"rules": { "no-global-assign": "off" }
+	}],
+	"rules": {
+		"arrow-parens": [
+			"error",
+			"always"
+		],
+		"indent": [
+			"error",
+			"tab"
+		],
+		"linebreak-style": [
+			"error",
+			"unix"
+		],
+		"quotes": [
+			"error",
+			"single"
+		],
+		"semi": [
+			"error",
+			"always"
+		]
+	}
+}

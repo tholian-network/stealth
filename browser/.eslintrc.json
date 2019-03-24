@@ -1,0 +1,51 @@
+{
+	"env": {
+		"browser": true,
+		"es6": true,
+		"node": false
+	},
+	"extends": "eslint:recommended",
+	"parserOptions": {
+		"ecmaVersion": 2018,
+		"sourceType": "module"
+	},
+	"globals": {
+		"browser": true,
+		"BROWSER_BINDINGS": true,
+		"Buffer": true
+	},
+	"overrides": [{
+		"files": [ "browser.mjs", "service.js" ],
+		"rules": { "no-console": "off" }
+	}, {
+		"files": [ "source/POLYFILLS.mjs" ],
+		"rules": { "no-global-assign": "off" }
+	}],
+	"rules": {
+		"arrow-parens": [
+			"error",
+			"always"
+		],
+		"indent": [
+			"error",
+			"tab"
+		],
+		"linebreak-style": [
+			"error",
+			"unix"
+		],
+		"no-unused-vars": [
+			"error", {
+				"varsIgnorePattern": "^(BROWSER_BINDINGS|browser)$"
+			}
+		],
+		"quotes": [
+			"error",
+			"single"
+		],
+		"semi": [
+			"error",
+			"always"
+		]
+	}
+}

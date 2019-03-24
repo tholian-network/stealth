@@ -1,0 +1,15 @@
+{
+	"dir": "ltr",
+	"lang": "en-us",
+	"short_name": "stealth",
+	"name": "Stealth Browser",
+	"display": "fullscreen",
+	"icons": [{
+		"src": "/browser/favicon.png",
+		"type": "image/png",
+		"sizes": "256x256"
+	}],
+	"start_url": "/browser/index.html",
+	"background_color": "#303030",
+	"theme_color": "#303030"
+}

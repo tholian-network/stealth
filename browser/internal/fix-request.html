@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>stealth:fix-request</title>
+		<link rel="stylesheet" href="../design/font/index.css">
+		<link rel="stylesheet" href="internal.css">
+	</head>
+	<body>
+		<article id="fix-request">
+			<h3>Fix Request</h3>
+			<code data-key="url">https://example.com/index.html</code>
+			<p>
+				The current URL cannot be downloaded because either the internet connection broke down
+				or because the server is a <abbr title="also known as being an idiot">teapot</abbr>.
+			</p>
+			<p data-key="cause" data-val="socket-trust">
+				The socket encryption could not be verified. Please double-check your backyard and windows,
+				the <abbr title="The Federal Government or one of its institutions (like the FBI)">Feds</abbr>
+				or some <abbr title="Hacker that uses their skills to compromise the rights of others">Blackhat</abbr>
+				might be listening.
+			</p>
+			<p data-key="cause" data-val="socket-stability">
+				The socket connection is too unstable to resume the download. Please
+				check the stability of your internet connection.
+			</p>
+			<p data-key="cause" data-val="socket-timeout">
+				The socket connection timed out and the server is too outdated to be
+				able to resume the download.
+			</p>
+			<p data-key="cause" data-val="headers-location">
+				The server redirects too an invalid location.
+			</p>
+			<p data-key="cause" data-val="headers-status">
+				The server responded with an invalid status code <code data-key="code">200</code>.
+			</p>
+			<h3>Download via Peers</h3>
+			<table id="fix-request-peers">
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Connection</th>
+						<th>Info</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+			<hr>
+			<h3>Download via Web Archive</h3>
+			<div id="fix-request-webarchive">
+				... TODO: Web Archive Timestamp and Download Button with Progress Bar ...
+			</div>
+		</article>
+		<script type="module" src="fix-request.mjs"></script>
+	</body>
+</html>
+

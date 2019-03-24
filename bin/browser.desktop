@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Stealth
+GenericName=Web Browser
+Comment=Privacy-respecting Peer-to-Peer Web Browser and Web Scraper
+Exec=/usr/bin/chromium --app="http://localhost:65432/browser/index.html"
+Icon=stealth.png
+Terminal=false
+Type=Application
+Categories=Multimedia;Web
+

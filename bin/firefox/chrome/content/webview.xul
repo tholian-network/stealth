@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<!DOCTYPE window SYSTEM "chrome://myapp/locale/mybrowser.dtd">
+<xul:window title="Stealth" xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml" id="stealth" width="800" height="600">
+	<xul:browser flex="1" id="webview" src="http://localhost:65432/browser/index.html" type="content-primary" />
+</xul:window>

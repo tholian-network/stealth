@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>stealth:settings</title>
+		<link rel="stylesheet" href="../design/font/index.css">
+		<link rel="stylesheet" href="internal.css">
+	</head>
+	<body>
+		<article id="internet">
+			<h3>Internet</h3>
+			<p>
+				The Stealth Browser can connect to a website through direct internet access machines
+				and peer-to-peer internet access machines.
+				<br><br>
+				If this machine does not have internet access, select the peer-to-peer option. It will get
+				internet access once a peer that has internet access is reachable in the local network.
+			</p>
+			<div id="internet-connection">
+				<div>
+					<input id="internet-connection-2" name="internet-connection" type="radio" value="broadband" checked>
+					<label for="internet-connection-2">This machine has broadband internet access.</label>
+				</div>
+				<div>
+					<input id="internet-connection-1" name="internet-connection" type="radio" value="mobile">
+					<label for="internet-connection-1">This machine has mobile internet access.</label>
+				</div>
+				<div>
+					<input id="internet-connection-3" name="internet-connection" type="radio" value="peer">
+					<label for="internet-connection-3">This machine has peer-to-peer internet access.</label>
+				</div>
+			</div>
+			<h3>Deep Web</h3>
+			<p>
+				The Stealth Browser supports using a <abbr title="The Onion Router protocol">TOR</abbr> Proxy to access the Deep Web.
+				<br><br>
+				If a <abbr title="The Onion Router protocol">TOR</abbr> proxy is used, local peer discovery doesn't work anymore. This machine has to
+				have mobile or broadband internet access to connect to sites on the Deep Web.
+			</p>
+			<div id="internet-torify">
+				<div>
+					<input id="internet-torify-1" name="internet-torify" type="radio" value="true">
+					<label for="internet-torify-1">Use the TOR proxy when available.</label>
+				</div>
+				<div>
+					<input id="internet-torify-2" name="internet-torify" type="radio" value="false" checked>
+					<label for="internet-torify-2">Don't use the TOR proxy.</label>
+				</div>
+			</div>
+		</article>
+		<article id="hosts">
+			<h3>Hosts</h3>
+			<p>
+				The Stealth Browser has its own persistent <abbr title="Domain Name System">DNS</abbr> cache in
+				order to prevent tracking capabilities of Internet Service Providers when being online via public
+				Wi-Fi or 2G/3G/4G.
+				<br><br>
+				If both the current internet connection and the Domain support IPv6, the Stealth Browser will
+				connect to it via IPv6.
+				<br><br>
+				It is possible to use transparent IPv6 proxies here, so for example when <code>github.com</code>
+				only supports IPv4 and <code>ikvjwd.com</code> supports IPv6, you can manually edit the IPv6 of
+				github.com and use the IP of the IPv6 proxy.
+			</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>IPv4</th>
+						<th>IPv6</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td><input data-key="domain" type="text" placeholder="Domain"></td>
+						<td><input data-key="ipv4" type="text" placeholder="IPv4"></td>
+						<td><input data-key="ipv6" type="text" placeholder="IPv6"></td>
+						<td><button data-action="confirm"></button></td>
+					</tr>
+				</tfoot>
+			</table>
+		</article>
+		<article id="peers">
+			<h3>Peers</h3>
+			<p>
+				Trusted Peers allow the efficient sharing of cached resources among internal
+				(or external) networks by using the <abbr title="Web-Socket Protocol Version 13">WS/13</abbr>
+				protocol.
+				<br><br>
+				The status indicates whether or not it was possible to connect to the peer,
+				whereas the connection represents the type of internet access the peer has.
+				<br><br>
+				If you do not trust a specific peer anymore, you can remove it.
+			</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Connection</th>
+						<th>Status</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td><input data-key="domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
+						<td><button data-key="connection" data-val="unknown" disabled></button></td>
+						<td><button data-key="status" data-val="unknown" disabled></button></td>
+						<td><button data-action="refresh"></button></td>
+					</tr>
+				</tfoot>
+			</table>
+		</article>
+		<article id="sites">
+			<h3>Site Modes</h3>
+			<p>
+				Site Modes allow to request different media types by using a whitelist-based
+				configuration. Please select the correct media types in the following table.
+				<br><br>
+				If you do not trust a specific domain anymore, you can remove its Site Mode.
+				The Stealth Browser will not request anything by default.
+			</p>
+			<table id="sites-modes">
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Site Mode</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td><input data-key="domain" type="text" placeholder="Domain"></td>
+						<td>
+							<button data-key="mode.text"  data-val="false" title="Allow/Disallow Text"></button>
+							<button data-key="mode.image" data-val="false" title="Allow/Disallow Image"></button>
+							<button data-key="mode.audio" data-val="false" title="Allow/Disallow Audio"></button>
+							<button data-key="mode.video" data-val="false" title="Allow/Disallow Video"></button>
+							<button data-key="mode.other" data-val="false" title="Allow/Disallow Other"></button>
+						</td>
+						<td><button data-action="confirm"></button></td>
+					</tr>
+				</tfoot>
+			</table>
+			<h3>Site Filters</h3>
+			<p>
+				Site Filters allow to request specific URLs on a domain by using whitelist-based
+				rule configurations. If a Site Mode allows a specific media type and a Site Filter
+				for that domain is present but does not explicitely allow it, it will not be
+				requested.
+				<br><br>
+				If you do not trust a specific domain anymore, you can remove its Site Filters and
+				therefore the Site Mode (if present) will take over.
+			</p>
+			<table id="sites-filters">
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Prefix</th>
+						<th>Midfix</th>
+						<th>Suffix</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td><input data-key="domain" type="text" placeholder="Domain"></td>
+						<td><input data-key="filter.prefix" type="text" placeholder="Prefix"></td>
+						<td><input data-key="filter.midfix" type="text" placeholder="Midfix"></td>
+						<td><input data-key="filter.suffix" type="text" placeholder="Suffix"></td>
+						<td><button data-action="confirm"></button></td>
+					</tr>
+				</tfoot>
+			</table>
+		</article>
+		<script type="module" src="settings.mjs"></script>
+	</body>
+</html>

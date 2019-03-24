@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Stealth Browser</title>
+
+		<link rel="manifest" href="manifest.json">
+		<link rel="stylesheet" href="design/font/index.css">
+
+		<link rel="stylesheet" href="design/header.css">
+		<link rel="stylesheet" href="design/main.css">
+		<link rel="stylesheet" href="design/navi.css">
+		<link rel="stylesheet" href="design/site.css">
+
+		<!-- Thanks much, DOMContentLoaded with ES6 Modules. -->
+		<!-- One simply does not understand async imports.   -->
+		<script>BROWSER_BINDINGS=[];</script>
+
+	</head>
+	<body>
+		<header id="header">
+			<div id="header-history">
+				<button id="header-history-back" title="Visit earlier Site" disabled></button>
+				<button id="header-history-next" title="Visit later Site" disabled></button>
+				<button id="header-history-state" title="Refresh/Pause current Site" disabled></button>
+			</div>
+			<div id="header-address">
+				<ul><li id="header-address-protocol" class="secure" title="Secure via HTTPS"></li><li>stealth:welcome</li></ul>
+				<input class="active" type="text" placeholder="Enter URL or search query" spellcheck="false">
+			</div>
+			<div class="header-right">
+				<div id="header-mode">
+					<button data-key="text"  data-val="false" title="Allow/Disallow Text on current Site"></button>
+					<button data-key="image" data-val="false" title="Allow/Disallow Image on current Site"></button>
+					<button data-key="audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>
+					<button data-key="video" data-val="false" title="Allow/Disallow Video on current Site"></button>
+					<button data-key="other" data-val="false" title="Allow/Disallow Other on current Site"></button>
+				</div>
+				<div id="header-settings">
+					<button id="header-settings-site" title="Site Settings"></button>
+					<button id="header-settings-browser" title="Browser Settings"></button>
+				</div>
+			</div>
+		</header>
+		<aside id="navi"></aside>
+		<main id="main">
+			<iframe id="main-webview" sandbox="allow-scripts allow-same-origin" src="/browser/internal/welcome.html"></iframe>
+		</main>
+		<aside id="site">
+			<article id="site-mode">
+				<h3>Site Mode</h3>
+				<p>
+					If a Site Mode is present, it will override the
+					defaulted Stealth Mode. Site Modes allow to request
+					media types by using a whitelist-based configuration.
+					<br><br>
+					In the following table, select the media types for
+					each domain that you want to allow. If you don't trust
+					a Site anymore, you can simply remove its Site Mode.
+				</p>
+				<table>
+					<thead>
+						<tr>
+							<th>Domain</th>
+							<th>Site Mode</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>old.reddit.com</td>
+							<td class="site-mode">
+								<button data-mode="text"></button>
+								<button data-mode="image"></button>
+								<button data-mode="audio"></button>
+								<button data-mode="video"></button>
+								<button data-mode="other"></button>
+							</td>
+							<td><button data-action="confirm" data-method="save"></button></td>
+						</tr>
+					</tbody>
+				</table>
+			</article>
+			<article id="site-filters">
+				<h3>Site Filters</h3>
+				<p>
+					If the Site looks bad in terms on what it loads, you
+					can block specific URLs by creating filters. In order
+					to blacklist the correct URLs, select the URLs you do
+					want to block in the following table:
+				</p>
+				<table>
+					<thead>
+						<tr>
+							<th>Domain</th>
+							<th>Path</th>
+							<th>Event</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>old.reddit.com</td>
+							<td>/asset/cache.js</td>
+							<td><button data-event="cache" disabled></button></td>
+							<td><button data-action="confirm"></button></td>
+						</tr>
+						<tr>
+							<td>old.reddit.com</td>
+							<td>/asset/block.js</td>
+							<td><button data-event="block" disabled></button></td>
+							<td><button data-action="confirm"></button></td>
+						</tr>
+						<tr>
+							<td>old.reddit.com</td>
+							<td>/asset/connect.js</td>
+							<td><button data-event="connect" disabled></button></td>
+							<td><button data-action="confirm"></button></td>
+						</tr>
+						<tr>
+							<td>old.reddit.com</td>
+							<td>/asset/request.js</td>
+							<td><button data-event="request" disabled></button></td>
+							<td><button data-action="confirm"></button></td>
+						</tr>
+						<tr>
+							<td>old.reddit.com</td>
+							<td>/asset/optimize.js</td>
+							<td><button data-event="optimize" disabled></button></td>
+							<td><button data-action="confirm"></button></td>
+						</tr>
+						<tr>
+							<td>old.reddit.com</td>
+							<td>/asset/response.js</td>
+							<td><button data-event="response" disabled></button></td>
+							<td><button data-action="confirm"></button></td>
+						</tr>
+					</tbody>
+				</table>
+			</article>
+		</aside>
+
+		<!-- Browser Design -->
+		<script src="design/header.js"></script>
+		<script src="design/main.js"></script>
+		<script src="design/navi.js"></script>
+		<script src="design/site.js"></script>
+
+		<!-- Browser Init -->
+		<script type="module" src="./browser.mjs"></script>
+
+	</body>
+</html>
+
