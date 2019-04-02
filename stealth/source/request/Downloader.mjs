@@ -1,10 +1,9 @@
 
-import net        from 'net';
-import tls        from 'tls';
 import { Buffer } from 'buffer';
 
 import { Emitter } from '../Emitter.mjs';
 import { HTTP    } from '../protocol/HTTP.mjs';
+import { TLS     } from '../protocol/TLS.mjs';
 
 
 
@@ -281,193 +280,6 @@ const _on_disconnect = function() {
 };
 
 
-const _lookup_tls = function(host, options, callback) {
-
-	options  = options  || {};
-	callback = callback || function() {};
-
-	let results = this.ref.hosts.filter((ip) => {
-
-		if (options.family === 4) {
-			return ip.type === 'v4';
-		} else if (options.family === 6) {
-			return ip.type === 'v6';
-		} else {
-			return ip.type !== null;
-		}
-
-	}).map((ip) => ({
-		address: ip.ip,
-		family:  parseInt(ip.type.substr(1), 10)
-	}));
-
-
-	if (options.all === true) {
-		callback(null, results);
-	} else {
-		callback(null, results[0].address, results[0].family);
-	}
-
-};
-
-const _connect_tls = function() {
-
-	if (this.ref.hosts.length > 0) {
-
-		let host = null;
-
-		if (this.ref.hosts.length > 0) {
-			host = this.ref.hosts[0].ip;
-		}
-
-		if (this.ref.domain !== null) {
-
-			if (this.ref.subdomain !== null) {
-				host = this.ref.subdomain + '.' + this.ref.domain;
-			} else {
-				host = this.ref.domain;
-			}
-
-		}
-
-
-		let socket = tls.connect({
-			host:           host,
-			port:           this.ref.port || 443,
-			ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
-			secureProtocol: 'TLS_method',
-			servername:     host,
-			lookup:         _lookup_tls.bind(this)
-		}, () => {
-
-			if (socket.authorized === true) {
-
-				this.__socket = socket;
-				_on_connect.call(this, this.__socket);
-
-			} else {
-
-				this.__socket = null;
-				this.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-
-			}
-
-		});
-
-		socket.on('timeout', () => {
-
-			if (this.__socket !== null) {
-
-				this.__socket = null;
-
-				if (this.buffer.partial === true) {
-					this.emit('timeout', [{
-						headers: this.ref.headers,
-						payload: this.buffer.payload
-					}]);
-				} else {
-					this.emit('timeout', [ null ]);
-				}
-
-			}
-
-		});
-
-		socket.on('error', (err) => {
-
-			if (this.__socket !== null) {
-				this.__socket = null;
-			}
-
-
-			if (err.code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
-
-				// XXX: Potential host error
-				this.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-
-			} else if (err.code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
-				this.emit('timeout', [ null ]);
-			} else if (err.code.startsWith('ERR_TLS')) {
-				this.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-			} else {
-				this.emit('error', [{ type: 'request' }]);
-			}
-
-		});
-
-		socket.on('end', () => {
-
-			if (this.__socket !== null) {
-				this.__socket = null;
-				_on_disconnect.call(this);
-			}
-
-		});
-
-	} else {
-
-		this.__socket = null;
-		this.emit('error', [{ type: 'host' }]);
-
-	}
-
-};
-
-const _connect_net = function() {
-
-	if (this.ref.hosts.length > 0) {
-
-		let socket = net.connect({
-			host: this.ref.hosts[0].ip,
-			port: this.ref.port || 80
-		}, () => {
-			this.__socket = socket;
-			_on_connect.call(this, this.__socket);
-		});
-
-		socket.on('timeout', () => {
-
-			this.__socket = null;
-
-			if (this.buffer.partial === true) {
-				this.emit('timeout', [{
-					headers: this.ref.headers,
-					payload: this.buffer.payload
-				}]);
-			} else {
-				this.emit('timeout', [ null ]);
-			}
-
-		});
-
-		socket.on('error', () => {
-
-			if (this.__socket !== null) {
-				this.__socket = null;
-				this.emit('error', [{}]);
-			}
-
-		});
-
-		socket.on('end', () => {
-
-			if (this.__socket !== null) {
-				this.__socket = null;
-				_on_disconnect.call(this);
-			}
-
-		});
-
-	} else {
-
-		this.__socket = null;
-		this.emit('error', [{ type: 'host' }]);
-
-	}
-
-};
-
-
 
 const _Request = function(ref) {
 
@@ -529,14 +341,28 @@ _Request.prototype = Object.assign({}, Emitter.prototype, {
 			if (this.ref.protocol === 'https') {
 
 				this.__interval = setInterval(() => _measure_bandwidth.call(this), 1000);
-				_connect_tls.call(this);
+
+				let socket = TLS.connect(this.ref, this.buffer, this);
+				if (socket !== null) {
+					this.on('@connect',    (socket) => _on_connect.call(this, socket));
+					this.on('@disconnect', (socket) => _on_disconnect.call(this, socket));
+				} else {
+					this.emit('error', [{ type: 'request' }]);
+				}
 
 				return true;
 
 			} else if (this.ref.protocol === 'http') {
 
 				this.__interval = setInterval(() => _measure_bandwidth.call(this), 1000);
-				_connect_net.call(this);
+
+				let socket = HTTP.connect(this.ref, this.buffer, this);
+				if (socket !== null) {
+					this.on('@connect',    (socket) => _on_connect.call(this, socket));
+					this.on('@disconnect', (socket) => _on_disconnect.call(this, socket));
+				} else {
+					this.emit('error', [{ type: 'request' }]);
+				}
 
 				return true;
 

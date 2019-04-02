@@ -1,14 +1,111 @@
 
+import net        from 'net';
 import { Buffer } from 'buffer';
+
+import { isFunction, isObject } from '../POLYFILLS.mjs';
 
 
 
 const HTTP = {
 
+	connect: function(ref, buffer, scope) {
+
+		ref    = isObject(ref)    ? ref    : null;
+		buffer = isObject(buffer) ? buffer : null;
+		scope  = isObject(scope)  ? scope  : this;
+
+
+		if (ref !== null) {
+
+			let hosts = ref.hosts.sort((a, b) => {
+
+				if (a.type === 'v4' && b.type === 'v4') return 0;
+				if (a.type === 'v4') return -1;
+				if (b.type === 'v4') return  1;
+
+				if (a.scope === 'private' && b.scope === 'private') return 0;
+				if (a.scope === 'private') return -1;
+				if (b.scope === 'private') return  1;
+
+				return 0;
+
+			});
+
+			if (hosts.length > 0) {
+
+				let socket = net.connect({
+					host: hosts[0].ip,
+					port: ref.port || 80
+				}, () => {
+
+					scope.__socket = socket;
+					scope.emit('@connect', [ socket ]);
+
+				});
+
+				socket.on('timeout', () => {
+
+					if (scope.__socket !== null) {
+						scope.__socket = null;
+
+
+						if (buffer !== null && buffer.partial === true) {
+							scope.emit('timeout', [{
+								headers: ref.headers,
+								payload: buffer.payload
+							}]);
+						} else {
+							scope.emit('timeout', [ null ]);
+						}
+
+					}
+
+				});
+
+				socket.on('error', () => {
+
+					if (scope.__socket !== null) {
+						scope.__socket = null;
+						scope.emit('error', [{}]);
+					}
+
+				});
+
+				socket.on('end', () => {
+
+					if (scope.__socket !== null) {
+						scope.__socket = null;
+						scope.emit('@disconnect', [ socket ]);
+					}
+
+				});
+
+				return socket;
+
+			} else {
+
+				scope.__socket = null;
+				scope.emit('error', [{ type: 'host' }]);
+
+				return null;
+
+			}
+
+		} else {
+
+			scope.__socket = null;
+			scope.emit('error', [{ type: 'request' }]);
+
+			return null;
+
+		}
+
+	},
+
 	receive: function(socket, buffer, callback) {
 
-		buffer   = buffer instanceof Buffer       ? buffer   : null;
-		callback = typeof callback === 'function' ? callback : null;
+		buffer   = Buffer.isBuffer(buffer) ? buffer   : null;
+		callback = isFunction(callback)    ? callback : null;
 
 
 		if (buffer !== null) {
@@ -118,7 +215,7 @@ const HTTP = {
 
 	send: function(socket, data) {
 
-		data = data instanceof Object ? data : {};
+		data = isObject(data) ? data : {};
 
 
 		let blob    = [];

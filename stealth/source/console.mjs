@@ -288,13 +288,25 @@ const _args_to_string = function(args) {
 
 
 
-export const clear = function() {
+export const clear = function(partial) {
 
-	// clear screen and reset cursor
-	process.stdout.write('\x1B[2J\x1B[0f');
+	partial = typeof partial === 'boolean' ? partial : false;
 
-	// clear scroll buffer
-	process.stdout.write('\u001b[3J');
+
+	if (partial === true) {
+
+		process.stdout.moveCursor(null, -1);
+		process.stdout.clearLine(1);
+
+	} else {
+
+		// clear screen and reset cursor
+		process.stdout.write('\x1B[2J\x1B[0f');
+
+		// clear scroll buffer
+		process.stdout.write('\u001b[3J');
+
+	}
 
 };
 
@@ -318,6 +330,20 @@ export const log = function() {
 		args.push(arguments[a]);
 	}
 
+	process.stdout.write('\u001b[49m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+
+};
+
+export const pace = function() {
+
+	let al   = arguments.length;
+	let args = [ '(L)' ];
+	for (let a = 0; a < al; a++) {
+		args.push(arguments[a]);
+	}
+
+	process.stdout.moveCursor(null, -1);
+	process.stdout.clearLine(1);
 	process.stdout.write('\u001b[49m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 };
@@ -349,10 +375,11 @@ export const error = function() {
 
 export const console = {
 	clear: clear,
-	log:   log,
+	error: error,
 	info:  info,
-	warn:  warn,
-	error: error
+	log:   log,
+	pace:  pace,
+	warn:  warn
 };
 
 

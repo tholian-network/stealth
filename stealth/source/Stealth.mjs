@@ -77,6 +77,7 @@ const Stealth = function(data) {
 	console.log(settings);
 
 
+	this.peers    = [];
 	this.settings = new Settings(this,
 		settings.profile,
 		settings.debug === true ? null : settings.root + '/profile'
@@ -122,6 +123,12 @@ Stealth.prototype = {
 
 
 		if (this.server !== null) {
+
+			if (this.peers.length > 0) {
+				this.peers.forEach((peer) => {
+					peer.disconnect();
+				});
+			}
 
 			if (callback !== null) {
 				this.server.disconnect((result) => callback(result));
