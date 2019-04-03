@@ -133,7 +133,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (request !== null) {
 
-					// XXX: Special case: Deserialize Buffer instances
+					// Special case: Deserialize Buffer instances
 					if (isObject(request.payload) === true) {
 
 						let tmp_headers = request.payload.headers || null;

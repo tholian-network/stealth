@@ -12,9 +12,8 @@
 		<link rel="stylesheet" href="design/navi.css">
 		<link rel="stylesheet" href="design/site.css">
 
-		<!-- Thanks much, DOMContentLoaded with ES6 Modules. -->
-		<!-- One simply does not understand async imports.   -->
-		<script>BROWSER_BINDINGS=[];</script>
+		<!-- ESM imports conflict with DOMContentLoaded -->
+		<script>DELAYED=[];</script>
 
 	</head>
 	<body>

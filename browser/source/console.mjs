@@ -2,18 +2,20 @@
 const _console = window.console;
 
 export const clear = _console.clear;
-export const log   = _console.log;
-export const info  = _console.info;
-export const pace  = _console.log;
-export const warn  = _console.warn;
+export const debug = _console.debug;
 export const error = _console.error;
+export const info  = _console.info;
+export const log   = _console.log;
+export const step  = _console.log;
+export const warn  = _console.warn;
 
 export const console = {
 	clear: clear,
+	debug: debug,
 	error: error,
 	info:  info,
 	log:   log,
-	pace:  pace,
+	step:  step,
 	warn:  warn
 };
 

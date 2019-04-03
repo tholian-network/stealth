@@ -235,11 +235,9 @@
 					|| (ctrl === true && key === 'v')
 				) {
 
-					// XXX: Do nothing
+					// Do nothing
 
 				} else if (ctrl === true) {
-
-					// XXX: Stupid Browser be stupid, yo
 
 					e.preventDefault();
 					e.stopPropagation();
@@ -348,7 +346,7 @@
 	 * INIT
 	 */
 
-	global.browser ? _init(global.browser) : global.BROWSER_BINDINGS.push(_init);
+	global.browser ? _init(global.browser) : global.DELAYED.push(_init);
 
 })(typeof window !== 'undefined' ? window : this);
 

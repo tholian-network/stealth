@@ -416,11 +416,11 @@ const WS = {
 
 				} else if (data.fragment === true) {
 
-					// XXX: Do nothing
+					// Do nothing
 
 				} else {
 
-					// XXX: Special case: Deserialize Buffer instances
+					// Special case: Deserialize Buffer instances
 					if (isObject(data.payload) === true) {
 
 						let tmp_headers = data.payload.headers || null;

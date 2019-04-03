@@ -394,7 +394,7 @@ const Request = function(data, stealth) {
 
 		if (ignore === true) {
 
-			// XXX: Do nothing
+			// Do nothing
 
 		} else if (response !== null && response.headers !== null) {
 

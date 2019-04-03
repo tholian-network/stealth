@@ -3,6 +3,10 @@ import tls from 'tls';
 
 import { isFunction, isObject } from '../POLYFILLS.mjs';
 
+import { Emitter                  } from '../Emitter.mjs';
+import { HTTP                     } from './HTTP.mjs';
+import { onconnect, ondata, onend } from './HTTP.mjs';
+
 
 
 const lookup = function(host, options, callback) {
@@ -13,13 +17,20 @@ const lookup = function(host, options, callback) {
 
 	let results = this.hosts.sort((a, b) => {
 
+		if (a.scope === 'private' && b.scope === 'private') {
+
+			if (a.type === 'v4' && b.type === 'v4') return 0;
+			if (a.type === 'v4') return -1;
+			if (b.type === 'v4') return  1;
+
+		}
+
+		if (a.scope === 'private') return -1;
+		if (b.scope === 'private') return  1;
+
 		if (a.type === 'v4' && b.type === 'v4') return 0;
 		if (a.type === 'v4') return -1;
 		if (b.type === 'v4') return  1;
-
-		if (a.scope === 'private' && b.scope === 'private') return 0;
-		if (a.scope === 'private') return -1;
-		if (b.scope === 'private') return  1;
 
 		return 0;
 
@@ -49,26 +60,33 @@ const lookup = function(host, options, callback) {
 
 
 
-const TLS = {
+const HTTPS = {
 
-	connect: function(ref, buffer, scope) {
+	connect: function(ref, buffer, emitter) {
 
-		ref    = isObject(ref)    ? ref    : null;
-		buffer = isObject(buffer) ? buffer : null;
-		scope  = isObject(scope)  ? scope  : this;
+		ref     = isObject(ref)     ? ref     : null;
+		buffer  = isObject(buffer)  ? buffer  : {};
+		emitter = isObject(emitter) ? emitter : new Emitter();
 
 
 		if (ref !== null) {
 
 			let hosts = ref.hosts.sort((a, b) => {
 
+				if (a.scope === 'private' && b.scope === 'private') {
+
+					if (a.type === 'v4' && b.type === 'v4') return 0;
+					if (a.type === 'v4') return -1;
+					if (b.type === 'v4') return  1;
+
+				}
+
+				if (a.scope === 'private') return -1;
+				if (b.scope === 'private') return  1;
+
 				if (a.type === 'v4' && b.type === 'v4') return 0;
 				if (a.type === 'v4') return -1;
 				if (b.type === 'v4') return  1;
-
-				if (a.scope === 'private' && b.scope === 'private') return 0;
-				if (a.scope === 'private') return -1;
-				if (b.scope === 'private') return  1;
 
 				return 0;
 
@@ -85,7 +103,9 @@ const TLS = {
 						hostname = check.ip;
 					}
 
-				} else if (ref.domain !== null) {
+				}
+
+				if (ref.domain !== null) {
 
 					if (ref.subdomain !== null) {
 						hostname = ref.subdomain + '.' + ref.domain;
@@ -107,31 +127,37 @@ const TLS = {
 
 					if (socket.authorized === true) {
 
-						scope.__socket = socket;
-						scope.emit('@connect', [ socket ]);
+						onconnect(socket, ref, buffer, emitter);
+
+						emitter.socket = socket;
+						emitter.emit('@connect', [ socket ]);
 
 					} else {
 
-						scope.__socket = null;
-						scope.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+						emitter.socket = null;
+						emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 
 					}
 
 				});
 
+				socket.on('data', (fragment) => {
+					ondata(socket, ref, buffer, emitter, fragment);
+				});
+
 				socket.on('timeout', () => {
 
-					if (scope.__socket !== null) {
-						scope.__socket = null;
+					if (emitter.socket !== null) {
 
+						emitter.socket = null;
 
 						if (buffer !== null && buffer.partial === true) {
-							scope.emit('timeout', [{
+							emitter.emit('timeout', [{
 								headers: ref.headers,
 								payload: buffer.payload
 							}]);
 						} else {
-							scope.emit('timeout', [ null ]);
+							emitter.emit('timeout', [ null ]);
 						}
 
 					}
@@ -140,18 +166,18 @@ const TLS = {
 
 				socket.on('error', (err) => {
 
-					if (scope.__socket !== null) {
-						scope.__socket = null;
+					if (emitter.socket !== null) {
 
+						emitter.socket = null;
 
 						if (err.code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
-							scope.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 						} else if (err.code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
-							scope.emit('timeout', [ null ]);
+							emitter.emit('timeout', [ null ]);
 						} else if (err.code.startsWith('ERR_TLS')) {
-							scope.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 						} else {
-							scope.emit('error', [{ type: 'request' }]);
+							emitter.emit('error', [{ type: 'request' }]);
 						}
 
 					}
@@ -160,19 +186,23 @@ const TLS = {
 
 				socket.on('end', () => {
 
-					if (scope.__socket !== null) {
-						scope.__socket = null;
-						scope.emit('@disconnect', [ socket ]);
+					if (emitter.socket !== null) {
+
+						onend(socket, ref, buffer, emitter);
+
+						emitter.socket = null;
+						emitter.emit('@disconnect', [ socket ]);
+
 					}
 
 				});
 
-				return socket;
+				return emitter;
 
 			} else {
 
-				scope.__socket = null;
-				scope.emit('error', [{ type: 'host' }]);
+				emitter.socket = null;
+				emitter.emit('error', [{ type: 'host' }]);
 
 				return null;
 
@@ -180,17 +210,21 @@ const TLS = {
 
 		} else {
 
-			scope.__socket = null;
-			scope.emit('error', [{ type: 'request' }]);
+			emitter.socket = null;
+			emitter.emit('error', [{ type: 'request' }]);
 
 			return null;
 
 		}
 
-	}
+	},
+
+	receive: HTTP.receive,
+
+	send:    HTTP.send
 
 };
 
 
-export { TLS };
+export { HTTPS };
 

@@ -231,7 +231,7 @@ const _args_to_string = function(args) {
 
 		} else if (isString(value) === true && value.includes('\n')) {
 
-			let tmp = value.split('\n');
+			let tmp = value.split('\r\n').join('\\r\\n').split('\n');
 
 			for (let t = 0, tl = tmp.length; t < tl; t++) {
 				output.push(tmp[t].replace(/\t/g, _INDENT));
@@ -310,6 +310,30 @@ export const clear = function(partial) {
 
 };
 
+export const debug = function() {
+
+	let al   = arguments.length;
+	let args = [ '(E)' ];
+	for (let a = 0; a < al; a++) {
+		args.push(arguments[a]);
+	}
+
+	process.stderr.write('\u001b[41m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+
+};
+
+export const error = function() {
+
+	let al   = arguments.length;
+	let args = [ '(E)' ];
+	for (let a = 0; a < al; a++) {
+		args.push(arguments[a]);
+	}
+
+	process.stderr.write('\u001b[41m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+
+};
+
 export const info = function() {
 
 	let al   = arguments.length;
@@ -334,7 +358,7 @@ export const log = function() {
 
 };
 
-export const pace = function() {
+export const step = function() {
 
 	let al   = arguments.length;
 	let args = [ '(L)' ];
@@ -360,25 +384,15 @@ export const warn = function() {
 
 };
 
-export const error = function() {
-
-	let al   = arguments.length;
-	let args = [ '(E)' ];
-	for (let a = 0; a < al; a++) {
-		args.push(arguments[a]);
-	}
-
-	process.stderr.write('\u001b[41m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
-
-};
 
 
 export const console = {
 	clear: clear,
+	debug: debug,
 	error: error,
 	info:  info,
 	log:   log,
-	pace:  pace,
+	step:  step,
 	warn:  warn
 };
 

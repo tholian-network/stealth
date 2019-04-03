@@ -173,7 +173,7 @@
 		});
 
 		browser.on('hide', () => {
-			// XXX: Nothing to do
+			// Do nothing
 		});
 
 		browser.on('kill', (tab, tabs) => {
@@ -233,7 +233,7 @@
 	 * INIT
 	 */
 
-	global.browser ? _init(global.browser) : global.BROWSER_BINDINGS.push(_init);
+	global.browser ? _init(global.browser) : global.DELAYED.push(_init);
 
 })(typeof window !== 'undefined' ? window : this);
 

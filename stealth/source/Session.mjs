@@ -102,7 +102,7 @@ Session.prototype = {
 				});
 
 				request.on('progress', (response, progress) => {
-					console.pace('session #' + this.id + ' tab #' + tab + ' requests ' + request.url + ' (' + progress.bytes + '/' + progress.length + ')');
+					console.step('session #' + this.id + ' tab #' + tab + ' requests ' + request.url + ' (' + progress.bytes + '/' + progress.length + ')');
 				});
 
 				request.on('error', () => {

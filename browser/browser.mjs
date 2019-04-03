@@ -1,7 +1,7 @@
 
 import { Browser } from './source/Browser.mjs';
 
-const [ _HOST, _PORT ] = (function(location) {
+const [ HOST, PORT ] = (function(location) {
 
 	let host = 'localhost';
 	let port = 65432;
@@ -29,37 +29,36 @@ const [ _HOST, _PORT ] = (function(location) {
 
 
 let browser = window.browser = new Browser();
+let delayed = window.DELAYED || [];
 
-if (BROWSER_BINDINGS.length > 0) {
-	BROWSER_BINDINGS.forEach((callback) => callback(browser));
-	BROWSER_BINDINGS.splice(0);
+if (delayed.length > 0) {
+	delayed.forEach((callback) => callback(browser));
+	delayed.splice(0);
 }
 
+if (browser !== null) {
 
+	setTimeout(() => {
 
-setTimeout(() => {
-
-	let browser = window.browser || null;
-	if (browser !== null) {
-
-		browser.connect(_HOST, _PORT, () => {
+		browser.connect(HOST, PORT, () => {
 
 			let tabs = [];
 
 			tabs.push(browser.open('stealth:settings'));
-			tabs.push(browser.open('https://cookie.engineer'));
-			// tabs.push(browser.open('https://letsencrypt.org'));
+			// tabs.push(browser.open('https://cookie.engineer'));
+			tabs.push(browser.open('https://old.reddit.com/r/programming/'));
 
 			browser.show(tabs[tabs.length - 1]);
 
 		});
 
-		window.onbeforeunload = () => browser.disconnect();
+		window.onbeforeunload = () => {
+			browser.disconnect();
+		};
 
-	}
+	}, 500);
 
-}, 1000);
-
+}
 
 (function(navigator) {
 
