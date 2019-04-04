@@ -22,19 +22,28 @@ if [[ "$system" == "Linux" ]]; then
 
 	chromium_bin="$(which chromium)";
 	firefox_bin="$(which firefox)";
+	electron_bin="$(which electron)";
 	gjs_bin="$(which gjs)";
 	qml_bin="$(which qmlscene)";
 
 	if [[ "$forced" == "qml" ]]; then
 		chromium_bin="";
 		firefox_bin="";
+		electron_bin="";
 		gjs_bin="";
 	elif [[ "$forced" == "gjs" ]]; then
 		chromium_bin="";
 		firefox_bin="";
+		electron_bin="";
+		qml_bin="";
+	elif [[ "$forced" == "electron" ]]; then
+		chromium_bin="";
+		firefox_bin="";
+		gjs_bin="";
 		qml_bin="";
 	elif [[ "$forced" == "firefox" ]]; then
 		chromium_bin="";
+		electron_bin="";
 		gjs_bin="";
 		qml_bin="";
 	fi;
@@ -82,6 +91,14 @@ if [[ "$system" == "Linux" ]]; then
 	elif [[ ! -z "$firefox_bin" ]]; then
 
 		$firefox_bin -app ./bin/firefox/application.ini -profile "$folder" --safe-mode;
+
+		if [[ $? == 0 ]] && [[ -d "$folder" ]]; then
+			rm -rf "$folder";
+		fi;
+
+	elif [[ ! -z "$electron_bin" ]]; then
+
+		$electron_bin --user-data-dir="$folder" ./bin/electron/application.js;
 
 		if [[ $? == 0 ]] && [[ -d "$folder" ]]; then
 			rm -rf "$folder";

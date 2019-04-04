@@ -1,6 +1,5 @@
 
 import { Emitter    } from './Emitter.mjs';
-import { IP         } from './parser/IP.mjs';
 import { URL        } from './parser/URL.mjs';
 import { Blocker    } from './request/Blocker.mjs';
 import { Downloader } from './request/Downloader.mjs';
@@ -231,15 +230,14 @@ const Request = function(data, stealth) {
 
 				if (response.payload !== null) {
 
-					let ipv4 = IP.parse(response.payload.ipv4);
-					if (ipv4.type === 'v4') {
-						this.ref.hosts.push(ipv4);
-					}
+					response.payload.hosts.forEach((host) => {
 
-					let ipv6 = IP.parse(response.payload.ipv6);
-					if (ipv6.type === 'v6') {
-						this.ref.hosts.push(ipv6);
-					}
+						let check = this.ref.hosts.find((h) => h.ip === host.ip) || null;
+						if (check === null) {
+							this.ref.hosts.push(host);
+						}
+
+					});
 
 				}
 

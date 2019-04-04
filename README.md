@@ -172,6 +172,7 @@ based technologies.
 - Install [Ungoogled Chromium](https://github.com/Eloston/ungoogled-chromium/releases) version `70+`.
 - Alternatively Install [Firefox](https://www.mozilla.org/en-US/firefox) version `65+`.
 - (Only MacOS) Alternatively Install `Safari` version `12+`.
+- (Only Linux) Alternatively Install `electron` version `3+`.
 - (Only Linux) Alternatively Install `gjs` and `WebKit2 GTK` version `4+`.
 - (Only Linux) Alternatively Install `qmlscene` and `Qt5 WebView` version `5+` and `Qt5 QuickControls` version `2+`.
 

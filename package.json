@@ -1,1 +1,8 @@
-{}
+{
+	"name":    "stealth",
+	"version": "2019-X0",
+	"main":    "bin/electron/application.js",
+	"scripts": {
+		"start": "electron ."
+	}
+}
