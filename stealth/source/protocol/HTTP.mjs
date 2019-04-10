@@ -211,6 +211,26 @@ export const onend = function(socket, ref, buffer, emitter) {
 
 			if (buffer.length === buffer.payload.length) {
 
+				let raw_payload = buffer.payload || null;
+				if (raw_payload !== null) {
+
+					// Check for potential JSON "{" (123) or "[" (91)
+					if (raw_payload[0] === 123 || raw_payload[0] === 91) {
+
+						try {
+							buffer.payload = JSON.parse(raw_payload.toString('utf8'));
+						} catch (err) {
+							buffer.payload = raw_payload;
+						}
+
+					} else {
+
+						buffer.payload = raw_payload;
+
+					}
+
+				}
+
 				emitter.emit('response', [{
 					headers: ref.headers,
 					payload: buffer.payload

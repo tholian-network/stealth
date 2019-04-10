@@ -7,7 +7,7 @@ import { IP    } from '../parser/IP.mjs';
 import { HTTPS } from './HTTPS.mjs';
 
 
-
+let DNS_ROTATE = 0;
 const DNS_POOL = [{
 	domain:   'cloudflare-dns.com',
 	path:     '/dns-query',
@@ -146,16 +146,24 @@ const DNS_POOL = [{
 
 });
 
-const parse = function(buffer) {
+const parse = function(data) {
 
 	let hosts = [];
 
 
-	let data = null;
-	try {
-		data = JSON.parse(buffer.toString('utf8'));
-	} catch (err) {
-		data = null;
+	if (Buffer.isBuffer(data)) {
+
+		let tmp = null;
+		try {
+			tmp = JSON.parse(data.toString('utf8'));
+		} catch (err) {
+			tmp = null;
+		}
+
+		if (tmp !== null) {
+			data = tmp;
+		}
+
 	}
 
 
@@ -179,6 +187,7 @@ const parse = function(buffer) {
 		}
 
 	}
+
 
 	return hosts;
 
@@ -248,9 +257,15 @@ const DNS = {
 		if (ref !== null && callback !== null) {
 
 			let domain = ref.domain || null;
-			let server = DNS_POOL[Math.floor(Math.random() * DNS_POOL.length)] || null;
+			let server = DNS_POOL[DNS_ROTATE] || null;
 
 			if (domain !== null && server !== null) {
+
+				// Rotate DNS to prevent endless
+				// repeating resolution errors
+				DNS_ROTATE += 1;
+				DNS_ROTATE %= DNS_POOL.length;
+
 
 				let subdomain = ref.subdomain || null;
 				if (subdomain !== null) {

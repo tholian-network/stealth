@@ -3,6 +3,7 @@ import { after, before, describe, finish } from '../../source/Review.mjs';
 import { connect as srv_connect, disconnect as srv_disconnect } from '../Server.mjs';
 import { connect as cli_connect, disconnect as cli_disconnect } from '../Client.mjs';
 
+import { IP } from '../../../stealth/source/parser/IP.mjs';
 
 
 before(srv_connect);
@@ -15,8 +16,10 @@ describe('client.services.host.save', function(assert) {
 
 	this.client.services.host.save({
 		domain: 'ietf.org',
-		ipv4:   '127.0.0.1',
-		ipv6:   '::1'
+		hosts:  [
+			IP.parse('127.0.0.1'),
+			IP.parse('::1')
+		]
 	}, (response) => {
 		assert(response === true);
 	});
@@ -33,8 +36,9 @@ describe('client.services.host.read', function(assert) {
 	}, (response) => {
 
 		assert(response !== null && response.domain === 'ietf.org');
-		assert(response !== null && response.ipv4 === '127.0.0.1');
-		assert(response !== null && response.ipv6 === '0000:0000:0000:0000:0000:0000:0000:0001');
+		assert(response !== null && response.hosts.length === 2);
+		assert(response !== null && response.hosts[0].ip === '127.0.0.1');
+		assert(response !== null && response.hosts[1].ip === '0000:0000:0000:0000:0000:0000:0000:0001');
 
 	});
 
@@ -50,8 +54,12 @@ describe('client.services.host.refresh', function(assert) {
 	}, (response) => {
 
 		assert(response !== null && response.domain === 'ietf.org');
-		assert(response !== null && response.ipv4 === '4.31.198.44');
-		assert(response !== null && response.ipv6 === '2001:1900:3001:0011:0000:0000:0000:002c');
+
+		let check4 = response.hosts.find((ip) => ip.ip === '4.31.198.44') || null;
+		let check6 = response.hosts.find((ip) => ip.ip === '2001:1900:3001:0011:0000:0000:0000:002c') || null;
+
+		assert(response !== null && check4 !== null);
+		assert(response !== null && check6 !== null);
 
 	});
 
@@ -67,8 +75,12 @@ describe('client.services.host.read', function(assert) {
 	}, (response) => {
 
 		assert(response !== null && response.domain === 'ietf.org');
-		assert(response !== null && response.ipv4 === '4.31.198.44');
-		assert(response !== null && response.ipv6 === '2001:1900:3001:0011:0000:0000:0000:002c');
+
+		let check4 = response.hosts.find((ip) => ip.ip === '4.31.198.44') || null;
+		let check6 = response.hosts.find((ip) => ip.ip === '2001:1900:3001:0011:0000:0000:0000:002c') || null;
+
+		assert(response !== null && check4 !== null);
+		assert(response !== null && check6 !== null);
 
 	});
 
