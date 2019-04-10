@@ -73,6 +73,42 @@ const DNS_POOL = [{
 		type:  'v6'
 	}]
 }, {
+	domain:   'doh.dns.sb',
+	path:     '/dns-query',
+	port:     443,
+	protocol: 'https',
+	hosts:    [{
+		ip:    '104.18.56.150',
+		scope: 'public',
+		type:  'v4'
+	}, {
+		ip:    '2606:4700:0030:0000:0000:0000:6812:3896',
+		scope: 'public',
+		type:  'v6'
+	}, {
+		ip:    '104.18.57.150',
+		scope: 'public',
+		type:  'v4'
+	}, {
+		ip:    '2606:4700:0030:0000:0000:0000:6812:3996',
+		scope: 'public',
+		type:  'v6'
+	}]
+}, {
+	domain:   'doh.securedns.eu',
+	path:     '/dns-query',
+	port:     443,
+	protocol: 'https',
+	hosts:    [{
+		ip:    '146.185.167.43',
+		scope: 'public',
+		type:  'v4'
+	}, {
+		ip:    '2a03:b0c0:0000:1010:0000:0000:0e9a:3001',
+		scope: 'public',
+		type:  'v6'
+	}]
+}, {
 	domain:   'dns.quad9.net',
 	path:     '/dns-query',
 	port:     443,

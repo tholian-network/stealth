@@ -76,7 +76,7 @@ const AdGuard = {
 
 	parse: function(payload) {
 
-		payload = payload instanceof Buffer ? payload : null;
+		payload = Buffer.isBuffer(payload) ? payload : null;
 
 
 		if (payload !== null) {
@@ -90,6 +90,8 @@ const AdGuard = {
 
 };
 
+
+export const parse = AdGuard.parse;
 
 export { AdGuard };
 

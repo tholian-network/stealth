@@ -12,8 +12,7 @@ const _on_update = function(settings, host) {
 
 	let cache = settings.hosts.find((h) => h.domain === host.domain) || null;
 	if (cache !== null) {
-		cache.ipv4 = host.ipv4;
-		cache.ipv6 = host.ipv6;
+		cache.hosts = host.hosts;
 	} else if (cache === null) {
 		settings.hosts.push(host);
 	}

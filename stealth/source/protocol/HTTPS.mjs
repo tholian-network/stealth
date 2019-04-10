@@ -122,7 +122,8 @@ const HTTPS = {
 					ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
 					secureProtocol: 'TLS_method',
 					servername:     hostname,
-					lookup:         lookup.bind(ref)
+					lookup:         lookup.bind(ref),
+					socket:         emitter.socket || null
 				}, () => {
 
 					if (socket.authorized === true) {
@@ -170,11 +171,12 @@ const HTTPS = {
 
 						emitter.socket = null;
 
-						if (err.code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
+						let code = (err.code || '');
+						if (code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
 							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-						} else if (err.code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
+						} else if (code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
 							emitter.emit('timeout', [ null ]);
-						} else if (err.code.startsWith('ERR_TLS')) {
+						} else if (code.startsWith('ERR_TLS')) {
 							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 						} else {
 							emitter.emit('error', [{ type: 'request' }]);

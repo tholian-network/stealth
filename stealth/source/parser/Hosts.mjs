@@ -91,7 +91,7 @@ const Hosts = {
 
 	parse: function(payload) {
 
-		payload = payload instanceof Buffer ? payload : null;
+		payload = Buffer.isBuffer(payload) ? payload : null;
 
 
 		if (payload !== null) {
@@ -105,6 +105,8 @@ const Hosts = {
 
 };
 
+
+export const parse = Hosts.parse;
 
 export { Hosts };
 

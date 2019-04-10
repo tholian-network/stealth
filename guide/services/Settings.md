@@ -48,8 +48,7 @@ the same identifiers, it will be changed.
 {
 	// stored in profile/internet.json
 	internet: {
-		connection: 'mobile',
-		torify: false
+		connection: 'mobile'
 	},
 
 	// stored in profile/filters.json

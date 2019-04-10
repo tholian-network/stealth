@@ -6,11 +6,10 @@ import { Client  } from '../Client.mjs';
 
 
 
-const CLIENTS    = [];
 const CONNECTION = [ 'broadband', 'mobile', 'peer', 'offline' ];
 const STATUS     = [ 'online', 'offline' ];
 
-const _payloadify = function(raw) {
+const payloadify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -94,8 +93,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
 					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
 					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
@@ -114,7 +112,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (ref.host !== null) {
 
-					let client = CLIENTS.find((c) => c.address === ref.host) || null;
+					let client = this.stealth.peers.find((p) => p.address === ref.host) || null;
 					if (client === null) {
 						client = new Client();
 					}
@@ -125,15 +123,18 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 							if (result === true) {
 
-								CLIENTS.push(client);
+								let index = this.stealth.peers.indexOf(client);
+								if (index === -1) {
+									this.stealth.peers.push(client);
+								}
 
 								// TODO: Use Client to (re)connect and execute service requests
 
 							} else {
 
-								let index = CLIENTS.indexOf(client);
+								let index = this.stealth.peers.indexOf(client);
 								if (index !== -1) {
-									CLIENTS.splice(index, 1);
+									this.stealth.peers.splice(index, 1);
 								}
 
 							}
@@ -206,8 +207,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -217,8 +218,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
 					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
 					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
@@ -253,8 +253,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -264,8 +264,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
 					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
 					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
@@ -309,8 +308,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -320,8 +319,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
 					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
 					peer = settings.peers.find((p) => p.domain === payload.domain) || null;

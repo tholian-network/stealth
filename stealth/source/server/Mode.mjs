@@ -3,7 +3,7 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const _payloadify = function(raw) {
+const payloadify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -49,8 +49,8 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -60,8 +60,7 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
 					mode = settings.modes.find((m) => m.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
 					mode = settings.modes.find((m) => m.domain === payload.domain) || null;
@@ -94,8 +93,8 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -105,8 +104,7 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
 					mode = settings.modes.find((m) => m.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
 					mode = settings.modes.find((m) => m.domain === payload.domain) || null;
@@ -150,8 +148,8 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -162,8 +160,7 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
 					mode = settings.modes.find((m) => m.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
 					mode = settings.modes.find((m) => m.domain === payload.domain) || null;

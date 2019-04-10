@@ -1,7 +1,9 @@
 
 import { isArray, isFunction, isObject, isString } from '../source/POLYFILLS.mjs';
-import { Browser                                 } from '../source/Browser.mjs';
-import { URL                                     } from '../source/parser/URL.mjs';
+
+import { Browser } from '../source/Browser.mjs';
+import { IP      } from '../source/parser/IP.mjs';
+import { URL     } from '../source/parser/URL.mjs';
 
 
 
@@ -253,10 +255,56 @@ const _extract_data = (element) => {
 
 				let type = element.tagName.toLowerCase();
 				if (type === 'input') {
-					return {
-						key: key,
-						val: (element.value).trim()
-					};
+
+					let map = element.getAttribute('data-map');
+					let val = (element.value).trim();
+					if (map === 'IP') {
+						return {
+							key: key,
+							val: IP.parse(val)
+						};
+					} else if (map === 'URL') {
+						return {
+							key: key,
+							val: URL.parse(val)
+						};
+					} else {
+						return {
+							key: key,
+							val: val
+						};
+					}
+
+				} else if (type === 'textarea') {
+
+					let map = element.getAttribute('data-map');
+					let val = (element.value).trim();
+
+					if (map === 'IP') {
+
+						let raw = val.split('\n').map((v) => v.trim()).filter((v) => v !== '');
+
+						return {
+							key: key,
+							val: raw.map((v) => IP.parse(v)).filter((ip) => ip.type !== null)
+						};
+
+					} else if (map === 'URL') {
+
+						let raw = val.split('\n').map((v) => v.trim()).filter((v) => v !== '');
+
+						return {
+							key: key,
+							val: raw.map((v) => URL.parse(v)).filter((ref) => (ref.domain !== null || ref.host !== null))
+						};
+
+					} else {
+						return {
+							key: key,
+							val: val
+						};
+					}
+
 				} else {
 					return {
 						key: key,
@@ -389,8 +437,7 @@ const _render_filter = (filter, actions) => `
 const _render_host = (host, actions) => `
 <tr>
 	<td data-key="domain">${host.domain}</td>
-	${actions.includes('save') === true ? '<td><input data-key="ipv4" type="text" placeholder="IPv4" value="' + (host.ipv4 !== null ? host.ipv4 : '') + '"></td>' : '<td data-key="ipv4">' + (host.ipv4 !== null ? host.ipv4 : '(none)') + '</td>'}
-	${actions.includes('save') === true ? '<td><input data-key="ipv6" type="text" placeholder="IPv6" value="' + (host.ipv6 !== null ? host.ipv6 : '') + '"></td>' : '<td data-key="ipv6">' + (host.ipv6 !== null ? host.ipv6 : '(none)') + '</td>'}
+	${actions.includes('save') === true ? '<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line">' + (host.hosts.map((h) => h.ip).join('\n')) + '</textarea></td>' : '<td data-key="hosts">' + (host.hosts.map((h) => h.ip).join('\n')) + '</td>' }
 	<td>
 		${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}
 	</td>

@@ -8,7 +8,7 @@ import { URL     } from '../parser/URL.mjs';
 
 
 
-const _info = function(url, callback) {
+const info = function(url, callback) {
 
 	callback = typeof callback === 'function' ? callback : null;
 
@@ -44,7 +44,7 @@ const _info = function(url, callback) {
 
 };
 
-const _mkdir = function(url, callback) {
+const mkdir = function(url, callback) {
 
 	callback = typeof callback === 'function' ? callback : null;
 
@@ -76,7 +76,7 @@ const _mkdir = function(url, callback) {
 
 };
 
-const _payloadify = function(raw) {
+const payloadify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -133,8 +133,8 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 	info: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -162,8 +162,8 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 			if (profile !== null && file !== null) {
 
 
-				let headers = _info(profile + '/stash/headers/' + file);
-				let payload = _info(profile + '/stash/payload/' + file);
+				let headers = info(profile + '/stash/headers/' + file);
+				let payload = info(profile + '/stash/payload/' + file);
 
 				if (headers !== null && payload !== null) {
 
@@ -218,8 +218,8 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -324,8 +324,8 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -408,8 +408,8 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -441,7 +441,7 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (payload.headers !== null) {
 
-					_mkdir(profile + '/stash/headers/' + folder, () => {
+					mkdir(profile + '/stash/headers/' + folder, () => {
 						fs.writeFile(path.resolve(profile + '/stash/headers/' + file), payload.headers, () => {});
 					});
 
@@ -453,7 +453,7 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 					result = true;
 
-					_mkdir(profile + '/stash/payload/' + folder, () => {
+					mkdir(profile + '/stash/payload/' + folder, () => {
 						fs.writeFile(path.resolve(profile + '/stash/payload/' + file), payload.payload, () => {});
 					});
 

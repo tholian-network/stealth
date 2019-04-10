@@ -1,4 +1,8 @@
 
+import { isObject, isString } from '../POLYFILLS.mjs';
+
+
+
 const PRIVATE_V4 = [
 
 	// RFC1122
@@ -183,18 +187,59 @@ const validate_ipv6 = function(ipv6) {
 
 const IP = {
 
-	parse: function(str) {
+	isIP: function(data) {
 
-		str = typeof str === 'string' ? str : '';
+		data = isObject(data) ? data : null;
+
+
+		if (data !== null) {
+
+			let scope = data.scope || null;
+			if (scope === 'private' || scope === 'public') {
+
+				let type = data.type || null;
+				if (type === 'v4' || type === 'v6') {
+
+					let ip = data.ip || '';
+					if (ip.includes(':')) {
+
+						let check = validate_ipv6(ip);
+						if (check !== null) {
+							return true;
+						}
+
+					} else if (ip.includes('.')) {
+
+						let check = validate_ipv4(ip);
+						if (check !== null) {
+							return true;
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	parse: function(blob) {
+
+		blob = isString(blob) ? blob : '';
 
 
 		let ip    = null;
 		let scope = null;
 		let type  = null;
 
-		if (str.includes(':')) {
+		if (blob.includes(':')) {
 
-			let check = validate_ipv6(str);
+			let check = validate_ipv6(blob);
 			if (check !== null) {
 
 				ip   = check;
@@ -209,9 +254,9 @@ const IP = {
 
 			}
 
-		} else if (str.includes('.')) {
+		} else if (blob.includes('.')) {
 
-			let check = validate_ipv4(str);
+			let check = validate_ipv4(blob);
 			if (check !== null) {
 
 				ip   = check;
@@ -238,6 +283,9 @@ const IP = {
 
 };
 
+
+export const isIP  = IP.isIP;
+export const parse = IP.parse;
 
 export { IP };
 

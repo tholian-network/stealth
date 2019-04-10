@@ -18,33 +18,24 @@
 			</p>
 			<div id="internet-connection">
 				<div>
-					<input id="internet-connection-2" name="internet-connection" type="radio" value="broadband" checked>
-					<label for="internet-connection-2">This machine has broadband internet access.</label>
-				</div>
-				<div>
 					<input id="internet-connection-1" name="internet-connection" type="radio" value="mobile">
 					<label for="internet-connection-1">This machine has mobile internet access.</label>
+				</div>
+				<div>
+					<input id="internet-connection-2" name="internet-connection" type="radio" value="broadband" checked>
+					<label for="internet-connection-2">This machine has broadband internet access.</label>
 				</div>
 				<div>
 					<input id="internet-connection-3" name="internet-connection" type="radio" value="peer">
 					<label for="internet-connection-3">This machine has peer-to-peer internet access.</label>
 				</div>
-			</div>
-			<h3>Deep Web</h3>
-			<p>
-				The Stealth Browser supports using a <abbr title="The Onion Router protocol">TOR</abbr> Proxy to access the Deep Web.
-				<br><br>
-				If a <abbr title="The Onion Router protocol">TOR</abbr> proxy is used, local peer discovery doesn't work anymore. This machine has to
-				have mobile or broadband internet access to connect to sites on the Deep Web.
-			</p>
-			<div id="internet-torify">
 				<div>
-					<input id="internet-torify-1" name="internet-torify" type="radio" value="true">
-					<label for="internet-torify-1">Use the TOR proxy when available.</label>
+					<input id="internet-connection-4" name="internet-connection" type="radio" value="i2p">
+					<label for="internet-connection-4">This machine has proxied internet access via <abbr title="Invisible Internet Project">I2P</abbr>.</label>
 				</div>
 				<div>
-					<input id="internet-torify-2" name="internet-torify" type="radio" value="false" checked>
-					<label for="internet-torify-2">Don't use the TOR proxy.</label>
+					<input id="internet-connection-5" name="internet-connection" type="radio" value="tor">
+					<label for="internet-connection-5">This machine has proxied internet access via <abbr title="The Onion Router">TOR</abbr>.</label>
 				</div>
 			</div>
 		</article>
@@ -55,19 +46,16 @@
 				order to prevent tracking capabilities of Internet Service Providers when being online via public
 				Wi-Fi or 2G/3G/4G.
 				<br><br>
-				If both the current internet connection and the Domain support IPv6, the Stealth Browser will
-				connect to it via IPv6.
-				<br><br>
-				It is possible to use transparent IPv6 proxies here, so for example when <code>github.com</code>
-				only supports IPv4 and <code>ikvjwd.com</code> supports IPv6, you can manually edit the IPv6 of
-				github.com and use the IP of the IPv6 proxy.
+				If both the current Internet Connection and the Domain support IPv6, the Stealth Browser will
+				connect to it via IPv6. It is possible to use transparent IPv6 proxies, e.g. when <code>github.com</code>
+				only supports IPv4 and <code>ikvjwd.com</code> is a transparent IPv6 proxy, it is possible to
+				replace the IPs of <code>github.com</code> with the ones of the proxy.
 			</p>
 			<table>
 				<thead>
 					<tr>
 						<th>Domain</th>
-						<th>IPv4</th>
-						<th>IPv6</th>
+						<th>Hosts (IPv4/IPv6)</th>
 						<th></th>
 					</tr>
 				</thead>
@@ -75,8 +63,7 @@
 				<tfoot>
 					<tr>
 						<td><input data-key="domain" type="text" placeholder="Domain"></td>
-						<td><input data-key="ipv4" type="text" placeholder="IPv4"></td>
-						<td><input data-key="ipv6" type="text" placeholder="IPv6"></td>
+						<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line"></textarea></td>
 						<td><button data-action="confirm"></button></td>
 					</tr>
 				</tfoot>

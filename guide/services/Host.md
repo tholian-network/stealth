@@ -47,20 +47,28 @@ removes a `host` setting from the local Stealth `profile` folder.
 
 ## save()
 
-`save({ domain: String, subdomain: String, ipv4: String, ipv6: String }, callback)`
+`save({ domain: String, subdomain: String, hosts: Array }, callback)`
 
 saves a `host` setting to the local Stealth `profile` folder.
+
+The `hosts` Array must contain valid [IP](/stealth/source/parser/IP.mjs)s.
 
 If there's already a configured host with the same domain, it will be changed.
 
 ```javascript
 // save(payload) example
 {
-	// foo.bar.cookie.engineer
-	domain:    'cookie.engineer',
-	subdomain: 'foo.bar',
-	ipv4:      '185.199.109.153'
-	ipv6:      null
+	// cookie.engineer
+	domain: 'cookie.engineer',
+	hosts:  [{
+		"ip": "185.199.108.153",
+		"scope": "public",
+		"type": "v4"
+	}, {
+		"ip": "185.199.109.153",
+		"scope": "public",
+		"type": "v4"
+	}]
 }
 ```
 

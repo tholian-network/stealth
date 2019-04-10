@@ -70,6 +70,13 @@ const Request = function(data, stealth) {
 	}
 
 
+	if (stealth.settings.internet.connection === 'i2p') {
+		this.ref.proxy = { host: '127.0.0.1', port: 4444 };
+	} else if (stealth.settings.internet.connection === 'tor') {
+		this.ref.proxy = { host: '127.0.0.1', port: 9050 };
+	}
+
+
 	this.on('init', () => {
 
 		this.timeline.init = Date.now();

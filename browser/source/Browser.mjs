@@ -15,14 +15,11 @@ const Browser = function() {
 
 	this.client   = new Client(this);
 	this.settings = {
-		internet: {
-			connection: 'mobile',
-			torify:     false,
-		},
-		filters: [],
-		hosts:   [],
-		modes:   [],
-		peers:   []
+		internet: { connection: 'mobile' },
+		filters:  [],
+		hosts:    [],
+		modes:    [],
+		peers:    []
 	};
 	this.tab      = null;
 	this.tabs     = [];

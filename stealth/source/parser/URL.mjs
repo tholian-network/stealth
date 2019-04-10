@@ -1,6 +1,6 @@
 
-import { isString } from '../POLYFILLS.mjs';
-import { IP       } from './IP.mjs';
+import { isObject, isString } from '../POLYFILLS.mjs';
+import { IP                 } from './IP.mjs';
 
 
 
@@ -182,14 +182,14 @@ const _TOPLEVELDOMAINS = [
 ];
 
 
-const _DEFAULT = {
+const DEFAULT = {
 	ext:    null,
 	type:   'other',
 	binary: true,
 	format: 'application/octet-stream'
 };
 
-const _TYPES = [
+const TYPES = [
 
 	// Media-Types are compliant with IANA assignments
 	// https://www.iana.org/assignments/media-types
@@ -286,33 +286,65 @@ const _TYPES = [
 
 ];
 
-const _base = function(ref) {
-
-	let base = '';
-
-	if (ref.protocol !== null) {
-		base += ref.protocol + '://';
-	}
-
-	if (ref.domain !== null) {
-
-		if (ref.subdomain !== null) {
-			base += ref.subdomain + '.' + ref.domain;
-		} else {
-			base += ref.domain;
-		}
-
-	} else if (ref.host !== null) {
-		base += ref.host;
-	}
-
-	return base;
-
-};
-
 
 
 const URL = {
+
+	isURL: function(data) {
+
+		data = isObject(data) ? data : null;
+
+
+		if (data !== null) {
+
+			let invalid = [];
+
+			[
+				data.domain    || null,
+				data.hash      || null,
+				data.host      || null,
+				data.path      || null,
+				data.port      || null,
+				data.protocol  || null,
+				data.query     || null,
+				data.subdomain || null,
+				data.url       || null,
+			].filter((v) => v !== null && isString(v) === false).forEach((v) => {
+				invalid.push(v);
+			});
+
+
+			[
+				data.headers || null,
+				data.payload || null
+			].filter((v) => v !== null && isObject(v) === false).forEach((v) => {
+				invalid.push(v);
+			});
+
+			(data.hosts || []).filter((v) => IP.isIP(v) === false).forEach((v) => {
+				invalid.push(v);
+			});
+
+
+			if (invalid.length === 0) {
+
+				let mime = data.mime || null;
+				if (mime !== null) {
+
+					if (TYPES.includes(mime) || mime === DEFAULT) {
+						return true;
+					}
+
+				}
+
+			}
+
+		}
+
+
+		return false;
+
+	},
 
 	parse: function(url) {
 
@@ -528,18 +560,18 @@ const URL = {
 		if (path !== null && path.includes('.')) {
 
 			let ext  = path.split('.').pop();
-			let type = _TYPES.find((t) => t.ext === ext) || null;
+			let type = TYPES.find((t) => t.ext === ext) || null;
 
 			if (type !== null) {
 				mime = type;
 			} else {
-				mime = _DEFAULT;
+				mime = DEFAULT;
 			}
 
 		} else {
 
 			// assume text/html by default
-			mime = _TYPES.find((t) => t.ext === 'html') || null;
+			mime = TYPES.find((t) => t.ext === 'html') || null;
 
 		}
 
@@ -625,6 +657,9 @@ const URL = {
 
 };
 
+
+export const isURL = URL.isURL;
+export const parse = URL.parse;
 
 export { URL };
 

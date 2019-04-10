@@ -4,7 +4,7 @@ import { URL     } from '../parser/URL.mjs';
 
 
 
-const _payloadify = function(raw) {
+const payloadify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -53,8 +53,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -64,21 +64,26 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
+
 					redirect = settings.redirects.find((r) => {
 						return r.domain === payload.subdomain + '.' + payload.domain && r.path === payload.path;
 					}) || null;
-				} else{
+
+				} else {
+
 					redirect = settings.redirects.find((r) => {
 						return r.domain === payload.domain && r.path === payload.path;
 					}) || null;
+
 				}
 
 			} else if (payload.host !== null) {
+
 				redirect = settings.redirects.find((r) => {
 					return r.host === payload.host && r.path === payload.path;
 				}) || null;
+
 			}
 
 
@@ -106,8 +111,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -117,21 +122,26 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
+
 					redirect = settings.redirects.find((r) => {
 						return r.domain === payload.subdomain + '.' + payload.domain && r.path === payload.path;
 					}) || null;
-				} else{
+
+				} else {
+
 					redirect = settings.redirects.find((r) => {
 						return r.domain === payload.domain && r.path === payload.path;
 					}) || null;
+
 				}
 
 			} else if (payload.host !== null) {
+
 				redirect = settings.redirects.find((r) => {
 					return r.host === payload.host && r.path === payload.path;
 				}) || null;
+
 			}
 
 
@@ -171,8 +181,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && payload.location !== null && callback !== null) {
@@ -182,21 +192,26 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
+
 					redirect = settings.redirects.find((r) => {
 						return r.domain === payload.subdomain + '.' + payload.domain && r.path === payload.path;
 					}) || null;
-				} else{
+
+				} else {
+
 					redirect = settings.redirects.find((r) => {
 						return r.domain === payload.domain && r.path === payload.path;
 					}) || null;
+
 				}
 
 			} else if (payload.host !== null) {
+
 				redirect = settings.redirects.find((r) => {
 					return r.host === payload.host && r.path === payload.path;
 				}) || null;
+
 			}
 
 
@@ -205,6 +220,7 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 				if (redirect.location !== payload.location) {
 
 					redirect.location = payload.location;
+
 					settings.save();
 
 				}

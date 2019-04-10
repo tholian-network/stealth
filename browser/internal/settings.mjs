@@ -5,8 +5,7 @@ import { init, listen, render, reset } from './internal.mjs';
 
 const elements = {
 	internet: {
-		connection: Array.from(document.querySelectorAll('#internet-connection input')),
-		torify:     Array.from(document.querySelectorAll('#internet-torify input'))
+		connection: Array.from(document.querySelectorAll('#internet-connection input'))
 	},
 	filter:  document.querySelector('#sites table#sites-filters tfoot'),
 	filters: document.querySelector('#sites table#sites-filters tbody'),
@@ -118,31 +117,13 @@ const _on_update = function(settings) {
 	if (internet !== null) {
 
 		let choices = {
-			connection: [ 'broadband', 'mobile', 'peer' ],
-			torify:     [ true, false ]
+			connection: [ 'mobile', 'broadband', 'peer', 'tor', 'hype' ]
 		};
 
 		choices.connection.forEach((choice, c) => {
 
 			let element = elements.internet.connection[c];
 			let value   = settings.internet.connection;
-
-			if (element !== null) {
-
-				if (choice === value) {
-					element.setAttribute('checked', 'true');
-				} else {
-					element.removeAttribute('checked');
-				}
-
-			}
-
-		});
-
-		choices.torify.forEach((choice, c) => {
-
-			let element = elements.internet.torify[c];
-			let value   = settings.internet.torify;
 
 			if (element !== null) {
 
@@ -223,35 +204,6 @@ init([
 
 	});
 
-	elements.internet.torify.forEach((element, e, others) => {
-
-		element.onchange = () => {
-
-			let active = others.find((e) => e.checked === true) || null;
-			if (active !== null) {
-
-				let cur_val = browser.settings.internet.torify;
-				let new_val = active.value === 'true' ? true : false;
-
-				if (cur_val !== new_val) {
-
-					browser.settings.internet.torify = new_val;
-
-					let service = browser.client.services.settings || null;
-					if (service !== null) {
-						service.save({
-							internet: browser.settings.internet
-						}, () => {});
-					}
-
-				}
-
-			}
-
-		};
-
-	});
-
 
 
 	/*
@@ -271,8 +223,7 @@ init([
 
 						let cache = browser.settings.hosts.find((h) => h.domain === host.domain) || null;
 						if (cache !== null) {
-							cache.ipv4 = host.ipv4 || null;
-							cache.ipv6 = host.ipv6 || null;
+							cache.hosts = host.hosts;
 						}
 
 						_on_update({
@@ -319,8 +270,7 @@ init([
 
 						let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
 						if (cache !== null) {
-							cache.ipv4 = data.ipv4 || null;
-							cache.ipv6 = data.ipv6 || null;
+							cache.hosts = data.hosts;
 						}
 
 					}
@@ -547,8 +497,7 @@ init([
 
 				let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
 				if (cache !== null) {
-					cache.ipv4 = data.ipv4;
-					cache.ipv6 = data.ipv6;
+					cache.hosts = data.hosts;
 					data = cache;
 				} else {
 					browser.settings.hosts.push(data);

@@ -8,7 +8,7 @@ import { URL     } from '../parser/URL.mjs';
 
 
 
-const _info = function(url, callback) {
+const info = function(url, callback) {
 
 	callback = typeof callback === 'function' ? callback : null;
 
@@ -44,7 +44,7 @@ const _info = function(url, callback) {
 
 };
 
-const _mkdir = function(url, callback) {
+const mkdir = function(url, callback) {
 
 	callback = typeof callback === 'function' ? callback : null;
 
@@ -79,7 +79,7 @@ const _mkdir = function(url, callback) {
 
 };
 
-const _payloadify = function(raw) {
+const payloadify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -136,8 +136,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	info: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -165,8 +165,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 			if (profile !== null && file !== null) {
 
 
-				let headers = _info(profile + '/cache/headers/' + file);
-				let payload = _info(profile + '/cache/payload/' + file);
+				let headers = info(profile + '/cache/headers/' + file);
+				let payload = info(profile + '/cache/payload/' + file);
 
 				if (headers !== null && payload !== null) {
 
@@ -221,8 +221,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -328,8 +328,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -412,8 +412,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -445,7 +445,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (payload.headers !== null) {
 
-					_mkdir(profile + '/cache/headers/' + folder, () => {
+					mkdir(profile + '/cache/headers/' + folder, () => {
 						fs.writeFile(path.resolve(profile + '/cache/headers/' + file), payload.headers, () => {});
 					});
 
@@ -457,7 +457,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 					result = true;
 
-					_mkdir(profile + '/cache/payload/' + folder, () => {
+					mkdir(profile + '/cache/payload/' + folder, () => {
 						fs.writeFile(path.resolve(profile + '/cache/payload/' + file), payload.payload, () => {});
 					});
 

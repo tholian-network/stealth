@@ -3,7 +3,7 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const _payloadify = function(raw) {
+const payloadify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -24,7 +24,7 @@ const _payloadify = function(raw) {
 
 };
 
-const _readify = function(raw) {
+const readify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -63,8 +63,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _readify(payload) : null;
-		callback = typeof callback === 'function' ? callback          : null;
+		payload  = payload instanceof Object      ? readify(payload) : null;
+		callback = typeof callback === 'function' ? callback         : null;
 
 
 		if (payload !== null) {
@@ -138,8 +138,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {

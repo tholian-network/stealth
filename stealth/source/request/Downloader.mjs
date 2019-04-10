@@ -4,6 +4,7 @@ import { Buffer } from 'buffer';
 import { Emitter } from '../Emitter.mjs';
 import { HTTP    } from '../protocol/HTTP.mjs';
 import { HTTPS   } from '../protocol/HTTPS.mjs';
+import { SOCKS   } from '../protocol/SOCKS.mjs';
 
 
 
@@ -110,7 +111,13 @@ _Request.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.connection === null) {
 
-			if (this.ref.protocol === 'https') {
+			let proxy = this.ref.proxy || null;
+			if (proxy !== null) {
+
+				this.__interval = setInterval(() => measure.call(this), 1000);
+				this.connection = SOCKS.connect(this.ref, this.buffer);
+
+			} else if (this.ref.protocol === 'https') {
 
 				this.__interval = setInterval(() => measure.call(this), 1000);
 				this.connection = HTTPS.connect(this.ref, this.buffer);
@@ -144,15 +151,31 @@ _Request.prototype = Object.assign({}, Emitter.prototype, {
 					}
 
 
-					HTTP.send(socket, {
-						headers: {
-							'@method': 'GET',
-							'@path':   this.ref.path,
-							'@query':  this.ref.query,
-							'host':    hostname,
-							'range':   'bytes=' + this.buffer.start + '-'
-						}
-					});
+					if (this.ref.protocol === 'https') {
+
+						HTTPS.send(socket, {
+							headers: {
+								'@method': 'GET',
+								'@path':   this.ref.path,
+								'@query':  this.ref.query,
+								'host':    hostname,
+								'range':   'bytes=' + this.buffer.start + '-'
+							}
+						});
+
+					} else if (this.ref.protocol === 'http') {
+
+						HTTP.send(socket, {
+							headers: {
+								'@method': 'GET',
+								'@path':   this.ref.path,
+								'@query':  this.ref.query,
+								'host':    hostname,
+								'range':   'bytes=' + this.buffer.start + '-'
+							}
+						});
+
+					}
 
 				});
 

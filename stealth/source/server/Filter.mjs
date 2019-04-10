@@ -3,7 +3,7 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const _payloadify = function(raw) {
+const payloadify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -54,8 +54,8 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 	query: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -65,8 +65,7 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				let subdomain = payload.subdomain || null;
-				if (subdomain !== null) {
+				if (payload.subdomain !== null) {
 					filters = settings.filters.filter((f) => f.domain === payload.subdomain + '.' + payload.domain);
 				} else{
 					filters = settings.filters.filter((f) => f.domain === payload.domain);
@@ -99,8 +98,8 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -108,25 +107,32 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 			let filter   = null;
 			let settings = this.stealth.settings;
 
-			let subdomain = payload.subdomain || null;
-			if (subdomain !== null) {
-				filter = settings.filters.find((f) => {
-					return (
-						f.domain === payload.subdomain + '.' + payload.domain
-						&& f.filter.prefix === payload.filter.prefix
-						&& f.filter.midfix === payload.filter.midfix
-						&& f.filter.suffix === payload.filter.suffix
-					);
-				}) || null;
-			} else {
-				filter = settings.filters.find((f) => {
-					return (
-						f.domain === payload.domain
-						&& f.filter.prefix === payload.filter.prefix
-						&& f.filter.midfix === payload.filter.midfix
-						&& f.filter.suffix === payload.filter.suffix
-					);
-				}) || null;
+			if (payload.domain !== null) {
+
+				if (payload.subdomain !== null) {
+
+					filter = settings.filters.find((f) => {
+						return (
+							f.domain === payload.subdomain + '.' + payload.domain
+							&& f.filter.prefix === payload.filter.prefix
+							&& f.filter.midfix === payload.filter.midfix
+							&& f.filter.suffix === payload.filter.suffix
+						);
+					}) || null;
+
+				} else {
+
+					filter = settings.filters.find((f) => {
+						return (
+							f.domain === payload.domain
+							&& f.filter.prefix === payload.filter.prefix
+							&& f.filter.midfix === payload.filter.midfix
+							&& f.filter.suffix === payload.filter.suffix
+						);
+					}) || null;
+
+				}
+
 			}
 
 
@@ -166,8 +172,8 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback             : null;
+		payload  = payload instanceof Object      ? payloadify(payload) : null;
+		callback = typeof callback === 'function' ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -201,15 +207,16 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 				}
 
+
 				if (filter === null) {
 
-					let domain = payload.domain;
 					if (payload.subdomain !== null) {
-						domain = payload.subdomain + '.' + payload.domain;
+						payload.domain    = payload.subdomain + '.' + payload.domain;
+						payload.subdomain = null;
 					}
 
 					filter = {
-						domain: domain,
+						domain: payload.domain,
 						filter: {
 							prefix: payload.filter.prefix || null,
 							midfix: payload.filter.midfix || null,

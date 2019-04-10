@@ -353,11 +353,7 @@ const Settings = function(stealth, profile, defaults) {
 	defaults = typeof defaults === 'string' ? defaults : null;
 
 
-	this.internet = {
-		connection: 'mobile',
-		torify:     false
-	};
-
+	this.internet  = { connection: 'mobile' };
 	this.blockers  = [];
 	this.filters   = [];
 	this.hosts     = [];

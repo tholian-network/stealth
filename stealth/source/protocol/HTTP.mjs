@@ -292,17 +292,22 @@ const HTTP = {
 
 			if (hosts.length > 0) {
 
-				let socket = net.connect({
-					host: hosts[0].ip,
-					port: ref.port || 80
-				}, () => {
+				let socket = emitter.socket || null;
+				if (socket === null) {
 
-					onconnect(socket, ref, buffer);
+					socket = net.connect({
+						host: hosts[0].ip,
+						port: ref.port || 80
+					}, () => {
 
-					emitter.socket = socket;
-					emitter.emit('@connect', [ socket ]);
+						onconnect(socket, ref, buffer);
 
-				});
+						emitter.socket = socket;
+						emitter.emit('@connect', [ socket ]);
+
+					});
+
+				}
 
 				socket.on('data', (fragment) => {
 					ondata(socket, ref, buffer, emitter, fragment);
@@ -332,7 +337,7 @@ const HTTP = {
 					if (emitter.socket !== null) {
 
 						emitter.socket = null;
-						emitter.emit('error', [{}]);
+						emitter.emit('error', [{ type: 'request' }]);
 
 					}
 
