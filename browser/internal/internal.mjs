@@ -437,7 +437,7 @@ const _render_filter = (filter, actions) => `
 const _render_host = (host, actions) => `
 <tr>
 	<td data-key="domain">${host.domain}</td>
-	${actions.includes('save') === true ? '<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line">' + (host.hosts.map((h) => h.ip).join('\n')) + '</textarea></td>' : '<td data-key="hosts">' + (host.hosts.map((h) => h.ip).join('\n')) + '</td>' }
+	${actions.includes('save') === true ? '<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line">' + (host.hosts.map((h) => h.ip).join('\n')) + '</textarea></td>' : '<td data-key="hosts">' + (host.hosts.map((h) => h.ip).join('<br>\n')) + '</td>' }
 	<td>
 		${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}
 	</td>

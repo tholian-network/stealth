@@ -117,7 +117,7 @@ const _on_update = function(settings) {
 	if (internet !== null) {
 
 		let choices = {
-			connection: [ 'mobile', 'broadband', 'peer', 'tor', 'hype' ]
+			connection: [ 'mobile', 'broadband', 'peer', 'i2p', 'tor' ]
 		};
 
 		choices.connection.forEach((choice, c) => {

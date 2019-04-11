@@ -230,8 +230,8 @@ input[type="radio"]:before {
 input[type="radio"][value="mobile"]:before    { content: '\e1b9'; }
 input[type="radio"][value="broadband"]:before { content: '\e1ba'; }
 input[type="radio"][value="peer"]:before      { content: '\e1e2'; }
+input[type="radio"][value="i2p"]:before       { content: '\e32a'; }
 input[type="radio"][value="tor"]:before       { content: '\e32a'; }
-input[type="radio"][value="hype"]:before      { content: '\e32a'; }
 
 input[type="radio"][disabled],
 input[type="radio"][disabled]:hover {

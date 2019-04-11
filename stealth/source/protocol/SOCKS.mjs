@@ -67,6 +67,7 @@ const SOCKS = {
 									0x00  // reserved
 								];
 
+
 								if (host.type === 'v4') {
 
 									// ipv4
@@ -130,14 +131,17 @@ const SOCKS = {
 
 									socket.once('data', (response) => {
 
-										if (response.length === 3) {
+										if (response.length > 3) {
 
 											let version = response[0];
 											let message = response[1];
 											let reserve = response[2];
 
+											console.log('recv socks connect');
+											console.log(response);
+
 											if (version === 0x05 && message === 0x00 && reserve === 0x00) {
-												emitter.emit('@connect', [ socket ]);
+												emitter.emit('@tunnel', [ socket ]);
 											} else if (version === 0x05) {
 
 												if (message === 0x03 || message === 0x04) {
@@ -182,7 +186,9 @@ const SOCKS = {
 
 				});
 
-				emitter.on('@connect', () => {
+				emitter.on('@tunnel', () => {
+
+					console.log('tunnel connected!');
 
 					if (ref.protocol === 'https') {
 						HTTPS.connect(ref, buffer, emitter);
