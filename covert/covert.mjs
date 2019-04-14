@@ -8,6 +8,8 @@ import Server   from './review/Server.mjs';
 import Client   from './review/Client.mjs';
 import Peers    from './review/Peers.mjs';
 import DNS      from './review/protocol/DNS.mjs';
+import HTTP     from './review/protocol/HTTP.mjs';
+import HTTPS    from './review/protocol/HTTPS.mjs';
 import SOCKS    from './review/protocol/SOCKS.mjs';
 import Cache    from './review/client/Cache.mjs';
 import Filter   from './review/client/Filter.mjs';
@@ -64,7 +66,7 @@ const settings = {
 		let reviews = [
 
 			// Network Protocols
-			DNS, SOCKS,
+			DNS, HTTP, HTTPS, SOCKS,
 
 			// Server/Client
 			Server, Client,

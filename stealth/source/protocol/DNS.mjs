@@ -7,7 +7,7 @@ import { IP    } from '../parser/IP.mjs';
 import { HTTPS } from './HTTPS.mjs';
 
 
-let DNS_ROTATE = 0;
+
 const DNS_POOL = [{
 	domain:   'cloudflare-dns.com',
 	path:     '/dns-query',
@@ -145,6 +145,9 @@ const DNS_POOL = [{
 	return true;
 
 });
+let DNS_ROTATE = (Math.random() * DNS_POOL.length) | 0;
+
+
 
 const parse = function(data) {
 
