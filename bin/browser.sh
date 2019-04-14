@@ -59,10 +59,7 @@ if [[ "$system" == "Linux" ]]; then
 
 
 
-	#
 	# Shared between Stealth and Browser
-	#
-
 	mkdir -p ./browser/source/client;
 	mkdir -p ./browser/source/parser;
 	cp ./stealth/source/POLYFILLS.mjs       ./browser/source/POLYFILLS.mjs;

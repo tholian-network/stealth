@@ -9,14 +9,11 @@ if [[ -z "$node_bin" ]]; then
 	exit 1;
 fi;
 
+
+
 cd "$root_dir";
 
-
-
-#
 # Shared between Stealth and Browser
-#
-
 mkdir -p ./browser/source/client;
 mkdir -p ./browser/source/parser;
 cp ./stealth/source/POLYFILLS.mjs       ./browser/source/POLYFILLS.mjs;
@@ -32,17 +29,10 @@ cp ./stealth/source/client/Stash.mjs    ./browser/source/client/Stash.mjs;
 cp ./stealth/source/parser/IP.mjs       ./browser/source/parser/IP.mjs;
 cp ./stealth/source/parser/URL.mjs      ./browser/source/parser/URL.mjs;
 
-
-
-#
 # Shared between Stealth and Covert
-#
-
 cp ./stealth/source/console.mjs   ./covert/source/console.mjs;
 cp ./stealth/source/Emitter.mjs   ./covert/source/Emitter.mjs;
 cp ./stealth/source/POLYFILLS.mjs ./covert/source/POLYFILLS.mjs;
-
-
 
 exec "$node_bin" --tls-cipher-list="ECDHE-RSA-AES128-GCM-SHA256" --no-warnings --experimental-modules ./stealth/stealth.mjs "$@";
 

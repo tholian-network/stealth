@@ -45,26 +45,38 @@ bash ./bin/covert.sh;
 
 ## Requirements
 
+Covert requires a locally installed `SOCKS` proxy that is shipped in the
+[socks-proxy](/covert/sketch/socks-proxy) folder and needs to be compiled
+before Covert itself can actually run.
+
+The requirements are a C-compiler and `make`. If you run `./bin/covert.sh`,
+the `socks-proxy` is automatically being compiled and executed in parallel.
+
+```bash
+cd /path/to/stealth;
+bash ./bin/covert.sh;
+```
+
+
+## Network Requirements
+
 As Covert also includes peer-to-peer tests for end-to-end network services,
 it requires a machine to be reachable under at least two different IPs.
 
-If the machine has no internet connection, some network protocol related
+If the machine has no internet connection, some network-protocol related
 tests will fail, such as `protocol/DNS`, `protocol/HTTPS`, `protocol/HTTP`
 or `client/Host`.
 
 As the only failsafe way to do this (without requiring a network card or
 WAN/LAN connection), there's the requirement to reach the local machine
-via the IPs `127.0.0.1` and `127.0.0.2`.
+via the IPs `127.0.0.1`, `127.0.0.2` and `127.0.0.3`.
 
-On some systems you may have to create an alias for the loopback interface:
+**MacOS / Darwin**
 
-```bash
-# Required only on MacOS
-sudo ifconfig lo0 alias 127.0.0.2 up;
-
-cd /path/to/stealth;
-bash ./bin/covert.sh;
-```
+On MacOS it is necessary to create an alias for the loopback interface
+before Covert itself is run. The `./bin/covert.sh` automatically creates
+an alias for above mentioned additional IPs on MacOS and will ask for
+your password in order to do so.
 
 
 ## Implementation Notes

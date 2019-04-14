@@ -11,7 +11,7 @@ before('SOCKS.connect', function(assert) {
 
 	this.buffer     = {};
 	this.connection = null;
-	this.proxy      = { host: '192.168.1.12', port: 1080 };
+	this.proxy      = { host: '127.0.0.3', port: 1080 };
 	this.ref        = Object.assign({}, EXAMPLE_URL, { proxy: this.proxy });
 	this.socket     = null;
 
