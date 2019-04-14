@@ -132,6 +132,12 @@ _Request.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (this.connection !== null) {
 
+				this.connection.on('error',    (...args) => this.emit('error',    args));
+				this.connection.on('progress', (...args) => this.emit('progress', args));
+				this.connection.on('redirect', (...args) => this.emit('redirect', args));
+				this.connection.on('response', (...args) => this.emit('response', args));
+				this.connection.on('timeout',  (...args) => this.emit('timeout',  args));
+
 				this.connection.on('@connect', (socket) => {
 
 					let hostname = null;

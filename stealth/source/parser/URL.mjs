@@ -189,7 +189,7 @@ const DEFAULT = {
 	format: 'application/octet-stream'
 };
 
-const TYPES = [
+export const MIME = [
 
 	// Media-Types are compliant with IANA assignments
 	// https://www.iana.org/assignments/media-types
@@ -331,7 +331,7 @@ const URL = {
 				let mime = data.mime || null;
 				if (mime !== null) {
 
-					if (TYPES.includes(mime) || mime === DEFAULT) {
+					if (MIME.includes(mime) || mime === DEFAULT) {
 						return true;
 					}
 
@@ -560,7 +560,7 @@ const URL = {
 		if (path !== null && path.includes('.')) {
 
 			let ext  = path.split('.').pop();
-			let type = TYPES.find((t) => t.ext === ext) || null;
+			let type = MIME.find((t) => t.ext === ext) || null;
 
 			if (type !== null) {
 				mime = type;
@@ -571,7 +571,7 @@ const URL = {
 		} else {
 
 			// assume text/html by default
-			mime = TYPES.find((t) => t.ext === 'html') || null;
+			mime = MIME.find((t) => t.ext === 'html') || null;
 
 		}
 

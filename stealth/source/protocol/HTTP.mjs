@@ -100,6 +100,7 @@ export const onconnect = function(socket, ref, buffer /*, emitter*/) {
 
 	} else {
 
+		buffer.length  = null;
 		buffer.partial = false;
 		buffer.payload = Buffer.from('', 'utf8');
 		buffer.start   = 0;
@@ -134,6 +135,7 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
 
 				let tmp0 = response.headers['content-length'] || null;
+				let tmp1 = response.headers['content-range']  || null;
 				if (tmp0 !== null && buffer.length === null) {
 
 					let num = parseInt(tmp0, 10);
@@ -141,29 +143,40 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 						buffer.length = num;
 					}
 
+				} else if (tmp1 !== null && tmp1.includes('/') && buffer.length === null) {
+
+					let num = parseInt(tmp1.split('/').pop(), 10);
+					if (Number.isNaN(num) === false) {
+						buffer.length = num;
+					}
+
+				} else {
+
+					buffer.length = null;
+
 				}
 
 
-				let tmp1 = response.headers['content-encoding']  || null;
-				let tmp2 = response.headers['transfer-encoding'] || null;
-				if (tmp1 === 'gzip' || tmp2 === 'gzip') {
+				let tmp2 = response.headers['content-encoding']  || null;
+				let tmp3 = response.headers['transfer-encoding'] || null;
+				if (tmp2 === 'gzip' || tmp3 === 'gzip') {
 					buffer.encoding = 'gzip';
-				} else if (tmp2 === 'chunked') {
+				} else if (tmp3 === 'chunked') {
 					buffer.encoding = 'chunked';
 				} else {
 					buffer.encoding = 'identity';
 				}
 
 
-				let tmp3 = (response.headers['@status'] || '').split(' ').shift();
-				let tmp4 = (response.headers['content-range'] || null);
-				if (tmp3 === '206' && tmp4 !== null) {
+				let tmp4 = (response.headers['@status'] || '').split(' ').shift();
+				let tmp5 = (response.headers['content-range'] || null);
+				if (tmp4 === '206' && tmp5 !== null) {
 					buffer.partial = true;
 					buffer.payload = Buffer.concat([ buffer.payload, response.payload ]);
-				} else if (tmp3 === '200') {
+				} else if (tmp4 === '200') {
 					buffer.partial = false;
 					buffer.payload = response.payload;
-				} else if (tmp3 === '416') {
+				} else if (tmp4 === '416') {
 					emitter.emit('error', [{ type: 'stash' }]);
 				} else {
 
@@ -183,6 +196,7 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
 		buffer.payload = Buffer.concat([ buffer.payload, fragment ]);
 
+
 		emitter.emit('progress', [{
 			headers: ref.headers,
 			payload: buffer.payload
@@ -190,6 +204,11 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 			bytes:  buffer.payload.length,
 			length: buffer.length
 		}]);
+
+
+		if (buffer.length === buffer.payload.length) {
+			socket.end();
+		}
 
 	}
 
@@ -202,14 +221,16 @@ export const onend = function(socket, ref, buffer, emitter) {
 		let code = (ref.headers['@status'] || '500').split(' ').shift();
 		if (code === '200' || code === '204' || code === '205' || code === '206') {
 
-			if (buffer.encoding === 'chunked') {
-				buffer.payload = decode_chunked(buffer.payload);
-			} else if (buffer.encoding === 'gzip') {
-				buffer.payload = decode_gzip(buffer.payload);
-			}
-
-
 			if (buffer.length === buffer.payload.length) {
+
+				if (buffer.encoding === 'chunked') {
+					buffer.payload = decode_chunked(buffer.payload);
+					delete buffer.encoding;
+				} else if (buffer.encoding === 'gzip') {
+					buffer.payload = decode_gzip(buffer.payload);
+					delete buffer.encoding;
+				}
+
 
 				let raw_payload = buffer.payload || null;
 				if (raw_payload !== null) {
@@ -235,6 +256,84 @@ export const onend = function(socket, ref, buffer, emitter) {
 					headers: ref.headers,
 					payload: buffer.payload
 				}]);
+
+			} else if (buffer.length < buffer.payload.length) {
+
+				if (buffer.partial === true) {
+
+					emitter.emit('timeout', [{
+						headers: ref.headers,
+						payload: buffer.payload
+					}]);
+
+				} else {
+					emitter.emit('timeout', [ null ]);
+				}
+
+			} else {
+				emitter.emit('error', [{ type: 'stash' }]);
+			}
+
+		} else if (code === '301' || code === '307' || code === '308') {
+
+			let tmp = ref.headers['location'] || null;
+			if (tmp !== null) {
+				emitter.emit('redirect', [{ headers: ref.headers }]);
+			} else {
+				emitter.emit('error', [{ code: code, type: 'request', cause: 'headers-location' }]);
+			}
+
+		} else if (code.startsWith('4') && code.length === 3) {
+			emitter.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
+		} else if (code.startsWith('5') && code.length === 3) {
+			emitter.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
+		} else {
+			emitter.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
+		}
+
+	} else {
+		emitter.emit('timeout', [ null ]);
+	}
+
+};
+
+export const onerror = function(socket, ref, buffer, emitter) {
+
+	if (ref.headers !== null) {
+
+		let code = (ref.headers['@status'] || '500').split(' ').shift();
+		if (code === '200' || code === '204' || code === '205' || code === '206') {
+
+			if (buffer.length === buffer.payload.length) {
+
+				if (buffer.encoding === 'chunked') {
+					buffer.payload = decode_chunked(buffer.payload);
+					delete buffer.encoding;
+				} else if (buffer.encoding === 'gzip') {
+					buffer.payload = decode_gzip(buffer.payload);
+					delete buffer.encoding;
+				}
+
+
+				let raw_payload = buffer.payload || null;
+				if (raw_payload !== null) {
+
+					// Check for potential JSON "{" (123) or "[" (91)
+					if (raw_payload[0] === 123 || raw_payload[0] === 91) {
+
+						try {
+							buffer.payload = JSON.parse(raw_payload.toString('utf8'));
+						} catch (err) {
+							buffer.payload = raw_payload;
+						}
+
+					} else {
+
+						buffer.payload = raw_payload;
+
+					}
+
+				}
 
 			} else if (buffer.length < buffer.payload.length) {
 
@@ -317,12 +416,12 @@ const HTTP = {
 
 					socket = net.connect({
 						host: hosts[0].ip,
-						port: ref.port || 80
+						port: ref.port || 80,
 					}, () => {
 
 						onconnect(socket, ref, buffer);
-
 						emitter.socket = socket;
+
 						emitter.emit('@connect', [ socket ]);
 
 					});
@@ -356,8 +455,8 @@ const HTTP = {
 
 					if (emitter.socket !== null) {
 
+						onerror(socket, ref, buffer, emitter);
 						emitter.socket = null;
-						emitter.emit('error', [{ type: 'request' }]);
 
 					}
 
@@ -368,8 +467,8 @@ const HTTP = {
 					if (emitter.socket !== null) {
 
 						onend(socket, ref, buffer, emitter);
-
 						emitter.socket = null;
+
 						emitter.emit('@disconnect', [ socket ]);
 
 					}
@@ -577,13 +676,12 @@ const HTTP = {
 		blob.push('');
 		blob.push('');
 
+
 		socket.write(blob.join('\r\n'));
 
 		if (payload !== null) {
 			socket.write(payload);
 		}
-
-		socket.end();
 
 	}
 

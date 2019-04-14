@@ -2,8 +2,7 @@
 import process     from 'process';
 import { Stealth } from './source/Stealth.mjs';
 
-const _ARGS = Array.from(process.argv).slice(2).filter((v) => v.trim() !== '');
-const _ROOT = (function() {
+const ROOT = (() => {
 
 	let pwd = process.env.PWD || null;
 	if (pwd !== null) {
@@ -24,34 +23,29 @@ const _ROOT = (function() {
 
 })();
 
-const _FLAGS = (function() {
+const ARGV  = Array.from(process.argv).slice(2).map((v) => v.trim()).filter((v) => v !== '');
+const FLAGS = (() => {
 
 	let flags = {};
 
-	_ARGS.forEach((arg) => {
+	Array.from(ARGV).filter((v) => v.startsWith('--') === true).forEach((flag) => {
 
-		let tmp1 = arg.trim();
-		if (tmp1.startsWith('--')) {
+		let tmp = flag.substr(2).split('=');
+		if (tmp.length === 2) {
 
-			tmp1 = tmp1.substr(2);
+			let key = tmp[0];
+			let val = tmp[1];
 
-			if (tmp1.includes('=')) {
-
-				let key = tmp1.split('=')[0].trim();
-				let val = tmp1.split('=').slice(1).join('=').trim();
-
-				let num = parseInt(val, 10);
-				if (!isNaN(num) && (num).toString() === val) {
-					val = num;
-				}
-
-				if (val === 'true')  val = true;
-				if (val === 'false') val = false;
-				if (val === 'null')  val = null;
-
-				flags[key] = val;
-
+			let num = parseInt(val, 10);
+			if (!isNaN(num) && (num).toString() === val) {
+				val = num;
 			}
+
+			if (val === 'true')  val = true;
+			if (val === 'false') val = false;
+			if (val === 'null')  val = null;
+
+			flags[key] = val;
 
 		}
 
@@ -64,9 +58,9 @@ const _FLAGS = (function() {
 
 
 const settings = {
-	debug:   _FLAGS.debug   || false,
-	profile: _FLAGS.profile || null,
-	root:    _ROOT
+	debug:   FLAGS.debug   || false,
+	profile: FLAGS.profile || null,
+	root:    ROOT
 };
 
 (function(global) {
@@ -75,8 +69,8 @@ const settings = {
 	if (stealth !== null) {
 
 		stealth.connect(
-			_FLAGS.host || null,
-			_FLAGS.port || null
+			FLAGS.host || null,
+			FLAGS.port || null
 		);
 
 	}

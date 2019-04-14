@@ -137,9 +137,6 @@ const SOCKS = {
 											let message = response[1];
 											let reserve = response[2];
 
-											console.log('recv socks connect');
-											console.log(response);
-
 											if (version === 0x05 && message === 0x00 && reserve === 0x00) {
 												emitter.emit('@tunnel', [ socket ]);
 											} else if (version === 0x05) {
@@ -187,8 +184,6 @@ const SOCKS = {
 				});
 
 				emitter.on('@tunnel', () => {
-
-					console.log('tunnel connected!');
 
 					if (ref.protocol === 'https') {
 						HTTPS.connect(ref, buffer, emitter);

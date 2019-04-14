@@ -15,14 +15,20 @@ so no external libraries and no external programs are necessary.
 
 ## Command-Line Flags
 
-Covert does not offer command-line flags. However, if a second parameter
-is given, it can be used to filter the Reviews; which can come in handy
-when debugging a single or multiple Reviews:
+- `--debug` is a boolean flag to toggle the `console.clear()` that is
+  otherwise called after each Review's test has been processed.
+  If set to `true`, it allows explicit debugging in code without loss of
+  `process.stdout` data. The default value is `false`.
+
+If a non-flag parameter is given, it is assumed to be a Query to filter
+the Reviews. This allows to debug a single Review or a Suite of related
+Reviews.
 
 ```bash
-./bin/covert.sh Client;  # Execute review/Client.mjs
-./bin/covert.sh client*; # Execute review/client/*.mjs
-./bin/covert.sh *Cache;  # Execute review/**/Cache.mjs
+./bin/covert.sh Client;       # Execute review/Client.mjs
+./bin/covert.sh client*;      # Execute reviews starting with "client"
+./bin/covert.sh *Cache;       # Execute reviews ending with "Cache"
+./bin/covert.sh client*Cache; # Execute reviews starting with "client" and ending with "Cache"
 ```
 
 
@@ -41,6 +47,10 @@ bash ./bin/covert.sh;
 
 As Covert also includes peer-to-peer tests for end-to-end network services,
 it requires a machine to be reachable under at least two different IPs.
+
+If the machine has no internet connection, some network protocol related
+tests will fail, such as `protocol/DNS`, `protocol/HTTPS`, `protocol/HTTP`
+or `client/Host`.
 
 As the only failsafe way to do this (without requiring a network card or
 WAN/LAN connection), there's the requirement to reach the local machine

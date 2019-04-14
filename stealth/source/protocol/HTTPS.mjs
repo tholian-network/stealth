@@ -3,9 +3,9 @@ import tls from 'tls';
 
 import { isFunction, isObject } from '../POLYFILLS.mjs';
 
-import { Emitter                  } from '../Emitter.mjs';
-import { HTTP                     } from './HTTP.mjs';
-import { onconnect, ondata, onend } from './HTTP.mjs';
+import { Emitter } from '../Emitter.mjs';
+import { HTTP    } from './HTTP.mjs';
+import { onconnect, ondata, onend, onerror } from './HTTP.mjs';
 
 
 
@@ -179,7 +179,7 @@ const HTTPS = {
 						} else if (code.startsWith('ERR_TLS')) {
 							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 						} else {
-							emitter.emit('error', [{ type: 'request' }]);
+							onerror(socket, ref, buffer, emitter);
 						}
 
 					}

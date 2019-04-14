@@ -1,7 +1,8 @@
 
 import { isFunction, isObject } from './POLYFILLS.mjs';
 
-import { console } from './console.mjs';
+import { console  } from './console.mjs';
+import { Renderer } from './Renderer.mjs';
 
 
 const TIMEOUT = 30 * 1000;
@@ -91,95 +92,6 @@ const map_to_state = function(review) {
 
 };
 
-const render = function(data) {
-
-	console.clear();
-
-
-	let blank = '';
-
-	data.states.forEach((state) => {
-
-		state.tests.forEach((test) => {
-
-			if (test.name.length > blank.length) {
-				blank = new Array(test.name.length).fill(' ').join('');
-			}
-
-		});
-
-	});
-
-
-	data.states.forEach((state, s) => {
-
-		if (s > 0) console.log('');
-
-
-		let status = 'unknown';
-
-		if (data.state === state) {
-			console.warn('review/' + state.id + '.mjs:');
-		} else {
-			console.log('review/' + state.id + '.mjs:');
-		}
-
-
-		let all_ok = true;
-
-		state.tests.forEach((test) => {
-
-			let indent  = blank.substr(0, blank.length - test.name.length);
-			let message = '> ' + test.name + ' ' + indent + test.results.render();
-
-
-			if (data.state === state && data.state.test === test) {
-
-				console.warn(message);
-
-			} else {
-
-				let fails = test.results.data.includes(false);
-				let nulls = test.results.data.includes(null);
-
-				if (fails === true) {
-					all_ok = false;
-					status = 'fail';
-					console.error(message);
-				} else if (nulls === false) {
-					console.info(message);
-				} else if (nulls === true && test.results.index > 0) {
-					all_ok = false;
-					status = 'fail';
-					console.warn(message);
-				} else {
-					all_ok = false;
-					console.log(message);
-				}
-
-			}
-
-		});
-
-		if (all_ok === true) {
-			status = 'okay';
-		}
-
-
-		if (data.state === state) {
-			console.warn('running ...');
-		} else if (status === 'okay') {
-			console.info('okay.');
-		} else if (status === 'fail') {
-			console.error('fail!');
-		} else {
-			console.log('unknown?');
-		}
-
-	});
-
-};
-
 const update = function(data) {
 
 	let state = data.state || null;
@@ -260,10 +172,12 @@ const update = function(data) {
 
 
 
-export const Covert = function() {
+export const Covert = function(settings) {
 
+	this.settings = Object.assign({}, settings);
 	this.callback = null;
 	this.interval = null;
+	this.renderer = new Renderer(this.settings);
 	this.reviews  = [];
 
 };
@@ -303,7 +217,7 @@ Covert.prototype = {
 					);
 
 				} else {
-					render.call(this, data);
+					this.renderer.render(data);
 				}
 
 			}, 100);
