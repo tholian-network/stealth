@@ -1,7 +1,5 @@
 #!/usr/bin/env sh
 
-PROXY_PID=""; # background process
-
 root_dir="$(dirname "$(dirname "$(readlink -f "$0")")")";
 node_bin="$(which node)";
 cc_bin="$(which cc)";
@@ -53,8 +51,6 @@ cd "$root_dir/covert/sketch/socks-proxy";
 chmod +x ./socks-proxy;
 ./socks-proxy -i "127.0.0.3" &
 
-PROXY_PID="$!";
-
 
 
 cd "$root_dir";
@@ -64,11 +60,13 @@ cp ./stealth/source/console.mjs   ./covert/source/console.mjs;
 cp ./stealth/source/Emitter.mjs   ./covert/source/Emitter.mjs;
 cp ./stealth/source/POLYFILLS.mjs ./covert/source/POLYFILLS.mjs;
 
-exec "$node_bin" --no-warnings --experimental-modules ./covert/covert.mjs "$@";
+"$node_bin" --no-warnings --experimental-modules ./covert/covert.mjs "$@";
 
 
 
-if [[ "$PROXY_PID" != "0" ]]; then
-	kill "$PROXY_PID";
+proxy_pid=$(ps -o pid -C socks-proxy | tail -n +2);
+
+if [[ "$proxy_pid" != "" ]]; then
+	kill "$proxy_pid";
 fi;
 
