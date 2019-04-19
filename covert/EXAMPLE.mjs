@@ -70,6 +70,17 @@ const FILE = Buffer.from([
 
 
 
+export const CONFIG = {
+	domain: 'example.com',
+	mode:   {
+		text:  true,
+		image: true,
+		audio: false,
+		video: false,
+		other: false
+	}
+};
+
 export const DOMAIN = {
 	A:    '93.184.216.34',
 	AAAA: '2606:2800:0220:0001:0248:1893:25c8:1946'

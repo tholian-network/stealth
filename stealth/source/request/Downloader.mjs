@@ -11,14 +11,12 @@ import { SOCKS   } from '../protocol/SOCKS.mjs';
 const compute = function() {
 
 	let timeline = this.__bandwidth.timeline;
-	let index    = timeline.findIndex((v) => v === null);
+	let filtered = timeline.filter((v) => v !== null);
 
-	if (index !== -1 && index > 0) {
-		return timeline.slice(0, index).reduce((a, b) => a + b, 0) / (index + 1);
-	} else if (index !== -1) {
-		return timeline[0];
-	} else {
+	if (filtered.length === timeline.length) {
 		return timeline.reduce((a, b) => a + b, 0) / timeline.length;
+	} else {
+		return null;
 	}
 
 };
@@ -41,7 +39,12 @@ const measure = function() {
 	if (bandwidth !== null && bandwidth < 0.01) {
 
 		if (this.connection !== null) {
-			this.connection.socket.end();
+
+			let socket = this.connection.socket || null;
+			if (socket !== null) {
+				socket.end();
+			}
+
 		}
 
 	}
@@ -50,7 +53,7 @@ const measure = function() {
 
 
 
-const _Request = function(ref) {
+const Download = function(ref) {
 
 	Emitter.call(this);
 
@@ -75,7 +78,17 @@ const _Request = function(ref) {
 };
 
 
-_Request.prototype = Object.assign({}, Emitter.prototype, {
+Download.prototype = Object.assign({}, Emitter.prototype, {
+
+	bandwidth: function() {
+
+		if (this.connection !== null) {
+			return compute.call(this);
+		}
+
+		return null;
+
+	},
 
 	init: function() {
 
@@ -205,13 +218,22 @@ _Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	bandwidth: function() {
+	kill: function() {
 
 		if (this.connection !== null) {
-			return compute.call(this);
-		}
 
-		return null;
+			let socket = this.connection.socket || null;
+			if (socket !== null) {
+
+				try {
+					socket.destroy();
+				} catch (err) {
+					// Do nothing
+				}
+
+			}
+
+		}
 
 	}
 
@@ -256,7 +278,7 @@ const Downloader = {
 
 			let allowed = config.mode[ref.mime.type] === true;
 			if (allowed === true) {
-				callback(new _Request(ref));
+				callback(new Download(ref));
 			} else {
 				callback(null);
 			}

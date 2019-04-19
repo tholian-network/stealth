@@ -14,9 +14,9 @@ describe('client.services.redirect.save', function(assert) {
 	assert(typeof this.client.services.redirect.save === 'function');
 
 	this.client.services.redirect.save({
-		domain:   'stealth.xyz',
-		path:     '/test/redirect-absolute',
-		location: 'https://stealth.xyz/test/redirect-absolute/location.json'
+		domain:   'example.com',
+		path:     '/review/client/redirect',
+		location: 'https://example.com/review/client/redirect/location.json'
 	}, (response) => {
 		assert(response === true);
 	});
@@ -29,13 +29,13 @@ describe('client.services.redirect.read', function(assert) {
 	assert(typeof this.client.services.redirect.read === 'function');
 
 	this.client.services.redirect.read({
-		domain: 'stealth.xyz',
-		path:   '/test/redirect-absolute'
+		domain: 'example.com',
+		path:   '/review/client/redirect'
 	}, (response) => {
 
-		assert(response !== null && response.domain === 'stealth.xyz');
-		assert(response !== null && response.path === '/test/redirect-absolute');
-		assert(response !== null && response.location === 'https://stealth.xyz/test/redirect-absolute/location.json');
+		assert(response !== null && response.domain === 'example.com');
+		assert(response !== null && response.path === '/review/client/redirect');
+		assert(response !== null && response.location === 'https://example.com/review/client/redirect/location.json');
 
 	});
 
@@ -47,8 +47,8 @@ describe('client.services.redirect.remove', function(assert) {
 	assert(typeof this.client.services.redirect.remove === 'function');
 
 	this.client.services.redirect.remove({
-		domain: 'stealth.xyz',
-		path:   '/test/redirect-absolute'
+		domain: 'example.com',
+		path:   '/review/client/redirect'
 	}, (response) => {
 		assert(response === true);
 	});

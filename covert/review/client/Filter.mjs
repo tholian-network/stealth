@@ -14,7 +14,7 @@ describe('client.services.filter.save', function(assert) {
 	assert(typeof this.client.services.filter.save === 'function');
 
 	this.client.services.filter.save({
-		domain: 'stealth.xyz',
+		domain: 'example.com',
 		filter: {
 			prefix: '/filter-prefix',
 			midfix: 'filter-midfix',
@@ -32,12 +32,12 @@ describe('client.services.filter.query', function(assert) {
 	assert(typeof this.client.services.filter.query === 'function');
 
 	this.client.services.filter.query({
-		domain: 'stealth.xyz'
+		domain: 'example.com'
 	}, (response) => {
 
 		assert(response !== null && response instanceof Array);
 		assert(response !== null && response.length > 0);
-		assert(response !== null && response[0].domain === 'stealth.xyz');
+		assert(response !== null && response[0].domain === 'example.com');
 		assert(response !== null && response[0].filter.prefix === '/filter-prefix');
 		assert(response !== null && response[0].filter.midfix === 'filter-midfix');
 		assert(response !== null && response[0].filter.suffix === '/filter-suffix.html');
@@ -52,7 +52,7 @@ describe('client.services.filter.remove', function(assert) {
 	assert(typeof this.client.services.filter.remove === 'function');
 
 	this.client.services.filter.remove({
-		domain: 'stealth.xyz',
+		domain: 'example.com',
 		filter: {
 			prefix: '/filter-prefix',
 			midfix: 'filter-midfix',
@@ -70,7 +70,7 @@ describe('client.services.filter.query', function(assert) {
 	assert(typeof this.client.services.filter.query === 'function');
 
 	this.client.services.filter.query({
-		domain: 'stealth.xyz'
+		domain: 'example.com'
 	}, (response) => {
 
 		assert(response !== null && response instanceof Array);

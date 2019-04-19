@@ -7,6 +7,7 @@ import { Covert  } from './source/Covert.mjs';
 import Server   from './review/Server.mjs';
 import Client   from './review/Client.mjs';
 import Peers    from './review/Peers.mjs';
+import Request  from './review/Request.mjs';
 import DNS      from './review/protocol/DNS.mjs';
 import HTTP     from './review/protocol/HTTP.mjs';
 import HTTPS    from './review/protocol/HTTPS.mjs';
@@ -74,7 +75,10 @@ const settings = {
 			// Client Services
 			Cache, Filter, Host, Mode, Peer, Redirect, Stash,
 
-			// Peer-to-Peer Services
+			// Request API
+			Request,
+
+			// Peer-to-Peer API
 			Peers
 
 		];

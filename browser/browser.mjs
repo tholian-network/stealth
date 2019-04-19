@@ -46,7 +46,7 @@ if (browser !== null) {
 
 			tabs.push(browser.open('stealth:settings'));
 			// tabs.push(browser.open('https://cookie.engineer'));
-			tabs.push(browser.open('https://old.reddit.com/r/programming/'));
+			// tabs.push(browser.open('https://old.reddit.com/r/programming/'));
 
 			browser.show(tabs[tabs.length - 1]);
 

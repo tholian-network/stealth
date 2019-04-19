@@ -21,7 +21,7 @@ const Request = function(data, stealth) {
 	this.id       = 'request-' + _id++;
 	this.config   = settings.config || {
 		domain: null,
-		mode: {
+		mode:   {
 			text:  false,
 			image: false,
 			audio: false,
@@ -43,6 +43,7 @@ const Request = function(data, stealth) {
 		error:    null,
 		kill:     null,
 		cache:    null,
+		stash:    null,
 		block:    null,
 		mode:     null,
 		filter:   null,
@@ -52,6 +53,10 @@ const Request = function(data, stealth) {
 		response: null
 	};
 	this.url      = null;
+
+
+	// Necessary for kill() method
+	this.__download = null;
 
 
 	let ref = settings.ref || null;
@@ -272,6 +277,8 @@ const Request = function(data, stealth) {
 
 					if (download !== null) {
 
+						this.__download = download;
+
 						download.on('progress', (partial, progress) => {
 							this.stealth.server.services.stash.save(Object.assign({}, this.ref, partial), () => {});
 							this.emit('progress', [ partial, progress ]);
@@ -309,6 +316,8 @@ const Request = function(data, stealth) {
 
 						download.on('error', (error) => {
 
+							this.__download = null;
+
 							if (error.type === 'stash') {
 
 								this.stealth.server.services.stash.remove(this.ref, () => {
@@ -327,6 +336,8 @@ const Request = function(data, stealth) {
 
 						download.on('redirect', (response) => {
 
+							this.__download = null;
+
 							this.stealth.server.services.stash.remove(this.ref, () => {
 
 								let location = response.headers['location'] || null;
@@ -341,6 +352,8 @@ const Request = function(data, stealth) {
 						});
 
 						download.on('response', (response) => {
+
+							this.__download = null;
 
 							this.stealth.server.services.stash.remove(this.ref, () => {
 								this.ref.headers = null;
@@ -486,10 +499,18 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.timeline.kill === null) {
 			this.timeline.kill = Date.now();
-
 		}
 
-		// TODO: Stop download(s)
+
+		if (this.timeline.download !== null) {
+
+			let download = this.__download || null;
+			if (download !== null) {
+				this.__download = null;
+				download.kill();
+			}
+
+		}
 
 	}
 

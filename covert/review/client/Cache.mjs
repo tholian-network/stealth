@@ -1,5 +1,5 @@
 
-import { after, before, describe, finish } from '../../source/Review.mjs';
+import { after, before, describe, finish                      } from '../../source/Review.mjs';
 import { connect as srv_connect, disconnect as srv_disconnect } from '../Server.mjs';
 import { connect as cli_connect, disconnect as cli_disconnect } from '../Client.mjs';
 
@@ -14,8 +14,8 @@ describe('client.services.cache.save', function(assert) {
 	assert(typeof this.client.services.cache.save === 'function');
 
 	this.client.services.cache.save({
-		domain: 'stealth.xyz',
-		path:   '/test/cache.json',
+		domain: 'example.com',
+		path:   '/review/client/cache.json',
 		headers: {
 			'x-test': 'save'
 		},
@@ -34,8 +34,8 @@ describe('server.services.cache.save', function(assert) {
 	assert(typeof this.server.services.cache.save === 'function');
 
 	this.server.services.cache.save({
-		domain: 'stealth.xyz',
-		path:   '/test/cache.json',
+		domain: 'example.com',
+		path:   '/review/client/cache.json',
 		headers: {
 			'x-test': 'save'
 		},
@@ -54,8 +54,8 @@ describe('client.services.cache.info', function(assert) {
 	assert(typeof this.client.services.cache.info === 'function');
 
 	this.client.services.cache.info({
-		domain: 'stealth.xyz',
-		path:   '/test/cache.json'
+		domain: 'example.com',
+		path:   '/review/client/cache.json'
 	}, (response) => {
 
 		assert(response !== null && response.headers.size > 0);
@@ -74,8 +74,8 @@ describe('client.services.cache.read', function(assert) {
 	assert(typeof this.client.services.cache.read === 'function');
 
 	this.client.services.cache.read({
-		domain: 'stealth.xyz',
-		path:   '/test/cache.json'
+		domain: 'example.com',
+		path:   '/review/client/cache.json'
 	}, (response) => {
 
 		assert(response !== null && response.headers['x-test'] === 'save');
@@ -106,8 +106,8 @@ describe('client.services.cache.remove', function(assert) {
 	assert(typeof this.client.services.cache.remove === 'function');
 
 	this.client.services.cache.remove({
-		domain: 'stealth.xyz',
-		path:   '/test/cache.json'
+		domain: 'example.com',
+		path:   '/review/client/cache.json'
 	}, (response) => {
 		assert(response === false);
 	});
@@ -120,8 +120,8 @@ describe('server.services.cache.remove', function(assert) {
 	assert(typeof this.server.services.cache.remove === 'function');
 
 	this.server.services.cache.remove({
-		domain: 'stealth.xyz',
-		path:   '/test/cache.json'
+		domain: 'example.com',
+		path:   '/review/client/cache.json'
 	}, (response) => {
 		assert(response !== null && response.payload === true);
 	});

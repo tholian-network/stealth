@@ -14,8 +14,8 @@ describe('client.services.stash.save', function(assert) {
 	assert(typeof this.client.services.stash.save === 'function');
 
 	this.client.services.stash.save({
-		domain: 'stealth.xyz',
-		path:   '/test/stash.json',
+		domain: 'example.com',
+		path:   '/review/client/stash.json',
 		headers: {
 			'x-test': 'save'
 		},
@@ -34,8 +34,8 @@ describe('server.services.stash.save', function(assert) {
 	assert(typeof this.server.services.stash.save === 'function');
 
 	this.server.services.stash.save({
-		domain: 'stealth.xyz',
-		path:   '/test/stash.json',
+		domain: 'example.com',
+		path:   '/review/client/stash.json',
 		headers: {
 			'x-test': 'save'
 		},
@@ -54,8 +54,8 @@ describe('client.services.stash.info', function(assert) {
 	assert(typeof this.client.services.stash.info === 'function');
 
 	this.client.services.stash.info({
-		domain: 'stealth.xyz',
-		path:   '/test/stash.json'
+		domain: 'example.com',
+		path:   '/review/client/stash.json'
 	}, (response) => {
 
 		assert(response !== null && response.headers.size > 0);
@@ -74,8 +74,8 @@ describe('client.services.stash.read', function(assert) {
 	assert(typeof this.client.services.stash.read === 'function');
 
 	this.client.services.stash.read({
-		domain: 'stealth.xyz',
-		path:   '/test/stash.json'
+		domain: 'example.com',
+		path:   '/review/client/stash.json'
 	}, (response) => {
 
 		assert(response !== null && response.headers['x-test'] === 'save');
@@ -106,8 +106,8 @@ describe('client.services.stash.remove', function(assert) {
 	assert(typeof this.client.services.stash.remove === 'function');
 
 	this.client.services.stash.remove({
-		domain: 'stealth.xyz',
-		path:   '/test/stash.json'
+		domain: 'example.com',
+		path:   '/review/client/stash.json'
 	}, (response) => {
 		assert(response === true);
 	});
@@ -120,8 +120,8 @@ describe('server.services.stash.remove', function(assert) {
 	assert(typeof this.server.services.stash.remove === 'function');
 
 	this.server.services.stash.remove({
-		domain: 'stealth.xyz',
-		path:   '/test/stash.json'
+		domain: 'example.com',
+		path:   '/review/client/stash.json'
 	}, (response) => {
 		assert(response !== null && response.payload === false);
 	});

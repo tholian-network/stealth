@@ -107,8 +107,8 @@ describe('peers[0].server.services.cache.save', function(assert) {
 	assert(typeof this.peers[0].server.services.cache.save === 'function');
 
 	this.peers[0].server.services.cache.save({
-		domain: 'stealth.xyz',
-		path:   '/test/peer/cache.json',
+		domain: 'example.com',
+		path:   '/review/peers/cache.json',
 		headers: {
 			'x-test': 'save'
 		},
@@ -127,8 +127,8 @@ describe('peers[0].client.services.cache.read', function(assert) {
 	assert(typeof this.peers[0].client.services.cache.read === 'function');
 
 	this.peers[0].client.services.cache.read({
-		domain: 'stealth.xyz',
-		path:   '/test/peer/cache.json'
+		domain: 'example.com',
+		path:   '/review/peers/cache.json'
 	}, (response) => {
 
 		assert(response !== null && response.headers['x-test'] === 'save');
@@ -165,8 +165,8 @@ describe('peers[1].client.services.peer.proxy', function(assert, debug) {
 			method:  'read'
 		},
 		payload: {
-			domain: 'stealth.xyz',
-			path:   '/test/peer/cache.json'
+			domain: 'example.com',
+			path:   '/review/peers/cache.json'
 		}
 	}, (response) => {
 		// TODO: cache.save() on peers[1].client
@@ -181,8 +181,8 @@ describe('peers[1].client.services.cache.read', function(assert) {
 	assert(typeof this.peers[1].client.services.cache.read === 'function');
 
 	this.peers[1].client.services.cache.read({
-		domain: 'stealth.xyz',
-		path:   '/test/peer/cache.json'
+		domain: 'example.com',
+		path:   '/review/peers/cache.json'
 	}, (response) => {
 
 		assert(response !== null && response.headers['x-test'] === 'save');
@@ -213,8 +213,8 @@ describe('peers[0].server.services.cache.remove', function(assert) {
 	assert(typeof this.peers[0].server.services.cache.remove === 'function');
 
 	this.peers[0].server.services.cache.remove({
-		domain: 'stealth.xyz',
-		path:   '/test/peer/cache.json'
+		domain: 'example.com',
+		path:   '/review/peers/cache.json'
 	}, (response) => {
 		assert(response === true);
 	});
@@ -227,8 +227,8 @@ describe('peers[1].server.services.cache.remove', function(assert) {
 	assert(typeof this.peers[1].server.services.cache.remove === 'function');
 
 	this.peers[1].server.services.cache.remove({
-		domain: 'stealth.xyz',
-		path:   '/test/peer/cache.json'
+		domain: 'example.com',
+		path:   '/review/peers/cache.json'
 	}, (response) => {
 		assert(response === true);
 	});
