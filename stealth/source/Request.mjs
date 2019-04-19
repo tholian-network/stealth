@@ -88,9 +88,14 @@ const Request = function(data, stealth) {
 
 		this.stealth.server.services.redirect.read(this.ref, (redirect) => {
 
-			let location = redirect.headers['location'] || null;
-			if (location !== null) {
-				this.emit('redirect', [ redirect, true ]);
+			let payload = redirect.payload || null;
+			if (payload !== null) {
+
+				this.emit('redirect', [{
+					headers: { location: payload.location },
+					payload: null
+				}, true ]);
+
 			} else {
 				this.emit('cache');
 			}

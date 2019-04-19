@@ -1,5 +1,5 @@
 
-import { DOMAIN as EXAMPLE_DOMAIN } from '../../EXAMPLE.mjs';
+import { DOMAIN } from '../../EXAMPLE.mjs';
 
 import { after, before, describe, finish } from '../../source/Review.mjs';
 import { connect as srv_connect, disconnect as srv_disconnect } from '../Server.mjs';
@@ -59,8 +59,8 @@ describe('client.services.host.refresh', function(assert) {
 		assert(response !== null && response.domain === 'example.com');
 		assert(response !== null && response.hosts.length > 0);
 
-		let check4 = response.hosts.find((ip) => ip.ip === EXAMPLE_DOMAIN.A) || null;
-		let check6 = response.hosts.find((ip) => ip.ip === EXAMPLE_DOMAIN.AAAA) || null;
+		let check4 = response.hosts.find((ip) => ip.ip === DOMAIN.A) || null;
+		let check6 = response.hosts.find((ip) => ip.ip === DOMAIN.AAAA) || null;
 
 		assert(response !== null && check4 !== null);
 		assert(response !== null && check6 !== null);
@@ -81,8 +81,8 @@ describe('client.services.host.read', function(assert) {
 		assert(response !== null && response.domain === 'example.com');
 		assert(response !== null && response.hosts.length > 0);
 
-		let check4 = response.hosts.find((ip) => ip.ip === EXAMPLE_DOMAIN.A) || null;
-		let check6 = response.hosts.find((ip) => ip.ip === EXAMPLE_DOMAIN.AAAA) || null;
+		let check4 = response.hosts.find((ip) => ip.ip === DOMAIN.A) || null;
+		let check6 = response.hosts.find((ip) => ip.ip === DOMAIN.AAAA) || null;
 
 		assert(response !== null && check4 !== null);
 		assert(response !== null && check6 !== null);

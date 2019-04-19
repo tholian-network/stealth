@@ -1,5 +1,5 @@
 
-import { CONFIG as EXAMPLE_CONFIG, URL as EXAMPLE_URL } from '../EXAMPLE.mjs';
+import { create } from '../EXAMPLE.mjs';
 import { after, before, describe, finish } from '../source/Review.mjs';
 import { connect, disconnect             } from './Server.mjs';
 
@@ -9,12 +9,11 @@ import { Request } from '../../stealth/source/Request.mjs';
 
 before(connect);
 
-
 describe('request', function(assert) {
 
 	this.request = new Request({
-		ref:    EXAMPLE_URL,
-		config: EXAMPLE_CONFIG
+		ref:    create('https://example.com/index.html').ref,
+		config: create('https://example.com/index.html').config
 	}, this.stealth);
 
 	this.request.once('init', () => {
@@ -73,8 +72,8 @@ describe('request/kill', function(assert) {
 describe('request/cache', function(assert) {
 
 	this.request = new Request({
-		ref:    EXAMPLE_URL,
-		config: EXAMPLE_CONFIG
+		ref:    create('https://example.com/index.html').ref,
+		config: create('https://example.com/index.html').config
 	}, this.stealth);
 
 
@@ -94,7 +93,7 @@ describe('request/cache', function(assert) {
 	});
 
 	this.request.once('connect', () => {
-		events.connect= true;
+		events.connect = true;
 	});
 
 	this.request.once('download', () => {
@@ -128,36 +127,49 @@ describe('request/kill', function(assert) {
 
 });
 
-// describe('request/redirect', function(assert) {
-//
-// 	// TODO:
-// 	// - Save redirect via redirect service
-// 	// - Test redirect on request
-// 	// request.on('redirect', () => {
-// 	// 	assert(true);
-// 	// });
-//
-// 	assert(false);
-//
-// });
+describe('server.services.redirect.save', function(assert) {
 
+	this.stealth.server.services.redirect.save({
+		domain:   'example.com',
+		path:     '/redirect',
+		location: 'https://example.com/index.html'
+	}, (response) => {
+		assert(response !== null && response.payload === true);
+	});
+
+});
+
+describe('request/redirect', function(assert) {
+
+	this.request = new Request({
+		ref:    create('https://example.com/redirect').ref,
+		config: create('https://example.com/redirect').config
+	}, this.stealth);
+
+
+	this.request.once('redirect', (response) => {
+
+		assert(response !== null && response.headers !== null);
+		assert(response !== null && response.headers.location === 'https://example.com/index.html');
+		assert(response !== null && response.payload === null);
+
+	});
+
+	this.request.init();
+
+});
+
+describe('request/kill', function(assert) {
+
+	this.request.kill();
+	this.request = null;
+
+	assert(this.request === null);
+
+});
 
 after(disconnect);
 
 
 export default finish('Request');
-
-
-// [x] request/init
-// [x] request/cache
-// [ ] request/stash
-// [ ] request/block
-// [ ] request/mode
-// [ ] request/filter
-// [ ] request/connect
-// [ ] request/download
-// [ ] request/optimize
-
-// request/redirect
-// request/response
 

@@ -1,8 +1,8 @@
 
-import { Buffer } from './source/POLYFILLS.mjs';
+import { Buffer, isString } from './source/POLYFILLS.mjs';
 
-import { IP   } from '../stealth/source/parser/IP.mjs';
-import { MIME } from '../stealth/source/parser/URL.mjs';
+import { IP        } from '../stealth/source/parser/IP.mjs';
+import { MIME, URL } from '../stealth/source/parser/URL.mjs';
 
 
 const FILE = Buffer.from([
@@ -86,7 +86,12 @@ export const DOMAIN = {
 	AAAA: '2606:2800:0220:0001:0248:1893:25c8:1946'
 };
 
-export const RAW = Buffer.concat([
+export const HOSTS = [
+	IP.parse('93.184.216.34'),
+	IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+];
+
+export const PAYLOAD = Buffer.concat([
 	Buffer.from([
 		'HTTP/1.1 200 OK',
 		'Content-Encoding: identity',
@@ -135,27 +140,67 @@ export const RESPONSE = {
 	payload: Buffer.from(FILE)
 };
 
-export const URL = {
 
-	domain:    'example.com',
-	hash:      null,
-	host:      null,
-	mime:      MIME.find((t) => t.ext === 'html'),
-	path:      '/index.html',
-	port:      443,
-	protocol:  'https',
-	subdomain: null,
-	url:       'https://example.com/index.html',
 
-	// DNS API
-	hosts: [
+export const create = function(url) {
+
+	url = isString(url) ? url : 'https://example.com/index.html';
+
+
+	let ext    = url.split('.').pop();
+	let mime   = MIME.find((t) => t.ext === ext) || null;
+	let ref    = URL.parse(url);
+	let config = {
+		domain: ref.domain,
+		mode:   {
+			text:  false,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	};
+
+	if (ref.domain !== null) {
+
+		if (ref.subdomain !== null) {
+			config.domain = ref.subdomain + '.' + ref.domain;
+		} else {
+			config.domain = ref.domain;
+		}
+
+	} else if (ref.host !== null) {
+
+		config.domain = ref.host;
+
+	}
+
+
+	if (mime !== null) {
+
+		config.mode[mime.type] = true;
+
+	} else {
+
+		config.mode.text  = true;
+		config.mode.image = true;
+		config.mode.audio = true;
+		config.mode.video = true;
+		config.mode.other = true;
+
+	}
+
+	ref.hosts = [
 		IP.parse('93.184.216.34'),
 		IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
-	],
+	];
 
-	// Service API
-	headers: null,
-	payload: null
+
+	return {
+		config: config,
+		mime:   mime,
+		ref:    ref
+	};
 
 };
 

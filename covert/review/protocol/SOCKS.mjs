@@ -1,5 +1,5 @@
 
-import { RAW as EXAMPLE_RAW, REQUEST as EXAMPLE_REQUEST, URL as EXAMPLE_URL } from '../../EXAMPLE.mjs';
+import { create, PAYLOAD, REQUEST } from '../../EXAMPLE.mjs';
 
 import { after, before, describe, finish } from '../../source/Review.mjs';
 
@@ -12,7 +12,7 @@ before('SOCKS.connect', function(assert) {
 	this.buffer     = {};
 	this.connection = null;
 	this.proxy      = { host: '127.0.0.3', port: 1080 };
-	this.ref        = Object.assign({}, EXAMPLE_URL, { proxy: this.proxy });
+	this.ref        = Object.assign(create('https://example.com/index.html').ref, { proxy: this.proxy });
 	this.socket     = null;
 
 
@@ -47,7 +47,7 @@ describe('SOCKS.send', function(assert) {
 
 	});
 
-	SOCKS.send(this.socket, EXAMPLE_REQUEST);
+	SOCKS.send(this.socket, REQUEST);
 
 });
 
@@ -57,7 +57,7 @@ describe('SOCKS.receive', function(assert) {
 	assert(this.buffer !== null);
 
 
-	SOCKS.receive(this.socket, EXAMPLE_RAW, (response) => {
+	SOCKS.receive(this.socket, PAYLOAD, (response) => {
 
 		assert(response !== null);
 		assert(response.headers['@status'] === '200 OK');

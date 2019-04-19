@@ -1,5 +1,5 @@
 
-import { DOMAIN as EXAMPLE_DOMAIN } from '../../EXAMPLE.mjs';
+import { DOMAIN } from '../../EXAMPLE.mjs';
 
 import { describe, finish } from '../../source/Review.mjs';
 
@@ -21,8 +21,8 @@ describe('DNS.resolve', function(assert) {
 		assert(response.payload !== null && response.payload.domain === 'example.com');
 		assert(response.payload !== null && response.payload.hosts.length > 0);
 
-		let check4 = response.payload.hosts.find((ip) => ip.ip === EXAMPLE_DOMAIN.A) || null;
-		let check6 = response.payload.hosts.find((ip) => ip.ip === EXAMPLE_DOMAIN.AAAA) || null;
+		let check4 = response.payload.hosts.find((ip) => ip.ip === DOMAIN.A) || null;
+		let check6 = response.payload.hosts.find((ip) => ip.ip === DOMAIN.AAAA) || null;
 
 		assert(check4 !== null);
 		assert(check6 !== null);

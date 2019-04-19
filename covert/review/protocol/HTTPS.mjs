@@ -1,5 +1,5 @@
 
-import { RAW as EXAMPLE_RAW, REQUEST as EXAMPLE_REQUEST, URL as EXAMPLE_URL } from '../../EXAMPLE.mjs';
+import { create, PAYLOAD, REQUEST } from '../../EXAMPLE.mjs';
 
 import { after, before, describe, finish } from '../../source/Review.mjs';
 
@@ -11,7 +11,7 @@ before('HTTPS.connect', function(assert) {
 
 	this.buffer     = {};
 	this.connection = null;
-	this.ref        = Object.assign({}, EXAMPLE_URL, { port: 443, protocol: 'https' });
+	this.ref        = create('https://example.com:443/index.html').ref;
 	this.socket     = null;
 
 
@@ -46,7 +46,7 @@ describe('HTTPS.send', function(assert) {
 
 	});
 
-	HTTPS.send(this.socket, EXAMPLE_REQUEST);
+	HTTPS.send(this.socket, REQUEST);
 
 });
 
@@ -56,7 +56,7 @@ describe('HTTPS.receive', function(assert) {
 	assert(this.buffer !== null);
 
 
-	HTTPS.receive(this.socket, EXAMPLE_RAW, (response) => {
+	HTTPS.receive(this.socket, PAYLOAD, (response) => {
 
 		assert(response !== null);
 		assert(response.headers['@status'] === '200 OK');
