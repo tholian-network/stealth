@@ -1,6 +1,6 @@
 ##########################################################################
 # TeslaCrypt Ransomware C2 domain blocklist (TC_C2_DOMBL)                #
-# Generated on 2019-03-24 18:30:01 UTC                                   #
+# Generated on 2019-04-21 18:00:02 UTC                                   #
 #                                                                        #
 # For questions please refer to:                                         #
 # https://ransomwaretracker.abuse.ch/blocklist/                          #

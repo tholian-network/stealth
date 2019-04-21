@@ -1,6 +1,6 @@
 ##########################################################################
 # Ransomware Domain Blocklist (RW_DOMBL)                                 #
-# Generated on 2019-03-24 18:30:01 UTC                                   #
+# Generated on 2019-04-21 18:00:02 UTC                                   #
 #                                                                        #
 # For questions please refer to:                                         #
 # https://ransomwaretracker.abuse.ch/blocklist/                          #
@@ -1126,7 +1126,6 @@ oqwygprskqv65j72.1gam57.top
 oqwygprskqv65j72.1gqj8x.top
 oqwygprskqv65j72.1hbdbx.top
 oqwygprskqv65j72.1j1x2b.top
-oqwygprskqv65j72.1jquw7.top
 oqwygprskqv65j72.1kh9ct.top
 oqwygprskqv65j72.1mudaw.top
 oqwygprskqv65j72.1nzpby.top
@@ -1908,4 +1907,4 @@ zjfq4lnfbs7pncr5.onion.to
 zjfq4lnfbs7pncr5.tor2web.org
 ztuw5bvuuapzdfya.klimbim.pl
 zutzt67dcxr6mxcn.onion.to
-# 1903 entries
+# 1902 entries

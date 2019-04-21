@@ -32955,7 +32955,6 @@
 127.0.0.1	pagvl.voluumtrk.com
 127.0.0.1	paid-work-at-home.com
 127.0.0.1	paid.outbrain.com
-127.0.0.1	paid2mobi.com
 127.0.0.1	paid4clicks.de
 127.0.0.1	pajpv.voluumtrk.com
 127.0.0.1	paletotseeyzubqr.download
@@ -33869,7 +33868,6 @@
 127.0.0.1	q.jmp9.com
 127.0.0.1	q.pni.com
 127.0.0.1	q.serving-sys.com
-127.0.0.1	q.stripe.com
 127.0.0.1	q.zeroredirect.com
 127.0.0.1	q.zeroredirect1.com
 127.0.0.1	q.zeroredirect2.com
@@ -34066,7 +34064,6 @@
 127.0.0.1	ranksider.com
 127.0.0.1	rankyou.com
 127.0.0.1	rapdirt.us.intellitxt.com
-127.0.0.1	rapid-cdn.com
 127.0.0.1	rapleaf.com
 127.0.0.1	raplz.voluumtrk.com
 127.0.0.1	rareru.ru
@@ -45748,4 +45745,4 @@
 127.0.0.1	zzptzdhugavot.review
 127.0.0.1	zzz.clickbank.net
 127.0.0.1	_thums.ero-advertising.com
-# Hosts: 45740
+# Hosts: 45737

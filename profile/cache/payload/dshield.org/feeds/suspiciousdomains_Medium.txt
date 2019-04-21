@@ -6,7 +6,7 @@
 #   primary URL: http://www.dshield.org/feeds/suspiciousdomains_Medium.txt
 #
 #   comments: info@dshield.org
-#    updated: Sun Mar 24 04:04:02 2019 UTC
+#    updated: Sun Apr 21 04:04:01 2019 UTC
 #   
 #    This list consists of Medium Level Sensitivity website URLs
 #     Columns (tab delimited):
@@ -2313,13 +2313,16 @@ ms69-hinet.net
 crestrone.com
 owiink.com
 wirekinq.com
+cypress-tvv.com
+beqarcarton.com
+hsiehy-vn.com
 #
 # STATISTICS
 #
-# Total In Database: 107958
-# Total In Report:   2299
+# Total In Database: 107979
+# Total In Report:   2302
 # Percent of Total:  2.13 %
 #
 # END
 #
-#  finished list generation: Sun Mar 24 04:04:02 2019 UTC
+#  finished list generation: Sun Apr 21 04:04:01 2019 UTC
