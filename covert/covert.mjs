@@ -12,6 +12,8 @@ import DNS      from './review/protocol/DNS.mjs';
 import HTTP     from './review/protocol/HTTP.mjs';
 import HTTPS    from './review/protocol/HTTPS.mjs';
 import SOCKS    from './review/protocol/SOCKS.mjs';
+import WS       from './review/protocol/WS.mjs';
+import WSS      from './review/protocol/WSS.mjs';
 import Cache    from './review/client/Cache.mjs';
 import Filter   from './review/client/Filter.mjs';
 import Host     from './review/client/Host.mjs';
@@ -67,7 +69,7 @@ const settings = {
 		let reviews = [
 
 			// Network Protocols
-			DNS, HTTP, HTTPS, SOCKS,
+			DNS, HTTP, HTTPS, SOCKS, WS, WSS,
 
 			// Server/Client
 			Server, Client,
@@ -118,50 +120,59 @@ const settings = {
 		}
 
 
-		reviews.forEach((review) => {
-			covert.scan(review);
-		});
+		if (reviews.length > 0) {
 
-
-		covert.connect((results, timelines) => {
-
-			let flat_results   = [];
-			let flat_timelines = [];
-
-
-			results.forEach((data) => {
-				data.before.forEach((v) => flat_results.push(v));
-				data.tests.forEach((v)  => flat_results.push(...v));
-				data.after.forEach((v)  => flat_results.push(v));
-			});
-
-			timelines.forEach((data) => {
-				data.before.forEach((v) => flat_timelines.push(v));
-				data.tests.forEach((v)  => flat_timelines.push(...v));
-				data.after.forEach((v)  => flat_timelines.push(v));
+			reviews.forEach((review) => {
+				covert.scan(review);
 			});
 
 
-			console.log('');
+			covert.connect((results, timelines) => {
 
-			if (flat_results.includes(null)) {
+				let flat_results   = [];
+				let flat_timelines = [];
 
-				console.warn('Covert: Some tests incomplete.');
-				process.exit(2);
 
-			} else if (flat_results.includes(false)) {
+				results.forEach((data) => {
+					data.before.forEach((v) => flat_results.push(v));
+					data.tests.forEach((v)  => flat_results.push(...v));
+					data.after.forEach((v)  => flat_results.push(v));
+				});
 
-				console.error('Covert: Some tests failed.');
-				process.exit(1);
+				timelines.forEach((data) => {
+					data.before.forEach((v) => flat_timelines.push(v));
+					data.tests.forEach((v)  => flat_timelines.push(...v));
+					data.after.forEach((v)  => flat_timelines.push(v));
+				});
 
-			} else {
 
-				console.info('Covert: All tests okay.');
-				process.exit(0);
+				console.log('');
 
-			}
+				if (flat_results.includes(null)) {
 
-		});
+					console.warn('Covert: Some tests incomplete.');
+					process.exit(2);
+
+				} else if (flat_results.includes(false)) {
+
+					console.error('Covert: Some tests failed.');
+					process.exit(1);
+
+				} else {
+
+					console.info('Covert: All tests okay.');
+					process.exit(0);
+
+				}
+
+			});
+
+		} else {
+
+			console.warn('Covert: No matching reviews found.');
+			process.exit(2);
+
+		}
 
 	}
 

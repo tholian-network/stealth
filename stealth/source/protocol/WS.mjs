@@ -1,12 +1,52 @@
 
 import crypto     from 'crypto';
+import net        from 'net';
 import { Buffer } from 'buffer';
 
 import { isFunction, isNumber, isObject } from '../POLYFILLS.mjs';
 
+import { Emitter } from '../Emitter.mjs';
+import { HTTP    } from './HTTP.mjs';
 
 
-const _decode_json = function(buffer) {
+
+const upgrade_request = (host, port, nonce) => {
+
+	return Buffer.from([
+		'GET / HTTP/1.1',
+		'Host: ' + host + ':' + port,
+		'Connection: Upgrade',
+		'Upgrade: WebSocket',
+		'Sec-WebSocket-Key: ' + nonce.toString('base64'),
+		'Sec-WebSocket-Protocol: stealth',
+		'Sec-WebSocket-Version: 13',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+
+};
+
+const upgrade_response = (nonce) => {
+
+	let hash   = crypto.createHash('sha1').update(nonce + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
+	let accept = Buffer.from(hash, 'hex');
+
+	return Buffer.from([
+		'HTTP/1.1 101 WebSocket Protocol Handshake',
+		'Connection: Upgrade',
+		'Upgrade: WebSocket',
+		'Sec-WebSocket-Accept: ' + accept.toString('base64'),
+		'Sec-WebSocket-Protocol: stealth',
+		'Sec-WebSocket-Version: 13',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+
+};
+
+
+
+const decode_json = function(buffer) {
 
 	let data = null;
 
@@ -20,7 +60,7 @@ const _decode_json = function(buffer) {
 
 };
 
-const _encode_json = function(data) {
+const encode_json = function(data) {
 
 	let buffer = null;
 
@@ -35,7 +75,7 @@ const _encode_json = function(data) {
 
 };
 
-const _decode = function(socket, buffer) {
+const decode = function(socket, buffer) {
 
 	let fragment = socket.__fragment || null;
 	if (fragment === null) {
@@ -141,7 +181,7 @@ const _decode = function(socket, buffer) {
 
 		if (fin === true) {
 
-			let tmp = _decode_json(fragment.payload);
+			let tmp = decode_json(fragment.payload);
 			if (tmp !== null) {
 				chunk.headers = tmp.headers || {};
 				chunk.payload = tmp.payload || null;
@@ -158,7 +198,7 @@ const _decode = function(socket, buffer) {
 
 		if (fin === true) {
 
-			let tmp = _decode_json(payload_data);
+			let tmp = decode_json(payload_data);
 			if (tmp !== null) {
 				chunk.headers = tmp.headers || {};
 				chunk.payload = tmp.payload || null;
@@ -246,7 +286,7 @@ const _decode = function(socket, buffer) {
 
 };
 
-const _encode = function(socket, data) {
+const encode = function(socket, data) {
 
 	let buffer         = null;
 	let mask           = false;
@@ -350,9 +390,274 @@ const _encode = function(socket, data) {
 
 
 
+export const onconnect = function(socket, ref, buffer, emitter) {
+
+	let hosts = ref.hosts.sort((a, b) => {
+
+		if (a.scope === 'private' && b.scope === 'private') {
+
+			if (a.type === 'v4' && b.type === 'v4') return 0;
+			if (a.type === 'v4') return -1;
+			if (b.type === 'v4') return  1;
+
+		}
+
+		if (a.scope === 'private') return -1;
+		if (b.scope === 'private') return  1;
+
+		if (a.type === 'v4' && b.type === 'v4') return 0;
+		if (a.type === 'v4') return -1;
+		if (b.type === 'v4') return  1;
+
+		return 0;
+
+	});
+
+
+	let hostname = hosts[0].ip;
+	let nonce    = Buffer.alloc(16);
+
+	if (ref.domain !== null) {
+
+		if (ref.subdomain !== null) {
+			hostname = ref.subdomain + '.' + ref.domain;
+		} else {
+			hostname = ref.domain;
+		}
+
+	}
+
+	for (let n = 0; n < 16; n++) {
+		nonce[n] = Math.round(Math.random() * 0xff);
+	}
+
+	buffer.nonce = nonce;
+
+
+	socket.once('data', (data) => {
+
+		HTTP.receive(socket, data, (response) => {
+
+			let tmp1 = (response.headers['connection'] || '').toLowerCase();
+			let tmp2 = (response.headers['upgrade'] || '').toLowerCase();
+
+			if (tmp1 === 'upgrade' && tmp2 === 'websocket') {
+
+				let accept = response.headers['sec-websocket-accept'] || '';
+				let hash   = crypto.createHash('sha1').update(nonce.toString('base64') + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
+				let expect = Buffer.from(hash, 'hex').toString('base64');
+
+				if (accept === expect) {
+
+					socket.__ws_client = true;
+
+					emitter.emit('@connect', [ socket ]);
+
+				} else {
+					emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+				}
+
+			} else {
+				emitter.emit('error', [{ type: 'request' }]);
+			}
+
+		});
+
+	});
+
+
+	socket.write(upgrade_request(
+		hostname,
+		ref.port || 80,
+		nonce
+	));
+
+};
+
+export const ondata = function(socket, ref, buffer, emitter, fragment) {
+
+	if (socket.__ws_client === true) {
+
+		WS.receive(socket, fragment, (frame) => {
+
+			if (frame !== null) {
+				emitter.emit('response', [ frame ]);
+			}
+
+		});
+
+	} else if (socket.__ws_server === true) {
+
+		WS.receive(socket, fragment, (frame) => {
+
+			if (frame !== null) {
+				emitter.emit('request', [ frame ]);
+			}
+
+		});
+
+	}
+
+};
+
+export const onend = function(socket, ref, buffer, emitter) {
+	emitter.emit('@disconnect', [ socket ]);
+};
+
+export const onerror = function(socket, ref, buffer, emitter) {
+	emitter.emit('timeout', [ null ]);
+};
+
+
+
 const WS = {
 
-	upgrade: function(socket, headers, callback) {
+	connect: function(ref, buffer, emitter) {
+
+		ref     = isObject(ref)     ? ref     : null;
+		buffer  = isObject(buffer)  ? buffer  : {};
+		emitter = isObject(emitter) ? emitter : new Emitter();
+
+
+		if (ref !== null) {
+
+			let hosts = ref.hosts.sort((a, b) => {
+
+				if (a.scope === 'private' && b.scope === 'private') {
+
+					if (a.type === 'v4' && b.type === 'v4') return 0;
+					if (a.type === 'v4') return -1;
+					if (b.type === 'v4') return  1;
+
+				}
+
+				if (a.scope === 'private') return -1;
+				if (b.scope === 'private') return  1;
+
+				if (a.type === 'v4' && b.type === 'v4') return 0;
+				if (a.type === 'v4') return -1;
+				if (b.type === 'v4') return  1;
+
+				return 0;
+
+			});
+
+			if (hosts.length > 0) {
+
+				let socket = emitter.socket || null;
+				if (socket === null) {
+
+					socket = net.connect({
+						host: hosts[0].ip,
+						port: ref.port || 80
+					}, () => {
+
+						onconnect(socket, ref, buffer, emitter);
+						emitter.socket = socket;
+
+					});
+
+				}
+
+				socket.on('data', (fragment) => {
+					ondata(socket, ref, buffer, emitter, fragment);
+				});
+
+				socket.on('timeout', () => {
+
+					if (emitter.socket !== null) {
+
+						emitter.socket = null;
+						emitter.emit('timeout', [ null ]);
+
+					}
+
+				});
+
+				socket.on('error', () => {
+
+					if (emitter.socket !== null) {
+
+						onerror(socket, ref, buffer, emitter);
+						emitter.socket = null;
+
+					}
+
+				});
+
+				socket.on('end', () => {
+
+					if (emitter.socket !== null) {
+
+						onend(socket, ref, buffer, emitter);
+						emitter.socket = null;
+
+					}
+
+				});
+
+				return emitter;
+
+			} else {
+
+				emitter.socket = null;
+				emitter.emit('error', [{ type: 'host' }]);
+
+				return null;
+
+			}
+
+		} else {
+
+			emitter.socket = null;
+			emitter.emit('error', [{ type: 'request' }]);
+
+			return null;
+
+		}
+
+	},
+
+	listen: function(ref, buffer, emitter) {
+
+		ref     = isObject(ref)     ? ref     : null;
+		buffer  = isObject(buffer)  ? buffer  : {};
+		emitter = isObject(emitter) ? emitter : new Emitter();
+
+
+		let nonce = buffer.nonce || null;
+		if (nonce !== null) {
+
+			// TODO: If ref.headers contains correct HTTP headers
+			// TODO: and if nonce is set, respond with upgrade_response
+			//       and then bind on('data') event, timeout, error etc.
+
+
+
+			return emitter;
+
+		} else {
+
+			emitter.socket = null;
+			emitter.emit('error' [{ type: 'request', cause: 'socket-trust' }]);
+
+			return null;
+
+		}
+
+		// TODO: listen() method should listen on emitter.socket
+		// and handle it the same way as connect(), but from the
+		// server's perspective.
+		//
+		// TODO: Handle upgrade requests with correct responses
+		// TODO: Handle data frames
+		//
+		// XXX: Figure out how to not require upgrade requests
+		// (in case server handles it externally)
+
+	},
+
+	upgrade__OLD: function(socket, headers, callback) {
 
 		headers  = isObject(headers)    ? headers  : null;
 		callback = isFunction(callback) ? callback : null;
@@ -407,7 +712,7 @@ const WS = {
 
 		if (buffer !== null) {
 
-			let data = _decode(socket, buffer);
+			let data = decode(socket, buffer);
 			if (data !== null) {
 
 				if (data.response !== null) {
@@ -500,10 +805,10 @@ const WS = {
 				let tmp = { headers: {}, payload: payload };
 				headers_keys.forEach((key) => tmp.headers[key] = headers[key]);
 
-				let data = _encode_json(tmp);
+				let data = encode_json(tmp);
 				if (data !== null) {
 
-					let buffer = _encode(socket, data);
+					let buffer = encode(socket, data);
 					if (buffer !== null) {
 						socket.write(buffer);
 					}

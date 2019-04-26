@@ -46,6 +46,7 @@ describe('HTTPS.send', function(assert) {
 
 	});
 
+
 	HTTPS.send(this.socket, REQUEST);
 
 });

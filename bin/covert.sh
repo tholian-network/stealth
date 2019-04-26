@@ -62,11 +62,12 @@ cp ./stealth/source/POLYFILLS.mjs ./covert/source/POLYFILLS.mjs;
 
 "$node_bin" --no-warnings --experimental-modules ./covert/covert.mjs "$@";
 
-
-
+exit_code="$?";
 proxy_pid=$(ps -o pid -C socks-proxy | tail -n +2);
 
 if [[ "$proxy_pid" != "" ]]; then
 	kill "$proxy_pid";
 fi;
+
+exit $exit_code;
 

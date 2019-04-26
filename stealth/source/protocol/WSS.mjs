@@ -4,8 +4,8 @@ import tls from 'tls';
 import { isFunction, isObject } from '../POLYFILLS.mjs';
 
 import { Emitter } from '../Emitter.mjs';
-import { HTTP    } from './HTTP.mjs';
-import { onconnect, ondata, onend, onerror } from './HTTP.mjs';
+import { WS      } from './WS.mjs';
+import { onconnect, ondata, onend, onerror } from './WS.mjs';
 
 
 
@@ -60,7 +60,7 @@ const lookup = function(host, options, callback) {
 
 
 
-const HTTPS = {
+const WSS = {
 
 	connect: function(ref, buffer, emitter) {
 
@@ -217,12 +217,12 @@ const HTTPS = {
 
 	},
 
-	receive: HTTP.receive,
+	receive: WS.receive,
 
-	send:    HTTP.send
+	send:    WS.send
 
 };
 
 
-export { HTTPS };
+export { WSS };
 

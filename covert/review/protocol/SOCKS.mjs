@@ -47,6 +47,7 @@ describe('SOCKS.send', function(assert) {
 
 	});
 
+
 	SOCKS.send(this.socket, REQUEST);
 
 });

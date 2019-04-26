@@ -151,7 +151,7 @@ export const create = function(url) {
 	let mime   = MIME.find((t) => t.ext === ext) || null;
 	let ref    = URL.parse(url);
 	let config = {
-		domain: ref.domain,
+		domain: null,
 		mode:   {
 			text:  false,
 			image: false,
@@ -169,9 +169,28 @@ export const create = function(url) {
 			config.domain = ref.domain;
 		}
 
+		if (config.domain === 'example.com') {
+
+			ref.hosts = [
+				IP.parse('93.184.216.34'),
+				IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+			];
+
+		} else if (config.domain === 'echo.websocket.org') {
+
+			ref.hosts = [
+				IP.parse('174.129.224.73')
+			];
+
+		}
+
 	} else if (ref.host !== null) {
 
 		config.domain = ref.host;
+
+		ref.hosts = [
+			IP.parse(ref.host)
+		];
 
 	}
 
@@ -189,11 +208,6 @@ export const create = function(url) {
 		config.mode.other = true;
 
 	}
-
-	ref.hosts = [
-		IP.parse('93.184.216.34'),
-		IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
-	];
 
 
 	return {

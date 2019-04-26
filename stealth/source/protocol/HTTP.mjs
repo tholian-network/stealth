@@ -57,7 +57,8 @@ const encode_gzip = function(buffer) {
 };
 
 
-export const onconnect = function(socket, ref, buffer /*, emitter*/) {
+
+export const onconnect = function(socket, ref, buffer, emitter) {
 
 	if (ref.headers !== null) {
 
@@ -106,6 +107,9 @@ export const onconnect = function(socket, ref, buffer /*, emitter*/) {
 		buffer.start   = 0;
 
 	}
+
+
+	emitter.emit('@connect', [ socket ]);
 
 };
 
@@ -186,6 +190,11 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 					socket.removeAllListeners('data');
 					socket.end();
 
+				}
+
+
+				if (buffer.length === buffer.payload.length) {
+					socket.end();
 				}
 
 			});
@@ -294,6 +303,9 @@ export const onend = function(socket, ref, buffer, emitter) {
 	} else {
 		emitter.emit('timeout', [ null ]);
 	}
+
+
+	emitter.emit('@disconnect', [ socket ]);
 
 };
 
@@ -419,10 +431,8 @@ const HTTP = {
 						port: ref.port || 80,
 					}, () => {
 
-						onconnect(socket, ref, buffer);
+						onconnect(socket, ref, buffer, emitter);
 						emitter.socket = socket;
-
-						emitter.emit('@connect', [ socket ]);
 
 					});
 
@@ -468,8 +478,6 @@ const HTTP = {
 
 						onend(socket, ref, buffer, emitter);
 						emitter.socket = null;
-
-						emitter.emit('@disconnect', [ socket ]);
 
 					}
 

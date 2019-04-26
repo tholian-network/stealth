@@ -4,8 +4,10 @@ import net from 'net';
 import { isObject } from '../POLYFILLS.mjs';
 
 import { Emitter } from '../Emitter.mjs';
-import { HTTPS   } from './HTTPS.mjs';
 import { HTTP    } from './HTTP.mjs';
+import { HTTPS   } from './HTTPS.mjs';
+import { WS      } from './WS.mjs';
+import { WSS     } from './WSS.mjs';
 
 
 
@@ -43,7 +45,24 @@ const SOCKS = {
 
 			if (hosts.length > 0 && hosts[0].scope === 'public') {
 
-				let proxy  = ref.proxy || { host: '127.0.0.1', port: 1080 };
+				let proxy = ref.proxy || null;
+				if (proxy === null) {
+
+					proxy = { host: null, port: null };
+
+					if (ref.protocol === 'socks') {
+						proxy.host   = '127.0.0.1';
+						proxy.port   = ref.port || null;
+						ref.port     = 443;
+						ref.protocol = 'https';
+					} else {
+						proxy.host   = '127.0.0.1';
+						proxy.port   = 1080;
+					}
+
+				}
+
+
 				let socket = net.connect({
 					host: proxy.host || '127.0.0.1',
 					port: proxy.port || 1080
@@ -189,6 +208,10 @@ const SOCKS = {
 						HTTPS.connect(ref, buffer, emitter);
 					} else if (ref.protocol === 'http') {
 						HTTP.connect(ref, buffer, emitter);
+					} else if (ref.protocol === 'wss') {
+						WSS.connect(ref, buffer, emitter);
+					} else if (ref.protocol === 'ws') {
+						WS.connect(ref, buffer, emitter);
 					}
 
 				});
@@ -201,6 +224,10 @@ const SOCKS = {
 					return HTTPS.connect(ref, buffer, emitter);
 				} else if (ref.protocol === 'http') {
 					return HTTP.connect(ref, buffer, emitter);
+				} else if (ref.protocol === 'wss') {
+					return WSS.connect(ref, buffer, emitter);
+				} else if (ref.protocol === 'ws') {
+					return WS.connect(ref, buffer, emitter);
 				} else {
 
 					emitter.socket = null;

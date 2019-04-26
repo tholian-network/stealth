@@ -581,6 +581,12 @@ const URL = {
 				port = 443;
 			} else if (protocol === 'http') {
 				port = 80;
+			} else if (protocol === 'wss') {
+				port = 443;
+			} else if (protocol === 'ws') {
+				port = 80;
+			} else if (protocol === 'socks') {
+				port = 1080;
 			}
 
 		}

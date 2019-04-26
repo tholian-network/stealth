@@ -2,7 +2,7 @@
 import process from 'process';
 
 import { after, before, finish } from '../source/Review.mjs';
-import { Service               } from './Service.mjs';
+import { Service               } from '../source/Service.mjs';
 
 import { Stealth } from '../../stealth/source/Stealth.mjs';
 

@@ -207,7 +207,7 @@ Server.prototype = {
 								&& (headers['sec-websocket-protocol'] || '').includes('stealth')
 							) {
 
-								WS.upgrade(socket, headers, (result) => {
+								WS.upgrade__OLD(socket, headers, (result) => {
 
 									if (result === true) {
 
