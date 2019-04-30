@@ -1,5 +1,5 @@
 
-import { Buffer, isArray, isFunction, isNumber, isObject, isString } from './POLYFILLS.mjs';
+import { Buffer, isArray, isFunction, isObject, isString } from './POLYFILLS.mjs';
 
 import { Emitter  } from './Emitter.mjs';
 import { Cache    } from './client/Cache.mjs';
@@ -9,10 +9,45 @@ import { Mode     } from './client/Mode.mjs';
 import { Peer     } from './client/Peer.mjs';
 import { Redirect } from './client/Redirect.mjs';
 import { Settings } from './client/Settings.mjs';
+import { IP       } from './parser/IP.mjs';
 
 
 
-const _settingsify = function(payload) {
+const receive = function(data) {
+
+	let response = null;
+
+	if (isString(data)) {
+
+		try {
+			response = JSON.parse(data);
+		} catch (err) {
+			response = null;
+		}
+
+	}
+
+	return response;
+
+};
+
+const send = function(socket, request) {
+
+	let data = null;
+
+	try {
+		data = JSON.stringify(request, null, '\t');
+	} catch (err) {
+		data = null;
+	}
+
+	if (data !== null) {
+		socket.send(data);
+	}
+
+};
+
+const settingsify = function(payload) {
 
 	if (isObject(payload)) {
 
@@ -53,7 +88,7 @@ const Client = function(browser) {
 
 	this.services.settings.on('read', (response) => {
 
-		let data = _settingsify(response);
+		let data = settingsify(response);
 		if (data !== null) {
 
 			let internet = data.internet || null;
@@ -90,10 +125,9 @@ const Client = function(browser) {
 
 Client.prototype = Object.assign({}, Emitter.prototype, {
 
-	connect: function(host, port, callback) {
+	connect: function(host, callback) {
 
 		host     = isString(host)       ? host     : 'localhost';
-		port     = isNumber(port)       ? port     : 65432;
 		callback = isFunction(callback) ? callback : null;
 
 
@@ -108,120 +142,138 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 
-		if (host !== null && port !== null) {
+		if (host !== null) {
 
-			if (/:/g.test(host)) {
-				this.__socket = new WebSocket('ws://[' + host + ']:' + port, [ 'stealth' ]);
-			} else {
-				this.__socket = new WebSocket('ws://' + host + ':' + port, [ 'stealth' ]);
-			}
+			let ip = IP.parse(host);
+			if (ip.type === 'v4' || ip.type === 'v6') {
 
-
-			this.__socket.onmessage = (e) => {
-
-				let request = null;
-
-				if (isString(e.data)) {
-
-					try {
-						request = JSON.parse(e.data);
-					} catch (err) {
-						request = null;
-					}
-
+				let hostname = ip.ip;
+				if (ip.type === 'v6') {
+					hostname = '[' + ip.ip + ']';
 				}
 
-				if (request !== null) {
 
-					// Special case: Deserialize Buffer instances
-					if (isObject(request.payload) === true) {
+				this.__socket = new WebSocket('ws://' + hostname + ':65432', [ 'stealth' ]);
 
-						let tmp_headers = request.payload.headers || null;
-						let tmp_payload = request.payload.payload || null;
+				this.__socket.onmessage = (e) => {
 
-						if (tmp_headers !== null && tmp_payload !== null) {
+					let response = receive(e.data);
+					if (response !== null) {
 
-							if (tmp_payload.type === 'Buffer') {
-								request.payload.payload = Buffer.from(tmp_payload.data);
-							}
+						// Special case: Deserialize Buffer instances
+						if (isObject(response.payload) === true) {
 
-						}
+							let tmp_headers = response.payload.headers || null;
+							let tmp_payload = response.payload.payload || null;
 
-					}
+							if (tmp_headers !== null && tmp_payload !== null) {
 
-
-					let event   = request.headers.event   || null;
-					let service = request.headers.service || null;
-					let session = request.headers.session || null;
-					let method  = request.headers.method  || null;
-
-					if (session !== null) {
-						this.emit('session', [ session ]);
-					}
-
-					if (service !== null && event !== null) {
-
-						let instance = this.services[service] || null;
-						if (instance !== null) {
-							let response = instance.emit(event, [ request.payload ]);
-							if (response !== null) {
-								this.__socket.send(JSON.stringify(response, null, '\t'));
-							}
-						} else {
-							let response = this.emit('request', [ request ]);
-							if (response !== null) {
-								this.__socket.send(JSON.stringify(response, null, '\t'));
-							}
-						}
-
-					} else if (service !== null && method !== null) {
-
-						let instance = this.services[service] || null;
-						if (instance !== null && isFunction(instance[method])) {
-							instance[method](request.payload, (response) => {
-								if (response !== null) {
-									this.__socket.send(JSON.stringify(response, null, '\t'));
+								if (tmp_payload.type === 'Buffer') {
+									response.payload.payload = Buffer.from(tmp_payload.data);
 								}
-							});
-						} else {
-							let response = this.emit('request', [ request ]);
-							if (response !== null) {
-								this.__socket.send(JSON.stringify(response, null, '\t'));
+
 							}
+
+						}
+
+
+						let event   = response.headers.event   || null;
+						let service = response.headers.service || null;
+						let session = response.headers.session || null;
+						let method  = response.headers.method  || null;
+
+						if (session !== null) {
+							this.emit('session', [ session ]);
+						}
+
+						if (service !== null && event !== null) {
+
+							let instance = this.services[service] || null;
+							if (instance !== null) {
+
+								let request = instance.emit(event, [ response.payload ]);
+								if (request !== null) {
+									send(this.__socket, request);
+								}
+
+							} else {
+
+								let request = this.emit('response', [ response ]);
+								if (request !== null) {
+									send(this.__socket, request);
+								}
+
+							}
+
+						} else if (service !== null && method !== null) {
+
+							let instance = this.services[service] || null;
+							if (instance !== null && isFunction(instance[method])) {
+
+								instance[method](response.payload, (request) => {
+
+									if (request !== null) {
+										send(this.__socket, request);
+									}
+
+								});
+
+							} else {
+
+								let request = this.emit('response', [ response ]);
+								if (request !== null) {
+									send(this.__socket, request);
+								}
+
+							}
+
 						}
 
 					}
 
-				}
+				};
 
-			};
+				this.__socket.ontimeout = () => {
 
-			this.__socket.ontimeout = () => {
-				if (this.__socket !== null) {
-					this.__socket.close();
-					this.__socket = null;
-				}
-			};
+					if (this.__socket !== null) {
+						this.__socket.close();
+						this.__socket = null;
+					}
 
-			this.__socket.onerror = () => {
-				if (this.__socket !== null) {
-					this.__socket.close();
-					this.__socket = null;
-				}
-			};
+				};
 
-			this.__socket.onopen = () => {
+				this.__socket.onerror = () => {
+
+					if (this.__socket !== null) {
+						this.__socket.close();
+						this.__socket = null;
+					}
+
+				};
+
+				this.__socket.onopen = () => {
+
+					if (callback !== null) {
+						callback(true);
+					}
+
+				};
+
+				this.__socket.onclose = () => {
+					this.emit('session', [ null ]);
+				};
+
+				return true;
+
+			} else {
+
 				if (callback !== null) {
-					callback(true);
+					callback(false);
 				}
-			};
 
-			this.__socket.onclose = () => {
-				this.emit('session', [ null ]);
-			};
+				return false;
 
-
-			return true;
+			}
 
 		} else {
 
@@ -271,7 +323,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (this.__socket !== null) {
 
-				this.__socket.send(JSON.stringify(data, null, '\t'));
+				send(this.__socket, data);
 
 				return true;
 

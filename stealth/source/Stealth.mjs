@@ -1,5 +1,5 @@
 
-import { isFunction, isNumber, isString } from './POLYFILLS.mjs';
+import { isFunction, isString } from './POLYFILLS.mjs';
 
 import { console  } from './console.mjs';
 import { Request  } from './Request.mjs';
@@ -90,19 +90,18 @@ const Stealth = function(data) {
 
 Stealth.prototype = {
 
-	connect: function(host, port, callback) {
+	connect: function(host, callback) {
 
 		host     = isString(host)       ? host     : 'localhost';
-		port     = isNumber(port)       ? port     : 65432;
 		callback = isFunction(callback) ? callback : null;
 
 
 		if (this.server !== null) {
 
 			if (callback !== null) {
-				this.server.connect(host, port, (result) => callback(result));
+				this.server.connect(host, (result) => callback(result));
 			} else {
-				return this.server.connect(host, port);
+				return this.server.connect(host);
 			}
 
 		} else {

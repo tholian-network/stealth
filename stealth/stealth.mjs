@@ -67,12 +67,7 @@ const settings = {
 
 	let stealth = global.stealth = new Stealth(settings);
 	if (stealth !== null) {
-
-		stealth.connect(
-			FLAGS.host || null,
-			FLAGS.port || null
-		);
-
+		stealth.connect(FLAGS.host || null);
 	}
 
 

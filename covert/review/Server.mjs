@@ -26,10 +26,10 @@ export const connect = before('stealth.connect', function(assert) {
 		root:    process.env.PWD
 	});
 
-	this.stealth.connect(null, 13337, (result) => {
+	this.stealth.connect(null, (result) => {
 
 		this.server = this.stealth.server;
-		this.stealth.server.services['mockup'] = new Service();
+		this.server.services['mockup'] = new Service();
 
 		assert(result);
 

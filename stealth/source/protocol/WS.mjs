@@ -449,7 +449,16 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 
 				if (accept === expect) {
 
-					socket.__ws_client = true;
+					socket._ws_client = true;
+					buffer._interval  = setInterval(() => {
+
+						let result = WS.ping(socket);
+						if (result === false) {
+							clearInterval(buffer._interval);
+							delete buffer._interval;
+						}
+
+					}, 60000);
 
 					emitter.emit('@connect', [ socket ]);
 
@@ -476,7 +485,7 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 
 export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
-	if (socket.__ws_client === true) {
+	if (socket._ws_client === true) {
 
 		WS.receive(socket, fragment, (frame) => {
 
@@ -486,7 +495,7 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
 		});
 
-	} else if (socket.__ws_server === true) {
+	} else if (socket._ws_server === true) {
 
 		WS.receive(socket, fragment, (frame) => {
 
@@ -548,9 +557,14 @@ const WS = {
 				if (socket === null) {
 
 					socket = net.connect({
-						host: hosts[0].ip,
-						port: ref.port || 80
+						host:          hosts[0].ip,
+						port:          ref.port || 80,
+						allowHalfOpen: true
 					}, () => {
+
+						socket.setTimeout(0);
+						socket.setNoDelay(true);
+						socket.setKeepAlive(true, 0);
 
 						onconnect(socket, ref, buffer, emitter);
 						emitter.socket = socket;
@@ -833,7 +847,9 @@ const WS = {
 		buffer[4] = (Math.random() * 0xff) | 0;
 		buffer[5] = (Math.random() * 0xff) | 0;
 
-		socket.write(buffer);
+		if (socket.writable === true) {
+			return socket.write(buffer);
+		}
 
 		return false;
 

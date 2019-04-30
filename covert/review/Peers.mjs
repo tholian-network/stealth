@@ -25,11 +25,11 @@ before('peers[].connect', function(assert) {
 	});
 
 
-	stealth1.connect('127.0.0.1', 13338, (result) => {
+	stealth1.connect('127.0.0.1', (result) => {
 
 		assert(result);
 
-		client1.connect('127.0.0.1', 13338, (result) => {
+		client1.connect('127.0.0.1', (result) => {
 
 			if (result === true) {
 				this.peers.push({
@@ -47,11 +47,11 @@ before('peers[].connect', function(assert) {
 
 	});
 
-	stealth2.connect('127.0.0.2', 13339, (result) => {
+	stealth2.connect('127.0.0.2', (result) => {
 
 		assert(result);
 
-		client2.connect('127.0.0.2', 13339, (result) => {
+		client2.connect('127.0.0.2', (result) => {
 
 			if (result === true) {
 				this.peers.push({

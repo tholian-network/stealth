@@ -40,7 +40,7 @@ fi;
 
 
 cd "$root_dir/covert/sketch/socks-proxy";
-make .;
+make -C "$root_dir/covert/sketch/socks-proxy";
 
 if [[ $? != 0 ]]; then
 	echo "Compilation of SOCKS Proxy failed.";

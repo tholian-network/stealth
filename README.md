@@ -1,5 +1,5 @@
 
-# Stealth - The only GDPR compliant Web Browser
+# Stealth - Secure, Private and Automateable Web Browser/Scraper/Proxy
 
 Stealth is a different kind of Web Browser that aims to achieve increased privacy, increased
 automation, intelligent understanding of the web and efficient bandwidth usage, no matter the
@@ -19,18 +19,17 @@ regularly visited websites in an automated manner.
 
 ## Downloads / Releases
 
-Currently Stealth is just a couple weeks old and is in a prototypical stage.
-If you are a Software Developer and want to help, you are welcome to join the project.
+Stealth is currently in the Prototype Stage. Non-Developing Users won't enjoy it much, as things
+are quite buggy and incomplete for the moment.
 
-Non-developing users won't enjoy it much, currently - as things are quite buggy and incomplete
-in its current state. However, due to the concept of using node.js and focussing on a
-privacy-oriented audience, Stealth will initially be released for `MacOS` and `GNU/Linux`.
+However, due to the concept of using node.js and focussing on a privacy-oriented audience,
+Stealth will initially be released for `MacOS` and `GNU/Linux`.
 
-The network behaviour on `Windows` cannot be guaranteed, really, so it is recommended
-to install `Stealth` on an external `GNU/Linux` system (like a Raspberry Pi for a few bucks)
-and use Stealth as a Web App or Stealth as a Web Proxy.
+Network behaviour on `Windows` cannot be guaranteed, really, so it is recommended to install
+`Stealth` on an external `GNU/Linux` system (like a Raspberry Pi for a few bucks) and use Stealth
+as a Web App or Stealth as a Web Proxy.
 
-(Download Links will be inserted here once Stealth is ready for the public)
+(Download Links will be inserted here once the Stealth Releases are ready for the public)
 
 
 ## Screenshots
@@ -42,7 +41,7 @@ Detailed Screenshots are in the [/guide/screenshots](./guide/screenshots) folder
 ![stealth:fix-mode](./guide/screenshots/preview/browser-fix-mode.png) ![stealth:fix-filter](./guide/screenshots/preview/browser-fix-filter.png) ![Stealth as Web Proxy](./guide/screenshots/preview/stealth-proxy.png)
 
 
-## Pitch me - What's this?
+## Features
 
 Stealth is both a Web Scraper, Web Service and Web Proxy that can serve its own
 User Interface ("Browser UI") which is implemented using Web Technologies.
@@ -94,7 +93,7 @@ User Interface ("Browser UI") which is implemented using Web Technologies.
 
 - It can double-function as a Content-Auditing and Content-Filtering Web Proxy inside
   other Web Browsers, which allows corporate-like setups with a shared peer-to-peer
-  cache and a local Web Archive of the Internet.
+  Cache and a local Web Archive of the Internet.
 
 - It has intelligent error handling. In case a website is not available anymore, the
   `stealth:fix-request` error page allows to download websites automagically from trusted
@@ -102,32 +101,20 @@ User Interface ("Browser UI") which is implemented using Web Technologies.
 
 - This ain't your Mama's Web Browser. It completely disables to load ECMAScript in order
   to improve Privacy. Stealth also does not support Web Forms or any Web API that could
-  potentially send data to the website, so Stealth can be seen as a user-friendly
-  automateable and scheduleable Web Scraper.
+  potentially send data to the website.
 
-- Not drooling yet? Stealth also can be scripted as a Web Scraper inside `node.js` similar
-  to what people wanted `Chromium Headless` to be, but didn't get the featureset they
-  wanted. The [Browser](./browser/source) is completely free-of-DOM, so every single task
-  and interaction that the [Browser UI](./browser/design) does can be implemented in an
-  automateable and programmable manner, even remotely using Stealth's peer-to-peer
-  network services.
-
-- Still not hooked? Stealth implements every single feature using its own peer-to-peer
-  network services, which means that everything that happens behind the scenes inside the
-  [Browser UI](./browser/design) can be done not only locally, but also remotely by other
-  trusted Peers. So basically Stealth can be used as a Network Computation cluster that
-  automates huge computation tasks; like letting Neural Networks learn the meaning of
-  website contents and website semantics.
-  Isn't that awesome? I think it is.
+- Stealth also can be scripted as a Web Scraper inside `node.js`. The [Browser](./browser/source)
+  is completely free-of-DOM, so every single task and interaction that the [Browser UI](./browser/design)
+  does can be implemented in an automateable and programmable manner, even remotely through
+  trusted Peers using Stealth's peer-to-peer network services.
 
 
 ## Stealth Guide (for Hackers?)
 
-- [Guide Index](./guide/README.md)
-- [Stealth Concept Design](./guide/concept/Design.md)
-- [Stealth Concept Architecture](./guide/concept/Design.md) (TBD)
-- [Stealth Site Modes](./guide/concept/Modes.md)
-- [Stealth Service API](./guide/services/README.md)
+- [Intro](./guide/README.md)
+- [Site Modes](./guide/concept/Modes.md)
+- [Service API](./guide/services/README.md)
+- [Usage as Web Proxy](./guide/usage/Web-Proxy.md)
 
 Peer-to-Peer Services:
 
@@ -136,7 +123,6 @@ Peer-to-Peer Services:
 - [Host](./guide/services/Host.md)
 - [Mode](./guide/services/Mode.md)
 - [Peer](./guide/services/Peer.md)
-- [Session](./guide/services/Session.md)
 - [Settings](./guide/services/Settings.md)
 - [Stash](./guide/services/Stash.md)
 
@@ -217,8 +203,9 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 ## Roadmap
 
-### X0 (estimated 01.04.2019) - Prototype
+### X0 (Q2 2019) - Prototype
 
+- [ ] Migrate `stealth/source/Server.mjs` to new `WS.connect/listen()` API.
 - [ ] Implement and document `Peer.proxy()` API.
 - [ ] `stealth:fix-request` Page (Download Assistant for Peers and the Web Archive).
 - [ ] Sidebar (Overview about `Site Modes`, `Site Filters` and `Site Optimizers` of current Tab).

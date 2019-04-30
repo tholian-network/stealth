@@ -16,9 +16,9 @@ const payloadify = function(raw) {
 
 		payload = Object.assign({}, raw);
 
-		payload.domain     = typeof payload.domain === 'string'       ? payload.domain     : null;
-		payload.subdomain  = typeof payload.subdomain === 'string'    ? payload.subdomain  : null;
-		payload.host       = typeof payload.host === 'string'         ? payload.host       : null;
+		payload.domain     = typeof payload.domain === 'string'      ? payload.domain     : null;
+		payload.subdomain  = typeof payload.subdomain === 'string'   ? payload.subdomain  : null;
+		payload.host       = typeof payload.host === 'string'        ? payload.host       : null;
 		payload.connection = CONNECTION.includes(payload.connection) ? payload.connection : 'offline';
 		payload.status     = STATUS.includes(payload.status)         ? payload.status     : 'offline';
 
@@ -30,7 +30,7 @@ const payloadify = function(raw) {
 
 };
 
-const _proxify = function(raw) {
+const proxify = function(raw) {
 
 	let payload = raw;
 	if (payload instanceof Object) {
@@ -82,8 +82,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	proxy: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? _proxify(payload) : null;
-		callback = typeof callback === 'function' ? callback          : null;
+		payload  = payload instanceof Object      ? proxify(payload) : null;
+		callback = typeof callback === 'function' ? callback         : null;
 
 
 		if (payload !== null && callback !== null) {

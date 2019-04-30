@@ -43,9 +43,11 @@ Renderer.prototype = {
 			data.states.forEach((state) => {
 
 				state.tests.forEach((test) => {
+
 					test.results.data.forEach((result) => {
 						temp.push(result);
 					});
+
 				});
 
 			});
@@ -149,7 +151,7 @@ Renderer.prototype = {
 
 
 			if (data.state === state) {
-				console.warn('running ...');
+				console.warn('running "' + data.state.test.name + '" ... ');
 			} else if (status === 'okay') {
 				console.info('okay.');
 			} else if (status === 'fail') {

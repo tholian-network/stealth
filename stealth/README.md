@@ -12,14 +12,15 @@ the Stealth Service `/browser/index.html` URL as a Web App).
 
 ## Command-Line Flags
 
-- `--port` is the port the Stealth Service is listening on.
-  The default value is `65432`.
+- `--debug` is a boolean flag to toggle loading/debugging of the profile.
+  The default value is `false`.
+
+- `--host` is the `host` the Stealth Service is listening on.
+  The default value is `null`. The Stealth Service will always
+  listen on port `65432`.
 
 - `--profile` is the absolute path to the profile folder.
   The default value is `/home/$USER/Stealth`.
-
-- `--debug` is a boolean flag to toggle loading/debugging of the profile.
-  The default value is `false`.
 
 
 ## Quickstart
@@ -30,6 +31,6 @@ the Stealth Service `/browser/index.html` URL as a Web App).
 cd /path/to/stealth;
 
 # Example shows default values for optional flags
-bash ./bin/stealth.sh --port=65432 --profile=/home/$USER/Stealth;
+bash ./bin/stealth.sh --host=null --profile=/home/$USER/Stealth;
 ```
 

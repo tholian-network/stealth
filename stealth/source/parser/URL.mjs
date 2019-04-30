@@ -552,6 +552,18 @@ const URL = {
 					port = tmp2;
 				}
 
+				if (domain === 'localhost') {
+					hosts.push(IP.parse('127.0.0.1'));
+					hosts.push(IP.parse('::1'));
+				}
+
+			} else {
+
+				if (domain === 'localhost') {
+					hosts.push(IP.parse('127.0.0.1'));
+					hosts.push(IP.parse('::1'));
+				}
+
 			}
 
 		}

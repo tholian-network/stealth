@@ -552,6 +552,18 @@ const URL = {
 					port = tmp2;
 				}
 
+				if (domain === 'localhost') {
+					hosts.push(IP.parse('127.0.0.1'));
+					hosts.push(IP.parse('::1'));
+				}
+
+			} else {
+
+				if (domain === 'localhost') {
+					hosts.push(IP.parse('127.0.0.1'));
+					hosts.push(IP.parse('::1'));
+				}
+
 			}
 
 		}
@@ -581,6 +593,12 @@ const URL = {
 				port = 443;
 			} else if (protocol === 'http') {
 				port = 80;
+			} else if (protocol === 'wss') {
+				port = 443;
+			} else if (protocol === 'ws') {
+				port = 80;
+			} else if (protocol === 'socks') {
+				port = 1080;
 			}
 
 		}
