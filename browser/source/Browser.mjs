@@ -167,7 +167,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.tabs.splice(this.tabs.indexOf(tab), 1);
 
-				if (Function.isFunction(tab.kill)) {
+				if (isFunction(tab.kill)) {
 					tab.kill();
 				}
 
@@ -342,7 +342,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		config = isObject(config) ? config : null;
 
 
-		if (config !== null && Object.isObject(config.mode)) {
+		if (config !== null && isObject(config.mode)) {
 
 			let domain = config.domain || null;
 			if (domain !== null) {
@@ -450,9 +450,10 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	show: function(tab) {
+	show: function(tab, callback) {
 
-		tab = tab instanceof Tab ? tab : null;
+		tab      = tab instanceof Tab   ? tab      : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (tab !== null) {
@@ -470,6 +471,11 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				this.emit('show', [ this.tab, this.tabs ]);
 			}
 
+
+			if (callback !== null) {
+				callback(tab);
+			}
+
 			return true;
 
 		} else if (tab === null) {
@@ -483,6 +489,11 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				this.emit('show', [ this.tab, this.tabs ]);
 			} else {
 				this.tab = null;
+			}
+
+
+			if (callback !== null) {
+				callback(this.tab);
 			}
 
 			return true;

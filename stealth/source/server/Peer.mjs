@@ -1,4 +1,6 @@
 
+import { isFunction, isObject } from '../POLYFILLS.mjs';
+
 import { console } from '../console.mjs';
 import { Emitter } from '../Emitter.mjs';
 import { URL     } from '../parser/URL.mjs';
@@ -6,13 +8,13 @@ import { Client  } from '../Client.mjs';
 
 
 
-const CONNECTION = [ 'broadband', 'mobile', 'peer', 'offline' ];
+const CONNECTION = [ 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
 const STATUS     = [ 'online', 'offline' ];
 
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (payload instanceof Object) {
+	if (isObject(payload)) {
 
 		payload = Object.assign({}, raw);
 
@@ -33,7 +35,7 @@ const payloadify = function(raw) {
 const proxify = function(raw) {
 
 	let payload = raw;
-	if (payload instanceof Object) {
+	if (isObject(payload)) {
 
 		payload = Object.assign({}, raw);
 
@@ -43,7 +45,7 @@ const proxify = function(raw) {
 		payload.payload   = payload.payload !== undefined         ? payload.payload   : null;
 
 
-		if (payload.headers instanceof Object) {
+		if (isObject(payload.headers)) {
 
 			payload.headers = Object.assign({}, raw.headers);
 
@@ -82,8 +84,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	proxy: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? proxify(payload) : null;
-		callback = typeof callback === 'function' ? callback         : null;
+		payload  = isObject(payload)    ? proxify(payload) : null;
+		callback = isFunction(callback) ? callback         : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -207,8 +209,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -253,8 +255,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -308,8 +310,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {

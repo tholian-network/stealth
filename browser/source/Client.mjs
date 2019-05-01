@@ -9,7 +9,18 @@ import { Mode     } from './client/Mode.mjs';
 import { Peer     } from './client/Peer.mjs';
 import { Redirect } from './client/Redirect.mjs';
 import { Settings } from './client/Settings.mjs';
-import { IP       } from './parser/IP.mjs';
+import { URL      } from './parser/URL.mjs';
+
+const HOSTNAME = (function(location) {
+
+	let hostname = location.hostname || null;
+	if (hostname !== null) {
+		return hostname;
+	}
+
+	return 'localhost';
+
+})(window.location);
 
 
 
@@ -127,7 +138,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	connect: function(host, callback) {
 
-		host     = isString(host)       ? host     : 'localhost';
+		host     = isString(host)       ? host     : HOSTNAME;
 		callback = isFunction(callback) ? callback : null;
 
 
@@ -144,16 +155,44 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (host !== null) {
 
-			let ip = IP.parse(host);
-			if (ip.type === 'v4' || ip.type === 'v6') {
+			let ref   = URL.parse('ws://' + host + ':65432');
+			let hosts = ref.hosts.sort((a, b) => {
 
-				let hostname = ip.ip;
-				if (ip.type === 'v6') {
-					hostname = '[' + ip.ip + ']';
+				if (a.scope === 'private' && b.scope === 'private') {
+
+					if (a.type === 'v4' && b.type === 'v4') return 0;
+					if (a.type === 'v4') return -1;
+					if (b.type === 'v4') return  1;
+
+				}
+
+				if (a.scope === 'private') return -1;
+				if (b.scope === 'private') return  1;
+
+				if (a.type === 'v4' && b.type === 'v4') return 0;
+				if (a.type === 'v4') return -1;
+				if (b.type === 'v4') return  1;
+
+				return 0;
+
+			});
+
+			if (hosts.length > 0) {
+
+				let check = hosts.find((ip) => ip.scope === 'private') || null;
+				if (check === null) {
+					ref = URL.parse('wss://' + host + ':65432');
 				}
 
 
-				this.__socket = new WebSocket('ws://' + hostname + ':65432', [ 'stealth' ]);
+				let host   = hosts[0];
+				let server = host.ip;
+
+				if (host.type === 'v6') {
+					server = '[' + host.ip + ']';
+				}
+
+				this.__socket = new WebSocket(ref.protocol + '://' + server + ':' + ref.port, [ 'stealth' ]);
 
 				this.__socket.onmessage = (e) => {
 
@@ -269,9 +308,9 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (callback !== null) {
 					callback(false);
+				} else {
+					return false;
 				}
-
-				return false;
 
 			}
 
@@ -279,9 +318,9 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (callback !== null) {
 				callback(false);
+			} else {
+				return false;
 			}
-
-			return false;
 
 		}
 

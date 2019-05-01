@@ -9,17 +9,62 @@ let _id = 1;
 
 const Session = function(data) {
 
-	let settings = Object.assign({}, data);
+	let settings = Object.assign({
+		headers: {}
+	}, data);
 
+	// settings.headers
+	// settings.socket
 
-	this.id       = settings.id      || ('' + _id++);
-	this.browser  = settings.browser || 'Unknown';
-	this.system   = settings.system  || 'Unknown';
-	this.mode     = settings.mode    || 'offline';
-	this.peer     = settings.peer    || null;
-	this.socket   = settings.socket  || null;
+	this.id       = _id++;
+	this.browser  = 'Unknown';
+	this.system   = 'Unknown';
+	this.peer     = settings.peer   || null;
+	this.socket   = settings.socket || null;
 	this.tabs     = {};
 	this.warnings = 0;
+
+
+	let agent = settings.headers['user-agent'] || null;
+	if (agent !== null) {
+
+		if (/crios/.test(agent)) {
+			this.browser = 'Chrome for iOS';
+		} else if (/edge/.test(agent)) {
+			this.browser = 'Edge';
+		} else if (/android/.test(agent) && /silk\//.test(agent)) {
+			this.browser = 'Silk';
+		} else if (/chrome/.test(agent)) {
+			this.browser = 'Chrome';
+		} else if (/firefox/.test(agent)) {
+			this.browser = 'Firefox';
+		} else if (/android/.test(agent)) {
+			this.browser = 'AOSP';
+		} else if (/msie|trident/.test(agent)) {
+			this.browser = 'IE';
+		} else if (/safari\//.test(agent)) {
+			this.browser = 'Safari';
+		} else if (/applewebkit/.test(agent)) {
+			this.browser = 'WebKit';
+		}
+
+		if (/android/.test(agent)) {
+			this.system = 'Android';
+		} else if (/iphone|ipad|ipod/.test(agent)) {
+			this.system = 'iOS';
+		} else if (/windows/.test(agent)) {
+			this.system = 'Windows';
+		} else if (/mac os x/.test(agent)) {
+			this.system = 'Mac OS';
+		} else if (/cros/.test(agent)) {
+			this.system = 'Chrome OS';
+		} else if (/linux/.test(agent)) {
+			this.system = 'Linux';
+		} else if (/firefox/.test(agent)) {
+			this.system = 'Firefox OS';
+		}
+
+	}
 
 };
 

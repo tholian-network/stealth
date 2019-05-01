@@ -59,114 +59,96 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (host !== null) {
 
-			this.ref = URL.parse('ws://' + host + ':65432');
+			let ref   = URL.parse('ws://' + host + ':65432');
+			let hosts = ref.hosts.sort((a, b) => {
 
-			if (this.ref.hosts.length > 0) {
+				if (a.scope === 'private' && b.scope === 'private') {
 
-				let check = this.ref.hosts.find((ip) => ip.scope === 'private') || null;
+					if (a.type === 'v4' && b.type === 'v4') return 0;
+					if (a.type === 'v4') return -1;
+					if (b.type === 'v4') return  1;
+
+				}
+
+				if (a.scope === 'private') return -1;
+				if (b.scope === 'private') return  1;
+
+				if (a.type === 'v4' && b.type === 'v4') return 0;
+				if (a.type === 'v4') return -1;
+				if (b.type === 'v4') return  1;
+
+				return 0;
+
+			});
+
+			if (hosts.length > 0) {
+
+				let check = hosts.find((ip) => ip.scope === 'private') || null;
 				if (check === null) {
-					this.ref = URL.parse('wss://' + host + ':65432');
+					ref = URL.parse('wss://' + host + ':65432');
 				}
 
-			}
+				this.ref = ref;
 
-			if (this.ref.protocol === 'wss') {
-				this.connection = WSS.connect(this.ref, null);
-			} else if (this.ref.protocol === 'ws') {
-				this.connection = WS.connect(this.ref, null);
-			}
-
-
-			this.connection.on('@connect', (socket) => {
-
-				this.address = socket.remoteAddress || null;
-
-				if (callback !== null) {
-					callback(true);
-					callback = null;
+				if (ref.protocol === 'wss') {
+					this.connection = WSS.connect(this.ref, null);
+				} else if (ref.protocol === 'ws') {
+					this.connection = WS.connect(this.ref, null);
 				}
 
-			});
 
-			this.connection.on('response', (response) => {
+				this.connection.on('@connect', (socket) => {
 
-				if (response !== null) {
+					this.address = socket.remoteAddress || null;
 
-					let event   = response.headers.event   || null;
-					let method  = response.headers.method  || null;
-					let session = response.headers.session || null;
-					let service = response.headers.service || null;
-
-					if (session !== null) {
-						this.emit('session', [ session ]);
+					if (callback !== null) {
+						callback(true);
+						callback = null;
 					}
 
-					if (service !== null && event !== null) {
+				});
 
-						let instance = this.services[service] || null;
-						if (instance !== null) {
+				this.connection.on('response', (response) => {
 
-							let socket  = this.connection.socket || null;
-							let request = instance.emit(event, [ response.payload ]);
+					if (response !== null) {
 
-							if (socket !== null && request !== null) {
+						let event   = response.headers.event   || null;
+						let method  = response.headers.method  || null;
+						let session = response.headers.session || null;
+						let service = response.headers.service || null;
 
-								if (this.ref.protocol === 'wss') {
-									WSS.send(socket, request);
-								} else if (this.ref.protocol === 'ws') {
-									WS.send(socket, request);
-								}
-
-							}
-
-						} else {
-
-							let socket  = this.connection.socket || null;
-							let request = this.emit('response', [ response ]);
-
-							if (socket !== null && request !== null) {
-
-								if (this.ref.protocol === 'wss') {
-									WSS.send(socket, request);
-								} else if (this.ref.protocol === 'ws') {
-									WS.send(socket, request);
-								}
-
-							}
-
+						if (session !== null) {
+							this.emit('session', [ session ]);
 						}
 
-					} else if (service !== null && method !== null) {
+						if (service !== null && event !== null) {
 
-						let instance = this.services[service] || null;
-						if (instance !== null && Function.isFunction(instance[method])) {
+							let instance = this.services[service] || null;
+							if (instance !== null) {
 
-							instance[method](response.payload, (request) => {
+								let socket  = this.connection.socket || null;
+								let request = instance.emit(event, [ response.payload ]);
 
-								let socket = this.connection.socket || null;
 								if (socket !== null && request !== null) {
 
-									if (this.ref.protocol === 'wss') {
+									if (ref.protocol === 'wss') {
 										WSS.send(socket, request);
-									} else if (this.ref.protocol === 'ws') {
+									} else if (ref.protocol === 'ws') {
 										WS.send(socket, request);
 									}
 
 								}
 
-							});
+							} else {
 
-						} else {
+								let socket  = this.connection.socket || null;
+								let request = this.emit('response', [ response ]);
 
-							let request = this.emit('response', [ response ]);
-							if (request !== null) {
-
-								let socket = this.connection.socket || null;
 								if (socket !== null && request !== null) {
 
-									if (this.ref.protocol === 'wss') {
+									if (ref.protocol === 'wss') {
 										WSS.send(socket, request);
-									} else if (this.ref.protocol === 'ws') {
+									} else if (ref.protocol === 'ws') {
 										WS.send(socket, request);
 									}
 
@@ -174,33 +156,81 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 							}
 
+						} else if (service !== null && method !== null) {
+
+							let instance = this.services[service] || null;
+							if (instance !== null && Function.isFunction(instance[method])) {
+
+								instance[method](response.payload, (request) => {
+
+									let socket = this.connection.socket || null;
+									if (socket !== null && request !== null) {
+
+										if (ref.protocol === 'wss') {
+											WSS.send(socket, request);
+										} else if (ref.protocol === 'ws') {
+											WS.send(socket, request);
+										}
+
+									}
+
+								});
+
+							} else {
+
+								let request = this.emit('response', [ response ]);
+								if (request !== null) {
+
+									let socket = this.connection.socket || null;
+									if (socket !== null && request !== null) {
+
+										if (ref.protocol === 'wss') {
+											WSS.send(socket, request);
+										} else if (ref.protocol === 'ws') {
+											WS.send(socket, request);
+										}
+
+									}
+
+								}
+
+							}
+
 						}
 
 					}
 
-				}
+				});
 
-			});
+				this.connection.on('timeout', () => {
 
-			this.connection.on('timeout', () => {
+					this.disconnect();
 
-				this.disconnect();
+					if (callback !== null) {
+						callback(false);
+						callback = null;
+					}
+
+				});
+
+				this.connection.on('@disconnect', () => {
+
+					this.disconnect();
+					this.emit('session', [ null ]);
+
+				});
+
+				return true;
+
+			} else {
 
 				if (callback !== null) {
 					callback(false);
-					callback = null;
+				} else {
+					return false;
 				}
 
-			});
-
-			this.connection.on('@disconnect', () => {
-
-				this.disconnect();
-				this.emit('session', [ null ]);
-
-			});
-
-			return true;
+			}
 
 		} else {
 

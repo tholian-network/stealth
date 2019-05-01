@@ -3,7 +3,7 @@ import crypto     from 'crypto';
 import net        from 'net';
 import { Buffer } from 'buffer';
 
-import { isFunction, isNumber, isObject } from '../POLYFILLS.mjs';
+import { isBuffer, isFunction, isNumber, isObject } from '../POLYFILLS.mjs';
 
 import { Emitter } from '../Emitter.mjs';
 import { HTTP    } from './HTTP.mjs';
@@ -295,7 +295,7 @@ const encode = function(socket, data) {
 	let payload_length = data.length;
 
 
-	let is_server = socket.__ws_server === true;
+	let is_server = socket._ws_server === true;
 	if (is_server === true) {
 
 		mask         = false;
@@ -514,7 +514,18 @@ export const onend = function(socket, ref, buffer, emitter) {
 };
 
 export const onerror = function(socket, ref, buffer, emitter) {
-	emitter.emit('timeout', [ null ]);
+	emitter.emit('error', [{ code: '1002' }]);
+};
+
+export const onupgrade = function(socket, ref, buffer, emitter) {
+
+	let nonce = ref.headers['sec-websocket-key'] || '';
+
+	socket._ws_server = true;
+	socket.write(upgrade_response(nonce));
+
+	emitter.emit('@connect', [ socket ]);
+
 };
 
 
@@ -565,6 +576,7 @@ const WS = {
 						socket.setTimeout(0);
 						socket.setNoDelay(true);
 						socket.setKeepAlive(true, 0);
+						socket.allowHalfOpen = true;
 
 						onconnect(socket, ref, buffer, emitter);
 						emitter.socket = socket;
@@ -632,96 +644,91 @@ const WS = {
 
 	},
 
-	listen: function(ref, buffer, emitter) {
+	upgrade: function(socket, ref) {
 
-		ref     = isObject(ref)     ? ref     : null;
-		buffer  = isObject(buffer)  ? buffer  : {};
-		emitter = isObject(emitter) ? emitter : new Emitter();
+		ref = isObject(ref) ? ref : { headers: {} };
 
 
-		let nonce = buffer.nonce || null;
-		if (nonce !== null) {
+		let tmp1 = (ref.headers['connection']             || '').toLowerCase();
+		let tmp2 = (ref.headers['upgrade']                || '').toLowerCase();
+		let tmp3 = (ref.headers['sec-websocket-protocol'] || '').toLowerCase();
 
-			// TODO: If ref.headers contains correct HTTP headers
-			// TODO: and if nonce is set, respond with upgrade_response
-			//       and then bind on('data') event, timeout, error etc.
+		if (tmp1 === 'upgrade' && tmp2 === 'websocket' && tmp3.includes('stealth')) {
 
-
-
-			return emitter;
-
-		} else {
-
-			emitter.socket = null;
-			emitter.emit('error' [{ type: 'request', cause: 'socket-trust' }]);
-
-			return null;
-
-		}
-
-		// TODO: listen() method should listen on emitter.socket
-		// and handle it the same way as connect(), but from the
-		// server's perspective.
-		//
-		// TODO: Handle upgrade requests with correct responses
-		// TODO: Handle data frames
-		//
-		// XXX: Figure out how to not require upgrade requests
-		// (in case server handles it externally)
-
-	},
-
-	upgrade__OLD: function(socket, headers, callback) {
-
-		headers  = isObject(headers)    ? headers  : null;
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (headers !== null) {
-
-			let nonce = headers['sec-websocket-key'] || null;
+			let nonce = ref.headers['sec-websocket-key'] || null;
 			if (nonce !== null) {
 
-				let hash   = crypto.createHash('sha1').update(nonce + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
-				let accept = Buffer.from(hash, 'hex').toString('base64');
-				let blob   = [];
+				let buffer  = {};
+				let emitter = new Emitter();
 
-				blob.push('HTTP/1.1 101 WebSocket Protocol Handshake');
-				blob.push('Upgrade: WebSocket');
-				blob.push('Connection: Upgrade');
-				blob.push('Sec-WebSocket-Accept: ' + accept);
-				blob.push('Sec-WebSocket-Protocol: stealth');
-				blob.push('Sec-WebSocket-Version: 13');
-				blob.push('');
-				blob.push('');
 
-				socket.__ws_server = true;
-				socket.write(blob.join('\r\n'));
+				socket.setTimeout(0);
+				socket.setNoDelay(true);
+				socket.setKeepAlive(true, 0);
+				socket.allowHalfOpen = true;
 
-				if (callback !== null) {
-					callback(true);
-				}
+				socket.removeAllListeners('data');
+				socket.removeAllListeners('timeout');
+				socket.removeAllListeners('error');
+				socket.removeAllListeners('end');
 
-				return true;
+				socket.on('data', (fragment) => {
+					ondata(socket, ref, buffer, emitter, fragment);
+				});
+
+				socket.on('timeout', () => {
+
+					if (emitter.socket !== null) {
+
+						emitter.socket = null;
+						emitter.emit('timeout', [ null ]);
+
+					}
+
+				});
+
+				socket.on('error', () => {
+
+					if (emitter.socket !== null) {
+
+						onerror(socket, ref, buffer, emitter);
+						emitter.socket = null;
+
+					}
+
+				});
+
+				socket.on('end', () => {
+
+					if (emitter.socket !== null) {
+
+						onend(socket, ref, buffer, emitter);
+						emitter.socket = null;
+
+					}
+
+				});
+
+
+				onupgrade(socket, ref, buffer, emitter);
+				emitter.socket = socket;
+
+
+				return emitter;
 
 			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			}
-
-			return false;
 
 		}
+
+
+		return null;
 
 	},
 
 	receive: function(socket, buffer, callback) {
 
-		buffer   = buffer instanceof Buffer ? buffer   : null;
-		callback = isFunction(callback)     ? callback : null;
+		buffer   = isBuffer(buffer)     ? buffer   : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (buffer !== null) {

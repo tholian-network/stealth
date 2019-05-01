@@ -3,7 +3,7 @@ import net        from 'net';
 import zlib       from 'zlib';
 import { Buffer } from 'buffer';
 
-import { isFunction, isObject } from '../POLYFILLS.mjs';
+import { isBuffer, isFunction, isObject, isString } from '../POLYFILLS.mjs';
 
 import { Emitter } from '../Emitter.mjs';
 
@@ -628,11 +628,11 @@ const HTTP = {
 
 		if (payload !== null) {
 
-			if (Buffer.isBuffer(payload)) {
+			if (isBuffer(payload)) {
 				// Do nothing
-			} else if (typeof payload === 'string') {
+			} else if (isString(payload)) {
 				payload = Buffer.from(payload, 'utf8');
-			} else if (payload instanceof Object) {
+			} else if (isObject(payload)) {
 				payload = Buffer.from(JSON.stringify(payload, null, '\t'), 'utf8');
 			}
 
@@ -688,7 +688,9 @@ const HTTP = {
 		socket.write(blob.join('\r\n'));
 
 		if (payload !== null) {
-			socket.write(payload);
+			socket.end(payload);
+		} else {
+			socket.end();
 		}
 
 	}

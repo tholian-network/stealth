@@ -1,33 +1,14 @@
 
+import { isArray, isFunction, isObject } from '../POLYFILLS.mjs';
+
 import { Emitter } from '../Emitter.mjs';
 
 
 
-const payloadify = function(raw) {
-
-	let payload = raw;
-	if (payload instanceof Object) {
-
-		payload = Object.assign({}, raw);
-
-		payload.internet = payload.internet instanceof Object ? payload.internet : {};
-		payload.filters  = payload.filters  instanceof Array  ? payload.filters  : [];
-		payload.hosts    = payload.hosts    instanceof Array  ? payload.hosts    : [];
-		payload.modes    = payload.modes    instanceof Array  ? payload.modes    : [];
-		payload.peers    = payload.peers    instanceof Array  ? payload.peers    : [];
-
-		return payload;
-
-	}
-
-	return null;
-
-};
-
 const readify = function(raw) {
 
 	let payload = raw;
-	if (payload instanceof Object) {
+	if (isObject(payload)) {
 
 		if (Object.keys(payload).length > 0) {
 
@@ -49,6 +30,27 @@ const readify = function(raw) {
 
 };
 
+const saveify = function(raw) {
+
+	let payload = raw;
+	if (isObject(payload)) {
+
+		payload = Object.assign({}, raw);
+
+		payload.internet = isObject(payload.internet) ? payload.internet : {};
+		payload.filters  = isArray(payload.filters)   ? payload.filters  : [];
+		payload.hosts    = isArray(payload.hosts)     ? payload.hosts    : [];
+		payload.modes    = isArray(payload.modes)     ? payload.modes    : [];
+		payload.peers    = isArray(payload.peers)     ? payload.peers    : [];
+
+		return payload;
+
+	}
+
+	return null;
+
+};
+
 
 
 const Settings = function(stealth) {
@@ -63,8 +65,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? readify(payload) : null;
-		callback = typeof callback === 'function' ? callback         : null;
+		payload  = isObject(payload)    ? readify(payload) : null;
+		callback = isFunction(callback) ? callback         : null;
 
 
 		if (payload !== null) {
@@ -138,8 +140,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? saveify(payload) : null;
+		callback = isFunction(callback) ? callback         : null;
 
 
 		if (payload !== null && callback !== null) {

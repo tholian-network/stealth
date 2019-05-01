@@ -1,6 +1,8 @@
 
 import { Buffer } from 'buffer';
 
+import { isFunction, isObject } from '../POLYFILLS.mjs';
+
 import { URL } from '../parser/URL.mjs';
 
 const _generate_script = (address, host, port) => `
@@ -17,8 +19,8 @@ const PAC = {
 
 	send: function(data, callback) {
 
-		data     = data instanceof Object         ? data     : null;
-		callback = typeof callback === 'function' ? callback : null;
+		data     = isObject(data)       ? data     : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (data !== null) {

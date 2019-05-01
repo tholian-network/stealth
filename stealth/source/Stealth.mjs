@@ -5,7 +5,6 @@ import { console  } from './console.mjs';
 import { Request  } from './Request.mjs';
 import { Server   } from './Server.mjs';
 import { Settings } from './Settings.mjs';
-import { URL      } from './parser/URL.mjs';
 
 
 
@@ -182,15 +181,6 @@ Stealth.prototype = {
 
 
 		return null;
-
-	},
-
-	parse: function(url) {
-
-		url = isString(url) ? url : '';
-
-
-		return URL.parse(url);
 
 	}
 

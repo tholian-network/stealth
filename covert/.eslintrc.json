@@ -11,7 +11,7 @@
 	},
 	"overrides": [{
 		"files": [ "source/POLYFILLS.mjs" ],
-		"rules": { "no-global-assign": "off" }
+		"rules": { "no-global-assign": "off", "no-undef": "off" }
 	}],
 	"rules": {
 		"arrow-parens": [

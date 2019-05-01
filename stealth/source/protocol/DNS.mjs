@@ -1,7 +1,7 @@
 
 import { Buffer } from 'buffer';
 
-import { isFunction, isObject } from '../POLYFILLS.mjs';
+import { isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
 
 import { IP    } from '../parser/IP.mjs';
 import { HTTPS } from './HTTPS.mjs';
@@ -154,7 +154,7 @@ const parse = function(data) {
 	let hosts = [];
 
 
-	if (Buffer.isBuffer(data)) {
+	if (isBuffer(data)) {
 
 		let tmp = null;
 		try {
@@ -170,7 +170,7 @@ const parse = function(data) {
 	}
 
 
-	if (data instanceof Object) {
+	if (isObject(data)) {
 
 		let answers = Array.from(data['Answer'] || []).filter((answer) => {
 			return answer.type === DNS.TYPE.A || answer.type === DNS.TYPE.AAAA;

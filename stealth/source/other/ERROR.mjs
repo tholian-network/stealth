@@ -1,7 +1,9 @@
 
 import { Buffer } from 'buffer';
 
-const _CODES = {
+import { isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
+
+const CODES = {
 	200: 'OK',
 	201: 'Created',
 	202: 'Accepted',
@@ -40,25 +42,25 @@ const ERROR = {
 
 	send: function(data, callback) {
 
-		data     = data instanceof Object         ? data     : null;
-		callback = typeof callback === 'function' ? callback : null;
+		data     = isObject(data)       ? data     : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (data !== null) {
 
 			let code    = 500;
-			let message = _CODES[code];
+			let message = CODES[code];
 
-			let check = _CODES[data.code] || null;
+			let check = CODES[data.code] || null;
 			if (check !== null) {
 				code    = data.code;
 				message = check;
 			}
 
 			let payload = null;
-			if (data.payload instanceof Buffer) {
+			if (isBuffer(data.payload)) {
 				payload = data.payload;
-			} else if (data.payload instanceof Object) {
+			} else if (isObject(data.payload)) {
 				payload = Buffer.from(JSON.stringify(data.payload, null, '\t'), 'utf8');
 			} else {
 				payload = null;

@@ -3,6 +3,9 @@ import fs          from 'fs';
 import os          from 'os';
 import path        from 'path';
 import process     from 'process';
+
+import { isArray, isObject } from './POLYFILLS.mjs';
+
 import { console } from './console.mjs';
 
 const _PROFILE = (function(env, platform) {
@@ -86,7 +89,7 @@ const _read_file = function(url, data, complete) {
 
 		if (tmp !== null) {
 
-			if (tmp instanceof Array && data instanceof Array) {
+			if (isArray(tmp) && isArray(data)) {
 
 				if (complete === true) {
 
@@ -142,7 +145,7 @@ const _read_file = function(url, data, complete) {
 
 				}
 
-			} else if (tmp instanceof Object && data instanceof Object) {
+			} else if (isObject(tmp) && isObject(data)) {
 
 				Object.keys(tmp).forEach((key) => {
 					data[key] = tmp[key];

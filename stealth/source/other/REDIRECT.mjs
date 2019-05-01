@@ -1,6 +1,8 @@
 
 import { Buffer } from 'buffer';
 
+import { isFunction, isObject } from '../POLYFILLS.mjs';
+
 import { ERROR } from './ERROR.mjs';
 
 const _CODES = {
@@ -22,8 +24,8 @@ const REDIRECT = {
 
 	error: function(data, callback) {
 
-		data     = data instanceof Object         ? data     : null;
-		callback = typeof callback === 'function' ? callback : null;
+		data     = isObject(data)       ? data     : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (data !== null) {
@@ -146,8 +148,8 @@ const REDIRECT = {
 
 	send: function(data, callback) {
 
-		data     = data instanceof Object         ? data     : null;
-		callback = typeof callback === 'function' ? callback : null;
+		data     = isObject(data)       ? data     : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (data !== null) {

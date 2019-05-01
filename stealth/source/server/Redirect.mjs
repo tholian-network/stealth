@@ -1,4 +1,6 @@
 
+import { isFunction, isObject } from '../POLYFILLS.mjs';
+
 import { Emitter } from '../Emitter.mjs';
 import { URL     } from '../parser/URL.mjs';
 
@@ -7,7 +9,7 @@ import { URL     } from '../parser/URL.mjs';
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (payload instanceof Object) {
+	if (isObject(payload)) {
 
 		payload = Object.assign({}, raw);
 
@@ -53,8 +55,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -111,8 +113,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -181,8 +183,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && payload.location !== null && callback !== null) {

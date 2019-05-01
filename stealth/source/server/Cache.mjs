@@ -3,6 +3,8 @@ import fs          from 'fs';
 import path        from 'path';
 import { Buffer  } from 'buffer';
 
+import { isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
+
 import { Emitter } from '../Emitter.mjs';
 import { URL     } from '../parser/URL.mjs';
 
@@ -10,7 +12,7 @@ import { URL     } from '../parser/URL.mjs';
 
 const info = function(url, callback) {
 
-	callback = typeof callback === 'function' ? callback : null;
+	callback = isFunction(callback) ? callback : null;
 
 
 	let stat = null;
@@ -46,7 +48,7 @@ const info = function(url, callback) {
 
 const mkdir = function(url, callback) {
 
-	callback = typeof callback === 'function' ? callback : null;
+	callback = isFunction(callback) ? callback : null;
 
 
 	let stat = null;
@@ -82,32 +84,31 @@ const mkdir = function(url, callback) {
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (payload instanceof Object) {
+	if (isObject(payload)) {
 
 		payload = Object.assign({}, raw);
 
 		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
 		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
 		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
-
-		payload.path = typeof payload.path === 'string' ? payload.path : '/';
-		payload.mime = URL.parse('https://' + payload.domain + payload.path).mime;
+		payload.path      = typeof payload.path === 'string'      ? payload.path      : '/';
+		payload.mime      = URL.parse('https://' + payload.domain + payload.path).mime;
 
 		if (payload.path.endsWith('/')) {
 			payload.path += 'index' + (payload.mime.ext !== null ? ('.' + payload.mime.ext) : '');
 		}
 
-		if (payload.headers instanceof Buffer) {
+		if (isBuffer(payload.headers)) {
 			// Do nothing
-		} else if (payload.headers instanceof Object) {
+		} else if (isObject(payload.headers)) {
 			payload.headers = Buffer.from(JSON.stringify(payload.headers, null, '\t'), 'utf8');
 		} else {
 			payload.headers = null;
 		}
 
-		if (payload.payload instanceof Buffer) {
+		if (isBuffer(payload.payload)) {
 			// Do nothing
-		} else if (payload.payload instanceof Object) {
+		} else if (isObject(payload.payload)) {
 			payload.payload = Buffer.from(JSON.stringify(payload.payload, null, '\t'), 'utf8');
 		} else {
 			payload.payload = null;
@@ -136,8 +137,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	info: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -221,8 +222,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -328,8 +329,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {
@@ -412,8 +413,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = payload instanceof Object      ? payloadify(payload) : null;
-		callback = typeof callback === 'function' ? callback            : null;
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
 
 
 		if (payload !== null && callback !== null) {

@@ -49,7 +49,7 @@ Emitter.prototype = {
 						try {
 
 							let result = event.callback.apply(null, args);
-							if (result !== null) {
+							if (result !== null && result !== undefined) {
 								data = result;
 							}
 

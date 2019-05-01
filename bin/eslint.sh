@@ -16,6 +16,12 @@ eslint --ext js  ./design;
 eslint --ext mjs ./internal;
 eslint --ext mjs ./source;
 
+cd "$root_dir/covert";
+eslint --ext mjs ./covert.mjs;
+eslint --ext mjs ./EXAMPLE.mjs;
+eslint --ext mjs ./review;
+eslint --ext mjs ./source;
+
 cd "$root_dir/stealth";
 eslint --ext mjs ./stealth.mjs;
 eslint --ext mjs ./source;
