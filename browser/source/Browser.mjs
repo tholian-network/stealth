@@ -1,5 +1,5 @@
 
-import { isFunction, isNumber, isObject, isString } from './POLYFILLS.mjs';
+import { isFunction, isObject, isString } from './POLYFILLS.mjs';
 
 import { Emitter } from './Emitter.mjs';
 import { Client  } from './Client.mjs';
@@ -51,17 +51,16 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	connect: function(host, port, callback) {
+	connect: function(host, callback) {
 
 		host     = isString(host)       ? host     : null;
-		port     = isNumber(port)       ? port     : null;
 		callback = isFunction(callback) ? callback : null;
 
 
 		let client = this.client;
-		if (client !== null && host !== null && port !== null) {
+		if (client !== null && host !== null) {
 
-			client.connect(host, port, (result) => {
+			client.connect(host, (result) => {
 
 				if (result === true) {
 
@@ -77,8 +76,16 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-		} else if (callback !== null) {
-			callback(false);
+			return true;
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
+			}
+
 		}
 
 	},
@@ -195,9 +202,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (callback !== null) {
 				callback(tab);
+			} else {
+				return true;
 			}
-
-			return true;
 
 		}
 
@@ -474,9 +481,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (callback !== null) {
 				callback(tab);
+			} else {
+				return true;
 			}
-
-			return true;
 
 		} else if (tab === null) {
 
@@ -494,9 +501,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (callback !== null) {
 				callback(this.tab);
+			} else {
+				return true;
 			}
-
-			return true;
 
 		}
 

@@ -1,10 +1,9 @@
 
 import { Browser } from './source/Browser.mjs';
 
-const [ HOST, PORT ] = (function(location) {
+const [ HOST ] = (function(location) {
 
 	let host = 'localhost';
-	let port = 65432;
 
 	let tmp = location.host || '';
 	if (tmp.includes(':')) {
@@ -14,16 +13,11 @@ const [ HOST, PORT ] = (function(location) {
 			host = tmp1;
 		}
 
-		let tmp2 = parseInt(tmp.split(':')[1], 10);
-		if (Number.isNaN(tmp2) === false) {
-			port = tmp2;
-		}
-
 	} else if (tmp !== '') {
 		host = tmp;
 	}
 
-	return [ host, port ];
+	return [ host ];
 
 })(window.location || {});
 
@@ -40,7 +34,7 @@ if (browser !== null) {
 
 	setTimeout(() => {
 
-		browser.connect(HOST, PORT, () => {
+		browser.connect(HOST, () => {
 
 			let tabs = [];
 
