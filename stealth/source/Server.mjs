@@ -27,13 +27,14 @@ export const handle_request = function(socket, ref) {
 	let flags  = [];
 	let tab    = null;
 
+
 	if (url.startsWith('https://') || url.startsWith('http://')) {
 
 		flags.push('proxy');
 
-	} else if (url.startsWith('/stealth')) {
+	} else if (url.startsWith('/stealth/')) {
 
-		if (url.startsWith('/stealth:')) {
+		if (url.startsWith('/stealth/:')) {
 
 			let tmp = url.substr(9).split('/').shift();
 			if (tmp.startsWith(':') && tmp.endsWith(':')) {
@@ -66,7 +67,28 @@ export const handle_request = function(socket, ref) {
 	}
 
 
-	let session = get_session_from_cookie.call(this, cookie);
+	let sid = null;
+
+	if (cookie !== '') {
+
+		let tmp = cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith('session=')) || null;
+		if (tmp !== null) {
+
+			let val = tmp.split('=').pop();
+			if (val.startsWith('"')) val = val.substr(1);
+			if (val.endsWith('"'))   val = val.substr(0, val.length - 1);
+
+			let num = parseInt(val, 10);
+			if (Number.isNaN(num) === false) {
+				sid = num;
+			}
+
+		}
+
+	}
+
+
+	let session = this.stealth.get(sid);
 	let request = this.stealth.open(url);
 	if (request !== null) {
 
@@ -82,19 +104,21 @@ export const handle_request = function(socket, ref) {
 				ROUTER.error({
 					address: socket.localAddress || null,
 					url:     url,
-					code:    err.code  || null,
-					type:    err.type  || null,
-					cause:   err.cause || null,
+					err:     err,
 					flags:   request.flags
 				}, (response) => HTTP.send(socket, response));
 
 			} else {
 
 				ROUTER.error({
-					code: err.code || null
-				}, (response) => HTTP.send(socket, response));
+					err: err
+				}, (response) => {
+					HTTP.send(socket, response);
+				});
 
 			}
+
+			request.kill();
 
 		});
 
@@ -128,6 +152,8 @@ export const handle_request = function(socket, ref) {
 
 			}
 
+			request.kill();
+
 		});
 
 		request.on('response', (response) => {
@@ -147,10 +173,14 @@ export const handle_request = function(socket, ref) {
 			} else {
 
 				ROUTER.error({
-					code: 404
+					err: {
+						code: 404
+					}
 				}, (response) => HTTP.send(socket, response));
 
 			}
+
+			request.kill();
 
 		});
 
@@ -166,11 +196,18 @@ export const handle_request = function(socket, ref) {
 			request.set('webview', true);
 		}
 
-
-		// TODO: request.init();
+		request.init();
 
 	} else {
-		ROUTER.error({ code: 404 }, (response) => HTTP.send(socket, response));
+
+		ROUTER.error({
+			err: {
+				code: 404
+			}
+		}, (response) => {
+			HTTP.send(socket, response);
+		});
+
 	}
 
 };
@@ -188,7 +225,7 @@ export const handle_websocket = function(socket, ref) {
 				socket:  socket
 			});
 
-			this.stealth.sessions.push(session);
+			this.stealth.add(session);
 
 			session.init();
 
@@ -199,12 +236,9 @@ export const handle_websocket = function(socket, ref) {
 			let session = connection.session || null;
 			if (session !== null) {
 
-				let index = this.stealth.sessions.indexOf(session);
-				if (index !== -1) {
-					this.stealth.sessions.splice(index, 1);
-				}
-
+				this.stealth.remove(session);
 				connection.session = null;
+
 				session.kill();
 
 			}
@@ -216,12 +250,9 @@ export const handle_websocket = function(socket, ref) {
 			let session = connection.session || null;
 			if (session !== null) {
 
-				let index = this.stealth.sessions.indexOf(session);
-				if (index !== -1) {
-					this.stealth.sessions.splice(index, 1);
-				}
-
+				this.stealth.remove(session);
 				connection.session = null;
+
 				session.kill();
 
 			}
@@ -288,12 +319,9 @@ export const handle_websocket = function(socket, ref) {
 			let session = connection.session || null;
 			if (session !== null) {
 
-				let index = this.stealth.sessions.indexOf(session);
-				if (index !== -1) {
-					this.stealth.sessions.splice(index, 1);
-				}
-
+				this.stealth.remove(session);
 				connection.session = null;
+
 				session.kill();
 
 			}
@@ -305,27 +333,6 @@ export const handle_websocket = function(socket, ref) {
 		socket.end();
 
 	}
-
-};
-
-
-
-const get_session_from_cookie = function(cookie) {
-
-	let session = null;
-
-	let tmp = cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith('session=')) || '';
-	if (tmp !== '' && tmp.includes('=')) {
-
-		let val = tmp.split('=')[1] || '';
-		if (val.startsWith('"')) val = val.substr(1);
-		if (val.endsWith('"'))   val = val.substr(0, val.length - 1);
-
-		session = this.stealth.sessions.find((s) => s.id === val) || null;
-
-	}
-
-	return session;
 
 };
 

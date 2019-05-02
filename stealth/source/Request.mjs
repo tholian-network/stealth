@@ -1,4 +1,6 @@
 
+import { isBoolean, isString } from './POLYFILLS.mjs';
+
 import { Emitter    } from './Emitter.mjs';
 import { URL        } from './parser/URL.mjs';
 import { Blocker    } from './request/Blocker.mjs';
@@ -29,7 +31,9 @@ const Request = function(data, stealth) {
 			other: false
 		}
 	};
+	this.download = null;
 	this.flags    = {
+		connect: true,
 		refresh: false,
 		webview: false
 	};
@@ -53,10 +57,6 @@ const Request = function(data, stealth) {
 		response: null
 	};
 	this.url      = null;
-
-
-	// Necessary for kill() method
-	this.__download = null;
 
 
 	let ref = settings.ref || null;
@@ -203,7 +203,7 @@ const Request = function(data, stealth) {
 
 		if (allowed === true) {
 			this.emit('filter');
-		} else if (mime.ext === 'html') {
+		} else if (this.flags.webview === true) {
 			this.emit('error', [{ type: 'mode' }]);
 		} else {
 			this.emit('error', [{ code: 403 }]);
@@ -218,7 +218,14 @@ const Request = function(data, stealth) {
 			this.timeline.filter = Date.now();
 
 			if (allowed === true) {
-				this.emit('connect');
+
+				if (this.flags.connect === true) {
+					this.emit('connect');
+				} else {
+					// Do nothing
+					// External Scheduler calls emit('connect')
+				}
+
 			} else if (this.ref.mime.ext === 'html') {
 				this.emit('error', [{ type: 'filter' }]);
 			} else {
@@ -282,7 +289,7 @@ const Request = function(data, stealth) {
 
 					if (download !== null) {
 
-						this.__download = download;
+						this.download = download;
 
 						download.on('progress', (partial, progress) => {
 							this.stealth.server.services.stash.save(Object.assign({}, this.ref, partial), () => {});
@@ -321,7 +328,7 @@ const Request = function(data, stealth) {
 
 						download.on('error', (error) => {
 
-							this.__download = null;
+							this.download = null;
 
 							if (error.type === 'stash') {
 
@@ -341,7 +348,7 @@ const Request = function(data, stealth) {
 
 						download.on('redirect', (response) => {
 
-							this.__download = null;
+							this.download = null;
 
 							this.stealth.server.services.stash.remove(this.ref, () => {
 
@@ -358,7 +365,7 @@ const Request = function(data, stealth) {
 
 						download.on('response', (response) => {
 
-							this.__download = null;
+							this.download = null;
 
 							this.stealth.server.services.stash.remove(this.ref, () => {
 								this.ref.headers = null;
@@ -478,8 +485,8 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	set: function(key, val) {
 
-		key = typeof key === 'string'  ? key : null;
-		val = typeof val === 'boolean' ? val : null;
+		key = isString(key)  ? key : null;
+		val = isBoolean(val) ? val : null;
 
 
 		if (key !== null && val !== null) {
@@ -509,9 +516,9 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.timeline.download !== null) {
 
-			let download = this.__download || null;
+			let download = this.download || null;
 			if (download !== null) {
-				this.__download = null;
+				this.download = null;
 				download.kill();
 			}
 

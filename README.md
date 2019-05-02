@@ -1,5 +1,5 @@
 
-# Stealth - Secure, Private and Automateable Web Browser/Scraper/Proxy
+# Stealth - Secure, Peer-to-Peer, Private and Automateable Web Browser/Scraper/Proxy
 
 Stealth is a different kind of Web Browser that aims to achieve increased privacy, increased
 automation, intelligent understanding of the web and efficient bandwidth usage, no matter the
@@ -205,7 +205,6 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 ### X0 (Q2 2019) - Prototype
 
-- [ ] Migrate `stealth/source/Server.mjs` to new `WS.connect/listen()` API.
 - [ ] Implement and document `Peer.proxy()` API.
 - [ ] `stealth:fix-request` Page (Download Assistant for Peers and the Web Archive).
 - [ ] Sidebar (Overview about `Site Modes`, `Site Filters` and `Site Optimizers` of current Tab).

@@ -16,7 +16,8 @@ const ROUTER = {
 		callback = isFunction(callback) ? callback : null;
 
 
-		if (data.url !== null) {
+		let err = data.err || null;
+		if (err !== null && typeof err.type === 'string') {
 
 			REDIRECT.error(data, (response) => {
 
@@ -26,10 +27,10 @@ const ROUTER = {
 
 			});
 
-		} else if (data.code !== null) {
+		} else if (err !== null && typeof err.code === 'number') {
 
 			ERROR.send({
-				code: 500
+				code: err.code
 			}, (response) => {
 
 				if (callback !== null) {

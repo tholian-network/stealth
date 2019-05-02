@@ -1,7 +1,30 @@
 
+import { isString } from './POLYFILLS.mjs';
+
 import { console } from './console.mjs';
 import { Request } from './Request.mjs';
 import { WS      } from './protocol/WS.mjs';
+
+
+
+const remove_request = function(request) {
+
+	for (let tid in this.tabs) {
+
+		let tab = this.tabs[tid];
+
+		for (let t = 0; t < tab.length; t++) {
+
+			if (tab[t] === request) {
+				tab.splice(t, 1);
+				t--;
+			}
+
+		}
+
+	}
+
+};
 
 
 
@@ -13,13 +36,10 @@ const Session = function(data) {
 		headers: {}
 	}, data);
 
-	// settings.headers
-	// settings.socket
 
 	this.id       = _id++;
 	this.browser  = 'Unknown';
 	this.system   = 'Unknown';
-	this.peer     = settings.peer   || null;
 	this.socket   = settings.socket || null;
 	this.tabs     = {};
 	this.warnings = 0;
@@ -73,7 +93,7 @@ Session.prototype = {
 
 	get: function(url) {
 
-		url = typeof url === 'string' ? url : null;
+		url = isString(url) ? url : null;
 
 
 		if (url !== null) {
@@ -130,7 +150,7 @@ Session.prototype = {
 	track: function(request, tab) {
 
 		request = request instanceof Request ? request : null;
-		tab     = typeof tab === 'string'    ? tab     : 'default';
+		tab     = isString(tab)              ? tab     : 'default';
 
 
 		if (request !== null && tab !== null) {
@@ -150,24 +170,9 @@ Session.prototype = {
 					console.step('session #' + this.id + ' tab #' + tab + ' requests ' + request.url + ' (' + progress.bytes + '/' + progress.length + ')');
 				});
 
-				request.on('error', () => {
-
-					let index = cache.indexOf(request);
-					if (index !== -1) {
-						cache.splice(index, 1);
-					}
-
-				});
-
-				request.on('response', () => {
-
-					let index = cache.indexOf(request);
-					if (index !== -1) {
-						cache.splice(index, 1);
-					}
-
-				});
-
+				request.on('error',    () => remove_request.call(this, request));
+				request.on('redirect', () => remove_request.call(this, request));
+				request.on('response', () => remove_request.call(this, request));
 
 				cache.push(request);
 
@@ -179,9 +184,9 @@ Session.prototype = {
 
 	warn: function(service, method, event) {
 
-		service = typeof service === 'string' ? service : null;
-		method  = typeof method === 'string'  ? method  : null;
-		event   = typeof event === 'string'   ? event   : null;
+		service = isString(service) ? service : null;
+		method  = isString(method)  ? method  : null;
+		event   = isString(event)   ? event   : null;
 
 
 		this.warnings++;
