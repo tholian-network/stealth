@@ -1,11 +1,12 @@
 
-import { isFunction, isNumber, isString } from './POLYFILLS.mjs';
+import { isFunction, isObject, isString } from './POLYFILLS.mjs';
 
 import { console  } from './console.mjs';
 import { Request  } from './Request.mjs';
 import { Server   } from './Server.mjs';
 import { Session  } from './Session.mjs';
 import { Settings } from './Settings.mjs';
+import { IP       } from './parser/IP.mjs';
 import { URL      } from './parser/URL.mjs';
 
 
@@ -273,46 +274,50 @@ Stealth.prototype = {
 
 	},
 
-	add: function(session) {
+	init: function(session, headers) {
 
 		session = session instanceof Session ? session : null;
+		headers = isObject(headers)          ? headers : null;
 
 
 		if (session !== null) {
 
 			if (this.sessions.includes(session) === false) {
 				this.sessions.push(session);
+				session.init();
 			}
 
-			return true;
+			return session;
 
-		}
+		} else if (headers !== null) {
 
+			let address = headers['@remote'] || null;
+			if (address !== null) {
 
-		return false;
+				let ip = IP.parse(address);
+				if (ip.type !== null) {
 
-	},
+					for (let s = 0; s < this.sessions.length; s++) {
 
-	get: function(id) {
+						let other = this.sessions[s];
+						if (other.id === ip.ip) {
+							session = other;
+							break;
+						}
 
-		id = isNumber(id) ? id : null;
+					}
 
-
-		if (id !== null) {
-
-			let found = null;
-
-			for (let s = 0; s < this.sessions.length; s++) {
-
-				let session = this.sessions[s];
-				if (session.id === id) {
-					found = session;
-					break;
 				}
 
 			}
 
-			return found;
+			if (session === null) {
+				session = new Session(headers);
+				this.sessions.push(session);
+				session.init();
+			}
+
+			return session;
 
 		}
 
@@ -321,7 +326,7 @@ Stealth.prototype = {
 
 	},
 
-	remove: function(session) {
+	kill: function(session) {
 
 		session = session instanceof Session ? session : null;
 
@@ -333,6 +338,7 @@ Stealth.prototype = {
 				let index = this.sessions.indexOf(session);
 				if (index !== -1) {
 					this.sessions.splice(index, 1);
+					session.kill();
 				}
 
 			}

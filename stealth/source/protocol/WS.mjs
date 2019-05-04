@@ -524,7 +524,9 @@ export const onupgrade = function(socket, ref, buffer, emitter) {
 	socket._ws_server = true;
 	socket.write(upgrade_response(nonce));
 
-	emitter.emit('@connect', [ socket ]);
+	setTimeout(() => {
+		emitter.emit('@connect', [ socket ]);
+	}, 0);
 
 };
 

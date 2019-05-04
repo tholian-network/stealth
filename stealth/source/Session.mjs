@@ -1,9 +1,9 @@
 
-import { isString } from './POLYFILLS.mjs';
+import { isObject, isString } from './POLYFILLS.mjs';
 
 import { console } from './console.mjs';
+import { IP      } from './parser/IP.mjs';
 import { Request } from './Request.mjs';
-import { WS      } from './protocol/WS.mjs';
 
 
 
@@ -30,22 +30,30 @@ const remove_request = function(request) {
 
 let _id = 1;
 
-const Session = function(data) {
+const Session = function(headers) {
 
-	let settings = Object.assign({
-		headers: {}
-	}, data);
+	headers = isObject(headers) ? headers : {};
 
 
-	this.id       = _id++;
+	this.id       = '' + _id++;
 	this.browser  = 'Unknown';
 	this.system   = 'Unknown';
-	this.socket   = settings.socket || null;
 	this.tabs     = {};
 	this.warnings = 0;
 
 
-	let agent = settings.headers['user-agent'] || null;
+	let address = headers['@remote'] || null;
+	if (address !== null) {
+
+		let ip = IP.parse(address);
+		if (ip.type !== null) {
+			this.id = ip.ip;
+		}
+
+	}
+
+
+	let agent = headers['user-agent'] || null;
 	if (agent !== null) {
 
 		if (/crios/.test(agent)) {
@@ -131,19 +139,7 @@ Session.prototype = {
 
 	init: function() {
 
-		let socket = this.socket || null;
-		if (socket !== null) {
-
-			WS.send(socket, {
-				headers: {
-					session: this.id
-				},
-				payload: null
-			});
-
-			console.log('session #' + this.id + ' connected.');
-
-		}
+		console.log('session #' + this.id + ' connected.');
 
 	},
 
@@ -215,23 +211,15 @@ Session.prototype = {
 
 	kill: function() {
 
-		if (this.socket !== null) {
+		for (let tab in this.tabs) {
 
-			this.socket.end();
-			this.socket = null;
-
-
-			for (let tab in this.tabs) {
-
-				this.tabs[tab].forEach((request) => {
-					console.log('session #' + this.id + ' tab #' + tab + ' remains ' + request.url);
-				});
-
-			}
-
-			console.log('session #' + this.id + ' disconnected.');
+			this.tabs[tab].forEach((request) => {
+				console.log('session #' + this.id + ' tab #' + tab + ' remains ' + request.url);
+			});
 
 		}
+
+		console.log('session #' + this.id + ' disconnected.');
 
 	}
 

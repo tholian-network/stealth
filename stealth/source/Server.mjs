@@ -4,17 +4,16 @@ import net from 'net';
 import { isFunction, isString } from './POLYFILLS.mjs';
 
 import { console  } from './console.mjs';
-import { REDIRECT } from './other/REDIRECT.mjs';
-import { ROUTER   } from './other/ROUTER.mjs';
 import { HTTP     } from './protocol/HTTP.mjs';
 import { WS       } from './protocol/WS.mjs';
+import { REDIRECT } from './other/REDIRECT.mjs';
+import { ROUTER   } from './other/ROUTER.mjs';
 import { Cache    } from './server/Cache.mjs';
 import { Filter   } from './server/Filter.mjs';
 import { Host     } from './server/Host.mjs';
 import { Mode     } from './server/Mode.mjs';
 import { Peer     } from './server/Peer.mjs';
 import { Redirect } from './server/Redirect.mjs';
-import { Session  } from './Session.mjs';
 import { Settings } from './server/Settings.mjs';
 import { Stash    } from './server/Stash.mjs';
 
@@ -22,10 +21,9 @@ import { Stash    } from './server/Stash.mjs';
 
 export const handle_request = function(socket, ref) {
 
-	let cookie = (ref.headers['cookie'] || '');
-	let url    = (ref.headers['@url'] || '');
-	let flags  = [];
-	let tab    = null;
+	let url   = (ref.headers['@url'] || '');
+	let flags = [];
+	let tab   = null;
 
 
 	if (url.startsWith('https://') || url.startsWith('http://')) {
@@ -67,28 +65,7 @@ export const handle_request = function(socket, ref) {
 	}
 
 
-	let sid = null;
-
-	if (cookie !== '') {
-
-		let tmp = cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith('session=')) || null;
-		if (tmp !== null) {
-
-			let val = tmp.split('=').pop();
-			if (val.startsWith('"')) val = val.substr(1);
-			if (val.endsWith('"'))   val = val.substr(0, val.length - 1);
-
-			let num = parseInt(val, 10);
-			if (Number.isNaN(num) === false) {
-				sid = num;
-			}
-
-		}
-
-	}
-
-
-	let session = this.stealth.get(sid);
+	let session = this.stealth.init(null, request.headers);
 	let request = this.stealth.open(url);
 	if (request !== null) {
 
@@ -102,9 +79,9 @@ export const handle_request = function(socket, ref) {
 			if (type !== null) {
 
 				ROUTER.error({
-					address: socket.localAddress || null,
-					url:     url,
-					err:     err,
+					address: request.headers['@local'] || null,
+					url:     url || null,
+					err:     err || null,
 					flags:   request.flags
 				}, (response) => HTTP.send(socket, response));
 
@@ -219,44 +196,17 @@ export const handle_websocket = function(socket, ref) {
 	if (connection !== null) {
 
 		connection.on('@connect', () => {
-
-			let session = new Session({
-				headers: ref.headers,
-				socket:  socket
-			});
-
-			this.stealth.add(session);
-
-			session.init();
-
+			connection.session = this.stealth.init(null, ref.headers);
 		});
 
 		connection.on('error', () => {
-
-			let session = connection.session || null;
-			if (session !== null) {
-
-				this.stealth.remove(session);
-				connection.session = null;
-
-				session.kill();
-
-			}
-
+			this.stealth.kill(connection.session);
+			connection.session = null;
 		});
 
 		connection.on('timeout', () => {
-
-			let session = connection.session || null;
-			if (session !== null) {
-
-				this.stealth.remove(session);
-				connection.session = null;
-
-				session.kill();
-
-			}
-
+			this.stealth.kill(connection.session);
+			connection.session = null;
 		});
 
 		connection.on('request', (request) => {
@@ -270,7 +220,7 @@ export const handle_websocket = function(socket, ref) {
 				let instance = this.services[service] || null;
 				if (instance !== null) {
 
-					let response = instance.emit(event, [ request.payload ]);
+					let response = instance.emit(event, [ request.payload, connection.session ]);
 					if (response !== null) {
 						WS.send(socket, response);
 					}
@@ -306,7 +256,7 @@ export const handle_websocket = function(socket, ref) {
 
 						}
 
-					});
+					}, connection.session);
 
 				}
 
@@ -315,17 +265,8 @@ export const handle_websocket = function(socket, ref) {
 		});
 
 		connection.on('@disconnect', () => {
-
-			let session = connection.session || null;
-			if (session !== null) {
-
-				this.stealth.remove(session);
-				connection.session = null;
-
-				session.kill();
-
-			}
-
+			this.stealth.kill(connection.session);
+			connection.session = null;
 		});
 
 	} else {
@@ -387,7 +328,8 @@ Server.prototype = {
 
 				HTTP.receive(socket, data, (request) => {
 
-					request.headers['@address'] = socket.localAddress || null;
+					request.headers['@remote'] = socket.remoteAddress || null;
+					request.headers['@local']  = socket.localAddress  || null;
 
 
 					let url  = (request.headers['@url'] || '');

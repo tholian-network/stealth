@@ -237,6 +237,11 @@ const IP = {
 		let scope = null;
 		let type  = null;
 
+
+		if (blob.startsWith('::ffff:')) {
+			blob = blob.substr(7);
+		}
+
 		if (blob.includes(':')) {
 
 			let check = validate_ipv6(blob);

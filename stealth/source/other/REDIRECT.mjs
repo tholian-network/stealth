@@ -4,14 +4,17 @@ import { Buffer } from 'buffer';
 import { isFunction, isObject } from '../POLYFILLS.mjs';
 
 import { ERROR } from './ERROR.mjs';
+import { IP    } from '../parser/IP.mjs';
 
-const _CODES = {
+
+
+const CODES = {
 	301: 'Moved Permanently',
 	307: 'Temporary Redirect',
 	308: 'Permanent Redirect',
 };
 
-const _PAGES = {
+const PAGES = {
 	'host':    '/browser/internal/fix-host.html',
 	'mode':    '/browser/internal/fix-mode.html',
 	'filter':  '/browser/internal/fix-filter.html',
@@ -37,7 +40,7 @@ const REDIRECT = {
 			let vars  = [];
 
 			if (err !== null && typeof err.type === 'string') {
-				page = _PAGES[err.type] || null;
+				page = PAGES[err.type] || null;
 			}
 
 			if (url !== null) {
@@ -80,28 +83,32 @@ const REDIRECT = {
 
 			} else if (proxy === true && page !== null) {
 
-				let address = data.address || 'localhost';
-				if (address.startsWith('::ffff:')) {
-					address = address.substr(7);
-				}
+				let hostname = 'localhost';
+				let address  = data.address || null;
 
-				if (address.includes(':')) {
-					address = '[' + address + ']';
-				}
+				if (address !== null) {
 
+					let ip = IP.parse(address);
+					if (ip.type === 'ipv4') {
+						hostname = ip.ip;
+					} else if (ip.type === 'ipv6') {
+						hostname = '[' + ip.ip + ']';
+					}
+
+				}
 
 				if (callback !== null) {
 
 					this.send({
 						code:     307,
-						location: 'http://' + address + ':65432' + page
+						location: 'http://' + hostname + ':65432' + page
 					}, callback);
 
 				} else {
 
 					return this.send({
 						code:     307,
-						location: 'http://' + address + ':65432' + page
+						location: 'http://' + hostname + ':65432' + page
 					});
 
 				}
@@ -164,9 +171,9 @@ const REDIRECT = {
 			if (location !== null) {
 
 				let code    = 301;
-				let message = _CODES[code];
+				let message = CODES[code];
 
-				let check = _CODES[data.code] || null;
+				let check = CODES[data.code] || null;
 				if (check !== null) {
 					code    = data.code;
 					message = check;

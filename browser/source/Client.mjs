@@ -218,12 +218,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 						let event   = response.headers.event   || null;
 						let service = response.headers.service || null;
-						let session = response.headers.session || null;
 						let method  = response.headers.method  || null;
-
-						if (session !== null) {
-							this.emit('session', [ session ]);
-						}
 
 						if (service !== null && event !== null) {
 
@@ -299,7 +294,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 				};
 
 				this.__socket.onclose = () => {
-					this.emit('session', [ null ]);
+					this.__socket = null;
 				};
 
 				return true;

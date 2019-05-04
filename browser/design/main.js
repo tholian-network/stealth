@@ -312,16 +312,6 @@
 
 		});
 
-		browser.client.on('session', (session) => {
-
-			try {
-				doc.cookie = 'session=' + session + ';path=/stealth';
-			} catch (err) {
-				// Do nothing
-			}
-
-		});
-
 
 		_init_events(browser, global, false);
 
