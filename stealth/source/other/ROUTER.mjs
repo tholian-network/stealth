@@ -89,7 +89,7 @@ const ROUTER = {
 
 			REDIRECT.send({
 				code: 301,
-				path: '/browser/favicon.ico'
+				path: '/browser/design/icon/favicon.ico'
 			}, (response) => {
 
 				if (response !== null) {

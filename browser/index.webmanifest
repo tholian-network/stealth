@@ -1,15 +1,24 @@
 {
-	"dir": "ltr",
-	"lang": "en-us",
-	"short_name": "Stealth",
-	"name": "Stealth Browser",
-	"display": "standalone",
-	"icons": [{
-		"src": "/browser/favicon.png",
-		"type": "image/png",
-		"sizes": "256x256"
-	}],
-	"start_url": "/browser/index.html",
+	"dir":              "ltr",
+	"lang":             "en-us",
+	"short_name":       "Stealth",
+	"name":             "Stealth Browser",
+	"display":          "standalone",
+	"start_url":        "/browser/index.html",
 	"background_color": "#303030",
-	"theme_color": "#303030"
+	"theme_color":      "#303030",
+
+	"icons": [{
+		"src":   "/browser/design/icon/favicon.png",
+		"sizes": "256x256",
+		"type":  "image/png"
+	}, {
+		"src":   "/browser/design/icon/android-chrome-192x192.png",
+		"sizes": "192x192",
+		"type":  "image/png"
+	}, {
+		"src":   "/browser/design/icon/android-chrome-256x256.png",
+		"sizes": "256x256",
+		"type":  "image/png"
+	}]
 }
