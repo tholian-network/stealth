@@ -1,9 +1,9 @@
 {
 	"dir": "ltr",
 	"lang": "en-us",
-	"short_name": "stealth",
+	"short_name": "Stealth",
 	"name": "Stealth Browser",
-	"display": "fullscreen",
+	"display": "standalone",
 	"icons": [{
 		"src": "/browser/favicon.png",
 		"type": "image/png",

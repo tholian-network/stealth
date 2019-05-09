@@ -195,6 +195,9 @@ export const MIME = [
 	// Media-Types are compliant with IANA assignments
 	// https://www.iana.org/assignments/media-types
 
+	// non-official
+	{ ext: 'webmanifest', type: 'text', binary: false, format: 'application/manifest+json' },
+
 	// application
 	{ ext: 'abw',   type: 'other', binary: true,  format: 'application/x-abiword'                                                     },
 	{ ext: 'azw',   type: 'other', binary: true,  format: 'application/vnd.amazon.ebook'                                              },

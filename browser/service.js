@@ -5,9 +5,9 @@ self.addEventListener('install', (event) => {
 		caches.open('v1:static').then((cache) => cache.addAll([
 			'browser.mjs',
 			'index.html',
+			'index.webmanifest',
 			'favicon.ico',
 			'favicon.png',
-			'manifest.json',
 			'design/font/icon.woff',
 			'design/font/index.css',
 			'design/font/museo.woff',
