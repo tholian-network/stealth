@@ -177,20 +177,27 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-			if (hosts.length > 0) {
 
-				let check = hosts.find((ip) => ip.scope === 'private') || null;
-				if (check === null) {
-					ref = URL.parse('wss://' + host + ':65432');
+			if (ref.domain === HOSTNAME || hosts.length > 0) {
+
+				let server = ref.domain;
+
+				if (hosts.length > 0) {
+
+					let check = hosts.find((ip) => ip.scope === 'private') || null;
+					if (check === null) {
+						ref = URL.parse('wss://' + host + ':65432');
+					}
+
+					let host = hosts[0];
+					if (host.type === 'v4') {
+						server = host.ip;
+					} else if (host.type === 'v6') {
+						server = '[' + host.ip + ']';
+					}
+
 				}
 
-
-				let host   = hosts[0];
-				let server = host.ip;
-
-				if (host.type === 'v6') {
-					server = '[' + host.ip + ']';
-				}
 
 				this.__socket = new WebSocket(ref.protocol + '://' + server + ':' + ref.port, [ 'stealth' ]);
 

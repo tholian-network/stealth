@@ -391,7 +391,7 @@
 
 
 				let target = e.target;
-				if (target.tagName.toLowerCase() === 'li') {
+				if (target.id !== 'header-address-protocol' && target.tagName.toLowerCase() === 'li') {
 
 					let url    = inputs.address.value;
 					let chunks = Array.from(outputs.address.querySelectorAll('li')).slice(1);
