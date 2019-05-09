@@ -210,7 +210,14 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 
-				if (filter === null) {
+				if (
+					filter === null
+					&& (
+						payload.filter.prefix !== null
+						|| payload.filter.midfix !== null
+						|| payload.filter.suffix !== null
+					)
+				) {
 
 					if (payload.subdomain !== null) {
 						payload.domain    = payload.subdomain + '.' + payload.domain;
@@ -239,7 +246,7 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'filter',
 					event:   'save'
 				},
-				payload: true
+				payload: (filter !== null)
 			});
 
 		} else if (callback !== null) {

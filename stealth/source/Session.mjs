@@ -9,6 +9,8 @@ import { Request } from './Request.mjs';
 
 const remove_request = function(request) {
 
+	let history = {};
+
 	for (let tid in this.tabs) {
 
 		let tab = this.tabs[tid];
@@ -16,13 +18,41 @@ const remove_request = function(request) {
 		for (let t = 0; t < tab.length; t++) {
 
 			if (tab[t] === request) {
+
+				if (request.flags.webview === true) {
+
+					let entries = history[tid] || null;
+					if (entries === null) {
+						entries = history[tid] = [];
+					}
+
+					entries.push(request.toJSON());
+
+				}
+
 				tab.splice(t, 1);
 				t--;
+
 			}
 
 		}
 
 	}
+
+	Object.keys(history).forEach((tab) => {
+
+		history[tab].forEach((request) => {
+
+			let entries = this.history[tab] || null;
+			if (entries === null) {
+				entries = this.history[tab] = [];
+			}
+
+			entries.push(request);
+
+		});
+
+	});
 
 };
 
@@ -35,11 +65,12 @@ const Session = function(headers) {
 	headers = isObject(headers) ? headers : {};
 
 
-	this.id       = '' + _id++;
-	this.browser  = 'Unknown';
-	this.system   = 'Unknown';
-	this.tabs     = {};
-	this.warnings = 0;
+	this.id      = '' + _id++;
+	this.browser = 'Unknown';
+	this.history = {};
+	this.system  = 'Unknown';
+	this.tabs    = {};
+	this.warning = 0;
 
 
 	let address = headers['@remote'] || null;
@@ -47,7 +78,7 @@ const Session = function(headers) {
 
 		let ip = IP.parse(address);
 		if (ip.type !== null) {
-			this.id = ip.ip;
+			this.id = IP.render(ip);
 		}
 
 	}
@@ -99,6 +130,37 @@ const Session = function(headers) {
 
 Session.prototype = {
 
+	toJSON: function() {
+
+		let data = {
+			id:      this.id,
+			browser: this.browser,
+			history: {},
+			system:  this.system,
+			tabs:    {},
+			warning: this.warning
+		};
+
+		Object.keys(this.history).forEach((tab) => {
+			data.history[tab] = this.history[tab];
+		});
+
+		Object.keys(this.tabs).forEach((tab) => {
+
+			let requests = this.tabs[tab].filter((req) => req.flags.webview === true);
+			if (requests.length > 0) {
+				data.tabs[tab] = requests.map((req) => req.toJSON());
+			}
+
+		});
+
+		return {
+			type: 'Session',
+			data: data
+		};
+
+	},
+
 	get: function(url) {
 
 		url = isString(url) ? url : null;
@@ -146,7 +208,7 @@ Session.prototype = {
 	track: function(request, tab) {
 
 		request = request instanceof Request ? request : null;
-		tab     = isString(tab)              ? tab     : 'default';
+		tab     = isString(tab)              ? tab     : '0';
 
 
 		if (request !== null && tab !== null) {
@@ -185,25 +247,25 @@ Session.prototype = {
 		event   = isString(event)   ? event   : null;
 
 
-		this.warnings++;
+		this.warning++;
 
 
 		if (service !== null) {
 
 			if (method !== null) {
-				console.warn('session #' + this.id + ' received warning #' + this.warnings + ' for ' + service + '.' + method + '() call.');
+				console.warn('session #' + this.id + ' received warning #' + this.warning + ' for ' + service + '.' + method + '() call.');
 			} else if (event !== null) {
-				console.warn('session #' + this.id + ' received warning #' + this.warnings + ' for ' + service + '@' + event + ' call.');
+				console.warn('session #' + this.id + ' received warning #' + this.warning + ' for ' + service + '@' + event + ' call.');
 			} else {
-				console.warn('session #' + this.id + ' received warning #' + this.warnings + ' for ' + service + ' abuse.');
+				console.warn('session #' + this.id + ' received warning #' + this.warning + ' for ' + service + ' abuse.');
 			}
 
 		} else {
-			console.warn('session #' + this.id + ' received warning #' + this.warnings + '.');
+			console.warn('session #' + this.id + ' received warning #' + this.warning + '.');
 		}
 
 
-		if (this.warnings >= 3) {
+		if (this.warning >= 3) {
 			this.kill();
 		}
 

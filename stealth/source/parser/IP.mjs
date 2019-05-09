@@ -76,6 +76,45 @@ const PRIVATE_V6 = [
 
 ];
 
+const render_ipv4 = function(ipv4) {
+	return ipv4;
+};
+
+const render_ipv6 = function(ipv6) {
+
+	let chunk = [];
+
+	let zero = ipv6.split(':').findIndex((v) => v === '0000');
+	if (zero !== -1) {
+
+		ipv6.split(':').map((v, i) => {
+
+			if (v === '0000' && i === zero) {
+				return i === 0 ? ':' : '';
+			} else if (v !== '0000') {
+				return parseInt(v, 16).toString(16);
+			} else {
+				return null;
+			}
+
+		}).filter((v) => v !== null).forEach((v) => {
+			chunk.push(v);
+		});
+
+	} else {
+
+		ipv6.split(':').map((v) => {
+			return parseInt(v, 16).toString(16);
+		}).forEach((v) => {
+			chunk.push(v);
+		});
+
+	}
+
+	return chunk.join(':');
+
+};
+
 const validate_ipv4 = function(ipv4) {
 
 	let tmp   = ipv4.split('.').map((v) => parseInt(v, 10));
@@ -187,20 +226,20 @@ const validate_ipv6 = function(ipv6) {
 
 const IP = {
 
-	isIP: function(data) {
+	isIP: function(ref) {
 
-		data = isObject(data) ? data : null;
+		ref = isObject(ref) ? ref : null;
 
 
-		if (data !== null) {
+		if (ref !== null) {
 
-			let scope = data.scope || null;
+			let scope = ref.scope || null;
 			if (scope === 'private' || scope === 'public') {
 
-				let type = data.type || null;
+				let type = ref.type || null;
 				if (type === 'v4' || type === 'v6') {
 
-					let ip = data.ip || '';
+					let ip = ref.ip || '';
 					if (ip.includes(':')) {
 
 						let check = validate_ipv6(ip);
@@ -283,6 +322,27 @@ const IP = {
 			scope: scope,
 			type:  type
 		};
+
+	},
+
+	render: function(ref) {
+
+		ref = isObject(ref) ? ref : null;
+
+
+		if (ref !== null) {
+
+			let type = ref.type || null;
+			if (type === 'v4') {
+				return render_ipv4(ref.ip);
+			} else if (type === 'v6') {
+				return render_ipv6(ref.ip);
+			}
+
+		}
+
+
+		return null;
 
 	}
 

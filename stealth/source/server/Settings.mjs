@@ -71,36 +71,53 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null) {
 
-			let json = this.stealth.settings.toJSON();
-			let data = {
-				internet: null,
-				filters:  null,
-				hosts:    null,
-				modes:    null,
-				peers:    null
-			};
+			this.stealth.settings.read(false, (result) => {
+
+				if (callback !== null) {
+
+					if (result === true) {
+
+						let blob = this.stealth.settings.toJSON();
+						let data = {
+							internet: null,
+							filters:  null,
+							hosts:    null,
+							modes:    null,
+							peers:    null
+						};
 
 
-			Object.keys(payload).forEach((key) => {
+						Object.keys(payload).forEach((key) => {
 
-				if (payload[key] === true) {
-					data[key] = json[key] || null;
+							if (payload[key] === true) {
+								data[key] = blob.data[key] || null;
+							}
+
+						});
+
+						callback({
+							headers: {
+								service: 'settings',
+								event:   'read',
+								payload: data
+							}
+						});
+
+					} else {
+
+						callback({
+							headers: {
+								service: 'settings',
+								event:   'read',
+								payload: null
+							}
+						});
+
+					}
+
 				}
 
 			});
-
-
-			if (callback !== null) {
-
-				callback({
-					headers: {
-						service: 'settings',
-						event:   'read'
-					},
-					payload: data
-				});
-
-			}
 
 		} else {
 
@@ -110,12 +127,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 					if (result === true) {
 
+						let blob = this.stealth.settings.toJSON();
+						let data = blob.data;
+
 						callback({
 							headers: {
 								service: 'settings',
 								event:   'read'
 							},
-							payload: this.stealth.settings.toJSON()
+							payload: data
 						});
 
 					} else {

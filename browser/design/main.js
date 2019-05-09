@@ -266,9 +266,39 @@
 
 			link.onclick = () => {
 
-				let tab = browser.tab || null;
-				if (tab !== null) {
-					browser.navigate(link.getAttribute('href'));
+				let href = link.getAttribute('href');
+				if (href.startsWith('#')) {
+
+					if (webview !== null) {
+
+						let element = webview.contentWindow.document.querySelector(href) || null;
+						if (element !== null) {
+							element.scrollIntoView({
+								behavior: 'smooth',
+								block:    'center'
+							});
+						}
+
+					}
+
+				} else {
+
+					let href = link.getAttribute('href');
+					if (href.includes('#')) {
+						href = href.split('#').shift();
+					}
+
+					let tab = browser.tab || null;
+					if (tab !== null) {
+
+						if (href.startsWith('./') || href.startsWith('../')) {
+							href = browser.resolve(tab.url, href).url;
+						}
+
+						browser.navigate(href);
+
+					}
+
 				}
 
 				return false;

@@ -65,7 +65,7 @@ export const handle_request = function(socket, ref) {
 	}
 
 
-	let session = this.stealth.init(null, request.headers);
+	let session = this.stealth.init(null, ref.headers);
 	let request = this.stealth.open(url);
 	if (request !== null) {
 
@@ -79,7 +79,7 @@ export const handle_request = function(socket, ref) {
 			if (type !== null) {
 
 				ROUTER.error({
-					address: request.headers['@local'] || null,
+					address: ref.headers['@local'] || null,
 					url:     url || null,
 					err:     err || null,
 					flags:   request.flags
@@ -336,7 +336,7 @@ Server.prototype = {
 					let tmp1 = (request.headers['connection'] || '').toLowerCase();
 					let tmp2 = (request.headers['upgrade'] || '').toLowerCase();
 
-					if (tmp1 === 'upgrade' && tmp2 === 'websocket') {
+					if (tmp1.includes('upgrade') && tmp2.includes('websocket')) {
 						handle_websocket.call(this, socket, request);
 					} else if (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('/stealth')) {
 						handle_request.call(this, socket, request);

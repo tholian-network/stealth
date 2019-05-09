@@ -441,7 +441,7 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 			let tmp1 = (response.headers['connection'] || '').toLowerCase();
 			let tmp2 = (response.headers['upgrade'] || '').toLowerCase();
 
-			if (tmp1 === 'upgrade' && tmp2 === 'websocket') {
+			if (tmp1.includes('upgrade') && tmp2.includes('websocket')) {
 
 				let accept = response.headers['sec-websocket-accept'] || '';
 				let hash   = crypto.createHash('sha1').update(nonce.toString('base64') + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
@@ -655,7 +655,7 @@ const WS = {
 		let tmp2 = (ref.headers['upgrade']                || '').toLowerCase();
 		let tmp3 = (ref.headers['sec-websocket-protocol'] || '').toLowerCase();
 
-		if (tmp1 === 'upgrade' && tmp2 === 'websocket' && tmp3.includes('stealth')) {
+		if (tmp1.includes('upgrade') && tmp2.includes('websocket') && tmp3.includes('stealth')) {
 
 			let nonce = ref.headers['sec-websocket-key'] || null;
 			if (nonce !== null) {

@@ -29,6 +29,12 @@ const Browser = function() {
 
 Browser.prototype = Object.assign({}, Emitter.prototype, {
 
+	// Deferred API for /browser/design usage
+	parse:   (url)       => URL.parse(url),
+	resolve: (base, url) => URL.resolve(base, url),
+
+
+
 	back: function() {
 
 		if (this.tab !== null) {
@@ -210,9 +216,17 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	navigate: function(url) {
+	navigate: function(url, callback) {
+
+		url      = isString(url)        ? url      : null;
+		callback = isFunction(callback) ? callback : null;
+
 
 		if (this.tab !== null) {
+
+			if (url.startsWith('./') || url.startsWith('../')) {
+				url = this.resolve(this.tab.url, url).url;
+			}
 
 			if (this.tab.url !== url) {
 
@@ -235,26 +249,53 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.refresh();
 
+
+			if (callback !== null) {
+				callback(true);
+			} else {
+				return true;
+			}
+
 		} else {
 
-			let tab = this.open(url);
-			if (tab !== null) {
+			if (url.startsWith('./') || url.startsWith('../')) {
 
-				let index1 = tab.history.indexOf(tab.url);
-				if (index1 < tab.history.length - 1) {
-					tab.history.splice(index1 + 1);
+				if (callback !== null) {
+					callback(false);
+				} else {
+					return false;
 				}
 
-				tab.url = url;
+			} else {
 
-				let index2 = tab.history.indexOf(url);
-				if (index2 !== -1) {
-					tab.history.splice(index2, 1);
+				let tab = this.open(url);
+				if (tab !== null) {
+
+
+					let index1 = tab.history.indexOf(tab.url);
+					if (index1 < tab.history.length - 1) {
+						tab.history.splice(index1 + 1);
+					}
+
+					tab.url = url;
+
+					let index2 = tab.history.indexOf(url);
+					if (index2 !== -1) {
+						tab.history.splice(index2, 1);
+					}
+
+					tab.history.push(url);
+
+					this.show(tab);
+
 				}
 
-				tab.history.push(url);
 
-				this.show(tab);
+				if (callback !== null) {
+					callback(true);
+				} else {
+					return true;
+				}
 
 			}
 
@@ -284,9 +325,10 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	open: function(url) {
+	open: function(url, callback) {
 
-		url = isString(url) ? url : null;
+		url      = isString(url)        ? url      : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (url !== null) {
@@ -295,7 +337,11 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			let tab = this.tabs.find((t) => t.url === ref.url) || null;
 			if (tab !== null) {
 
-				return tab;
+				if (callback !== null) {
+					callback(tab);
+				} else {
+					return tab;
+				}
 
 			} else {
 
@@ -308,23 +354,24 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				this.tabs.push(tab);
 				this.emit('open', [ tab, this.tabs ]);
 
-				return tab;
+
+				if (callback !== null) {
+					callback(tab);
+				} else {
+					return tab;
+				}
 
 			}
 
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			} else {
+				return null;
+			}
+
 		}
-
-
-		return null;
-
-	},
-
-	parse: function(url) {
-
-		url = isString(url) ? url : null;
-
-
-		return URL.parse(url);
 
 	},
 
@@ -482,7 +529,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			if (callback !== null) {
 				callback(tab);
 			} else {
-				return true;
+				return tab;
 			}
 
 		} else if (tab === null) {
@@ -502,13 +549,18 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			if (callback !== null) {
 				callback(this.tab);
 			} else {
-				return true;
+				return this.tab;
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			} else {
+				return null;
 			}
 
 		}
-
-
-		return false;
 
 	}
 

@@ -59,7 +59,6 @@
 	cursor: default;
 }
 
-
 #header button.active {
 	color: #ffffff;
 }
@@ -201,6 +200,7 @@ header div.header-right {
 #header-mode button[data-key="video"]:before { content: '\e404'; }
 #header-mode button[data-key="other"]:before { content: '\e048'; }
 #header-mode button[data-val="true"]         { color: #ffffff;   }
+#header-mode button[data-val="true"]:hover   { color: #ffffff;   }
 
 #header-settings {
 	margin-left: 32px;

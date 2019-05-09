@@ -8,13 +8,13 @@
 	</head>
 	<body>
 		<article id="internet">
-			<h3>Internet</h3>
+			<h3>Internet Connection</h3>
 			<p>
-				The Stealth Browser can connect to a website through direct internet access machines
-				and peer-to-peer internet access machines.
+				The Stealth Browser can connect to a website through direct internet access and peer-to-peer
+				via other machines that have internet access.
 				<br><br>
-				If this machine does not have internet access, select the peer-to-peer option. It will get
-				internet access once a peer that has internet access is reachable in the local network.
+				If this machine does not have internet access, select the peer-to-peer option. Remember to add
+				the machine with internet access to the list of known <a href="#peers">Peers</a>.
 			</p>
 			<div id="internet-connection">
 				<div>
@@ -38,18 +38,62 @@
 					<label for="internet-connection-5">This machine has proxied internet access via <abbr title="The Onion Router">TOR</abbr>.</label>
 				</div>
 			</div>
+			<h3>Internet History</h3>
+			<p>
+				The Stealth Browser can remember the internet browsing history. The history is remembered
+				per Peer and is kept until the below condition is matched. It can be managed in detail at
+				<a href="stealth:history">stealth:history</a>.
+			</p>
+			<div id="internet-history">
+				<div>
+					<input id="internet-history-1" name="internet-history" type="radio" value="stealth" checked>
+					<label for="internet-history-1">Fly undetected and remember nothing.</label>
+				</div>
+				<div>
+					<input id="internet-history-2" name="internet-history" type="radio" value="day">
+					<label for="internet-history-2">Remember history for the last day (24 hours).</label>
+				</div>
+				<div>
+					<input id="internet-history-3" name="internet-history" type="radio" value="week">
+					<label for="internet-history-3">Remember history for the last week (7 days).</label>
+				</div>
+				<div>
+					<input id="internet-history-4" name="internet-history" type="radio" value="forever">
+					<label for="internet-history-4">Remember history forever.</label>
+				</div>
+			</div>
+			<h3>Internet User-Agent</h3>
+			<p>
+				The Stealth Browser can emulate the User-Agent identifier of other Web Browsers to keep
+				websites working while still being undetected. The User-Agent identifier is regenerated
+				when a Tab is opened and it will be kept until the Tab is closed.
+			</p>
+			<div id="internet-useragent">
+				<div>
+					<input id="internet-useragent-1" name="internet-useragent" type="radio" value="stealth" checked>
+					<label for="internet-useragent-1">Fly undetected and transmit nothing.</label>
+				</div>
+				<div>
+					<input id="internet-useragent-2" name="internet-useragent" type="radio" value="mobile">
+					<label for="internet-useragent-2">Identify as random mobile browser.</label>
+				</div>
+				<div>
+					<input id="internet-useragent-3" name="internet-useragent" type="radio" value="desktop">
+					<label for="internet-useragent-3">Identify as random desktop browser.</label>
+				</div>
+				<div>
+					<input id="internet-useragent-4" name="internet-useragent" type="radio" value="spider">
+					<label for="internet-useragent-4">Identify as random <abbr title="Spider Bots are the scrapers behind search engines">spider bot</abbr>.</label>
+				</div>
+			</div>
 		</article>
 		<article id="hosts">
 			<h3>Hosts</h3>
 			<p>
 				The Stealth Browser has its own persistent <abbr title="Domain Name System">DNS</abbr> cache in
 				order to prevent tracking capabilities of Internet Service Providers when being online via public
-				Wi-Fi or 2G/3G/4G.
-				<br><br>
-				If both the current Internet Connection and the Domain support IPv6, the Stealth Browser will
-				connect to it via IPv6. It is possible to use transparent IPv6 proxies, e.g. when <code>github.com</code>
-				only supports IPv4 and <code>ikvjwd.com</code> is a transparent IPv6 proxy, it is possible to
-				replace the IPs of <code>github.com</code> with the ones of the proxy.
+				Wi-Fi or 2G/3G/4G. Already cached websites and their resources will continue to work if their DNS
+				entries are deleted.
 			</p>
 			<table>
 				<thead>
@@ -72,14 +116,13 @@
 		<article id="peers">
 			<h3>Peers</h3>
 			<p>
-				Trusted Peers allow the efficient sharing of cached resources among internal
-				(or external) networks by using the <abbr title="Web-Socket Protocol Version 13">WS/13</abbr>
-				protocol.
+				The Stealth Browser can share cached websites and resources among a list of
+				trusted Peers. The status indicates whether or not it was possible to connect
+				to the peer, whereas the connection represents the type of internet access the
+				Peer has.
 				<br><br>
-				The status indicates whether or not it was possible to connect to the peer,
-				whereas the connection represents the type of internet access the peer has.
-				<br><br>
-				If you do not trust a specific peer anymore, you can remove it.
+				If a Peer is only reachable via a domain or hostname, remember to add its IP
+				to the list of known <a href="#hosts">Hosts</a>.
 			</p>
 			<table>
 				<thead>
@@ -104,11 +147,14 @@
 		<article id="sites">
 			<h3>Site Modes</h3>
 			<p>
-				Site Modes allow to request different media types by using a whitelist-based
-				configuration. Please select the correct media types in the following table.
+				Site Modes allow to modify the requested media types by using a whitelist-based
+				configuration per domain.
 				<br><br>
-				If you do not trust a specific domain anymore, you can remove its Site Mode.
-				The Stealth Browser will not request anything by default.
+				If you do not trust a specific domain anymore, remove its Site Mode and the
+				Stealth Browser will request nothing by default.
+				<br><br>
+				If you trust only specific URLs of a website and not all, you can modify the
+				website's resources via <a href="#sites-filters">Site Filters</a>.
 			</p>
 			<table id="sites-modes">
 				<thead>
@@ -135,13 +181,15 @@
 			</table>
 			<h3>Site Filters</h3>
 			<p>
-				Site Filters allow to request specific URLs on a domain by using whitelist-based
-				rule configurations. If a Site Mode allows a specific media type and a Site Filter
-				for that domain is present but does not explicitely allow it, it will not be
-				requested.
+				Site Filters allow to modify the requested URLs by using a whitelist-based rule
+				configuration per domain.
 				<br><br>
-				If you do not trust a specific domain anymore, you can remove its Site Filters and
-				therefore the Site Mode (if present) will take over.
+				If a Site Mode allows a specific media type for a domain and a Site Filter for
+				the domain is present but does not explicitely allow to request the URL, it is
+				not requested.
+				<br><br>
+				If you do not trust a specific domain anymore, you can remove its Site Filters
+				and the <a href="#sites-modes">Site Mode</a>, if present, takes over.
 			</p>
 			<table id="sites-filters">
 				<thead>

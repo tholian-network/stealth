@@ -262,7 +262,7 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'redirect',
 					event:   'save'
 				},
-				payload: true
+				payload: (redirect !== null)
 			});
 
 		} else if (callback !== null) {

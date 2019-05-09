@@ -80,6 +80,25 @@ const Download = function(ref) {
 
 Download.prototype = Object.assign({}, Emitter.prototype, {
 
+	toJSON: function() {
+
+		let data = {
+			bandwidth: this.bandwidth(),
+			buffer: {
+				start:   this.buffer.start,
+				length:  this.buffer.length,
+				partial: this.buffer.partial,
+				payload: null
+			}
+		};
+
+		return {
+			type: 'Download',
+			data: data
+		};
+
+	},
+
 	bandwidth: function() {
 
 		if (this.connection !== null) {

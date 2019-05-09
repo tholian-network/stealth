@@ -10,7 +10,7 @@ import { Optimizer  } from './request/Optimizer.mjs';
 
 
 
-let _id = 0;
+let _id = 1;
 
 const Request = function(data, stealth) {
 
@@ -20,7 +20,8 @@ const Request = function(data, stealth) {
 	Emitter.call(this);
 
 
-	this.id       = 'request-' + _id++;
+	this.id       = '' + _id++;
+	this.url      = null;
 	this.config   = settings.config || {
 		domain: null,
 		mode:   {
@@ -37,7 +38,6 @@ const Request = function(data, stealth) {
 		refresh: false,
 		webview: false
 	};
-	this.prefix   = settings.prefix || '/stealth/';
 	this.ref      = null;
 	this.response = null;
 	this.retries  = 0;
@@ -56,7 +56,6 @@ const Request = function(data, stealth) {
 		optimize: null,
 		response: null
 	};
-	this.url      = null;
 
 
 	let ref = settings.ref || null;
@@ -474,6 +473,31 @@ const Request = function(data, stealth) {
 
 
 Request.prototype = Object.assign({}, Emitter.prototype, {
+
+	toJSON: function() {
+
+		let data = {
+			id:       this.id,
+			url:      this.url,
+			config:   {
+				domain: this.config.domain,
+				mode:   Object.assign({}, this.config.mode)
+			},
+			download: null,
+			flags:    Object.assign({}, this.flags),
+			timeline: Object.assign({}, this.timeline)
+		};
+
+		if (this.download !== null) {
+			data.download = this.download.toJSON().data;
+		}
+
+		return {
+			type: 'Request',
+			data: data
+		};
+
+	},
 
 	init: function() {
 

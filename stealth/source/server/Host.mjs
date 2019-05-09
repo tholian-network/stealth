@@ -357,12 +357,13 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 
+
 			callback({
 				headers: {
 					service: 'host',
 					event:   'save'
 				},
-				payload: true
+				payload: (host !== null)
 			});
 
 		} else if (callback !== null) {

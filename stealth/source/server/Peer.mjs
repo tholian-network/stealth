@@ -374,7 +374,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'peer',
 					event:   'save'
 				},
-				payload: true
+				payload: (peer !== null)
 			});
 
 		} else if (callback !== null) {

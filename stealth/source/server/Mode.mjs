@@ -210,7 +210,7 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'mode',
 					event:   'save'
 				},
-				payload: true
+				payload: (mode !== null)
 			});
 
 		} else if (callback !== null) {
