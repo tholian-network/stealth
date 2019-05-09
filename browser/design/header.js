@@ -25,7 +25,7 @@
 
 
 
-	const _get_config = function(browser) {
+	const get_config = function(browser) {
 
 		let config = {
 			domain: null,
@@ -81,7 +81,7 @@
 
 	};
 
-	const _update_address = function(browser, tab) {
+	const update_address = function(browser, tab) {
 
 		if (tab !== null) {
 
@@ -215,7 +215,7 @@
 
 	};
 
-	const _update_history = function(browser, tab) {
+	const update_history = function(browser, tab) {
 
 		if (tab !== null) {
 
@@ -273,7 +273,7 @@
 
 	};
 
-	const _update_mode = function(browser, tab) {
+	const update_mode = function(browser, tab) {
 
 		if (tab !== null) {
 
@@ -306,7 +306,7 @@
 	const _init = function(browser) {
 
 		browser.on('change', (tab) => {
-			_update_mode(browser, tab);
+			update_mode(browser, tab);
 		});
 
 		browser.on('show', (tab) => {
@@ -321,15 +321,15 @@
 				}
 
 
-				_update_address(browser, tab);
-				_update_history(browser, tab);
-				_update_mode(browser, tab);
+				update_address(browser, tab);
+				update_history(browser, tab);
+				update_mode(browser, tab);
 
 			} else {
 
-				_update_address(browser, null);
-				_update_history(browser, null);
-				_update_mode(browser, null);
+				update_address(browser, null);
+				update_history(browser, null);
+				update_mode(browser, null);
 
 			}
 
@@ -347,13 +347,13 @@
 				}
 
 
-				_update_address(browser, tab);
-				_update_history(browser, tab);
+				update_address(browser, tab);
+				update_history(browser, tab);
 
 			} else {
 
-				_update_address(browser, null);
-				_update_history(browser, null);
+				update_address(browser, null);
+				update_history(browser, null);
 
 			}
 
@@ -435,7 +435,7 @@
 				let url = inputs.address.value.trim();
 				if (url === '') {
 
-					_update_address(browser.tab);
+					update_address(browser, browser.tab);
 
 				} else if (
 					url.startsWith('stealth:search') === false
@@ -451,7 +451,7 @@
 					|| url.endsWith('://')
 				) {
 
-					_update_address(browser.tab);
+					update_address(browser, browser.tab);
 					url = '';
 
 				} else if (url === 'stealth:') {
@@ -499,7 +499,7 @@
 
 					button.setAttribute('data-val', button.getAttribute('data-val') === 'true' ? 'false' : 'true');
 
-					let config = _get_config(browser);
+					let config = get_config(browser);
 					if (config !== null) {
 						browser.set(config);
 					}
