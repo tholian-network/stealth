@@ -1,5 +1,5 @@
 
-import { isObject, isString } from './POLYFILLS.mjs';
+import { isNumber, isObject, isString } from './POLYFILLS.mjs';
 
 import { console } from './console.mjs';
 import { IP      } from './parser/IP.mjs';
@@ -58,14 +58,12 @@ const remove_request = function(request) {
 
 
 
-let _id = 1;
-
 const Session = function(headers) {
 
 	headers = isObject(headers) ? headers : {};
 
 
-	this.id      = '' + _id++;
+	this.id      = 'session-' + Date.now();
 	this.browser = 'Unknown';
 	this.history = {};
 	this.system  = 'Unknown';
@@ -124,6 +122,85 @@ const Session = function(headers) {
 		}
 
 	}
+
+};
+
+
+Session.from = function(json) {
+
+	json = isObject(json) ? json : null;
+
+
+	if (json !== null) {
+
+		let type = json.type === 'Session' ? json.type : null;
+		let data = isObject(json.data)     ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			let session = new Session();
+
+			if (isString(data.id))      session.id      = data.id;
+			if (isString(data.browser)) session.browser = data.browser;
+			if (isString(data.system))  session.system  = data.system;
+			if (isNumber(data.warning)) session.warning = data.warning;
+
+			if (isObject(data.history)) {
+
+				for (let tab in data.history) {
+					this.history[tab] = Array.from(data.history[tab]);
+				}
+
+			}
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
+Session.merge = function(target, source) {
+
+	target = target instanceof Session ? target : null;
+	source = source instanceof Session ? source : null;
+
+
+	if (target !== null && source !== null) {
+
+		if (source.id !== null)           target.id      = source.id;
+		if (source.browser !== 'Unknown') target.browser = source.browser;
+		if (source.system !== 'Unknown')  target.system  = source.system;
+
+		if (isObject(source.history)) {
+
+			for (let tab in source.history) {
+
+				let entries = target.history[tab] || null;
+				if (entries === null) {
+					entries = target.history[tab] = [];
+				}
+
+				source.history[tab].forEach((request) => {
+
+					let found = target.history[tab].find((other) => other.id === request.id) || null;
+					if (found === null) {
+						target.history[tab].push(request);
+					}
+
+				});
+
+			}
+
+		}
+
+	}
+
+
+	return target;
 
 };
 

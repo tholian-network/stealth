@@ -7,6 +7,7 @@ import process from 'process';
 import { isArray, isBoolean, isFunction, isObject, isString } from './POLYFILLS.mjs';
 
 import { console } from './console.mjs';
+import { Session } from './Session.mjs';
 
 const PROFILE = (function(env, platform) {
 
@@ -102,49 +103,47 @@ const read_file = function(url, data, keepdata) {
 
 				} else {
 
-					tmp.forEach((object) => {
+					if (tmp.length > 0) {
 
-						if ('domain' in object) {
+						let uuid = [];
+						if ('subdomain' in tmp[0]) {
+							uuid.push('subdomain');
+							uuid.push('domain');
+						} else if ('domain' in tmp[0]) {
+							uuid.push('domain');
+						} else if ('id' in tmp[0]) {
+							uuid.push('id');
+						}
 
-							let check = data.find((d) => d.domain === object.domain) || null;
-							if (check !== null) {
+						if (uuid.length > 0) {
 
-								for (let prop in object) {
+							let map = {};
 
-									if (data[prop] === undefined) {
-										data[prop] = object[prop];
-									} else if (data[prop] === null && object[prop] !== null) {
-										data[prop] = object[prop];
-									}
+							data.forEach((object) => {
+								let id  = uuid.map((key) => object[key]).join('|');
+								map[id] = object;
+							});
 
-								}
+							tmp.forEach((object) => {
+								let id  = uuid.map((key) => object[key]).join('|');
+								map[id] = object;
+							});
 
-							} else {
+							data.splice(0);
+
+							Object.values(map).forEach((object) => {
 								data.push(object);
-							}
+							});
 
-						} else if ('id' in object) {
+						} else {
 
-							let check = data.find((d) => d.id === object.id) || null;
-							if (check !== null) {
-
-								for (let prop in object) {
-
-									if (data[prop] === undefined) {
-										data[prop] = object[prop];
-									} else if (data[prop] === null && object[prop] !== null) {
-										data[prop] = object[prop];
-									}
-
-								}
-
-							} else {
+							tmp.forEach((object) => {
 								data.push(object);
-							}
+							});
 
 						}
 
-					});
+					}
 
 				}
 
@@ -185,6 +184,8 @@ const read = function(profile, keepdata, callback) {
 
 		if (result === true) {
 
+			let sessions = [];
+
 			let check = [
 				read_file.call(this, profile + '/internet.json',  this.internet,  false),
 				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata),
@@ -193,8 +194,33 @@ const read = function(profile, keepdata, callback) {
 				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata),
 				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata),
 				read_file.call(this, profile + '/redirects.json', this.redirects, keepdata),
-				read_file.call(this, profile + '/sessions.json',  this.sessions,  keepdata)
+				read_file.call(this, profile + '/sessions.json',  sessions,       keepdata)
 			].filter((v) => v === false);
+
+			if (sessions.length > 0) {
+
+				if (keepdata === false) {
+
+					this.sessions = sessions.map((raw) => {
+						return Session.from(raw);
+					}).filter((v) => v !== null);
+
+				} else {
+
+					sessions.map((raw) => {
+						return Session.from(raw);
+					}).filter((v) => v !== null).forEach((session) => {
+
+						let other = this.sessions.find((s) => s.id === session.id) || null;
+						if (other !== null) {
+							Session.merge(other, session);
+						}
+
+					});
+
+				}
+
+			}
 
 			if (callback !== null) {
 				callback(check.length === 0);

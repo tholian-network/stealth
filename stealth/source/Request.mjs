@@ -1,5 +1,5 @@
 
-import { isBoolean, isString } from './POLYFILLS.mjs';
+import { isBoolean, isObject, isString } from './POLYFILLS.mjs';
 
 import { Emitter    } from './Emitter.mjs';
 import { URL        } from './parser/URL.mjs';
@@ -10,8 +10,6 @@ import { Optimizer  } from './request/Optimizer.mjs';
 
 
 
-let _id = 1;
-
 const Request = function(data, stealth) {
 
 	let settings = Object.assign({}, data);
@@ -20,7 +18,7 @@ const Request = function(data, stealth) {
 	Emitter.call(this);
 
 
-	this.id       = '' + _id++;
+	this.id       = 'request-' + Date.now();
 	this.url      = null;
 	this.config   = settings.config || {
 		domain: null,
@@ -472,6 +470,67 @@ const Request = function(data, stealth) {
 };
 
 
+Request.from = function(json) {
+
+	json = isObject(json) ? json : null;
+
+
+	if (json !== null) {
+
+		let type = json.type === 'Request' ? json.type : null;
+		let data = isObject(json.data)     ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			let request = new Request();
+
+			if (isString(data.id))  request.id  = data.id;
+			if (isString(data.url)) request.url = data.url;
+
+			if (isObject(data.config)) {
+
+				if (isString(data.config.domain)) {
+					request.config.domain = data.config.domain;
+				}
+
+				if (isObject(data.config.mode)) {
+
+					Object.keys(request.config.mode).forEach((key) => {
+
+						let mode = data.config.mode[key] || null;
+						if (isBoolean(mode)) {
+							request.config.mode[key] = mode;
+						}
+
+					});
+
+				}
+
+			}
+
+			if (isObject(data.flags)) {
+
+				Object.keys(data.flags).forEach((key) => {
+
+					let flag = data.flags[key];
+					if (isBoolean(flag)) {
+						request.flags[key] = flag;
+					}
+
+				});
+
+			}
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
 Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	toJSON: function() {
@@ -489,7 +548,7 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 		};
 
 		if (this.download !== null) {
-			data.download = this.download.toJSON().data;
+			data.download = this.download.toJSON();
 		}
 
 		return {

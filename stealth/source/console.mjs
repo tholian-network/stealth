@@ -5,14 +5,26 @@ import { isArray, isDate, isFunction, isNumber, isObject, isString } from './POL
 
 
 
-const _INDENT     = '    ';
-const _WHITESPACE = new Array(512).fill(' ').join('');
+const isMatrix = function(value) {
 
-const _format_date = function(n) {
-	return n < 10 ? '0' + n : '' + n;
+	if (isArray(value)) {
+
+		return value.find((v) => {
+			return (isArray(v) || isFunction(v) || isObject(v));
+		}) === undefined;
+
+	}
+
+	return false;
+
 };
 
-const _stringify = function(data, indent) {
+
+const INDENT      = '    ';
+const WHITESPACE  = new Array(512).fill(' ').join('');
+const format_date = (n) => (n < 10 ? '0' + n : '' + n);
+
+const stringify = function(data, indent) {
 
 	indent = isString(indent) ? indent : '';
 
@@ -49,15 +61,15 @@ const _stringify = function(data, indent) {
 			str = indent + 'NaN';
 		}
 
-	} else if (isNumber(data) === true) {
+	} else if (isNumber(data)) {
 
 		str = indent + data.toString();
 
-	} else if (isString(data) === true) {
+	} else if (isString(data)) {
 
 		str = indent + '"' + data + '"';
 
-	} else if (isFunction(data) === true) {
+	} else if (isFunction(data)) {
 
 		let body   = data.toString().split('\n');
 		let offset = 0;
@@ -86,15 +98,14 @@ const _stringify = function(data, indent) {
 
 		}
 
-	} else if (isArray(data) === true) {
+	} else if (isArray(data)) {
 
-		let is_primitive = data.find((val) => (isArray(val) || isFunction(val) || isObject(val))) === undefined;
 
 		if (data.length === 0) {
 
 			str = indent + '[]';
 
-		} else if (is_primitive === true) {
+		} else if (isMatrix(data)) {
 
 			str  = indent;
 			str += '[';
@@ -105,7 +116,7 @@ const _stringify = function(data, indent) {
 					str += ' ';
 				}
 
-				str += _stringify(data[d]);
+				str += stringify(data[d]);
 
 				if (d < dl - 1) {
 					str += ', ';
@@ -124,7 +135,7 @@ const _stringify = function(data, indent) {
 
 			for (let d = 0, dl = data.length; d < dl; d++) {
 
-				str += _stringify(data[d], '\t' + indent);
+				str += stringify(data[d], '\t' + indent);
 
 				if (d < dl - 1) {
 					str += ',';
@@ -138,18 +149,18 @@ const _stringify = function(data, indent) {
 
 		}
 
-	} else if (isDate(data) === true) {
+	} else if (isDate(data)) {
 
 		str  = indent;
 
-		str += data.getUTCFullYear()                + '-';
-		str += _format_date(data.getUTCMonth() + 1) + '-';
-		str += _format_date(data.getUTCDate())      + 'T';
-		str += _format_date(data.getUTCHours())     + ':';
-		str += _format_date(data.getUTCMinutes())   + ':';
-		str += _format_date(data.getUTCSeconds())   + 'Z';
+		str += data.getUTCFullYear()               + '-';
+		str += format_date(data.getUTCMonth() + 1) + '-';
+		str += format_date(data.getUTCDate())      + 'T';
+		str += format_date(data.getUTCHours())     + ':';
+		str += format_date(data.getUTCMinutes())   + ':';
+		str += format_date(data.getUTCSeconds())   + 'Z';
 
-	} else if (isObject(data) === true) {
+	} else if (isObject(data)) {
 
 		let keys = Object.keys(data);
 		if (keys.length === 0) {
@@ -166,7 +177,7 @@ const _stringify = function(data, indent) {
 				let key = keys[k];
 
 				str += '\t' + indent + '"' + key + '": ';
-				str += _stringify(data[key], '\t' + indent).trim();
+				str += stringify(data[key], '\t' + indent).trim();
 
 				if (k < kl - 1) {
 					str += ',';
@@ -187,7 +198,7 @@ const _stringify = function(data, indent) {
 
 };
 
-const _args_to_string = function(args) {
+const stringify_arguments = function(args) {
 
 	let output  = [];
 	let columns = process.stdout.columns;
@@ -202,18 +213,18 @@ const _args_to_string = function(args) {
 			let tmp = (value).toString().split('\n');
 
 			for (let t = 0, tl = tmp.length; t < tl; t++) {
-				output.push(tmp[t].replace(/\t/g, _INDENT));
+				output.push(tmp[t].replace(/\t/g, INDENT));
 			}
 
 			o = output.length - 1;
 
 		} else if (isArray(value) === true || isObject(value) === true) {
 
-			let tmp = _stringify(value).split('\n');
+			let tmp = stringify(value).split('\n');
 			if (tmp.length > 1) {
 
 				for (let t = 0, tl = tmp.length; t < tl; t++) {
-					output.push(tmp[t].replace(/\t/g, _INDENT));
+					output.push(tmp[t].replace(/\t/g, INDENT));
 				}
 
 				o = output.length - 1;
@@ -234,7 +245,7 @@ const _args_to_string = function(args) {
 			let tmp = value.split('\r\n').join('\\r\\n').split('\n');
 
 			for (let t = 0, tl = tmp.length; t < tl; t++) {
-				output.push(tmp[t].replace(/\t/g, _INDENT));
+				output.push(tmp[t].replace(/\t/g, INDENT));
 			}
 
 			o = output.length - 1;
@@ -243,9 +254,9 @@ const _args_to_string = function(args) {
 
 			let chunk = output[o];
 			if (chunk === undefined) {
-				output[o] = ('' + value).replace(/\t/g, _INDENT).trim();
+				output[o] = ('' + value).replace(/\t/g, INDENT).trim();
 			} else {
-				output[o] = (chunk + (' ' + value).replace(/\t/g, _INDENT)).trim();
+				output[o] = (chunk + (' ' + value).replace(/\t/g, INDENT)).trim();
 			}
 
 		}
@@ -263,7 +274,7 @@ const _args_to_string = function(args) {
 			if (line.length > maxl) {
 				output[o] = line.substr(0, maxl);
 			} else {
-				output[o] = line + _WHITESPACE.substr(0, maxl - line.length);
+				output[o] = line + WHITESPACE.substr(0, maxl - line.length);
 			}
 
 		}
@@ -277,7 +288,7 @@ const _args_to_string = function(args) {
 		if (line.length > maxl) {
 			line = line.substr(0, maxl);
 		} else {
-			line = line + _WHITESPACE.substr(0, maxl - line.length);
+			line = line + WHITESPACE.substr(0, maxl - line.length);
 		}
 
 		return line;
@@ -318,7 +329,7 @@ export const debug = function() {
 		args.push(arguments[a]);
 	}
 
-	process.stderr.write('\u001b[41m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+	process.stderr.write('\u001b[41m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 };
 
@@ -330,7 +341,7 @@ export const error = function() {
 		args.push(arguments[a]);
 	}
 
-	process.stderr.write('\u001b[41m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+	process.stderr.write('\u001b[41m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 };
 
@@ -342,7 +353,7 @@ export const info = function() {
 		args.push(arguments[a]);
 	}
 
-	process.stdout.write('\u001b[42m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+	process.stdout.write('\u001b[42m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 };
 
@@ -354,7 +365,7 @@ export const log = function() {
 		args.push(arguments[a]);
 	}
 
-	process.stdout.write('\u001b[49m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+	process.stdout.write('\u001b[49m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 };
 
@@ -368,7 +379,7 @@ export const step = function() {
 
 	process.stdout.moveCursor(null, -1);
 	process.stdout.clearLine(1);
-	process.stdout.write('\u001b[49m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+	process.stdout.write('\u001b[49m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 };
 
@@ -380,7 +391,7 @@ export const warn = function() {
 		args.push(arguments[a]);
 	}
 
-	process.stdout.write('\u001b[43m\u001b[97m ' + _args_to_string(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+	process.stdout.write('\u001b[43m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 };
 

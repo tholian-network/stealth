@@ -5,7 +5,7 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
-const _proxify = function(raw) {
+const proxify = function(raw) {
 
 	let payload = raw;
 	if (isObject(payload) === true) {
@@ -57,8 +57,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	proxy: function(payload, callback) {
 
-		payload  = isObject(payload)    ? _proxify(payload) : null;
-		callback = isFunction(callback) ? callback          : null;
+		payload  = isObject(payload)    ? proxify(payload) : null;
+		callback = isFunction(callback) ? callback         : null;
 
 
 		if (payload !== null && callback !== null) {
