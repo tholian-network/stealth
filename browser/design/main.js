@@ -7,15 +7,21 @@
 		history: {
 			back:  doc.querySelector('#header-history-back'),
 			next:  doc.querySelector('#header-history-next'),
-			state: doc.querySelector('#header-history-state')
+			state: doc.querySelector('#header-history-state'),
+			open:  doc.querySelector('#header-history-open')
 		},
 		mode: Array.from(doc.querySelectorAll('#header-mode button')),
-		site: doc.querySelector('#header-settings-site')
+		settings: {
+			peer:    doc.querySelector('#header-settings-peer'),
+			site:    doc.querySelector('#header-settings-site'),
+			browser: doc.querySelector('#header-settings-browser')
+		}
 	};
-	const inputs  = {
+	const inputs = {
 		address: doc.querySelector('#header-address input')
 	};
-	const sidebars = {
+	const settings = {
+		peer: doc.querySelector('aside#peer'),
 		site: doc.querySelector('aside#site')
 	};
 
@@ -74,36 +80,79 @@
 				let key  = e.key.toLowerCase();
 
 				if (
-					key === 'f2'
+					key === 'f1'
+					|| key === 'f2'
 					|| key === 'f3'
 					|| key === 'f4'
 					|| key === 'f5'
 					|| key === 'f6'
 					|| key === 'f7'
 					|| key === 'f8'
+					|| key === 'f9'
+					|| key === 'f10'
+					|| key === 'f11'
+					|| key === 'f12'
 				) {
 					inputs.address.className = '';
 					inputs.address.blur();
 				}
 
-				if (ctrl === true && key === 'escape') {
 
-					let tab = browser.tab || null;
-					if (tab !== null) {
-						browser.kill(tab);
+				if (key === 'escape') {
+
+					inputs.address.className = '';
+					buttons.settings.peer.className = '';
+					buttons.settings.site.className = '';
+					settings.peer.className = '';
+					settings.site.className = '';
+
+				} else if (key === 'f1') {
+
+					// Prev Tab
+					let allowed = buttons.history.back.getAttribute('disabled') === null;
+					if (allowed === true) {
+						buttons.history.back.click();
 					}
 
 					e.preventDefault();
 					e.stopPropagation();
 
-				} else if (key === 'escape') {
+				} else if (key === 'f2') {
 
-					buttons.site.className   = '';
-					inputs.address.className = '';
-					sidebars.site.className   = '';
+					// Next Tab
+					let allowed = buttons.history.next.getAttribute('disabled') === null;
+					if (allowed === true) {
+						buttons.history.next.click();
+					}
 
-				} else if (key === 'f1') {
+					e.preventDefault();
+					e.stopPropagation();
 
+				} else if (key === 'f3' || (ctrl === true && key === 'r')) {
+
+					// Refresh/Pause Tab
+					let allowed = buttons.history.state.getAttribute('disabled') === null;
+					if (allowed === true) {
+						buttons.history.state.click();
+					}
+
+					e.preventDefault();
+					e.stopPropagation();
+
+				} else if (key === 'f4' || (ctrl === true && key === 't')) {
+
+					// Open Tab
+					let allowed = buttons.history.open.getAttribute('disabled') === null;
+					if (allowed === true) {
+						buttons.history.open.click();
+					}
+
+					e.preventDefault();
+					e.stopPropagation();
+
+				} else if (key === 'f5' || (ctrl === true && key === 'e')) {
+
+					// Focus Address Bar
 					inputs.address.className = 'active';
 					inputs.address.setSelectionRange(0, inputs.address.value.length);
 					inputs.address.focus();
@@ -111,8 +160,55 @@
 					e.preventDefault();
 					e.stopPropagation();
 
-				} else if (key === 'f2') {
+				} else if (key === 'f6' || (ctrl === true && key === 'w')) {
 
+					// Kill Tab
+					if (browser.tabs.length > 0) {
+
+						if (browser.tabs.length > 1) {
+							browser.kill(browser.tab);
+						}
+
+					}
+
+					e.preventDefault();
+					e.stopPropagation();
+
+				} else if (key === 'f7') {
+
+					// Prev Tab
+					let index = browser.tabs.indexOf(browser.tab) - 1;
+					if (index < 0) {
+						index = browser.tabs.length - 1;
+					}
+
+					let tab = browser.tabs[index] || null;
+					if (tab !== null) {
+						browser.show(tab);
+					}
+
+					e.preventDefault();
+					e.stopPropagation();
+
+				} else if (key === 'f8') {
+
+					// Next Tab
+					let index = browser.tabs.indexOf(browser.tab) + 1;
+					if (index >= browser.tabs.length) {
+						index %= browser.tabs.length;
+					}
+
+					let tab = browser.tabs[index] || null;
+					if (tab !== null) {
+						browser.show(tab);
+					}
+
+					e.preventDefault();
+					e.stopPropagation();
+
+				} else if (key === 'f9') {
+
+					// Site Mode
 					let check = buttons.mode.filter((b) => b.getAttribute('disabled') === 'true');
 					if (check.length !== buttons.mode.length) {
 
@@ -143,94 +239,41 @@
 					e.preventDefault();
 					e.stopPropagation();
 
-				} else if (key === 'f3') {
+				} else if (key === 'f10') {
 
-					buttons.site.click();
-
-					e.preventDefault();
-					e.stopPropagation();
-
-				} else if (key === 'f4') {
-
-					let tab = browser.open('stealth:settings');
-					if (tab !== null) {
-						browser.show(tab);
-					}
-
-				} else if (key === 'f5') {
-
-					let index = browser.tabs.indexOf(browser.tab) - 1;
-					if (index < 0) {
-						index = browser.tabs.length - 1;
-					}
-
-					let tab = browser.tabs[index] || null;
-					if (tab !== null) {
-						browser.show(tab);
+					// Site Sidebar
+					let allowed = buttons.settings.site.getAttribute('disabled') === null;
+					if (allowed === true) {
+						buttons.settings.site.click();
 					}
 
 					e.preventDefault();
 					e.stopPropagation();
 
-				} else if (key === 'f6') {
+				} else if (key === 'f11') {
 
-					let index = browser.tabs.indexOf(browser.tab) + 1;
-					if (index >= browser.tabs.length) {
-						index %= browser.tabs.length;
-					}
-
-					let tab = browser.tabs[index] || null;
-					if (tab !== null) {
-						browser.show(tab);
+					// Peer Sidebar
+					let allowed = buttons.settings.peer.getAttribute('disabled') === null;
+					if (allowed === true) {
+						buttons.settings.peer.click();
 					}
 
 					e.preventDefault();
 					e.stopPropagation();
 
-				} else if (key === 'f7') {
+				} else if (key === 'f12') {
 
-					if (browser.tabs.length > 0) {
-
-						let tab = browser.tabs[0] || null;
-						if (tab !== null) {
-							browser.kill(tab);
-						}
-
-					}
-
-					e.preventDefault();
-					e.stopPropagation();
-
-				} else if (key === 'f8') {
-
-					if (browser.tabs.length > 0) {
-
-						let tab = browser.tabs[browser.tabs.length - 1] || null;
-						if (tab !== null) {
-							browser.kill(tab);
-						}
-
-					}
-
-					e.preventDefault();
-					e.stopPropagation();
-
-				} else if (ctrl === true && key === 'r') {
-
-					if (buttons.history.state !== null) {
-
-						let allowed = buttons.history.getAttribute('disabled') !== '';
-						if (allowed === true) {
-							buttons.history.state.click();
-						}
-
+					let allowed = buttons.settings.browser.getAttribute('disabled') === null;
+					if (allowed === true) {
+						buttons.settings.browser.click();
 					}
 
 					e.preventDefault();
 					e.stopPropagation();
 
 				} else if (
-					(ctrl === true && key === 'x')
+					(ctrl === true && key === 'z')
+					|| (ctrl === true && key === 'x')
 					|| (ctrl === true && key === 'c')
 					|| (ctrl === true && key === 'v')
 				) {

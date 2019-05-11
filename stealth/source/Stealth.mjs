@@ -99,7 +99,6 @@ const Stealth = function(data) {
 	this.peers    = [];
 	this.requests = [];
 	this.server   = new Server(this);
-	this.sessions = [];
 
 
 
@@ -233,13 +232,13 @@ Stealth.prototype = {
 
 		if (url !== null) {
 
-			let ref     = URL.parse(url);
-			let request = null;
+			let ref      = URL.parse(url);
+			let request  = null;
+			let sessions = this.settings.sessions;
 
-			for (let s = 0, sl = this.sessions.length; s < sl; s++) {
+			for (let s = 0, sl = sessions.length; s < sl; s++) {
 
-				let session = this.sessions[s];
-				let cached  = session.get(ref.url);
+				let cached = sessions[s].get(ref.url);
 				if (cached !== null) {
 					request = cached;
 					break;
@@ -282,8 +281,9 @@ Stealth.prototype = {
 
 		if (session !== null) {
 
-			if (this.sessions.includes(session) === false) {
-				this.sessions.push(session);
+			let sessions = this.settings.sessions;
+			if (sessions.includes(session) === false) {
+				sessions.push(session);
 				session.init();
 			}
 
@@ -291,15 +291,17 @@ Stealth.prototype = {
 
 		} else if (headers !== null) {
 
-			let address = headers['@remote'] || null;
+			let address  = headers['@remote'] || null;
+			let sessions = this.settings.sessions;
+
 			if (address !== null) {
 
 				let ip = IP.parse(address);
 				if (ip.type !== null) {
 
-					for (let s = 0; s < this.sessions.length; s++) {
+					for (let s = 0; s < sessions.length; s++) {
 
-						let other = this.sessions[s];
+						let other = sessions[s];
 						if (other.id === ip.ip) {
 							session = other;
 							break;
@@ -313,7 +315,7 @@ Stealth.prototype = {
 
 			if (session === null) {
 				session = new Session(headers);
-				this.sessions.push(session);
+				sessions.push(session);
 				session.init();
 			}
 
@@ -333,11 +335,12 @@ Stealth.prototype = {
 
 		if (session !== null) {
 
-			if (this.sessions.includes(session) === true) {
+			let sessions = this.settings.sessions;
+			if (sessions.includes(session) === true) {
 
-				let index = this.sessions.indexOf(session);
+				let index = sessions.indexOf(session);
 				if (index !== -1) {
-					this.sessions.splice(index, 1);
+					sessions.splice(index, 1);
 					session.kill();
 				}
 

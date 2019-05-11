@@ -6,11 +6,15 @@
 		history: {
 			back:  doc.querySelector('#header-history-back'),
 			next:  doc.querySelector('#header-history-next'),
-			state: doc.querySelector('#header-history-state')
+			state: doc.querySelector('#header-history-state'),
+			open:  doc.querySelector('#header-history-open')
 		},
 		mode: Array.from(doc.querySelectorAll('#header-mode button')),
-		site: doc.querySelector('#header-settings-site'),
-		settings: doc.querySelector('#header-settings-browser')
+		settings: {
+			site:    doc.querySelector('#header-settings-site'),
+			peer:    doc.querySelector('#header-settings-peer'),
+			browser: doc.querySelector('#header-settings-browser')
+		}
 	};
 	const inputs  = {
 		address: doc.querySelector('#header-address input')
@@ -19,7 +23,8 @@
 		address:  doc.querySelector('#header-address ul'),
 		protocol: doc.querySelector('#header-address-protocol')
 	};
-	const sidebars = {
+	const settings = {
+		peer: doc.querySelector('aside#peer'),
 		site: doc.querySelector('aside#site')
 	};
 
@@ -57,23 +62,23 @@
 		}
 
 
-		let ref       = browser.parse(url);
-		let rdomain   = ref.domain || null;
-		let rprotocol = ref.protocol || null;
+		let ref = browser.parse(url);
 
-		if (rprotocol === 'stealth') {
+		let protocol = ref.protocol || null;
+		if (protocol === 'stealth') {
 			// Do not allow configs for Internal Pages
 			return null;
 		}
 
-		if (rdomain !== null) {
+		let domain = ref.domain || null;
+		if (domain !== null) {
 
-			let rsubdomain = ref.subdomain || null;
-			if (rsubdomain !== null) {
-				rdomain = rsubdomain + '.' + rdomain;
+			let subdomain = ref.subdomain || null;
+			if (subdomain !== null) {
+				config.domain = subdomain + '.' + domain;
+			} else {
+				config.domain = domain;
 			}
-
-			config.domain = rdomain;
 
 		}
 
@@ -81,10 +86,38 @@
 
 	};
 
+	const toggle_sidebar = function(id1) {
+
+		let id2 = id1 === 'site' ? 'peer' : 'site';
+
+
+		buttons.settings[id1].removeAttribute('disabled');
+		buttons.settings[id2].removeAttribute('disabled');
+
+
+		if (settings[id1].className === 'active') {
+
+			buttons.settings[id1].className = '';
+			settings[id1].className = '';
+
+			buttons.settings[id2].className = '';
+			settings[id2].className = '';
+
+		} else if (settings[id1].className === '') {
+
+			buttons.settings[id1].className = 'active';
+			settings[id1].className = 'active';
+
+			buttons.settings[id2].className = '';
+			settings[id2].className = '';
+
+		}
+
+	};
+
 	const update_address = function(browser, tab) {
 
 		if (tab !== null) {
-
 
 			if (inputs.address !== null) {
 				inputs.address.className = '';
@@ -92,24 +125,8 @@
 			}
 
 			if (outputs.protocol !== null) {
-
-				let type  = 'unknown';
-				let title = 'Unknown URL Scheme';
-
-				if (tab.ref.protocol === 'https') {
-					type  = 'secure';
-					title = 'Secure via HTTPS';
-				} else if (tab.ref.protocol === 'http') {
-					type  = 'insecure';
-					title = 'Insecure via HTTP';
-				} else if (tab.ref.protocol === 'stealth') {
-					type  = 'stealth';
-					title = 'Internal Page';
-				}
-
-				outputs.protocol.className = type;
-				outputs.protocol.title     = title;
-
+				outputs.protocol.title = tab.ref.protocol;
+				outputs.protocol.setAttribute('data-val', tab.ref.protocol);
 			}
 
 			if (outputs.address !== null) {
@@ -127,10 +144,28 @@
 						domain = subdomain + '.' + domain;
 					}
 
-					if (tab.ref.protocol === 'https' && tab.ref.port !== 443) {
-						domain += ':' + tab.ref.port;
-					} else if (tab.ref.protocol === 'http' && tab.ref.port !== 80) {
-						domain += ':' + tab.ref.port;
+
+					let port     = tab.ref.port     || null;
+					let protocol = tab.ref.protocol || null;
+
+					if (protocol === 'file') {
+						// Do nothing
+					} else if (protocol === 'ftps' && port !== 990) {
+						domain += ':' + port;
+					} else if (protocol === 'ftp' && port !== 21) {
+						domain += ':' + port;
+					} else if (protocol === 'https' && port !== 443) {
+						domain += ':' + port;
+					} else if (protocol === 'http' && port !== 80) {
+						domain += ':' + port;
+					} else if (protocol === 'wss' && port !== 443) {
+						domain += ':' + port;
+					} else if (protocol === 'ws' && port !== 80) {
+						domain += ':' + port;
+					} else if (protocol === 'socks' && port !== 1080) {
+						domain += ':' + port;
+					} else if (protocol === 'stealth') {
+						// Do nothing
 					}
 
 					chunks.push(domain);
@@ -141,10 +176,28 @@
 						host = '[' + host + ']';
 					}
 
-					if (tab.ref.protocol === 'https' && tab.ref.port !== 443) {
-						host += ':' + tab.ref.port;
-					} else if (tab.ref.protocol === 'http' && tab.ref.port !== 80) {
-						host += ':' + tab.ref.port;
+
+					let port     = tab.ref.port     || null;
+					let protocol = tab.ref.protocol || null;
+
+					if (protocol === 'file') {
+						// Do nothing
+					} else if (protocol === 'ftps' && port !== 990) {
+						domain += ':' + port;
+					} else if (protocol === 'ftp' && port !== 21) {
+						domain += ':' + port;
+					} else if (protocol === 'https' && port !== 443) {
+						domain += ':' + port;
+					} else if (protocol === 'http' && port !== 80) {
+						domain += ':' + port;
+					} else if (protocol === 'wss' && port !== 443) {
+						domain += ':' + port;
+					} else if (protocol === 'ws' && port !== 80) {
+						domain += ':' + port;
+					} else if (protocol === 'socks' && port !== 1080) {
+						domain += ':' + port;
+					} else if (protocol === 'stealth') {
+						// Do nothing
 					}
 
 					chunks.push(host);
@@ -195,8 +248,8 @@
 			}
 
 			if (outputs.protocol !== null) {
-				outputs.protocol.className = 'insecure';
-				outputs.protocol.title     = 'Insecure via HTTP';
+				outputs.protocol.title = '';
+				outputs.protocol.setAttribute('data-val', '');
 			}
 
 			if (outputs.address !== null) {
@@ -280,10 +333,8 @@
 			let protocol = tab.ref.protocol || null;
 			if (protocol === 'stealth') {
 				buttons.mode.forEach((b) => (b.setAttribute('disabled', 'true')));
-				buttons.site.setAttribute('disabled', 'true');
 			} else {
 				buttons.mode.forEach((b) => (b.removeAttribute('disabled')));
-				buttons.site.removeAttribute('disabled');
 			}
 
 			Object.keys(tab.config.mode).forEach((key) => {
@@ -303,6 +354,39 @@
 
 	};
 
+	const update_settings = function(browser, tab) {
+
+		if (tab !== null) {
+
+			let protocol = tab.ref.protocol || null;
+			let domain   = tab.ref.domain   || null;
+
+			if (protocol === 'stealth' && domain === 'settings') {
+				buttons.settings.browser.setAttribute('disabled', 'true');
+				buttons.settings.browser.className = 'active';
+			} else {
+				buttons.settings.browser.removeAttribute('disabled');
+				buttons.settings.browser.className = '';
+			}
+
+			if (protocol === 'stealth') {
+				buttons.settings.site.setAttribute('disabled', 'true');
+				buttons.settings.peer.setAttribute('disabled', 'true');
+			} else {
+				buttons.settings.site.removeAttribute('disabled');
+				buttons.settings.peer.removeAttribute('disabled');
+			}
+
+		} else {
+
+			buttons.settings.site.setAttribute('disabled', 'true');
+			buttons.settings.peer.setAttribute('disabled', 'true');
+			buttons.settings.browser.setAttribute('disabled', 'true');
+
+		}
+
+	};
+
 	const _init = function(browser) {
 
 		browser.on('change', (tab) => {
@@ -313,23 +397,17 @@
 
 			if (tab !== null) {
 
-				let url = tab.url;
-				if (url === 'stealth:settings') {
-					buttons.settings.className = 'active';
-				} else {
-					buttons.settings.className = '';
-				}
-
-
 				update_address(browser, tab);
 				update_history(browser, tab);
 				update_mode(browser, tab);
+				update_settings(browser, tab);
 
 			} else {
 
 				update_address(browser, null);
 				update_history(browser, null);
 				update_mode(browser, null);
+				update_settings(browser, null);
 
 			}
 
@@ -339,21 +417,17 @@
 
 			if (tab !== null) {
 
-				let url = tab.url;
-				if (url === 'stealth:settings') {
-					buttons.settings.className = 'active';
-				} else {
-					buttons.settings.className = '';
-				}
-
-
 				update_address(browser, tab);
 				update_history(browser, tab);
+				// mode doesn't change on refresh
+				update_settings(browser, tab);
 
 			} else {
 
 				update_address(browser, null);
 				update_history(browser, null);
+				// mode doesn't change on refresh
+				update_settings(browser, null);
 
 			}
 
@@ -383,23 +457,35 @@
 
 		}
 
+		if (buttons.history.open !== null) {
+
+			buttons.history.open.removeAttribute('disabled');
+			buttons.history.open.onclick = () => {
+
+				let tab = browser.open('stealth:welcome');
+				if (tab !== null) {
+					browser.show(tab);
+				}
+
+			};
+
+		}
+
 		if (inputs.address !== null && outputs.address !== null) {
 
 			outputs.address.onclick = (e) => {
 
-				inputs.address.className = 'active';
-
-
-				let target = e.target;
-				if (target.id !== 'header-address-protocol' && target.tagName.toLowerCase() === 'li') {
+				let target  = e.target;
+				let tagname = target.tagName.toLowerCase();
+				if (tagname === 'li' && target !== outputs.protocol) {
 
 					let url    = inputs.address.value;
 					let chunks = Array.from(outputs.address.querySelectorAll('li')).slice(1);
 					let chunk  = chunks.find((ch) => ch === target);
 					let c      = chunks.indexOf(chunk);
 					let before = chunks.slice(0, c).map((ch) => ch.innerHTML).join('');
+					let ref    = browser.parse(url);
 
-					let ref     = browser.parse(url);
 					let protocol = ref.protocol;
 					if (protocol !== null) {
 
@@ -414,6 +500,7 @@
 					let offset = url.indexOf(before) + before.length;
 					let select = chunk.innerHTML;
 
+					inputs.address.className = 'active';
 					inputs.address.setSelectionRange(offset, offset + select.length);
 					inputs.address.focus();
 
@@ -510,41 +597,39 @@
 
 		}
 
-		if (buttons.site !== null) {
+		if (buttons.settings.site !== null) {
 
-			buttons.site.onclick = () => {
+			buttons.settings.site.onclick = () => {
 
 				let tab = browser.tab;
 				if (tab !== null && tab.ref.protocol !== 'stealth') {
-
-					let sidebar = sidebars.site || null;
-					if (sidebar !== null) {
-
-						let visible = sidebar.className === 'active';
-						if (visible === true) {
-							buttons.site.className = '';
-							sidebar.className = '';
-						} else if (visible === false) {
-							buttons.site.className = 'active';
-							sidebar.className = 'active';
-						}
-
-					}
-
+					toggle_sidebar('site');
 				}
 
 			};
 
 		}
 
-		if (buttons.settings !== null) {
+		if (buttons.settings.peer !== null) {
 
-			buttons.settings.onclick = () => {
+			buttons.settings.peer.onclick = () => {
+
+				let tab = browser.tab;
+				if (tab !== null && tab.ref.protocol !== 'stealth') {
+					toggle_sidebar('peer');
+				}
+
+			};
+
+		}
+
+		if (buttons.settings.browser !== null) {
+
+			buttons.settings.browser.onclick = () => {
 
 				let tab = browser.open('stealth:settings');
 				if (tab !== null) {
-					buttons.site.className  = '';
-					sidebars.site.className = '';
+					update_settings(browser, tab);
 					browser.show(tab);
 				}
 

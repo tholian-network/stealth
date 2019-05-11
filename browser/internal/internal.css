@@ -117,11 +117,12 @@ button[data-action="read"]:before     { content: '\e5d5'; }
 button[data-action="remove"]:before   { content: '\e5cd'; }
 button[data-action="save"]:before     { content: '\e5ca'; }
 
-button[data-key="connection"][data-val="unknown"]:before   { content: '\f128'; }
-button[data-key="connection"][data-val="broadband"]:before { content: '\e1ba'; }
+button[data-key="connection"][data-val="offline"]:before   { content: '\e8be'; }
 button[data-key="connection"][data-val="mobile"]:before    { content: '\e1b9'; }
+button[data-key="connection"][data-val="broadband"]:before { content: '\e1ba'; }
 button[data-key="connection"][data-val="peer"]:before      { content: '\e1e2'; }
-button[data-key="connection"][data-val="offline"]:before   { content: '\e0ce'; }
+button[data-key="connection"][data-val="i2p"]:before       { content: '\e32a'; }
+button[data-key="connection"][data-val="tor"]:before       { content: '\e32a'; }
 
 button[data-key="mode.text"]:before       { content: '\e06f'; }
 button[data-key="mode.image"]:before      { content: '\e432'; }
@@ -129,10 +130,6 @@ button[data-key="mode.audio"]:before      { content: '\e049'; }
 button[data-key="mode.video"]:before      { content: '\e404'; }
 button[data-key="mode.other"]:before      { content: '\e048'; }
 button[data-key^="mode"][data-val="true"] { color: #ffffff;   }
-
-button[data-key="status"][data-val="unknown"]:before { content: '\f128'; }
-button[data-key="status"][data-val="online"]:before  { content: '\e1e2'; }
-button[data-key="status"][data-val="offline"]:before { content: '\e0ce'; }
 
 button[data-action].busy:before {
 	content: '\e86a';
@@ -232,6 +229,16 @@ input[type="radio"][name="internet-connection"][value="broadband"]:before { cont
 input[type="radio"][name="internet-connection"][value="peer"]:before      { content: '\e1e2'; }
 input[type="radio"][name="internet-connection"][value="i2p"]:before       { content: '\e32a'; }
 input[type="radio"][name="internet-connection"][value="tor"]:before       { content: '\e32a'; }
+
+input[type="radio"][name="internet-history"][value="stealth"]:before      { content: '\e32a'; }
+input[type="radio"][name="internet-history"][value="day"]:before          { content: '\e889'; }
+input[type="radio"][name="internet-history"][value="week"]:before         { content: '\e916'; }
+input[type="radio"][name="internet-history"][value="forever"]:before      { content: '\eb3d'; }
+
+input[type="radio"][name="internet-useragent"][value="stealth"]:before    { content: '\e32a'; }
+input[type="radio"][name="internet-useragent"][value="mobile"]:before     { content: '\e324'; }
+input[type="radio"][name="internet-useragent"][value="desktop"]:before    { content: '\e30a'; }
+input[type="radio"][name="internet-useragent"][value="spider"]:before     { content: '\e859'; }
 
 input[type="radio"][name="internet-connection"].busy:before,
 input[type="radio"][name="internet-history"].busy:before,
@@ -396,24 +403,94 @@ article p + table {
 
 
 /* welcome */
-#site-modes button[disabled],
-#site-modes button[disabled]:hover {
+#welcome-modes button[disabled],
+#welcome-modes button[disabled]:hover {
 	color: #ffffff;
 }
 
-#site-modes table,
-#keyboard-shortcuts table,
-#internal-pages table {
+#welcome-modes table {
 	table-layout: fixed;
+	width: 368px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
-#site-modes table tr td:first-child,
-#site-modes table tr th:first-child,
-#keyboard-shortcuts table tr td:first-child,
-#keyboard-shortcuts table tr th:first-child,
-#internal-pages table tr td:first-child,
-#internal-pages table tr th:first-child {
-	width: 144px;
+#welcome-modes table tr th:first-child,
+#welcome-modes table tr td:first-child {
+	width: 64px;
+}
+
+#welcome-modes table tr td:last-child {
+	padding: 0px 8px;
+	text-align: left;
+}
+
+#welcome-shortcuts div {
+	margin-top: 48px;
+}
+
+#welcome-shortcuts div table {
+	display: block;
+	table-layout: fixed;
+	width: 50%;
+	vertical-align: top;
+}
+
+#welcome-shortcuts div table:nth-of-type(1) {
+	float: left;
+}
+
+#welcome-shortcuts div table:nth-of-type(2) {
+	float: right;
+}
+
+#welcome-shortcuts div:after {
+	display: block;
+	content: ' ';
+	clear: both;
+}
+
+#welcome-shortcuts table tr th:first-child,
+#welcome-shortcuts table tr td:first-child {
+	width: 128px;
+}
+
+#welcome-shortcuts table tr td:first-child {
+	font-family: 'vera-mono';
+}
+
+#welcome-shortcuts table tr th:last-child,
+#welcome-shortcuts table tr td:last-child {
+	width: calc(400px - 128px);
+}
+
+#welcome-shortcuts table tr td:last-child {
+	padding: 0px 8px;
+	text-align: left;
+}
+
+#welcome-pages table {
+	table-layout: fixed;
+	width: 440px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#welcome-pages table tr th:first-child,
+#welcome-pages table tr td:first-child,
+#welcome-pages table tr th:last-child,
+#welcome-pages table tr td:last-child {
+	width: 50%;
+}
+
+#welcome-pages table tr td:first-child,
+#welcome-pages table tr td:last-child {
+	padding: 0px 8px;
+	text-align: left;
+}
+
+#welcome-pages table tr td:first-child a {
+	font-family: 'vera-mono';
 }
 
 
@@ -422,6 +499,13 @@ article p + table {
 #add-filter-assistant div {
 	line-height: 32px;
 	vertical-align: middle;
+}
+
+
+
+/* fix-mode */
+#fix-mode table tr td:second-child {
+	font-size: 0px;
 }
 
 
@@ -438,7 +522,6 @@ article p + table {
 
 
 /* settings */
-
 #internet-connection,
 #internet-history,
 #internet-useragent {
@@ -511,9 +594,12 @@ article p + table {
 }
 
 #fix-request button[data-key="connection"],
-#peers tbody button[data-key="connection"],
-#peers tbody button[data-key="status"] {
+#peers tbody button[data-key="connection"] {
 	color: #ffffff;
+}
+
+#site-modes table td:second-child {
+	font-size: 0px;
 }
 
 
@@ -530,6 +616,23 @@ article p + table {
 		border-radius: 0px;
 	}
 
+	#welcome-shortcuts div {
+		display: block;
+		text-align: center;
+	}
+
+	#welcome-shortcuts div table:nth-of-type(1),
+	#welcome-shortcuts div table:nth-of-type(2) {
+		display: inline-block;
+		width: auto;
+		float: none;
+		clear: both;
+	}
+
+	#welcome-shortcuts div table:nth-of-type(1) {
+		margin-bottom: 48px;
+	}
+
 }
 
 @media screen and (max-width: 436px) {
@@ -544,6 +647,19 @@ article p + table {
 
 	#internet-useragent {
 		width: auto;
+	}
+
+	#welcome-modes table {
+		width: 100%;
+	}
+
+	#welcome-shortcuts div table:nth-of-type(1),
+	#welcome-shortcuts div table:nth-of-type(2) {
+		width: 100%;
+	}
+
+	#welcome-pages table {
+		width: 100%;
 	}
 
 }

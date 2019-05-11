@@ -63,22 +63,35 @@ aside#navi button {
 	cursor: pointer;
 }
 
-aside#navi button[title^="http:"]:before,
+aside#navi button[title^="file:"]:before,
+aside#navi button[title^="ftps:"]:before,
+aside#navi button[title^="ftp:"]:before,
 aside#navi button[title^="https:"]:before,
+aside#navi button[title^="http:"]:before,
+aside#navi button[title^="wss:"]:before,
+aside#navi button[title^="ws:"]:before,
+aside#navi button[title^="socks:"]:before,
 aside#navi button[title^="stealth:"]:before {
 	display: inline-block;
 	width: 1em;
 	margin-right: 8px;
 	font-family: 'icon';
+	font-size: 24px;
 	text-align: center;
-	vertical-align: top;
+	vertical-align: middle;
 	speak: none;
 }
 
-aside#navi button[title]:before             { content: '\f128'; }
-aside#navi button[title^="http:"]:before    { content: '\e641'; }
+aside#navi button[title]:before             { content: '\e157'; }
+aside#navi button[title^="file:"]:before    { content: '\e84f'; }
+aside#navi button[title^="ftps:"]:before    { content: '\e897'; }
+aside#navi button[title^="ftp:"]:before     { content: '\e898'; }
 aside#navi button[title^="https:"]:before   { content: '\e897'; }
-aside#navi button[title^="stealth:"]:before { content: '\f197'; }
+aside#navi button[title^="http:"]:before    { content: '\e898'; }
+aside#navi button[title^="wss:"]:before     { content: '\e897'; }
+aside#navi button[title^="ws:"]:before      { content: '\e898'; }
+aside#navi button[title^="socks:"]:before   { content: '\e32a'; }
+aside#navi button[title^="stealth:"]:before { content: '\e8b8'; }
 
 aside#navi button.active {
 	color: #ffffff;

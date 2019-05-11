@@ -400,8 +400,6 @@ const _reset_data = (element) => {
 				let val = element.getAttribute('data-val');
 				if (val === 'true' || val === 'false') {
 					element.setAttribute('data-val', 'false');
-				} else if (val !== null) {
-					element.setAttribute('data-val', 'unknown');
 				}
 
 			} else if (type === 'input') {
@@ -464,7 +462,6 @@ const _render_peer = (peer, actions) => `
 <tr>
 	<td data-key="domain">${peer.domain}</td>
 	<td><button data-key="connection" data-val="${peer.connection}" disabled></button></td>
-	<td><button data-key="status" data-val="${peer.status}" disabled></button></td>
 	<td>
 		${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}
 	</td>

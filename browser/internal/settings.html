@@ -117,8 +117,7 @@
 			<h3>Peers</h3>
 			<p>
 				The Stealth Browser can share cached websites and resources among a list of
-				trusted Peers. The status indicates whether or not it was possible to connect
-				to the peer, whereas the connection represents the type of internet access the
+				trusted Peers. The connection represents the type of internet access the
 				Peer has.
 				<br><br>
 				If a Peer is only reachable via a domain or hostname, remember to add its IP
@@ -129,7 +128,6 @@
 					<tr>
 						<th>Domain</th>
 						<th>Connection</th>
-						<th>Status</th>
 						<th></th>
 					</tr>
 				</thead>
@@ -137,8 +135,7 @@
 				<tfoot>
 					<tr>
 						<td><input data-key="domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
-						<td><button data-key="connection" data-val="unknown" disabled></button></td>
-						<td><button data-key="status" data-val="unknown" disabled></button></td>
+						<td><button data-key="connection" data-val="offline" disabled></button></td>
 						<td><button data-action="refresh"></button></td>
 					</tr>
 				</tfoot>

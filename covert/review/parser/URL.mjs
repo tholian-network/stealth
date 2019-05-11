@@ -5,6 +5,12 @@ import { URL } from '../../../stealth/source/parser/URL.mjs';
 
 
 
+const build_domain = (protocol, subdomain, domain, port, path, query, hash) => ({ domain,       hash, host: null, path, port,       protocol, query, subdomain       });
+const build_host   = (protocol, host, port, path, query, hash)              => ({ domain: null, hash, host,       path, port,       protocol, query, subdomain: null });
+const build_file   = (protocol, path, query, hash)                          => ({ domain: null, hash, host: null, path, port: null, protocol, query, subdomain: null });
+
+
+
 describe('URL.isURL', function(assert) {
 
 	let url1  = URL.parse('http://localhost/what/ever.html');
@@ -36,8 +42,8 @@ describe('URL.isURL', function(assert) {
 	assert(URL.isURL(url10) === true);
 	assert(URL.isURL(url11) === true);
 	assert(URL.isURL(url12) === true);
-	assert(URL.isURL(url13) === false);
-	assert(URL.isURL(url14) === false);
+	assert(URL.isURL(url13) === true);
+	assert(URL.isURL(url14) === true);
 	assert(URL.isURL(url15) === false);
 	assert(URL.isURL(url16) === false);
 
@@ -346,8 +352,43 @@ describe('URL.resolve/protocol', function(assert) {
 
 });
 
-// describe('URL.render', function(assert) {
-// });
+describe('URL.render', function(assert) {
+
+	let url1  = URL.render(build_domain('http',  null,  'localhost',    80, '/what/ever.html', null, null));
+	let url2  = URL.render(build_domain('http',  null,  'thinkpad',   1337, '/what/ever.html', 'q=u&e=r&y', 'and-a-hash'));
+	let url3  = URL.render(build_domain('https', null,  'domain.tld',  443, '/what/ever.html', null, null));
+	let url4  = URL.render(build_domain('https', 'sub', 'domain.tld', 1337, '/what/ever.html', 'q=u&e=r&y', 'and-a-hash'));
+	let url5  = URL.render(build_host('http',  '127.0.0.1',    80, '/what/ever.html', null, null));
+	let url6  = URL.render(build_host('http',  '127.0.0.1',  1337, '/what/ever.html', 'q=u&e=r&y', 'and-a-hash'));
+	let url7  = URL.render(build_host('https', '::1',         443, '/what/ever.html', null, null));
+	let url8  = URL.render(build_host('https', '::1',        1337, '/what/ever.html', 'q=u&e=r&y', 'and-a-hash'));
+	let url9  = URL.render(build_domain('stealth', null, 'settings', null, null, null, null));
+	let url10 = URL.render(build_domain('stealth', null, 'search',   null, null, 'query=This+is+a+test', 'and-a-hash'));
+	let url11 = URL.render(build_file('file', '/what/ever.html', null, null));
+	let url12 = URL.render(build_file('file', '/what/ever.html', 'q=u&e=r&y', 'and-a-hash'));
+	let url13 = URL.render(build_domain('ftp', null, 'localhost',  21, '/what/ever.html', null, null));
+	let url14 = URL.render(build_domain('ftp', null, 'thinkpad', 1337, '/what/ever.html', 'q=u&e=r&y', 'and-a-hash'));
+	let url15 = URL.render(build_domain('unknown', null,  'domain.tld', null, '/what/ever.html', null, null));
+	let url16 = URL.render(build_domain('unknown', 'sub', 'domain.tld', 1337, '/what/ever.html', 'q=u&e=r&y', 'and-a-hash'));
+
+	assert(url1  === 'http://localhost/what/ever.html');
+	assert(url2  === 'http://thinkpad:1337/what/ever.html?q=u&e=r&y');
+	assert(url3  === 'https://domain.tld/what/ever.html');
+	assert(url4  === 'https://sub.domain.tld:1337/what/ever.html?q=u&e=r&y');
+	assert(url5  === 'http://127.0.0.1/what/ever.html');
+	assert(url6  === 'http://127.0.0.1:1337/what/ever.html?q=u&e=r&y');
+	assert(url7  === 'https://[::1]/what/ever.html');
+	assert(url8  === 'https://[::1]:1337/what/ever.html?q=u&e=r&y');
+	assert(url9  === 'stealth:settings');
+	assert(url10 === 'stealth:search?query=This+is+a+test');
+	assert(url11 === 'file:///what/ever.html');
+	assert(url12 === 'file:///what/ever.html?q=u&e=r&y');
+	assert(url13 === 'ftp://localhost/what/ever.html');
+	assert(url14 === 'ftp://thinkpad:1337/what/ever.html?q=u&e=r&y');
+	assert(url15 === 'unknown://domain.tld/what/ever.html');
+	assert(url16 === 'unknown://sub.domain.tld:1337/what/ever.html?q=u&e=r&y');
+
+});
 
 
 

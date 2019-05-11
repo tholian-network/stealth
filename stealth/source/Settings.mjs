@@ -1,10 +1,10 @@
 
-import fs          from 'fs';
-import os          from 'os';
-import path        from 'path';
-import process     from 'process';
+import fs      from 'fs';
+import os      from 'os';
+import path    from 'path';
+import process from 'process';
 
-import { isArray, isObject } from './POLYFILLS.mjs';
+import { isArray, isBoolean, isFunction, isObject, isString } from './POLYFILLS.mjs';
 
 import { console } from './console.mjs';
 
@@ -44,13 +44,14 @@ ${settings.filters.length} filter${settings.filters.length === 1 ? '' : 's'}, \
 ${settings.hosts.length} host${settings.hosts.length === 1 ? '' : 's'}, \
 ${settings.modes.length} mode${settings.modes.length === 1 ? '' : 's'}, \
 ${settings.peers.length} peer${settings.peers.length === 1 ? '' : 's'}, \
-${settings.redirects.length} redirect${settings.redirects.length === 1 ? '' : 's'}.
+${settings.redirects.length} redirect${settings.redirects.length === 1 ? '' : 's'}, \
+${settings.sessions.length} session${settings.sessions.length === 1 ? '' : 's'}.
 `;
 
 
-const read_file = function(url, data, complete) {
+const read_file = function(url, data, keepdata) {
 
-	complete = typeof complete === 'boolean' ? complete : false;
+	keepdata = isBoolean(keepdata) ? keepdata : true;
 
 
 	let stat = null;
@@ -91,7 +92,9 @@ const read_file = function(url, data, complete) {
 
 			if (isArray(tmp) && isArray(data)) {
 
-				if (complete === true) {
+				if (keepdata === false) {
+
+					data.splice(0);
 
 					tmp.forEach((object) => {
 						data.push(object);
@@ -147,6 +150,14 @@ const read_file = function(url, data, complete) {
 
 			} else if (isObject(tmp) && isObject(data)) {
 
+				if (keepdata === false) {
+
+					Object.keys(data).forEach((key) => {
+						delete data[key];
+					});
+
+				}
+
 				Object.keys(tmp).forEach((key) => {
 					data[key] = tmp[key];
 				});
@@ -164,39 +175,32 @@ const read_file = function(url, data, complete) {
 
 };
 
-const read = function(profile, complete, callback) {
+const read = function(profile, keepdata, callback) {
 
-	complete = typeof complete === 'boolean'  ? complete : false;
-	callback = typeof callback === 'function' ? callback : null;
+	keepdata = isBoolean(keepdata)  ? keepdata : true;
+	callback = isFunction(callback) ? callback : null;
 
 
 	setup(profile, (result) => {
 
 		if (result === true) {
 
-			let results = [
-				read_file.call(this, profile + '/internet.json',  this.internet),
-				read_file.call(this, profile + '/hosts.json',     this.hosts),
-				read_file.call(this, profile + '/modes.json',     this.modes),
-				read_file.call(this, profile + '/peers.json',     this.peers),
-				read_file.call(this, profile + '/redirects.json', this.redirects)
-			];
+			let check = [
+				read_file.call(this, profile + '/internet.json',  this.internet,  false),
+				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata),
+				read_file.call(this, profile + '/filters.json',   this.filters,   false),
+				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata),
+				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata),
+				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata),
+				read_file.call(this, profile + '/redirects.json', this.redirects, keepdata),
+				read_file.call(this, profile + '/sessions.json',  this.sessions,  keepdata)
+			].filter((v) => v === false);
 
-			this.filters = [];
-			results.push(read_file.call(this, profile + '/filters.json', this.filters, true));
-
-			if (complete === true) {
-				this.blockers = [];
-				results.push(read_file.call(this, profile + '/blockers.json', this.blockers, true));
-			}
-
-
-			let check = results.filter((r) => r === true);
 			if (callback !== null) {
-				callback(check.length === results.length);
+				callback(check.length === 0);
 			}
 
-		} else {
+		} else if (callback !== null) {
 			callback(false);
 		}
 
@@ -219,31 +223,33 @@ const save_file = function(url, data) {
 
 };
 
-const save = function(profile, complete, callback) {
+const save = function(profile, keepdata, callback) {
 
-	callback = typeof callback === 'function' ? callback : null;
+	keepdata = isBoolean(keepdata)  ? keepdata : true;
+	callback = isFunction(callback) ? callback : null;
 
 
 	setup(profile, (result) => {
 
 		if (result === true) {
 
-			let results = [
+			// TODO: If keepdata is set to true,
+			// then try to save data only incrementally
+			// to user's profile!?
+
+			let check = [
 				save_file.call(this, profile + '/internet.json',  this.internet),
+				true, // blockers cannot be modified
 				save_file.call(this, profile + '/filters.json',   this.filters),
 				save_file.call(this, profile + '/hosts.json',     this.hosts),
 				save_file.call(this, profile + '/modes.json',     this.modes),
 				save_file.call(this, profile + '/peers.json',     this.peers),
-				save_file.call(this, profile + '/redirects.json', this.redirects)
-			];
+				save_file.call(this, profile + '/redirects.json', this.redirects),
+				save_file.call(this, profile + '/sessions.json',  this.sessions)
+			].filter((v) => v === false);
 
-			if (complete === true) {
-				// Do nothing
-			}
-
-			let check = results.filter((r) => r === true);
 			if (callback !== null) {
-				callback(check.length === results.length);
+				callback(check.length === 0);
 			}
 
 		} else if (callback !== null) {
@@ -261,7 +267,7 @@ const setup_dir = function(url) {
 	try {
 
 		let stat = fs.lstatSync(path.resolve(url));
-		if (stat.isDirectory()) {
+		if (stat.isDirectory() === true) {
 			result = true;
 		}
 
@@ -272,7 +278,7 @@ const setup_dir = function(url) {
 		try {
 
 			let stat = fs.lstatSync(path.resolve(url));
-			if (stat.isDirectory()) {
+			if (stat.isDirectory() === true) {
 				result = true;
 			}
 
@@ -298,54 +304,62 @@ const setup = function(profile, callback) {
 
 				if (!err) {
 
-					let results = [
+					let check = [
 						setup_dir(profile + '/cache'),
 						setup_dir(profile + '/cache/headers'),
 						setup_dir(profile + '/cache/payload'),
 						setup_dir(profile + '/stash'),
 						setup_dir(profile + '/stash/headers'),
 						setup_dir(profile + '/stash/payload')
-					];
+					].filter((v) => v === false);
 
-					let check = results.filter((r) => r === true);
-					if (check.length !== results.length) {
+					if (check.length !== 0) {
 						console.error('Stealth Profile at "' + profile + '" is not writeable!');
 					}
 
 					if (callback !== null) {
-						callback(check.length === results.length);
+						callback(check.length === 0);
 					}
 
 				} else {
+
 					console.error('Stealth Profile at "' + profile + '" is not writeable!');
-					callback(false);
+
+					if (callback !== null) {
+						callback(false);
+					}
+
 				}
 
 			});
 
-		} else if (stat.isDirectory()) {
+		} else if (stat.isDirectory() === true) {
 
-			let results = [
+			let check = [
 				setup_dir(profile + '/cache'),
 				setup_dir(profile + '/cache/headers'),
 				setup_dir(profile + '/cache/payload'),
 				setup_dir(profile + '/stash'),
 				setup_dir(profile + '/stash/headers'),
 				setup_dir(profile + '/stash/payload')
-			];
+			].filter((v) => v === false);
 
-			let check = results.filter((r) => r === true);
-			if (check.length !== results.length) {
+			if (check.length !== 0) {
 				console.error('Stealth Profile at "' + profile + '" is not writeable!');
 			}
 
 			if (callback !== null) {
-				callback(check.length === results.length);
+				callback(check.length === 0);
 			}
 
 		} else {
+
 			console.error('Stealth Profile at "' + profile + '" is not a directory!');
-			callback(false);
+
+			if (callback !== null) {
+				callback(false);
+			}
+
 		}
 
 	});
@@ -354,10 +368,10 @@ const setup = function(profile, callback) {
 
 
 
-const Settings = function(stealth, profile, defaults) {
+const Settings = function(stealth, profile, vendor) {
 
-	profile  = typeof profile === 'string'  ? profile  : PROFILE;
-	defaults = typeof defaults === 'string' ? defaults : null;
+	profile = isString(profile) ? profile : PROFILE;
+	vendor  = isString(vendor)  ? vendor  : null;
 
 
 	this.internet  = {
@@ -371,17 +385,19 @@ const Settings = function(stealth, profile, defaults) {
 	this.modes     = [];
 	this.peers     = [];
 	this.redirects = [];
+	this.sessions  = [];
 
 	this.profile = profile;
+	this.vendor  = vendor;
 
 
-	if (defaults !== null) {
+	if (this.vendor !== null) {
 
-		read.call(this, defaults, true, (result) => {
+		read.call(this, this.vendor, false, (result) => {
 
 			if (result === true) {
 
-				console.info('Stealth Defaults loaded.');
+				console.info('Vendor Profile loaded from "' + this.vendor + '".');
 
 				let info = _info(this).trim();
 				if (info.length > 0) {
@@ -394,11 +410,12 @@ const Settings = function(stealth, profile, defaults) {
 
 	}
 
+
 	read.call(this, this.profile, true, (result) => {
 
 		if (result === true) {
 
-			console.info('Stealth Profile loaded from "' + this.profile + '".');
+			console.info('Custom Profile loaded from "' + this.profile + '".');
 
 			let info = _info(this).trim();
 			if (info.length > 0) {
@@ -409,10 +426,10 @@ const Settings = function(stealth, profile, defaults) {
 
 			this.profile = '/tmp/stealth-' + USER;
 
-			read.call(this, this.profile, false, (result) => {
+			read.call(this, this.profile, true, (result) => {
 
 				if (result === true) {
-					console.warn('Stealth Profile loaded from "' + this.profile + '".');
+					console.warn('Custom Profile loaded from "' + this.profile + '".');
 				}
 
 			});
@@ -433,7 +450,8 @@ Settings.prototype = {
 			filters:  [],
 			hosts:    [],
 			modes:    [],
-			peers:    []
+			peers:    [],
+			sessions: []
 		};
 
 		// XXX: this.blockers  is private
@@ -459,6 +477,11 @@ Settings.prototype = {
 			data.peers.push(peer);
 		});
 
+		this.sessions.forEach((session) => {
+			data.sessions.push(session.toJSON());
+		});
+
+
 		return {
 			type: 'Settings',
 			data: data
@@ -466,13 +489,13 @@ Settings.prototype = {
 
 	},
 
-	read: function(complete, callback) {
+	read: function(keepdata, callback) {
 
-		complete = typeof complete === 'boolean'  ? complete : false;
-		callback = typeof callback === 'function' ? callback : null;
+		keepdata = isBoolean(keepdata)  ? keepdata : true;
+		callback = isFunction(callback) ? callback : null;
 
 
-		read.call(this, this.profile, complete, (result) => {
+		read.call(this, this.profile, keepdata, (result) => {
 
 			if (callback !== null) {
 				callback(result);
@@ -482,13 +505,13 @@ Settings.prototype = {
 
 	},
 
-	save: function(complete, callback) {
+	save: function(keepdata, callback) {
 
-		complete = typeof complete === 'boolean'  ? complete : false;
-		callback = typeof callback === 'function' ? callback : null;
+		keepdata = isBoolean(keepdata)  ? keepdata : true;
+		callback = isFunction(callback) ? callback : null;
 
 
-		save.call(this, this.profile, complete, (result) => {
+		save.call(this, this.profile, keepdata, (result) => {
 
 			if (callback !== null) {
 				callback(result);

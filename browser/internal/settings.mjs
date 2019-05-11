@@ -373,7 +373,6 @@ init([
 						let cache = browser.settings.peers.find((p) => p.domain === peer.domain) || null;
 						if (cache !== null) {
 							cache.connection = peer.connection;
-							cache.status     = peer.status;
 						}
 
 						on_update({
@@ -421,7 +420,6 @@ init([
 						let cache = browser.settings.peers.find((p) => p.domain === data.domain) || null;
 						if (cache !== null) {
 							cache.connection = data.connection;
-							cache.status     = data.status;
 						}
 
 					}
@@ -618,17 +616,11 @@ init([
 						let cache = browser.settings.peers.find((p) => p.domain === peer.domain) || null;
 						if (cache !== null) {
 							cache.connection = peer.connection;
-							cache.status     = peer.status;
 						}
 
 						let button_connection = elements.peer.querySelector('button[data-key="connection"]');
 						if (button_connection !== null) {
 							button_connection.setAttribute('data-val', peer.connection);
-						}
-
-						let button_status = elements.peer.querySelector('button[data-key="status"]');
-						if (button_status !== null) {
-							button_status.setAttribute('data-val', peer.status);
 						}
 
 						button.setAttribute('data-action', 'confirm');
@@ -650,7 +642,6 @@ init([
 				let cache = browser.settings.peers.find((p) => p.domain === data.domain) || null;
 				if (cache !== null) {
 					cache.connection = data.connection;
-					cache.status     = data.status;
 					data = cache;
 				}
 

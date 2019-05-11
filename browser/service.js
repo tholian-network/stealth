@@ -21,6 +21,8 @@ self.addEventListener('install', (event) => {
 			'design/main.js',
 			'design/navi.css',
 			'design/navi.js',
+			'design/peer.css',
+			'design/peer.js',
 			'design/site.css',
 			'design/site.js',
 			'internal/fix-filter.html',

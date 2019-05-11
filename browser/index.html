@@ -35,10 +35,11 @@
 			<div id="header-history">
 				<button id="header-history-back" title="Visit earlier Site" disabled></button>
 				<button id="header-history-next" title="Visit later Site" disabled></button>
-				<button id="header-history-state" title="Refresh/Pause current Site" disabled></button>
+				<button id="header-history-state" title="Refresh/Pause current Tab" disabled></button>
+				<button id="header-history-open" title="Open Tab" disabled></button>
 			</div>
 			<div id="header-address">
-				<ul><li id="header-address-protocol" class="secure" title="Secure via HTTPS"></li><li>stealth:welcome</li></ul>
+				<ul><li id="header-address-protocol"></li><li>stealth:welcome</li></ul>
 				<input class="active" type="text" placeholder="Enter URL or search query" spellcheck="false">
 			</div>
 			<div class="header-right">
@@ -51,6 +52,7 @@
 				</div>
 				<div id="header-settings">
 					<button id="header-settings-site" title="Site Settings"></button>
+					<button id="header-settings-peer" title="Peer Settings"></button>
 					<button id="header-settings-browser" title="Browser Settings"></button>
 				</div>
 			</div>
@@ -152,11 +154,15 @@
 				</table>
 			</article>
 		</aside>
+		<aside id="peer">
+			<h3>Connected Peers</h3>
+		</aside>
 
 		<!-- Browser Design -->
 		<script src="design/header.js"></script>
 		<script src="design/main.js"></script>
 		<script src="design/navi.js"></script>
+		<script src="design/peer.js"></script>
 		<script src="design/site.js"></script>
 
 		<!-- Browser Init -->

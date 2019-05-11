@@ -59,32 +59,6 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 			callback(false);
 		}
 
-	},
-
-	set: function(payload, callback) {
-
-		payload  = isObject(payload)    ? payload  : null;
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (payload !== null && callback !== null) {
-
-			this.once('set', (result) => callback(result));
-
-			this.client.send({
-				headers: {
-					service: 'settings',
-					method:  'set'
-				},
-				payload: {
-					config: payload.config || null
-				}
-			});
-
-		} else if (callback !== null) {
-			callback(false);
-		}
-
 	}
 
 });

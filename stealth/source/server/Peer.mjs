@@ -8,8 +8,7 @@ import { Client  } from '../Client.mjs';
 
 
 
-const CONNECTION = [ 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
-const STATUS     = [ 'online', 'offline' ];
+const CONNECTION = [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
 
 const payloadify = function(raw) {
 
@@ -22,7 +21,6 @@ const payloadify = function(raw) {
 		payload.subdomain  = typeof payload.subdomain === 'string'   ? payload.subdomain  : null;
 		payload.host       = typeof payload.host === 'string'        ? payload.host       : null;
 		payload.connection = CONNECTION.includes(payload.connection) ? payload.connection : 'offline';
-		payload.status     = STATUS.includes(payload.status)         ? payload.status     : 'offline';
 
 		return payload;
 
@@ -335,7 +333,6 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 			if (peer !== null) {
 
 				peer.connection = payload.connection || 'offline';
-				peer.status     = payload.status     || 'offline';
 
 				settings.save();
 
@@ -348,8 +345,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 				peer = {
 					domain:     payload.domain,
-					connection: payload.connection || 'offline',
-					status:     payload.status     || 'offline'
+					connection: payload.connection || 'offline'
 				};
 
 				settings.peers.push(peer);
@@ -359,8 +355,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 				peer = {
 					domain:     payload.host,
-					connection: payload.connection || 'offline',
-					status:     payload.status     || 'offline'
+					connection: payload.connection || 'offline'
 				};
 
 				settings.peers.push(peer);

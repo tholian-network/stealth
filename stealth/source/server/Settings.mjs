@@ -19,6 +19,7 @@ const readify = function(raw) {
 			payload.hosts    = typeof payload.hosts === 'boolean'    ? payload.hosts    : false;
 			payload.modes    = typeof payload.modes === 'boolean'    ? payload.modes    : false;
 			payload.peers    = typeof payload.peers === 'boolean'    ? payload.peers    : false;
+			payload.sessions = typeof payload.sessions === 'boolean' ? payload.sessions : false;
 
 			return payload;
 
@@ -83,7 +84,8 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 							filters:  null,
 							hosts:    null,
 							modes:    null,
-							peers:    null
+							peers:    null,
+							sessions: null
 						};
 
 
