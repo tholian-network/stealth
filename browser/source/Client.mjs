@@ -182,7 +182,8 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				let server = ref.domain;
 
-				if (hosts.length > 0) {
+				// Ensure same websocket remote address as the iframe requests
+				if (ref.domain !== HOSTNAME && hosts.length > 0) {
 
 					let check = hosts.find((ip) => ip.scope === 'private') || null;
 					if (check === null) {

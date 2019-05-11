@@ -71,15 +71,47 @@ const settings = {
 	}
 
 
-	process.on('SIGINT', () => {
-
-		let result = true;
+	process.on('SIGTERM', () => {
 
 		if (stealth !== null) {
-			result = stealth.disconnect();
+
+			stealth.disconnect((result) => {
+				process.exit(result === true ? 0 : 1);
+			});
+
+		} else {
+			process.exit(0);
 		}
 
-		process.exit(result === true ? 0 : 1);
+	});
+
+	process.on('SIGINT', () => {
+
+		if (stealth !== null) {
+
+			stealth.disconnect((result) => {
+				process.exit(result === true ? 0 : 1);
+			});
+
+		} else {
+			process.exit(0);
+		}
+
+	});
+
+	process.on('SIGTSTP', () => {
+
+		if (stealth !== null) {
+			stealth.disconnect();
+		}
+
+	});
+
+	process.on('SIGCONT', () => {
+
+		if (stealth !== null) {
+			stealth.connect(FLAGS.host || null);
+		}
 
 	});
 

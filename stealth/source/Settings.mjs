@@ -39,7 +39,44 @@ const USER = (function(env) {
 
 
 
-const _info = (settings) => `
+const get_latest = function(json) {
+
+	json = isObject(json) ? json : {};
+
+
+	let latest = null;
+
+	let type = json.type === 'Request' ? json.type : null;
+	let data = isObject(json.data)     ? json.data : null;
+
+	if (type !== null && data !== null) {
+
+		let timeline = isObject(data.timeline) ? data.timeline : null;
+		if (timeline !== null) {
+
+			Object.values(timeline).forEach((time) => {
+
+				if (time !== null) {
+
+					if (latest !== null && time > latest) {
+						latest = time;
+					} else if (latest === null) {
+						latest = time;
+					}
+
+				}
+
+			});
+
+		}
+
+	}
+
+	return latest;
+
+};
+
+const get_message = (settings) => `
 ${settings.blockers.length} blocker${settings.blockers.length === 1 ? '' : 's'}, \
 ${settings.filters.length} filter${settings.filters.length === 1 ? '' : 's'}, \
 ${settings.hosts.length} host${settings.hosts.length === 1 ? '' : 's'}, \
@@ -48,7 +85,6 @@ ${settings.peers.length} peer${settings.peers.length === 1 ? '' : 's'}, \
 ${settings.redirects.length} redirect${settings.redirects.length === 1 ? '' : 's'}, \
 ${settings.sessions.length} session${settings.sessions.length === 1 ? '' : 's'}.
 `;
-
 
 const read_file = function(url, data, keepdata) {
 
@@ -106,13 +142,19 @@ const read_file = function(url, data, keepdata) {
 					if (tmp.length > 0) {
 
 						let uuid = [];
-						if ('subdomain' in tmp[0]) {
+						if ('id' in tmp[0]) {
+							uuid.push('id');
+						} else if ('path' in tmp[0]) {
+							uuid.push('subdomain');
+							uuid.push('domain');
+							uuid.push('path');
+						} else if ('subdomain' in tmp[0]) {
 							uuid.push('subdomain');
 							uuid.push('domain');
 						} else if ('domain' in tmp[0]) {
 							uuid.push('domain');
-						} else if ('id' in tmp[0]) {
-							uuid.push('id');
+						} else if ('host' in tmp[0]) {
+							uuid.push('host');
 						}
 
 						if (uuid.length > 0) {
@@ -187,9 +229,9 @@ const read = function(profile, keepdata, callback) {
 			let sessions = [];
 
 			let check = [
-				read_file.call(this, profile + '/internet.json',  this.internet,  false),
+				read_file.call(this, profile + '/internet.json',  this.internet,  keepdata),
 				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata),
-				read_file.call(this, profile + '/filters.json',   this.filters,   false),
+				read_file.call(this, profile + '/filters.json',   this.filters,   keepdata),
 				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata),
 				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata),
 				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata),
@@ -214,6 +256,8 @@ const read = function(profile, keepdata, callback) {
 						let other = this.sessions.find((s) => s.id === session.id) || null;
 						if (other !== null) {
 							Session.merge(other, session);
+						} else {
+							this.sessions.push(session);
 						}
 
 					});
@@ -259,13 +303,66 @@ const save = function(profile, keepdata, callback) {
 
 		if (result === true) {
 
-			// TODO: If keepdata is set to true,
-			// then try to save data only incrementally
-			// to user's profile!?
+			if (this.sessions.length > 0) {
+
+				let limit = null;
+				if (this.internet.history === 'stealth') {
+					limit = Date.now();
+				} else if (this.internet.history === 'day') {
+					limit = Date.now() - (1000 * 60 * 60 * 24);
+				} else if (this.internet.history === 'week') {
+					limit = Date.now() - (1000 * 60 * 60 * 24 * 7);
+				} else if (this.internet.history === 'forever') {
+					limit = null;
+				}
+
+				if (limit !== null) {
+
+					let count = 0;
+
+					this.sessions.forEach((session) => {
+
+						for (let tid in session.history) {
+
+							let history = session.history[tid];
+							if (history.length > 0) {
+
+								for (let h = 0, hl = history.length; h < hl; h++) {
+
+									let request = history[h];
+									let latest  = get_latest(request);
+									if (latest !== null && latest < limit) {
+										history.splice(h, 1);
+										count++;
+										hl--;
+										h--;
+									} else if (latest === null) {
+										history.splice(h, 1);
+										count++;
+										hl--;
+										h--;
+									}
+
+								}
+
+							}
+
+						}
+
+					});
+
+					if (count > 0) {
+						console.warn('Settings cleared ' + count + ' Request' + (count === 1 ? '' : 's') + ' from History.');
+					}
+
+				}
+
+			}
+
 
 			let check = [
 				save_file.call(this, profile + '/internet.json',  this.internet),
-				true, // blockers cannot be modified
+				true, // blockers cannot be saved
 				save_file.call(this, profile + '/filters.json',   this.filters),
 				save_file.call(this, profile + '/hosts.json',     this.hosts),
 				save_file.call(this, profile + '/modes.json',     this.modes),
@@ -340,7 +437,7 @@ const setup = function(profile, callback) {
 					].filter((v) => v === false);
 
 					if (check.length !== 0) {
-						console.error('Stealth Profile at "' + profile + '" is not writeable!');
+						console.error('Settings at "' + profile + '" are not writeable!');
 					}
 
 					if (callback !== null) {
@@ -349,7 +446,7 @@ const setup = function(profile, callback) {
 
 				} else {
 
-					console.error('Stealth Profile at "' + profile + '" is not writeable!');
+					console.error('Settings at "' + profile + '" are not writeable!');
 
 					if (callback !== null) {
 						callback(false);
@@ -371,7 +468,7 @@ const setup = function(profile, callback) {
 			].filter((v) => v === false);
 
 			if (check.length !== 0) {
-				console.error('Stealth Profile at "' + profile + '" is not writeable!');
+				console.error('Settings at "' + profile + '" are not writeable!');
 			}
 
 			if (callback !== null) {
@@ -380,7 +477,7 @@ const setup = function(profile, callback) {
 
 		} else {
 
-			console.error('Stealth Profile at "' + profile + '" is not a directory!');
+			console.error('Settings at "' + profile + '" is not a directory!');
 
 			if (callback !== null) {
 				callback(false);
@@ -423,11 +520,11 @@ const Settings = function(stealth, profile, vendor) {
 
 			if (result === true) {
 
-				console.info('Vendor Profile loaded from "' + this.vendor + '".');
+				console.info('Vendor Settings loaded from "' + this.vendor + '".');
 
-				let info = _info(this).trim();
-				if (info.length > 0) {
-					info.split('\n').forEach((i) => console.log('> ' + i));
+				let message = get_message(this).trim();
+				if (message.length > 0) {
+					message.split('\n').forEach((m) => console.log('> ' + m));
 				}
 
 			}
@@ -441,11 +538,11 @@ const Settings = function(stealth, profile, vendor) {
 
 		if (result === true) {
 
-			console.info('Custom Profile loaded from "' + this.profile + '".');
+			console.info('Settings loaded from "' + this.profile + '".');
 
-			let info = _info(this).trim();
-			if (info.length > 0) {
-				info.split('\n').forEach((i) => console.log('> ' + i));
+			let message = get_message(this).trim();
+			if (message.length > 0) {
+				message.split('\n').forEach((m) => console.log('> ' + m));
 			}
 
 		} else {
@@ -455,7 +552,7 @@ const Settings = function(stealth, profile, vendor) {
 			read.call(this, this.profile, true, (result) => {
 
 				if (result === true) {
-					console.warn('Custom Profile loaded from "' + this.profile + '".');
+					console.warn('Settings loaded from "' + this.profile + '".');
 				}
 
 			});
@@ -538,6 +635,10 @@ Settings.prototype = {
 
 
 		save.call(this, this.profile, keepdata, (result) => {
+
+			if (result === true) {
+				console.info('Settings stored to "' + this.profile + '".');
+			}
 
 			if (callback !== null) {
 				callback(result);

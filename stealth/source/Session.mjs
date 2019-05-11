@@ -85,6 +85,8 @@ const Session = function(headers) {
 	let agent = headers['user-agent'] || null;
 	if (agent !== null) {
 
+		agent = agent.toLowerCase();
+
 		if (/crios/.test(agent)) {
 			this.browser = 'Chrome for iOS';
 		} else if (/edge/.test(agent)) {
@@ -148,10 +150,12 @@ Session.from = function(json) {
 			if (isObject(data.history)) {
 
 				for (let tab in data.history) {
-					this.history[tab] = Array.from(data.history[tab]);
+					session.history[tab] = Array.from(data.history[tab]);
 				}
 
 			}
+
+			return session;
 
 		}
 
@@ -278,7 +282,7 @@ Session.prototype = {
 
 	init: function() {
 
-		console.log('session #' + this.id + ' connected.');
+		console.log('Session #' + this.id + ' connected.');
 
 	},
 
@@ -298,11 +302,11 @@ Session.prototype = {
 			if (cache.includes(request) === false) {
 
 				request.on('connect', () => {
-					console.log('session #' + this.id + ' tab #' + tab + ' requests ' + request.url);
+					console.log('Session #' + this.id + ' tab #' + tab + ' requests "' + request.url + '".');
 				});
 
 				request.on('progress', (response, progress) => {
-					console.step('session #' + this.id + ' tab #' + tab + ' requests ' + request.url + ' (' + progress.bytes + '/' + progress.length + ')');
+					console.step('Session #' + this.id + ' tab #' + tab + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
 				});
 
 				request.on('error',    () => remove_request.call(this, request));
@@ -330,15 +334,15 @@ Session.prototype = {
 		if (service !== null) {
 
 			if (method !== null) {
-				console.warn('session #' + this.id + ' received warning #' + this.warning + ' for ' + service + '.' + method + '() call.');
+				console.warn('Session #' + this.id + ' received warning #' + this.warning + ' for ' + service + '.' + method + '() call.');
 			} else if (event !== null) {
-				console.warn('session #' + this.id + ' received warning #' + this.warning + ' for ' + service + '@' + event + ' call.');
+				console.warn('Session #' + this.id + ' received warning #' + this.warning + ' for ' + service + '@' + event + ' call.');
 			} else {
-				console.warn('session #' + this.id + ' received warning #' + this.warning + ' for ' + service + ' abuse.');
+				console.warn('Session #' + this.id + ' received warning #' + this.warning + ' for ' + service + ' abuse.');
 			}
 
 		} else {
-			console.warn('session #' + this.id + ' received warning #' + this.warning + '.');
+			console.warn('Session #' + this.id + ' received warning #' + this.warning + '.');
 		}
 
 
@@ -353,12 +357,12 @@ Session.prototype = {
 		for (let tab in this.tabs) {
 
 			this.tabs[tab].forEach((request) => {
-				console.log('session #' + this.id + ' tab #' + tab + ' remains ' + request.url);
+				console.log('Session #' + this.id + ' tab #' + tab + ' remains "' + request.url + '".');
 			});
 
 		}
 
-		console.log('session #' + this.id + ' disconnected.');
+		console.log('Session #' + this.id + ' disconnected.');
 
 	}
 

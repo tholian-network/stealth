@@ -92,6 +92,7 @@ const Stealth = function(data) {
 	console.log(settings);
 
 
+	this.__debug  = settings.debug === true;
 	this.settings = new Settings(this,
 		settings.profile,
 		settings.debug === true ? null : settings.root + '/profile'
@@ -205,23 +206,50 @@ Stealth.prototype = {
 			});
 		}
 
-		if (this.server !== null) {
+		if (this.__debug === true) {
 
-			if (callback !== null) {
-				this.server.disconnect((result) => callback(result));
+			if (this.server !== null) {
+
+				if (callback !== null) {
+					this.server.disconnect((result) => callback(result));
+				} else {
+					this.server.disconnect();
+				}
+
 			} else {
-				return this.server.disconnect();
+
+				if (callback !== null) {
+					callback(false);
+				}
+
 			}
 
 		} else {
 
-			if (callback !== null) {
-				callback(false);
-			}
+			this.settings.save(true, () => {
 
-			return false;
+				if (this.server !== null) {
+
+					if (callback !== null) {
+						this.server.disconnect((result) => callback(result));
+					} else {
+						this.server.disconnect();
+					}
+
+				} else {
+
+					if (callback !== null) {
+						callback(false);
+					}
+
+				}
+
+			});
 
 		}
+
+
+		return true;
 
 	},
 
@@ -296,13 +324,15 @@ Stealth.prototype = {
 
 			if (address !== null) {
 
-				let ip = IP.parse(address);
-				if (ip.type !== null) {
+				let ip  = IP.parse(address);
+				let sid = IP.render(ip);
+
+				if (sid !== null) {
 
 					for (let s = 0; s < sessions.length; s++) {
 
 						let other = sessions[s];
-						if (other.id === ip.ip) {
+						if (other.id === sid) {
 							session = other;
 							break;
 						}

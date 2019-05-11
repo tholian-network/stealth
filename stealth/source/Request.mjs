@@ -521,6 +521,8 @@ Request.from = function(json) {
 
 			}
 
+			return request;
+
 		}
 
 	}

@@ -5,6 +5,19 @@ import { Emitter } from '../Emitter.mjs';
 
 
 
+const get_id = function(payload) {
+
+	let id = '';
+
+	id += payload.domain;
+	id += '|' + (typeof payload.filter.prefix === 'string' ? payload.filter.prefix : null);
+	id += '|' + (typeof payload.filter.midfix === 'string' ? payload.filter.midfix : null);
+	id += '|' + (typeof payload.filter.suffix === 'string' ? payload.filter.suffix : null);
+
+	return id;
+
+};
+
 const payloadify = function(raw) {
 
 	let payload = raw;
@@ -12,6 +25,7 @@ const payloadify = function(raw) {
 
 		payload = Object.assign({}, raw);
 
+		payload.id        = typeof payload.id === 'string'        ? payload.id        : null;
 		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
 		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
 		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
@@ -33,6 +47,23 @@ const payloadify = function(raw) {
 			};
 
 		}
+
+		return payload;
+
+	}
+
+	return null;
+
+};
+
+const readify = function(raw) {
+
+	let payload = raw;
+	if (isObject(payload)) {
+
+		payload = Object.assign({}, raw);
+
+		payload.id = typeof payload.id === 'string' ? payload.id : null;
 
 		return payload;
 
@@ -98,6 +129,44 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	read: function(payload, callback) {
+
+		payload  = isObject(payload)    ? readify(payload) : null;
+		callback = isFunction(callback) ? callback         : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			let filter   = null;
+			let settings = this.stealth.settings;
+
+			if (payload.id !== null) {
+				filter = settings.filters.filter((f) => f.id === payload.id) || null;
+			}
+
+
+			callback({
+				headers: {
+					service: 'filter',
+					event:   'query'
+				},
+				payload: filter
+			});
+
+		} else if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'filter',
+					event:   'read'
+				},
+				payload: null
+			});
+
+		}
+
+	},
+
 	remove: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payloadify(payload) : null;
@@ -111,7 +180,11 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				if (payload.subdomain !== null) {
+				if (payload.id !== null) {
+
+					filter = settings.filters.find((f) => f.id === payload.id) || null;
+
+				} else if (payload.subdomain !== null) {
 
 					filter = settings.filters.find((f) => {
 						return (
@@ -185,7 +258,11 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (payload.domain !== null) {
 
-				if (payload.subdomain !== null) {
+				if (payload.id !== null) {
+
+					filter = settings.filters.find((f) => f.id === payload.id) || null;
+
+				} else if (payload.subdomain !== null) {
 
 					filter = settings.filters.find((f) => {
 						return (
@@ -211,7 +288,28 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 
 				if (
+					filter !== null
+					// id ensures filter uniqueness
+					&& payload.id !== null
+					&& payload.domain !== null
+					&& (
+						payload.filter.prefix !== null
+						|| payload.filter.midfix !== null
+						|| payload.filter.suffix !== null
+					)
+				) {
+
+					filter.domain        = payload.domain;
+					filter.filter.prefix = payload.filter.prefix || null;
+					filter.filter.midfix = payload.filter.midfix || null;
+					filter.filter.suffix = payload.filter.suffix || null;
+					filter.id            = get_id(payload);
+
+					settings.save();
+
+				} else if (
 					filter === null
+					&& payload.domain !== null
 					&& (
 						payload.filter.prefix !== null
 						|| payload.filter.midfix !== null
@@ -225,6 +323,7 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 					}
 
 					filter = {
+						id:     get_id(payload),
 						domain: payload.domain,
 						filter: {
 							prefix: payload.filter.prefix || null,

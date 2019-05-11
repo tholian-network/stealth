@@ -1,6 +1,12 @@
 
 # Settings Service
 
+Some settings cannot be modified to avoid potential malicious usage.
+
+- The `blockers` settings are unavailable for `read()` or `save()`.
+- The `redirects` settings are unavailable for `save()`.
+- The `sessions` settings are unavailable for `save()`.
+
 ## read()
 
 `read(null, callback)`
@@ -12,7 +18,7 @@ reads the `settings` from the local Stealth `profile` folder.
 null
 ```
 
-`read({ internet: Boolean, filters: Boolean, hosts: Boolean, modes: Boolean, peers: Boolean }, callback)`
+`read({ internet: Boolean, filters: Boolean, hosts: Boolean, modes: Boolean, peers: Boolean, redirects: Boolean, sessions: Boolean }, callback)`
 
 reads the `settings` from the local Stealth `profile` folder, and
 responds only with the selected `type`.
@@ -35,7 +41,7 @@ null // responds with all settings
 
 ## save()
 
-`save({ internet: Object, filters: Array, hosts: Array, peers: Array, sites: Array }, callback)`
+`save({ internet: Object, filters: Array, hosts: Array, modes: Array, peers: Array }, callback)`
 
 saves the `settings` to the local Stealth `profile` folder.
 
@@ -48,24 +54,31 @@ the same identifiers, it will be changed.
 {
 	// stored in profile/internet.json
 	internet: {
-		connection: 'mobile'
+		connection: 'mobile',
+		history:    'stealth',
+		useragent:  'stealth'
 	},
 
 	// stored in profile/filters.json
 	// managed by Filter Service
 	filters: [{
 		domain: 'cookie.engineer',
-		prefix: '/bad',
-		midfix: null,
-		suffix: '.advert.png'
+		filter: {
+			prefix: '/bad',
+			midfix: null,
+			suffix: '.advert.png'
+		}
 	}],
 
 	// stored in profile/hosts.json
 	// managed by Host Service
 	hosts: [{
 		domain: 'cookie.engineer',
-		ipv4:   '185.199.109.153'
-		ipv6:   null
+		hosts: [{
+			ip:    '185.199.109.153'
+			scope: 'public',
+			type:  'v4'
+		}]
 	}],
 
 	// stored in profile/modes.json
@@ -84,9 +97,8 @@ the same identifiers, it will be changed.
 	// stored in profile/peers.json
 	// managed by Peer Service
 	peers: [{
-		domain:   'local-laptop', // can be either of domain, hostname, ipv4, ipv6
-		capacity: 'online',
-		mode:     'stealth'
+		domain:     'local-laptop', // can be either of domain, hostname, ipv4, ipv6
+		connection: 'mobile'
 	}]
 
 }

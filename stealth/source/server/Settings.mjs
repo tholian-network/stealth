@@ -14,12 +14,14 @@ const readify = function(raw) {
 
 			payload = Object.assign({}, raw);
 
-			payload.internet = typeof payload.internet === 'boolean' ? payload.internet : false;
-			payload.filters  = typeof payload.filters === 'boolean'  ? payload.filters  : false;
-			payload.hosts    = typeof payload.hosts === 'boolean'    ? payload.hosts    : false;
-			payload.modes    = typeof payload.modes === 'boolean'    ? payload.modes    : false;
-			payload.peers    = typeof payload.peers === 'boolean'    ? payload.peers    : false;
-			payload.sessions = typeof payload.sessions === 'boolean' ? payload.sessions : false;
+			payload.internet  = typeof payload.internet === 'boolean'  ? payload.internet  : false;
+			payload.blockers  = false; // cannot be read
+			payload.filters   = typeof payload.filters === 'boolean'   ? payload.filters   : false;
+			payload.hosts     = typeof payload.hosts === 'boolean'     ? payload.hosts     : false;
+			payload.modes     = typeof payload.modes === 'boolean'     ? payload.modes     : false;
+			payload.peers     = typeof payload.peers === 'boolean'     ? payload.peers     : false;
+			payload.redirects = typeof payload.redirects === 'boolean' ? payload.redirects : false;
+			payload.sessions  = typeof payload.sessions === 'boolean'  ? payload.sessions  : false;
 
 			return payload;
 
@@ -38,11 +40,14 @@ const saveify = function(raw) {
 
 		payload = Object.assign({}, raw);
 
-		payload.internet = isObject(payload.internet) ? payload.internet : {};
-		payload.filters  = isArray(payload.filters)   ? payload.filters  : [];
-		payload.hosts    = isArray(payload.hosts)     ? payload.hosts    : [];
-		payload.modes    = isArray(payload.modes)     ? payload.modes    : [];
-		payload.peers    = isArray(payload.peers)     ? payload.peers    : [];
+		payload.internet  = isObject(payload.internet) ? payload.internet : {};
+		payload.blockers  = []; // blockers cannot be saved
+		payload.filters   = isArray(payload.filters)   ? payload.filters  : [];
+		payload.hosts     = isArray(payload.hosts)     ? payload.hosts    : [];
+		payload.modes     = isArray(payload.modes)     ? payload.modes    : [];
+		payload.peers     = isArray(payload.peers)     ? payload.peers    : [];
+		payload.redirects = []; // cannot be saved
+		payload.sessions  = []; // cannot be saved
 
 		return payload;
 
@@ -80,12 +85,14 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 						let blob = this.stealth.settings.toJSON();
 						let data = {
-							internet: null,
-							filters:  null,
-							hosts:    null,
-							modes:    null,
-							peers:    null,
-							sessions: null
+							internet:  null,
+							blockers:  null,
+							filters:   null,
+							hosts:     null,
+							modes:     null,
+							peers:     null,
+							redirects: null,
+							sessions:  null
 						};
 
 
