@@ -18,12 +18,8 @@ const Blocker = {
 
 					let host = blockers[b];
 					if (host.domain === ref.domain) {
-
-						if (host.subdomain === null || host.subdomain === ref.subdomain) {
-							blocked = true;
-							break;
-						}
-
+						blocked = true;
+						break;
 					}
 
 				}

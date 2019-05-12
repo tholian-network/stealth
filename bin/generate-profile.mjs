@@ -4,48 +4,66 @@ import path    from 'path';
 import process from 'process';
 import Buffer  from 'buffer';
 
-import { AdGuard } from '../stealth/source/parser/AdGuard.mjs';
-import { Hosts   } from '../stealth/source/parser/Hosts.mjs';
+import { console } from '../stealth/source/console.mjs';
+import { HOSTS   } from '../stealth/source/parser/HOSTS.mjs';
 import { URL     } from '../stealth/source/parser/URL.mjs';
 
-const _PROFILE   = process.env.PWD + '/profile';
-const _PAYLOADS  = { adguard: [], hosts: [] };
-const _THRESHOLD = 16; // if this many subdomains, main domain is blocked instead.
+const DOMAINS  = {};
+const PROFILE  = process.env.PWD + '/profile';
+const PAYLOADS = [];
 
-const _read = function(url) {
 
-	let ref     = URL.parse(url);
-	let rdomain = ref.domain || null;
-	if (rdomain !== null) {
+const get_url = function(ref) {
 
-		let rsubdomain = ref.subdomain || null;
-		if (rsubdomain !== null) {
-			rdomain = rsubdomain + '.' + rdomain;
+	let url = '';
+
+	let domain    = ref.domain    || null;
+	let host      = ref.host      || null;
+	let path      = ref.path      || null;
+	let query     = ref.query     || null;
+	let subdomain = ref.subdomain || null;
+
+	if (domain !== null) {
+
+		if (subdomain !== null) {
+			url += subdomain + '.' + domain;
+		} else {
+			url += domain;
 		}
 
-		let rpath = ref.path || '/';
-		if (rpath !== '/') {
-
-			let buffer = null;
-			try {
-				buffer = fs.readFileSync(_PROFILE + '/cache/payload/' + rdomain + rpath);
-			} catch (err) {
-			}
-
-			if (buffer !== null) {
-				return buffer;
-			}
-
-		}
-
+	} else if (host !== null) {
+		url += host;
 	}
 
+	if (path !== null) {
+		url += path;
+	}
 
-	return null;
+	// wget stores query in filename
+	if (query !== null) {
+		url += '?' + query;
+	}
+
+	return url;
 
 };
 
-const _write = function(file, data) {
+const read = function(link) {
+
+	let ref = URL.parse(link);
+	let url = get_url(ref);
+
+	let buffer = null;
+	try {
+		buffer = fs.readFileSync(PROFILE + '/cache/payload/' + url);
+	} catch (err) {
+	}
+
+	return buffer;
+
+};
+
+const write = function(file, data) {
 
 	let folder = path.dirname(file);
 
@@ -54,7 +72,13 @@ const _write = function(file, data) {
 		if (!err) {
 
 			fs.writeFile(file, JSON.stringify(data, null, '\t'), 'utf8', err => {
-				if (!err) console.log('> generated ' + file.substr(_PROFILE.length) + ' with ' + data.length + ' entries.');
+
+				if (!err) {
+					console.info('Blockers stored to "' + file.substr(process.env.PWD.length) + '".');
+				} else {
+					console.error('Settings at "' + PROFILE.substr(0, process.env.PWD.length) + '" are not writeable!');
+				}
+
 			});
 
 		} else if (err.code === 'ENOENT') {
@@ -63,7 +87,13 @@ const _write = function(file, data) {
 				recursive: true
 			}, (err) => {
 				fs.writeFile(file, JSON.stringify(data, null, '\t'), 'utf8', err => {
-					if (!err) console.log('> generated ' + file.substr(_PROFILE.length) + ' with ' + data.length + ' entries.');
+
+					if (!err) {
+						console.info('Blockers stored to "' + file.substr(process.env.PWD.length) + '".');
+					} else {
+						console.error('Settings at "' + PROFILE.substr(0, process.env.PWD.length) + '" are not writeable!');
+					}
+
 				});
 			});
 
@@ -74,8 +104,8 @@ const _write = function(file, data) {
 };
 
 
-[
 
+[
 	'https://ransomwaretracker.abuse.ch/downloads/CW_C2_DOMBL.txt',
 	'https://ransomwaretracker.abuse.ch/downloads/LY_C2_DOMBL.txt',
 	'https://ransomwaretracker.abuse.ch/downloads/TC_C2_DOMBL.txt',
@@ -101,28 +131,43 @@ const _write = function(file, data) {
 	'https://phishing.army/download/phishing_army_blocklist_extended.txt',
 	'http://someonewhocares.org/hosts/hosts',
 	'http://winhelp2002.mvps.org/hosts.txt'
-].forEach(url => {
+].forEach((url) => {
 
-	let payload = _read(url);
+	let payload = read(url);
 	if (payload !== null) {
-		_PAYLOADS.hosts.push({
-			url:     url,
-			payload: payload
-		});
-	}
 
-});
+		console.log('Parse "' + url + '" ...');
 
-[
-	'https://filters.adtidy.org/extension/chromium/filters/15.txt'
-].forEach(url => {
+		let hosts = HOSTS.parse(payload);
+		if (hosts !== null) {
 
-	let payload = _read(url);
-	if (payload !== null) {
-		_PAYLOADS.adguard.push({
-			url:     url,
-			payload: payload
-		});
+			hosts.forEach((host) => {
+
+				let ref = URL.parse(host.domain);
+				if (ref !== null) {
+
+					let domain = DOMAINS[ref.domain] || null;
+					if (domain === null) {
+						domain = DOMAINS[ref.domain] = [];
+					}
+
+					let subdomain = ref.subdomain || null;
+					if (subdomain !== null) {
+
+						if (domain.includes(subdomain) === false) {
+							domain.push(subdomain);
+						}
+
+					}
+
+				}
+
+			});
+
+			console.log(hosts.length + ' Hosts found.');
+
+		}
+
 	}
 
 });
@@ -130,115 +175,38 @@ const _write = function(file, data) {
 
 setTimeout(() => {
 
-	let domains = {};
+	let blockers = [];
+	let count    = 0;
 
-	_PAYLOADS.hosts.forEach(entry => {
+	for (let domain in DOMAINS) {
 
-		console.log('> processing ' + entry.url + ' ...');
+		let subdomains = DOMAINS[domain];
+		if (subdomains.length > 0) {
 
-		let blockers = Hosts.parse(entry.payload);
-		if (blockers !== null) {
+			subdomains.forEach((subdomain) => {
 
-			blockers.forEach(ref => {
-
-				let domain = domains[ref.domain] || null;
-				if (domain === null) {
-					domain = domains[ref.domain] = [];
-				}
-
-				let subdomain = ref.subdomain || null;
-				if (subdomain !== null) {
-
-					if (domain.includes(subdomain) === false && domain.length < _THRESHOLD) {
-						domain.push(subdomain);
-					}
-
-				}
-
-			});
-
-		}
-
-	});
-
-	_PAYLOADS.adguard.forEach(entry => {
-
-		console.log('> processing ' + entry.url + ' ...');
-
-		let blockers = AdGuard.parse(entry.payload);
-		if (blockers !== null) {
-
-			blockers.forEach(ref => {
-
-				let domain = domains[ref.domain] || null;
-				if (domain === null) {
-					domain = domains[ref.domain] = [];
-				}
-
-				let subdomain = ref.subdomain || null;
-				if (subdomain !== null) {
-
-					if (domain.includes(subdomain) === false && domain.length < _THRESHOLD) {
-						domain.push(subdomain);
-					}
-
-				}
-
-			});
-
-		}
-
-	});
-
-
-	let cache = [];
-
-	for (let domain in domains) {
-
-		let subdomains = domains[domain];
-		if (subdomains.length === _THRESHOLD) {
-
-			cache.push({
-				domain:    domain,
-				subdomain: null
-			});
-
-		} else if (subdomains.length > 0) {
-
-			subdomains.forEach(subdomain => {
-				cache.push({
-					domain:    domain,
-					subdomain: subdomain
+				blockers.push({
+					domain: subdomain + '.' + domain
 				});
-			});
 
-		} else {
-
-			cache.push({
-				domain:    domain,
-				subdomain: null
 			});
 
 		}
 
-	};
+		count += subdomains.length;
 
-	let database = cache.sort((a, b) => {
+	}
+
+	console.info(count + ' Hosts resulted in ' + blockers.length + ' Blockers.');
+
+	write(PROFILE + '/blockers.json', blockers.sort((a, b) => {
 
 		if (a.domain > b.domain) return  1;
 		if (b.domain > a.domain) return -1;
 
-		if (a.domain === b.domain) {
-			if ((a.subdomain || '') > (b.subdomain || '')) return  1;
-			if ((b.subdomain || '') > (a.subdomain || '')) return -1;
-		}
-
 		return 0;
 
-	});
-
-
-	_write(_PROFILE + '/blockers.json', database);
+	}));
 
 }, 1000);
 

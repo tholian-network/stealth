@@ -8,6 +8,23 @@ import { isArray, isBoolean, isFunction, isObject, isString } from './POLYFILLS.
 
 import { console } from './console.mjs';
 import { Session } from './Session.mjs';
+import { HOSTS   } from './parser/HOSTS.mjs';
+
+const ETC_HOSTS = (function(platform) {
+
+	let hosts = null;
+
+	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
+		hosts = '/etc/hosts';
+	} else if (platform === 'darwin') {
+		hosts = '/etc/hosts';
+	} else if (platform === 'win32') {
+		hosts = path.resolve('C:\\windows\\system32\\drivers\\etc\\hosts').split('\\').join('/');
+	}
+
+	return hosts;
+
+})(os.platform());
 
 const PROFILE = (function(env, platform) {
 
@@ -77,14 +94,74 @@ const get_latest = function(json) {
 };
 
 const get_message = (settings) => `
-${settings.blockers.length} blocker${settings.blockers.length === 1 ? '' : 's'}, \
-${settings.filters.length} filter${settings.filters.length === 1 ? '' : 's'}, \
-${settings.hosts.length} host${settings.hosts.length === 1 ? '' : 's'}, \
-${settings.modes.length} mode${settings.modes.length === 1 ? '' : 's'}, \
-${settings.peers.length} peer${settings.peers.length === 1 ? '' : 's'}, \
-${settings.redirects.length} redirect${settings.redirects.length === 1 ? '' : 's'}, \
-${settings.sessions.length} session${settings.sessions.length === 1 ? '' : 's'}.
+${settings.blockers.length} Blocker${settings.blockers.length === 1 ? '' : 's'}, \
+${settings.filters.length} Filter${settings.filters.length === 1 ? '' : 's'}, \
+${settings.hosts.length} Host${settings.hosts.length === 1 ? '' : 's'}, \
+${settings.modes.length} Mode${settings.modes.length === 1 ? '' : 's'}, \
+${settings.peers.length} Peer${settings.peers.length === 1 ? '' : 's'}, \
+${settings.redirects.length} Redirect${settings.redirects.length === 1 ? '' : 's'}, \
+${settings.sessions.length} Session${settings.sessions.length === 1 ? '' : 's'}.
 `;
+
+const init = function(callback) {
+
+	callback = isFunction(callback) ? callback : null;
+
+
+	let result = false;
+
+	if (ETC_HOSTS !== null) {
+
+		let stat = null;
+
+		try {
+			stat = fs.lstatSync(path.resolve(ETC_HOSTS));
+		} catch (err) {
+			stat = null;
+		}
+
+		if (stat !== null && stat.isFile() === true) {
+
+			let tmp = null;
+
+			try {
+				tmp = fs.readFileSync(path.resolve(ETC_HOSTS));
+			} catch (err) {
+				// Do nothing
+			}
+
+			if (tmp !== null) {
+
+				let hosts = HOSTS.parse(tmp);
+				if (hosts !== null) {
+
+					hosts.filter((host) => {
+
+						if (host.domain.includes('.') === false) {
+							return host.hosts.find((ip) => ip.scope === 'private') !== undefined;
+						}
+
+						return false;
+
+					}).forEach((host) => {
+						this.hosts.push(host);
+					});
+
+					result = true;
+
+				}
+
+			}
+
+		}
+
+	}
+
+	if (callback !== null) {
+		callback(result);
+	}
+
+};
 
 const read_file = function(url, data, keepdata) {
 
@@ -92,6 +169,7 @@ const read_file = function(url, data, keepdata) {
 
 
 	let stat = null;
+
 	try {
 		stat = fs.lstatSync(path.resolve(url));
 	} catch (err) {
@@ -145,12 +223,8 @@ const read_file = function(url, data, keepdata) {
 						if ('id' in tmp[0]) {
 							uuid.push('id');
 						} else if ('path' in tmp[0]) {
-							uuid.push('subdomain');
 							uuid.push('domain');
 							uuid.push('path');
-						} else if ('subdomain' in tmp[0]) {
-							uuid.push('subdomain');
-							uuid.push('domain');
 						} else if ('domain' in tmp[0]) {
 							uuid.push('domain');
 						} else if ('host' in tmp[0]) {
@@ -514,50 +588,64 @@ const Settings = function(stealth, profile, vendor) {
 	this.vendor  = vendor;
 
 
-	if (this.vendor !== null) {
+	init.call(this, (result) => {
 
-		read.call(this, this.vendor, false, (result) => {
+		if (result === true) {
+			console.info('Native Settings loaded from "' + ETC_HOSTS + '".');
+			console.log('> ' + this.hosts.length + ' Host' + (this.hosts.length === 1 ? '' : 's') + '.');
+		}
+
+
+		if (this.vendor !== null) {
+
+			read.call(this, this.vendor, false, (result) => {
+
+				if (result === true) {
+
+					console.info('Vendor Settings loaded from "' + this.vendor + '".');
+
+					let message = get_message(this).trim();
+					if (message.length > 0) {
+						message.split('\n').forEach((m) => console.log('> ' + m));
+					}
+
+				}
+
+			});
+
+		}
+
+
+		read.call(this, this.profile, true, (result) => {
 
 			if (result === true) {
 
-				console.info('Vendor Settings loaded from "' + this.vendor + '".');
+				console.info('Settings loaded from "' + this.profile + '".');
 
 				let message = get_message(this).trim();
 				if (message.length > 0) {
 					message.split('\n').forEach((m) => console.log('> ' + m));
 				}
 
+				// Ensure profile settings to be
+				// in-sync with imported settings
+				this.save();
+
+			} else {
+
+				this.profile = '/tmp/stealth-' + USER;
+
+				read.call(this, this.profile, true, (result) => {
+
+					if (result === true) {
+						console.warn('Settings loaded from "' + this.profile + '".');
+					}
+
+				});
+
 			}
 
 		});
-
-	}
-
-
-	read.call(this, this.profile, true, (result) => {
-
-		if (result === true) {
-
-			console.info('Settings loaded from "' + this.profile + '".');
-
-			let message = get_message(this).trim();
-			if (message.length > 0) {
-				message.split('\n').forEach((m) => console.log('> ' + m));
-			}
-
-		} else {
-
-			this.profile = '/tmp/stealth-' + USER;
-
-			read.call(this, this.profile, true, (result) => {
-
-				if (result === true) {
-					console.warn('Settings loaded from "' + this.profile + '".');
-				}
-
-			});
-
-		}
 
 	});
 

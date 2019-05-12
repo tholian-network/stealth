@@ -32,16 +32,14 @@ _download() {
 
 
 #
-# Re-download hosts files into cache
+# Re-download hosts files into vendor cache
 #
+
 if [[ -z "$wget_bin" ]]; then
 	echo "Please install wget first";
 	exit 1;
 fi;
 
-
-
-# Blockers: Hosts
 _download "https://ransomwaretracker.abuse.ch/downloads/CW_C2_DOMBL.txt";
 _download "https://ransomwaretracker.abuse.ch/downloads/LY_C2_DOMBL.txt";
 _download "https://ransomwaretracker.abuse.ch/downloads/TC_C2_DOMBL.txt";
@@ -68,13 +66,10 @@ _download "https://phishing.army/download/phishing_army_blocklist_extended.txt";
 _download "http://someonewhocares.org/hosts/hosts";
 _download "http://winhelp2002.mvps.org/hosts.txt";
 
-# Blockers: AdGuard
-_download "https://filters.adtidy.org/extension/chromium/filters/15.txt";
-
 
 
 #
-# Re-generate blockers/hosts.json
+# Re-generate blockers.json
 #
 
 if [[ -z "$node_bin" ]]; then
