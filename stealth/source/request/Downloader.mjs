@@ -189,28 +189,33 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 					}
 
 
+					let headers = {
+						'@method': 'GET',
+						'@path':   this.ref.path,
+						'@query':  this.ref.query,
+						'host':    hostname,
+						'range':   'bytes=' + this.buffer.start + '-'
+					};
+
+					if (this.ref.headers !== null) {
+
+						let useragent = this.ref.headers['user-agent'] || null;
+						if (useragent !== null) {
+							headers['user-agent'] = useragent;
+						}
+
+					}
+
 					if (this.ref.protocol === 'https') {
 
 						HTTPS.send(socket, {
-							headers: {
-								'@method': 'GET',
-								'@path':   this.ref.path,
-								'@query':  this.ref.query,
-								'host':    hostname,
-								'range':   'bytes=' + this.buffer.start + '-'
-							}
+							headers: headers
 						});
 
 					} else if (this.ref.protocol === 'http') {
 
 						HTTP.send(socket, {
-							headers: {
-								'@method': 'GET',
-								'@path':   this.ref.path,
-								'@query':  this.ref.query,
-								'host':    hostname,
-								'range':   'bytes=' + this.buffer.start + '-'
-							}
+							headers: headers
 						});
 
 					}

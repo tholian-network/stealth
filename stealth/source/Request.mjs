@@ -73,10 +73,9 @@ const Request = function(data, stealth) {
 	}
 
 
-	let connection = this.stealth.settings.internet.connection || null;
-	if (connection === 'i2p') {
+	if (this.stealth.settings.internet.connection === 'i2p') {
 		this.ref.proxy = { host: '127.0.0.1', port: 4444 };
-	} else if (connection === 'tor') {
+	} else if (this.stealth.settings.internet.connection === 'tor') {
 		this.ref.proxy = { host: '127.0.0.1', port: 9050 };
 	}
 
@@ -276,6 +275,28 @@ const Request = function(data, stealth) {
 	});
 
 	this.on('download', () => {
+
+		let useragent = this.get('useragent');
+		if (useragent !== null) {
+
+			if (this.ref.headers === null) {
+				this.ref.headers = {};
+			}
+
+			this.ref.headers['user-agent'] = useragent;
+
+		} else {
+
+			if (this.ref.headers !== null) {
+
+				if (this.ref.headers['user-agent'] !== undefined) {
+					delete this.ref.headers['user-agent'];
+				}
+
+			}
+
+		}
+
 
 		Downloader.check(this.ref, this.config, (result) => {
 

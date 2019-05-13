@@ -172,9 +172,9 @@ export const handle_request = function(socket, ref) {
 
 		if (session !== null) {
 			session.init(request, tab);
-		} else {
-			request.init();
 		}
+
+		request.init();
 
 	} else {
 

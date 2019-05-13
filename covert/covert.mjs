@@ -8,8 +8,7 @@ import Server   from './review/Server.mjs';
 import Client   from './review/Client.mjs';
 import Peers    from './review/Peers.mjs';
 import Request  from './review/Request.mjs';
-// import ADGUARD       from './review/parser/ADGUARD.mjs';
-// import HOSTS       from './review/parser/HOSTS.mjs';
+import HOSTS    from './review/parser/HOSTS.mjs';
 import IP       from './review/parser/IP.mjs';
 import URL      from './review/parser/URL.mjs';
 import DNS      from './review/protocol/DNS.mjs';
@@ -73,8 +72,7 @@ const settings = {
 		let reviews = [
 
 			// Parsers
-			// ADGUARD, HOSTS,
-			IP, URL,
+			HOSTS, IP, URL,
 
 			// Network Protocols
 			DNS, HTTP, HTTPS, SOCKS, WS, WSS,
