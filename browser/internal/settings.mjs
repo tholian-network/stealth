@@ -196,7 +196,7 @@ const on_update = function(settings) {
 		);
 
 		on_update_choices(
-			[ 'stealth', 'mobile', 'desktop', 'spider' ],
+			[ 'stealth', 'browser-mobile', 'browser-desktop', 'spider-mobile', 'spider-desktop' ],
 			settings.internet.useragent,
 			elements.internet.useragent
 		);

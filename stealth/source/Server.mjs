@@ -69,10 +69,6 @@ export const handle_request = function(socket, ref) {
 	let request = this.stealth.open(url);
 	if (request !== null) {
 
-		if (session !== null) {
-			session.track(request, tab);
-		}
-
 		request.on('error', (err) => {
 
 			let type = err.type || null;
@@ -173,7 +169,12 @@ export const handle_request = function(socket, ref) {
 			request.set('webview', true);
 		}
 
-		request.init();
+
+		if (session !== null) {
+			session.init(request, tab);
+		} else {
+			request.init();
+		}
 
 	} else {
 

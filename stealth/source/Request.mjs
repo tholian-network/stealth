@@ -32,9 +32,10 @@ const Request = function(data, stealth) {
 	};
 	this.download = null;
 	this.flags    = {
-		connect: true,
-		refresh: false,
-		webview: false
+		connect:   true,
+		refresh:   false,
+		useragent: null,
+		webview:   false
 	};
 	this.ref      = null;
 	this.response = null;
@@ -72,9 +73,10 @@ const Request = function(data, stealth) {
 	}
 
 
-	if (stealth.settings.internet.connection === 'i2p') {
+	let connection = this.stealth.settings.internet.connection || null;
+	if (connection === 'i2p') {
 		this.ref.proxy = { host: '127.0.0.1', port: 4444 };
-	} else if (stealth.settings.internet.connection === 'tor') {
+	} else if (connection === 'tor') {
 		this.ref.proxy = { host: '127.0.0.1', port: 9050 };
 	}
 
@@ -219,7 +221,6 @@ const Request = function(data, stealth) {
 				if (this.flags.connect === true) {
 					this.emit('connect');
 				} else {
-					// Do nothing
 					// External Scheduler calls emit('connect')
 				}
 
@@ -560,6 +561,25 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	get: function(key) {
+
+		key = isString(key) ? key : null;
+
+
+		if (key !== null) {
+
+			let value = this.flags[key];
+			if (value !== undefined) {
+				return value;
+			}
+
+		}
+
+
+		return null;
+
+	},
+
 	init: function() {
 
 		if (this.timeline.init === null) {
@@ -570,11 +590,11 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	set: function(key, val) {
 
-		key = isString(key)  ? key : null;
-		val = isBoolean(val) ? val : null;
+		key = isString(key)                   ? key : null;
+		val = isBoolean(val) || isString(val) ? val : null;
 
 
-		if (key !== null && val !== null) {
+		if (key !== null) {
 
 			let exists = this.flags[key] !== undefined;
 			if (exists === true) {

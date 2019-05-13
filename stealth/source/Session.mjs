@@ -3,9 +3,56 @@ import { isNumber, isObject, isString } from './POLYFILLS.mjs';
 
 import { console } from './console.mjs';
 import { IP      } from './parser/IP.mjs';
+import { UA      } from './parser/UA.mjs';
 import { Request } from './Request.mjs';
 
 
+
+const randomize_useragent = function(platform) {
+
+	let useragent = null;
+
+	if (platform === 'stealth') {
+
+		useragent = null;
+
+	} else if (platform === 'browser-desktop') {
+
+		useragent = UA.render({
+			platform: 'browser',
+			system:   'desktop'
+		});
+
+	} else if (platform === 'browser-mobile') {
+
+		useragent = UA.render({
+			platform: 'browser',
+			system:   'mobile'
+		});
+
+	} else if (platform === 'spider-desktop') {
+
+		useragent = UA.render({
+			platform: 'spider',
+			system:   'desktop'
+		});
+
+	} else if (platform === 'spider-mobile') {
+
+		useragent = UA.render({
+			platform: 'spider',
+			system:   'mobile'
+		});
+
+	} else {
+
+		useragent = UA.render({});
+
+	}
+
+	return useragent;
+
+};
 
 const remove_request = function(request) {
 
@@ -58,15 +105,15 @@ const remove_request = function(request) {
 
 
 
-const Session = function(headers) {
+const Session = function(data, stealth) {
 
-	headers = isObject(headers) ? headers : {};
+	let headers = Object.assign({}, data);
 
 
 	this.id      = 'session-' + Date.now();
-	this.browser = 'Unknown';
+	this.agent   = null;
 	this.history = {};
-	this.system  = 'Unknown';
+	this.stealth = stealth;
 	this.tabs    = {};
 	this.warning = 0;
 
@@ -84,45 +131,7 @@ const Session = function(headers) {
 
 	let agent = headers['user-agent'] || null;
 	if (agent !== null) {
-
-		agent = agent.toLowerCase();
-
-		if (/crios/.test(agent)) {
-			this.browser = 'Chrome for iOS';
-		} else if (/edge/.test(agent)) {
-			this.browser = 'Edge';
-		} else if (/android/.test(agent) && /silk\//.test(agent)) {
-			this.browser = 'Silk';
-		} else if (/chrome/.test(agent)) {
-			this.browser = 'Chrome';
-		} else if (/firefox/.test(agent)) {
-			this.browser = 'Firefox';
-		} else if (/android/.test(agent)) {
-			this.browser = 'AOSP';
-		} else if (/msie|trident/.test(agent)) {
-			this.browser = 'IE';
-		} else if (/safari\//.test(agent)) {
-			this.browser = 'Safari';
-		} else if (/applewebkit/.test(agent)) {
-			this.browser = 'WebKit';
-		}
-
-		if (/android/.test(agent)) {
-			this.system = 'Android';
-		} else if (/iphone|ipad|ipod/.test(agent)) {
-			this.system = 'iOS';
-		} else if (/windows/.test(agent)) {
-			this.system = 'Windows';
-		} else if (/mac os x/.test(agent)) {
-			this.system = 'Mac OS';
-		} else if (/cros/.test(agent)) {
-			this.system = 'Chrome OS';
-		} else if (/linux/.test(agent)) {
-			this.system = 'Linux';
-		} else if (/firefox/.test(agent)) {
-			this.system = 'Firefox OS';
-		}
-
+		this.agent = UA.parse(agent);
 	}
 
 };
@@ -143,8 +152,7 @@ Session.from = function(json) {
 			let session = new Session();
 
 			if (isString(data.id))      session.id      = data.id;
-			if (isString(data.browser)) session.browser = data.browser;
-			if (isString(data.system))  session.system  = data.system;
+			if (isObject(data.agent))   session.agent   = data.agent;
 			if (isNumber(data.warning)) session.warning = data.warning;
 
 			if (isObject(data.history)) {
@@ -175,9 +183,8 @@ Session.merge = function(target, source) {
 
 	if (target !== null && source !== null) {
 
-		if (source.id !== null)           target.id      = source.id;
-		if (source.browser !== 'Unknown') target.browser = source.browser;
-		if (source.system !== 'Unknown')  target.system  = source.system;
+		if (source.id !== null)    target.id    = source.id;
+		if (source.agent !== null) target.agent = source.agent;
 
 		if (isObject(source.history)) {
 
@@ -215,9 +222,8 @@ Session.prototype = {
 
 		let data = {
 			id:      this.id,
-			browser: this.browser,
+			agent:   this.agent,
 			history: {},
-			system:  this.system,
 			tabs:    {},
 			warning: this.warning
 		};
@@ -280,13 +286,7 @@ Session.prototype = {
 
 	},
 
-	init: function() {
-
-		console.log('Session #' + this.id + ' connected.');
-
-	},
-
-	track: function(request, tab) {
+	init: function(request, tab) {
 
 		request = request instanceof Request ? request : null;
 		tab     = isString(tab)              ? tab     : '0';
@@ -300,6 +300,17 @@ Session.prototype = {
 			}
 
 			if (cache.includes(request) === false) {
+
+				request.on('init', () => {
+
+					let useragent = this.useragents[tab] || null;
+					if (useragent === null) {
+						useragent = this.useragents[tab] = randomize_useragent(this.stealth.settings.useragent);
+					}
+
+					request.set('useragent', useragent);
+
+				});
 
 				request.on('connect', () => {
 					console.log('Session #' + this.id + ' tab #' + tab + ' requests "' + request.url + '".');

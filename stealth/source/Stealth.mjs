@@ -102,8 +102,7 @@ const Stealth = function(data) {
 	this.server   = new Server(this);
 
 
-
-	this.interval = setInterval(() => {
+	this.scheduler = setInterval(() => {
 
 		let cur_downloads = 0;
 		let max_downloads = 0;
@@ -190,8 +189,8 @@ Stealth.prototype = {
 		callback = isFunction(callback) ? callback : null;
 
 
-		if (this.interval !== null) {
-			clearInterval(this.interval);
+		if (this.scheduler !== null) {
+			clearInterval(this.scheduler);
 		}
 
 		if (this.peers.length > 0) {
@@ -286,6 +285,8 @@ Stealth.prototype = {
 				request.on('redirect', () => remove_request.call(this, request));
 				request.on('response', () => remove_request.call(this, request));
 
+				// Allow non-scheduled cached requests
+				// Disallow non-scheduled networked requests
 				request.set('connect', false);
 
 				this.requests.push(request);
@@ -312,7 +313,6 @@ Stealth.prototype = {
 			let sessions = this.settings.sessions;
 			if (sessions.includes(session) === false) {
 				sessions.push(session);
-				session.init();
 			}
 
 			return session;
@@ -346,7 +346,6 @@ Stealth.prototype = {
 			if (session === null) {
 				session = new Session(headers);
 				sessions.push(session);
-				session.init();
 			}
 
 			return session;

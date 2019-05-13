@@ -1,0 +1,27 @@
+#
+# /etc/hosts: static lookup table for host names
+#
+
+#<ip-address>	<hostname.domain.org>	<hostname>
+127.0.0.1	localhost.localdomain	localhost
+::1		localhost.localdomain	localhost
+
+192.168.1.1  router router.localdomain # comment that should be filtered out
+192.168.1.2  machine
+
+
+
+#
+# TEMPORARY
+#
+
+
+93.184.216.34                           example.com
+2606:2800:0220:0001:0248:1893:25c8:1946 example.com
+
+93.184.216.34				      	www.example.com
+2606:2800:0220:0001:0248:1893:25c8:1946 www.example.com
+
+
+
+# End of file

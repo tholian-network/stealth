@@ -725,6 +725,116 @@ const URL = {
 
 	},
 
+	render: function(ref) {
+
+		ref = isObject(ref) ? ref : null;
+
+
+		if (ref !== null) {
+
+			let url = '';
+
+			if (ref.protocol !== null) {
+
+				if (ref.protocol === 'stealth') {
+					url += ref.protocol + ':';
+				} else {
+					url += ref.protocol + '://';
+				}
+
+			}
+
+			if (ref.domain !== null) {
+
+				if (ref.subdomain !== null) {
+					url += ref.subdomain + '.' + ref.domain;
+				} else {
+					url += ref.domain;
+				}
+
+			} else if (ref.host !== null) {
+
+				if (ref.host.includes(':')) {
+					url += '[' + ref.host + ']';
+				} else {
+					url += ref.host;
+				}
+
+			}
+
+
+			if (ref.protocol === 'file') {
+
+				// Do nothing
+
+			} else if (ref.protocol === 'ftps') {
+
+				if (ref.port !== 990) {
+					url += ':' + ref.port;
+				}
+
+			} else if (ref.protocol === 'ftp') {
+
+				if (ref.port !== 21) {
+					url += ':' + ref.port;
+				}
+
+			} else if (ref.protocol === 'https') {
+
+				if (ref.port !== 443) {
+					url += ':' + ref.port;
+				}
+
+			} else if (ref.protocol === 'http') {
+
+				if (ref.port !== 80) {
+					url += ':' + ref.port;
+				}
+
+			} else if (ref.protocol === 'wss') {
+
+				if (ref.port !== 443) {
+					url += ':' + ref.port;
+				}
+
+			} else if (ref.protocol === 'ws') {
+
+				if (ref.port !== 80) {
+					url += ':' + ref.port;
+				}
+
+			} else if (ref.protocol === 'socks') {
+
+				if (ref.port !== 1080) {
+					url += ':' + ref.port;
+				}
+
+			} else if (ref.protocol === 'stealth') {
+
+				// Do nothing
+
+			} else if (ref.port !== null) {
+				url += ':' + ref.port;
+			}
+
+
+			if (ref.protocol !== 'stealth') {
+				url += ref.path;
+			}
+
+			if (ref.query !== null) {
+				url += '?' + ref.query;
+			}
+
+			return url;
+
+		}
+
+
+		return null;
+
+	},
+
 	resolve: function(abs, rel) {
 
 		let ref_abs = null;
@@ -923,123 +1033,15 @@ const URL = {
 
 		};
 
-	},
-
-	render: function(ref) {
-
-		ref = isObject(ref) ? ref : null;
-
-
-		if (ref !== null) {
-
-			let url = '';
-
-			if (ref.protocol !== null) {
-
-				if (ref.protocol === 'stealth') {
-					url += ref.protocol + ':';
-				} else {
-					url += ref.protocol + '://';
-				}
-
-			}
-
-			if (ref.domain !== null) {
-
-				if (ref.subdomain !== null) {
-					url += ref.subdomain + '.' + ref.domain;
-				} else {
-					url += ref.domain;
-				}
-
-			} else if (ref.host !== null) {
-
-				if (ref.host.includes(':')) {
-					url += '[' + ref.host + ']';
-				} else {
-					url += ref.host;
-				}
-
-			}
-
-
-			if (ref.protocol === 'file') {
-
-				// Do nothing
-
-			} else if (ref.protocol === 'ftps') {
-
-				if (ref.port !== 990) {
-					url += ':' + ref.port;
-				}
-
-			} else if (ref.protocol === 'ftp') {
-
-				if (ref.port !== 21) {
-					url += ':' + ref.port;
-				}
-
-			} else if (ref.protocol === 'https') {
-
-				if (ref.port !== 443) {
-					url += ':' + ref.port;
-				}
-
-			} else if (ref.protocol === 'http') {
-
-				if (ref.port !== 80) {
-					url += ':' + ref.port;
-				}
-
-			} else if (ref.protocol === 'wss') {
-
-				if (ref.port !== 443) {
-					url += ':' + ref.port;
-				}
-
-			} else if (ref.protocol === 'ws') {
-
-				if (ref.port !== 80) {
-					url += ':' + ref.port;
-				}
-
-			} else if (ref.protocol === 'socks') {
-
-				if (ref.port !== 1080) {
-					url += ':' + ref.port;
-				}
-
-			} else if (ref.protocol === 'stealth') {
-
-				// Do nothing
-
-			} else if (ref.port !== null) {
-				url += ':' + ref.port;
-			}
-
-
-			if (ref.protocol !== 'stealth') {
-				url += ref.path;
-			}
-
-			if (ref.query !== null) {
-				url += '?' + ref.query;
-			}
-
-			return url;
-
-		}
-
-
-		return null;
-
 	}
 
 };
 
 
-export const isURL = URL.isURL;
-export const parse = URL.parse;
+export const isURL   = URL.isURL;
+export const parse   = URL.parse;
+export const render  = URL.render;
+export const resolve = URL.resolve;
 
 export { URL };
 

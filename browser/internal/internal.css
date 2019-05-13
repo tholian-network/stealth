@@ -235,10 +235,11 @@ input[type="radio"][name="internet-history"][value="day"]:before          { cont
 input[type="radio"][name="internet-history"][value="week"]:before         { content: '\e916'; }
 input[type="radio"][name="internet-history"][value="forever"]:before      { content: '\eb3d'; }
 
-input[type="radio"][name="internet-useragent"][value="stealth"]:before    { content: '\e32a'; }
-input[type="radio"][name="internet-useragent"][value="mobile"]:before     { content: '\e324'; }
-input[type="radio"][name="internet-useragent"][value="desktop"]:before    { content: '\e30a'; }
-input[type="radio"][name="internet-useragent"][value="spider"]:before     { content: '\e859'; }
+input[type="radio"][name="internet-useragent"][value="stealth"]:before         { content: '\e32a'; }
+input[type="radio"][name="internet-useragent"][value="browser-mobile"]:before  { content: '\e324'; }
+input[type="radio"][name="internet-useragent"][value="browser-desktop"]:before { content: '\e30a'; }
+input[type="radio"][name="internet-useragent"][value="spider-mobile"]:before   { content: '\e335'; }
+input[type="radio"][name="internet-useragent"][value="spider-desktop"]:before  { content: '\e335'; }
 
 input[type="radio"][name="internet-connection"].busy:before,
 input[type="radio"][name="internet-history"].busy:before,

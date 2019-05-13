@@ -1,4 +1,6 @@
 
+import fs from 'fs';
+
 import { Buffer, isString } from './source/POLYFILLS.mjs';
 
 import { IP        } from '../stealth/source/parser/IP.mjs';
@@ -215,6 +217,35 @@ export const create = function(url) {
 		mime:   mime,
 		ref:    ref
 	};
+
+};
+
+
+
+export const sketch = function(path) {
+
+	let stat = null;
+	try {
+		stat = fs.lstatSync(process.env.PWD + '/covert/sketch/' + path);
+	} catch (err) {
+		stat = null;
+	}
+
+	if (stat !== null && stat.isFile()) {
+
+		let buffer = null;
+		try {
+			buffer = fs.readFileSync(process.env.PWD + '/covert/sketch/' + path);
+		} catch (err) {
+			buffer = null;
+		}
+
+		return buffer;
+
+	}
+
+
+	return null;
 
 };
 
