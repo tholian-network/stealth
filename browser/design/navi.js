@@ -7,51 +7,23 @@
 
 
 
-	const _create_button = function(browser, tab) {
-
-		let ref       = browser.parse(tab.url);
-		let domain    = ref.domain    || null;
-		let host      = ref.host      || null;
-		let port      = ref.port      || null;
-		let protocol  = ref.protocol  || null;
-		let subdomain = ref.subdomain || null;
+	const create_button = function(browser, tab) {
 
 		let button = doc.createElement('button');
-		let config = tab.config;
-		let label  = '';
-
-		if (domain !== null) {
-
-			if (subdomain !== null) {
-				label += subdomain + '.' + domain;
-			} else {
-				label += domain;
-			}
-
-		} else if (host !== null) {
-
-			if (host.includes(':')) {
-				label += '[' + host + ']';
-			} else {
-				label += host;
-			}
-
-		}
-
-		if (protocol === 'https' && port !== 443) {
-			label += ':' + port;
-		} else if (protocol === 'http' && port !== 80) {
-			label += ':' + port;
-		}
-
+		let label  = browser.import('URL').render({
+			domain:    tab.ref.domain,
+			hash:      null,
+			host:      tab.ref.host,
+			path:      null,
+			port:      tab.ref.port,
+			protocol:  null,
+			query:     null,
+			subdomain: tab.ref.subdomain
+		});
 
 		button.innerHTML = label;
-		button.title     = ref.url;
+		button.title     = tab.ref.url;
 		button.setAttribute('data-id', tab.id);
-
-		if (config !== null && config.domain !== null) {
-			button.setAttribute('data-mode', config.mode);
-		}
 
 		button.onclick = () => {
 
@@ -73,38 +45,34 @@
 
 		};
 
-
 		return button;
 
 	};
 
-	const _refresh_button = function(browser, button, tab) {
+	const refresh_button = function(browser, button, tab) {
 
-		let ref = browser.parse(tab.url);
+		let label = browser.import('URL').render({
+			domain:    tab.ref.domain,
+			hash:      null,
+			host:      tab.ref.host,
+			path:      null,
+			port:      tab.ref.port,
+			protocol:  null,
+			query:     null,
+			subdomain: tab.ref.subdomain
+		});
 
-		if (ref.subdomain !== null) {
-			button.innerHTML = ref.subdomain + '.' + ref.domain;
-		} else {
-			button.innerHTML = ref.domain;
-		}
-
-		button.title = ref.url;
-
-		let config = tab.config;
-		if (config !== null && config.domain !== null) {
-			button.setAttribute('data-mode', config.mode);
-		} else {
-			button.removeAttribute('data-mode');
-		}
+		button.innerHTML = label;
+		button.title     = tab.ref.url;
 
 	};
 
-	const _sort_by_domain = function(browser, a, b) {
+	const sort_by_domain = function(a, b) {
 
 		if (a.tab !== null && b.tab !== null) {
 
-			let a_ref = browser.parse(a.tab.url);
-			let b_ref = browser.parse(b.tab.url);
+			let a_ref = a.tab.ref;
+			let b_ref = b.tab.ref;
 
 			if (a_ref.protocol === 'stealth' && b_ref.protocol !== 'stealth') return  1;
 			if (b_ref.protocol === 'stealth' && a_ref.protocol !== 'stealth') return -1;
@@ -129,7 +97,7 @@
 
 	};
 
-	const _update_navi = function(tabs) {
+	const update_navi = function(tabs) {
 
 		if (navi !== null) {
 
@@ -156,19 +124,19 @@
 
 	};
 
-	const _init = function(browser) {
+	const init = function(browser) {
 
 		navi.className = browser.tabs.length > 1 ? 'active' : '';
 
 
 		browser.on('open', (tab, tabs) => {
 
-			let button = _create_button(browser, tab);
+			let button = create_button(browser, tab);
 			if (button !== null) {
 				navi.appendChild(button);
 			}
 
-			setTimeout(() => _update_navi(tabs), 0);
+			setTimeout(() => update_navi(tabs), 0);
 
 		});
 
@@ -183,7 +151,7 @@
 				button.parentNode.removeChild(button);
 			}
 
-			setTimeout(() => _update_navi(tabs), 0);
+			setTimeout(() => update_navi(tabs), 0);
 
 		});
 
@@ -206,7 +174,7 @@
 						tab:    tabs.find((t) => t.id === id) || null
 					};
 
-				}).sort((a, b) => _sort_by_domain(browser, a, b));
+				}).sort((a, b) => sort_by_domain(a, b));
 
 				// TODO: Make this smarter
 				buttons.forEach((b) => b.parentNode.removeChild(b));
@@ -220,7 +188,7 @@
 
 			let button = Array.from(navi.querySelectorAll('button')).find((b) => b.getAttribute('data-id') === tab.id) || null;
 			if (button !== null) {
-				_refresh_button(browser, button, tab);
+				refresh_button(browser, button, tab);
 			}
 
 		});
@@ -233,7 +201,7 @@
 	 * INIT
 	 */
 
-	global.browser ? _init(global.browser) : global.DELAYED.push(_init);
+	global.browser ? init(global.browser) : global.DELAYED.push(init);
 
 })(typeof window !== 'undefined' ? window : this);
 

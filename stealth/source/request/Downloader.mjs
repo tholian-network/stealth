@@ -199,6 +199,11 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					if (this.ref.headers !== null) {
 
+						let accept = this.ref.headers['accept'] || null;
+						if (accept !== null) {
+							headers['accept'] = accept;
+						}
+
 						let useragent = this.ref.headers['user-agent'] || null;
 						if (useragent !== null) {
 							headers['user-agent'] = useragent;

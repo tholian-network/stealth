@@ -5,8 +5,8 @@
 	"name":             "Stealth Browser",
 	"display":          "standalone",
 	"start_url":        "/browser/index.html",
-	"background_color": "#303030",
-	"theme_color":      "#303030",
+	"background_color": "#121212",
+	"theme_color":      "#121212",
 
 	"icons": [{
 		"src":   "/browser/design/icon/favicon.png",

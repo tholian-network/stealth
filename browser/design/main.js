@@ -66,7 +66,7 @@
 
 	};
 
-	const _init_events = function(browser, scope, webview) {
+	const init_events = function(browser, scope, webview) {
 
 		scope   = scope !== undefined ? scope : null;
 		webview = webview === true;
@@ -99,6 +99,17 @@
 
 
 				if (key === 'escape') {
+
+					let focus = doc.activeElement || null;
+					if (focus !== null && focus !== doc.body) {
+						focus.blur();
+
+						// Reset tabindex
+						doc.body.setAttribute('tabindex', 0);
+						doc.body.focus();
+						doc.body.setAttribute('tabindex', -1);
+
+					}
 
 					inputs.address.className = '';
 					buttons.settings.peer.className = '';
@@ -333,13 +344,7 @@
 
 					let tab = browser.tab || null;
 					if (tab !== null) {
-
-						if (href.startsWith('./') || href.startsWith('../')) {
-							href = browser.resolve(tab.url, href).url;
-						}
-
 						browser.navigate(href);
-
 					}
 
 				}
@@ -386,17 +391,17 @@
 		});
 
 
-		_init_events(browser, global, false);
+		init_events(browser, global, false);
 
 
 		if (webview !== null) {
 
 			(function() {
-				_init_events(browser, webview.contentWindow || null, true);
+				init_events(browser, webview.contentWindow || null, true);
 			})();
 
 			webview.onload = () => {
-				_init_events(browser, webview.contentWindow || null, true);
+				init_events(browser, webview.contentWindow || null, true);
 			};
 
 		}

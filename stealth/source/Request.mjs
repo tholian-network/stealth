@@ -283,6 +283,12 @@ const Request = function(data, stealth) {
 				this.ref.headers = {};
 			}
 
+			if (this.ref.mime !== null) {
+				this.ref.headers['accept'] = this.ref.mime.format;
+			} else {
+				this.ref.headers['accept'] = '*/*';
+			}
+
 			this.ref.headers['user-agent'] = useragent;
 
 		} else {
@@ -291,6 +297,10 @@ const Request = function(data, stealth) {
 
 				if (this.ref.headers['user-agent'] !== undefined) {
 					delete this.ref.headers['user-agent'];
+				}
+
+				if (this.ref.headers['accept'] !== undefined) {
+					delete this.ref.headers['accept'];
 				}
 
 			}

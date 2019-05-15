@@ -4,7 +4,8 @@ body {
 	margin: 0px;
 	padding: 0px;
 	overflow: auto;
-	background: #202020;
+	color: #ffffff;
+	background: #121212;
 }
 
 * {
@@ -25,13 +26,13 @@ body {
 }
 
 ::-webkit-scrollbar {
-	width: 4px;
+	width: 16px;
 	border: 0px solid transparent;
 	background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-	width: 4px;
+	width: 16px;
 	border: 0px solid transparent;
 	border-radius: 2px;
 	background: #ffffff;
@@ -51,7 +52,7 @@ article {
 	max-width: 800px;
 	margin: 64px auto;
 	padding: 32px;
-	background: #404040;
+	background: rgba(255,255,255,0.04);
 	border: 1px solid #666666;
 	border-radius: 8px;
 }
@@ -75,8 +76,9 @@ button {
 	font-size: 24px;
 	text-align: center;
 	background: transparent;
-	border: 0px solid transparent;
+	border: 1px solid transparent;
 	border-radius: 4px;
+	box-sizing: border-box;
 	vertical-align: top;
 	transition: 250ms all ease-out;
 	appearance: none;
@@ -93,16 +95,25 @@ button[disabled]:hover {
 	cursor: default;
 }
 
+button:focus {
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
 button:hover {
 	color: #ffffff;
-	background: rgba(255,255,255,0.1);
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
 }
 
 button[data-action]:before,
 button[data-key]:before,
 button[data-val]:before {
 	display: inline-block;
-	min-width: 32px;
+	width: 100%;
 	font-family: 'icon';
 	text-align: center;
 	vertical-align: top;
@@ -132,8 +143,11 @@ button[data-key="mode.other"]:before      { content: '\e048'; }
 button[data-key^="mode"][data-val="true"] { color: #ffffff;   }
 
 button[data-action].busy:before {
+	color: #666666;
+	background: transparent;
 	content: '\e86a';
 	animation: infinite linear 1s rotate;
+	cursor: wait;
 }
 
 @keyframes rotate {
@@ -200,8 +214,9 @@ input[type="radio"] {
 	text-align: center;
 	color: #666666;
 	background: transparent;
-	border: 0px solid transparent;
+	border: 1px solid transparent;
 	border-radius: 4px;
+	box-sizing: border-box;
 	vertical-align: top;
 	transition: 250ms all ease-out;
 	appearance: none;
@@ -213,7 +228,7 @@ input[type="radio"] {
 
 input[type="radio"]:before {
 	display: inline-block;
-	width: 32px;
+	width: 100%;
 	height: 32px;
 	margin: 0px;
 	padding: 0px;
@@ -255,9 +270,18 @@ input[type="radio"][disabled]:hover {
 	cursor: default;
 }
 
+input[type="radio"]:focus {
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
 input[type="radio"]:hover {
 	color: #ffffff;
-	background: rgba(255,255,255,0.1);
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
 }
 
 input[type="radio"]:checked {
@@ -275,7 +299,7 @@ input[type="text"] {
 	font-size: 16px;
 	text-align: left;
 	background: transparent;
-	border: 0px solid transparent;
+	border: 1px solid #666666;
 	border-radius: 4px;
 	vertical-align: top;
 	transition: 250ms all ease-out;
@@ -284,9 +308,30 @@ input[type="text"] {
 	cursor: text;
 }
 
+input[type="text"]:focus {
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
+input[type="text"]:hover {
+	color: #ffffff;
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
+table input[type="text"] {
+	display: block;
+	width: 100%;
+	text-align: center;
+	border: 1px solid transparent;
+}
+
 textarea {
 	display: inline-block;
-	min-height: 4em;
+	min-height: 5em;
 	margin: 0px;
 	padding: 0px;
 	color: #ffffff;
@@ -295,7 +340,7 @@ textarea {
 	line-height: 16px;
 	text-align: left;
 	background: transparent;
-	border: 0px solid transparent;
+	border: 1px solid #666666;
 	border-radius: 4px;
 	vertical-align: top;
 	transition: 250ms all ease-out;
@@ -305,14 +350,35 @@ textarea {
 	cursor: text;
 }
 
+textarea:focus {
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
+textarea:hover {
+	color: #ffffff;
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
+table textarea {
+	display: block;
+	width: 100%;
+	border: 1px solid transparent;
+	vertical-align: middle;
+}
+
 textarea::-moz-placeholder {
 	text-align: center;
-	line-height: 4em;
+	line-height: 5em;
 }
 
 textarea::-webkit-input-placeholder {
 	text-align: center;
-	line-height: 4em;
+	line-height: 5em;
 }
 
 
@@ -344,16 +410,10 @@ table tr td {
 	transition: 250ms all ease-out;
 }
 
-table tr:hover td {
-	border-top: 1px solid #ffffff;
-	background: rgba(255,255,255,0.1);
+table tbody tr:hover td {
+	background: rgba(255,255,255,0.04);
 }
 
-table tr:hover + tr td {
-	border-top: 1px solid #ffffff;
-}
-
-table tfoot tr:hover td,
 table tfoot tr td {
 	border-top: 2px solid #ffffff;
 	background: transparent;
@@ -362,19 +422,6 @@ table tfoot tr td {
 table tr td:last-child button {
 	display: block;
 	margin: 0px auto;
-}
-
-table input[type="text"] {
-	display: block;
-	width: 100%;
-	text-align: center;
-}
-
-table textarea {
-	display: block;
-	width: 100%;
-	text-align: left;
-	vertical-align: middle;
 }
 
 ul {
@@ -544,6 +591,32 @@ article p + table {
 	vertical-align: middle;
 }
 
+#hosts table textarea {
+	height: 96px;
+	min-height: auto;
+	resize: none;
+}
+
+#hosts table textarea::-moz-placeholder {
+	line-height: 96px;
+}
+
+#hosts table textarea::-webkit-input-placeholder {
+	line-height: 96px;
+}
+
+#hosts-search {
+	display: block;
+	width: 100%;
+	text-align: center;
+}
+
+#hosts-search input {
+	width: 416px;
+	margin: 48px auto 48px auto;
+	text-align: center;
+}
+
 #fix-filter table tr td:nth-of-type(2),
 #fix-filter table tr td:nth-of-type(2) input,
 #sites-filters tr td:nth-of-type(2),
@@ -647,6 +720,10 @@ article p + table {
 	}
 
 	#internet-useragent {
+		width: auto;
+	}
+
+	#hosts-search input {
 		width: auto;
 	}
 

@@ -11,7 +11,8 @@ aside#navi {
 	left: 0px;
 	margin: 0px;
 	padding: 0px;
-	background: #303030;
+	color: #ffffff;
+	background: #121212;
 	border: 0px solid transparent;
 	border-right: 1px solid #666666;
 	transform: translate(-100%, 0px);
@@ -53,7 +54,7 @@ aside#navi button {
 	background-position: left center;
 	background-repeat: no-repeat;
 	border: 1px solid transparent;
-	border-radius: 4px;
+	border-radius: 0px;
 	box-sizing: border-box;
 	transition: 250ms all ease-out;
 	overflow: hidden;
@@ -95,7 +96,6 @@ aside#navi button[title^="stealth:"]:before { content: '\e8b8'; }
 
 aside#navi button.active {
 	color: #ffffff;
-	border-radius: 0px;
 	border-top: 1px solid #666666;
 	border-bottom: 1px solid #666666;
 }
@@ -107,8 +107,19 @@ aside#navi button.active:first-of-type {
 aside#navi button:focus,
 aside#navi button:hover {
 	color: #ffffff;
-	background: rgba(255,255,255,0.1);
+	border: 1px solid transparent;
 	outline: none;
+}
+
+aside#navi button:focus {
+	border-top: 1px solid #ffffff;
+	border-bottom: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+}
+
+aside#navi button:hover {
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
 }
 
 aside#navi button::-moz-focus-inner {

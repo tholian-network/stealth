@@ -6,7 +6,7 @@ body {
 }
 
 body {
-	background: #303030;
+	background: #121212;
 }
 
 main#main {
@@ -22,7 +22,7 @@ main#main {
 	font-family: 'museo';
 	font-size: 16px;
 	color: #ffffff;
-	background: #303030;
+	background: #121212;
 	transition: 250ms left ease-out;
 	z-index: 50;
 }
@@ -38,7 +38,7 @@ main#main webview#main-webview {
 ::-webkit-scrollbar,
 main#main iframe#main-webview html::-webkit-scrollbar,
 main#main webview#main-webview html::-webkit-scrollbar {
-	width: 4px !important;
+	width: 16px !important;
 	border: 0px solid transparent !important;
 	background: transparent !important;
 }
@@ -46,7 +46,7 @@ main#main webview#main-webview html::-webkit-scrollbar {
 ::-webkit-scrollbar-thumb,
 main#main iframe#main-webview html::-webkit-scrollbar-thumb,
 main#main webview#main-webview html::-webkit-scrollbar-thumb {
-	width: 4px !important;
+	width: 16px !important;
 	background: #ffffff !important;
 }
 

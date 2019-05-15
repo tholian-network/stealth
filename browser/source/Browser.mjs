@@ -4,7 +4,15 @@ import { isFunction, isObject, isString } from './POLYFILLS.mjs';
 import { Emitter } from './Emitter.mjs';
 import { Client  } from './Client.mjs';
 import { Tab     } from './Tab.mjs';
+import { IP      } from './parser/IP.mjs';
 import { URL     } from './parser/URL.mjs';
+
+
+
+const MODULES = {
+	IP:  IP,
+	URL: URL
+};
 
 
 
@@ -30,10 +38,24 @@ const Browser = function() {
 Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	// Deferred API for /browser/design usage
-	parse:   (url)       => URL.parse(url),
-	resolve: (base, url) => URL.resolve(base, url),
+	import: function(id) {
+
+		id = isString(id) ? id : null;
 
 
+		if (id !== null) {
+
+			let module = MODULES[id] || null;
+			if (module !== null) {
+				return module;
+			}
+
+		}
+
+
+		return null;
+
+	},
 
 	back: function() {
 
@@ -46,7 +68,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				if (url !== null) {
 
 					this.tab.url = url;
-					this.tab.ref = this.parse(url);
+					this.tab.ref = URL.parse(url);
 					this.emit('refresh', [ this.tab, this.tabs, false ]);
 
 				}
@@ -123,13 +145,13 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (url !== null) {
 
-			let ref     = this.parse(url);
-			let rdomain = ref.domain || null;
-			if (rdomain !== null) {
+			let ref    = URL.parse(url);
+			let domain = ref.domain || null;
+			if (domain !== null) {
 
-				let rsubdomain = ref.subdomain || null;
-				if (rsubdomain !== null) {
-					rdomain = rsubdomain + '.' + rdomain;
+				let subdomain = ref.subdomain || null;
+				if (subdomain !== null) {
+					domain = subdomain + '.' + domain;
 				}
 
 			}
@@ -143,9 +165,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				config.mode.video = true;
 				config.mode.other = true;
 
-			} else if (rdomain !== null) {
+			} else if (domain !== null) {
 
-				let modes = this.settings.modes.filter((m) => rdomain.endsWith(m.domain));
+				let modes = this.settings.modes.filter((m) => domain.endsWith(m.domain));
 				if (modes.length > 1) {
 
 					return modes.sort((a, b) => {
@@ -224,8 +246,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.tab !== null) {
 
-			if (url.startsWith('./') || url.startsWith('../')) {
-				url = this.resolve(this.tab.url, url).url;
+			if (url.includes('./') || url.includes('../')) {
+				url = URL.resolve(this.tab.url, url).url;
 			}
 
 			if (this.tab.url !== url) {
@@ -236,7 +258,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 				this.tab.url = url;
-				this.tab.ref = this.parse(url);
+				this.tab.ref = URL.parse(url);
 
 				let index2 = this.tab.history.indexOf(url);
 				if (index2 !== -1) {
@@ -314,7 +336,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				if (url !== null) {
 
 					this.tab.url = url;
-					this.tab.ref = this.parse(url);
+					this.tab.ref = URL.parse(url);
 					this.emit('refresh', [ this.tab, this.tabs, false ]);
 
 				}
@@ -333,7 +355,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (url !== null) {
 
-			let ref = this.parse(url);
+			let ref = URL.parse(url);
 			let tab = this.tabs.find((t) => t.url === ref.url) || null;
 			if (tab !== null) {
 

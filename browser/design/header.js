@@ -32,57 +32,59 @@
 
 	const get_config = function(browser) {
 
-		let config = {
-			domain: null,
-			mode: {
-				text:  false,
-				image: false,
-				audio: false,
-				video: false,
-				other: false
-			}
-		};
-
 		let url = null;
+
 		if (inputs.address !== null) {
 			url = inputs.address.value;
 		}
 
-		if (buttons.mode.length > 0) {
 
-			buttons.mode.forEach((button) => {
+		if (url !== null) {
 
-				let key = button.getAttribute('data-key') || null;
-				if (key !== null) {
-					config.mode[key] = button.getAttribute('data-val') === 'true';
+			let ref = browser.import('URL').parse(url);
+			if (ref.protocol !== 'file' && ref.protocol !== 'stealth') {
+
+				let config = {
+					domain: null,
+					mode: {
+						text:  false,
+						image: false,
+						audio: false,
+						video: false,
+						other: false
+					}
+				};
+
+				if (buttons.mode.length > 0) {
+
+					buttons.mode.forEach((button) => {
+
+						let key = button.getAttribute('data-key') || null;
+						if (key !== null) {
+							config.mode[key] = button.getAttribute('data-val') === 'true';
+						}
+
+					});
+
 				}
 
-			});
 
-		}
+				if (ref.domain !== null) {
 
+					if (ref.subdomain !== null) {
+						config.domain = ref.subdomain + '.' + ref.domain;
+					} else {
+						config.domain = ref.domain;
+					}
 
-		let ref = browser.parse(url);
+				}
 
-		let protocol = ref.protocol || null;
-		if (protocol === 'stealth') {
-			// Do not allow configs for Internal Pages
-			return null;
-		}
-
-		let domain = ref.domain || null;
-		if (domain !== null) {
-
-			let subdomain = ref.subdomain || null;
-			if (subdomain !== null) {
-				config.domain = subdomain + '.' + domain;
-			} else {
-				config.domain = domain;
 			}
 
 		}
 
-		return config;
+
+		return null;
 
 	};
 
@@ -387,7 +389,7 @@
 
 	};
 
-	const _init = function(browser) {
+	const init = function(browser) {
 
 		browser.on('change', (tab) => {
 			update_mode(browser, tab);
@@ -473,28 +475,38 @@
 
 		if (inputs.address !== null && outputs.address !== null) {
 
+			inputs.address.onfocus = () => {
+
+				// This is set by outputs.address.onclick()
+				if (inputs.address.className !== 'active') {
+
+					let url = inputs.address.value || null;
+					if (url !== null) {
+						inputs.address.className = 'active';
+						inputs.address.setSelectionRange(0, url.length);
+					}
+
+				}
+
+			};
+
 			outputs.address.onclick = (e) => {
 
 				let target  = e.target;
 				let tagname = target.tagName.toLowerCase();
 				if (tagname === 'li' && target !== outputs.protocol) {
 
-					let url    = inputs.address.value;
+					let ref    = browser.import('URL').parse(inputs.address.value);
+					let url    = ref.url;
 					let chunks = Array.from(outputs.address.querySelectorAll('li')).slice(1);
 					let chunk  = chunks.find((ch) => ch === target);
 					let c      = chunks.indexOf(chunk);
+
 					let before = chunks.slice(0, c).map((ch) => ch.innerHTML).join('');
-					let ref    = browser.parse(url);
-
-					let protocol = ref.protocol;
-					if (protocol !== null) {
-
-						if (protocol === 'stealth') {
-							before = protocol + ':' + before;
-						} else {
-							before = protocol + '://' + before;
-						}
-
+					if (ref.protocol === 'stealth') {
+						before = ref.protocol + ':' + before;
+					} else if (ref.protocol !== null) {
+						before = ref.protocol + '://' + before;
 					}
 
 					let offset = url.indexOf(before) + before.length;
@@ -645,7 +657,7 @@
 	 * INIT
 	 */
 
-	global.browser ? _init(global.browser) : global.DELAYED.push(_init);
+	global.browser ? init(global.browser) : global.DELAYED.push(init);
 
 })(typeof window !== 'undefined' ? window : this);
 

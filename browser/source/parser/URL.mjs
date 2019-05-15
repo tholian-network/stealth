@@ -819,7 +819,11 @@ const URL = {
 
 
 			if (ref.protocol !== 'stealth') {
-				url += ref.path;
+
+				if (ref.path !== null) {
+					url += ref.path;
+				}
+
 			}
 
 			if (ref.query !== null) {

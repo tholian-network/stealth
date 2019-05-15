@@ -9,15 +9,15 @@
 		<link rel="icon" type="image/png" sizes="32x32" href="design/icon/favicon-32x32.png">
 		<link rel="icon" type="image/png" sizes="16x16" href="design/icon/favicon-16x16.png">
 		<link rel="manifest" href="index.webmanifest">
-		<link rel="mask-icon" href="design/icon/safari-pinned-tab.svg" color="#303030">
+		<link rel="mask-icon" href="design/icon/safari-pinned-tab.svg" color="#121212">
 		<link rel="shortcut icon" href="design/icon/favicon.ico">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 		<meta name="apple-mobile-web-app-title" content="Stealth">
 		<meta name="application-name" content="Stealth">
-		<meta name="msapplication-TileColor" content="#303030">
+		<meta name="msapplication-TileColor" content="#121212">
 		<meta name="msapplication-config" content="design/icon/browserconfig.xml">
-		<meta name="theme-color" content="#303030">
+		<meta name="theme-color" content="#121212">
 		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 
 		<link rel="stylesheet" href="design/font/index.css">
@@ -33,27 +33,27 @@
 	<body>
 		<header id="header">
 			<div id="header-history">
-				<button id="header-history-back" title="Visit earlier Site" disabled></button>
-				<button id="header-history-next" title="Visit later Site" disabled></button>
-				<button id="header-history-state" title="Refresh/Pause current Tab" disabled></button>
-				<button id="header-history-open" title="Open Tab" disabled></button>
+				<button id="header-history-back" tabindex="1" title="Visit earlier Site" disabled></button>
+				<button id="header-history-next" tabindex="2" title="Visit later Site" disabled></button>
+				<button id="header-history-state" tabindex="3" title="Refresh/Pause current Tab" disabled></button>
+				<button id="header-history-open" tabindex="4" title="Open Tab" disabled></button>
 			</div>
 			<div id="header-address">
 				<ul><li id="header-address-protocol"></li><li>stealth:welcome</li></ul>
-				<input class="active" type="text" placeholder="Enter URL or search query" spellcheck="false">
+				<input tabindex="5" class="active" type="text" placeholder="Enter URL or search query" spellcheck="false">
 			</div>
 			<div class="header-right">
 				<div id="header-mode">
-					<button data-key="text"  data-val="false" title="Allow/Disallow Text on current Site"></button>
-					<button data-key="image" data-val="false" title="Allow/Disallow Image on current Site"></button>
-					<button data-key="audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>
-					<button data-key="video" data-val="false" title="Allow/Disallow Video on current Site"></button>
-					<button data-key="other" data-val="false" title="Allow/Disallow Other on current Site"></button>
+					<button data-key="text"  tabindex="6" data-val="false" title="Allow/Disallow Text on current Site"></button>
+					<button data-key="image" tabindex="7" data-val="false" title="Allow/Disallow Image on current Site"></button>
+					<button data-key="audio" tabindex="8" data-val="false" title="Allow/Disallow Audio on current Site"></button>
+					<button data-key="video" tabindex="9" data-val="false" title="Allow/Disallow Video on current Site"></button>
+					<button data-key="other" tabindex="10" data-val="false" title="Allow/Disallow Other on current Site"></button>
 				</div>
 				<div id="header-settings">
-					<button id="header-settings-site" title="Site Settings"></button>
-					<button id="header-settings-peer" title="Peer Settings"></button>
-					<button id="header-settings-browser" title="Browser Settings"></button>
+					<button tabindex="11" id="header-settings-site" title="Site Settings"></button>
+					<button tabindex="12" id="header-settings-peer" title="Peer Settings"></button>
+					<button tabindex="13" id="header-settings-browser" title="Browser Settings"></button>
 				</div>
 			</div>
 		</header>

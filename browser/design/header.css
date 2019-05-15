@@ -14,7 +14,7 @@
 	font-family: 'museo';
 	font-size: 0px;
 	color: #ffffff;
-	background: #303030;
+	background: #121212;
 	border: 0px solid transparent;
 	border-bottom: 1px solid #666666;
 	box-sizing: content-box;
@@ -33,11 +33,14 @@
 	font-size: 24px;
 	text-align: center;
 	background: transparent;
-	border: 0px solid transparent;
+	border: 1px solid transparent;
 	border-radius: 4px;
+	box-sizing: border-box;
 	vertical-align: top;
 	transition: 250ms all ease-out;
 	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
 	outline: none;
 	cursor: pointer;
 }
@@ -45,7 +48,7 @@
 #header button:before,
 #header-address-protocol:before {
 	display: inline-block;
-	min-width: 32px;
+	width: 100%;
 	font-family: 'icon';
 	text-align: center;
 	speak: none;
@@ -64,13 +67,20 @@
 	color: #ffffff;
 }
 
-#header button:focus,
-#header button:hover {
+#header button:focus {
 	color: #ffffff;
-	background: rgba(255,255,255,0.1);
-	border: 0px solid transparent;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
 	outline: none;
 }
+
+#header button:hover {
+	color: #ffffff;
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
 
 #header button::-moz-focus-inner {
 	border: 0px solid transparent;
@@ -86,6 +96,7 @@
 
 #header-history-back:before                         { content: '\e5c4'; }
 #header-history-next:before                         { content: '\e5c8'; }
+#header-history-state:before                        { content: '\e5d5'; }
 #header-history-state[data-action="refresh"]:before { content: '\e5d5'; }
 #header-history-state[data-action="pause"]:before   { content: '\e034'; }
 #header-history-open:before                         { content: '\e145'; }
@@ -122,12 +133,16 @@
 	box-sizing: border-box;
 	vertical-align: middle;
 	border: 0px solid transparent;
+	border-radius: 0px;
 	border-bottom: 2px solid transparent;
 	transition: 250ms all ease-out;
 }
 
 #header-address ul li:hover {
+	color: #0f99cb;
+	border-radius: 4px 4px 0px 0px;
 	border-bottom: 2px solid #0f99cb;
+	background: rgba(255,255,255,0.04);
 	cursor: text;
 }
 
@@ -174,8 +189,9 @@
 	font-family: 'vera-mono';
 	font-size: 16px;
 	text-align: center;
-	background: #303030;
-	border: 0px solid transparent;
+	background: #121212;
+	border: 1px solid transparent;
+	border-radius: 4px;
 	transition: 250ms all ease-out;
 	opacity: 0;
 	-moz-appearance: none;
@@ -194,8 +210,11 @@
 	z-index: 2;
 }
 
-#header-address input:focus {
-
+#header-address input::selection {
+	color: #0f99cb;
+	border-radius: 4px;
+	background: rgba(255,255,255,0.12);
+	cursor: text;
 }
 
 header div.header-right {
