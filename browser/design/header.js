@@ -68,7 +68,6 @@
 
 				}
 
-
 				if (ref.domain !== null) {
 
 					if (ref.subdomain !== null) {
@@ -78,6 +77,8 @@
 					}
 
 				}
+
+				return config;
 
 			}
 

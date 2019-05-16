@@ -16,13 +16,17 @@ body {
 }
 
 ::selection {
-	color: #ffffff;
-	background: #0f99cb;
+	color: #99ccff;
+	border-radius: 4px;
+	background: rgba(255,255,255,0.12);
+	cursor: text;
 }
 
 ::-moz-selection {
-	color: #ffffff;
-	background: #0f99cb;
+	color: #99ccff;
+	border-radius: 4px;
+	background: rgba(255,255,255,0.12);
+	cursor: text;
 }
 
 ::-webkit-scrollbar {
@@ -42,7 +46,7 @@ body {
 
 a {
 	padding: 0px 2px;
-	color: #0f99cb;
+	color: #99ccff;
 	border: 1px solid transparent;
 	border-radius: 2px;
 	box-sizing: border-box;
@@ -53,7 +57,7 @@ a {
 }
 
 a:focus {
-	border: 1px solid #0f99cb;
+	border: 1px solid #99ccff;
 	background: rgba(255,255,255,0.12);
 	outline: none;
 }
