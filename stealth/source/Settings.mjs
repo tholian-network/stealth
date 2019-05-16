@@ -598,7 +598,7 @@ const Settings = function(stealth, profile, vendor) {
 
 		if (this.vendor !== null) {
 
-			read.call(this, this.vendor, false, (result) => {
+			read.call(this, this.vendor, true, (result) => {
 
 				if (result === true) {
 

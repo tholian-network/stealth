@@ -1,5 +1,5 @@
 
-import { init, listen, render, reset } from './internal.mjs';
+import { extract, init, listen, render, reset } from './internal.mjs';
 
 
 
@@ -9,14 +9,15 @@ const elements = {
 		history:    Array.from(document.querySelectorAll('#internet-history input')),
 		useragent:  Array.from(document.querySelectorAll('#internet-useragent input'))
 	},
-	filter:  document.querySelector('#sites table#sites-filters tfoot'),
-	filters: document.querySelector('#sites table#sites-filters tbody'),
-	host:  document.querySelector('#hosts table tfoot'),
-	hosts: document.querySelector('#hosts table tbody'),
-	mode:  document.querySelector('#sites table#sites-modes tfoot'),
-	modes: document.querySelector('#sites table#sites-modes tbody'),
-	peer:  document.querySelector('#peers table tfoot'),
-	peers: document.querySelector('#peers table tbody'),
+	filter:       document.querySelector('#sites table#sites-filters tfoot'),
+	filters:      document.querySelector('#sites table#sites-filters tbody'),
+	host:         document.querySelector('#hosts table tfoot'),
+	hosts:        document.querySelector('#hosts table tbody'),
+	hosts_search: document.querySelector('#hosts-search input'),
+	mode:         document.querySelector('#sites table#sites-modes tfoot'),
+	modes:        document.querySelector('#sites table#sites-modes tbody'),
+	peer:         document.querySelector('#peers table tfoot'),
+	peers:        document.querySelector('#peers table tbody'),
 };
 
 
@@ -178,6 +179,44 @@ const on_update_choices = function(choices, value, elements) {
 
 };
 
+const on_update_hosts = function(search) {
+
+	if (search === '') {
+
+		Array.from(elements.hosts.querySelectorAll('tr')).forEach((element) => {
+
+			let host = extract(element);
+			if (host !== null) {
+
+				let domain = host.domain || null;
+				if (domain !== null) {
+					element.setAttribute('data-visible', domain.includes('.') === false);
+				}
+
+			}
+
+		});
+
+	} else {
+
+		Array.from(elements.hosts.querySelectorAll('tr')).forEach((element) => {
+
+			let host = extract(element);
+			if (host !== null) {
+
+				let domain = host.domain || null;
+				if (domain !== null) {
+					element.setAttribute('data-visible', domain.endsWith(search));
+				}
+
+			}
+
+		});
+
+	}
+
+};
+
 const on_update = function(settings) {
 
 	let internet = settings.internet || null;
@@ -221,6 +260,12 @@ const on_update = function(settings) {
 	let peers = settings.peers || null;
 	if (peers !== null) {
 		elements.peers.innerHTML = peers.sort(sort_by_domain).map((peer) => render('peer', peer, [ 'refresh', 'remove', 'save' ])).join('');
+	}
+
+
+	let search = elements.hosts_search || null;
+	if (search !== null) {
+		on_update_hosts(search.value);
 	}
 
 };
@@ -279,6 +324,10 @@ init([
 	/*
 	 * Table Body
 	 */
+
+	if (elements.hosts_search !== null) {
+		elements.hosts_search.onkeyup = () => on_update_hosts(elements.hosts_search.value);
+	}
 
 	listen(elements.hosts, (action, data, done) => {
 

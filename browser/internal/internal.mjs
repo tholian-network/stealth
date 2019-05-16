@@ -229,14 +229,51 @@ const _set = (object, path, value) => {
 
 };
 
-const _extract_data = (element) => {
+const _get_parent = (element, types) => {
 
-	let parent = element.parentNode;
-	if (parent.tagName.toLowerCase() === 'td') {
-		parent = element.parentNode.parentNode;
+	types = isArray(types) ? types : [];
+
+
+	if (types.length > 0) {
+
+		let parent = element;
+		let type   = element.tagName.toLowerCase();
+
+		while (
+			type !== 'body'
+			&& types.includes(type) === false
+		) {
+
+			parent = parent.parentNode || null;
+			type   = parent.tagName.toLowerCase();
+
+			if (parent === null) {
+				break;
+			}
+
+		}
+
+		if (
+			type === 'body'
+			&& types.includes('body') === false
+		) {
+			return null;
+		} else {
+			return parent;
+		}
+
 	}
 
-	if (parent.tagName.toLowerCase() === 'tr' || parent.tagName.toLowerCase() === 'div') {
+};
+
+const _extract_data = (element) => {
+
+	let parent = element;
+	if (parent.tagName.toLowerCase() !== 'tr') {
+		parent = _get_parent(parent, [ 'tr', 'div' ]);
+	}
+
+	if (parent !== null) {
 
 		let data = {};
 

@@ -40,6 +40,30 @@ body {
 
 
 
+a {
+	padding: 0px 2px;
+	color: #0f99cb;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	box-sizing: border-box;
+	text-decoration: underline;
+	transition: 250ms all ease-out;
+	outline: none;
+	cursor: pointer;
+}
+
+a:focus {
+	border: 1px solid #0f99cb;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
+a:hover {
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
 abbr {
 	border: 0px solid transparent;
 	text-decoration: none;
@@ -395,6 +419,9 @@ table {
 	font-weight: normal;
 	text-align: center;
 }
+
+table tr[data-visible="false"] { display: none;      }
+table tr[data-visible="true"]  { display: table-row; }
 
 table tr th {
 	font-size: 20px;
