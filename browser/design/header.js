@@ -373,8 +373,15 @@
 			}
 
 			if (protocol === 'stealth') {
+
 				buttons.settings.site.setAttribute('disabled', 'true');
+				buttons.settings.site.className = '';
+				settings.site.className = '';
+
 				buttons.settings.peer.setAttribute('disabled', 'true');
+				buttons.settings.peer.className = '';
+				settings.peer.className = '';
+
 			} else {
 				buttons.settings.site.removeAttribute('disabled');
 				buttons.settings.peer.removeAttribute('disabled');
@@ -383,7 +390,11 @@
 		} else {
 
 			buttons.settings.site.setAttribute('disabled', 'true');
+			settings.site.className = '';
+
 			buttons.settings.peer.setAttribute('disabled', 'true');
+			settings.peer.className = '';
+
 			buttons.settings.browser.setAttribute('disabled', 'true');
 
 		}

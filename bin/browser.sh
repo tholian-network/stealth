@@ -79,6 +79,7 @@ if [[ "$system" == "Linux" ]]; then
 
 	if [[ ! -z "$chromium_bin" ]]; then
 
+		echo "> Launching Chromium App ...";
 		$chromium_bin --user-data-dir="$folder" --app="http://localhost:65432/browser/index.html";
 
 		if [[ $? == 0 ]] && [[ -d "$folder" ]]; then
@@ -87,6 +88,7 @@ if [[ "$system" == "Linux" ]]; then
 
 	elif [[ ! -z "$firefox_bin" ]]; then
 
+		echo "> Launching Firefox App ...";
 		$firefox_bin -app ./bin/firefox/application.ini -profile "$folder" --safe-mode;
 
 		if [[ $? == 0 ]] && [[ -d "$folder" ]]; then
@@ -95,6 +97,7 @@ if [[ "$system" == "Linux" ]]; then
 
 	elif [[ ! -z "$electron_bin" ]]; then
 
+		echo "> Launching Electron App ...";
 		$electron_bin --user-data-dir="$folder" ./bin/electron/application.js;
 
 		if [[ $? == 0 ]] && [[ -d "$folder" ]]; then
@@ -103,6 +106,7 @@ if [[ "$system" == "Linux" ]]; then
 
 	elif [[ ! -z "$gjs_bin" ]]; then
 
+		echo "> Launching GJS App ...";
 		$gjs_bin ./bin/gjs/application.js;
 
 	elif [[ ! -z "$qml_bin" ]]; then
@@ -128,7 +132,10 @@ if [[ "$system" == "Linux" ]]; then
 				lib_controls="$($ldconfig_bin -p | grep libQt5Quick)";
 
 				if [[ "$lib_webview" != "" ]] && [[ "$lib_controls" != "" ]]; then
+
+					echo "> Launching QML App ...";
 					$qml_bin ./bin/qml/application.qml;
+
 				else
 
 					echo "Please install QtQuickControls and QtWebView first.";
@@ -197,6 +204,7 @@ elif [[ "$system" == "Darwin" ]]; then
 
 		if [[ ! -z "$chromium_app" ]]; then
 
+			echo "> Launching Chromium App ...";
 			$open_bin -W -a "$chromium_app" --args --user-data-dir="$folder" --app="http://localhost:65432/browser/index.html";
 
 			if [[ $? == 0 ]] && [[ -d "$folder" ]]; then
@@ -207,6 +215,8 @@ elif [[ "$system" == "Darwin" ]]; then
 
 			# XXX: Firefox.app cannot be opened as an App
 			# $open_bin -W -a "$firefox_app" --args -app ./bin/firefox/application.ini -profile "$folder" --safe-mode;
+
+			echo "> Launching Firefox App ...";
 			"$firefox_app/Contents/MacOS/firefox-bin" -app ./bin/firefox/application.ini -profile "$folder" --safe-mode;
 
 			if [[ $? == 0 ]] && [[ -d "$folder" ]]; then
@@ -215,6 +225,7 @@ elif [[ "$system" == "Darwin" ]]; then
 
 		elif [[ ! -z "$safari_app" ]]; then
 
+			echo "> Launching Safari App ...";
 			$open_bin -W -a "$safari_app" "http://localhost:65432/browser/index.html";
 
 		else

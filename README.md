@@ -205,10 +205,23 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 ### X0 (Q2 2019) - Prototype
 
-- [ ] Implement and document `Peer.proxy()` API.
-- [ ] `stealth:fix-request` Page (Download Assistant for Peers and the Web Archive).
+**Session**
+
+- [ ] Implement `stealth/source/server/Session.mjs` service that is used for the sidebar.
+- [ ] Implement `stealth/source/client/Session.mjs` (and add it to the `./bin/*.sh` files).
 - [ ] Sidebar (Overview about `Site Modes`, `Site Filters` and `Site Optimizers` of current Tab).
-- [ ] Implement `pause` event handling for webview/iframe element.
+- [ ] Implement `pause` button event handling that should kill all requests that are part of
+      the same Tab in the same Session.
+
+**UI**
+
+- [ ] Implement Sidebar UI for Sessions
+- [ ] Implement Sidebar UI for Site Resources
+- [ ] `stealth:fix-request` Page (Download Assistant for Peers and the Web Archive).
+
+**Other**
+
+- [ ] Implement and document `Peer.proxy()` API.
 - [ ] Optimizer for HTML files.
 - [ ] Optimizer for CSS files.
 - [ ] Re-Generate Vendor Profile.
