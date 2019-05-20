@@ -1,4 +1,8 @@
 
+@import url("../design/other/index.css");
+
+
+
 body {
 	display: block;
 	margin: 0px;
@@ -51,7 +55,7 @@ a {
 	border-radius: 2px;
 	box-sizing: border-box;
 	text-decoration: underline;
-	transition: 250ms all ease-out;
+	transition: 200ms all ease-out;
 	outline: none;
 	cursor: pointer;
 }
@@ -108,7 +112,7 @@ button {
 	border-radius: 4px;
 	box-sizing: border-box;
 	vertical-align: top;
-	transition: 250ms all ease-out;
+	transition: 200ms all ease-out;
 	appearance: none;
 	-moz-appearance: none;
 	-webkit-appearance: none;
@@ -246,7 +250,7 @@ input[type="radio"] {
 	border-radius: 4px;
 	box-sizing: border-box;
 	vertical-align: top;
-	transition: 250ms all ease-out;
+	transition: 200ms all ease-out;
 	appearance: none;
 	-moz-appearance: none;
 	-webkit-appearance: none;
@@ -330,7 +334,7 @@ input[type="text"] {
 	border: 1px solid #666666;
 	border-radius: 4px;
 	vertical-align: top;
-	transition: 250ms all ease-out;
+	transition: 200ms all ease-out;
 	appearance: none;
 	outline: none;
 	cursor: text;
@@ -371,7 +375,7 @@ textarea {
 	border: 1px solid #666666;
 	border-radius: 4px;
 	vertical-align: top;
-	transition: 250ms all ease-out;
+	transition: 200ms all ease-out;
 	appearance: none;
 	outline: none;
 	resize: vertical;
@@ -438,7 +442,7 @@ table tr td {
 	line-height: 32px;
 	font-size: 16px;
 	border-top: 1px solid #666666;
-	transition: 250ms all ease-out;
+	transition: 200ms all ease-out;
 }
 
 table tbody tr:hover td {

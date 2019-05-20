@@ -1,0 +1,96 @@
+
+browser-context {
+	display: none;
+	position: absolute;
+	min-width: 128px;
+	width: auto;
+	height: auto;
+	top: auto;
+	right: auto;
+	bottom: auto;
+	left: auto;
+	margin: 0px;
+	padding: 0px;
+	color: #ffffff;
+	text-align: left;
+	background: #121212;
+	border: 1px solid #666666;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transform: translate(-50%, -50%);
+	z-index: 1023;
+	user-select: none;
+	pointer-events: none;
+}
+
+browser-context.active {
+	display: block;
+	pointer-events: auto;
+}
+
+browser-context button {
+	display: block;
+	min-width: 32px;
+	width: 100%;
+	margin: 0px;
+	padding: 0px 8px;
+	line-height: 30px;
+	height: 32px;
+	color: #666666;
+	font-family: 'vera-mono';
+	font-size: 16px;
+	text-align: left;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	vertical-align: middle;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+browser-context button:before {
+	display: inline-block;
+	width: 1em;
+	height: auto;
+	margin: 0px 8px 0px 0px;
+	padding: 0px;
+	content: '\e315';
+	font-family: 'icon';
+	font-size: 24px;
+	text-align: center;
+	vertical-align: top;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+browser-context button:focus {
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
+browser-context button:hover {
+	color: #ffffff;
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
+browser-context button::-moz-focus-inner {
+	border: 0px solid transparent;
+}
+
+browser-context button[data-icon="default"]:before  { content: '\e315'; }
+browser-context button[data-icon="confirm"]:before  { content: '\e5ca'; }
+browser-context button[data-icon="download"]:before { content: '\e884'; }
+browser-context button[data-icon="refresh"]:before  { content: '\e5d5'; }
+browser-context button[data-icon="read"]:before     { content: '\e5d5'; }
+browser-context button[data-icon="remove"]:before   { content: '\e5cd'; }
+browser-context button[data-icon="save"]:before     { content: '\e5ca'; }
+

@@ -1,0 +1,79 @@
+
+@import url("./other/index.css");
+@import url("./header/History.css");
+@import url("./header/Address.css");
+@import url("./header/Mode.css");
+@import url("./header/Settings.css");
+
+@import url("./main/Webview.css");
+
+@import url("./footer/Tabs.css");
+/* @import url("./footer/Beacon.css"); */
+/* @import url("./footer/Site.css"); */
+/* @import url("./footer/Peer.css"); */
+@import url("./footer/Context.css");
+
+
+
+/*
+ * element z-index map
+ *
+ * 1024 => header
+ *         ... browser-history
+ *         ... browser-address
+ *         ... browser-mode
+ *         ... browser-settings
+ *
+ * 1023 => footer => browser-context
+ * 1022 => footer => browser-tabs
+ *
+ *  512 => footer
+ *         ... browser-beacon
+ *         ... browser-peer
+ *         ... browser-site
+ *
+ *    1 => main
+ *         ... browser-webview
+ *
+ */
+
+
+
+body {
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	background: #121212;
+}
+
+header {
+	display: block;
+	position: fixed;
+	width: auto;
+	height: 40px;
+	line-height: 32px;
+	top: 0px;
+	right: 0px;
+	bottom: auto;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+	z-index: 1024;
+	border: 0px solid transparent;
+	border-bottom: 1px solid #666666;
+	box-sizing: border-box;
+	vertical-align: middle;
+}
+
+main {
+	display: block;
+	position: relative;
+	z-index: 1;
+}
+
+footer {
+	display: block;
+	position: relative;
+	z-index: 512;
+}
+

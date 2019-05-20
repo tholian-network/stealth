@@ -26,13 +26,13 @@ Emitter.prototype = {
 
 				for (let e = 0, el = events.length; e < el; e++) {
 
-					let event = events[e];
-					if (event.once === true) {
+					let entry = events[e];
+					if (entry.once === true) {
 
 						try {
 
-							let result = event.callback.apply(null, args) || null;
-							if (result !== null) {
+							let result = entry.callback.apply(null, args);
+							if (result !== null && result !== undefined) {
 								data = result;
 							}
 
@@ -48,7 +48,7 @@ Emitter.prototype = {
 
 						try {
 
-							let result = event.callback.apply(null, args);
+							let result = entry.callback.apply(null, args);
 							if (result !== null && result !== undefined) {
 								data = result;
 							}

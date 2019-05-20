@@ -1,0 +1,92 @@
+
+browser-settings {
+	display: inline-block;
+	position: relative;
+	width: auto;
+	height: 32px;
+	margin: 0px 0px 0px 32px;
+	padding: 0px;
+	line-height: 32px;
+	text-align: center;
+	vertical-align: middle;
+	user-select: none;
+}
+
+browser-settings button {
+	display: inline-block;
+	min-width: 32px;
+	margin: 0px;
+	padding: 0px;
+	line-height: 32px;
+	height: 32px;
+	color: #666666;
+	font-size: 24px;
+	text-align: center;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+browser-settings button:before {
+	display: inline-block;
+	width: 100%;
+	font-family: 'icon';
+	text-align: center;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+browser-settings button.active {
+	color: #ffffff;
+}
+
+browser-settings button[disabled],
+browser-settings button[disabled]:hover {
+	color: #666666;
+	background: transparent;
+	cursor: default;
+}
+
+browser-settings button[disabled].active {
+	color: #ffffff;
+}
+
+browser-settings button:focus {
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
+browser-settings button:hover {
+	color: #ffffff;
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
+browser-settings button::-moz-focus-inner {
+	border: 0px solid transparent;
+}
+
+browser-settings button[data-key="site"]:before     { content: '\e869'; }
+browser-settings button[data-key="peer"]:before     { content: '\e1e2'; }
+browser-settings button[data-key="browser"]:before  { content: '\e8b8'; }
+
+
+
+@media screen and (max-width: 800px) {
+
+	browser-settings {
+		margin-left: 0px;
+	}
+
+}
+

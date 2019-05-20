@@ -1,0 +1,121 @@
+
+browser-tabs {
+	display: block;
+	position: fixed;
+	width: auto;
+	max-width: 192px;
+	height: auto;
+	max-height: auto;
+	top: 40px;
+	right: auto;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+	color: #ffffff;
+	background: #121212;
+	border: 0px solid transparent;
+	border-right: 1px solid #666666;
+	transform: translate(-100%, 0%);
+	transition: 200ms all ease-out;
+	z-index: 1022;
+	user-select: none;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+browser-tabs.active {
+	transform: translate(0%, 0%);
+}
+
+browser-tabs::-webkit-scrollbar {
+	width: 16px;
+	border: 0px solid transparent;
+	background: transparent;
+}
+
+browser-tabs::-webkit-scrollbar-thumb {
+	width: 16px;
+	background: #ffffff;
+}
+
+browser-tabs button {
+	display: inline-block;
+	min-width: 32px;
+	width: 100%;
+	height: 32px;
+	margin: 0px;
+	padding: 0px 8px;
+	line-height: 24px;
+	color: #666666;
+	font-family: 'vera-mono';
+	font-size: 16px;
+	text-align: left;
+	text-overflow: ellipsis;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	vertical-align: middle;
+	overflow: hidden;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+browser-tabs button.active {
+	color: #ffffff;
+	border-top: 1px solid #666666;
+	border-bottom: 1px solid #666666;
+}
+
+browser-tabs button.active:first-of-type {
+	border-top: 1px solid transparent;
+}
+
+browser-tabs button:before {
+	display: inline-block;
+	width: 1em;
+	height: auto;
+	margin: 0px 8px 0px 0px;
+	padding: 0px;
+	content: '\e157';
+	font-family: 'icon';
+	font-size: 24px;
+	text-align: center;
+	vertical-align: middle;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+browser-tabs button:focus {
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
+browser-tabs button:hover {
+	color: #ffffff;
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
+browser-tabs button::-moz-focus-inner {
+	border: 0px solid transparent;
+}
+
+browser-tabs button[title^="file:"]:before    { content: '\e84f'; }
+browser-tabs button[title^="ftps:"]:before    { content: '\e897'; }
+browser-tabs button[title^="ftp:"]:before     { content: '\e898'; }
+browser-tabs button[title^="https:"]:before   { content: '\e897'; }
+browser-tabs button[title^="http:"]:before    { content: '\e898'; }
+browser-tabs button[title^="wss:"]:before     { content: '\e897'; }
+browser-tabs button[title^="ws:"]:before      { content: '\e898'; }
+browser-tabs button[title^="socks:"]:before   { content: '\e32a'; }
+browser-tabs button[title^="stealth:"]:before { content: '\e8b8'; }
+
