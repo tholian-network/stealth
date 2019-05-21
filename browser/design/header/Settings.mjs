@@ -4,6 +4,7 @@ import { Element } from '../Element.mjs';
 
 
 const TEMPLATE = `
+<button data-key="beacon" title="Beacon Settings" disabled></button>
 <button data-key="site" title="Site Settings" disabled></button>
 <button data-key="peer" title="Peer Settings" disabled></button>
 <button data-key="browser" title="Browser Settings" class="active" disabled></button>
@@ -24,9 +25,11 @@ const update = function(tab) {
 		}
 
 		if (tab.ref.protocol === 'stealth') {
+			this.beacon.state('disabled');
 			this.peer.state('disabled');
 			this.site.state('disabled');
 		} else {
+			this.beacon.state('enabled');
 			this.peer.state('enabled');
 			this.site.state('enabled');
 		}
@@ -36,6 +39,7 @@ const update = function(tab) {
 		this.browser.state('enabled');
 		this.browser.state('');
 
+		this.beacon.state('disabled');
 		this.peer.state('disabled');
 		this.site.state('disabled');
 
@@ -48,10 +52,35 @@ const update = function(tab) {
 const Settings = function(browser) {
 
 	this.element = Element.from('browser-settings', TEMPLATE);
+	this.beacon  = this.element.query('[data-key="beacon"]');
 	this.browser = this.element.query('[data-key="browser"]');
 	this.peer    = this.element.query('[data-key="peer"]');
 	this.site    = this.element.query('[data-key="site"]');
 
+
+	this.element.on('contextmenu', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+	});
+
+	this.beacon.on('click', () => {
+
+		let peer = Element.query('sidebar-peer');
+		if (peer !== null) {
+			peer.emit('hide');
+		}
+
+		let site = Element.query('sidebar-site');
+		if (site !== null) {
+			site.emit('hide');
+		}
+
+		let beacon = Element.query('sidebar-beacon');
+		if (beacon !== null) {
+			beacon.emit('show');
+		}
+
+	});
 
 	this.browser.on('click', () => {
 
@@ -66,11 +95,19 @@ const Settings = function(browser) {
 
 		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
 
-			let peer = Element.query('sidebar-peer');
+			let beacon = Element.query('sidebar-beacon');
+			if (beacon !== null) {
+				beacon.emit('hide');
+			}
+
 			let site = Element.query('sidebar-site');
-			if (peer !== null && site !== null) {
-				peer.emit('show');
+			if (site !== null) {
 				site.emit('hide');
+			}
+
+			let peer = Element.query('sidebar-peer');
+			if (peer !== null) {
+				peer.emit('show');
 			}
 
 		}
@@ -81,10 +118,18 @@ const Settings = function(browser) {
 
 		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
 
+			let beacon = Element.query('sidebar-beacon');
+			if (beacon !== null) {
+				beacon.emit('hide');
+			}
+
 			let peer = Element.query('sidebar-peer');
-			let site = Element.query('sidebar-site');
-			if (peer !== null && site !== null) {
+			if (peer !== null) {
 				peer.emit('hide');
+			}
+
+			let site = Element.query('sidebar-site');
+			if (site !== null) {
 				site.emit('show');
 			}
 

@@ -2,7 +2,7 @@
 browser-address {
 	display: inline-block;
 	position: relative;
-	width: calc(100% - 128px - 288px);
+	width: calc(100% - 128px - 320px);
 	height: 32px;
 	margin: 0px;
 	padding: 0px;

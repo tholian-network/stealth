@@ -7,6 +7,13 @@ to change the Browser Engine (to render everything) without
 problems.
 
 
+## URL-Parameter Flags
+
+- `/index.html?debug` is a parameter to toggle loading/debugging
+   of the UI by disabling the Service Worker.
+   The default value is `false`.
+
+
 ## Quickstart
 
 - Install [node.js](https://nodejs.org/en/download) version `10+`.

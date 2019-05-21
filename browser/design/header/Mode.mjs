@@ -112,6 +112,11 @@ const Mode = function(browser) {
 	this.buttons = this.element.query('[data-key]');
 
 
+	this.element.on('contextmenu', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+	});
+
 	this.buttons.forEach((button) => {
 
 		button.on('click', () => {

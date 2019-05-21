@@ -17,7 +17,7 @@ const render_button = function(tab) {
 			hash:      null,
 			host:      tab.ref.host,
 			path:      null,
-			port:      tab.ref.port,
+			port:      null,
 			protocol:  null,
 			query:     null,
 			subdomain: tab.ref.subdomain
@@ -105,11 +105,19 @@ const update = function(tab, tabs) {
 	let webview = Element.query('browser-webview');
 	if (webview !== null) {
 
-		let rect = this.element.element.getBoundingClientRect();
-		if (rect.width > 1) {
-			webview.element.style.left = rect.width + 'px';
+		let area = this.element.area();
+		if (area.w > 1) {
+
+			webview.style({
+				left: area.w
+			});
+
 		} else {
-			webview.element.style.left = '';
+
+			webview.style({
+				left: null
+			});
+
 		}
 
 	}

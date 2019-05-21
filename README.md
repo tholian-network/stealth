@@ -205,6 +205,23 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 ### X0 (Q2 2019) - Prototype
 
+**Controls**
+
+- [ ] Implement `rotate_through_sidebars` method
+- [ ] Implement `window.document.oncontextmenu()` method with actions
+
+**Controls / Actions**
+
+- [ ] Generate `open, copy, download` actions for links
+- [ ] Generate `open, copy, download` actions for images
+- [ ] Generate `open, copy, download` actions for audios
+- [ ] Generate `open, copy, download` actions for videos
+- [ ] Generate fallback `open, copy` action for texts (if text is a URL)
+
+**Browser Internals**
+
+- [ ] Figure out whether or not `insert()` and `insert_data()` need `data-map` integration
+
 **Session**
 
 - [ ] Implement `stealth/source/server/Session.mjs` service that is used for the sidebar.
@@ -215,8 +232,9 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **UI**
 
-- [ ] Implement Sidebar UI for Sessions
-- [ ] Implement Sidebar UI for Site Resources
+- [ ] Implement Beacon Sidebar (a Dummy View, as it is published with X1)
+- [ ] Implement Peer Sidebar
+- [ ] Implement Site Sidebar
 - [ ] `stealth:fix-request` Page (Download Assistant for Peers and the Web Archive).
 
 **Other**

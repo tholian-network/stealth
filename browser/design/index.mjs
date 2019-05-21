@@ -99,20 +99,3 @@ setTimeout(() => {
 
 }, 500);
 
-
-
-(function(navigator) {
-
-	let worker = navigator.serviceWorker || null;
-	if (worker !== null && typeof worker.register === 'function') {
-
-		worker.register('service.js').then((service) => {
-			console.info('Service Worker connected.', service.scope);
-		}).catch((err) => {
-			console.error(err);
-		});
-
-	}
-
-})(global.navigator || {});
-

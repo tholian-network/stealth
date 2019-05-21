@@ -46,6 +46,11 @@ const History = function(browser) {
 	this.open    = this.element.query('[data-key="open"]');
 
 
+	this.element.on('contextmenu', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+	});
+
 	this.back.on('click', () => browser.back());
 	this.next.on('click', () => browser.next());
 

@@ -17,7 +17,7 @@ browser-context {
 	border: 1px solid #666666;
 	border-radius: 4px;
 	box-sizing: border-box;
-	transform: translate(-50%, -50%);
+	transform: translate(-50%, -16px);
 	z-index: 1023;
 	user-select: none;
 	pointer-events: none;
@@ -88,7 +88,10 @@ browser-context button::-moz-focus-inner {
 
 browser-context button[data-icon="default"]:before  { content: '\e315'; }
 browser-context button[data-icon="confirm"]:before  { content: '\e5ca'; }
-browser-context button[data-icon="download"]:before { content: '\e884'; }
+browser-context button[data-icon="copy"]:before     { content: '\e14d'; }
+browser-context button[data-icon="download"]:before { content: '\e2c4'; }
+browser-context button[data-icon="open"]:before     { content: '\e89e'; }
+browser-context button[data-icon="paste"]:before    { content: '\e14f'; }
 browser-context button[data-icon="refresh"]:before  { content: '\e5d5'; }
 browser-context button[data-icon="read"]:before     { content: '\e5d5'; }
 browser-context button[data-icon="remove"]:before   { content: '\e5cd'; }

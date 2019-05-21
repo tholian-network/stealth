@@ -329,8 +329,9 @@ Server.prototype = {
 
 				HTTP.receive(socket, data, (request) => {
 
-					request.headers['@remote'] = socket.remoteAddress || null;
+					request.headers['@debug']  = this.stealth.__debug === true;
 					request.headers['@local']  = socket.localAddress  || null;
+					request.headers['@remote'] = socket.remoteAddress || null;
 
 
 					let url  = (request.headers['@url'] || '');

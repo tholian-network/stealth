@@ -32,6 +32,37 @@
 
 		<!-- Browser UI -->
 		<script type="module" src="design/index.mjs"></script>
+
+
+		<!-- Browser PWA -->
+		<script>
+
+			(function(navigator, location) {
+
+				let debug  = false;
+				let search = location.search || '';
+				if (search.includes('debug')) {
+					debug = true;
+				}
+
+				if (debug === false) {
+
+					let worker = navigator.serviceWorker || null;
+					if (worker !== null && typeof worker.register === 'function') {
+
+						worker.register('service.js').then((service) => {
+							console.info('Service Worker connected.', service.scope);
+						}).catch((err) => {
+							console.error(err);
+						});
+
+					}
+
+				}
+
+			})(window.navigator || {}, window.location || {});
+
+		</script>
 	</body>
 </html>
 

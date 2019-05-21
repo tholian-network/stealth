@@ -76,7 +76,7 @@ const ROUTER = {
 
 			REDIRECT.send({
 				code: 301,
-				path: '/browser/index.html'
+				path: '/browser/index.html' + (ref.headers['@debug'] ? '?debug' : '')
 			}, (response) => {
 
 				if (callback !== null) {
@@ -89,7 +89,7 @@ const ROUTER = {
 
 			REDIRECT.send({
 				code: 301,
-				path: '/browser/design/icon/favicon.ico'
+				path: '/browser/design/other/favicon.ico'
 			}, (response) => {
 
 				if (response !== null) {

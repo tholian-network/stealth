@@ -78,6 +78,19 @@ export const dispatch = function(window, browser) {
 	}
 
 
+	window.document.oncontextmenu = (e) => {
+
+		// TODO: Copy selected text, link, image, audio, video
+		// TODO: Open link, image, audio, video
+		// TODO: Download link, image, audio, video
+
+		console.log(e.target);
+
+		e.preventDefault();
+		e.stopPropagation();
+
+	};
+
 	window.onkeydown = (e) => {
 
 		let ctrl = e.ctrlKey === true;
@@ -86,6 +99,11 @@ export const dispatch = function(window, browser) {
 		if (key === 'escape') {
 
 			unfocus(window.document, true);
+
+			let beacon = WIDGETS.beacon || null;
+			if (beacon !== null) {
+				beacon.emit('hide');
+			}
 
 			let peer = WIDGETS.peer || null;
 			if (peer !== null) {

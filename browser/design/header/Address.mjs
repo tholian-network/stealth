@@ -1,5 +1,81 @@
 
+import { isString } from '../../source/POLYFILLS.mjs';
+
 import { Element } from '../Element.mjs';
+import { URL     } from '../../source/parser/URL.mjs';
+
+
+
+const global    = (typeof window !== 'undefined' ? window : this);
+const clipboard = (function(navigator) {
+
+	let read  = null;
+	let write = null;
+
+	let clipboard = navigator.clipboard || null;
+	if (clipboard !== null) {
+
+		if ('readText' in clipboard) {
+
+			read = function(callback) {
+
+				clipboard.readText().then((value) => {
+
+					if (isString(value)) {
+						callback(value);
+					} else {
+						callback(null);
+					}
+
+				}).catch(() => {
+					callback(null);
+				});
+
+			};
+
+		}
+
+		if ('writeText' in clipboard) {
+
+			write = function(value, callback) {
+
+				value = isString(value) ? value : null;
+
+				if (value !== null) {
+
+					clipboard.writeText(value).then(() => {
+						callback(true);
+					}, () => {
+						callback(false);
+					});
+
+				} else {
+					callback(false);
+				}
+
+			};
+
+		}
+
+	}
+
+
+	if (read !== null) {
+
+		// XXX: Request Permission
+		setTimeout(() => {
+			read(() => {});
+		}, 100);
+
+	}
+
+
+	return {
+		read:  read,
+		write: write
+	};
+
+})(global.navigator || {});
 
 
 
@@ -126,13 +202,109 @@ const update = function(tab) {
 
 
 
-const Address = function(browser) {
+const Address = function(browser, widgets) {
 
 	this.element  = Element.from('browser-address', TEMPLATE);
 	this.protocol = this.element.query('[data-key="protocol"]');
 	this.input    = this.element.query('input');
 	this.output   = this.element.query('ul');
 
+
+	this.element.on('contextmenu', (e) => {
+
+		let context = widgets.context || null;
+		if (context !== null) {
+
+			let actions = [];
+
+			if (clipboard.read !== null && clipboard.write !== null) {
+
+				actions.push({
+					icon:     'open',
+					label:    'open',
+					callback: () => {
+
+						clipboard.read((val) => {
+
+							if (isString(val)) {
+
+								let ref = URL.parse(val.trim());
+								if (ref.protocol === 'https' || ref.protocol === 'http') {
+
+									let tab = browser.open(ref.url);
+									if (tab !== null) {
+										browser.show(tab);
+									}
+
+								}
+
+							}
+
+						});
+
+					}
+				});
+
+				actions.push({
+					icon:     'copy',
+					label:    'copy',
+					callback: () => {
+
+						clipboard.write(browser.tab.url, () => {
+							// Do nothing
+						});
+
+					}
+				});
+
+				actions.push({
+					icon:     'paste',
+					label:    'paste',
+					callback: () => {
+
+						clipboard.read((val) => {
+
+							if (isString(val)) {
+
+								let ref = URL.parse(val.trim());
+								if (ref.protocol === 'https' || ref.protocol === 'http') {
+									this.input.state('active');
+									this.input.value(ref);
+									this.input.element.setSelectionRange(0, ref.url.length);
+									this.input.emit('focus');
+								}
+
+							}
+
+						});
+
+					}
+				});
+
+			}
+
+			if (actions.length > 0) {
+
+				let area = this.input.area();
+				if (area !== null) {
+
+					context.set(actions);
+					context.move({
+						x: area.x,
+						y: 0
+					});
+					context.emit('show');
+
+				}
+
+			}
+
+		}
+
+		e.preventDefault();
+		e.stopPropagation();
+
+	});
 
 	this.input.on('blur', () => {
 
@@ -181,6 +353,21 @@ const Address = function(browser) {
 			}
 
 		}
+
+	});
+
+	this.input.on('click', (e) => {
+
+		let context = widgets.context || null;
+		if (context !== null) {
+
+			if (context.element.state() === 'active') {
+				context.emit('hide');
+			}
+
+		}
+
+		e.stopPropagation();
 
 	});
 
@@ -235,6 +422,16 @@ const Address = function(browser) {
 			this.input.state('active');
 			this.input.element.setSelectionRange(offset, offset + select.length);
 			this.input.emit('focus');
+
+		}
+
+
+		let context = widgets.context || null;
+		if (context !== null) {
+
+			if (context.element.state() === 'active') {
+				context.emit('hide');
+			}
 
 		}
 

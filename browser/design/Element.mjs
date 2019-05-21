@@ -1,8 +1,9 @@
 
-import { isArray, isFunction, isString } from '../source/POLYFILLS.mjs';
+import { isArray, isFunction, isNumber, isObject, isString } from '../source/POLYFILLS.mjs';
 
-import { IP  } from '../source/parser/IP.mjs';
-import { URL } from '../source/parser/URL.mjs';
+import { console } from '../source/console.mjs';
+import { IP      } from '../source/parser/IP.mjs';
+import { URL     } from '../source/parser/URL.mjs';
 
 const global = (typeof window !== 'undefined' ? window : this);
 const doc    = global.document;
@@ -19,6 +20,15 @@ const isElement = function(element) {
 	}
 
 	return false;
+
+};
+
+const Dummy = function() {
+
+	this.x = 0;
+	this.y = 0;
+	this.preventDefault  = function() {};
+	this.stopPropagation = function() {};
 
 };
 
@@ -98,6 +108,36 @@ Element.query = function(query) {
 
 Element.prototype = {
 
+	area: function() {
+
+		let width  = 0;
+		let height = 0;
+		let x      = 0;
+		let y      = 0;
+
+
+		if (this.element !== null) {
+
+			let rect = this.element.getBoundingClientRect();
+			if (rect !== null) {
+				width  = rect.width;
+				height = rect.height;
+				x      = (rect.left + width  / 2) | 0;
+				y      = (rect.top  + height / 2) | 0;
+			}
+
+		}
+
+
+		return {
+			x: x,
+			y: y,
+			w: width,
+			h: height
+		};
+
+	},
+
 	emit: function(event, args) {
 
 		event = isString(event) ? event : null;
@@ -121,6 +161,8 @@ Element.prototype = {
 					}
 
 				}
+
+				args = [ new Dummy() ];
 
 			}
 
@@ -457,6 +499,40 @@ Element.prototype = {
 			return null;
 
 		}
+
+	},
+
+	style: function(data) {
+
+		data = isObject(data) ? data : null;
+
+
+		if (data !== null) {
+
+			if (this.element !== null) {
+
+				Object.keys(data).forEach((key) => {
+
+					let val = data[key];
+
+					if (isNumber(val)) {
+						val = val + 'px';
+					}
+
+					if (isString(val)) {
+						this.element.style[key] = val;
+					} else {
+						this.element.style[key] = '';
+					}
+
+				});
+
+			}
+
+		}
+
+
+		return false;
 
 	},
 

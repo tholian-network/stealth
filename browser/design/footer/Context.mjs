@@ -87,20 +87,20 @@ const Context = function() {
 				let rect = this.element.element.getBoundingClientRect();
 				if (rect !== null) {
 
-					if (this.position.x < (rect.width / 2)) {
-						this.position.x = (rect.width / 2) | 0;
+					if (this.position.x < (rect.width / 2 + 1)) {
+						this.position.x = (rect.width / 2 + 1) | 0;
 					}
 
-					if (this.position.y < (40 + rect.height / 2)) {
-						this.position.y = (40 + rect.height / 2) | 0;
+					if (this.position.y < (40 + 16)) {
+						this.position.y = (40 + 16) | 0;
 					}
 
 					if (this.position.x > (global.innerWidth - rect.width / 2)) {
 						this.position.x = (global.innerWidth - rect.width / 2) | 0;
 					}
 
-					if (this.position.y > (global.innerHeight - rect.height / 2)) {
-						this.position.y = (global.innerHeight - rect.height / 2) | 0;
+					if (this.position.y > (global.innerHeight - rect.height / 2 - 1)) {
+						this.position.y = (global.innerHeight - rect.height / 2 - 1) | 0;
 					}
 
 				}
