@@ -1,5 +1,5 @@
 
-import { isArray, isFunction, isNumber, isObject, isString } from '../source/POLYFILLS.mjs';
+import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '../source/POLYFILLS.mjs';
 
 import { console } from '../source/console.mjs';
 import { IP      } from '../source/parser/IP.mjs';
@@ -34,7 +34,10 @@ const Dummy = function() {
 
 
 
-const Element = function(type, template) {
+const Element = function(type, template, virtual) {
+
+	virtual = isBoolean(virtual) ? virtual : true;
+
 
 	this.element = null;
 
@@ -59,7 +62,7 @@ const Element = function(type, template) {
 	}
 
 
-	if (this.element !== null) {
+	if (this.element !== null && virtual === true) {
 
 		if (CACHE.reality.includes(this.element) === false) {
 			CACHE.reality.push(this.element);
@@ -71,10 +74,22 @@ const Element = function(type, template) {
 };
 
 
-Element.from = function(type, template) {
+Element.isElement = function(element) {
+
+	if (element !== undefined && element !== null) {
+		return element instanceof Element;
+	}
+
+	return false;
+
+};
+
+Element.from = function(type, template, virtual) {
 
 	if (isElement(type)) {
 		return new Element(type);
+	} else if (isString(type) && isString(template) && isBoolean(virtual)) {
+		return new Element(type, template, virtual);
 	} else if (isString(type) && isString(template)) {
 		return new Element(type, template);
 	} else if (isString(type)) {
@@ -108,33 +123,90 @@ Element.query = function(query) {
 
 Element.prototype = {
 
-	area: function() {
+	area: function(area) {
 
-		let width  = 0;
-		let height = 0;
-		let x      = 0;
-		let y      = 0;
+		area = isObject(area) ? area : null;
 
 
-		if (this.element !== null) {
+		if (area !== null) {
 
-			let rect = this.element.getBoundingClientRect();
-			if (rect !== null) {
-				width  = rect.width;
-				height = rect.height;
-				x      = (rect.left + width  / 2) | 0;
-				y      = (rect.top  + height / 2) | 0;
+			let w = isNumber(area.w) ? (area.w | 0) : null;
+			let h = isNumber(area.h) ? (area.h | 0) : null;
+			let x = isNumber(area.x) ? (area.x | 0) : null;
+			let y = isNumber(area.y) ? (area.y | 0) : null;
+			let z = isNumber(area.z) ? (area.z | 0) : null;
+
+			if (this.element !== null) {
+
+				if (w !== null) {
+					this.element.style['width'] = w + 'px';
+				} else {
+					this.element.style['width'] = '';
+				}
+
+				if (h !== null) {
+					this.element.style['height'] = h + 'px';
+				} else {
+					this.element.style['height'] = '';
+				}
+
+				if (x !== null) {
+					this.element.style['left'] = x + 'px';
+				} else {
+					this.element.style['left'] = '';
+				}
+
+				if (y !== null) {
+					this.element.style['top'] = y + 'px';
+				} else {
+					this.element.style['top'] = '';
+				}
+
+				if (z !== null) {
+					this.element.style['z-index'] = z + 'px';
+				} else {
+					this.element.style['z-index'] = '';
+				}
+
+				return true;
+
 			}
 
+
+			return false;
+
+		} else {
+
+			area = {
+				w: 0, h: 0,
+				x: 0, y: 0, z: 0
+			};
+
+			if (this.element !== null) {
+
+				let rect = this.element.getBoundingClientRect();
+				if (rect !== null) {
+					area.w = rect.width;
+					area.h = rect.height;
+					area.x = (rect.left + area.w / 2) | 0;
+					area.y = (rect.top  + area.h / 2) | 0;
+				}
+
+				let z_index = this.element.style['z-index'] || null;
+				if (z_index !== null) {
+
+					let num = parseInt(z_index, 10);
+					if (Number.isNaN(num) === false) {
+						area.z = num;
+					}
+
+				}
+
+			}
+
+			return area;
+
 		}
-
-
-		return {
-			x: x,
-			y: y,
-			w: width,
-			h: height
-		};
 
 	},
 
@@ -441,6 +513,99 @@ Element.prototype = {
 
 	},
 
+	attr: function(key, val) {
+
+		key = isString(key) ? key : null;
+
+
+		if (key !== null) {
+
+			let san = null;
+
+			if (isString(val)) {
+				san = val;
+			} else if (isArray(val)) {
+				san = JSON.stringify(val);
+			} else if (isObject(val)) {
+				san = JSON.stringify(val);
+			} else if (isNumber(val)) {
+				san = (val).toString();
+			}
+
+
+			if (san !== null) {
+
+				if (this.element !== null) {
+
+					this.element.setAttribute(key, san);
+
+					return true;
+
+				}
+
+				return false;
+
+			} else {
+
+				if (this.element !== null) {
+
+					let raw = this.element.getAttribute(key);
+
+					if (isString(raw)) {
+
+						let val = null;
+
+						if (raw.startsWith('[')) {
+
+							try {
+								val = JSON.parse(raw);
+							} catch (err) {
+								val = null;
+							}
+
+						} else if (raw.startsWith('{')) {
+
+							try {
+								val = JSON.parse(raw);
+							} catch (err) {
+								val = null;
+							}
+
+						} else if (/^([0-9.]+)$/g.test(raw)) {
+
+							let num = null;
+
+							if (raw.includes('.')) {
+								num = parseFloat(raw);
+							} else {
+								num = parseInt(raw, 10);
+							}
+
+							if (Number.isNaN(num) === false) {
+								val = num;
+							}
+
+						} else {
+							val = raw;
+						}
+
+						return val;
+
+					}
+
+				}
+
+				return null;
+
+			}
+
+		}
+
+
+		return null;
+
+	},
+
 	state: function(state) {
 
 		state = isString(state) ? state : null;
@@ -502,32 +667,20 @@ Element.prototype = {
 
 	},
 
-	style: function(data) {
+	title: function(title) {
 
-		data = isObject(data) ? data : null;
+		title = isString(title) ? title : null;
 
 
-		if (data !== null) {
+		if (this.element !== null) {
 
-			if (this.element !== null) {
-
-				Object.keys(data).forEach((key) => {
-
-					let val = data[key];
-
-					if (isNumber(val)) {
-						val = val + 'px';
-					}
-
-					if (isString(val)) {
-						this.element.style[key] = val;
-					} else {
-						this.element.style[key] = '';
-					}
-
-				});
-
+			if (title !== null) {
+				this.element.setAttribute('title', title);
+			} else {
+				this.element.removeAttribute('title');
 			}
+
+			return true;
 
 		}
 

@@ -47,9 +47,31 @@ const update = function(tab) {
 
 };
 
+const toggle = function(name, widgets) {
+
+	[ 'beacon', 'peer', 'site' ].forEach((sidebar) => {
+
+		let button = this[sidebar]    || null;
+		let widget = widgets[sidebar] || null;
+		if (button !== null && widget !== null) {
+
+			if (sidebar === name) {
+				button.state('active');
+				widget.emit('show');
+			} else {
+				button.state('');
+				widget.emit('hide');
+			}
+
+		}
+
+	});
+
+};
 
 
-const Settings = function(browser) {
+
+const Settings = function(browser, widgets) {
 
 	this.element = Element.from('browser-settings', TEMPLATE);
 	this.beacon  = this.element.query('[data-key="beacon"]');
@@ -65,24 +87,15 @@ const Settings = function(browser) {
 
 	this.beacon.on('click', () => {
 
-		let peer = Element.query('sidebar-peer');
-		if (peer !== null) {
-			peer.emit('hide');
-		}
-
-		let site = Element.query('sidebar-site');
-		if (site !== null) {
-			site.emit('hide');
-		}
-
-		let beacon = Element.query('sidebar-beacon');
-		if (beacon !== null) {
-			beacon.emit('show');
+		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
+			toggle.call(this, 'beacon', widgets);
 		}
 
 	});
 
 	this.browser.on('click', () => {
+
+		toggle.call(this, null, widgets);
 
 		let tab = browser.open('stealth:settings');
 		if (tab !== null) {
@@ -94,22 +107,7 @@ const Settings = function(browser) {
 	this.peer.on('click', () => {
 
 		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
-
-			let beacon = Element.query('sidebar-beacon');
-			if (beacon !== null) {
-				beacon.emit('hide');
-			}
-
-			let site = Element.query('sidebar-site');
-			if (site !== null) {
-				site.emit('hide');
-			}
-
-			let peer = Element.query('sidebar-peer');
-			if (peer !== null) {
-				peer.emit('show');
-			}
-
+			toggle.call(this, 'peer', widgets);
 		}
 
 	});
@@ -117,22 +115,7 @@ const Settings = function(browser) {
 	this.site.on('click', () => {
 
 		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
-
-			let beacon = Element.query('sidebar-beacon');
-			if (beacon !== null) {
-				beacon.emit('hide');
-			}
-
-			let peer = Element.query('sidebar-peer');
-			if (peer !== null) {
-				peer.emit('hide');
-			}
-
-			let site = Element.query('sidebar-site');
-			if (site !== null) {
-				site.emit('show');
-			}
-
+			toggle.call(this, 'site', widgets);
 		}
 
 	});

@@ -556,7 +556,7 @@ export const init = function(elements, callback) {
 		} else {
 
 			browser = new Browser();
-			browser.connect(HOST, PORT, (result) => {
+			browser.connect(HOST, (result) => {
 				callback(browser, result);
 			});
 

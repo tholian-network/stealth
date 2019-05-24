@@ -2,9 +2,130 @@
 import { isArray, isFunction, isNumber, isObject, isString } from '../../source/POLYFILLS.mjs';
 
 import { Element } from '../Element.mjs';
+import { URL     } from '../../source/parser/URL.mjs';
 
-const global = (typeof window !== 'undefined' ? window : this);
-const doc    = global.document;
+const global    = (typeof window !== 'undefined' ? window : this);
+const CLIPBOARD = (function(navigator) {
+
+	let read  = null;
+	let write = null;
+
+	let clipboard = navigator.clipboard || null;
+	if (clipboard !== null) {
+
+		if ('readText' in clipboard) {
+
+			read = function(callback) {
+
+				clipboard.readText().then((value) => {
+
+					if (isString(value)) {
+						callback(value);
+					} else {
+						callback(null);
+					}
+
+				}).catch(() => {
+					callback(null);
+				});
+
+			};
+
+		}
+
+		if ('writeText' in clipboard) {
+
+			write = function(value, callback) {
+
+				value = isString(value) ? value : null;
+
+				if (value !== null) {
+
+					clipboard.writeText(value).then(() => {
+						callback(true);
+					}, () => {
+						callback(false);
+					});
+
+				} else {
+					callback(false);
+				}
+
+			};
+
+		}
+
+	}
+
+
+	if (read !== null) {
+
+		// XXX: Request Permission
+		setTimeout(() => {
+			read(() => {});
+		}, 100);
+
+	}
+
+
+	return {
+		read:  read,
+		write: write
+	};
+
+})(global.navigator || {});
+
+
+const ACTIONS = [{
+	icon:     'download',
+	label:    'download',
+	callback: function(browser, value) {
+
+		if (isString(value)) {
+
+			let ref = URL.parse(value.trim());
+			if (ref.protocol !== null) {
+				browser.download(ref.url);
+			}
+
+		}
+
+	}
+}, {
+	icon:     'copy',
+	label:    'copy',
+	callback: function(browser, value) {
+
+		if (isString(value)) {
+
+			CLIPBOARD.write(value, () => {
+				// Do nothing
+			});
+
+		}
+
+	}
+}, {
+	icon:     'open',
+	label:    'open',
+	callback: function(browser, value) {
+
+		if (isString(value)) {
+
+			let ref = URL.parse(value.trim());
+			if (ref.protocol !== null) {
+
+				let tab = browser.open(ref.url);
+				if (tab !== null) {
+					browser.show(tab);
+				}
+
+			}
+
+		}
+
+	}
+}];
 
 
 
@@ -12,12 +133,25 @@ const is_action = function(action) {
 
 	if (isObject(action)) {
 
-		action.icon     = isString(action.icon)       ? action.icon     : 'default';
-		action.label    = isString(action.label)      ? action.label    : null;
-		action.callback = isFunction(action.callback) ? action.callback : null;
+		action.icon  = isString(action.icon)  ? action.icon  : 'default';
+		action.label = isString(action.label) ? action.label : null;
 
-		if (action.label !== null && action.callback !== null) {
+		if (isString(action.label) && isFunction(action.callback)) {
+
 			return true;
+
+		} else if (isString(action.label)) {
+
+			let other = ACTIONS.find((a) => a.label === action.label) || null;
+			if (other !== null) {
+
+				action.icon     = other.icon;
+				action.callback = other.callback;
+
+				return true;
+
+			}
+
 		}
 
 	}
@@ -31,10 +165,9 @@ const render_button = function(action) {
 
 	if (action.label !== null && action.callback !== null) {
 
-		let button = doc.createElement('button');
+		let button = Element.from('button', action.label, false);
 
-		button.innerHTML = action.label;
-		button.setAttribute('data-icon', action.icon);
+		button.attr('data-icon', action.icon);
 
 		return button;
 
@@ -47,22 +180,21 @@ const render_button = function(action) {
 
 
 
-const Context = function() {
+const Context = function(browser) {
 
-	this.element  = Element.from('browser-context');
-	this.actions  = [];
-	this.buttons  = [];
-	this.position = { x: null, y: null };
+	this.element = Element.from('browser-context');
+	this.actions = [];
+	this.buttons = [];
 
 
 	this.element.on('click', (e) => {
 
-		let index = this.buttons.indexOf(e.target);
-		if (index !== -1) {
+		let button = this.buttons.find((b) => b.element === e.target) || null;
+		if (button !== null) {
 
-			let action = this.actions[index] || null;
+			let action = this.actions[this.buttons.indexOf(button)] || null;
 			if (action !== null && action.callback !== null) {
-				action.callback();
+				action.callback.call(null, browser, action.value || null);
 			}
 
 		}
@@ -77,41 +209,7 @@ const Context = function() {
 	});
 
 	this.element.on('show', () => {
-
 		this.element.state('active');
-
-		setTimeout(() => {
-
-			if (this.position.x !== null && this.position.y !== null) {
-
-				let rect = this.element.element.getBoundingClientRect();
-				if (rect !== null) {
-
-					if (this.position.x < (rect.width / 2 + 1)) {
-						this.position.x = (rect.width / 2 + 1) | 0;
-					}
-
-					if (this.position.y < (40 + 16)) {
-						this.position.y = (40 + 16) | 0;
-					}
-
-					if (this.position.x > (global.innerWidth - rect.width / 2)) {
-						this.position.x = (global.innerWidth - rect.width / 2) | 0;
-					}
-
-					if (this.position.y > (global.innerHeight - rect.height / 2 - 1)) {
-						this.position.y = (global.innerHeight - rect.height / 2 - 1) | 0;
-					}
-
-				}
-
-				this.element.element.style.left = this.position.x + 'px';
-				this.element.element.style.top  = this.position.y + 'px';
-
-			}
-
-		}, 0);
-
 	});
 
 	this.element.on('hide', () => {
@@ -123,12 +221,87 @@ const Context = function() {
 
 Context.prototype = {
 
+	area: function(pos) {
+
+		pos = isObject(pos) ? pos : null;
+
+
+		if (pos !== null) {
+
+			pos.x = isNumber(pos.x) ? pos.x : (global.innerWidth  / 2);
+			pos.y = isNumber(pos.y) ? pos.y : (global.innerHeight / 2);
+			pos.z = isNumber(pos.z) ? pos.z : null;
+
+
+			if (this.element !== null) {
+
+				setTimeout(() => {
+
+					let area = this.element.area();
+
+					if (pos.x < (area.w / 2 + 1)) {
+						pos.x = (area.w / 2 + 1) | 0;
+					}
+
+					if (pos.y < (40 + 16)) {
+						pos.y = (40 + 16) | 0;
+					}
+
+					if (pos.x > (global.innerWidth - area.w / 2)) {
+						pos.x = (global.innerWidth - area.w / 2) | 0;
+					}
+
+					if (pos.y > (global.innerHeight - area.h / 2 - 1)) {
+						pos.y = (global.innerHeight - area.h / 2 - 1) | 0;
+					}
+
+					this.element.area(pos);
+
+				}, 0);
+
+				return true;
+
+			}
+
+			return false;
+
+		} else {
+
+			if (this.element !== null) {
+				return this.element.area();
+			}
+
+			return null;
+
+		}
+
+	},
+
 	emit: function(event, args) {
 		this.element.emit(event, args);
 	},
 
 	erase: function(target) {
 		this.element.erase(target);
+	},
+
+	read: function(callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (callback !== null) {
+
+			CLIPBOARD.read((value) => {
+
+				if (isString(value)) {
+					callback(value);
+				}
+
+			});
+
+		}
+
 	},
 
 	render: function(target) {
@@ -156,30 +329,6 @@ Context.prototype = {
 			});
 
 			this.element.value(this.buttons);
-
-			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	move: function(position) {
-
-		position = isObject(position) ? position : null;
-
-
-		if (position !== null) {
-
-			if (isNumber(position.x)) {
-				this.position.x = position.x | 0;
-			}
-
-			if (isNumber(position.y)) {
-				this.position.y = position.y | 0;
-			}
 
 			return true;
 

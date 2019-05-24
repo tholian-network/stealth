@@ -57,10 +57,24 @@ const rotate_through_modes = function(browser, buttons) {
 
 };
 
-const rotate_through_sidebars = function(browser, buttons, sidebars) {
+const rotate_through_sidebars = function(browser, buttons) {
 
-	// let check = buttons.filter((b) => b.state() === 'disabled');
-	console.log('rotate through sidebars', buttons, sidebars);
+	let check = buttons.filter((b) => b.state() === 'disabled');
+	if (check.length < buttons.length) {
+
+		let curr = buttons.find((b) => b.state() === 'active') || null;
+		let next = null;
+		if (curr !== null) {
+			next = buttons[(buttons.indexOf(curr) + 1) % buttons.length] || null;
+		} else {
+			next = buttons[0];
+		}
+
+		if (next !== null) {
+			next.emit('click');
+		}
+
+	}
 
 };
 
@@ -68,6 +82,7 @@ const rotate_through_sidebars = function(browser, buttons, sidebars) {
 
 export const dispatch = function(window, browser) {
 
+	let escapes = 0;
 	let widgets = window.WIDGETS || null;
 	if (widgets !== null) {
 
@@ -95,6 +110,39 @@ export const dispatch = function(window, browser) {
 
 		let ctrl = e.ctrlKey === true;
 		let key  = e.key.toLowerCase();
+
+
+		// Show Help on three (tries to) Escape in a row
+		if (key === 'escape') {
+
+			let focus = window.document.activeElement || null;
+			if (focus === null || focus === window.document.body) {
+				escapes++;
+			} else {
+				escapes = 0;
+			}
+
+			if (escapes >= 3) {
+
+				let help = WIDGETS.help || null;
+				if (help !== null) {
+					help.emit('show');
+					escapes = 0;
+				}
+
+			}
+
+		} else {
+
+			let help = WIDGETS.help || null;
+			if (help !== null) {
+				help.emit('hide');
+			}
+
+			escapes = 0;
+
+		}
+
 
 		if (key === 'escape') {
 
@@ -253,13 +301,9 @@ export const dispatch = function(window, browser) {
 
 				rotate_through_sidebars(browser, [
 					WIDGETS.settings.beacon || null,
-					WIDGETS.settings.peer   || null,
-					WIDGETS.settings.site   || null
-				], [
-					WIDGETS.beacon || null,
-					WIDGETS.peer   || null,
-					WIDGETS.site   || null
-				]);
+					WIDGETS.settings.site   || null,
+					WIDGETS.settings.peer   || null
+				].filter((b) => b !== null));
 
 			}
 

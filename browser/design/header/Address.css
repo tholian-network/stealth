@@ -133,12 +133,27 @@ browser-address input::selection {
 @media screen and (max-width: 800px) {
 
 	browser-address {
-		width: calc(100% - 128px - 256px);
+		width: calc(100% - 128px - 288px);
 		text-align: left;
 	}
 
 	browser-address ul {
+		width: auto;
 		margin: 0px 0px;
+		text-align: left;
+	}
+
+	browser-address ul li {
+		width: auto;
+	}
+
+	browser-address ul li[data-key="protocol"] {
+		display: none;
+	}
+
+	browser-address input {
+		width: 100%;
+		left: 0px;
 	}
 
 }

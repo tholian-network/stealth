@@ -43,7 +43,7 @@ browser-tabs button {
 	width: 100%;
 	height: 32px;
 	margin: 0px;
-	padding: 0px 8px;
+	padding: 0px 8px 0px 0px;
 	line-height: 24px;
 	color: #666666;
 	font-family: 'vera-mono';
@@ -76,9 +76,9 @@ browser-tabs button.active:first-of-type {
 
 browser-tabs button:before {
 	display: inline-block;
-	width: 1em;
+	width: 30px;
 	height: auto;
-	margin: 0px 8px 0px 0px;
+	margin: 0px 1px 0px 0px;
 	padding: 0px;
 	content: '\e157';
 	font-family: 'icon';

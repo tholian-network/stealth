@@ -1,6 +1,6 @@
 
 import { isBoolean } from '../../source/POLYFILLS.mjs';
-import { dispatch  } from '../controls.mjs';
+import { dispatch  } from '../control.mjs';
 import { Element   } from '../Element.mjs';
 
 

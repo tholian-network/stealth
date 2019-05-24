@@ -2,17 +2,13 @@
 import { Element } from '../Element.mjs';
 import { URL     } from '../../source/parser/URL.mjs';
 
-const global = (typeof window !== 'undefined' ? window : this);
-const doc    = global.document;
-
 
 
 const render_button = function(tab) {
 
 	if (tab !== null) {
 
-		let button = doc.createElement('button');
-		let label  = URL.render({
+		let button = Element.from('button', URL.render({
 			domain:    tab.ref.domain,
 			hash:      null,
 			host:      tab.ref.host,
@@ -21,11 +17,10 @@ const render_button = function(tab) {
 			protocol:  null,
 			query:     null,
 			subdomain: tab.ref.subdomain
-		});
+		}), false);
 
-		button.innerHTML = label;
-		button.title     = tab.ref.url;
-		button.setAttribute('data-id', tab.id);
+		button.attr('title',   tab.ref.url);
+		button.attr('data-id', tab.id);
 
 		return button;
 
@@ -78,9 +73,17 @@ const update = function(tab, tabs) {
 		let buttons = tabs.map((tab) => render_button(tab)).filter((v) => v !== null);
 		if (buttons.length === tabs.length) {
 
+			if (this.tabindex !== -1) {
+
+				buttons.forEach((button, b) => {
+					button.attr('tabindex', this.tabindex + b + 1);
+				});
+
+			}
+
 			let index = tabs.indexOf(tab);
 			if (index !== -1) {
-				buttons[index].className = 'active';
+				buttons[index].state('active');
 			}
 
 			this.buttons = buttons;
@@ -102,22 +105,35 @@ const update = function(tab, tabs) {
 	}
 
 
-	let webview = Element.query('browser-webview');
-	if (webview !== null) {
+	let area = this.element.area();
+	if (area !== null) {
 
-		let area = this.element.area();
-		if (area.w > 1) {
-
-			webview.style({
-				left: area.w
+		let webview = Element.query('browser-webview');
+		if (webview !== null) {
+			webview.area({
+				x: area.w > 1 ? area.w : null
 			});
+		}
 
-		} else {
-
-			webview.style({
-				left: null
+		let beacon = Element.query('browser-beacon');
+		if (beacon !== null) {
+			beacon.area({
+				x: area.w > 1 ? area.w : null
 			});
+		}
 
+		let site = Element.query('browser-site');
+		if (site !== null) {
+			site.area({
+				x: area.w > 1 ? area.w : null
+			});
+		}
+
+		let peer = Element.query('browser-peer');
+		if (peer !== null) {
+			peer.area({
+				x: area.w > 1 ? area.w : null
+			});
 		}
 
 	}
@@ -128,9 +144,10 @@ const update = function(tab, tabs) {
 
 const Tabs = function(browser, widgets) {
 
-	this.element = Element.from('browser-tabs');
-	this.buttons = [];
-	this.sorting = 'domain';
+	this.element  = Element.from('browser-tabs');
+	this.buttons  = [];
+	this.sorting  = 'domain';
+	this.tabindex = -1;
 
 
 	this.element.on('click', (e) => {
@@ -140,11 +157,10 @@ const Tabs = function(browser, widgets) {
 			context.emit('hide');
 		}
 
-		let button = this.buttons.find((b) => b === e.target) || null;
+		let button = this.buttons.find((b) => b.element === e.target) || null;
 		if (button !== null) {
 
-			let id  = button.getAttribute('data-id');
-			let tab = browser.tabs.find((t) => t.id === id);
+			let tab = browser.tabs.find((t) => t.id === '' + button.attr('data-id')) || null;
 			if (tab !== null) {
 				browser.show(tab);
 			}
@@ -159,22 +175,23 @@ const Tabs = function(browser, widgets) {
 		if (context !== null) {
 
 			let actions = [];
-			let button  = this.buttons.find((b) => b === e.target) || null;
+			let button  = this.buttons.find((b) => b.element === e.target) || null;
 			if (button !== null) {
 
-				actions.push({
-					icon:     'open',
-					label:    'open',
-					callback: () => {
+				let tab = browser.tabs.find((t) => t.id === '' + button.attr('data-id')) || null;
+				if (tab !== null) {
 
-						let id  = button.getAttribute('data-id');
-						let tab = browser.tabs.find((t) => t.id === id);
-						if (tab !== null) {
-							browser.show(tab);
-						}
+					actions.push({
+						label: 'open',
+						value: tab.url
+					});
 
-					}
-				});
+					actions.push({
+						label: 'copy',
+						value: tab.url
+					});
+
+				}
 
 			}
 
@@ -182,9 +199,10 @@ const Tabs = function(browser, widgets) {
 
 				actions.push({
 					icon:     'refresh',
-					label:    'sort by #id',
-					callback: () => {
-						this.sorting = 'id';
+					label:    'sort by tab id',
+					value:    'id',
+					callback: (browser, value) => {
+						this.sorting = value;
 						update.call(this, browser.tab, browser.tabs);
 					}
 				});
@@ -194,8 +212,9 @@ const Tabs = function(browser, widgets) {
 				actions.push({
 					icon:     'refresh',
 					label:    'sort by domain',
-					callback: () => {
-						this.sorting = 'domain';
+					value:    'domain',
+					callback: (browser, value) => {
+						this.sorting = value;
 						update.call(this, browser.tab, browser.tabs);
 					}
 				});
@@ -203,7 +222,10 @@ const Tabs = function(browser, widgets) {
 			}
 
 			context.set(actions);
-			context.move({ x: e.x, y: e.y });
+			context.area({
+				x: e.x,
+				y: e.y
+			});
 			context.emit('show');
 
 		}
@@ -215,11 +237,10 @@ const Tabs = function(browser, widgets) {
 
 	this.element.on('dblclick', (e) => {
 
-		let button = this.buttons.find((b) => b === e.target) || null;
+		let button = this.buttons.find((b) => b.element === e.target) || null;
 		if (button !== null) {
 
-			let id  = button.getAttribute('data-id');
-			let tab = browser.tabs.find((t) => t.id === id);
+			let tab = browser.tabs.find((t) => t.id === '' + button.attr('data-id'));
 			if (tab !== null) {
 				browser.kill(tab);
 			}

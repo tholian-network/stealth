@@ -6,17 +6,17 @@ const main   = doc.querySelector('main');
 const footer = doc.querySelector('footer');
 
 import { console  } from '../source/console.mjs';
-import { dispatch } from './controls.mjs';
-// import { Beacon } from './footer/Beacon.mjs';
-// import { Element  } from './Element.mjs';
+import { dispatch } from './control.mjs';
 import { Address  } from './header/Address.mjs';
+import { Beacon   } from './footer/Beacon.mjs';
 import { Browser  } from '../source/Browser.mjs';
 import { Context  } from './footer/Context.mjs';
+import { Help     } from './footer/Help.mjs';
 import { History  } from './header/History.mjs';
 import { Mode     } from './header/Mode.mjs';
-// import { Peer     } from './footer/Peer.mjs';
+import { Peer     } from './footer/Peer.mjs';
 import { Settings } from './header/Settings.mjs';
-// import { Site     } from './footer/Site.mjs';
+import { Site     } from './footer/Site.mjs';
 import { Tabs     } from './footer/Tabs.mjs';
 import { Webview  } from './main/Webview.mjs';
 
@@ -49,13 +49,14 @@ const WIDGETS = global.WIDGETS = {};
 
 
 WIDGETS.address  = new Address(BROWSER, WIDGETS);
-// WIDGETS.beacon   = new Beacon(BROWSER, WIDGETS);
+WIDGETS.beacon   = new Beacon(BROWSER, WIDGETS);
 WIDGETS.context  = new Context(BROWSER, WIDGETS);
+WIDGETS.help     = new Help(BROWSER, WIDGETS);
 WIDGETS.history  = new History(BROWSER, WIDGETS);
 WIDGETS.mode     = new Mode(BROWSER, WIDGETS);
-// WIDGETS.peer     = new Peer(BROWSER, WIDGETS);
+WIDGETS.peer     = new Peer(BROWSER, WIDGETS);
 WIDGETS.settings = new Settings(BROWSER, WIDGETS);
-// WIDGETS.site     = new Site(BROWSER, WIDGETS);
+WIDGETS.site     = new Site(BROWSER, WIDGETS);
 WIDGETS.tabs     = new Tabs(BROWSER, WIDGETS);
 WIDGETS.webview  = new Webview(BROWSER, WIDGETS);
 
@@ -68,24 +69,34 @@ WIDGETS.settings.render(header);
 WIDGETS.webview.render(main);
 
 WIDGETS.tabs.render(footer);
-// WIDGETS.beacon.render(footer);
-// WIDGETS.site.render(footer);
-// WIDGETS.peer.render(footer);
+WIDGETS.beacon.render(footer);
+WIDGETS.site.render(footer);
+WIDGETS.peer.render(footer);
 WIDGETS.context.render(footer);
+WIDGETS.help.render(footer);
 
 
 setTimeout(() => {
 
 	dispatch(window, BROWSER);
 
-	BROWSER.connect(HOST, () => {
+	BROWSER.connect(HOST, (result) => {
 
-		let tabs = [];
+		if (result === true) {
 
-		tabs.push(BROWSER.open('stealth:settings'));
-		// tabs.push(BROWSER.open('http://localhost:1337/index.html'));
+			console.info('Browser UI connected to ws://' + HOST + ':65432.');
 
-		BROWSER.show(tabs[tabs.length - 1]);
+			let tabs = [];
+
+			tabs.push(BROWSER.open('stealth:settings'));
+			// tabs.push(BROWSER.open('http://localhost:1337/index.html'));
+			tabs.push(BROWSER.open('https://old.reddit.com/r/programming/'));
+
+			BROWSER.show(tabs[tabs.length - 1]);
+
+		} else {
+			console.error('Browser UI could not connect to ws://' + HOST + ':65432.');
+		}
 
 	});
 
@@ -96,6 +107,32 @@ setTimeout(() => {
 		};
 
 	}
+
+}, 500);
+
+
+setTimeout(() => {
+
+	// Generate Tab Index for WIDGETS.tabs
+
+	let tabindex = 1;
+
+	[
+		WIDGETS.history.back,
+		WIDGETS.history.next,
+		WIDGETS.history.action,
+		WIDGETS.history.open,
+		WIDGETS.address.input,
+		...WIDGETS.mode.buttons,
+		WIDGETS.settings.beacon,
+		WIDGETS.settings.site,
+		WIDGETS.settings.peer,
+		WIDGETS.settings.browser
+	].filter((v) => v !== null).forEach((element) => {
+		element.attr('tabindex', tabindex++);
+	});
+
+	WIDGETS.tabs.tabindex = tabindex;
 
 }, 500);
 

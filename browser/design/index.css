@@ -1,4 +1,6 @@
 
+@import url("./content.css");
+@import url("./control.css");
 @import url("./other/index.css");
 @import url("./header/History.css");
 @import url("./header/Address.css");
@@ -8,15 +10,19 @@
 @import url("./main/Webview.css");
 
 @import url("./footer/Tabs.css");
-/* @import url("./footer/Beacon.css"); */
-/* @import url("./footer/Site.css"); */
-/* @import url("./footer/Peer.css"); */
+@import url("./footer/Beacon.css");
+@import url("./footer/Site.css");
+@import url("./footer/Peer.css");
 @import url("./footer/Context.css");
+@import url("./footer/Help.css");
 
 
 
 /*
  * element z-index map
+ *
+ * 1025 => footer
+ *         ... browser-help
  *
  * 1024 => header
  *         ... browser-history
@@ -74,6 +80,5 @@ main {
 footer {
 	display: block;
 	position: relative;
-	z-index: 512;
 }
 

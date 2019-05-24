@@ -6,79 +6,6 @@ import { URL     } from '../../source/parser/URL.mjs';
 
 
 
-const global    = (typeof window !== 'undefined' ? window : this);
-const clipboard = (function(navigator) {
-
-	let read  = null;
-	let write = null;
-
-	let clipboard = navigator.clipboard || null;
-	if (clipboard !== null) {
-
-		if ('readText' in clipboard) {
-
-			read = function(callback) {
-
-				clipboard.readText().then((value) => {
-
-					if (isString(value)) {
-						callback(value);
-					} else {
-						callback(null);
-					}
-
-				}).catch(() => {
-					callback(null);
-				});
-
-			};
-
-		}
-
-		if ('writeText' in clipboard) {
-
-			write = function(value, callback) {
-
-				value = isString(value) ? value : null;
-
-				if (value !== null) {
-
-					clipboard.writeText(value).then(() => {
-						callback(true);
-					}, () => {
-						callback(false);
-					});
-
-				} else {
-					callback(false);
-				}
-
-			};
-
-		}
-
-	}
-
-
-	if (read !== null) {
-
-		// XXX: Request Permission
-		setTimeout(() => {
-			read(() => {});
-		}, 100);
-
-	}
-
-
-	return {
-		read:  read,
-		write: write
-	};
-
-})(global.navigator || {});
-
-
-
 const TEMPLATE = `
 <ul><li data-key="protocol" data-val="stealth"></li><li>stealth:welcome</li></ul>
 <input type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">
@@ -132,7 +59,7 @@ const update = function(tab) {
 				// Do nothing
 			}
 
-			chunks.push(Element.from('li', domain));
+			chunks.push(Element.from('li', domain, false));
 
 		} else if (host !== null) {
 
@@ -164,7 +91,7 @@ const update = function(tab) {
 				// Do nothing
 			}
 
-			chunks.push(Element.from('li', host));
+			chunks.push(Element.from('li', host, false));
 
 		}
 
@@ -172,14 +99,14 @@ const update = function(tab) {
 		if (path !== '/') {
 			path.split('/').forEach((ch) => {
 				if (ch !== '') {
-					chunks.push(Element.from('li', '/' + ch));
+					chunks.push(Element.from('li', '/' + ch, false));
 				}
 			});
 		}
 
 		let query = tab.ref.query || null;
 		if (query !== null) {
-			chunks.push(Element.from('li', '?' + query));
+			chunks.push(Element.from('li', '?' + query, false));
 		}
 
 		this.output.value(chunks);
@@ -215,87 +142,57 @@ const Address = function(browser, widgets) {
 		let context = widgets.context || null;
 		if (context !== null) {
 
-			let actions = [];
+			let area = this.input.area();
+			if (area !== null) {
 
-			if (clipboard.read !== null && clipboard.write !== null) {
+				widgets.context.read((clipped) => {
 
-				actions.push({
-					icon:     'open',
-					label:    'open',
-					callback: () => {
+					let ref = URL.parse(clipped);
+					if (ref.protocol === 'https' || ref.protocol === 'http') {
 
-						clipboard.read((val) => {
+						context.set([{
+							label: 'open',
+							value: clipped,
+						}, {
+							label: 'copy',
+							value: browser.tab.url
+						}, {
+							label:    'paste',
+							value:    clipped,
+							callback: (browser, value) => {
 
-							if (isString(val)) {
+								if (isString(value)) {
 
-								let ref = URL.parse(val.trim());
-								if (ref.protocol === 'https' || ref.protocol === 'http') {
-
-									let tab = browser.open(ref.url);
-									if (tab !== null) {
-										browser.show(tab);
+									let ref = URL.parse(value.trim());
+									if (ref.protocol === 'https' || ref.protocol === 'http') {
+										this.input.state('active');
+										this.input.value(ref);
+										this.input.element.setSelectionRange(0, ref.url.length);
+										this.input.emit('focus');
 									}
 
 								}
 
 							}
+						}]);
 
-						});
+					} else {
 
-					}
-				});
-
-				actions.push({
-					icon:     'copy',
-					label:    'copy',
-					callback: () => {
-
-						clipboard.write(browser.tab.url, () => {
-							// Do nothing
-						});
+						context.set([{
+							label: 'copy',
+							value: browser.tab.url
+						}]);
 
 					}
-				});
 
-				actions.push({
-					icon:     'paste',
-					label:    'paste',
-					callback: () => {
-
-						clipboard.read((val) => {
-
-							if (isString(val)) {
-
-								let ref = URL.parse(val.trim());
-								if (ref.protocol === 'https' || ref.protocol === 'http') {
-									this.input.state('active');
-									this.input.value(ref);
-									this.input.element.setSelectionRange(0, ref.url.length);
-									this.input.emit('focus');
-								}
-
-							}
-
-						});
-
-					}
-				});
-
-			}
-
-			if (actions.length > 0) {
-
-				let area = this.input.area();
-				if (area !== null) {
-
-					context.set(actions);
-					context.move({
+					context.area({
 						x: area.x,
 						y: 0
 					});
+
 					context.emit('show');
 
-				}
+				});
 
 			}
 
@@ -399,17 +296,18 @@ const Address = function(browser, widgets) {
 
 	this.output.on('click', (e) => {
 
-		let target = e.target;
-		let type   = target.tagName.toLowerCase();
-		if (type === 'li' && target !== this.protocol.element) {
+		let target   = e.target;
+		let elements = Array.from(this.output.query('li')).slice(1);
 
-			let ref    = this.input.value();
-			let url    = ref.url;
-			let chunks = Array.from(this.output.element.querySelectorAll('li')).slice(1);
-			let chunk  = chunks.find((ch) => ch === target);
-			let c      = chunks.indexOf(chunk);
+		let index = elements.findIndex((e) => e.element === target);
+		if (index !== -1) {
 
-			let before = chunks.slice(0, c).map((ch) => ch.innerHTML).join('');
+			let ref = this.input.value();
+			let url = ref.url;
+
+			let values = elements.map((e) => e.value());
+			let before = values.slice(0, index).join('');
+
 			if (ref.protocol === 'stealth') {
 				before = ref.protocol + ':' + before;
 			} else if (ref.protocol !== null) {
@@ -417,10 +315,9 @@ const Address = function(browser, widgets) {
 			}
 
 			let offset = url.indexOf(before) + before.length;
-			let select = chunk.innerHTML;
 
 			this.input.state('active');
-			this.input.element.setSelectionRange(offset, offset + select.length);
+			this.input.element.setSelectionRange(offset, offset + values[index].length);
 			this.input.emit('focus');
 
 		}

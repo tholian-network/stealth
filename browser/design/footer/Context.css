@@ -1,7 +1,7 @@
 
 browser-context {
 	display: none;
-	position: absolute;
+	position: fixed;
 	min-width: 128px;
 	width: auto;
 	height: auto;

@@ -207,7 +207,6 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **Controls**
 
-- [ ] Implement `rotate_through_sidebars` method
 - [ ] Implement `window.document.oncontextmenu()` method with actions
 
 **Controls / Actions**
@@ -232,6 +231,7 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **UI**
 
+- [ ] Migrate `internal.css` to `content.css` and `control.css`.
 - [ ] Implement Beacon Sidebar (a Dummy View, as it is published with X1)
 - [ ] Implement Peer Sidebar
 - [ ] Implement Site Sidebar
