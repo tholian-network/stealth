@@ -219,7 +219,17 @@ const Context = function(browser) {
 	});
 
 	this.element.on('hide', () => {
-		this.element.state('');
+
+		if (this.buttons.length > 0) {
+			this.actions = [];
+			this.buttons = [];
+			this.element.value(this.buttons);
+		}
+
+		if (this.element.state() === 'active') {
+			this.element.state('');
+		}
+
 	});
 
 };

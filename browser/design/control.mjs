@@ -587,6 +587,14 @@ export const dispatch = function(window, browser) {
 
 	};
 
+	window.document.onscroll = () => {
+
+		let context = WIDGETS.context || null;
+		if (context !== null) {
+			context.emit('hide');
+		}
+
+	};
 
 };
 

@@ -1,6 +1,6 @@
 
 browser-context {
-	display: none;
+	display: block;
 	position: fixed;
 	min-width: 128px;
 	width: auto;
@@ -18,14 +18,16 @@ browser-context {
 	border-radius: 4px;
 	box-sizing: border-box;
 	transform: translate(-50%, -16px);
+	transition: 200ms opacity ease-out;
 	z-index: 1023;
 	user-select: none;
 	pointer-events: none;
+	opacity: 0;
 }
 
 browser-context.active {
-	display: block;
 	pointer-events: auto;
+	opacity: 1;
 }
 
 browser-context button {
