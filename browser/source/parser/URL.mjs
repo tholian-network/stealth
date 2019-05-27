@@ -481,6 +481,14 @@ const URL = {
 			path     = '/' + tmp1.substr(protocol.length + 3).split('/').slice(1).join('/');
 			query    = tmp2 !== '' ? tmp2 : null;
 
+		} else if (url.startsWith('?')) {
+
+			query    = tmp2 !== '' ? tmp2 : null;
+
+		} else if (url.startsWith('#')) {
+
+			hash     = url.split('#').slice(1).join('#');
+
 		} else {
 
 			domain   = tmp1.split('/')[0];
@@ -882,7 +890,20 @@ const URL = {
 
 		if (ref_abs !== null && ref_rel !== null) {
 
-			if (rel.startsWith('../')) {
+			if (rel.startsWith('stealth:')) {
+
+				domain    = ref_rel.domain;
+				hash      = ref_rel.hash;
+				host      = ref_rel.host;
+				hosts     = ref_rel.hosts;
+				mime      = ref_rel.mime;
+				path      = ref_rel.path;
+				port      = ref_rel.port;
+				protocol  = ref_rel.protocol;
+				query     = ref_rel.query;
+				subdomain = ref_rel.subdomain;
+
+			} else if (rel.startsWith('../')) {
 
 				domain    = ref_abs.domain;
 				host      = ref_abs.host;

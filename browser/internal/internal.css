@@ -13,6 +13,30 @@ footer {
 	text-align: center;
 }
 
+footer a {
+	padding: 0px 2px;
+	color: #99ccff;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	box-sizing: border-box;
+	text-decoration: underline;
+	transition: 200ms all ease-out;
+	outline: none;
+	cursor: pointer;
+}
+
+footer a:focus {
+	border: 1px solid #99ccff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
+footer a:hover {
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
 article input[type="radio"] + label[for] {
 	user-select: none;
 	cursor: pointer;

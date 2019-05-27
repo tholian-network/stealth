@@ -7,7 +7,7 @@ import { URL     } from '../../source/parser/URL.mjs';
 
 
 const TEMPLATE = `
-<ul><li data-key="protocol" data-val="stealth"></li><li>stealth:welcome</li></ul>
+<ul><li data-key="protocol" data-val="stealth"></li><li>welcome</li></ul>
 <input type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">
 `;
 

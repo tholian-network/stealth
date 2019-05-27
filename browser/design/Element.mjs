@@ -103,14 +103,21 @@ Element.from = function(type, template, virtual) {
 
 Element.query = function(query) {
 
-	let node = doc.querySelector(query);
-	if (node !== null) {
+	query = isString(query) ? query : null;
 
-		let index = CACHE.reality.indexOf(node);
-		if (index !== -1) {
-			return CACHE.virtual[index];
-		} else {
-			return new Element(node);
+
+	if (query !== null) {
+
+		let node = doc.querySelector(query);
+		if (node !== null) {
+
+			let index = CACHE.reality.indexOf(node);
+			if (index !== -1) {
+				return CACHE.virtual[index];
+			} else {
+				return new Element(node);
+			}
+
 		}
 
 	}

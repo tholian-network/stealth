@@ -51,7 +51,7 @@
 					if (worker !== null && typeof worker.register === 'function') {
 
 						worker.register('service.js').then((service) => {
-							console.info('Service Worker connected.', service.scope);
+							console.info('Browser Service connected.', service.scope);
 						}).catch((err) => {
 							console.error(err);
 						});

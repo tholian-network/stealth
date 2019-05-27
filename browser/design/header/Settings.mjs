@@ -7,7 +7,7 @@ const TEMPLATE = `
 <button data-key="beacon" title="Beacon Settings" disabled></button>
 <button data-key="site" title="Site Settings" disabled></button>
 <button data-key="peer" title="Peer Settings" disabled></button>
-<button data-key="browser" title="Browser Settings" class="active" disabled></button>
+<button data-key="browser" title="Browser Settings" disabled></button>
 `;
 
 

@@ -221,12 +221,16 @@ const Tabs = function(browser, widgets) {
 
 			}
 
-			context.set(actions);
-			context.area({
-				x: e.x,
-				y: e.y
-			});
-			context.emit('show');
+			if (actions.length > 0) {
+
+				context.set(actions);
+				context.area({
+					x: e.x,
+					y: e.y
+				});
+				context.emit('show');
+
+			}
 
 		}
 

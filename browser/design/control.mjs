@@ -1,4 +1,9 @@
 
+import { isString } from '../source/POLYFILLS.mjs';
+
+import { Element } from './Element.mjs';
+import { URL     } from '../source/parser/URL.mjs';
+
 const global  = (typeof window !== 'undefined' ? window : this);
 const WIDGETS = global.WIDGETS || {};
 
@@ -78,6 +83,39 @@ const rotate_through_sidebars = function(browser, buttons) {
 
 };
 
+const wait_for = function(window, property, callback) {
+
+	let value = window[property];
+	if (value !== undefined) {
+
+		let interval = null;
+		let prev     = null;
+
+		interval = setInterval(() => {
+
+			let curr = window[property];
+			if (curr === prev) {
+
+				if (interval !== null) {
+					clearInterval(interval);
+					interval = null;
+				}
+
+				callback(curr);
+
+			} else {
+				prev = curr;
+			}
+
+		}, 200);
+
+	} else {
+		callback(null);
+	}
+
+
+};
+
 
 
 export const dispatch = function(window, browser) {
@@ -93,13 +131,221 @@ export const dispatch = function(window, browser) {
 	}
 
 
+	window.document.onclick = (e) => {
+
+		let context = WIDGETS.context || null;
+		if (context !== null) {
+			context.emit('hide');
+		}
+
+
+		let element = e.target;
+		let type    = element.tagName.toLowerCase();
+		if (type === 'a') {
+
+			let url = element.getAttribute('href');
+			if (url.startsWith('#')) {
+
+				let target = window.document.querySelector(url) || null;
+				if (target !== null) {
+
+					target.scrollIntoView({
+						behavior: 'smooth',
+						block:    'center'
+					});
+
+					wait_for(window, 'scrollY', () => {
+
+						let child = target.querySelector('a, button, input, textarea, *[tabindex]') || null;
+						if (child !== null) {
+							child.focus();
+						}
+
+					});
+
+				}
+
+			} else {
+
+				if (url.includes('#')) {
+					url = url.split('#').shift();
+				}
+
+				browser.navigate(url);
+
+			}
+
+
+			e.preventDefault();
+			e.stopPropagation();
+
+		}
+
+	};
+
 	window.document.oncontextmenu = (e) => {
 
-		// TODO: Copy selected text, link, image, audio, video
-		// TODO: Open link, image, audio, video
-		// TODO: Download link, image, audio, video
+		let element = e.target;
+		let ref     = null;
+		let type    = element.tagName.toLowerCase();
 
-		console.log(e.target);
+		if (type === 'a') {
+			ref = URL.resolve(browser.tab.url, element.getAttribute('href'));
+		} else if (type === 'img') {
+			ref = URL.resolve(browser.tab.url, element.getAttribute('src'));
+		} else if (type === 'audio' || type === 'video') {
+			ref = URL.resolve(browser.tab.url, element.getAttribute('src'));
+		}
+
+
+		let context = WIDGETS.context || null;
+		if (context !== null && ref !== null) {
+
+			context.emit('hide');
+
+
+			let actions = [];
+
+			if (ref.protocol === 'https' || ref.protocol === 'http' || ref.protocol === 'stealth') {
+
+				let tab = browser.tab || null;
+				if (tab !== null) {
+
+					if (tab.url === ref.url) {
+
+						if (ref.hash !== null) {
+
+							actions.push({
+								icon:     'focus',
+								label:    'focus',
+								value:    ref.hash,
+								callback: (browser, value) => {
+
+									if (isString(value)) {
+
+										let target = window.document.querySelector('#' + value) || null;
+										if (target !== null) {
+
+											target.scrollIntoView({
+												behavior: 'smooth',
+												block:    'center'
+											});
+
+											wait_for(window, 'scrollY', () => {
+
+												let child = target.querySelector('a, button, input, textarea, *[tabindex]') || null;
+												if (child !== null) {
+													child.focus();
+												}
+
+											});
+
+										}
+
+									}
+
+								}
+
+							});
+
+						} else {
+
+							actions.push({
+								label: 'refresh'
+							});
+
+						}
+
+					} else {
+
+						if (tab.ref.domain === ref.domain) {
+
+							actions.push({
+								icon:     'open',
+								label:    'open',
+								value:    ref.url,
+								callback: function(browser, value) {
+
+									if (isString(value)) {
+
+										let ref = URL.parse(value.trim());
+										if (ref.protocol !== null) {
+											browser.navigate(ref.url);
+										}
+
+									}
+
+								}
+							});
+
+						} else {
+
+							actions.push({
+								label: 'open',
+								value: ref.url
+							});
+
+						}
+
+					}
+
+				} else {
+
+					actions.push({
+						label: 'open',
+						value: ref.url
+					});
+
+				}
+
+			}
+
+			if (ref.protocol !== null) {
+
+				actions.push({
+					label: 'copy',
+					value: ref.url
+				});
+
+			}
+
+			if (ref.protocol === 'https' || ref.protocol === 'http') {
+
+				actions.push({
+					label: 'download',
+					value: ref.url
+				});
+
+			}
+
+			if (actions.length > 0) {
+
+				let offset_x = 0;
+				let offset_y = 0;
+
+
+				let header = Element.query('header');
+				if (header !== null) {
+					offset_y += header.area().h;
+				}
+
+				let tabs = WIDGETS.tabs || null;
+				if (tabs !== null && tabs.element.state() === 'active') {
+					offset_x += tabs.element.area().w;
+				}
+
+
+				context.set(actions);
+				context.area({
+					x: e.x + offset_x,
+					y: e.y + offset_y
+				});
+				context.emit('show');
+
+			}
+
+		}
+
 
 		e.preventDefault();
 		e.stopPropagation();

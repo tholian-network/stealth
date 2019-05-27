@@ -77,6 +77,20 @@ const CLIPBOARD = (function(navigator) {
 
 
 const ACTIONS = [{
+	icon:     'copy',
+	label:    'copy',
+	callback: function(browser, value) {
+
+		if (isString(value)) {
+
+			CLIPBOARD.write(value, () => {
+				// Do nothing
+			});
+
+		}
+
+	}
+}, {
 	icon:     'download',
 	label:    'download',
 	callback: function(browser, value) {
@@ -87,20 +101,6 @@ const ACTIONS = [{
 			if (ref.protocol !== null) {
 				browser.download(ref.url);
 			}
-
-		}
-
-	}
-}, {
-	icon:     'copy',
-	label:    'copy',
-	callback: function(browser, value) {
-
-		if (isString(value)) {
-
-			CLIPBOARD.write(value, () => {
-				// Do nothing
-			});
 
 		}
 
@@ -124,6 +124,12 @@ const ACTIONS = [{
 
 		}
 
+	}
+}, {
+	icon:     'refresh',
+	label:    'refresh',
+	callback: function(browser) {
+		browser.refresh();
 	}
 }];
 
@@ -251,8 +257,8 @@ Context.prototype = {
 						pos.x = (global.innerWidth - area.w / 2) | 0;
 					}
 
-					if (pos.y > (global.innerHeight - area.h / 2 - 1)) {
-						pos.y = (global.innerHeight - area.h / 2 - 1) | 0;
+					if (pos.y > (global.innerHeight - area.h + 16 - 1)) {
+						pos.y = (global.innerHeight - area.h + 16 - 1) | 0;
 					}
 
 					this.element.area(pos);

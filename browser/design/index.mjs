@@ -86,13 +86,16 @@ setTimeout(() => {
 
 			console.info('Browser UI connected to ws://' + HOST + ':65432.');
 
-			let tabs = [];
-
-			tabs.push(BROWSER.open('stealth:settings'));
-			// tabs.push(BROWSER.open('http://localhost:1337/index.html'));
-			tabs.push(BROWSER.open('https://old.reddit.com/r/programming/'));
-
-			BROWSER.show(tabs[tabs.length - 1]);
+			[
+				'stealth:welcome',
+				// 'stealth:settings',
+				// 'https://old.reddit.com/r/programming/',
+				// 'https://cookie.engineer/index.html'
+			].map((url) => {
+				return BROWSER.open(url);
+			}).slice(-1).forEach((tab) => {
+				BROWSER.show(tab);
+			});
 
 		} else {
 			console.error('Browser UI could not connect to ws://' + HOST + ':65432.');
