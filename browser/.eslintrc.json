@@ -36,7 +36,7 @@
 		],
 		"no-unused-vars": [
 			"error", {
-				"varsIgnorePattern": "^(DELAYED|browser)$"
+				"varsIgnorePattern": "^(BROWSER|WIDGETS)$"
 			}
 		],
 		"quotes": [

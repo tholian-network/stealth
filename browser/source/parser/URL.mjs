@@ -980,6 +980,7 @@ const URL = {
 
 			} else if (rel.includes('://')) {
 
+				domain    = ref_rel.domain;
 				hash      = ref_rel.hash;
 				host      = ref_rel.host;
 				hosts     = ref_rel.hosts;

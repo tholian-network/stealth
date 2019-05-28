@@ -9,20 +9,218 @@ const WIDGETS = global.WIDGETS || {};
 
 
 
-const unfocus = function(document, reset) {
+const oncontext = function(window, browser, element) {
+
+	let context = WIDGETS.context || null;
+	let ref     = null;
+	let type    = element.type();
+
+	if (type === 'a') {
+		ref = URL.resolve(browser.tab.url, element.attr('href'));
+	} else if (type === 'img') {
+		ref = URL.resolve(browser.tab.url, element.attr('src'));
+	} else if (type === 'audio' || type === 'video') {
+		ref = URL.resolve(browser.tab.url, element.attr('src'));
+	}
+
+	if (context !== null) {
+		context.emit('hide');
+	}
+
+
+	if (context !== null && ref !== null) {
+
+		let actions = [];
+
+		if (ref.protocol === 'https' || ref.protocol === 'http' || ref.protocol === 'stealth') {
+
+			let tab = browser.tab || null;
+			if (tab !== null) {
+
+				if (tab.url === ref.url) {
+
+					if (ref.hash !== null) {
+
+						actions.push({
+							icon:     'focus',
+							label:    'focus',
+							value:    ref.hash,
+							callback: (browser, value) => {
+
+								if (isString(value)) {
+
+									let target = window.document.querySelector('#' + value) || null;
+									if (target !== null) {
+
+										target.scrollIntoView({
+											behavior: 'smooth',
+											block:    'center'
+										});
+
+										wait_for(window, 'scrollY', () => {
+
+											let child = target.querySelector('a, button, input, textarea, *[tabindex]') || null;
+											if (child !== null) {
+												child.focus();
+											}
+
+										});
+
+									}
+
+								}
+
+							}
+
+						});
+
+					} else {
+
+						actions.push({
+							label: 'refresh'
+						});
+
+					}
+
+				} else {
+
+					if (tab.ref.domain === ref.domain) {
+
+						actions.push({
+							icon:     'open',
+							label:    'open',
+							value:    ref.url,
+							callback: function(browser, value) {
+
+								if (isString(value)) {
+
+									let ref = URL.parse(value.trim());
+									if (ref.protocol !== null) {
+										browser.navigate(ref.url);
+									}
+
+								}
+
+							}
+						});
+
+					} else {
+
+						actions.push({
+							label: 'open',
+							value: ref.url
+						});
+
+					}
+
+				}
+
+			} else {
+
+				actions.push({
+					label: 'open',
+					value: ref.url
+				});
+
+			}
+
+		}
+
+		if (ref.protocol !== null) {
+
+			actions.push({
+				label: 'copy',
+				value: ref.url
+			});
+
+		}
+
+		if (ref.protocol === 'https' || ref.protocol === 'http') {
+
+			actions.push({
+				label: 'download',
+				value: ref.url
+			});
+
+		}
+
+		if (actions.length > 0) {
+
+			let area     = element.area();
+			let offset_x = 0;
+			let offset_y = 0;
+
+
+			let header = Element.query('header');
+			if (header !== null) {
+				offset_y += header.area().h;
+			}
+
+			let tabs = WIDGETS.tabs || null;
+			if (tabs !== null && tabs.element.state() === 'active') {
+				offset_x += tabs.element.area().w;
+			}
+
+
+			context.set(actions);
+			context.area({
+				x: area.x + offset_x,
+				y: area.y + offset_y
+			});
+			context.emit('show');
+
+		}
+
+	}
+
+};
+
+const uncontext = function(window, browser, reset) {
 
 	reset = reset === true;
 
 
-	let focus = document.activeElement || null;
-	if (focus !== null && focus !== document.body) {
+	let context = WIDGETS.context || null;
+	if (context !== null) {
+		context.emit('hide');
+	}
+
+	if (reset === true) {
+		// TODO: If reset is true, find
+		// original element and focus()
+	}
+
+};
+
+const unfocus = function(window, browser, reset) {
+
+	reset = reset === true;
+
+
+	let focus = window.document.activeElement || null;
+	if (focus !== null) {
 		focus.blur();
 	}
 
 	if (reset === true) {
-		document.body.setAttribute('tabindex', 0);
-		document.body.focus();
-		document.body.setAttribute('tabindex', -1);
+
+		window.document.body.setAttribute('tabindex', 0);
+		window.document.body.focus();
+		window.document.body.setAttribute('tabindex', -1);
+
+		if (global !== window) {
+
+			let focus = global.document.activeElement || null;
+			if (focus !== null) {
+				focus.blur();
+			}
+
+			global.document.body.setAttribute('tabindex', 0);
+			global.document.body.focus();
+			global.document.body.setAttribute('tabindex', -1);
+
+		}
+
 	}
 
 };
@@ -124,8 +322,12 @@ export const dispatch = function(window, browser) {
 	let widgets = window.WIDGETS || null;
 	if (widgets !== null) {
 
-		for (let id in widgets) {
-			WIDGETS[id] = widgets[id];
+		if (Object.keys(WIDGETS).length === 0) {
+
+			for (let id in widgets) {
+				WIDGETS[id] = widgets[id];
+			}
+
 		}
 
 	}
@@ -133,10 +335,7 @@ export const dispatch = function(window, browser) {
 
 	window.document.onclick = (e) => {
 
-		let context = WIDGETS.context || null;
-		if (context !== null) {
-			context.emit('hide');
-		}
+		uncontext(window, browser, true);
 
 
 		let element = e.target;
@@ -185,167 +384,10 @@ export const dispatch = function(window, browser) {
 
 	window.document.oncontextmenu = (e) => {
 
-		let element = e.target;
-		let ref     = null;
-		let type    = element.tagName.toLowerCase();
-
-		if (type === 'a') {
-			ref = URL.resolve(browser.tab.url, element.getAttribute('href'));
-		} else if (type === 'img') {
-			ref = URL.resolve(browser.tab.url, element.getAttribute('src'));
-		} else if (type === 'audio' || type === 'video') {
-			ref = URL.resolve(browser.tab.url, element.getAttribute('src'));
+		let element = Element.from(e.target, null, false);
+		if (element !== null) {
+			oncontext(window, browser, element);
 		}
-
-
-		let context = WIDGETS.context || null;
-		if (context !== null && ref !== null) {
-
-			context.emit('hide');
-
-
-			let actions = [];
-
-			if (ref.protocol === 'https' || ref.protocol === 'http' || ref.protocol === 'stealth') {
-
-				let tab = browser.tab || null;
-				if (tab !== null) {
-
-					if (tab.url === ref.url) {
-
-						if (ref.hash !== null) {
-
-							actions.push({
-								icon:     'focus',
-								label:    'focus',
-								value:    ref.hash,
-								callback: (browser, value) => {
-
-									if (isString(value)) {
-
-										let target = window.document.querySelector('#' + value) || null;
-										if (target !== null) {
-
-											target.scrollIntoView({
-												behavior: 'smooth',
-												block:    'center'
-											});
-
-											wait_for(window, 'scrollY', () => {
-
-												let child = target.querySelector('a, button, input, textarea, *[tabindex]') || null;
-												if (child !== null) {
-													child.focus();
-												}
-
-											});
-
-										}
-
-									}
-
-								}
-
-							});
-
-						} else {
-
-							actions.push({
-								label: 'refresh'
-							});
-
-						}
-
-					} else {
-
-						if (tab.ref.domain === ref.domain) {
-
-							actions.push({
-								icon:     'open',
-								label:    'open',
-								value:    ref.url,
-								callback: function(browser, value) {
-
-									if (isString(value)) {
-
-										let ref = URL.parse(value.trim());
-										if (ref.protocol !== null) {
-											browser.navigate(ref.url);
-										}
-
-									}
-
-								}
-							});
-
-						} else {
-
-							actions.push({
-								label: 'open',
-								value: ref.url
-							});
-
-						}
-
-					}
-
-				} else {
-
-					actions.push({
-						label: 'open',
-						value: ref.url
-					});
-
-				}
-
-			}
-
-			if (ref.protocol !== null) {
-
-				actions.push({
-					label: 'copy',
-					value: ref.url
-				});
-
-			}
-
-			if (ref.protocol === 'https' || ref.protocol === 'http') {
-
-				actions.push({
-					label: 'download',
-					value: ref.url
-				});
-
-			}
-
-			if (actions.length > 0) {
-
-				let offset_x = 0;
-				let offset_y = 0;
-
-
-				let header = Element.query('header');
-				if (header !== null) {
-					offset_y += header.area().h;
-				}
-
-				let tabs = WIDGETS.tabs || null;
-				if (tabs !== null && tabs.element.state() === 'active') {
-					offset_x += tabs.element.area().w;
-				}
-
-
-				context.set(actions);
-				context.area({
-					x: e.x + offset_x,
-					y: e.y + offset_y
-				});
-				context.emit('show');
-
-			}
-
-		}
-
 
 		e.preventDefault();
 		e.stopPropagation();
@@ -392,7 +434,8 @@ export const dispatch = function(window, browser) {
 
 		if (key === 'escape') {
 
-			unfocus(window.document, true);
+			uncontext(window, browser, false);
+			unfocus(window, browser, true);
 
 			let beacon = WIDGETS.beacon || null;
 			if (beacon !== null) {
@@ -414,7 +457,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f1') {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let history = WIDGETS.history || null;
 			if (history !== null && history.back.state() !== 'disabled') {
@@ -426,7 +470,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f2') {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let history = WIDGETS.history || null;
 			if (history !== null && history.next.state() !== 'disabled') {
@@ -438,7 +483,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f3' || (ctrl === true && key === 'r')) {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let history = WIDGETS.history || null;
 			if (history !== null && history.action.state() !== 'disabled') {
@@ -450,7 +496,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f4' || (ctrl === true && key === 't')) {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let history = WIDGETS.history || null;
 			if (history !== null && history.open.state() !== 'disabled') {
@@ -462,7 +509,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f5' || (ctrl === true && key === 'e')) {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let address = WIDGETS.address || null;
 			if (address !== null) {
@@ -474,7 +522,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f6' || (ctrl === true && key === 'w')) {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			if (browser.tabs.length > 1) {
 				browser.kill(browser.tab);
@@ -485,7 +534,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f7' || (ctrl === true && key === 'pageup')) {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let index = browser.tabs.indexOf(browser.tab) - 1;
 			if (index < 0) {
@@ -502,7 +552,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f8' || (ctrl === true && key === 'pagedown')) {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let index = browser.tabs.indexOf(browser.tab) + 1;
 			if (index >= browser.tabs.length) {
@@ -519,7 +570,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f9') {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let mode = WIDGETS.mode || null;
 			if (mode !== null) {
@@ -531,7 +583,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f10') {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			// Reserved for future use
 
@@ -540,7 +593,8 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f11' || (ctrl === true && key === 'backspace')) {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let settings = WIDGETS.settings || null;
 			if (settings !== null) {
@@ -558,12 +612,41 @@ export const dispatch = function(window, browser) {
 
 		} else if (key === 'f12') {
 
-			unfocus(window.document, false);
+			uncontext(window, browser, false);
+			unfocus(window, browser, false);
 
 			let settings = WIDGETS.settings || null;
 			if (settings !== null && settings.browser.state() !== 'disabled') {
 				settings.browser.emit('click');
 			}
+
+			e.preventDefault();
+			e.stopPropagation();
+
+		} else if (ctrl === true && key === ' ') {
+
+			let context = WIDGETS.context || null;
+			if (context !== null && context.element.state() === 'active') {
+
+				uncontext(window, browser, false);
+
+			} else {
+
+				let element = Element.from(window.document.activeElement || null, null, false);
+				if (element !== null) {
+					oncontext(window, browser, element);
+				}
+
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+
+		} else if (
+			(ctrl === true && key === 'enter')
+		) {
+
+			// Disallow Default Behaviour
 
 			e.preventDefault();
 			e.stopPropagation();
@@ -577,23 +660,18 @@ export const dispatch = function(window, browser) {
 			|| (ctrl === true && key === 'v')
 		) {
 
-			// Allow default behaviour
+			// Allow Default Behaviour
 
 		} else if (ctrl === true) {
 
-			// Allow default behaviour
+			// Allow Default Behaviour
 
 		}
 
 	};
 
 	window.document.onscroll = () => {
-
-		let context = WIDGETS.context || null;
-		if (context !== null) {
-			context.emit('hide');
-		}
-
+		uncontext(window, browser, false);
 	};
 
 };

@@ -86,12 +86,20 @@ Element.isElement = function(element) {
 
 Element.from = function(type, template, virtual) {
 
-	if (isElement(type)) {
+	if (isElement(type) && isString(template) && isBoolean(virtual)) {
+		return new Element(type, template, virtual);
+	} else if (isElement(type) && isString(template)) {
+		return new Element(type, template);
+	} else if (isElement(type) && isBoolean(virtual)) {
+		return new Element(type, null, virtual);
+	} else if (isElement(type)) {
 		return new Element(type);
 	} else if (isString(type) && isString(template) && isBoolean(virtual)) {
 		return new Element(type, template, virtual);
 	} else if (isString(type) && isString(template)) {
 		return new Element(type, template);
+	} else if (isString(type) && isBoolean(virtual)) {
+		return new Element(type, null, virtual);
 	} else if (isString(type)) {
 		return new Element(type);
 	}
@@ -217,6 +225,99 @@ Element.prototype = {
 
 	},
 
+	attr: function(key, val) {
+
+		key = isString(key) ? key : null;
+
+
+		if (key !== null) {
+
+			let san = null;
+
+			if (isString(val)) {
+				san = val;
+			} else if (isArray(val)) {
+				san = JSON.stringify(val);
+			} else if (isObject(val)) {
+				san = JSON.stringify(val);
+			} else if (isNumber(val)) {
+				san = (val).toString();
+			}
+
+
+			if (san !== null) {
+
+				if (this.element !== null) {
+
+					this.element.setAttribute(key, san);
+
+					return true;
+
+				}
+
+				return false;
+
+			} else {
+
+				if (this.element !== null) {
+
+					let raw = this.element.getAttribute(key);
+
+					if (isString(raw)) {
+
+						let val = null;
+
+						if (raw.startsWith('[')) {
+
+							try {
+								val = JSON.parse(raw);
+							} catch (err) {
+								val = null;
+							}
+
+						} else if (raw.startsWith('{')) {
+
+							try {
+								val = JSON.parse(raw);
+							} catch (err) {
+								val = null;
+							}
+
+						} else if (/^([0-9.]+)$/g.test(raw)) {
+
+							let num = null;
+
+							if (raw.includes('.')) {
+								num = parseFloat(raw);
+							} else {
+								num = parseInt(raw, 10);
+							}
+
+							if (Number.isNaN(num) === false) {
+								val = num;
+							}
+
+						} else {
+							val = raw;
+						}
+
+						return val;
+
+					}
+
+				}
+
+				return null;
+
+			}
+
+		}
+
+
+		return null;
+
+	},
+
 	emit: function(event, args) {
 
 		event = isString(event) ? event : null;
@@ -334,9 +435,6 @@ Element.prototype = {
 					if (index1 !== -1 && index2 !== -1 && index1 === index2) {
 						CACHE.reality.splice(index1, 1);
 						CACHE.virtual.splice(index2, 1);
-					} else if (index1 !== index2) {
-						console.error('Virtual DOM cache corruption.      ');
-						console.error('Please use Element.query(selector).');
 					}
 
 				}
@@ -520,99 +618,6 @@ Element.prototype = {
 
 	},
 
-	attr: function(key, val) {
-
-		key = isString(key) ? key : null;
-
-
-		if (key !== null) {
-
-			let san = null;
-
-			if (isString(val)) {
-				san = val;
-			} else if (isArray(val)) {
-				san = JSON.stringify(val);
-			} else if (isObject(val)) {
-				san = JSON.stringify(val);
-			} else if (isNumber(val)) {
-				san = (val).toString();
-			}
-
-
-			if (san !== null) {
-
-				if (this.element !== null) {
-
-					this.element.setAttribute(key, san);
-
-					return true;
-
-				}
-
-				return false;
-
-			} else {
-
-				if (this.element !== null) {
-
-					let raw = this.element.getAttribute(key);
-
-					if (isString(raw)) {
-
-						let val = null;
-
-						if (raw.startsWith('[')) {
-
-							try {
-								val = JSON.parse(raw);
-							} catch (err) {
-								val = null;
-							}
-
-						} else if (raw.startsWith('{')) {
-
-							try {
-								val = JSON.parse(raw);
-							} catch (err) {
-								val = null;
-							}
-
-						} else if (/^([0-9.]+)$/g.test(raw)) {
-
-							let num = null;
-
-							if (raw.includes('.')) {
-								num = parseFloat(raw);
-							} else {
-								num = parseInt(raw, 10);
-							}
-
-							if (Number.isNaN(num) === false) {
-								val = num;
-							}
-
-						} else {
-							val = raw;
-						}
-
-						return val;
-
-					}
-
-				}
-
-				return null;
-
-			}
-
-		}
-
-
-		return null;
-
-	},
-
 	state: function(state) {
 
 		state = isString(state) ? state : null;
@@ -693,6 +698,17 @@ Element.prototype = {
 
 
 		return false;
+
+	},
+
+	type: function() {
+
+		if (this.element !== null) {
+			return this.element.tagName.toLowerCase();
+		}
+
+
+		return null;
 
 	},
 

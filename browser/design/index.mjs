@@ -84,7 +84,7 @@ setTimeout(() => {
 
 		if (result === true) {
 
-			console.info('Browser UI connected to ws://' + HOST + ':65432.');
+			console.info('Browser Design connected to ws://' + HOST + ':65432.');
 
 			[
 				'stealth:welcome',
@@ -98,7 +98,7 @@ setTimeout(() => {
 			});
 
 		} else {
-			console.error('Browser UI could not connect to ws://' + HOST + ':65432.');
+			console.error('Browser Design could not connect to ws://' + HOST + ':65432.');
 		}
 
 	});

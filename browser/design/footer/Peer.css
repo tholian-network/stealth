@@ -1,0 +1,27 @@
+
+browser-peer {
+	display: block;
+	position: fixed;
+	width: auto;
+	height: auto;
+	top: 40px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+	color: #ffffff;
+	font-family: 'museo';
+	background: #121212;
+	border: 0px solid transparent;
+	transform: translate(100%, 0%);
+	transition: 200ms transform ease-out;
+	z-index: 512;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+browser-peer.active {
+	transform: translate(0%, 0%);
+}
+

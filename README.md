@@ -218,7 +218,7 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **UI**
 
-- [ ] Migrate `internal.css` to `content.css` and `control.css`.
+- [ ] Integrate `focus` event for `browser/design/footer/Context.mjs`, so buttons are tab-able after context menu was opened.
 - [ ] Implement Beacon Sidebar (a Dummy View, as it is released with X1).
 - [ ] Implement Peer Sidebar.
 - [ ] Implement Site Sidebar.

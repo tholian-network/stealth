@@ -4,15 +4,7 @@ import { isFunction, isObject, isString } from './POLYFILLS.mjs';
 import { Emitter } from './Emitter.mjs';
 import { Client  } from './Client.mjs';
 import { Tab     } from './Tab.mjs';
-import { IP      } from './parser/IP.mjs';
 import { URL     } from './parser/URL.mjs';
-
-
-
-const MODULES = {
-	IP:  IP,
-	URL: URL
-};
 
 
 
@@ -36,26 +28,6 @@ const Browser = function() {
 
 
 Browser.prototype = Object.assign({}, Emitter.prototype, {
-
-	// Deferred API for /browser/design usage
-	import: function(id) {
-
-		id = isString(id) ? id : null;
-
-
-		if (id !== null) {
-
-			let module = MODULES[id] || null;
-			if (module !== null) {
-				return module;
-			}
-
-		}
-
-
-		return null;
-
-	},
 
 	back: function() {
 
@@ -124,6 +96,14 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		if (client !== null) {
 			client.disconnect();
 		}
+
+	},
+
+	download: function(url) {
+
+		// TODO: Implement download() method
+		// that spawns a Request on the server
+		// via the request service (?) or session service
 
 	},
 
@@ -292,7 +272,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				let tab = this.open(url);
 				if (tab !== null) {
-
 
 					let index1 = tab.history.indexOf(tab.url);
 					if (index1 < tab.history.length - 1) {
