@@ -54,9 +54,19 @@ article input[type="radio"] + label[for] {
 
 #welcome-modes table {
 	table-layout: fixed;
-	width: 368px;
+	width: auto;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+#welcome-modes table tr th {
+	padding: 0px 8px;
+	text-align: center;
+}
+
+#welcome-modes table tr td {
+	padding: 0px 8px;
+	text-align: center;
 }
 
 #welcome-modes table tr th:first-child,
@@ -65,57 +75,36 @@ article input[type="radio"] + label[for] {
 }
 
 #welcome-modes table tr td:last-child {
+	text-align: left;
+}
+
+#welcome-shortcuts table tr th {
+	padding: 0px 8px;
+	text-align: center;
+}
+
+#welcome-shortcuts table tr td {
 	padding: 0px 8px;
 	text-align: left;
 }
 
-#welcome-shortcuts div {
-	margin-top: 48px;
-}
-
-#welcome-shortcuts div table {
-	display: block;
-	table-layout: fixed;
-	width: 50%;
-	vertical-align: top;
-}
-
-#welcome-shortcuts div table:nth-of-type(1) {
-	float: left;
-}
-
-#welcome-shortcuts div table:nth-of-type(2) {
-	float: right;
-}
-
-#welcome-shortcuts div:after {
-	display: block;
-	content: ' ';
-	clear: both;
-}
-
-#welcome-shortcuts table tr th:first-child,
-#welcome-shortcuts table tr td:first-child {
-	width: 128px;
-}
-
-#welcome-shortcuts table tr td:first-child {
+#welcome-shortcuts table tr td:nth-of-type(1) {
+	width: 3em;
 	font-family: 'vera-mono';
+	text-align: center;
+	white-space: nowrap;
 }
 
-#welcome-shortcuts table tr th:last-child,
-#welcome-shortcuts table tr td:last-child {
-	width: calc(400px - 128px);
-}
-
-#welcome-shortcuts table tr td:last-child {
-	padding: 0px 8px;
-	text-align: left;
+#welcome-shortcuts table tr td:nth-of-type(2) {
+	width: 12em;
+	font-family: 'vera-mono';
+	text-align: center;
+	white-space: nowrap;
 }
 
 #welcome-pages table {
 	table-layout: fixed;
-	width: 440px;
+	width: auto;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -277,27 +266,6 @@ article input[type="radio"] + label[for] {
 /* media queries */
 @media screen and (max-width: 706px) {
 
-	#welcome-shortcuts div {
-		display: block;
-		text-align: center;
-	}
-
-	#welcome-shortcuts div table:nth-of-type(1),
-	#welcome-shortcuts div table:nth-of-type(2) {
-		display: inline-block;
-		width: auto;
-		float: none;
-		clear: both;
-	}
-
-	#welcome-shortcuts div table:nth-of-type(1) {
-		margin-bottom: 48px;
-	}
-
-}
-
-@media screen and (max-width: 436px) {
-
 	#internet-connection {
 		width: auto;
 	}
@@ -318,8 +286,7 @@ article input[type="radio"] + label[for] {
 		width: 100%;
 	}
 
-	#welcome-shortcuts div table:nth-of-type(1),
-	#welcome-shortcuts div table:nth-of-type(2) {
+	#welcome-shortcuts table {
 		width: 100%;
 	}
 
