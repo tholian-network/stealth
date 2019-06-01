@@ -12,7 +12,7 @@
 @import url("./footer/Tabs.css");
 @import url("./footer/Beacon.css");
 @import url("./footer/Site.css");
-@import url("./footer/Peer.css");
+@import url("./footer/Session.css");
 @import url("./footer/Context.css");
 @import url("./footer/Help.css");
 
@@ -35,8 +35,8 @@
  *
  *  512 => footer
  *         ... browser-beacon
- *         ... browser-peer
  *         ... browser-site
+ *         ... browser-session
  *
  *    1 => main
  *         ... browser-webview

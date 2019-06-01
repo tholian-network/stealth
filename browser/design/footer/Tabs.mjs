@@ -81,9 +81,44 @@ const update = function(tab, tabs) {
 
 			}
 
-			let index = tabs.indexOf(tab);
-			if (index !== -1) {
-				buttons[index].state('active');
+			let curr = tabs.indexOf(tab);
+			if (curr !== -1) {
+
+				this.curr = buttons[curr];
+				buttons[curr].state('active');
+
+				let prev = tabs.indexOf(tab) - 1;
+				if (prev < 0) {
+
+					prev = tabs.length - 1;
+					this.prev = null;
+
+				} else {
+
+					if (prev !== curr) {
+						this.prev = buttons[prev];
+					} else {
+						this.prev = null;
+					}
+
+				}
+
+				let next = tabs.indexOf(tab) + 1;
+				if (next >= tabs.length) {
+
+					next %= tabs.length;
+					this.next = null;
+
+				} else {
+
+					if (next !== curr) {
+						this.next = buttons[next];
+					} else {
+						this.next = null;
+					}
+
+				}
+
 			}
 
 			this.buttons = buttons;
@@ -129,9 +164,9 @@ const update = function(tab, tabs) {
 			});
 		}
 
-		let peer = Element.query('browser-peer');
-		if (peer !== null) {
-			peer.area({
+		let session = Element.query('browser-session');
+		if (session !== null) {
+			session.area({
 				x: area.w > 1 ? area.w : null
 			});
 		}
@@ -148,6 +183,10 @@ const Tabs = function(browser, widgets) {
 	this.buttons  = [];
 	this.sorting  = 'domain';
 	this.tabindex = -1;
+
+	this.curr = null;
+	this.next = null;
+	this.prev = null;
 
 
 	this.element.on('click', (e) => {

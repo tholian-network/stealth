@@ -141,8 +141,9 @@ const Help = function(browser, widgets) {
 
 		let tabs = widgets.tabs || null;
 		if (tabs !== null) {
-			// TODO: Find prev tab, add hint for [F7] or [Ctrl] + [Page Up]
-			// TODO: Find next tab, add hint for [F8] or [Ctrl] + [Page Down]
+			this.hints.push(render_hint('F6', get_area([ tabs.curr ]), 'Kill current Tab\n(alternatively with [Ctrl] + [W])'));
+			this.hints.push(render_hint('F7', get_area([ tabs.prev ]), 'Show previous Tab\n(alternatively with [Ctrl] + [Page Up])'));
+			this.hints.push(render_hint('F8', get_area([ tabs.next ]), 'Show next Tab\n(alternatively with [Ctrl] + [Page Down])'));
 		}
 
 		let mode = widgets.mode || null;
@@ -156,8 +157,8 @@ const Help = function(browser, widgets) {
 			this.hints.push(render_hint('F11', get_area([
 				settings.beacon,
 				settings.site,
-				settings.peer
-			]), 'Toggle through Beacon/Site/Peer Sidebars\n(alternatively with [Ctrl] + [Backspace])'));
+				settings.session
+			]), 'Toggle through Beacon/Session/Site Sidebars\n(alternatively with [Ctrl] + [Backspace])'));
 
 			this.hints.push(render_hint('F12', get_area([ settings.browser ]), 'Open Browser Settings'));
 

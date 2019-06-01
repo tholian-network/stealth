@@ -1,5 +1,5 @@
 
-browser-peer {
+browser-session {
 	display: block;
 	position: fixed;
 	width: auto;
@@ -21,7 +21,7 @@ browser-peer {
 	overflow-y: auto;
 }
 
-browser-peer.active {
+browser-session.active {
 	transform: translate(0%, 0%);
 }
 

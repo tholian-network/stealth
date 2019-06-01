@@ -5,14 +5,14 @@ import { Element } from '../Element.mjs';
 
 const TEMPLATE = `
 <article>
-	<h3>Peers</h3>
+	<h3>Requests</h3>
 </article>
 `;
 
 
-const Peer = function(browser, widgets) {
+const Session = function(browser, widgets) {
 
-	this.element = Element.from('browser-peer', TEMPLATE);
+	this.element = Element.from('browser-session', TEMPLATE);
 
 
 	this.element.on('contextmenu', (e) => {
@@ -31,7 +31,7 @@ const Peer = function(browser, widgets) {
 };
 
 
-Peer.prototype = {
+Session.prototype = {
 
 	emit: function(event, args) {
 		this.element.emit(event, args);
@@ -48,5 +48,5 @@ Peer.prototype = {
 };
 
 
-export { Peer };
+export { Session };
 

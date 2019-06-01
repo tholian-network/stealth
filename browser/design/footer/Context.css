@@ -84,6 +84,13 @@ browser-context button:hover {
 	outline: none;
 }
 
+browser-context button.active {
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
 browser-context button::-moz-focus-inner {
 	border: 0px solid transparent;
 }

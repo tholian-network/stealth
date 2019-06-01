@@ -406,6 +406,20 @@ Element.prototype = {
 
 				return data;
 
+			} else {
+
+				if (this.element !== null) {
+
+					if (isFunction(this.element[event])) {
+
+						this.element[event]();
+
+						return null;
+
+					}
+
+				}
+
 			}
 
 		}

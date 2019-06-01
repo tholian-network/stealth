@@ -5,8 +5,8 @@ import { Element } from '../Element.mjs';
 
 const TEMPLATE = `
 <button data-key="beacon" title="Beacon Settings" disabled></button>
+<button data-key="session" title="Session Settings" disabled></button>
 <button data-key="site" title="Site Settings" disabled></button>
-<button data-key="peer" title="Peer Settings" disabled></button>
 <button data-key="browser" title="Browser Settings" disabled></button>
 `;
 
@@ -26,11 +26,11 @@ const update = function(tab) {
 
 		if (tab.ref.protocol === 'stealth') {
 			this.beacon.state('disabled');
-			this.peer.state('disabled');
+			this.session.state('disabled');
 			this.site.state('disabled');
 		} else {
 			this.beacon.state('enabled');
-			this.peer.state('enabled');
+			this.session.state('enabled');
 			this.site.state('enabled');
 		}
 
@@ -40,7 +40,7 @@ const update = function(tab) {
 		this.browser.state('');
 
 		this.beacon.state('disabled');
-		this.peer.state('disabled');
+		this.session.state('disabled');
 		this.site.state('disabled');
 
 	}
@@ -49,7 +49,7 @@ const update = function(tab) {
 
 const toggle = function(name, widgets) {
 
-	[ 'beacon', 'peer', 'site' ].forEach((sidebar) => {
+	[ 'beacon', 'session', 'site' ].forEach((sidebar) => {
 
 		let button = this[sidebar]    || null;
 		let widget = widgets[sidebar] || null;
@@ -76,7 +76,7 @@ const Settings = function(browser, widgets) {
 	this.element = Element.from('browser-settings', TEMPLATE);
 	this.beacon  = this.element.query('[data-key="beacon"]');
 	this.browser = this.element.query('[data-key="browser"]');
-	this.peer    = this.element.query('[data-key="peer"]');
+	this.session = this.element.query('[data-key="session"]');
 	this.site    = this.element.query('[data-key="site"]');
 
 
@@ -104,10 +104,10 @@ const Settings = function(browser, widgets) {
 
 	});
 
-	this.peer.on('click', () => {
+	this.session.on('click', () => {
 
 		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
-			toggle.call(this, 'peer', widgets);
+			toggle.call(this, 'session', widgets);
 		}
 
 	});

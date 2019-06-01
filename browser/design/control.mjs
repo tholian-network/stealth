@@ -1,5 +1,5 @@
 
-import { isString } from '../source/POLYFILLS.mjs';
+import { isBoolean, isString } from '../source/POLYFILLS.mjs';
 
 import { Element } from './Element.mjs';
 import { URL     } from '../source/parser/URL.mjs';
@@ -9,7 +9,10 @@ const WIDGETS = global.WIDGETS || {};
 
 
 
-const oncontext = function(window, browser, element) {
+const oncontext = function(window, browser, element, autofocus) {
+
+	autofocus = isBoolean(autofocus) ? autofocus : false;
+
 
 	let context = WIDGETS.context || null;
 	let ref     = null;
@@ -167,7 +170,12 @@ const oncontext = function(window, browser, element) {
 				x: area.x + offset_x,
 				y: area.y + offset_y
 			});
-			context.emit('show');
+
+			if (autofocus === true) {
+				context.emit('show', [ element ]);
+			} else {
+				context.emit('show');
+			}
 
 		}
 
@@ -175,19 +183,11 @@ const oncontext = function(window, browser, element) {
 
 };
 
-const uncontext = function(window, browser, reset) {
-
-	reset = reset === true;
-
+const uncontext = function() {
 
 	let context = WIDGETS.context || null;
 	if (context !== null) {
 		context.emit('hide');
-	}
-
-	if (reset === true) {
-		// TODO: If reset is true, find
-		// original element and focus()
 	}
 
 };
@@ -260,7 +260,7 @@ const rotate_through_modes = function(browser, buttons) {
 
 };
 
-const rotate_through_sidebars = function(browser, buttons) {
+const rotate_through_settings = function(browser, buttons) {
 
 	let check = buttons.filter((b) => b.state() === 'disabled');
 	if (check.length < buttons.length) {
@@ -268,7 +268,14 @@ const rotate_through_sidebars = function(browser, buttons) {
 		let curr = buttons.find((b) => b.state() === 'active') || null;
 		let next = null;
 		if (curr !== null) {
-			next = buttons[(buttons.indexOf(curr) + 1) % buttons.length] || null;
+
+			let index = buttons.indexOf(curr) - 1;
+			if (index < 0) {
+				index = buttons.length - 1;
+			}
+
+			next = buttons[index] || null;
+
 		} else {
 			next = buttons[0];
 		}
@@ -386,7 +393,7 @@ export const dispatch = function(window, browser) {
 
 		let element = Element.from(e.target, null, false);
 		if (element !== null) {
-			oncontext(window, browser, element);
+			oncontext(window, browser, element, false);
 		}
 
 		e.preventDefault();
@@ -396,8 +403,9 @@ export const dispatch = function(window, browser) {
 
 	window.onkeydown = (e) => {
 
-		let ctrl = e.ctrlKey === true;
-		let key  = e.key.toLowerCase();
+		let ctrl  = e.ctrlKey === true;
+		let shift = e.shiftKey === true;
+		let key   = e.key.toLowerCase();
 
 
 		// Show Help on three (tries to) Escape in a row
@@ -432,6 +440,47 @@ export const dispatch = function(window, browser) {
 		}
 
 
+		let context = WIDGETS.context || null;
+		if (context !== null && context.element.state() === 'active') {
+
+			if (key === 'tab' || key === ' ' || key === 'enter') {
+
+				if (key === 'tab') {
+
+					context.select(shift === true ? 'prev' : 'next');
+
+					e.preventDefault();
+					e.stopPropagation();
+
+				} else if (key === ' ' || key === 'enter') {
+
+					let select = context._select || null;
+					if (select !== null) {
+						select.emit('click');
+					} else {
+						uncontext(window, browser, false);
+					}
+
+					e.preventDefault();
+					e.stopPropagation();
+
+				}
+
+				// XXX: Prevent Webview messing up our tab index navigation from before.
+				return;
+
+			} else if (key === 'escape') {
+
+				uncontext(window, browser, false);
+
+				// XXX: Prevent Webview messing up our tab index navigation from before.
+				return;
+
+			}
+
+		}
+
+
 		if (key === 'escape') {
 
 			uncontext(window, browser, false);
@@ -442,9 +491,9 @@ export const dispatch = function(window, browser) {
 				beacon.emit('hide');
 			}
 
-			let peer = WIDGETS.peer || null;
-			if (peer !== null) {
-				peer.emit('hide');
+			let session = WIDGETS.session || null;
+			if (session !== null) {
+				session.emit('hide');
 			}
 
 			let site = WIDGETS.site || null;
@@ -525,8 +574,15 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			if (browser.tabs.length > 1) {
-				browser.kill(browser.tab);
+			let tabs = WIDGETS.tabs || null;
+			if (tabs !== null) {
+
+				if (tabs.curr !== null) {
+					tabs.element.emit('dblclick', [{
+						target: tabs.curr.element
+					}]);
+				}
+
 			}
 
 			e.preventDefault();
@@ -537,14 +593,15 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let index = browser.tabs.indexOf(browser.tab) - 1;
-			if (index < 0) {
-				index = browser.tabs.length - 1;
-			}
+			let tabs = WIDGETS.tabs || null;
+			if (tabs !== null) {
 
-			let tab = browser.tabs[index] || null;
-			if (tab !== null) {
-				browser.show(tab);
+				if (tabs.prev !== null) {
+					tabs.element.emit('click', [{
+						target: tabs.prev.element
+					}]);
+				}
+
 			}
 
 			e.preventDefault();
@@ -555,14 +612,15 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let index = browser.tabs.indexOf(browser.tab) + 1;
-			if (index >= browser.tabs.length) {
-				index %= browser.tabs.length;
-			}
+			let tabs = WIDGETS.tabs || null;
+			if (tabs !== null) {
 
-			let tab = browser.tabs[index] || null;
-			if (tab !== null) {
-				browser.show(tab);
+				if (tabs.next !== null) {
+					tabs.element.emit('click', [{
+						target: tabs.next.element
+					}]);
+				}
+
 			}
 
 			e.preventDefault();
@@ -599,10 +657,10 @@ export const dispatch = function(window, browser) {
 			let settings = WIDGETS.settings || null;
 			if (settings !== null) {
 
-				rotate_through_sidebars(browser, [
-					WIDGETS.settings.beacon || null,
-					WIDGETS.settings.site   || null,
-					WIDGETS.settings.peer   || null
+				rotate_through_settings(browser, [
+					WIDGETS.settings.beacon  || null,
+					WIDGETS.settings.session || null,
+					WIDGETS.settings.site    || null
 				].filter((b) => b !== null));
 
 			}
@@ -634,7 +692,7 @@ export const dispatch = function(window, browser) {
 
 				let element = Element.from(window.document.activeElement || null, null, false);
 				if (element !== null) {
-					oncontext(window, browser, element);
+					oncontext(window, browser, element, true);
 				}
 
 			}

@@ -192,6 +192,8 @@ const Context = function(browser) {
 	this.actions = [];
 	this.buttons = [];
 
+	this._select = null;
+
 
 	this.element.on('click', (e) => {
 
@@ -215,7 +217,15 @@ const Context = function(browser) {
 	});
 
 	this.element.on('show', () => {
+
 		this.element.state('active');
+
+		let select = this.buttons[0] || null;
+		if (select !== null) {
+			this._select = select;
+			this._select.state('active');
+		}
+
 	});
 
 	this.element.on('hide', () => {
@@ -301,6 +311,53 @@ Context.prototype = {
 		this.element.erase(target);
 	},
 
+	select: function(direction) {
+
+		if (this.buttons.length > 0) {
+
+			if (direction === 'next') {
+
+				let index = this.buttons.indexOf(this._select);
+				if (index !== -1) {
+
+					index += 1;
+					index %= this.buttons.length;
+
+					this._select.state('');
+
+					this._select = this.buttons[index];
+					this._select.state('active');
+
+					return true;
+
+				}
+
+			} else if (direction === 'prev') {
+
+				let index = this.buttons.indexOf(this._select);
+				if (index !== -1) {
+
+					index -= 1;
+					index  = index >= 0 ? index : (this.buttons.length - 1);
+
+					this._select.state('');
+
+					this._select = this.buttons[index];
+					this._select.state('active');
+
+					return true;
+
+				}
+
+			}
+
+		}
+
+
+		return false;
+
+	},
+
 	read: function(callback) {
 
 		callback = isFunction(callback) ? callback : null;
@@ -336,7 +393,7 @@ Context.prototype = {
 
 			actions.filter((a) => is_action(a)).forEach((action) => {
 
-				let button = render_button(action);
+				let button = render_button.call(this, action);
 				if (button !== null) {
 					this.actions.push(action);
 					this.buttons.push(button);

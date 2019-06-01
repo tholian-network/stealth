@@ -242,12 +242,12 @@ const Request = function(data, stealth) {
 
 		} else {
 
+			this.timeline.connect = Date.now();
+
 			this.stealth.server.services.host.read({
 				domain:    this.ref.domain,
 				subdomain: this.ref.subdomain
 			}, (response) => {
-
-				this.timeline.connect = Date.now();
 
 				if (response.payload !== null) {
 

@@ -14,7 +14,7 @@ import { Context  } from './footer/Context.mjs';
 import { Help     } from './footer/Help.mjs';
 import { History  } from './header/History.mjs';
 import { Mode     } from './header/Mode.mjs';
-import { Peer     } from './footer/Peer.mjs';
+import { Session  } from './footer/Session.mjs';
 import { Settings } from './header/Settings.mjs';
 import { Site     } from './footer/Site.mjs';
 import { Tabs     } from './footer/Tabs.mjs';
@@ -54,7 +54,7 @@ WIDGETS.context  = new Context(BROWSER, WIDGETS);
 WIDGETS.help     = new Help(BROWSER, WIDGETS);
 WIDGETS.history  = new History(BROWSER, WIDGETS);
 WIDGETS.mode     = new Mode(BROWSER, WIDGETS);
-WIDGETS.peer     = new Peer(BROWSER, WIDGETS);
+WIDGETS.session  = new Session(BROWSER, WIDGETS);
 WIDGETS.settings = new Settings(BROWSER, WIDGETS);
 WIDGETS.site     = new Site(BROWSER, WIDGETS);
 WIDGETS.tabs     = new Tabs(BROWSER, WIDGETS);
@@ -71,7 +71,7 @@ WIDGETS.webview.render(main);
 WIDGETS.tabs.render(footer);
 WIDGETS.beacon.render(footer);
 WIDGETS.site.render(footer);
-WIDGETS.peer.render(footer);
+WIDGETS.session.render(footer);
 WIDGETS.context.render(footer);
 WIDGETS.help.render(footer);
 
@@ -90,7 +90,7 @@ setTimeout(() => {
 				'stealth:welcome',
 				// 'stealth:settings',
 				// 'https://old.reddit.com/r/programming/',
-				// 'https://cookie.engineer/index.html'
+				'https://cookie.engineer/index.html'
 			].map((url) => {
 				return BROWSER.open(url);
 			}).slice(-1).forEach((tab) => {
@@ -128,8 +128,8 @@ setTimeout(() => {
 		WIDGETS.address.input,
 		...WIDGETS.mode.buttons,
 		WIDGETS.settings.beacon,
+		WIDGETS.settings.session,
 		WIDGETS.settings.site,
-		WIDGETS.settings.peer,
 		WIDGETS.settings.browser
 	].filter((v) => v !== null).forEach((element) => {
 		element.attr('tabindex', tabindex++);
