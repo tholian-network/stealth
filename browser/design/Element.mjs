@@ -178,7 +178,7 @@ Element.prototype = {
 				}
 
 				if (z !== null) {
-					this.element.style['z-index'] = z + 'px';
+					this.element.style['z-index'] = z;
 				} else {
 					this.element.style['z-index'] = '';
 				}
@@ -206,6 +206,7 @@ Element.prototype = {
 					area.x = (rect.left + area.w / 2) | 0;
 					area.y = (rect.top  + area.h / 2) | 0;
 				}
+
 
 				let z_index = this.element.style['z-index'] || null;
 				if (z_index !== null) {

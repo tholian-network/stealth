@@ -409,71 +409,93 @@ export const dispatch = function(window, browser) {
 
 
 		// Show Help on three (tries to) Escape in a row
-		if (key === 'escape') {
+		let help = WIDGETS.help || null;
+		if (help !== null && help.element.state() === 'active') {
 
-			let focus = window.document.activeElement || null;
-			if (focus === null || focus === window.document.body) {
-				escapes++;
-			} else {
+			if (key === 'enter') {
+
+				help.emit('hide');
 				escapes = 0;
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				return;
+
+			} else {
+
+				help.select(key);
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				return;
+
 			}
 
-			if (escapes >= 3) {
+		} else if (help !== null) {
 
-				let help = WIDGETS.help || null;
-				if (help !== null) {
-					help.emit('show');
+			if (key === 'escape') {
+
+				let focus = window.document.activeElement || null;
+				if (focus === null || focus === window.document.body) {
+					escapes++;
+				} else {
 					escapes = 0;
 				}
 
+				if (escapes >= 3) {
+
+					help.emit('show');
+					escapes = 0;
+
+					e.preventDefault();
+					e.stopPropagation();
+
+					return;
+
+				}
+
 			}
-
-		} else {
-
-			let help = WIDGETS.help || null;
-			if (help !== null) {
-				help.emit('hide');
-			}
-
-			escapes = 0;
 
 		}
 
 
+		// Show Context Menu with tabable (but not focusable) elements
+		// XXX: There's no API to reset the selected tabindex focus
 		let context = WIDGETS.context || null;
 		if (context !== null && context.element.state() === 'active') {
 
-			if (key === 'tab' || key === ' ' || key === 'enter') {
+			if (key === 'tab') {
 
-				if (key === 'tab') {
+				context.select(shift === true ? 'prev' : 'next');
 
-					context.select(shift === true ? 'prev' : 'next');
+				e.preventDefault();
+				e.stopPropagation();
 
-					e.preventDefault();
-					e.stopPropagation();
+				return;
 
-				} else if (key === ' ' || key === 'enter') {
+			} else if (key === ' ' || key === 'enter') {
 
-					let select = context._select || null;
-					if (select !== null) {
-						select.emit('click');
-					} else {
-						uncontext(window, browser, false);
-					}
-
-					e.preventDefault();
-					e.stopPropagation();
-
+				let select = context._select || null;
+				if (select !== null) {
+					select.emit('click');
+				} else {
+					uncontext(window, browser, false);
 				}
 
-				// XXX: Prevent Webview messing up our tab index navigation from before.
+				e.preventDefault();
+				e.stopPropagation();
+
 				return;
 
 			} else if (key === 'escape') {
 
 				uncontext(window, browser, false);
 
-				// XXX: Prevent Webview messing up our tab index navigation from before.
+				e.preventDefault();
+				e.stopPropagation();
+
 				return;
 
 			}

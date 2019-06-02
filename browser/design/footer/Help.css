@@ -41,9 +41,13 @@ browser-help browser-hint {
 	vertical-align: middle;
 	transition: 200ms all ease-out;
 	overflow: hidden;
+}
+
+browser-help browser-hint[title^="or"] {
 	cursor: help;
 }
 
+browser-help browser-hint.active,
 browser-help browser-hint:hover {
 	border: 1px solid #ffffff;
 }
@@ -60,7 +64,67 @@ browser-help browser-hint:before {
 	transition: 200ms all ease-out;
 }
 
+browser-help browser-hint.active:before,
 browser-help browser-hint:hover:before {
 	background: rgba(255,255,255,0.12);
+}
+
+browser-help browser-text {
+	display: block;
+	position: fixed;
+	min-width: 625px;
+	top: 50%;
+	right: auto;
+	bottom: auto;
+	left: 50%;
+	margin: 0px;
+	padding: 32px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 24px;
+	font-weight: normal;
+	background: #121212;
+	border: 1px solid #666666;
+	border-radius: 8px;
+	transform: translate(-50%, -50%);
+}
+
+browser-help browser-text h3 {
+	display: block;
+	margin: 0px 0px 1em 0px;
+	padding: 0px 0px 0.5em 0px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 32px;
+	font-weight: normal;
+	text-align: center;
+	border-bottom: 2px solid #ffffff;
+}
+
+browser-help browser-text ul {
+	display: block;
+	margin: 1em 0px 0px 0px;
+	padding: 0px;
+}
+
+browser-help browser-text ul li {
+	margin: 0px;
+	padding: 0px;
+	line-height: 1.5em;
+	list-style: none;
+	border: 1px solid transparent;
+	border-radius: 4px;
+}
+
+browser-help browser-text ul li.active {
+	border: 1px solid #ffffff;
+	background: rgba(255,255,255,0.12);
+}
+
+browser-help browser-text code {
+	display: inline-block;
+	width: 5em;
+	font-family: 'vera-mono';
+	text-align: center;
 }
 
