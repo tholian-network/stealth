@@ -12,7 +12,8 @@
 	"globals": {
 		"browser": true,
 		"Buffer": true,
-		"DELAYED": true
+		"BROWSER": true,
+		"WIDGETS": true
 	},
 	"overrides": [{
 		"files": [ "browser.mjs", "service.js" ],

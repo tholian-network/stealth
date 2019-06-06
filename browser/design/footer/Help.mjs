@@ -141,6 +141,7 @@ const Help = function(browser, widgets) {
 
 
 	this.element.on('click', () => {
+		this.text.area({ x: null });
 		this.element.state('');
 	});
 
@@ -204,7 +205,7 @@ const Help = function(browser, widgets) {
 					if (max_y > cur_y) {
 
 						let cur_x = text_area.x - text_area.w / 2;
-						if (cur_x < tabs_area.w) {
+						if (cur_x <= tabs_area.w) {
 							this.text.area({ x: tabs_area.w + text_area.w / 2 });
 						} else {
 							this.text.area({ x: null });
@@ -253,6 +254,7 @@ const Help = function(browser, widgets) {
 	});
 
 	this.element.on('hide', () => {
+		this.text.area({ x: null });
 		this.element.state('');
 	});
 

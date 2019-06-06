@@ -87,10 +87,8 @@ setTimeout(() => {
 			console.info('Browser Design connected to ws://' + HOST + ':65432.');
 
 			[
-				'stealth:welcome',
-				// 'stealth:settings',
-				// 'https://old.reddit.com/r/programming/',
-				'https://cookie.engineer/index.html'
+				'https://cookie.engineer/index.html',
+				'stealth:welcome'
 			].map((url) => {
 				return BROWSER.open(url);
 			}).slice(-1).forEach((tab) => {

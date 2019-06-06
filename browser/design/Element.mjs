@@ -1,9 +1,8 @@
 
 import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '../source/POLYFILLS.mjs';
 
-import { console } from '../source/console.mjs';
-import { IP      } from '../source/parser/IP.mjs';
-import { URL     } from '../source/parser/URL.mjs';
+import { IP  } from '../source/parser/IP.mjs';
+import { URL } from '../source/parser/URL.mjs';
 
 const global = (typeof window !== 'undefined' ? window : this);
 const doc    = global.document;
@@ -116,14 +115,27 @@ Element.query = function(query) {
 
 	if (query !== null) {
 
-		let node = doc.querySelector(query);
-		if (node !== null) {
+		let nodes = Array.from(doc.querySelectorAll(query));
+		if (nodes.length > 1) {
 
-			let index = CACHE.reality.indexOf(node);
+			return nodes.map((node) => {
+
+				let index = CACHE.reality.indexOf(node);
+				if (index !== -1) {
+					return CACHE.virtual[index];
+				} else {
+					return new Element(node);
+				}
+
+			});
+
+		} else if (nodes.length === 1) {
+
+			let index = CACHE.reality.indexOf(nodes[0]);
 			if (index !== -1) {
 				return CACHE.virtual[index];
 			} else {
-				return new Element(node);
+				return new Element(nodes[0]);
 			}
 
 		}
@@ -250,7 +262,11 @@ Element.prototype = {
 
 				if (this.element !== null) {
 
-					this.element.setAttribute(key, san);
+					if (san.length === 0) {
+						this.element.removeAttribute(key);
+					} else {
+						this.element.setAttribute(key, san);
+					}
 
 					return true;
 

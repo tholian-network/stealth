@@ -4,20 +4,21 @@ import { extract, init, listen, render, reset } from './internal.mjs';
 
 
 const elements = {
-	internet: {
-		connection: Array.from(document.querySelectorAll('#internet-connection input')),
-		history:    Array.from(document.querySelectorAll('#internet-history input')),
-		useragent:  Array.from(document.querySelectorAll('#internet-useragent input'))
+	hosts: {
+		body:   document.querySelector('#hosts table tbody'),
+		foot:   document.querySelector('#hosts table tfoot'),
+		search: document.querySelector('#hosts-search input')
 	},
+	peers: {
+		body:   document.querySelector('#peers table tbody'),
+		foot:   document.querySelector('#peers table tfoot'),
+		search: document.querySelector('#peers-search input')
+	},
+
 	filter:       document.querySelector('#sites table#sites-filters tfoot'),
 	filters:      document.querySelector('#sites table#sites-filters tbody'),
-	host:         document.querySelector('#hosts table tfoot'),
-	hosts:        document.querySelector('#hosts table tbody'),
-	hosts_search: document.querySelector('#hosts-search input'),
 	mode:         document.querySelector('#sites table#sites-modes tfoot'),
-	modes:        document.querySelector('#sites table#sites-modes tbody'),
-	peer:         document.querySelector('#peers table tfoot'),
-	peers:        document.querySelector('#peers table tbody'),
+	modes:        document.querySelector('#sites table#sites-modes tbody')
 };
 
 
@@ -105,52 +106,6 @@ const sort_by_domain_and_filter = (a, b) => {
 
 };
 
-const listen_choices = function(browser, elements, setting, callback) {
-
-	Object.keys(elements).forEach((category) => {
-
-		elements[category].forEach((element, e, others) => {
-
-			element.onchange = () => {
-
-				let active = others.find((e) => e.checked === true) || null;
-				if (active !== null) {
-
-					let cur_val = browser.settings[setting][category];
-					let new_val = active.value;
-
-					if (cur_val !== new_val) {
-
-						let data = {};
-						data[setting] = {};
-						Object.assign(data[setting], browser.settings[setting]);
-						data[setting][category] = new_val;
-
-
-						element.className = 'busy';
-
-						callback('save', data, function(result) {
-
-							if (result === true) {
-								element.className = '';
-							} else {
-								element.className = 'error';
-							}
-
-						});
-
-					}
-
-				}
-
-			};
-
-		});
-
-	});
-
-};
-
 const update = function(browser) {
 
 	let service = browser.client.services.settings || null;
@@ -160,35 +115,16 @@ const update = function(browser) {
 
 };
 
-const on_update_choices = function(choices, value, elements) {
-
-	choices.forEach((choice, c) => {
-
-		let element = elements[c];
-		if (element !== null) {
-
-			if (choice === value) {
-				element.setAttribute('checked', 'true');
-			} else {
-				element.removeAttribute('checked');
-			}
-
-		}
-
-	});
-
-};
-
-const on_update_hosts = function(search) {
+const on_search = function(type, search) {
 
 	if (search === '') {
 
-		Array.from(elements.hosts.querySelectorAll('tr')).forEach((element) => {
+		Array.from(elements[type].querySelectorAll('tr')).forEach((element) => {
 
-			let host = extract(element);
-			if (host !== null) {
+			let data = extract(element);
+			if (data !== null) {
 
-				let domain = host.domain || null;
+				let domain = data.domain || null;
 				if (domain !== null) {
 					element.setAttribute('data-visible', domain.includes('.') === false);
 				}
@@ -199,14 +135,14 @@ const on_update_hosts = function(search) {
 
 	} else {
 
-		Array.from(elements.hosts.querySelectorAll('tr')).forEach((element) => {
+		Array.from(elements[type].querySelectorAll('tr')).forEach((element) => {
 
-			let host = extract(element);
-			if (host !== null) {
+			let data = extract(element);
+			if (data !== null) {
 
-				let domain = host.domain || null;
+				let domain = data.domain || null;
 				if (domain !== null) {
-					element.setAttribute('data-visible', domain.endsWith(search));
+					element.setAttribute('data-visible', domain.includes(search));
 				}
 
 			}
@@ -219,37 +155,9 @@ const on_update_hosts = function(search) {
 
 const on_update = function(settings) {
 
-	let internet = settings.internet || null;
-	if (internet !== null) {
-
-		on_update_choices(
-			[ 'mobile', 'broadband', 'peer', 'i2p', 'tor' ],
-			settings.internet.connection,
-			elements.internet.connection
-		);
-
-		on_update_choices(
-			[ 'stealth', 'day', 'week', 'forever' ],
-			settings.internet.history,
-			elements.internet.history
-		);
-
-		on_update_choices(
-			[ 'stealth', 'browser-mobile', 'browser-desktop', 'spider-mobile', 'spider-desktop' ],
-			settings.internet.useragent,
-			elements.internet.useragent
-		);
-
-	}
-
 	let filters = settings.filters || null;
 	if (filters !== null) {
 		elements.filters.innerHTML = filters.sort(sort_by_domain_and_filter).map((filter) => render('filter', filter, [ 'remove' ])).join('');
-	}
-
-	let hosts = settings.hosts || null;
-	if (hosts !== null) {
-		elements.hosts.innerHTML = hosts.sort(sort_by_domain).map((host) => render('host', host, [ 'refresh', 'remove', 'save' ])).join('');
 	}
 
 	let modes = settings.modes || null;
@@ -259,13 +167,8 @@ const on_update = function(settings) {
 
 	let peers = settings.peers || null;
 	if (peers !== null) {
-		elements.peers.innerHTML = peers.sort(sort_by_domain).map((peer) => render('peer', peer, [ 'refresh', 'remove', 'save' ])).join('');
-	}
-
-
-	let search = elements.hosts_search || null;
-	if (search !== null) {
-		on_update_hosts(search.value);
+		elements.peers.body.innerHTML = peers.sort(sort_by_domain).map((peer) => render('peer', peer, [ 'refresh', 'remove', 'save' ])).join('');
+		on_search('peers', elements.peers.search.value);
 	}
 
 };
@@ -274,9 +177,13 @@ const on_update = function(settings) {
 
 init([
 	elements.filters,
-	elements.hosts,
+	elements.hosts.body,
+	elements.hosts.foot,
+	elements.hosts.search,
 	elements.modes,
-	elements.peers
+	elements.peers.body,
+	elements.peers.foot,
+	elements.peers.search
 ], (browser, result) => {
 
 	if (result === true) {
@@ -284,52 +191,16 @@ init([
 	}
 
 
-	listen_choices(browser, elements.internet, 'internet', (action, data, done) => {
-
-		let service = browser.client.services.settings || null;
-		if (service !== null) {
-
-			if (action === 'save') {
-
-				service.save(data, (result) => {
-
-					if (result === true) {
-
-						Object.keys(data.internet).forEach((key) => {
-							browser.settings.internet[key] = data.internet[key];
-						});
-
-						on_update({
-							internet: browser.settings.internet
-						});
-
-					}
-
-					done(result);
-
-				});
-
-			} else {
-				done(false);
-			}
-
-		} else {
-			done(false);
-		}
-
-	});
-
-
 
 	/*
 	 * Table Body
 	 */
 
-	if (elements.hosts_search !== null) {
-		elements.hosts_search.onkeyup = () => on_update_hosts(elements.hosts_search.value);
-	}
+	elements.hosts.search.onkeyup = () => {
+		on_search(elements.hosts.search.value);
+	};
 
-	listen(elements.hosts, (action, data, done) => {
+	listen(elements.hosts.body, (action, data, done) => {
 
 		let service = browser.client.services.host || null;
 		if (service !== null) {
@@ -408,7 +279,7 @@ init([
 
 	});
 
-	listen(elements.peers, (action, data, done) => {
+	listen(elements.peers.body, (action, data, done) => {
 
 		let service = browser.client.services.peer || null;
 		if (service !== null) {
@@ -604,8 +475,8 @@ init([
 	 * Table Footer
 	 */
 
-	reset(elements.host);
-	listen(elements.host, (action, data, done) => {
+	reset(elements.hosts.foot);
+	listen(elements.hosts.foot, (action, data, done) => {
 
 		let service = browser.client.services.host || null;
 		if (service !== null) {
@@ -628,7 +499,7 @@ init([
 							hosts: browser.settings.hosts
 						});
 
-						reset(elements.host);
+						reset(elements.hosts.foot);
 
 					}
 
@@ -646,10 +517,10 @@ init([
 
 	});
 
-	reset(elements.peer);
-	listen(elements.peer, (action, data, done) => {
+	reset(elements.peers.foot);
+	listen(elements.peers.foot, (action, data, done) => {
 
-		let button  = elements.peer.querySelector('button[data-action]');
+		let button  = elements.peers.foot.querySelector('button[data-action]');
 		let service = browser.client.services.peer || null;
 		if (service !== null) {
 
@@ -667,7 +538,7 @@ init([
 							cache.connection = peer.connection;
 						}
 
-						let button_connection = elements.peer.querySelector('button[data-key="connection"]');
+						let button_connection = elements.peers.foot.querySelector('button[data-key="connection"]');
 						if (button_connection !== null) {
 							button_connection.setAttribute('data-val', peer.connection);
 						}
@@ -704,7 +575,7 @@ init([
 							peers: browser.settings.peers
 						});
 
-						reset(elements.peer);
+						reset(elements.peers.foot);
 
 					}
 
@@ -717,7 +588,7 @@ init([
 				button.removeAttribute('disabled');
 				button.setAttribute('data-action', 'refresh');
 
-				reset(elements.peer);
+				reset(elements.peers.foot);
 				done(false);
 
 			}
@@ -727,7 +598,7 @@ init([
 			button.removeAttribute('disabled');
 			button.setAttribute('data-action', 'refresh');
 
-			reset(elements.peer);
+			reset(elements.peers.foot);
 			done(false);
 
 		}

@@ -547,7 +547,6 @@ export const init = function(elements, callback) {
 
 	if (callback !== null) {
 
-
 		let browser = BROWSER || null;
 		if (browser !== null) {
 
