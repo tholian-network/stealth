@@ -87,8 +87,7 @@ setTimeout(() => {
 			console.info('Browser Design connected to ws://' + HOST + ':65432.');
 
 			[
-				'https://cookie.engineer/index.html',
-				'stealth:welcome'
+				'stealth:settings'
 			].map((url) => {
 				return BROWSER.open(url);
 			}).slice(-1).forEach((tab) => {

@@ -1,4 +1,6 @@
 
+import { isArray, isObject } from '../../source/POLYFILLS.mjs';
+
 import { Element } from '../../design/Element.mjs';
 
 const ELEMENTS = {
@@ -8,6 +10,20 @@ const ELEMENTS = {
 };
 
 export const listen = function(browser, callback) {
+
+	console.log(ELEMENTS);
+
+	let input = ELEMENTS.input || null;
+	if (input !== null) {
+
+		input.on('click', (e) => {
+
+			console.log(e);
+
+		});
+
+	}
+
 	// TODO: listen() implementation
 };
 
@@ -18,6 +34,12 @@ export const render = (host, actions) => `
 	<td>${actions.map((a) => '<button data-action="' + a + '"></button>').join('')}</td>
 </tr>
 `;
+
+export const reset = () => {
+
+	// TODO: reset input element
+
+};
 
 const sort = function(a, b) {
 
@@ -52,12 +74,15 @@ const sort = function(a, b) {
 
 };
 
-const update = function(settings) {
+const update = function(settings, actions) {
+
+	settings = isObject(settings) ? settings : {};
+	actions  = isArray(actions)   ? actions  : [ 'refresh', 'remove', 'save' ];
+
 
 	let hosts = settings.hosts || null;
 	if (hosts !== null) {
-		ELEMENTS.output.value(hosts.sort(sort).map((host) => render(host)));
-		// TODO: on_search('hosts', elements.hosts.search.value);
+		ELEMENTS.output.value(hosts.sort(sort).map((host) => render(host, actions)));
 	}
 
 };
@@ -68,8 +93,110 @@ export const init = function(browser) {
 
 	listen(browser, (action, data, done) => {
 
+		let service = browser.client.services.host || null;
+		if (service !== null) {
+
+			if (action === 'refresh') {
+
+				service.refresh(data, (host) => {
+
+					if (host !== null) {
+
+						let cache = browser.settings.hosts.find((h) => h.domain === host.domain) || null;
+						if (cache !== null) {
+							cache.hosts = host.hosts;
+						}
+
+						update({
+							hosts: browser.settings.hosts
+						});
+
+					}
+
+					done(host !== null);
+
+				});
+
+			} else if (action === 'confirm') {
+
+				let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
+				if (cache !== null) {
+					cache.hosts = data.hosts;
+					data = cache;
+				}
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						browser.settings.hosts.push(data);
+
+						update({
+							hosts: browser.settings.hosts
+						});
+
+						reset(ELEMENTS.input);
+
+					}
+
+					done(result);
+
+				});
+
+			} else if (action === 'remove') {
+
+				service.remove(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
+						if (cache !== null) {
+
+							let index = browser.settings.hosts.indexOf(cache);
+							if (index !== -1) {
+								browser.settings.hosts.splice(index, 1);
+							}
+
+							update({
+								hosts: browser.settings.hosts
+							});
+
+						}
+
+					}
+
+					done(result);
+
+				});
+
+			} else if (action === 'save') {
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
+						if (cache !== null) {
+							cache.hosts = data.hosts;
+						}
+
+					}
+
+					done(result);
+
+				});
+
+			} else {
+				done(false);
+			}
+
+		} else {
+			done(false);
+		}
 
 	});
+
+	reset(ELEMENTS.input);
 
 };
 

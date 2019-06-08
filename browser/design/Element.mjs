@@ -31,6 +31,51 @@ const Dummy = function() {
 
 };
 
+const parse_value = function(raw) {
+
+	raw = isString(raw) ? raw : '';
+
+
+	let val = null;
+
+	if (raw.startsWith('[')) {
+
+		try {
+			val = JSON.parse(raw);
+		} catch (err) {
+			val = null;
+		}
+
+	} else if (raw.startsWith('{')) {
+
+		try {
+			val = JSON.parse(raw);
+		} catch (err) {
+			val = null;
+		}
+
+	} else if (/^([0-9.]+)$/g.test(raw)) {
+
+		let num = null;
+
+		if (raw.includes('.')) {
+			num = parseFloat(raw);
+		} else {
+			num = parseInt(raw, 10);
+		}
+
+		if (Number.isNaN(num) === false) {
+			val = num;
+		}
+
+	} else {
+		val = raw;
+	}
+
+	return val;
+
+};
+
 
 
 const Element = function(type, template, virtual) {
@@ -240,35 +285,46 @@ Element.prototype = {
 
 	attr: function(key, val) {
 
-		key = isString(key) ? key : null;
+		key = isString(key)     ? key : null;
+		val = val !== undefined ? val : undefined;
 
 
 		if (key !== null) {
 
-			let san = null;
-
-			if (isString(val)) {
-				san = val;
-			} else if (isArray(val)) {
-				san = JSON.stringify(val);
-			} else if (isObject(val)) {
-				san = JSON.stringify(val);
-			} else if (isNumber(val)) {
-				san = (val).toString();
-			}
-
-
-			if (san !== null) {
+			if (val !== undefined) {
 
 				if (this.element !== null) {
 
-					if (san.length === 0) {
-						this.element.removeAttribute(key);
-					} else {
-						this.element.setAttribute(key, san);
-					}
+					let attributes = Object.keys(this.element.attributes).map((a) => this.element.attributes[a].name);
+					if (attributes.includes(key)) {
 
-					return true;
+						let san = null;
+
+						if (isString(val)) {
+							san = val;
+						} else if (isArray(val)) {
+							san = JSON.stringify(val);
+						} else if (isObject(val)) {
+							san = JSON.stringify(val);
+						} else if (isNumber(val)) {
+							san = (val).toString();
+						}
+
+						if (san.length === 0) {
+							this.element.removeAttribute(key);
+						} else {
+							this.element.setAttribute(key, san);
+						}
+
+						return true;
+
+					} else if (key in this.element) {
+
+						this.element[key] = val;
+
+						return true;
+
+					}
 
 				}
 
@@ -278,47 +334,26 @@ Element.prototype = {
 
 				if (this.element !== null) {
 
-					let raw = this.element.getAttribute(key);
+					let attributes = Object.keys(this.element.attributes).map((a) => this.element.attributes[a].name);
+					if (attributes.includes(key)) {
 
-					if (isString(raw)) {
+						let raw = this.element.getAttribute(key);
 
-						let val = null;
-
-						if (raw.startsWith('[')) {
-
-							try {
-								val = JSON.parse(raw);
-							} catch (err) {
-								val = null;
-							}
-
-						} else if (raw.startsWith('{')) {
-
-							try {
-								val = JSON.parse(raw);
-							} catch (err) {
-								val = null;
-							}
-
-						} else if (/^([0-9.]+)$/g.test(raw)) {
-
-							let num = null;
-
-							if (raw.includes('.')) {
-								num = parseFloat(raw);
-							} else {
-								num = parseInt(raw, 10);
-							}
-
-							if (Number.isNaN(num) === false) {
-								val = num;
-							}
-
-						} else {
-							val = raw;
+						if (isString(raw)) {
+							return parse_value(raw);
+						} else if (raw !== null) {
+							return raw;
 						}
 
-						return val;
+					} else if (key in this.element) {
+
+						let raw = this.element[key] || null;
+
+						if (isString(raw)) {
+							return parse_value(raw);
+						} else if (raw !== null) {
+							return raw;
+						}
 
 					}
 

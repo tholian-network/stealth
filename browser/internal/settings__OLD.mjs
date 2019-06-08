@@ -4,11 +4,6 @@ import { extract, init, listen, render, reset } from './internal.mjs';
 
 
 const elements = {
-	hosts: {
-		body:   document.querySelector('#hosts table tbody'),
-		foot:   document.querySelector('#hosts table tfoot'),
-		search: document.querySelector('#hosts-search input')
-	},
 	peers: {
 		body:   document.querySelector('#peers table tbody'),
 		foot:   document.querySelector('#peers table tfoot'),
@@ -177,9 +172,6 @@ const on_update = function(settings) {
 
 init([
 	elements.filters,
-	elements.hosts.body,
-	elements.hosts.foot,
-	elements.hosts.search,
 	elements.modes,
 	elements.peers.body,
 	elements.peers.foot,
@@ -195,89 +187,6 @@ init([
 	/*
 	 * Table Body
 	 */
-
-	elements.hosts.search.onkeyup = () => {
-		on_search(elements.hosts.search.value);
-	};
-
-	listen(elements.hosts.body, (action, data, done) => {
-
-		let service = browser.client.services.host || null;
-		if (service !== null) {
-
-			if (action === 'refresh') {
-
-				service.refresh(data, (host) => {
-
-					if (host !== null) {
-
-						let cache = browser.settings.hosts.find((h) => h.domain === host.domain) || null;
-						if (cache !== null) {
-							cache.hosts = host.hosts;
-						}
-
-						on_update({
-							hosts: browser.settings.hosts
-						});
-
-					}
-
-					done(host !== null);
-
-				});
-
-			} else if (action === 'remove') {
-
-				service.remove(data, (result) => {
-
-					if (result === true) {
-
-						let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
-						if (cache !== null) {
-
-							let index = browser.settings.hosts.indexOf(cache);
-							if (index !== -1) {
-								browser.settings.hosts.splice(index, 1);
-							}
-
-							on_update({
-								hosts: browser.settings.hosts
-							});
-
-						}
-
-					}
-
-					done(result);
-
-				});
-
-			} else if (action === 'save') {
-
-				service.save(data, (result) => {
-
-					if (result === true) {
-
-						let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
-						if (cache !== null) {
-							cache.hosts = data.hosts;
-						}
-
-					}
-
-					done(result);
-
-				});
-
-			} else {
-				done(false);
-			}
-
-		} else {
-			done(false);
-		}
-
-	});
 
 	listen(elements.peers.body, (action, data, done) => {
 
@@ -474,48 +383,6 @@ init([
 	/*
 	 * Table Footer
 	 */
-
-	reset(elements.hosts.foot);
-	listen(elements.hosts.foot, (action, data, done) => {
-
-		let service = browser.client.services.host || null;
-		if (service !== null) {
-
-			if (action === 'confirm') {
-
-				let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
-				if (cache !== null) {
-					cache.hosts = data.hosts;
-					data = cache;
-				}
-
-				service.save(data, (result) => {
-
-					if (result === true) {
-
-						browser.settings.hosts.push(data);
-
-						on_update({
-							hosts: browser.settings.hosts
-						});
-
-						reset(elements.hosts.foot);
-
-					}
-
-					done(result);
-
-				});
-
-			} else {
-				done(false);
-			}
-
-		} else {
-			done(false);
-		}
-
-	});
 
 	reset(elements.peers.foot);
 	listen(elements.peers.foot, (action, data, done) => {

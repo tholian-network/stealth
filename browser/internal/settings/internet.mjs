@@ -15,6 +15,10 @@ const listen = function(browser, callback) {
 
 			element.on('change', () => {
 
+				others.forEach((other) => {
+					console.log(other.element.checked, other.attr('checked'));
+				});
+
 				let active = others.find((e) => e.checked === true) || null;
 				if (active !== null) {
 

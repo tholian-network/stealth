@@ -155,52 +155,6 @@ article input[type="radio"] + label[for] {
 
 
 /* settings */
-#internet-connection,
-#internet-history,
-#internet-useragent {
-	width: 416px;
-	margin: 48px auto 0px auto;
-}
-
-#internet-connection input[type="radio"] + label[for],
-#internet-history input[type="radio"] + label[for],
-#internet-useragent input[type="radio"] + label[for] {
-	display: inline-block;
-	width: 368px;
-}
-
-#internet-connection div,
-#internet-history div,
-#internet-useragent div {
-	line-height: 32px;
-	vertical-align: middle;
-}
-
-#hosts table textarea {
-	height: 96px;
-	min-height: auto;
-	resize: none;
-}
-
-#hosts table textarea::-moz-placeholder {
-	line-height: 96px;
-}
-
-#hosts table textarea::-webkit-input-placeholder {
-	line-height: 96px;
-}
-
-#hosts-search {
-	display: block;
-	width: 100%;
-	text-align: center;
-}
-
-#hosts-search input {
-	width: 416px;
-	margin: 48px auto 48px auto;
-	text-align: center;
-}
 
 #fix-filter table tr td:nth-of-type(2),
 #fix-filter table tr td:nth-of-type(2) input,
@@ -218,7 +172,6 @@ article input[type="radio"] + label[for] {
 
 #fix-host table,
 #fix-mode table,
-#hosts table,
 #peers table,
 #sites table {
 	table-layout: fixed;
@@ -228,8 +181,6 @@ article input[type="radio"] + label[for] {
 #fix-host table tr:hover th:last-child,
 #fix-mode table tr:hover td:last-child,
 #fix-mode table tr:hover th:last-child,
-#hosts table tr:hover td:last-child,
-#hosts table tr:hover th:last-child,
 #peers table tr:hover td:last-child,
 #peers table tr:hover th:last-child,
 #sites table tr:hover td:last-child,
@@ -241,8 +192,6 @@ article input[type="radio"] + label[for] {
 #fix-host table tr th:last-child,
 #fix-mode table tr td:last-child,
 #fix-mode table tr th:last-child,
-#hosts table tr td:last-child,
-#hosts table tr th:last-child,
 #peers table tr td:last-child,
 #peers table tr th:last-child,
 #sites table tr td:last-child,
@@ -265,22 +214,6 @@ article input[type="radio"] + label[for] {
 
 /* media queries */
 @media screen and (max-width: 706px) {
-
-	#internet-connection {
-		width: auto;
-	}
-
-	#internet-history {
-		width: auto;
-	}
-
-	#internet-useragent {
-		width: auto;
-	}
-
-	#hosts-search input {
-		width: auto;
-	}
 
 	#welcome-modes table {
 		width: 100%;
