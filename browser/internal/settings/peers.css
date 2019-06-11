@@ -1,0 +1,46 @@
+
+#peers table {
+	table-layout: fixed;
+}
+
+#peers table tr td:last-child,
+#peers table tr th:last-child {
+	width: 32px;
+	padding: 0px 0px 0px 4px;
+	border-color: transparent;
+}
+
+#peers table tr:hover td:last-child,
+#peers table tr:hover th:last-child {
+	background: transparent;
+}
+
+#peers-filter {
+	display: block;
+	width: 100%;
+	margin: 48px 0px 48px 0px;
+	text-align: center;
+}
+
+#peers-filter input {
+	display: block;
+	width: 416px;
+	margin: 0px auto 0px auto;
+	text-align: center;
+}
+
+#peers-filter label {
+	font-size: 16px;
+	line-height: 32px;
+}
+
+
+
+@media screen and (max-width: 706px) {
+
+	#hosts-filter input {
+		width: auto;
+	}
+
+}
+

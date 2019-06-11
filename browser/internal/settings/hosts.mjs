@@ -4,31 +4,71 @@ import { isArray, isObject } from '../../source/POLYFILLS.mjs';
 import { Element } from '../../design/Element.mjs';
 
 const ELEMENTS = {
-	input:  Element.query('#hosts table tfoot'),
+	input: {
+		domain: Element.query('#hosts table tfoot *[data-key="domain"]'),
+		hosts:  Element.query('#hosts table tfoot *[data-key="hosts"]'),
+		button: Element.query('#hosts table tfoot *[data-action]')
+	},
+	label:  Element.query('#hosts-filter label'),
 	output: Element.query('#hosts table tbody'),
-	search: Element.query('#hosts-search input')
+	search: Element.query('#hosts-filter input')
 };
 
-export const listen = function(browser, callback) {
+export const listen = (browser, callback) => {
 
-	console.log(ELEMENTS);
+	let button = ELEMENTS.input.button || null;
+	if (button !== null) {
 
-	let input = ELEMENTS.input || null;
-	if (input !== null) {
+		button.on('click', () => {
 
-		input.on('click', (e) => {
+			if (button.state() !== 'disabled') {
 
-			console.log(e);
+				button.state('disabled');
+				button.state('busy');
+
+				callback('confirm', {
+					'domain': ELEMENTS.input.domain.value(),
+					'hosts':  ELEMENTS.input.hosts.value()
+				}, (result) => {
+
+					button.state('enabled');
+					button.state(result === true ? '' : 'error');
+
+					reset();
+
+				});
+
+			}
 
 		});
 
 	}
 
-	// TODO: listen() implementation
+	let output = ELEMENTS.output || null;
+	if (output !== null) {
+
+		output.on('click', (e) => {
+
+			console.log(e.target);
+
+			// TODO: Handle clicks on rendered buttons
+		});
+
+	}
+
+	let search = ELEMENTS.search || null;
+	if (search !== null) {
+
+		search.on('change', () => {
+			update(browser.settings);
+		});
+
+	}
+
 };
 
-export const render = (host, actions) => `
-<tr data-visible="true">
+const render = (host, actions, visible) => `
+<tr data-visible="${visible}">
 	<td data-key="domain">${host.domain}</td>
 	${actions.includes('save') === true ? '<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line">' + (host.hosts.map((h) => h.ip).join('\n')) + '</textarea></td>' : '<td data-key="hosts" data-map="IP">' + (host.hosts.map((h) => h.ip).join('<br>\n')) + '</td>' }
 	<td>${actions.map((a) => '<button data-action="' + a + '"></button>').join('')}</td>
@@ -37,11 +77,12 @@ export const render = (host, actions) => `
 
 export const reset = () => {
 
-	// TODO: reset input element
+	ELEMENTS.input.hosts.value(null);
+	ELEMENTS.input.domain.value(null);
 
 };
 
-const sort = function(a, b) {
+const sort = (a, b) => {
 
 	let a_domains = a.domain.split('.').reverse();
 	let b_domains = b.domain.split('.').reverse();
@@ -74,7 +115,7 @@ const sort = function(a, b) {
 
 };
 
-const update = function(settings, actions) {
+export const update = (settings, actions) => {
 
 	settings = isObject(settings) ? settings : {};
 	actions  = isArray(actions)   ? actions  : [ 'refresh', 'remove', 'save' ];
@@ -82,14 +123,63 @@ const update = function(settings, actions) {
 
 	let hosts = settings.hosts || null;
 	if (hosts !== null) {
-		ELEMENTS.output.value(hosts.sort(sort).map((host) => render(host, actions)));
+
+		let visible = 0;
+		let total   = hosts.length;
+
+		let search = ELEMENTS.search || null;
+		if (search !== null) {
+
+			let value = search.value() || '';
+			if (value !== '') {
+
+				ELEMENTS.output.value(hosts.sort(sort).map((host) => {
+
+					if (host.domain.includes(value)) {
+						visible++;
+						return render(host, actions, true);
+					} else {
+						return render(host, actions, false);
+					}
+
+				}));
+
+			} else {
+
+				ELEMENTS.output.value(hosts.sort(sort).map((host) => {
+
+					if (host.domain.includes('.') === false) {
+						visible++;
+						return render(host, actions, true);
+					} else {
+						return render(host, actions, false);
+					}
+
+				}));
+
+			}
+
+		} else {
+
+			ELEMENTS.output.value(hosts.sort(sort).map((host) => {
+				visible++;
+				return render(host, actions, true);
+			}));
+
+		}
+
+		let label = ELEMENTS.label || null;
+		if (label !== null) {
+			label.value(visible + ' out of ' + total + ' Hosts.');
+		}
+
 	}
 
 };
 
 
 
-export const init = function(browser) {
+export const init = (browser) => {
 
 	listen(browser, (action, data, done) => {
 
@@ -196,9 +286,9 @@ export const init = function(browser) {
 
 	});
 
-	reset(ELEMENTS.input);
+	reset();
+
+	update(browser.settings);
 
 };
-
-// TODO: Implement better listen() method
 

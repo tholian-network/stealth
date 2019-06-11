@@ -21,7 +21,7 @@
 					<label for="internet-connection-1">This machine has mobile internet access.</label>
 				</div>
 				<div>
-					<input id="internet-connection-2" name="internet-connection" type="radio" value="broadband" checked>
+					<input id="internet-connection-2" name="internet-connection" type="radio" value="broadband">
 					<label for="internet-connection-2">This machine has broadband internet access.</label>
 				</div>
 				<div>
@@ -45,7 +45,7 @@
 			</p>
 			<div id="internet-history">
 				<div>
-					<input id="internet-history-1" name="internet-history" type="radio" value="stealth" checked>
+					<input id="internet-history-1" name="internet-history" type="radio" value="stealth">
 					<label for="internet-history-1">Fly undetected and remember nothing.</label>
 				</div>
 				<div>
@@ -69,7 +69,7 @@
 			</p>
 			<div id="internet-useragent">
 				<div>
-					<input id="internet-useragent-1" name="internet-useragent" type="radio" value="stealth" checked>
+					<input id="internet-useragent-1" name="internet-useragent" type="radio" value="stealth">
 					<label for="internet-useragent-1">Fly undetected and transmit nothing.</label>
 				</div>
 				<div>
@@ -99,7 +99,8 @@
 				entries are deleted.
 			</p>
 			<div id="hosts-filter">
-				<input name="hosts-filter" type="text" placeholder="Search for domain ...">
+				<input id="hosts-filter-search" type="text" placeholder="Search for domain ...">
+				<label for="hosts-filter-search">0 out of 0 Hosts.</label>
 			</div>
 			<table>
 				<thead>
@@ -112,7 +113,7 @@
 				<tbody></tbody>
 				<tfoot>
 					<tr>
-						<td><input data-key="domain" type="text" placeholder="Domain"></td>
+						<td><input data-key="domain" type="text" placeholder="Domain or Hostname"></td>
 						<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line"></textarea></td>
 						<td><button data-action="confirm"></button></td>
 					</tr>
@@ -126,9 +127,16 @@
 				trusted Peers. The connection represents the type of internet access the
 				Peer has.
 				<br><br>
-				If a Peer is only reachable via a domain or hostname, remember to add its IP
-				to the list of known <a href="#hosts">Hosts</a>.
+				If a Peer is only reachable via a local hostname, remember to add its IP
+				to the <code>/etc/hosts</code> file (and restart Stealth afterwards) to
+				ensure a working connection. This ensures that Peers contain a valid
+				<a href="#hosts">Hosts</a> entry, even when the Stealth Profile is
+				deleted.
 			</p>
+			<div id="peers-filter">
+				<input id="peers-filter-search" type="text" placeholder="Search for domain ...">
+				<label for="peers-filter-search">0 out of 0 Peers.</label>
+			</div>
 			<table>
 				<thead>
 					<tr>
@@ -140,7 +148,7 @@
 				<tbody></tbody>
 				<tfoot>
 					<tr>
-						<td><input data-key="domain" type="text" placeholder="Domain, Hostame, IPv4 or IPv6"></td>
+						<td><input data-key="domain" type="text" placeholder="Domain or Hostame"></td>
 						<td><button data-key="connection" data-val="offline" disabled></button></td>
 						<td><button data-action="refresh"></button></td>
 					</tr>

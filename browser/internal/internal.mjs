@@ -469,16 +469,6 @@ const _render_filter = (filter, actions) => `
 </tr>
 `;
 
-const _render_host = (host, actions) => `
-<tr>
-	<td data-key="domain">${host.domain}</td>
-	${actions.includes('save') === true ? '<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line">' + (host.hosts.map((h) => h.ip).join('\n')) + '</textarea></td>' : '<td data-key="hosts">' + (host.hosts.map((h) => h.ip).join('<br>\n')) + '</td>' }
-	<td>
-		${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}
-	</td>
-</tr>
-`;
-
 const _render_mode = (mode, actions) => `
 <tr>
 	<td data-key="domain">${mode.domain}</td>
@@ -489,16 +479,6 @@ const _render_mode = (mode, actions) => `
 		<button data-key="mode.video" data-val="${mode.mode.video === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
 		<button data-key="mode.other" data-val="${mode.mode.other === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
 	</td>
-	<td>
-		${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}
-	</td>
-</tr>
-`;
-
-const _render_peer = (peer, actions) => `
-<tr>
-	<td data-key="domain">${peer.domain}</td>
-	<td><button data-key="connection" data-val="${peer.connection}" disabled></button></td>
 	<td>
 		${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}
 	</td>
@@ -659,12 +639,8 @@ export const render = function(type, data, actions, callback) {
 
 		if (type === 'filter') {
 			callback(_render_filter(data, actions));
-		} else if (type === 'host') {
-			callback(_render_host(data, actions));
 		} else if (type === 'mode') {
 			callback(_render_mode(data, actions));
-		} else if (type === 'peer') {
-			callback(_render_peer(data, actions));
 		} else {
 			callback(null);
 		}
@@ -673,12 +649,8 @@ export const render = function(type, data, actions, callback) {
 
 		if (type === 'filter') {
 			return _render_filter(data, actions);
-		} else if (type === 'host') {
-			return _render_host(data, actions);
 		} else if (type === 'mode') {
 			return _render_mode(data, actions);
-		} else if (type === 'peer') {
-			return _render_peer(data, actions);
 		} else {
 			return null;
 		}

@@ -147,8 +147,11 @@ article input[type="radio"][name="internet-useragent"][value="spider-desktop"]:b
 article input[type="radio"][name="internet-connection"].busy:before,
 article input[type="radio"][name="internet-history"].busy:before,
 article input[type="radio"][name="internet-useragent"].busy:before {
+	color: #666666;
+	background: transparent;
 	content: '\e86a';
-	animation: infinite linear 1s rotate;
+	animation: infinite linear 1s rotate_icon;
+	cursor: wait;
 }
 
 article input[type="radio"][disabled],

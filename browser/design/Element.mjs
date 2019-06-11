@@ -318,7 +318,7 @@ Element.prototype = {
 
 						return true;
 
-					} else if (key in this.element) {
+					} else if (this.element[key] !== undefined) {
 
 						this.element[key] = val;
 
@@ -345,9 +345,9 @@ Element.prototype = {
 							return raw;
 						}
 
-					} else if (key in this.element) {
+					} else if (this.element[key] !== undefined) {
 
-						let raw = this.element[key] || null;
+						let raw = this.element[key];
 
 						if (isString(raw)) {
 							return parse_value(raw);
@@ -780,10 +780,10 @@ Element.prototype = {
 
 	value: function(value) {
 
-		value = value !== undefined ? value : null;
+		value = value !== undefined ? value : undefined;
 
 
-		if (value !== null) {
+		if (value !== undefined) {
 
 			let element = this.element || null;
 			if (element !== null) {
@@ -865,6 +865,8 @@ Element.prototype = {
 									element.appendChild(child);
 								});
 
+							} else if (isArray(value)) {
+								element.innerHTML = value.join('');
 							} else {
 								element.innerHTML = value;
 							}

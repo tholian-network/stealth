@@ -31,7 +31,7 @@ const HOST = (function(location) {
 
 		let tmp2 = tmp1.split(':').shift();
 		if (tmp2 !== 'localhost') {
-			host = tmp1;
+			host = tmp2;
 		}
 
 	} else if (tmp1 !== '') {

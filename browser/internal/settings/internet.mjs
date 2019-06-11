@@ -1,4 +1,6 @@
 
+import { isObject } from '../../source/POLYFILLS.mjs';
+
 import { Element } from '../../design/Element.mjs';
 
 const ELEMENTS = {
@@ -7,7 +9,7 @@ const ELEMENTS = {
 	useragent:  Element.query('#internet-useragent input')
 };
 
-const listen = function(browser, callback) {
+export const listen = function(browser, callback) {
 
 	Object.keys(ELEMENTS).forEach((type) => {
 
@@ -15,15 +17,11 @@ const listen = function(browser, callback) {
 
 			element.on('change', () => {
 
-				others.forEach((other) => {
-					console.log(other.element.checked, other.attr('checked'));
-				});
-
-				let active = others.find((e) => e.checked === true) || null;
+				let active = others.find((o) => o.attr('checked') === true) || null;
 				if (active !== null) {
 
 					let cur_val = browser.settings['internet'][type];
-					let new_val = active.value;
+					let new_val = active.value();
 
 					if (cur_val !== new_val) {
 
@@ -33,9 +31,11 @@ const listen = function(browser, callback) {
 						data['internet'][type] = new_val;
 
 
+						element.state('disabled');
 						element.state('busy');
 
-						callback('save', data, function(result) {
+						callback('save', data, (result) => {
+							element.state('enabled');
 							element.state(result === true ? '' : 'error');
 						});
 
@@ -59,27 +59,30 @@ const update_choices = function(choices, value, elements) {
 
 };
 
-const update = function(settings) {
+export const update = function(settings) {
+
+	settings = isObject(settings) ? settings : {};
+
 
 	let internet = settings.internet || null;
 	if (internet !== null) {
 
 		update_choices(
 			[ 'mobile', 'broadband', 'peer', 'i2p', 'tor' ],
-			settings.internet.connection,
-			ELEMENTS.internet.connection
+			internet.connection,
+			ELEMENTS.connection
 		);
 
 		update_choices(
 			[ 'stealth', 'day', 'week', 'forever' ],
-			settings.internet.history,
-			ELEMENTS.internet.history
+			internet.history,
+			ELEMENTS.history
 		);
 
 		update_choices(
 			[ 'stealth', 'browser-mobile', 'browser-desktop', 'spider-mobile', 'spider-desktop' ],
-			settings.internet.useragent,
-			ELEMENTS.internet.useragent
+			internet.useragent,
+			ELEMENTS.useragent
 		);
 
 	}
@@ -124,6 +127,8 @@ export const init = function(browser) {
 		}
 
 	});
+
+	update(browser.settings);
 
 };
 
