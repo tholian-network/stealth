@@ -225,8 +225,8 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **Settings**
 
-- [ ] Make `Peers` searchable (with same behaviour as with hosts).
-- [ ] Make `Sites` searchable (with same behaviour as with hosts).
+- [ ] `browser/internals/settings/peers.mjs` needs to proxy "settings.read({ internet: true })" call
+      on `refresh` action.
 
 **Other**
 

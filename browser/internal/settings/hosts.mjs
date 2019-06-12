@@ -26,7 +26,7 @@ export const listen = (browser, callback) => {
 				button.state('disabled');
 				button.state('busy');
 
-				callback('confirm', {
+				callback('save', {
 					'domain': ELEMENTS.input.domain.value(),
 					'hosts':  ELEMENTS.input.hosts.value()
 				}, (result) => {
@@ -49,9 +49,34 @@ export const listen = (browser, callback) => {
 
 		output.on('click', (e) => {
 
-			console.log(e.target);
+			let target = e.target;
+			let type   = target.tagName.toLowerCase();
 
-			// TODO: Handle clicks on rendered buttons
+			if (type === 'button') {
+
+				let button  = Element.from(e.target, null, false);
+				let action  = button.attr('data-action');
+				let dataset = button.parent('tr');
+
+				if (action !== null) {
+
+					button.state('disabled');
+					button.state('busy');
+
+					callback(action, {
+						'domain': dataset.query('*[data-key="domain"]').value(),
+						'hosts':  dataset.query('*[data-key="hosts"]').value()
+					}, (result) => {
+
+						button.state('enabled');
+						button.state(result === true ? '' : 'error');
+
+					});
+
+				}
+
+			}
+
 		});
 
 	}
@@ -207,32 +232,6 @@ export const init = (browser) => {
 
 				});
 
-			} else if (action === 'confirm') {
-
-				let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
-				if (cache !== null) {
-					cache.hosts = data.hosts;
-					data = cache;
-				}
-
-				service.save(data, (result) => {
-
-					if (result === true) {
-
-						browser.settings.hosts.push(data);
-
-						update({
-							hosts: browser.settings.hosts
-						});
-
-						reset(ELEMENTS.input);
-
-					}
-
-					done(result);
-
-				});
-
 			} else if (action === 'remove') {
 
 				service.remove(data, (result) => {
@@ -268,6 +267,8 @@ export const init = (browser) => {
 						let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
 						if (cache !== null) {
 							cache.hosts = data.hosts;
+						} else {
+							browser.settings.hosts.push(data);
 						}
 
 					}

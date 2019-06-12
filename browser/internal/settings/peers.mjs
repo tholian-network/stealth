@@ -19,8 +19,6 @@ export const listen = function(browser, callback) {
 	let button = ELEMENTS.input.button || null;
 	if (button !== null) {
 
-		console.log(button);
-
 		button.on('click', () => {
 
 			if (button.attr('data-action') === 'refresh') {
@@ -30,25 +28,34 @@ export const listen = function(browser, callback) {
 					button.state('disabled');
 					button.state('busy');
 
-
-					// TODO: If IP.isIP(domain)
-					// TODO: isHostname(domain)
-
-
 					callback('refresh', {
 						'domain': ELEMENTS.input.domain.value()
-					}, (result) => {
+					}, (result, data) => {
 
-						console.log(result);
+						if (isObject(data)) {
 
-						if (result !== null && result.hosts.length > 0) {
-
-							button.attr('data-action', 'confirm');
+							let connection = data.connection || null;
+							if (connection !== null) {
+								ELEMENTS.input.connection.value(connection);
+							}
 
 						}
 
-						button.state('enabled');
-						button.state(result === true ? '' : 'error');
+						if (result === true) {
+
+							button.attr('data-action', 'confirm');
+							button.state('enabled');
+							button.state('');
+
+						} else {
+
+							ELEMENTS.input.connection.value('offline');
+
+							button.attr('data-action', 'refresh');
+							button.state('enabled');
+							button.state('');
+
+						}
 
 					});
 
@@ -56,8 +63,25 @@ export const listen = function(browser, callback) {
 
 			} else if (button.attr('data-action') === 'confirm') {
 
-				// TODO: callback with domain and connection
-				// TODO: reset();
+				if (button.state() !== 'disabled') {
+
+					button.state('disabled');
+					button.state('busy');
+
+					callback('save', {
+						'domain':     ELEMENTS.input.domain.value(),
+						'connection': ELEMENTS.input.connection.value()
+					}, () => {
+
+						ELEMENTS.input.connection.value('offline');
+
+						button.attr('data-action', 'refresh');
+						button.state('enabled');
+						button.state('');
+
+					});
+
+				}
 
 			}
 
@@ -68,8 +92,36 @@ export const listen = function(browser, callback) {
 	let output = ELEMENTS.output || null;
 	if (output !== null) {
 
-		output.on('click', () => {
-			// TODO: Handle clicks on rendered buttons
+		output.on('click', (e) => {
+
+			let target = e.target;
+			let type   = target.tagName.toLowerCase();
+
+			if (type === 'button') {
+
+				let button  = Element.from(e.target, null, false);
+				let action  = button.attr('data-action');
+				let dataset = button.parent('tr');
+
+				if (action !== null) {
+
+					button.state('disabled');
+					button.state('busy');
+
+					callback(action, {
+						'domain':     dataset.query('*[data-key="domain"]').value(),
+						'connection': dataset.query('*[data-key="connection"]').value()
+					}, (result) => {
+
+						button.state('enabled');
+						button.state(result === true ? '' : 'error');
+
+					});
+
+				}
+
+			}
+
 		});
 
 	}
@@ -96,9 +148,13 @@ const render = (peer, actions, visible) => `
 export const reset = () => {
 
 	ELEMENTS.input.domain.value(null);
+
 	ELEMENTS.input.connection.value('offline');
 	ELEMENTS.input.connection.state('disabled');
+
 	ELEMENTS.input.button.attr('data-action', 'refresh');
+	ELEMENTS.input.button.state('enabled');
+	ELEMENTS.input.button.state('');
 
 };
 
@@ -208,16 +264,83 @@ export const init = (browser) => {
 
 			if (action === 'refresh') {
 
-				service.refresh(data, (peer) => {
+				let host_service = browser.client.services.host || null;
+				if (host_service !== null) {
 
-					if (peer !== null) {
+					host_service.refresh(data, (host) => {
+
+						if (host !== null) {
+
+							let cache = browser.settings.hosts.find((h) => h.domain === host.domain) || null;
+							if (cache !== null) {
+								cache.hosts = host.hosts;
+							}
+
+							update({
+								hosts: browser.settings.hosts
+							});
+
+						}
+
+						// TODO: Call service.proxy() for 'settings.read' service
+						// to get the "internet" settings and pass them through
+						// as second parameter
+
+						done(host !== null, {
+							connection: 'broadband'
+						});
+
+					});
+
+				} else {
+					done(false);
+				}
+
+			} else if (action === 'remove') {
+
+				service.remove(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.peers.find((h) => h.domain === data.domain) || null;
+						if (cache !== null) {
+
+							let index = browser.settings.peers.indexOf(cache);
+							if (index !== -1) {
+								browser.settings.peers.splice(index, 1);
+							}
+
+							update({
+								peers: browser.settings.peers
+							});
+
+						}
 
 					}
 
+					done(result);
+
 				});
 
-			} else if (action === 'confirm') {
-			} else if (action === 'remove') {
+			} else if (action === 'save') {
+
+				service.save(data, (result) => {
+
+					if (result === true) {
+
+						let cache = browser.settings.peers.find((h) => h.domain === data.domain) || null;
+						if (cache !== null) {
+							cache.connection = data.connection;
+						} else {
+							browser.settings.peers.push(data);
+						}
+
+					}
+
+					done(result);
+
+				});
+
 			} else {
 				done(false);
 			}

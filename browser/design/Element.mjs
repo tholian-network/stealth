@@ -635,6 +635,73 @@ Element.prototype = {
 
 	},
 
+	parent: function(type) {
+
+		type = isString(type) ? type : null;
+
+
+		if (type !== null) {
+
+			if (this.element !== null) {
+
+				let parent = this.element.parentNode || null;
+				if (parent !== null) {
+
+					let other = parent.tagName.toLowerCase();
+
+					while (
+						parent !== null
+						&& other !== type
+					) {
+
+						parent = parent.parentNode || null;
+
+						if (parent !== null) {
+							other = parent.tagName.toLowerCase();
+						}
+
+					}
+
+					if (parent !== null) {
+
+						let index = CACHE.reality.indexOf(parent);
+						if (index !== -1) {
+							return CACHE.virtual[index];
+						} else {
+							return new Element(parent);
+						}
+
+					}
+
+				}
+
+			}
+
+		} else {
+
+			if (this.element !== null) {
+
+				let parent = this.element.parentNode || null;
+				if (parent !== null) {
+
+					let index = CACHE.reality.indexOf(parent);
+					if (index !== -1) {
+						return CACHE.virtual[index];
+					} else {
+						return new Element(parent);
+					}
+
+				}
+
+			}
+
+		}
+
+
+		return null;
+
+	},
+
 	query: function(query) {
 
 		query = isString(query) ? query : null;
