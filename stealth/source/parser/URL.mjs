@@ -1,5 +1,5 @@
 
-import { isNumber, isObject, isString } from '../POLYFILLS.mjs';
+import { isArray, isNumber, isObject, isString } from '../POLYFILLS.mjs';
 
 import { IP } from './IP.mjs';
 
@@ -1059,6 +1059,29 @@ const URL = {
 
 		};
 
+	},
+
+	sort: function(array) {
+
+		array = isArray(array) ? array : null;
+
+
+		if (array !== null) {
+
+			return array.filter((url) => URL.isURL(url)).sort((a, b) => {
+
+				// TODO: If domain, sort by domain
+				// TODO: If domain and host or host and domain, compare
+				// TODO: If subdomain, sort by subdomains
+				// TODO: Sort by path
+
+			});
+
+		}
+
+
+		return [];
+
 	}
 
 };
@@ -1068,6 +1091,7 @@ export const isURL   = URL.isURL;
 export const parse   = URL.parse;
 export const render  = URL.render;
 export const resolve = URL.resolve;
+export const sort    = URL.sort;
 
 export { URL };
 

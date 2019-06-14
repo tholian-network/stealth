@@ -1,7 +1,9 @@
 
 import { isArray, isObject } from '../../source/POLYFILLS.mjs';
 
-import { Element } from '../../design/Element.mjs';
+import { Element                } from '../../design/Element.mjs';
+import { update as update_hosts } from './hosts.mjs';
+
 
 const ELEMENTS = {
 	input: {
@@ -15,6 +17,22 @@ const ELEMENTS = {
 };
 
 export const listen = function(browser, callback) {
+
+	let domain = ELEMENTS.input.domain || null;
+	if (domain !== null) {
+
+		domain.on('change', () => {
+
+			ELEMENTS.input.connection.value('offline');
+			ELEMENTS.input.connection.state('disabled');
+
+			ELEMENTS.input.button.attr('data-action', 'refresh');
+			ELEMENTS.input.button.state('enabled');
+			ELEMENTS.input.button.state('');
+
+		});
+
+	}
 
 	let button = ELEMENTS.input.button || null;
 	if (button !== null) {
@@ -30,16 +48,21 @@ export const listen = function(browser, callback) {
 
 					callback('refresh', {
 						'domain': ELEMENTS.input.domain.value()
-					}, (result, data) => {
+					}, (result, settings) => {
 
-						if (isObject(data)) {
+						if (isObject(settings) && isObject(settings.internet)) {
 
-							let connection = data.connection || null;
+							let connection = settings.internet.connection || null;
 							if (connection !== null) {
 								ELEMENTS.input.connection.value(connection);
+							} else {
+								ELEMENTS.input.connection.value('offline');
 							}
 
+						} else {
+							ELEMENTS.input.connection.value('offline');
 						}
+
 
 						if (result === true) {
 
@@ -147,14 +170,23 @@ const render = (peer, actions, visible) => `
 
 export const reset = () => {
 
-	ELEMENTS.input.domain.value(null);
+	let domain = ELEMENTS.input.domain || null;
+	if (domain !== null) {
+		domain.value(null);
+	}
 
-	ELEMENTS.input.connection.value('offline');
-	ELEMENTS.input.connection.state('disabled');
+	let connection = ELEMENTS.input.connection || null;
+	if (connection !== null) {
+		connection.value('offline');
+		connection.state('disabled');
+	}
 
-	ELEMENTS.input.button.attr('data-action', 'refresh');
-	ELEMENTS.input.button.state('enabled');
-	ELEMENTS.input.button.state('');
+	let button = ELEMENTS.input.button || null;
+	if (button !== null) {
+		button.attr('data-action', 'refresh');
+		button.state('enabled');
+		button.state('');
+	}
 
 };
 
@@ -267,7 +299,7 @@ export const init = (browser) => {
 				let host_service = browser.client.services.host || null;
 				if (host_service !== null) {
 
-					host_service.refresh(data, (host) => {
+					host_service.read(data, (host) => {
 
 						if (host !== null) {
 
@@ -276,19 +308,26 @@ export const init = (browser) => {
 								cache.hosts = host.hosts;
 							}
 
-							update({
+							update_hosts({
 								hosts: browser.settings.hosts
 							});
 
+							service.proxy({
+								domain:  host.domain,
+								headers: {
+									service: 'settings',
+									method:  'read'
+								},
+								payload: {
+									internet: true
+								}
+							}, (settings) => {
+								done(settings !== null, settings);
+							});
+
+						} else {
+							done(false);
 						}
-
-						// TODO: Call service.proxy() for 'settings.read' service
-						// to get the "internet" settings and pass them through
-						// as second parameter
-
-						done(host !== null, {
-							connection: 'broadband'
-						});
 
 					});
 

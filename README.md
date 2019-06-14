@@ -205,9 +205,11 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 ### X0 (Q2 2019) - Prototype
 
-**Browser Internals**
+**Current**
 
-- [ ] Figure out whether or not `insert()` and `insert_data()` need `data-map` integration.
+- [ ] Implement Review for `IP.sort(array)`.
+- [ ] Implement Review for `URL.sort(array)`.
+- [ ] Implement Review for `Peer.proxy()` service method.
 
 **Session**
 
@@ -223,15 +225,9 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 - [ ] Implement Site Sidebar.
 - [ ] `stealth:fix-request` Page (Download Assistant for Peers and the Web Archive).
 
-**Settings**
-
-- [ ] `browser/internals/settings/peers.mjs` needs to proxy "settings.read({ internet: true })" call
-      on `refresh` action.
-
 **Other**
 
 - [ ] Implement `browser.download(url)` method (that schedules Requests via `Client`).
-- [ ] Implement and document `Peer.proxy()` API.
 - [ ] Optimizer for HTML files.
 - [ ] Optimizer for CSS files.
 - [ ] Re-Generate Vendor Profile.

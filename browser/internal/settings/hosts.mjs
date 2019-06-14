@@ -102,8 +102,21 @@ const render = (host, actions, visible) => `
 
 export const reset = () => {
 
-	ELEMENTS.input.hosts.value(null);
-	ELEMENTS.input.domain.value(null);
+	let domain = ELEMENTS.input.domain || null;
+	if (domain !== null) {
+		domain.value(null);
+	}
+
+	let hosts = ELEMENTS.input.hosts || null;
+	if (hosts !== null) {
+		hosts.value(null);
+	}
+
+	let button = ELEMENTS.input.button || null;
+	if (button !== null) {
+		button.state('enabled');
+		button.state('');
+	}
 
 };
 

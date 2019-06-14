@@ -3,10 +3,91 @@ import { isFunction, isObject } from '../POLYFILLS.mjs';
 
 import { console } from '../console.mjs';
 import { Emitter } from '../Emitter.mjs';
-import { URL     } from '../parser/URL.mjs';
+import { IP      } from '../parser/IP.mjs';
 import { Client  } from '../Client.mjs';
 
 
+const on_connect = function(callback, client, ips, result) {
+
+	if (result === true) {
+
+		if (this.stealth.peers.includes(client) === false) {
+			this.stealth.peers.push(client);
+		}
+
+		callback(client);
+
+	} else {
+
+		let ip = ips.shift() || null;
+		if (ip !== null) {
+			client.connect(ip, (result) => on_connect.call(this, callback, client, ips, result));
+		} else {
+			callback(null);
+		}
+
+	}
+
+};
+
+const connect = function(host, peer, callback) {
+
+	callback = isFunction(callback) ? callback : null;
+
+
+	let hosts = IP.sort(host.hosts);
+	if (hosts.length > 0) {
+
+		let client = null;
+		let ips    = hosts.map((ip) => ip.ip);
+
+		for (let i = 0, il = ips.length; i < il; i++) {
+
+			let instance = this.stealth.peers.find((p) => p.address === ips[i]) || null;
+			if (instance !== null) {
+				client = instance;
+				break;
+			}
+
+		}
+
+		if (client !== null && client.connection === null) {
+
+			let index = this.stealth.peers.indexOf(client);
+			if (index !== -1) {
+				this.stealth.peers.splice(index, 1);
+			}
+
+			client = null;
+
+		}
+
+		if (client === null) {
+
+			client = new Client();
+			client.connect(ips.shift(), (result) => on_connect.call(this, callback, client, ips, result));
+
+		} else {
+
+			if (callback !== null) {
+				callback(client);
+			} else {
+				return client;
+			}
+
+		}
+
+	} else {
+
+		if (callback !== null) {
+			callback(null);
+		} else {
+			return null;
+		}
+
+	}
+
+};
 
 const CONNECTION = [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
 
@@ -89,71 +170,80 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 		if (payload !== null && callback !== null) {
 
 			let peer     = null;
+			let host     = null;
 			let settings = this.stealth.settings;
 
 			if (payload.domain !== null) {
 
 				if (payload.subdomain !== null) {
+					host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
 					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
 				} else{
+					host = settings.hosts.find((h) => h.domain === payload.domain) || null;
 					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
 				}
 
 			} else if (payload.host !== null) {
+				host = {
+					domain: payload.host,
+					hosts:  [ IP.parse(payload.host) ]
+				};
 				peer = settings.peers.find((p) => p.domain === payload.host) || null;
 			}
 
 
-			console.warn('TODO: peer.proxy()', payload);
+			if (host !== null && peer !== null) {
 
-			if (peer !== null) {
-
-				let ref = URL.parse(peer.domain);
-
-				if (ref.host !== null) {
-
-					let client = this.stealth.peers.find((p) => p.address === ref.host) || null;
-					if (client === null) {
-						client = new Client();
-					}
+				connect.call(this, host, peer, (client) => {
 
 					if (client !== null) {
 
-						client.connect(ref.host, 65432, (result) => {
+						let service = client.services[payload.headers.service] || null;
+						if (service !== null) {
 
-							if (result === true) {
-
-								let index = this.stealth.peers.indexOf(client);
-								if (index === -1) {
-									this.stealth.peers.push(client);
-								}
-
-								// TODO: Use Client to (re)connect and execute service requests
-
-							} else {
-
-								let index = this.stealth.peers.indexOf(client);
-								if (index !== -1) {
-									this.stealth.peers.splice(index, 1);
-								}
-
+							if (payload.headers.method !== null) {
+							} else if (payload.headers.event !== null) {
+								// TODO: send event!?
 							}
 
+							let method = payload.headers.method || null;
+							let event  = payload.headers.event  || null;
+
+						} else {
+						}
+
+						// TODO: Correct service calls
+
+					} else {
+
+						callback({
+							headers: {
+								service: 'peer',
+								event:   'proxy'
+							},
+							payload: null
 						});
 
 					}
 
-				} else if (ref.domain !== null) {
+				});
 
 
-					// TODO: Resolve via DNS protocol and reuse client if possible
+			} else {
 
-				}
-
-				console.warn(peer, ref);
+				callback({
+					_warn_: true,
+					headers: {
+						service: 'peer',
+						event:   'proxy'
+					},
+					payload: null
+				});
 
 			}
 
+
+			console.warn('TODO: peer.proxy()', payload);
 
 
 			let response = null;

@@ -1,17 +1,18 @@
 
 import { isFunction, isObject, isString } from './POLYFILLS.mjs';
-import { Emitter                        } from './Emitter.mjs';
-import { Cache                          } from './client/Cache.mjs';
-import { Filter                         } from './client/Filter.mjs';
-import { Host                           } from './client/Host.mjs';
-import { Mode                           } from './client/Mode.mjs';
-import { Peer                           } from './client/Peer.mjs';
-import { Redirect                       } from './client/Redirect.mjs';
-import { Settings                       } from './client/Settings.mjs';
-import { Stash                          } from './client/Stash.mjs';
-import { URL                            } from './parser/URL.mjs';
-import { WS                             } from './protocol/WS.mjs';
-import { WSS                            } from './protocol/WSS.mjs';
+
+import { Emitter  } from './Emitter.mjs';
+import { Cache    } from './client/Cache.mjs';
+import { Filter   } from './client/Filter.mjs';
+import { Host     } from './client/Host.mjs';
+import { Mode     } from './client/Mode.mjs';
+import { Peer     } from './client/Peer.mjs';
+import { Redirect } from './client/Redirect.mjs';
+import { Settings } from './client/Settings.mjs';
+import { Stash    } from './client/Stash.mjs';
+import { URL      } from './parser/URL.mjs';
+import { WS       } from './protocol/WS.mjs';
+import { WSS      } from './protocol/WSS.mjs';
 
 
 

@@ -1,5 +1,5 @@
 
-import { isObject, isString } from '../POLYFILLS.mjs';
+import { isArray, isObject, isString } from '../POLYFILLS.mjs';
 
 
 
@@ -344,6 +344,41 @@ const IP = {
 
 		return null;
 
+	},
+
+	sort: function(array) {
+
+		array = isArray(array) ? array : null;
+
+
+		if (array !== null) {
+
+			return array.filter((ip) => IP.isIP(ip)).sort((a, b) => {
+
+				if (a.scope === 'private' && b.scope === 'private') {
+
+					if (a.type === 'v4' && b.type === 'v4') return 0;
+					if (a.type === 'v4') return -1;
+					if (b.type === 'v4') return  1;
+
+				}
+
+				if (a.scope === 'private') return -1;
+				if (b.scope === 'private') return  1;
+
+				if (a.type === 'v4' && b.type === 'v4') return 0;
+				if (a.type === 'v4') return -1;
+				if (b.type === 'v4') return  1;
+
+				return 0;
+
+			});
+
+		}
+
+
+		return [];
+
 	}
 
 };
@@ -352,6 +387,7 @@ const IP = {
 export const isIP   = IP.isIP;
 export const parse  = IP.parse;
 export const render = IP.render;
+export const sort   = IP.sort;
 
 export { IP };
 

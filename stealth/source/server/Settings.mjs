@@ -104,6 +104,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 						});
 
+
 						callback({
 							headers: {
 								service: 'settings',
