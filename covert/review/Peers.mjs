@@ -78,8 +78,7 @@ describe('peers[0].client.services.peer.save', function(assert) {
 
 	this.peers[0].client.services.peer.save({
 		host:       '127.0.0.2',
-		connection: 'peer',
-		status:     'online'
+		connection: 'peer'
 	}, (response) => {
 		assert(response === true);
 	});
@@ -93,8 +92,7 @@ describe('peers[1].client.services.peer.save', function(assert) {
 
 	this.peers[1].client.services.peer.save({
 		host:       '127.0.0.1',
-		connection: 'peer',
-		status:     'online'
+		connection: 'peer'
 	}, (response) => {
 		assert(response === true);
 	});
@@ -153,7 +151,7 @@ describe('peers[0].client.services.cache.read', function(assert) {
 
 });
 
-describe('peers[1].client.services.peer.proxy', function(assert, debug) {
+describe('peers[1].client.services.peer.proxy', function(assert) {
 
 	assert(this.peers[1].client !== null);
 	assert(typeof this.peers[1].client.services.peer.proxy === 'function');
@@ -169,8 +167,35 @@ describe('peers[1].client.services.peer.proxy', function(assert, debug) {
 			path:   '/review/peers/cache.json'
 		}
 	}, (response) => {
-		// TODO: cache.save() on peers[1].client
-		debug(response);
+
+		assert(response !== null && response.headers['x-test'] === 'save');
+		assert(response !== null && response.payload !== null);
+
+		let data = null;
+		let temp = response.payload || null;
+		if (temp !== null) {
+
+			try {
+				data = JSON.parse(temp.toString('utf8'));
+			} catch (err) {
+				data = null;
+			}
+
+		}
+
+		assert(data !== null && typeof data === 'object');
+		assert(data !== null && data.foo === 'bar');
+
+
+		this.peers[1].server.services.cache.save({
+			domain:  'example.com',
+			path:    '/review/peers/cache.json',
+			headers: response.headers,
+			payload: response.payload
+		}, (response) => {
+			assert(response !== null && response.payload === true);
+		});
+
 	});
 
 });
@@ -216,7 +241,7 @@ describe('peers[0].server.services.cache.remove', function(assert) {
 		domain: 'example.com',
 		path:   '/review/peers/cache.json'
 	}, (response) => {
-		assert(response === true);
+		assert(response !== null && response.payload === true);
 	});
 
 });
@@ -230,7 +255,7 @@ describe('peers[1].server.services.cache.remove', function(assert) {
 		domain: 'example.com',
 		path:   '/review/peers/cache.json'
 	}, (response) => {
-		assert(response === true);
+		assert(response !== null && response.payload === true);
 	});
 
 });

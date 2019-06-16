@@ -1,10 +1,10 @@
 
 import { isFunction, isObject } from '../POLYFILLS.mjs';
 
-import { console } from '../console.mjs';
 import { Emitter } from '../Emitter.mjs';
 import { IP      } from '../parser/IP.mjs';
 import { Client  } from '../Client.mjs';
+
 
 
 const on_connect = function(callback, client, ips, result) {
@@ -198,21 +198,80 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 					if (client !== null) {
 
-						let service = client.services[payload.headers.service] || null;
-						if (service !== null) {
+						let event   = payload.headers.event   || null;
+						let method  = payload.headers.method  || null;
+						let service = payload.headers.service || null;
 
-							if (payload.headers.method !== null) {
-							} else if (payload.headers.event !== null) {
-								// TODO: send event!?
+						if (service !== null && event !== null) {
+
+							let instance = client.services[service] || null;
+							if (instance !== null) {
+
+								let response = instance.emit(event, [ payload.payload ]);
+
+								callback({
+									headers: {
+										service: 'peer',
+										event:   'proxy'
+									},
+									payload: response
+								});
+
+							} else {
+
+								callback({
+									_warn_: true,
+									headers: {
+										service: 'peer',
+										event:   'proxy'
+									},
+									payload: null
+								});
+
 							}
 
-							let method = payload.headers.method || null;
-							let event  = payload.headers.event  || null;
+						} else if (service !== null && method !== null) {
+
+							let instance = client.services[service] || null;
+							if (instance !== null && isFunction(instance[method])) {
+
+								instance[method](payload.payload, (response) => {
+
+									callback({
+										headers: {
+											service: 'peer',
+											event:   'proxy'
+										},
+										payload: response
+									});
+
+								});
+
+							} else {
+
+								callback({
+									_warn_: true,
+									headers: {
+										service: 'peer',
+										event:   'proxy'
+									},
+									payload: null
+								});
+
+							}
 
 						} else {
-						}
 
-						// TODO: Correct service calls
+							callback({
+								_warn_: true,
+								headers: {
+									service: 'peer',
+									event:   'proxy'
+								},
+								payload: null
+							});
+
+						}
 
 					} else {
 
@@ -228,7 +287,6 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 				});
 
-
 			} else {
 
 				callback({
@@ -241,44 +299,6 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 				});
 
 			}
-
-
-			console.warn('TODO: peer.proxy()', payload);
-
-
-			let response = null;
-
-			if (Math.random() > 0.3) {
-
-				let date1 = new Date();
-				let date2 = new Date();
-
-				date1.setMonth((Math.random() * 12) | 0);
-				date1.setDate((Math.random() * 30) | 0);
-
-				date2.setMonth((Math.random() * 12) | 0);
-				date2.setDate((Math.random() * 30) | 0);
-
-				response = {
-					headers: {
-						time: date1.toISOString(),
-						size: (Math.random() * 13337) | 0
-					},
-					payload: {
-						time: date2.toISOString(),
-						size: (Math.random() * 133337) | 0
-					}
-				};
-
-			}
-
-			callback({
-				headers: {
-					service: 'peer',
-					event:   'proxy'
-				},
-				payload: response
-			});
 
 		} else if (callback !== null) {
 

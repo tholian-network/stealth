@@ -14,9 +14,8 @@ describe('client.services.peer.save', function(assert) {
 	assert(typeof this.client.services.peer.save === 'function');
 
 	this.client.services.peer.save({
-		host:       '192.168.1.10',
-		connection: 'mobile',
-		status:     'online'
+		host:       '127.0.0.3',
+		connection: 'mobile'
 	}, (response) => {
 		assert(response === true);
 	});
@@ -29,12 +28,36 @@ describe('client.services.peer.read', function(assert) {
 	assert(typeof this.client.services.peer.read === 'function');
 
 	this.client.services.peer.read({
-		host: '192.168.1.10'
+		host: '127.0.0.3'
 	}, (response) => {
 
-		assert(response !== null && response.domain === '192.168.1.10');
+		assert(response !== null && response.domain === '127.0.0.3');
 		assert(response !== null && response.connection === 'mobile');
-		assert(response !== null && response.status === 'online');
+
+	});
+
+});
+
+describe('client.services.peer.proxy', function(assert) {
+
+	assert(this.client !== null);
+	assert(typeof this.client.services.peer.proxy === 'function');
+
+	this.client.services.peer.proxy({
+		host: '127.0.0.3',
+		headers: {
+			service: 'settings',
+			method:  'read'
+		},
+		payload: {
+			internet: true
+		}
+	}, (response) => {
+
+		assert(response !== null && response.internet !== null);
+		assert(response.internet.connection === 'mobile');
+		assert(response.internet.history === 'stealth');
+		assert(response.internet.useragent === 'stealth');
 
 	});
 
@@ -46,7 +69,7 @@ describe('client.services.peer.remove', function(assert) {
 	assert(typeof this.client.services.peer.remove === 'function');
 
 	this.client.services.peer.remove({
-		host: '129.168.1.10'
+		host: '127.0.0.3'
 	}, (response) => {
 		assert(response === true);
 	});

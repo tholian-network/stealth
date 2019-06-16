@@ -160,7 +160,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 						} else if (service !== null && method !== null) {
 
 							let instance = this.services[service] || null;
-							if (instance !== null && Function.isFunction(instance[method])) {
+							if (instance !== null && isFunction(instance[method])) {
 
 								instance[method](response.payload, (request) => {
 

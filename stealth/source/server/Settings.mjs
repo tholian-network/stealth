@@ -108,9 +108,9 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						callback({
 							headers: {
 								service: 'settings',
-								event:   'read',
-								payload: data
-							}
+								event:   'read'
+							},
+							payload: data
 						});
 
 					} else {
@@ -118,9 +118,9 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						callback({
 							headers: {
 								service: 'settings',
-								event:   'read',
-								payload: null
-							}
+								event:   'read'
+							},
+							payload: null
 						});
 
 					}

@@ -205,11 +205,12 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 ### X0 (Q2 2019) - Prototype
 
+
 **Current**
 
 - [ ] Implement Review for `IP.sort(array)`.
 - [ ] Implement Review for `URL.sort(array)`.
-- [ ] Implement Review for `Peer.proxy()` service method.
+- [ ] Implement Review for `Settings.read()` method.
 
 **Session**
 

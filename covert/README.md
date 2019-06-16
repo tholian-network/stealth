@@ -88,3 +88,10 @@ your password in order to do so.
 - `assert()` calls have to be in a separate line.
 - `assert()` calls have to be branch-less, surrounding `if/elseif/else` conditions are not allowed.
 
+
+## Roadmap - Untested Implementations
+
+These implementations are currently untested and need end-to-end reviews.
+
+- [ ] `review/client/Settings.mjs`
+
