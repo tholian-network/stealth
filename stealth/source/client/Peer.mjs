@@ -27,7 +27,11 @@ const proxify = function(raw) {
 			payload.headers.event   = typeof payload.headers.event === 'string'   ? payload.headers.event   : null;
 
 
-			if (payload.headers.service !== null && payload.headers.service !== 'peer') {
+			if (payload.headers.service !== null) {
+
+				if (payload.headers.service === 'peer' && payload.headers.method === 'proxy') {
+					return null;
+				}
 
 				if (payload.headers.method !== null || payload.headers.event !== null) {
 					return payload;
@@ -54,6 +58,28 @@ const Peer = function(client) {
 
 
 Peer.prototype = Object.assign({}, Emitter.prototype, {
+
+	info: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (callback !== null) {
+
+			this.once('info', (response) => callback(response));
+
+			this.client.send({
+				headers: {
+					service: 'peer',
+					method:  'info'
+				},
+				payload: payload
+			});
+
+		}
+
+	},
 
 	proxy: function(payload, callback) {
 

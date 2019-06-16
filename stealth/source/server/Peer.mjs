@@ -1,9 +1,13 @@
 
+import os from 'os';
+
 import { isFunction, isObject } from '../POLYFILLS.mjs';
 
 import { Emitter } from '../Emitter.mjs';
 import { IP      } from '../parser/IP.mjs';
 import { Client  } from '../Client.mjs';
+
+const HOSTNAME = os.hostname();
 
 
 
@@ -133,7 +137,11 @@ const proxify = function(raw) {
 			payload.headers.event   = typeof payload.headers.event === 'string'   ? payload.headers.event   : null;
 
 
-			if (payload.headers.service !== null && payload.headers.service !== 'peer') {
+			if (payload.headers.service !== null) {
+
+				if (payload.headers.service === 'peer' && payload.headers.method === 'proxy') {
+					return null;
+				}
 
 				if (payload.headers.method !== null || payload.headers.event !== null) {
 					return payload;
@@ -160,6 +168,31 @@ const Peer = function(stealth) {
 
 
 Peer.prototype = Object.assign({}, Emitter.prototype, {
+
+	info: function(payload, callback) {
+
+		payload  = payload !== undefined ? payload  : null;
+		callback = isFunction(callback)  ? callback : null;
+
+
+		if (callback !== null) {
+
+			let settings = this.stealth.settings;
+
+			callback({
+				headers: {
+					service: 'peer',
+					event:   'info'
+				},
+				payload: {
+					domain:     HOSTNAME,
+					connection: settings.internet.connection
+				}
+			});
+
+		}
+
+	},
 
 	proxy: function(payload, callback) {
 
@@ -189,6 +222,21 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 					hosts:  [ IP.parse(payload.host) ]
 				};
 				peer = settings.peers.find((p) => p.domain === payload.host) || null;
+			}
+
+
+			// Always allow to call Peer.info()
+			if (host !== null && peer === null) {
+
+				if (payload.headers.service === 'peer' && payload.headers.method === 'info') {
+
+					peer = {
+						domain:     host.domain,
+						connection: 'peer'
+					};
+
+				}
+
 			}
 
 

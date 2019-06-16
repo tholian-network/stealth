@@ -34,6 +34,15 @@
 	line-height: 32px;
 }
 
+#peers button[data-action="info"]:before { content: '\e157'; }
+
+#peers button[data-key="connection"][data-val="offline"]:before   { color: #666666; }
+#peers button[data-key="connection"][data-val="mobile"]:before    { color: #ffffff; }
+#peers button[data-key="connection"][data-val="broadband"]:before { color: #ffffff; }
+#peers button[data-key="connection"][data-val="peer"]:before      { color: #ffffff; }
+#peers button[data-key="connection"][data-val="i2p"]:before       { color: #ffffff; }
+#peers button[data-key="connection"][data-val="tor"]:before       { color: #ffffff; }
+
 
 
 @media screen and (max-width: 706px) {

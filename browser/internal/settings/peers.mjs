@@ -2,6 +2,7 @@
 import { isArray, isObject } from '../../source/POLYFILLS.mjs';
 
 import { Element                } from '../../design/Element.mjs';
+import { IP                     } from '../../source/parser/IP.mjs';
 import { update as update_hosts } from './hosts.mjs';
 
 
@@ -26,7 +27,7 @@ export const listen = function(browser, callback) {
 			ELEMENTS.input.connection.value('offline');
 			ELEMENTS.input.connection.state('disabled');
 
-			ELEMENTS.input.button.attr('data-action', 'refresh');
+			ELEMENTS.input.button.attr('data-action', 'info');
 			ELEMENTS.input.button.state('enabled');
 			ELEMENTS.input.button.state('');
 
@@ -39,20 +40,29 @@ export const listen = function(browser, callback) {
 
 		button.on('click', () => {
 
-			if (button.attr('data-action') === 'refresh') {
+			if (button.attr('data-action') === 'info') {
 
 				if (button.state() !== 'disabled') {
 
 					button.state('disabled');
 					button.state('busy');
 
-					callback('refresh', {
+					callback('info', {
 						'domain': ELEMENTS.input.domain.value()
-					}, (result, settings) => {
+					}, (result, peer) => {
 
-						if (isObject(settings) && isObject(settings.internet)) {
+						if (isObject(peer)) {
 
-							let connection = settings.internet.connection || null;
+							let domain = peer.domain || null;
+							if (domain !== null) {
+
+								if (ELEMENTS.input.domain.value() !== domain) {
+									ELEMENTS.input.domain.value(domain);
+								}
+
+							}
+
+							let connection = peer.connection || null;
 							if (connection !== null) {
 								ELEMENTS.input.connection.value(connection);
 							} else {
@@ -74,7 +84,7 @@ export const listen = function(browser, callback) {
 
 							ELEMENTS.input.connection.value('offline');
 
-							button.attr('data-action', 'refresh');
+							button.attr('data-action', 'info');
 							button.state('enabled');
 							button.state('');
 
@@ -98,7 +108,7 @@ export const listen = function(browser, callback) {
 
 						ELEMENTS.input.connection.value('offline');
 
-						button.attr('data-action', 'refresh');
+						button.attr('data-action', 'info');
 						button.state('enabled');
 						button.state('');
 
@@ -183,7 +193,7 @@ export const reset = () => {
 
 	let button = ELEMENTS.input.button || null;
 	if (button !== null) {
-		button.attr('data-action', 'refresh');
+		button.attr('data-action', 'info');
 		button.state('enabled');
 		button.state('');
 	}
@@ -294,36 +304,66 @@ export const init = (browser) => {
 		let service = browser.client.services.peer || null;
 		if (service !== null) {
 
-			if (action === 'refresh') {
+			if (action === 'info') {
 
-				let host_service = browser.client.services.host || null;
-				if (host_service !== null) {
+				let host_ip = IP.parse(data.domain);
+				if (host_ip.type !== null) {
 
-					host_service.read(data, (host) => {
+					service.proxy({
+						host:    host_ip.ip,
+						headers: {
+							service: 'peer',
+							method:  'info'
+						},
+						payload: null
+					}, (peer) => {
 
-						if (host !== null) {
+						if (peer !== null) {
 
-							let cache = browser.settings.hosts.find((h) => h.domain === host.domain) || null;
+							let cache = browser.settings.hosts.find((h) => h.domain === peer.domain) || null;
 							if (cache !== null) {
-								cache.hosts = host.hosts;
-							}
 
-							update_hosts({
-								hosts: browser.settings.hosts
-							});
+								let check = cache.hosts.find((h) => h.ip === host_ip.ip) || null;
+								if (check !== null) {
+									done(true, peer);
+								} else {
 
-							service.proxy({
-								domain:  host.domain,
-								headers: {
-									service: 'settings',
-									method:  'read'
-								},
-								payload: {
-									internet: true
+									cache.hosts.push(host_ip);
+
+									let hosts_service = browser.client.services.host || null;
+									if (hosts_service !== null) {
+										hosts_service.save(cache, (result) => {
+
+											if (result === true) {
+												update_hosts({
+													hosts: browser.settings.hosts
+												});
+											}
+
+											done(result, peer);
+
+										});
+									} else {
+										done(false, peer);
+									}
+
 								}
-							}, (settings) => {
-								done(settings !== null, settings);
-							});
+
+							} else {
+
+								let hosts_service = browser.client.services.host || null;
+								if (hosts_service !== null) {
+									hosts_service.save({
+										domain: peer.domain,
+										hosts:  [ host_ip ]
+									}, (result) => {
+										done(result, peer);
+									});
+								} else {
+									done(false, peer);
+								}
+
+							}
 
 						} else {
 							done(false);
@@ -332,7 +372,44 @@ export const init = (browser) => {
 					});
 
 				} else {
-					done(false);
+
+					let host_service = browser.client.services.host || null;
+					if (host_service !== null) {
+
+						host_service.read(data, (host) => {
+
+							if (host !== null) {
+
+								let cache = browser.settings.hosts.find((h) => h.domain === host.domain) || null;
+								if (cache !== null) {
+									cache.hosts = host.hosts;
+								}
+
+								update_hosts({
+									hosts: browser.settings.hosts
+								});
+
+								service.proxy({
+									domain:  host.domain,
+									headers: {
+										service: 'peer',
+										method:  'info'
+									},
+									payload: null
+								}, (peer) => {
+									done(peer !== null, peer);
+								});
+
+							} else {
+								done(false);
+							}
+
+						});
+
+					} else {
+						done(false);
+					}
+
 				}
 
 			} else if (action === 'remove') {
@@ -373,6 +450,10 @@ export const init = (browser) => {
 						} else {
 							browser.settings.peers.push(data);
 						}
+
+						update({
+							peers: browser.settings.peers
+						});
 
 					}
 
