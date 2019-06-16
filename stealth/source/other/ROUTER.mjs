@@ -66,7 +66,11 @@ const ROUTER = {
 
 			let url = ref.headers['@url'] || null;
 			if (url !== null) {
-				ref = URL.parse(url);
+
+				let headers = Object.assign({}, ref.headers);
+				ref         = URL.parse(url);
+				ref.headers = headers;
+
 			}
 
 		}
