@@ -63,6 +63,22 @@ describe('client.services.peer.proxy', function(assert) {
 
 });
 
+describe('client.services.peer.refresh', function(assert) {
+
+	assert(this.client !== null);
+	assert(typeof this.client.services.peer.refresh === 'function');
+
+	this.client.services.peer.refresh({
+		host: '127.0.0.3'
+	}, (response) => {
+
+		assert(response !== null && response.domain === '127.0.0.3');
+		assert(response !== null && response.connection === 'mobile');
+
+	});
+
+});
+
 describe('client.services.peer.remove', function(assert) {
 
 	assert(this.client !== null);

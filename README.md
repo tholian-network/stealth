@@ -208,9 +208,13 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **Current**
 
-- [ ] Implement Review for `IP.sort(array)`.
-- [ ] Implement Review for `URL.sort(array)`.
-- [ ] Implement Review for `Settings.read()` method.
+- [ ] Review `IP.sort(array)`.
+- [ ] Review `URL.sort(array)`.
+- [ ] Review `Settings.read()` method.
+
+**Settings**
+
+- [ ] Migrate modes and filters to `sites.mjs`.
 
 **Session**
 

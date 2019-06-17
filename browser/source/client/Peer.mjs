@@ -129,6 +129,30 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	refresh: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			this.once('refresh', (response) => callback(response));
+
+			this.client.send({
+				headers: {
+					service: 'peer',
+					method:  'refresh'
+				},
+				payload: payload
+			});
+
+		} else if (callback !== null) {
+			callback(null);
+		}
+
+	},
+
 	remove: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;

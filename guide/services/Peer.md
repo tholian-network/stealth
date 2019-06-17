@@ -1,6 +1,30 @@
 
 # Peer Service
 
+Usage of `domain` and `subdomain` require a valid [Host](./Host.md)
+cache entry in order to work successfully.
+
+## info()
+
+`proxy({ domain: String, subdomain, String, host: String })`
+
+returns a Peer object without the need for a `peer` setting.
+
+This method is used to quickly check for Peer activity, so it
+can be seen as a `multicast` handshake.
+
+It does not need any setting, and will cause the called Stealth
+Service to create a Client connection to the targeted Peer, while
+returning back its `internet.connection` setting as the `connection`
+value.
+
+```javascript
+// info(payload) example
+{
+	host: '192.168.0.123'
+}
+```
+
 ## proxy()
 
 `proxy({ domain: String, subdomain, String, host: String, headers: Object, payload: Object })`
@@ -13,7 +37,7 @@ denial-of-service attack surface.
 ```javascript
 // proxy(payload) example
 {
-	domain: 'laptop',
+	domain:  'laptop',
 	headers: {
 		service: 'cache',
 		method:  'info'
@@ -38,6 +62,19 @@ reads a `peer` setting from the local Stealth `profile` folder.
 }
 ```
 
+## refresh()
+
+`refresh({ domain: String, subdomain: String, host: String }, callback)`
+
+refreshes a `peer` setting from the local Stealth `profile` folder.
+
+``javascript
+// refresh(payload) example
+{
+	domain: 'laptop'
+}
+```
+
 ## remove()
 
 `remove({ domain: String, subdomain: String, host: String }, callback)`
@@ -47,27 +84,24 @@ removes a `peer` setting from the local Stealth `profile` folder.
 ```javascript
 // remove(payload) example
 {
-	domain: 'laptop',
-	host:   '192.168.0.123'
+	domain: 'laptop'
 }
 ```
 
 ## save()
 
-`save({ domain: String, subdomain: String, host: String, capacity: String, mode: String }, callback)`
+`save({ domain: String, subdomain: String, host: String, connection: String }, callback)`
 
 saves a `peer` setting to the local Stealth `profile` folder.
 
 If there's already a configured peer with the same domain or host, it will be changed.
-`capacity` can be either of `offline`, `covert`, `stealth`, `online`.
-`mode` can be either of `offline`, `covert`, `stealth`, `online`.
+`connection` can be either of `offline`, `mobile`, `broadband`, `peer`, `i2p` or `tor`.
 
 ```javascript
 // save() example
 {
-	domain:   'laptop',
-	capacity: 'online',
-	mode:     'stealth'
+	domain:     'laptop',
+	connection: 'broadband'
 }
 ```
 

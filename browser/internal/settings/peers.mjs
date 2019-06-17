@@ -412,13 +412,34 @@ export const init = (browser) => {
 
 				}
 
+			} else if (action === 'refresh') {
+
+				service.refresh(data, (peer) => {
+
+					if (peer !== null) {
+
+						let cache = browser.settings.peers.find((p) => p.domain === peer.domain) || null;
+						if (cache !== null) {
+							cache.connection = data.connection;
+						}
+
+						update({
+							peers: browser.settings.peers
+						});
+
+					}
+
+					done(peer !== null);
+
+				});
+
 			} else if (action === 'remove') {
 
 				service.remove(data, (result) => {
 
 					if (result === true) {
 
-						let cache = browser.settings.peers.find((h) => h.domain === data.domain) || null;
+						let cache = browser.settings.peers.find((p) => p.domain === data.domain) || null;
 						if (cache !== null) {
 
 							let index = browser.settings.peers.indexOf(cache);
@@ -444,7 +465,7 @@ export const init = (browser) => {
 
 					if (result === true) {
 
-						let cache = browser.settings.peers.find((h) => h.domain === data.domain) || null;
+						let cache = browser.settings.peers.find((p) => p.domain === data.domain) || null;
 						if (cache !== null) {
 							cache.connection = data.connection;
 						} else {

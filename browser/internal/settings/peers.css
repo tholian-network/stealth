@@ -47,7 +47,7 @@
 
 @media screen and (max-width: 706px) {
 
-	#hosts-filter input {
+	#peers-filter input {
 		width: auto;
 	}
 

@@ -409,6 +409,118 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	refresh: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			let peer     = null;
+			let host     = null;
+			let settings = this.stealth.settings;
+
+			if (payload.domain !== null) {
+
+				if (payload.subdomain !== null) {
+					host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
+					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
+				} else{
+					host = settings.hosts.find((h) => h.domain === payload.domain) || null;
+					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
+				}
+
+			} else if (payload.host !== null) {
+				host = {
+					domain: payload.host,
+					hosts:  [ IP.parse(payload.host) ]
+				};
+				peer = settings.peers.find((p) => p.domain === payload.host) || null;
+			}
+
+
+			if (host !== null && peer !== null) {
+
+				connect.call(this, host, peer, (client) => {
+
+					if (client !== null) {
+
+						let service = client.services.peer || null;
+						if (service !== null) {
+
+							service.info(null, (response) => {
+
+								if (response !== null) {
+
+									if (CONNECTION.includes(response.connection)) {
+										peer.connection = response.connection;
+									}
+
+								}
+
+								callback({
+									headers: {
+										service: 'peer',
+										event:   'refresh'
+									},
+									payload: peer
+								});
+
+							});
+
+						} else {
+
+							callback({
+								headers: {
+									service: 'peer',
+									event:   'refresh'
+								},
+								payload: null
+							});
+
+						}
+
+					} else {
+
+						callback({
+							headers: {
+								service: 'peer',
+								event:   'refresh'
+							},
+							payload: null
+						});
+
+					}
+
+				});
+
+			} else {
+
+				callback({
+					headers: {
+						service: 'peer',
+						event:   'refresh'
+					},
+					payload: peer
+				});
+
+			}
+
+		} else if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'peer',
+					event:   'refresh'
+				},
+				payload: null
+			});
+
+		}
+
+	},
+
 	remove: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payloadify(payload) : null;
