@@ -212,10 +212,6 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 - [ ] Review `URL.sort(array)`.
 - [ ] Review `Settings.read()` method.
 
-**Settings**
-
-- [ ] Migrate modes and filters to `sites.mjs`.
-
 **Session**
 
 - [ ] Implement `stealth/source/server/Session.mjs` service that is used for the sidebar.

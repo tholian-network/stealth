@@ -33,12 +33,18 @@ const Dummy = function() {
 
 const parse_value = function(raw) {
 
-	raw = isString(raw) ? raw : '';
+	raw = isString(raw) ? raw : (raw).toString();
 
 
 	let val = null;
 
-	if (raw.startsWith('[')) {
+	if (raw === 'true') {
+		val = true;
+	} else if (raw === 'false') {
+		val = false;
+	} else if (raw === '(none)' || raw === 'null') {
+		val = null;
+	} else if (raw.startsWith('[')) {
 
 		try {
 			val = JSON.parse(raw);
@@ -65,7 +71,15 @@ const parse_value = function(raw) {
 		}
 
 		if (Number.isNaN(num) === false) {
-			val = num;
+
+			if ((num).toString() === raw.trim()) {
+				val = num;
+			} else {
+				val = raw;
+			}
+
+		} else {
+			val = raw;
 		}
 
 	} else {
@@ -958,7 +972,7 @@ Element.prototype = {
 
 				let val = element.getAttribute('data-val');
 				if (val !== null) {
-					return val;
+					return parse_value(val);
 				} else {
 
 					let type = element.tagName.toLowerCase();
@@ -971,7 +985,7 @@ Element.prototype = {
 						} else if (map === 'URL') {
 							return URL.parse(val);
 						} else {
-							return val;
+							return parse_value(val);
 						}
 
 					} else if (type === 'textarea') {
@@ -992,7 +1006,7 @@ Element.prototype = {
 							return raw.map((v) => URL.parse(v)).filter((ref) => (ref.domain !== null || ref.host !== null));
 
 						} else {
-							return val;
+							return parse_value(val);
 						}
 
 					} else {
@@ -1013,7 +1027,7 @@ Element.prototype = {
 							return raw.map((v) => URL.parse(v)).filter((ref) => (ref.domain !== null || ref.host !== null));
 
 						} else {
-							return val;
+							return parse_value(val);
 						}
 
 					}

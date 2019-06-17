@@ -99,7 +99,7 @@
 				entries are deleted.
 			</p>
 			<div id="hosts-filter">
-				<input id="hosts-filter-search" type="text" placeholder="Search for domain ...">
+				<input id="hosts-filter-search" type="text" placeholder="Search for Domain ...">
 				<label for="hosts-filter-search">0 out of 0 Hosts.</label>
 			</div>
 			<table>
@@ -134,7 +134,7 @@
 				deleted.
 			</p>
 			<div id="peers-filter">
-				<input id="peers-filter-search" type="text" placeholder="Search for domain ...">
+				<input id="peers-filter-search" type="text" placeholder="Search for Domain ...">
 				<label for="peers-filter-search">0 out of 0 Peers.</label>
 			</div>
 			<table>
@@ -156,22 +156,35 @@
 			</table>
 		</article>
 		<article id="sites">
-			<h3>Site Modes</h3>
+			<h3>Sites</h3>
 			<p>
-				Site Modes allow to modify the requested media types by using a whitelist-based
-				configuration per domain.
-				<br><br>
-				If you do not trust a specific domain anymore, remove its Site Mode and the
-				Stealth Browser will request nothing by default.
-				<br><br>
-				If you trust only specific URLs of a website and not all, you can modify the
-				website's resources via <a href="#sites-filters">Site Filters</a>.
+				The Stealth Browser does not request anything by default, and strictly follows
+				the concept of establishing trust by whitelisting specific resources, and it
+				does not trust anything by default.
 			</p>
+			<p>
+				Sites in Stealth are therefore configured in three ways:
+			</p>
+			<ul>
+				<li><a href="#sites-modes">Modes</a> - reflect the allowed Media Types</li>
+				<li><a href="#sites-filters">Filters</a> - if present, reflect the allowed URL Patterns</li>
+				<li><a href="#sites-beacons">Beacons</a> - if present, reflect the extracted Knowledge Content</li>
+			</ul>
+			<p>
+				If you do not trust a specific Site anymore, remove its Modes and Filters.
+				If Modes, Filters and Beacons are removed the Cache persists and continues
+				to work for this Stealth Service instance and all connected <a href="#peers">Peers</a>.
+			</p>
+			<div id="sites-filter">
+				<input id="sites-filter-search" type="text" placeholder="Search for Domain ...">
+				<label for="sites-filter-search">0 out of 0 Sites.</label>
+			</div>
+			<h3>Modes</h3>
 			<table id="sites-modes">
 				<thead>
 					<tr>
 						<th>Domain</th>
-						<th>Site Mode</th>
+						<th>Mode</th>
 						<th></th>
 					</tr>
 				</thead>
@@ -190,18 +203,7 @@
 					</tr>
 				</tfoot>
 			</table>
-			<h3>Site Filters</h3>
-			<p>
-				Site Filters allow to modify the requested URLs by using a whitelist-based rule
-				configuration per domain.
-				<br><br>
-				If a Site Mode allows a specific media type for a domain and a Site Filter for
-				the domain is present but does not explicitely allow to request the URL, it is
-				not requested.
-				<br><br>
-				If you do not trust a specific domain anymore, you can remove its Site Filters
-				and the <a href="#sites-modes">Site Mode</a>, if present, takes over.
-			</p>
+			<h3>Filters</h3>
 			<table id="sites-filters">
 				<thead>
 					<tr>
@@ -223,6 +225,10 @@
 					</tr>
 				</tfoot>
 			</table>
+			<h3>Beacons</h3>
+			<p>
+				Beacons are not ready yet. Stay tuned!
+			</p>
 		</article>
 		<script type="module" src="settings/index.mjs"></script>
 	</body>

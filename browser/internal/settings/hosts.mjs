@@ -27,8 +27,8 @@ export const listen = (browser, callback) => {
 				button.state('busy');
 
 				callback('save', {
-					'domain': ELEMENTS.input.domain.value(),
-					'hosts':  ELEMENTS.input.hosts.value()
+					'domain': ELEMENTS.input.domain.value() || null,
+					'hosts':  ELEMENTS.input.hosts.value()  || null
 				}, (result) => {
 
 					button.state('enabled');
@@ -54,7 +54,7 @@ export const listen = (browser, callback) => {
 
 			if (type === 'button') {
 
-				let button  = Element.from(e.target, null, false);
+				let button  = Element.from(target, null, false);
 				let action  = button.attr('data-action');
 				let dataset = button.parent('tr');
 
@@ -64,8 +64,8 @@ export const listen = (browser, callback) => {
 					button.state('busy');
 
 					callback(action, {
-						'domain': dataset.query('*[data-key="domain"]').value(),
-						'hosts':  dataset.query('*[data-key="hosts"]').value()
+						'domain': dataset.query('*[data-key="domain"]').value() || null,
+						'hosts':  dataset.query('*[data-key="hosts"]').value()  || null
 					}, (result) => {
 
 						button.state('enabled');
@@ -120,6 +120,17 @@ export const reset = () => {
 
 };
 
+const search = () => {
+
+	let search = ELEMENTS.search || null;
+	if (search !== null) {
+		return search.value() || '';
+	}
+
+	return null;
+
+};
+
 const sort = (a, b) => {
 
 	let a_domains = a.domain.split('.').reverse();
@@ -164,44 +175,39 @@ export const update = (settings, actions) => {
 
 		let visible = 0;
 		let total   = hosts.length;
+		let value   = search();
 
-		let search = ELEMENTS.search || null;
-		if (search !== null) {
-
-			let value = search.value() || '';
-			if (value !== '') {
-
-				ELEMENTS.output.value(hosts.sort(sort).map((host) => {
-
-					if (host.domain.includes(value)) {
-						visible++;
-						return render(host, actions, true);
-					} else {
-						return render(host, actions, false);
-					}
-
-				}));
-
-			} else {
-
-				ELEMENTS.output.value(hosts.sort(sort).map((host) => {
-
-					if (host.domain.includes('.') === false) {
-						visible++;
-						return render(host, actions, true);
-					} else {
-						return render(host, actions, false);
-					}
-
-				}));
-
-			}
-
-		} else {
+		if (value === null) {
 
 			ELEMENTS.output.value(hosts.sort(sort).map((host) => {
 				visible++;
 				return render(host, actions, true);
+			}));
+
+		} else if (value !== '') {
+
+			ELEMENTS.output.value(hosts.sort(sort).map((host) => {
+
+				if (host.domain.includes(value)) {
+					visible++;
+					return render(host, actions, true);
+				} else {
+					return render(host, actions, false);
+				}
+
+			}));
+
+		} else {
+
+			ELEMENTS.output.value(hosts.sort(sort).map((host) => {
+
+				if (host.domain.includes('.') === false) {
+					visible++;
+					return render(host, actions, true);
+				} else {
+					return render(host, actions, false);
+				}
+
 			}));
 
 		}
@@ -283,6 +289,10 @@ export const init = (browser) => {
 						} else {
 							browser.settings.hosts.push(data);
 						}
+
+						update({
+							hosts: browser.settings.hosts
+						});
 
 					}
 

@@ -48,7 +48,7 @@ export const listen = function(browser, callback) {
 					button.state('busy');
 
 					callback('info', {
-						'domain': ELEMENTS.input.domain.value()
+						'domain': ELEMENTS.input.domain.value() || null
 					}, (result, peer) => {
 
 						if (isObject(peer)) {
@@ -102,8 +102,8 @@ export const listen = function(browser, callback) {
 					button.state('busy');
 
 					callback('save', {
-						'domain':     ELEMENTS.input.domain.value(),
-						'connection': ELEMENTS.input.connection.value()
+						'domain':     ELEMENTS.input.domain.value()     || null,
+						'connection': ELEMENTS.input.connection.value() || 'offline'
 					}, () => {
 
 						ELEMENTS.input.connection.value('offline');
@@ -132,7 +132,7 @@ export const listen = function(browser, callback) {
 
 			if (type === 'button') {
 
-				let button  = Element.from(e.target, null, false);
+				let button  = Element.from(target, null, false);
 				let action  = button.attr('data-action');
 				let dataset = button.parent('tr');
 
@@ -142,8 +142,8 @@ export const listen = function(browser, callback) {
 					button.state('busy');
 
 					callback(action, {
-						'domain':     dataset.query('*[data-key="domain"]').value(),
-						'connection': dataset.query('*[data-key="connection"]').value()
+						'domain':     dataset.query('*[data-key="domain"]').value()     || null,
+						'connection': dataset.query('*[data-key="connection"]').value() || null
 					}, (result) => {
 
 						button.state('enabled');
@@ -200,6 +200,17 @@ export const reset = () => {
 
 };
 
+const search = () => {
+
+	let search = ELEMENTS.search || null;
+	if (search !== null) {
+		return search.value() || '';
+	}
+
+	return null;
+
+};
+
 const sort = (a, b) => {
 
 	let a_domains = a.domain.split('.').reverse();
@@ -244,44 +255,39 @@ export const update = (settings, actions) => {
 
 		let visible = 0;
 		let total   = peers.length;
+		let value   = search();
 
-		let search = ELEMENTS.search || null;
-		if (search !== null) {
-
-			let value = search.value() || '';
-			if (value !== '') {
-
-				ELEMENTS.output.value(peers.sort(sort).map((peer) => {
-
-					if (peer.domain.includes(value)) {
-						visible++;
-						return render(peer, actions, true);
-					} else {
-						return render(peer, actions, false);
-					}
-
-				}));
-
-			} else {
-
-				ELEMENTS.output.value(peers.sort(sort).map((peer) => {
-
-					if (peer.domain.includes('.') === false) {
-						visible++;
-						return render(peer, actions, true);
-					} else {
-						return render(peer, actions, false);
-					}
-
-				}));
-
-			}
-
-		} else {
+		if (value === null) {
 
 			ELEMENTS.output.value(peers.sort(sort).map((peer) => {
 				visible++;
 				return render(peer, actions, true);
+			}));
+
+		} else if (value !== '') {
+
+			ELEMENTS.output.value(peers.sort(sort).map((peer) => {
+
+				if (peer.domain.includes(value)) {
+					visible++;
+					return render(peer, actions, true);
+				} else {
+					return render(peer, actions, false);
+				}
+
+			}));
+
+		} else {
+
+			ELEMENTS.output.value(peers.sort(sort).map((peer) => {
+
+				if (peer.domain.includes('.') === false) {
+					visible++;
+					return render(peer, actions, true);
+				} else {
+					return render(peer, actions, false);
+				}
+
 			}));
 
 		}
