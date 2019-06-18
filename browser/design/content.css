@@ -100,6 +100,16 @@ article h3 + code {
 	border-radius: 8px;
 }
 
+article hr {
+	display: block;
+	height: 0px;
+	margin: 24px 0px 24px 0px;
+	border: 0px none transparent;
+	border-style: none;
+	border-top: 2px solid #ffffff;
+	appearance: none;
+}
+
 article a {
 	padding: 0px 2px;
 	color: #99ccff;

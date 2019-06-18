@@ -3,17 +3,18 @@
 	<head>
 		<meta charset="utf-8">
 		<title>stealth:fix-filter</title>
-		<link rel="stylesheet" href="internal.css">
+		<link rel="stylesheet" href="fix-filter/index.css">
 	</head>
 	<body>
-		<article id="fix-filter">
-			<h3>Fix Site Filters</h3>
+		<article id="sites">
+			<h3>Fix Filter</h3>
+			<code data-key="url">https://example.com/index.html</code>
 			<p>
-				The current Site Filters did not allow to request the entered URL.
+				Stealth could not request the entered URL for this domain,
+				as the Filters did not allow it.
 			</p>
 			<p>
-				Site Filters allow to request specific URLs by using a whitelist-based config.
-				The list shows already configured Site Filters and their rules for this domain.
+				Please verify the correctness of the allowed URL patterns.
 			</p>
 			<table id="sites-filters">
 				<thead>
@@ -37,15 +38,16 @@
 				</tfoot>
 			</table>
 		</article>
-		<article id="add-filter">
-			<h3>Add Site Filter</h3>
-			<code id="add-filter-url">https://example.com/index.html</code>
-			<p>
-				Please select a suggested rule on how to whitelist the current URL.
-			</p>
-			<div id="add-filter-assistant"></div>
+		<article id="help">
+			<h3>Did you know?</h3>
+			<div>In order to load above URL, at least one Filter has to match. If no Filter matches, the URL is not requested.</div>
+			<hr>
+			<div>
+				Please select a suggested Filter to whitelist above URL:
+			</div>
+			<div id="help-assistant"></div>
 		</article>
-		<script type="module" src="fix-filter.mjs"></script>
+		<script type="module" src="fix-filter/index.mjs"></script>
 	</body>
 </html>
 

@@ -8,15 +8,11 @@ const global = (typeof window !== 'undefined' ? window : this);
 
 
 
-setTimeout(() => {
-
-	let browser = global.parent.BROWSER || global.BROWSER || null;
-	if (browser !== null) {
-		init_internet(browser);
-		init_hosts(browser);
-		init_peers(browser);
-		init_sites(browser);
-	}
-
-}, 500);
+let browser = global.parent.BROWSER || global.BROWSER || null;
+if (browser !== null) {
+	init_internet(browser, browser.settings);
+	init_hosts(browser, browser.settings);
+	init_peers(browser, browser.settings);
+	init_sites(browser, browser.settings);
+}
 

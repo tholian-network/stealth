@@ -151,6 +151,19 @@ const listen_modes = (browser, callback) => {
 
 	}
 
+	let mode = Object.values(ELEMENTS.modes.input.mode).filter((b) => b !== null);
+	if (mode.length > 0) {
+
+		mode.forEach((button) => {
+
+			button.on('click', () => {
+				button.value(button.value() === true ? 'false' : 'true');
+			});
+
+		});
+
+	}
+
 	let output = ELEMENTS.modes.output || null;
 	if (output !== null) {
 
@@ -212,7 +225,7 @@ const render_filter = (filter, actions, visible) => `
 	<td data-key="filter.prefix">${filter.filter.prefix !== null ? filter.filter.prefix : '(none)'}</td>
 	<td data-key="filter.midfix">${filter.filter.midfix !== null ? filter.filter.midfix : '(none)'}</td>
 	<td data-key="filter.suffix">${filter.filter.suffix !== null ? filter.filter.suffix : '(none)'}</td>
-	<td>${actions.map((a) => '<button data-action="' + a + '"></button>').join('')}</td>
+	<td>${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}</td>
 </tr>
 `;
 
@@ -226,7 +239,7 @@ const render_mode = (mode, actions, visible) => `
 		<button data-key="mode.video" data-val="${mode.mode.video === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
 		<button data-key="mode.other" data-val="${mode.mode.other === true ? 'true' : 'false'}" ${actions.includes('save') === true ? '' : 'disabled'}></button>
 	</td>
-	<td>${actions.map((a) => '<button data-action="' + a + '"></button>').join('')}</td>
+	<td>${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}</td>
 </tr>
 `;
 
@@ -310,6 +323,19 @@ const search = () => {
 	}
 
 	return null;
+
+};
+
+export const sort = (a, b) => {
+
+	let a_filter = a.filter || null;
+	let b_filter = b.filter || null;
+
+	if (a_filter !== null && b_filter !== null) {
+		return sort_filter(a, b);
+	} else {
+		return sort_mode(a, b);
+	}
 
 };
 
@@ -547,7 +573,10 @@ export const update = (settings, actions) => {
 
 
 
-export const init = (browser) => {
+export const init = (browser, settings, actions) => {
+
+	settings = isObject(settings) ? settings : browser.settings;
+	actions  = isArray(actions)   ? actions  : [ 'remove', 'save' ];
 
 	// TODO: listen_beacons()
 
@@ -562,7 +591,7 @@ export const init = (browser) => {
 
 					if (result === true) {
 
-						let cache = browser.settings.filters.find((f) => {
+						let cache = settings.filters.find((f) => {
 							return (
 								f.domain === data.domain
 								&& f.filter.prefix === data.filter.prefix
@@ -573,14 +602,14 @@ export const init = (browser) => {
 
 						if (cache !== null) {
 
-							let index = browser.settings.filters.indexOf(cache);
+							let index = settings.filters.indexOf(cache);
 							if (index !== -1) {
-								browser.settings.filters.splice(index, 1);
+								settings.filters.splice(index, 1);
 							}
 
 							update({
-								filters: browser.settings.filters
-							});
+								filters: settings.filters
+							}, actions);
 
 						}
 
@@ -592,7 +621,7 @@ export const init = (browser) => {
 
 			} else if (action === 'save') {
 
-				let cache = browser.settings.filters.find((f) => {
+				let cache = settings.filters.find((f) => {
 					return (
 						f.domain === data.domain
 						&& f.filter.prefix === data.filter.prefix
@@ -607,11 +636,11 @@ export const init = (browser) => {
 
 						if (result === true) {
 
-							browser.settings.filters.push(data);
+							settings.filters.push(data);
 
 							update({
-								filters: browser.settings.filters
-							});
+								filters: settings.filters
+							}, actions);
 
 							reset_filters();
 
@@ -646,17 +675,17 @@ export const init = (browser) => {
 
 					if (result === true) {
 
-						let cache = browser.settings.modes.find((m) => m.domain === data.domain) || null;
+						let cache = settings.modes.find((m) => m.domain === data.domain) || null;
 						if (cache !== null) {
 
-							let index = browser.settings.modes.indexOf(cache);
+							let index = settings.modes.indexOf(cache);
 							if (index !== -1) {
-								browser.settings.modes.splice(index, 1);
+								settings.modes.splice(index, 1);
 							}
 
 							update({
-								modes: browser.settings.modes
-							});
+								modes: settings.modes
+							}, actions);
 
 						}
 
@@ -672,7 +701,7 @@ export const init = (browser) => {
 
 					if (result === true) {
 
-						let cache = browser.settings.modes.find((m) => m.domain === data.domain) || null;
+						let cache = settings.modes.find((m) => m.domain === data.domain) || null;
 						if (cache !== null) {
 							cache.mode.text  = data.mode.text  === true;
 							cache.mode.image = data.mode.image === true;
@@ -680,12 +709,12 @@ export const init = (browser) => {
 							cache.mode.video = data.mode.video === true;
 							cache.mode.other = data.mode.other === true;
 						} else {
-							browser.settings.modes.push(data);
+							settings.modes.push(data);
 						}
 
 						update({
-							modes: browser.settings.modes
-						});
+							modes: settings.modes
+						}, actions);
 
 					}
 
@@ -707,14 +736,14 @@ export const init = (browser) => {
 	if (search !== null) {
 
 		search.on('change', () => {
-			update(browser.settings);
+			update(settings, actions);
 		});
 
 	}
 
 	reset();
 
-	update(browser.settings);
+	update(settings, actions);
 
 };
 

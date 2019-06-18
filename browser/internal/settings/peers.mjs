@@ -211,7 +211,7 @@ const search = () => {
 
 };
 
-const sort = (a, b) => {
+export const sort = (a, b) => {
 
 	let a_domains = a.domain.split('.').reverse();
 	let b_domains = b.domain.split('.').reverse();

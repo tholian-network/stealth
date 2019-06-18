@@ -1,0 +1,27 @@
+
+@import url("../../design/content.css");
+@import url("../../design/control.css");
+@import url("../../design/other/index.css");
+
+
+
+#peers table {
+	table-layout: fixed;
+}
+
+#peers table tr td:last-child,
+#peers table tr th:last-child {
+	width: 32px;
+	padding: 0px 0px 0px 4px;
+	border-color: transparent;
+}
+
+#peers table tr:hover td:last-child,
+#peers table tr:hover th:last-child {
+	background: transparent;
+}
+
+#peers button[data-key="connection"] {
+	color: #ffffff;
+}
+

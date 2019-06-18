@@ -212,6 +212,11 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 - [ ] Review `URL.sort(array)`.
 - [ ] Review `Settings.read()` method.
 
+**Pages**
+
+- [ ] Implement `stealth:fix-request` page and Peer download support.
+- [ ] Allow `cache.save()` to make uploads via the Browser possible.
+
 **Session**
 
 - [ ] Implement `stealth/source/server/Session.mjs` service that is used for the sidebar.

@@ -6,17 +6,17 @@ cache entry in order to work successfully.
 
 ## info()
 
-`proxy({ domain: String, subdomain, String, host: String })`
+`info({ domain: String, subdomain, String, host: String })`
 
-returns a Peer object without the need for a `peer` setting.
+retrieves metadata of a Peer without the need for a `peer` setting in the local
+Stealth `profile` folder.
 
-This method is used to quickly check for Peer activity, so it
-can be seen as a `multicast` handshake.
+This method is used to quickly check for Peer activity, so it can be seen as a
+`multicast` handshake.
 
-It does not need any setting, and will cause the called Stealth
-Service to create a Client connection to the targeted Peer, while
-returning back its `internet.connection` setting as the `connection`
-value.
+It does not need any setting, and will cause the called Stealth Service to create
+a Client connection to the targeted Peer, while returning back its `internet`
+settings as the `connection` property.
 
 ```javascript
 // info(payload) example

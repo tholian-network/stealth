@@ -1,7 +1,7 @@
 
-@import url("../design/content.css");
-@import url("../design/control.css");
-@import url("../design/other/index.css");
+@import url('../../design/content.css');
+@import url('../../design/control.css');
+@import url('../../design/other/index.css');
 
 
 
@@ -39,14 +39,8 @@ footer a:hover {
 	outline: none;
 }
 
-article input[type="radio"] + label[for] {
-	user-select: none;
-	cursor: pointer;
-}
 
 
-
-/* welcome */
 #welcome-modes button[disabled],
 #welcome-modes button[disabled]:hover {
 	color: #ffffff;
@@ -128,91 +122,6 @@ article input[type="radio"] + label[for] {
 
 
 
-/* fix-filter */
-#add-filter-assistant div {
-	line-height: 32px;
-	vertical-align: middle;
-}
-
-
-
-/* fix-mode */
-#fix-mode table tr td:second-child {
-	font-size: 0px;
-}
-
-
-
-/* fix-request */
-#fix-request *[data-key="cause"] {
-	display: none;
-}
-
-#fix-request *[data-key="cause"].active {
-	display: block;
-}
-
-
-
-/* settings */
-
-#fix-filter table tr td:nth-of-type(2),
-#fix-filter table tr td:nth-of-type(2) input,
-#sites-filters tr td:nth-of-type(2),
-#sites-filters tr td:nth-of-type(2) input {
-	text-align: left;
-}
-
-#fix-filter table tr td:nth-of-type(4),
-#fix-filter table tr td:nth-of-type(4) input,
-#sites-filters tr td:nth-of-type(4),
-#sites-filters tr td:nth-of-type(4) input {
-	text-align: right;
-}
-
-#fix-host table,
-#fix-mode table,
-#peers table,
-#sites table {
-	table-layout: fixed;
-}
-
-#fix-host table tr:hover td:last-child,
-#fix-host table tr:hover th:last-child,
-#fix-mode table tr:hover td:last-child,
-#fix-mode table tr:hover th:last-child,
-#peers table tr:hover td:last-child,
-#peers table tr:hover th:last-child,
-#sites table tr:hover td:last-child,
-#sites table tr:hover th:last-child {
-	background: transparent;
-}
-
-#fix-host table tr td:last-child,
-#fix-host table tr th:last-child,
-#fix-mode table tr td:last-child,
-#fix-mode table tr th:last-child,
-#peers table tr td:last-child,
-#peers table tr th:last-child,
-#sites table tr td:last-child,
-#sites table tr th:last-child {
-	width: 32px;
-	padding: 0px 0px 0px 4px;
-	border-color: transparent;
-}
-
-#fix-request button[data-key="connection"],
-#peers tbody button[data-key="connection"] {
-	color: #ffffff;
-}
-
-#site-modes table td:second-child {
-	font-size: 0px;
-}
-
-
-
-/* media queries */
 @media screen and (max-width: 706px) {
 
 	#welcome-modes table {

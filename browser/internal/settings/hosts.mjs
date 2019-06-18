@@ -81,22 +81,13 @@ export const listen = (browser, callback) => {
 
 	}
 
-	let search = ELEMENTS.search || null;
-	if (search !== null) {
-
-		search.on('change', () => {
-			update(browser.settings);
-		});
-
-	}
-
 };
 
 const render = (host, actions, visible) => `
 <tr data-visible="${visible}">
 	<td data-key="domain">${host.domain}</td>
 	${actions.includes('save') === true ? '<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line">' + (host.hosts.map((h) => h.ip).join('\n')) + '</textarea></td>' : '<td data-key="hosts" data-map="IP">' + (host.hosts.map((h) => h.ip).join('<br>\n')) + '</td>' }
-	<td>${actions.map((a) => '<button data-action="' + a + '"></button>').join('')}</td>
+	<td>${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}</td>
 </tr>
 `;
 
@@ -131,7 +122,7 @@ const search = () => {
 
 };
 
-const sort = (a, b) => {
+export const sort = (a, b) => {
 
 	let a_domains = a.domain.split('.').reverse();
 	let b_domains = b.domain.split('.').reverse();
@@ -223,7 +214,11 @@ export const update = (settings, actions) => {
 
 
 
-export const init = (browser) => {
+export const init = (browser, settings, actions) => {
+
+	settings = isObject(settings) ? settings : browser.settings;
+	actions  = isArray(actions)   ? actions  : [ 'refresh', 'remove', 'save' ];
+
 
 	listen(browser, (action, data, done) => {
 
@@ -236,14 +231,14 @@ export const init = (browser) => {
 
 					if (host !== null) {
 
-						let cache = browser.settings.hosts.find((h) => h.domain === host.domain) || null;
+						let cache = settings.hosts.find((h) => h.domain === host.domain) || null;
 						if (cache !== null) {
 							cache.hosts = host.hosts;
 						}
 
 						update({
-							hosts: browser.settings.hosts
-						});
+							hosts: settings.hosts
+						}, actions);
 
 					}
 
@@ -257,17 +252,17 @@ export const init = (browser) => {
 
 					if (result === true) {
 
-						let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
+						let cache = settings.hosts.find((h) => h.domain === data.domain) || null;
 						if (cache !== null) {
 
-							let index = browser.settings.hosts.indexOf(cache);
+							let index = settings.hosts.indexOf(cache);
 							if (index !== -1) {
-								browser.settings.hosts.splice(index, 1);
+								settings.hosts.splice(index, 1);
 							}
 
 							update({
-								hosts: browser.settings.hosts
-							});
+								hosts: settings.hosts
+							}, actions);
 
 						}
 
@@ -283,16 +278,16 @@ export const init = (browser) => {
 
 					if (result === true) {
 
-						let cache = browser.settings.hosts.find((h) => h.domain === data.domain) || null;
+						let cache = settings.hosts.find((h) => h.domain === data.domain) || null;
 						if (cache !== null) {
 							cache.hosts = data.hosts;
 						} else {
-							browser.settings.hosts.push(data);
+							settings.hosts.push(data);
 						}
 
 						update({
-							hosts: browser.settings.hosts
-						});
+							hosts: settings.hosts
+						}, actions);
 
 					}
 
@@ -310,9 +305,18 @@ export const init = (browser) => {
 
 	});
 
+	let search = ELEMENTS.search || null;
+	if (search !== null) {
+
+		search.on('change', () => {
+			update(settings, actions);
+		});
+
+	}
+
 	reset();
 
-	update(browser.settings);
+	update(settings, actions);
 
 };
 

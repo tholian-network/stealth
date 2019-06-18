@@ -87,7 +87,11 @@ setTimeout(() => {
 			console.info('Browser Design connected to ws://' + HOST + ':65432.');
 
 			[
-				'stealth:settings'
+				// 'stealth:settings'
+				// 'stealth:fix-host?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+				// 'stealth:fix-mode?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+				// 'stealth:fix-filter?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+				'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=socket-stability&code=403'
 			].map((url) => {
 				return BROWSER.open(url);
 			}).slice(-1).forEach((tab) => {

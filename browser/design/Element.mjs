@@ -523,6 +523,26 @@ Element.prototype = {
 
 			return true;
 
+		} else {
+
+			if (this.element !== null) {
+
+				let parent = this.element.parentNode || null;
+				if (parent !== null) {
+					parent.removeChild(this.element);
+				}
+
+				let index1 = CACHE.reality.indexOf(this.element);
+				let index2 = CACHE.virtual.indexOf(this);
+				if (index1 !== -1 && index2 !== -1 && index1 === index2) {
+					CACHE.reality.splice(index1, 1);
+					CACHE.virtual.splice(index2, 1);
+				}
+
+				return true;
+
+			}
+
 		}
 
 

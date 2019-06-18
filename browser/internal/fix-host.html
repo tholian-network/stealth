@@ -3,16 +3,18 @@
 	<head>
 		<meta charset="utf-8">
 		<title>stealth:fix-host</title>
-		<link rel="stylesheet" href="internal.css">
+		<link rel="stylesheet" href="fix-host/index.css">
 	</head>
 	<body>
-		<article id="fix-host">
-			<h3>Fix Host Cache</h3>
+		<article id="hosts">
+			<h3>Fix Host</h3>
+			<code data-key="domain">example.com</code>
 			<p>
-				The currently known Host did not respond to the request of the entered URL.
+				Stealth could not connect to the cached hosts for this domain.
 			</p>
 			<p>
-				Please verify the known IP addresses. If they are not correct, refresh them manually.
+				Please verify the correctness of the IPv4/IPv6 addresses.
+				If they are incorrect, set them manually.
 			</p>
 			<table>
 				<thead>
@@ -26,7 +28,7 @@
 				</tbody>
 			</table>
 		</article>
-		<script type="module" src="fix-host.mjs"></script>
+		<script type="module" src="fix-host/index.mjs"></script>
 	</body>
 </html>
 

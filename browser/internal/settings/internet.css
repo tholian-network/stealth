@@ -10,7 +10,8 @@
 #internet-history input[type="radio"] + label[for],
 #internet-useragent input[type="radio"] + label[for] {
 	display: inline-block;
-	width: 368px;
+	width: calc(100% - 48px);
+	cursor: pointer;
 }
 
 #internet-connection div,

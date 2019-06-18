@@ -60,6 +60,7 @@ article button[data-action="download"]:before { content: '\e884'; }
 article button[data-action="refresh"]:before  { content: '\e5d5'; }
 article button[data-action="read"]:before     { content: '\e5d5'; }
 article button[data-action="remove"]:before   { content: '\e5cd'; }
+article button[data-action="request"]:before  { content: '\e8be'; }
 article button[data-action="save"]:before     { content: '\e5ca'; }
 
 article button[data-key="connection"][data-val="offline"]:before   { content: '\e8be'; }
