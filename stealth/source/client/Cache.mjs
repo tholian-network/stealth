@@ -70,7 +70,17 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		if (payload !== null && callback !== null) {
-			callback(false);
+
+			this.once('remove', (result) => callback(result));
+
+			this.client.send({
+				headers: {
+					service: 'cache',
+					method:  'remove'
+				},
+				payload: payload
+			});
+
 		} else if (callback !== null) {
 			callback(false);
 		}
@@ -84,7 +94,17 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		if (payload !== null && callback !== null) {
-			callback(false);
+
+			this.once('save', (result) => callback(result));
+
+			this.client.send({
+				headers: {
+					service: 'cache',
+					method:  'save'
+				},
+				payload: payload
+			});
+
 		} else if (callback !== null) {
 			callback(false);
 		}

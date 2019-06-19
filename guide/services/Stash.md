@@ -33,7 +33,15 @@ reads a stashed file from the Stealth `profile/stash` folder.
 
 `remove({ domain: String, subdomain: String, path: String }, callback)`
 
-remove() is not a peer-to-peer API and is available only internally.
+removes a stashed file from the Stealth `profile/stash` folder.
+
+```javascript
+// remove(payload) example
+{
+	domain: 'cookie.engineer',
+	path:   '/index.html'
+}
+```
 
 ## save()
 
