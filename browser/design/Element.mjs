@@ -31,6 +31,26 @@ const Dummy = function() {
 
 };
 
+const render_value = function(val) {
+
+	let san = '';
+
+	if (isBoolean(val)) {
+		san = (val).toString();
+	} else if (isString(val)) {
+		san = val;
+	} else if (isArray(val)) {
+		san = JSON.stringify(val);
+	} else if (isObject(val)) {
+		san = JSON.stringify(val);
+	} else if (isNumber(val)) {
+		san = (val).toString();
+	}
+
+	return san;
+
+};
+
 const parse_value = function(raw) {
 
 	raw = isString(raw) ? raw : (raw).toString();
@@ -312,18 +332,7 @@ Element.prototype = {
 					let attributes = Object.keys(this.element.attributes).map((a) => this.element.attributes[a].name);
 					if (attributes.includes(key)) {
 
-						let san = null;
-
-						if (isString(val)) {
-							san = val;
-						} else if (isArray(val)) {
-							san = JSON.stringify(val);
-						} else if (isObject(val)) {
-							san = JSON.stringify(val);
-						} else if (isNumber(val)) {
-							san = (val).toString();
-						}
-
+						let san = render_value(val);
 						if (san.length === 0) {
 							this.element.removeAttribute(key);
 						} else {
@@ -335,6 +344,17 @@ Element.prototype = {
 					} else if (this.element[key] !== undefined) {
 
 						this.element[key] = val;
+
+						return true;
+
+					} else {
+
+						let san = render_value(val);
+						if (san.length === 0) {
+							this.element.removeAttribute(key);
+						} else {
+							this.element.setAttribute(key, san);
+						}
 
 						return true;
 
