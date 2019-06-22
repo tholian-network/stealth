@@ -355,20 +355,28 @@ const IP = {
 
 			return array.filter((ip) => IP.isIP(ip)).sort((a, b) => {
 
+				if (a.scope === 'private' && b.scope !== 'private') return -1;
+				if (b.scope === 'private' && a.scope !== 'private') return  1;
+
 				if (a.scope === 'private' && b.scope === 'private') {
 
-					if (a.type === 'v4' && b.type === 'v4') return 0;
-					if (a.type === 'v4') return -1;
-					if (b.type === 'v4') return  1;
+					if (a.type === 'v4' && b.type !== 'v4') return -1;
+					if (b.type === 'v4' && a.type !== 'v4') return  1;
+
+					if (a.ip < b.ip) return -1;
+					if (b.ip < a.ip) return  1;
 
 				}
 
-				if (a.scope === 'private') return -1;
-				if (b.scope === 'private') return  1;
+				if (a.scope === 'public' && b.scope === 'public') {
 
-				if (a.type === 'v4' && b.type === 'v4') return 0;
-				if (a.type === 'v4') return -1;
-				if (b.type === 'v4') return  1;
+					if (a.type === 'v4' && b.type !== 'v4') return -1;
+					if (b.type === 'v4' && a.type !== 'v4') return  1;
+
+					if (a.ip < b.ip) return -1;
+					if (b.ip < a.ip) return  1;
+
+				}
 
 				return 0;
 

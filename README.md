@@ -208,7 +208,6 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **Current**
 
-- [ ] Review `IP.sort(array)`.
 - [ ] Review `URL.sort(array)`.
 - [ ] Review `Settings.read()` method.
 

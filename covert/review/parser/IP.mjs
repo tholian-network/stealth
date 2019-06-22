@@ -140,6 +140,40 @@ describe('IP.render/v4', function(assert) {
 
 });
 
+describe('IP.sort/v4', function(assert) {
+
+	let sorted = IP.sort([
+		IP.parse('127.0.0.1'),
+		IP.parse('10.1.2.3'),
+		IP.parse('172.25.1.2'),
+		IP.parse('192.168.0.1'),
+		IP.parse('199.0.0.254'),
+		IP.parse('192.89.99.123'),
+		IP.parse('169.255.123.123'),
+		IP.parse('100.129.0.254')
+	]);
+
+
+	assert(sorted[0].ip === '10.1.2.3');
+	assert(sorted[1].ip === '127.0.0.1');
+	assert(sorted[2].ip === '172.25.1.2');
+	assert(sorted[3].ip === '192.168.0.1');
+	assert(sorted[0].scope === 'private');
+	assert(sorted[1].scope === 'private');
+	assert(sorted[2].scope === 'private');
+	assert(sorted[3].scope === 'private');
+
+	assert(sorted[4].ip === '100.129.0.254');
+	assert(sorted[5].ip === '169.255.123.123');
+	assert(sorted[6].ip === '192.89.99.123');
+	assert(sorted[7].ip === '199.0.0.254');
+	assert(sorted[4].scope === 'public');
+	assert(sorted[5].scope === 'public');
+	assert(sorted[6].scope === 'public');
+	assert(sorted[7].scope === 'public');
+
+});
+
 describe('IP.isIP/v6', function(assert) {
 
 	let ip1 = IP.parse('::1');
@@ -231,6 +265,40 @@ describe('IP.render/v6', function(assert) {
 	assert(IP.render(ip6) === '1:3::3:7');
 	assert(IP.render(ip7) === '12:34::ab:cd');
 	assert(IP.render(ip8) === 'abcd:1234::abcd:1234');
+
+});
+
+describe('IP.sort/v6', function(assert) {
+
+	let sorted = IP.sort([
+		IP.parse('::1'),
+		IP.parse('fe80::1234'),
+		IP.parse('fe80::1234:abcd'),
+		IP.parse('fe80::1234:1234:abcd:abcd'),
+		IP.parse('13::37'),
+		IP.parse('1:3::3:7'),
+		IP.parse('12:34::ab:cd'),
+		IP.parse('abcd:1234::abcd:1234')
+	]);
+
+
+	assert(IP.render(sorted[0]) === '::1');
+	assert(IP.render(sorted[1]) === 'fe80::1234');
+	assert(IP.render(sorted[2]) === 'fe80::1234:abcd');
+	assert(IP.render(sorted[3]) === 'fe80::1234:1234:abcd:abcd');
+	assert(sorted[0].scope === 'private');
+	assert(sorted[1].scope === 'private');
+	assert(sorted[2].scope === 'private');
+	assert(sorted[3].scope === 'private');
+
+	assert(IP.render(sorted[4]) === '1:3::3:7');
+	assert(IP.render(sorted[5]) === '12:34::ab:cd');
+	assert(IP.render(sorted[6]) === '13::37');
+	assert(IP.render(sorted[7]) === 'abcd:1234::abcd:1234');
+	assert(sorted[4].scope === 'public');
+	assert(sorted[5].scope === 'public');
+	assert(sorted[6].scope === 'public');
+	assert(sorted[7].scope === 'public');
 
 });
 
