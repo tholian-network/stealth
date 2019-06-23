@@ -390,6 +390,47 @@ describe('URL.render', function(assert) {
 
 });
 
+describe('URL.sort', function(assert) {
+
+	let sorted = URL.sort([
+		URL.parse('http://localhost/what/ever.html'),
+		URL.parse('http://thinkpad:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('https://domain.tld/what/ever.html'),
+		URL.parse('https://sub.domain.tld:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('http://127.0.0.1/what/ever.html'),
+		URL.parse('http://127.0.0.1:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('https://[::1]/what/ever.html'),
+		URL.parse('https://[::1]:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('stealth:settings'),
+		URL.parse('stealth:search?query=This+is+a+test'),
+		URL.parse('file:///what/ever.html'),
+		URL.parse('file:///what/ever.html?q=u&e=r&y'),
+		URL.parse('ftp://localhost/what/ever.html'),
+		URL.parse('ftp://thinkpad:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('unknown://domain.tld/what/ever.html'),
+		URL.parse('unknown://sub.domain.tld:1337/what/ever.html?q=u&e=r&y')
+	]);
+
+
+	assert(sorted.length > 0);
+	assert(sorted.length === 14);
+	assert(sorted[0].url === 'file:///what/ever.html');
+	assert(sorted[1].url === 'file:///what/ever.html?q=u&e=r&y');
+	assert(sorted[2].url === 'ftp://localhost/what/ever.html');
+	assert(sorted[3].url === 'ftp://thinkpad:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[4].url === 'http://127.0.0.1/what/ever.html');
+	assert(sorted[5].url === 'http://127.0.0.1:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[6].url === 'http://localhost/what/ever.html');
+	assert(sorted[7].url === 'http://thinkpad:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[8].url === 'https://[0000:0000:0000:0000:0000:0000:0000:0001]/what/ever.html');
+	assert(sorted[9].url === 'https://[0000:0000:0000:0000:0000:0000:0000:0001]:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[10].url === 'https://domain.tld/what/ever.html');
+	assert(sorted[11].url === 'https://sub.domain.tld:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[12].url === 'stealth:search?query=This+is+a+test');
+	assert(sorted[13].url === 'stealth:settings');
+
+});
+
 
 
 export default finish('parser/URL');
