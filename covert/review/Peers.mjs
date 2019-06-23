@@ -151,7 +151,7 @@ describe('peers[0].client.services.cache.read', function(assert) {
 
 });
 
-describe('peers[1].client.services.peer.proxy', function(assert) {
+describe('peers[1].client.services.peer.proxy/server', function(assert) {
 
 	assert(this.peers[1].client !== null);
 	assert(typeof this.peers[1].client.services.peer.proxy === 'function');
@@ -232,6 +232,102 @@ describe('peers[1].client.services.cache.read', function(assert) {
 
 });
 
+
+describe('peers[1].server.services.cache.remove', function(assert) {
+
+	assert(this.peers[1].server !== null);
+	assert(typeof this.peers[1].server.services.cache.remove === 'function');
+
+	this.peers[1].server.services.cache.remove({
+		domain: 'example.com',
+		path:   '/review/peers/cache.json'
+	}, (response) => {
+		assert(response !== null && response.payload === true);
+	});
+
+});
+
+describe('peers[1].client.services.peer.proxy/client', function(assert) {
+
+	assert(this.peers[1].client !== null);
+	assert(typeof this.peers[1].client.services.peer.proxy === 'function');
+
+	this.peers[1].client.services.peer.proxy({
+		host: '127.0.0.1',
+		headers: {
+			service: 'cache',
+			method:  'read'
+		},
+		payload: {
+			domain: 'example.com',
+			path:   '/review/peers/cache.json'
+		}
+	}, (response) => {
+
+		assert(response !== null && response.headers['x-test'] === 'save');
+		assert(response !== null && response.payload !== null);
+
+		let data = null;
+		let temp = response.payload || null;
+		if (temp !== null) {
+
+			try {
+				data = JSON.parse(temp.toString('utf8'));
+			} catch (err) {
+				data = null;
+			}
+
+		}
+
+		assert(data !== null && typeof data === 'object');
+		assert(data !== null && data.foo === 'bar');
+
+
+		this.peers[1].client.services.cache.save({
+			domain:  'example.com',
+			path:    '/review/peers/cache.json',
+			headers: response.headers,
+			payload: response.payload
+		}, (response) => {
+			assert(response === true);
+		});
+
+	});
+
+});
+
+describe('peers[1].client.services.cache.read', function(assert) {
+
+	assert(this.peers[1].client !== null);
+	assert(typeof this.peers[1].client.services.cache.read === 'function');
+
+	this.peers[1].client.services.cache.read({
+		domain: 'example.com',
+		path:   '/review/peers/cache.json'
+	}, (response) => {
+
+		assert(response !== null && response.headers['x-test'] === 'save');
+		assert(response !== null && response.payload !== null);
+
+		let data = null;
+		let temp = response.payload || null;
+		if (temp !== null) {
+
+			try {
+				data = JSON.parse(temp.toString('utf8'));
+			} catch (err) {
+				data = null;
+			}
+
+		}
+
+		assert(data !== null && typeof data === 'object');
+		assert(data !== null && data.foo === 'bar');
+
+	});
+
+});
+
 describe('peers[0].server.services.cache.remove', function(assert) {
 
 	assert(this.peers[0].server !== null);
@@ -256,6 +352,34 @@ describe('peers[1].server.services.cache.remove', function(assert) {
 		path:   '/review/peers/cache.json'
 	}, (response) => {
 		assert(response !== null && response.payload === true);
+	});
+
+});
+
+describe('peers[0].client.services.cache.read', function(assert) {
+
+	assert(this.peers[0].client !== null);
+	assert(typeof this.peers[0].client.services.cache.read === 'function');
+
+	this.peers[0].client.services.cache.read({
+		domain: 'example.com',
+		path:   '/review/peers/cache.json'
+	}, (response) => {
+		assert(response === null);
+	});
+
+});
+
+describe('peers[1].client.services.cache.read', function(assert) {
+
+	assert(this.peers[1].client !== null);
+	assert(typeof this.peers[1].client.services.cache.read === 'function');
+
+	this.peers[1].client.services.cache.read({
+		domain: 'example.com',
+		path:   '/review/peers/cache.json'
+	}, (response) => {
+		assert(response === null);
 	});
 
 });
