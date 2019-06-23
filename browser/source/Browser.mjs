@@ -29,7 +29,10 @@ const Browser = function() {
 
 Browser.prototype = Object.assign({}, Emitter.prototype, {
 
-	back: function() {
+	back: function(callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
 
 		if (this.tab !== null) {
 
@@ -43,8 +46,38 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 					this.tab.ref = URL.parse(url);
 					this.emit('refresh', [ this.tab, this.tabs, false ]);
 
+					if (callback !== null) {
+						callback(true);
+					} else {
+						return true;
+					}
+
+				} else {
+
+					if (callback !== null) {
+						callback(false);
+					} else {
+						return false;
+					}
+
 				}
 
+			} else {
+
+				if (callback !== null) {
+					callback(false);
+				} else {
+					return false;
+				}
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
 			}
 
 		}
@@ -60,21 +93,109 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		let client = this.client;
 		if (client !== null && host !== null) {
 
-			client.connect(host, (result) => {
+			if (callback !== null) {
+
+				client.connect(host, (result) => {
+
+					if (result === true) {
+
+						client.services.settings.read(null, (result) => {
+							callback(result !== null);
+						});
+
+					} else {
+
+						callback(false);
+
+					}
+
+				});
+
+			} else {
+
+				client.connect(host);
+
+				return true;
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
+			}
+
+		}
+
+	},
+
+	disconnect: function(callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
+
+		let client = this.client;
+		if (client !== null) {
+
+			if (callback !== null) {
+
+				client.disconnect((result) => {
+					callback(result);
+				});
+
+			} else {
+
+				client.disconnect();
+
+				return true;
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
+			}
+
+		}
+
+	},
+
+	download: function(url) {
+
+		// TODO: Implement download() method
+		// that spawns a Request on the server
+		// via the request service (?) or session service
+
+	},
+
+	execute: function(code, callback) {
+
+		code     = isFunction(code)     ? code     : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (code !== null && callback !== null) {
+
+			this.emit('execute', [ code, (result) => {
 
 				if (result === true) {
-
-					client.services.settings.read(null, (result) => {
-
-						if (callback !== null) {
-							callback(result !== null);
-						}
-
-					});
-
+					callback(true);
+				} else {
+					callback(false);
 				}
 
-			});
+			}]);
+
+		} else if (code !== null) {
+
+			this.emit('execute', [ code, () => {
+				// Do nothing
+			}]);
 
 			return true;
 
@@ -90,26 +211,10 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	disconnect: function() {
+	get: function(url, callback) {
 
-		let client = this.client;
-		if (client !== null) {
-			client.disconnect();
-		}
-
-	},
-
-	download: function(url) {
-
-		// TODO: Implement download() method
-		// that spawns a Request on the server
-		// via the request service (?) or session service
-
-	},
-
-	get: function(url) {
-
-		url = isString(url) ? url : null;
+		url      = isString(url)        ? url      : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		let config = {
@@ -166,7 +271,12 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
-		return config;
+
+		if (callback !== null) {
+			callback(config);
+		} else {
+			return config;
+		}
 
 	},
 
@@ -209,9 +319,17 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 
 			if (callback !== null) {
-				callback(tab);
+				callback(true);
 			} else {
 				return true;
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
 			}
 
 		}
@@ -289,13 +407,21 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 					this.show(tab);
 
-				}
 
+					if (callback !== null) {
+						callback(true);
+					} else {
+						return true;
+					}
 
-				if (callback !== null) {
-					callback(true);
 				} else {
-					return true;
+
+					if (callback !== null) {
+						callback(false);
+					} else {
+						return false;
+					}
+
 				}
 
 			}
@@ -304,7 +430,10 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	next: function() {
+	next: function(callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
 
 		if (this.tab !== null) {
 
@@ -318,10 +447,39 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 					this.tab.ref = URL.parse(url);
 					this.emit('refresh', [ this.tab, this.tabs, false ]);
 
+					if (callback !== null) {
+						callback(true);
+					} else {
+						return true;
+					}
+
+				} else {
+
+					if (callback !== null) {
+						callback(false);
+					} else {
+						return false;
+					}
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(false);
+				} else {
+					return false;
 				}
 
 			}
 
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
+			}
 		}
 
 	},
@@ -376,25 +534,64 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	pause: function() {
+	pause: function(callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
 
 		if (this.tab !== null) {
+
 			this.emit('pause', [ this.tab, this.tabs, true ]);
+
+			if (callback !== null) {
+				callback(true);
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
+			}
+
 		}
 
 	},
 
-	refresh: function() {
+	refresh: function(callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
 
 		if (this.tab !== null) {
+
 			this.emit('refresh', [ this.tab, this.tabs, true ]);
+
+			if (callback !== null) {
+				callback(true);
+			} else {
+				return true;
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
+			}
+
 		}
 
 	},
 
-	set: function(config) {
+	set: function(config, callback) {
 
-		config = isObject(config) ? config : null;
+		config   = isObject(config)     ? config   : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (config !== null && isObject(config.mode)) {
@@ -494,14 +691,31 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 
-				return true;
+				if (callback !== null) {
+					callback(true);
+				} else {
+					return true;
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(false);
+				} else {
+					return false;
+				}
 
 			}
 
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			} else {
+				return false;
+			}
+
 		}
-
-
-		return false;
 
 	},
 

@@ -20,6 +20,10 @@ so no external libraries and no external programs are necessary.
   If set to `true`, it allows explicit debugging in code without loss of
   `process.stdout` data. The default value is `false`.
 
+- `--internet` is a boolean flag to toggle the inclusion of network
+  protocol tests against the internet or online reference test suites.
+  The default value is `true`.
+
 If a non-flag parameter is given, it is assumed to be a Query to filter
 the Reviews. This allows to debug a single Review or a Suite of related
 Reviews.
@@ -29,6 +33,9 @@ Reviews.
 ./bin/covert.sh client*;      # Execute reviews starting with "client"
 ./bin/covert.sh *Cache;       # Execute reviews ending with "Cache"
 ./bin/covert.sh client*Cache; # Execute reviews starting with "client" and ending with "Cache"
+
+./bin/covert.sh --debug=true;     # Execute reviews in debug mode
+./bin/covert.sh --internet=false; # Execute reviews in offline mode
 ```
 
 

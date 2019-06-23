@@ -23,27 +23,7 @@ describe('client.services.cache.save', function(assert) {
 			foo: 'bar'
 		}
 	}, (response) => {
-		assert(response === false);
-	});
-
-});
-
-describe('server.services.cache.save', function(assert) {
-
-	assert(this.server !== null);
-	assert(typeof this.server.services.cache.save === 'function');
-
-	this.server.services.cache.save({
-		domain: 'example.com',
-		path:   '/review/client/cache.json',
-		headers: {
-			'x-test': 'save'
-		},
-		payload: {
-			foo: 'bar'
-		}
-	}, (response) => {
-		assert(response !== null && response.payload === true);
+		assert(response === true);
 	});
 
 });
@@ -109,7 +89,27 @@ describe('client.services.cache.remove', function(assert) {
 		domain: 'example.com',
 		path:   '/review/client/cache.json'
 	}, (response) => {
-		assert(response === false);
+		assert(response === true);
+	});
+
+});
+
+describe('server.services.cache.save', function(assert) {
+
+	assert(this.server !== null);
+	assert(typeof this.server.services.cache.save === 'function');
+
+	this.server.services.cache.save({
+		domain: 'example.com',
+		path:   '/review/client/cache.json',
+		headers: {
+			'x-test': 'save'
+		},
+		payload: {
+			foo: 'bar'
+		}
+	}, (response) => {
+		assert(response !== null && response.payload === true);
 	});
 
 });

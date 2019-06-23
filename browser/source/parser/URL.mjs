@@ -1070,10 +1070,95 @@ const URL = {
 
 			return array.filter((url) => URL.isURL(url)).sort((a, b) => {
 
-				// TODO: If domain, sort by domain
-				// TODO: If domain and host or host and domain, compare
-				// TODO: If subdomain, sort by subdomains
-				// TODO: Sort by path
+				if (a.protocol === 'stealth' && b.protocol !== 'stealth') return  1;
+				if (b.protocol === 'stealth' && a.protocol !== 'stealth') return -1;
+
+
+				if (a.protocol !== null && b.protocol !== null) {
+
+					if (a.protocol < b.protocol) return -1;
+					if (b.protocol < a.protocol) return  1;
+
+				} else {
+
+					if (a.protocol !== null) return -1;
+					if (b.protocol !== null) return  1;
+
+				}
+
+				if (a.host !== null && b.host !== null) {
+
+					if (a.host < b.host) return -1;
+					if (b.host < a.host) return  1;
+
+				} else {
+
+					if (a.host !== null) return -1;
+					if (b.host !== null) return  1;
+
+				}
+
+				if (a.domain !== null && b.domain !== null) {
+
+					if (a.domain < b.domain) return -1;
+					if (b.domain < a.domain) return  1;
+
+					if (a.subdomain !== null && b.subdomain !== null) {
+
+						if (a.subdomain < b.subdomain) return -1;
+						if (b.subdomain < a.subdomain) return  1;
+
+					} else {
+
+						if (a.subdomain !== null) return  1;
+						if (b.subdomain !== null) return -1;
+
+					}
+
+				} else {
+
+					if (a.domain !== null) return -1;
+					if (b.domain !== null) return  1;
+
+				}
+
+				if (a.port !== null && b.port !== null) {
+
+					if (a.port < b.port) return -1;
+					if (b.port < a.port) return  1;
+
+				} else {
+
+					if (a.port !== null) return -1;
+					if (b.port !== null) return  1;
+
+				}
+
+				if (a.path !== null && b.path !== null) {
+
+					if (a.path < b.path) return -1;
+					if (b.path < a.path) return  1;
+
+				} else {
+
+					if (a.path !== null) return -1;
+					if (b.path !== null) return  1;
+
+				}
+
+				if (a.query !== null && b.query !== null) {
+
+					if (a.query < b.query) return -1;
+					if (b.query < a.query) return  1;
+
+				} else {
+
+					if (a.query !== null) return  1;
+					if (b.query !== null) return -1;
+
+				}
+
+				return 0;
 
 			});
 

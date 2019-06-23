@@ -208,12 +208,13 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **Current**
 
+- [ ] Create a Review Process that is executed _inside_ multiple Browser instances and
+      uses the `Element.query()` method and the Browser API in order to load and execute
+      tests. Offer a `Browser.execute()` and `browser.on('execute')` workflow that executes
+      a callback in the currently loaded iframe (via the browser/design adapters).
+
 - [ ] Review `Settings.read()` method.
-
-**Pages**
-
 - [ ] Implement `stealth:fix-request` page and Peer download support.
-- [ ] Allow `cache.save()` to make uploads via the Browser possible.
 
 **Session**
 

@@ -29,6 +29,8 @@ before('HTTP.connect', function(assert) {
 		this.socket = null;
 	});
 
+}, {
+	internet: true
 });
 
 describe('HTTP.send', function(assert) {
@@ -49,6 +51,8 @@ describe('HTTP.send', function(assert) {
 
 	HTTP.send(this.socket, REQUEST);
 
+}, {
+	internet: true
 });
 
 describe('HTTP.receive', function(assert) {

@@ -58,11 +58,16 @@ describe('request', function(assert) {
 
 	this.request.init();
 
+}, {
+	internet: true
 });
 
 describe('request/kill', function(assert) {
 
-	this.request.kill();
+	if (this.request !== null && this.request !== undefined) {
+		this.request.kill();
+	}
+
 	this.request = null;
 
 	assert(this.request === null);
@@ -116,11 +121,16 @@ describe('request/cache', function(assert) {
 
 	this.request.init();
 
+}, {
+	internet: true
 });
 
 describe('request/kill', function(assert) {
 
-	this.request.kill();
+	if (this.request !== null && this.request !== undefined) {
+		this.request.kill();
+	}
+
 	this.request = null;
 
 	assert(this.request === null);
@@ -161,7 +171,10 @@ describe('request/redirect', function(assert) {
 
 describe('request/kill', function(assert) {
 
-	this.request.kill();
+	if (this.request !== null && this.request !== undefined) {
+		this.request.kill();
+	}
+
 	this.request = null;
 
 	assert(this.request === null);

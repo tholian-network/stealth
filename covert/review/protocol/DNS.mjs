@@ -29,6 +29,8 @@ describe('DNS.resolve', function(assert) {
 
 	});
 
+}, {
+	internet: true
 });
 
 

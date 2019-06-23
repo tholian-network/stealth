@@ -29,7 +29,10 @@ const ARGV  = Array.from(process.argv).slice(2).map((v) => v.trim()).filter((v) 
 const ARGS  = Array.from(ARGV).filter((v) => v.startsWith('--') === false);
 const FLAGS = (() => {
 
-	let flags = {};
+	let flags = {
+		debug:    false,
+		internet: true
+	};
 
 	Array.from(ARGV).filter((v) => v.startsWith('--') === true).forEach((flag) => {
 
@@ -122,6 +125,17 @@ const settings = {
 				});
 
 			}
+
+		} else if (FLAGS.internet === false) {
+
+
+			reviews.forEach((review) => {
+
+				review.tests = review.tests.filter((test) => {
+					return test.flags.internet !== true;
+				});
+
+			});
 
 		}
 

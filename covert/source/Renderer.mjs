@@ -151,7 +151,13 @@ Renderer.prototype = {
 
 
 			if (data.state === state) {
-				console.warn('running "' + data.state.test.name + '" ... ');
+
+				if (data.state.test !== null) {
+					console.warn('running "' + data.state.test.name + '" ... ');
+				} else {
+					console.warn('running ... ');
+				}
+
 			} else if (status === 'okay') {
 				console.info('okay.');
 			} else if (status === 'fail') {

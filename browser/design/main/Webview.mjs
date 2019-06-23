@@ -1,7 +1,8 @@
 
-import { isBoolean } from '../../source/POLYFILLS.mjs';
-import { dispatch  } from '../control.mjs';
-import { Element   } from '../Element.mjs';
+import { isBoolean, isFunction } from '../../source/POLYFILLS.mjs';
+
+import { dispatch } from '../control.mjs';
+import { Element  } from '../Element.mjs';
 
 
 
@@ -98,6 +99,30 @@ const Webview = function(browser) {
 		}
 
 		// TODO: Modify links (a[href])
+
+	});
+
+
+	browser.on('execute', (code, done) => {
+
+		if (isFunction(code)) {
+
+			code.call(null,
+				browser,
+				this.window
+			);
+
+			if (isFunction(done)) {
+				done(true);
+			}
+
+		} else {
+
+			if (isFunction(done)) {
+				done(false);
+			}
+
+		}
 
 	});
 

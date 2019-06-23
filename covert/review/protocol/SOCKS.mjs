@@ -30,6 +30,8 @@ before('SOCKS.connect', function(assert) {
 		this.socket = null;
 	});
 
+}, {
+	internet: true
 });
 
 describe('SOCKS.send', function(assert) {
@@ -50,6 +52,8 @@ describe('SOCKS.send', function(assert) {
 
 	SOCKS.send(this.socket, REQUEST);
 
+}, {
+	internet: true
 });
 
 describe('SOCKS.receive', function(assert) {

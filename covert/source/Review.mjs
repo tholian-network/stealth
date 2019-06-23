@@ -1,7 +1,8 @@
 
-import { isFunction, isObject, isString } from './POLYFILLS.mjs';
-import { Results                        } from './Results.mjs';
-import { Timeline                       } from './Timeline.mjs';
+import { isBoolean, isFunction, isObject, isString } from './POLYFILLS.mjs';
+
+import { Results  } from './Results.mjs';
+import { Timeline } from './Timeline.mjs';
 
 
 
@@ -87,23 +88,42 @@ export const before = function(name, callback) {
 
 };
 
-export const describe = function(name, callback) {
+export const describe = function(name, callback, flags) {
 
 	if (isObject(name) === true) {
 		callback = isFunction(name.callback) ? name.callback : null;
 		name     = isString(name.name)       ? name.name     : null;
+		flags    = isObject(name.flags)      ? name.flags    : null;
 	} else {
 		name     = isString(name)       ? name     : null;
 		callback = isFunction(callback) ? callback : null;
+		flags    = isObject(flags)      ? flags    : null;
 	}
 
 
 	if (name !== null && callback !== null) {
 
+		if (flags !== null) {
+
+			for (let key in flags) {
+
+				let val = flags[key];
+				if (isBoolean(val) === false) {
+					delete flags[key];
+				}
+
+			}
+
+		} else {
+			flags = {};
+		}
+
+
 		let test = {
 			name:     name,
 			callback: callback,
 			results:  Results.from(callback),
+			flags:    flags,
 			timeline: Timeline.from(callback)
 		};
 

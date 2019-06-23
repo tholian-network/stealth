@@ -67,6 +67,8 @@ describe('client.services.host.refresh', function(assert) {
 
 	});
 
+}, {
+	internet: true
 });
 
 describe('client.services.host.read', function(assert) {
@@ -89,6 +91,8 @@ describe('client.services.host.read', function(assert) {
 
 	});
 
+}, {
+	internet: true
 });
 
 describe('client.services.host.remove', function(assert) {
