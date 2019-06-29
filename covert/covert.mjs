@@ -4,26 +4,28 @@ import process from 'process';
 import { console } from './source/console.mjs';
 import { Covert  } from './source/Covert.mjs';
 
-import Server   from './review/Server.mjs';
-import Client   from './review/Client.mjs';
-import Peers    from './review/Peers.mjs';
-import Request  from './review/Request.mjs';
-import HOSTS    from './review/parser/HOSTS.mjs';
-import IP       from './review/parser/IP.mjs';
-import URL      from './review/parser/URL.mjs';
-import DNS      from './review/protocol/DNS.mjs';
-import HTTP     from './review/protocol/HTTP.mjs';
-import HTTPS    from './review/protocol/HTTPS.mjs';
-import SOCKS    from './review/protocol/SOCKS.mjs';
-import WS       from './review/protocol/WS.mjs';
-import WSS      from './review/protocol/WSS.mjs';
-import Cache    from './review/client/Cache.mjs';
-import Filter   from './review/client/Filter.mjs';
-import Host     from './review/client/Host.mjs';
-import Mode     from './review/client/Mode.mjs';
-import Peer     from './review/client/Peer.mjs';
-import Redirect from './review/client/Redirect.mjs';
-import Stash    from './review/client/Stash.mjs';
+import Server          from './review/Server.mjs';
+import Request         from './review/Request.mjs';
+import Parser_HOSTS    from './review/parser/HOSTS.mjs';
+import Parser_IP       from './review/parser/IP.mjs';
+import Parser_URL      from './review/parser/URL.mjs';
+import Protocol_DNS    from './review/protocol/DNS.mjs';
+import Protocol_HTTP   from './review/protocol/HTTP.mjs';
+import Protocol_HTTPS  from './review/protocol/HTTPS.mjs';
+import Protocol_SOCKS  from './review/protocol/SOCKS.mjs';
+import Protocol_WS     from './review/protocol/WS.mjs';
+import Protocol_WSS    from './review/protocol/WSS.mjs';
+import Client          from './review/Client.mjs';
+import Client_Cache    from './review/client/Cache.mjs';
+import Client_Filter   from './review/client/Filter.mjs';
+import Client_Host     from './review/client/Host.mjs';
+import Client_Mode     from './review/client/Mode.mjs';
+import Client_Peer     from './review/client/Peer.mjs';
+import Client_Redirect from './review/client/Redirect.mjs';
+import Client_Stash    from './review/client/Stash.mjs';
+import Peer            from './review/Peer.mjs';
+import Peer_Cache      from './review/peer/Cache.mjs';
+
 
 const ARGV  = Array.from(process.argv).slice(2).map((v) => v.trim()).filter((v) => v !== '');
 const ARGS  = Array.from(ARGV).filter((v) => v.startsWith('--') === false);
@@ -75,22 +77,37 @@ const settings = {
 		let reviews = [
 
 			// Parsers
-			HOSTS, IP, URL,
+			Parser_HOSTS,
+			Parser_IP,
+			Parser_URL,
 
 			// Network Protocols
-			DNS, HTTP, HTTPS, SOCKS, WS, WSS,
+			Protocol_DNS,
+			Protocol_HTTP,
+			Protocol_HTTPS,
+			Protocol_SOCKS,
+			Protocol_WS,
+			Protocol_WSS,
 
 			// Server/Client
-			Server, Client,
+			Server,
+			Client,
 
 			// Network Services
-			Cache, Filter, Host, Mode, Peer, Redirect, Stash,
+			Client_Cache,
+			Client_Filter,
+			Client_Host,
+			Client_Mode,
+			Client_Peer,
+			Client_Redirect,
+			Client_Stash,
 
 			// Request
 			Request,
 
 			// Peer-to-Peer
-			Peers
+			Peer,
+			Peer_Cache
 
 		];
 
