@@ -224,20 +224,77 @@ if (browser !== null) {
 
 			if (action === 'request') {
 
-				// TODO
-				// -> peer.request( data.domain, URL )
-				// -> then peer.proxy (data.domain, cache.read)
-				// -> then cache.save(response)
+				service.proxy({
+					domain:  data.domain,
+					headers: {
+						service: 'session',
+						method:  'request'
+					},
+					payload: STATUS.url
+				}, (response) => {
 
-				console.log('request', data);
+					if (response !== null) {
+
+						let service = browser.client.services.cache || null;
+						if (service !== null) {
+
+							service.save({
+								domain:    STATUS.url.domain    || null,
+								host:      STATUS.url.host      || null,
+								subdomain: STATUS.url.subdomain || null,
+								path:      STATUS.url.path      || null,
+								headers:   response.headers     || null,
+								payload:   response.payload     || null
+							}, (result) => {
+								done(result);
+							});
+
+						} else {
+							done(false);
+						}
+
+					} else {
+						done(false);
+					}
+
+				});
 
 			} else if (action === 'download') {
 
-				// TODO
-				// -> peer.proxy( data.domain, cache.read )
-				// -> then cache.save(response)
+				service.proxy({
+					domain:  data.domain,
+					headers: {
+						service: 'cache',
+						method:  'read'
+					},
+					payload: STATUS.url
+				}, (response) => {
 
-				console.log('download', data);
+					if (response !== null) {
+
+						let service = browser.client.services.cache || null;
+						if (service !== null) {
+
+							service.save({
+								domain:    STATUS.url.domain    || null,
+								host:      STATUS.url.host      || null,
+								subdomain: STATUS.url.subdomain || null,
+								path:      STATUS.url.path      || null,
+								headers:   response.headers     || null,
+								payload:   response.payload     || null
+							}, (result) => {
+								done(result);
+							});
+
+						} else {
+							done(false);
+						}
+
+					} else {
+						done(false);
+					}
+
+				});
 
 			} else {
 				done(false);

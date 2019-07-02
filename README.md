@@ -214,7 +214,6 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
       a callback in the currently loaded iframe (via the browser/design adapters).
 
 - [ ] Review `Settings.read()` method.
-- [ ] Implement `stealth:fix-request` page and Peer download support.
 
 **Session**
 

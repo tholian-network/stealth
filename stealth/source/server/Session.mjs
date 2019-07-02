@@ -60,6 +60,79 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
+	},
+
+	request: function(payload, callback) {
+
+		payload  = URL.isURL(payload)   ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			let request = this.stealth.open(URL.render(payload));
+			if (request !== null) {
+
+				request.on('error', () => {
+
+					callback({
+						headers: {
+							service: 'session',
+							event:   'request'
+						},
+						payload: null
+					});
+
+				});
+
+				request.on('redirect', (response) => {
+
+					callback({
+						headers: {
+							service: 'session',
+							event:   'request'
+						},
+						payload: response
+					});
+
+				});
+
+				request.on('response', (response) => {
+
+					callback({
+						headers: {
+							service: 'session',
+							event:   'request'
+						},
+						payload: response
+					});
+
+				});
+
+			} else {
+
+				callback({
+					headers: {
+						service: 'session',
+						event:   'request'
+					},
+					payload: null
+				});
+
+			}
+
+		} else if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'request'
+				},
+				payload: null
+			});
+
+		}
+
 	}
 
 });
