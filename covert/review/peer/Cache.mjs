@@ -127,8 +127,8 @@ after('peers[].disconnect', function(assert) {
 	assert(this.peers[0].stealth.disconnect());
 	this.peers.splice(0, 1);
 
-	assert(this.peers[1].client.disconnect());
-	assert(this.peers[1].stealth.disconnect());
+	assert(this.peers[0].client.disconnect());
+	assert(this.peers[0].stealth.disconnect());
 	this.peers.splice(0, 1);
 
 	assert(this.peers.length === 0);

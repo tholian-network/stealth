@@ -485,12 +485,32 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 
 export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
+	if (buffer.fragment === undefined) {
+		buffer.fragment = null;
+	}
+
+	if (buffer.fragment !== null) {
+		fragment = Buffer.concat([ buffer.fragment, fragment ]);
+		buffer.fragment = null;
+	}
+
 	if (socket._ws_client === true) {
 
 		WS.receive(socket, fragment, (frame) => {
 
 			if (frame !== null) {
+
+				// TODO: buffer.fragment should be
+				// buffer.fragment.length - frame.length
+				// but dunno for sure :-/
+
+				buffer.fragment = null;
 				emitter.emit('response', [ frame ]);
+
+			} else {
+
+				buffer.fragment = fragment;
+
 			}
 
 		});
@@ -500,7 +520,16 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 		WS.receive(socket, fragment, (frame) => {
 
 			if (frame !== null) {
+
+				// TODO: like above
+
+				buffer.fragment = null;
 				emitter.emit('request', [ frame ]);
+
+			} else {
+
+				buffer.fragment = fragment;
+
 			}
 
 		});
@@ -744,7 +773,11 @@ const WS = {
 
 				} else if (data.fragment === true) {
 
-					// Do nothing
+					if (callback !== null) {
+						callback(null);
+					} else {
+						return null;
+					}
 
 				} else {
 

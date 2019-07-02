@@ -208,9 +208,6 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **Current**
 
-- [ ] `protocol/WS` is broken when payload frames are larger than 65kB.
-      Review `peer/Cache` implements a scenario with correct fragmentation (for nodejs to nodejs communication)
-
 - [ ] Create a Review Process that is executed _inside_ multiple Browser instances and
       uses the `Element.query()` method and the Browser API in order to load and execute
       tests. Offer a `Browser.execute()` and `browser.on('execute')` workflow that executes
