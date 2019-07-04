@@ -2,6 +2,7 @@
 import { isFunction, isObject } from '../POLYFILLS.mjs';
 
 import { Emitter } from '../Emitter.mjs';
+import { URL     } from '../parser/URL.mjs';
 
 
 

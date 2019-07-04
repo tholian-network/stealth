@@ -117,22 +117,7 @@ const Session = function(data, stealth) {
 	this.tabs    = {};
 	this.warning = 0;
 
-
-	let address = headers['@remote'] || null;
-	if (address !== null) {
-
-		let ip = IP.parse(address);
-		if (ip.type !== null) {
-			this.id = IP.render(ip);
-		}
-
-	}
-
-
-	let agent = headers['user-agent'] || null;
-	if (agent !== null) {
-		this.agent = UA.parse(agent);
-	}
+	this.set(headers);
 
 };
 
@@ -328,6 +313,29 @@ Session.prototype = {
 
 			}
 
+		}
+
+	},
+
+	set: function(headers) {
+
+		headers = isObject(headers) ? headers : {};
+
+
+		let address = headers['@remote'] || null;
+		if (address !== null) {
+
+			let ip = IP.parse(address);
+			if (ip.type !== null) {
+				this.id = IP.render(ip);
+			}
+
+		}
+
+
+		let agent = headers['user-agent'] || null;
+		if (agent !== null) {
+			this.agent = UA.parse(agent);
 		}
 
 	},

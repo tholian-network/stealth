@@ -3,8 +3,10 @@ import { Element } from '../Element.mjs';
 
 
 
-const TEMPLATE = `
+const TEMPLATE = (session) => `
 <article>
+	<h3>Session #${session.id}</h3>
+	<h3>History</h3>
 	<h3>Requests</h3>
 </article>
 `;
@@ -21,7 +23,18 @@ const Session = function(browser, widgets) {
 	});
 
 	this.element.on('show', () => {
+
+		let service = browser.client.services.session || null;
+		if (service !== null) {
+
+			service.read({}, (session) => {
+				console.log('session', session);
+			});
+
+		}
+
 		this.element.state('active');
+
 	});
 
 	this.element.on('hide', () => {

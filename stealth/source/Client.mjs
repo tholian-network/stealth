@@ -8,6 +8,7 @@ import { Host     } from './client/Host.mjs';
 import { Mode     } from './client/Mode.mjs';
 import { Peer     } from './client/Peer.mjs';
 import { Redirect } from './client/Redirect.mjs';
+import { Session  } from './client/Session.mjs';
 import { Settings } from './client/Settings.mjs';
 import { Stash    } from './client/Stash.mjs';
 import { URL      } from './parser/URL.mjs';
@@ -32,6 +33,7 @@ const Client = function(stealth) {
 		mode:     new Mode(this),
 		peer:     new Peer(this),
 		redirect: new Redirect(this),
+		session:  new Session(this),
 		settings: new Settings(this),
 		stash:    new Stash(this)
 	};

@@ -343,7 +343,9 @@ Stealth.prototype = {
 
 			}
 
-			if (session === null) {
+			if (session !== null) {
+				session.set(headers);
+			} else {
 				session = new Session(headers);
 				sessions.push(session);
 			}

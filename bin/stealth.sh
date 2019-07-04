@@ -24,6 +24,7 @@ cp ./stealth/source/client/Host.mjs     ./browser/source/client/Host.mjs;
 cp ./stealth/source/client/Mode.mjs     ./browser/source/client/Mode.mjs;
 cp ./stealth/source/client/Peer.mjs     ./browser/source/client/Peer.mjs;
 cp ./stealth/source/client/Redirect.mjs ./browser/source/client/Redirect.mjs;
+cp ./stealth/source/client/Session.mjs  ./browser/source/client/Session.mjs;
 cp ./stealth/source/client/Settings.mjs ./browser/source/client/Settings.mjs;
 cp ./stealth/source/client/Stash.mjs    ./browser/source/client/Stash.mjs;
 cp ./stealth/source/parser/IP.mjs       ./browser/source/parser/IP.mjs;

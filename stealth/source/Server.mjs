@@ -14,6 +14,7 @@ import { Host     } from './server/Host.mjs';
 import { Mode     } from './server/Mode.mjs';
 import { Peer     } from './server/Peer.mjs';
 import { Redirect } from './server/Redirect.mjs';
+import { Session  } from './server/Session.mjs';
 import { Settings } from './server/Settings.mjs';
 import { Stash    } from './server/Stash.mjs';
 
@@ -290,6 +291,7 @@ const Server = function(stealth) {
 		mode:     new Mode(stealth),
 		peer:     new Peer(stealth),
 		redirect: new Redirect(stealth),
+		session:  new Session(stealth),
 		settings: new Settings(stealth),
 		stash:    new Stash(stealth)
 	};
