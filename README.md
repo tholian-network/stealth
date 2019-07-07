@@ -217,6 +217,7 @@ firefox -profile /tmp/stealth -new-instance -no-remote "http://localhost:65432/b
 
 **Session**
 
+- [ ] Render `session` result from client service correctly.
 - [ ] Implement `stealth/source/server/Session.mjs` service that is used for the sidebar.
 - [ ] Implement `stealth/source/client/Session.mjs` (and add it to the `./bin/*.sh` files).
 - [ ] Implement `pause` button event handling that should kill all requests that are part of

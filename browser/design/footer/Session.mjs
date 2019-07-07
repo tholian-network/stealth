@@ -6,8 +6,39 @@ import { Element } from '../Element.mjs';
 const TEMPLATE = (session) => `
 <article>
 	<h3>Session #${session.id}</h3>
-	<h3>History</h3>
+</article>
+<article>
 	<h3>Requests</h3>
+	<table>
+		<thead>
+			<tr>
+				<th>URL</th>
+				<th>Timeline</th>
+				<th>State</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr data-visible="true">
+				<td data-key="url">https://cookie.engineer/index.html</td>
+				<td>
+					<button disabled data-key="timeline.init" data-val="true" title="25.05.2019 14:58"></button>
+					<button disabled data-key="timeline.cache" data-val="true" title="25.05.2019 14:58"></button>
+					<button disabled data-key="timeline.stash" data-val="false"></button>
+					<button disabled data-key="timeline.block" data-val="false"></button>
+					<button disabled data-key="timeline.mode" data-val="false"></button>
+					<button disabled data-key="timeline.filter" data-val="false"></button>
+					<button disabled data-key="timeline.connect" data-val="true" title="25.05.2019 14:59"></button>
+					<button disabled data-key="timeline.download" data-val="true" title="25.05.2019 14:59"></button>
+					<button disabled data-key="timeline.optimize" data-val="true" title="25.05.2019 14:59"></button>
+				</td>
+				<td><button disabled data-key="state" data-val="response"></button></td>
+				<td>
+					<button data-action="kill"></button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </article>
 `;
 
@@ -29,7 +60,12 @@ const Session = function(browser, widgets) {
 		if (service !== null) {
 
 			service.read({}, (session) => {
+
+				// TODO: Render session correctly
+				this.element.value(TEMPLATE(session));
+
 				console.log('session', session);
+
 			});
 
 		}

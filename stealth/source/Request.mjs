@@ -42,9 +42,14 @@ const Request = function(data, stealth) {
 	this.retries  = 0;
 	this.stealth  = stealth;
 	this.timeline = {
-		init:     null,
+
+		// error workflow
 		error:    null,
 		kill:     null,
+		redirect: null,
+
+		// response workflow
+		init:     null,
 		cache:    null,
 		stash:    null,
 		block:    null,
@@ -54,6 +59,7 @@ const Request = function(data, stealth) {
 		download: null,
 		optimize: null,
 		response: null
+
 	};
 
 
@@ -457,6 +463,8 @@ const Request = function(data, stealth) {
 
 		} else if (response !== null && response.headers !== null) {
 
+			this.timeline.redirect = Date.now();
+
 			let location = response.headers['location'] || null;
 			if (location !== null) {
 
@@ -473,6 +481,8 @@ const Request = function(data, stealth) {
 	this.on('response', (response) => {
 
 		if (response !== null && response.payload !== null) {
+
+			this.timeline.response = Date.now();
 
 			if (this.response !== response) {
 				this.response = response;
@@ -654,8 +664,8 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 			let download = this.download || null;
 			if (download !== null) {
-				this.download = null;
 				download.kill();
+				this.download = null;
 			}
 
 		}

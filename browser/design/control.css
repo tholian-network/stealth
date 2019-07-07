@@ -77,6 +77,18 @@ article button[data-key="mode.video"]:before      { content: '\e404'; }
 article button[data-key="mode.other"]:before      { content: '\e048'; }
 article button[data-key^="mode"][data-val="true"] { color: #ffffff;   }
 
+article button[data-key="timeline.init"]:before       { content: '\e037'; }
+article button[data-key="timeline.cache"]:before      { content: '\e84f'; }
+article button[data-key="timeline.stash"]:before      { content: '\e84f'; }
+article button[data-key="timeline.block"]:before      { content: '\e32a'; }
+article button[data-key="timeline.mode"]:before       { content: '\e32a'; }
+article button[data-key="timeline.filter"]:before     { content: '\e152'; }
+article button[data-key="timeline.connect"]:before    { content: '\e8be'; }
+article button[data-key="timeline.download"]:before   { content: '\e2c4'; }
+article button[data-key="timeline.optimize"]:before   { content: '\e428'; }
+article button[data-key="timeline.response"]:before   { content: '\e7e9'; }
+article button[data-key^="timeline"][data-val="true"] { color: #ffffff;   }
+
 article button[data-action].busy:before {
 	color: #666666;
 	background: transparent;
