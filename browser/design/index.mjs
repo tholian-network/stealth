@@ -91,7 +91,8 @@ setTimeout(() => {
 				// 'stealth:fix-host?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
 				// 'stealth:fix-mode?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
 				// 'stealth:fix-filter?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-				'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=socket-stability&code=403'
+				// 'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=socket-stability&code=403'
+				'https://cookie.engineer/index.html'
 			].map((url) => {
 				return BROWSER.open(url);
 			}).slice(-1).forEach((tab) => {

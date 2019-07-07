@@ -53,6 +53,8 @@ const parse_payload = function(payload) {
 							chunk !== ''
 							&& chunk !== 'localhost'
 							&& chunk !== 'localhost.localdomain'
+							&& chunk !== 'ipv6-localhost'
+							&& chunk !== 'ipv6-localhost.localdomain'
 						) {
 
 							domains.push(chunk);
@@ -77,6 +79,8 @@ const parse_payload = function(payload) {
 								chunk !== ''
 								&& chunk !== 'localhost'
 								&& chunk !== 'localhost.localdomain'
+								&& chunk !== 'ipv6-localhost'
+								&& chunk !== 'ipv6-localhost.localdomain'
 							) {
 
 								domains.push(chunk);

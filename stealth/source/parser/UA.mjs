@@ -75,6 +75,10 @@ const BROWSER = {
 				system = 'desktop';
 			} else if (agent.includes('Android')) {
 				system = 'mobile';
+			} else if (agent.includes('iPad') || agent.includes('iPhone')) {
+				system = 'mobile';
+			} else if (agent.includes('Linux')) {
+				system = 'desktop';
 			}
 
 			if (agent.includes('Chrome/')) {

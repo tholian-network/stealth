@@ -12,6 +12,7 @@ const TEMPLATE = (session) => `
 `;
 
 
+
 const Session = function(browser, widgets) {
 
 	this.element = Element.from('browser-session', TEMPLATE);

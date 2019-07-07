@@ -1,4 +1,6 @@
 
+import os from 'os';
+
 import { isFunction, isObject, isString } from './POLYFILLS.mjs';
 
 import { console  } from './console.mjs';
@@ -8,6 +10,8 @@ import { Session  } from './Session.mjs';
 import { Settings } from './Settings.mjs';
 import { IP       } from './parser/IP.mjs';
 import { URL      } from './parser/URL.mjs';
+
+const HOSTNAME = os.hostname();
 
 
 
@@ -324,8 +328,34 @@ Stealth.prototype = {
 
 			if (address !== null) {
 
-				let ip  = IP.parse(address);
-				let sid = IP.render(ip);
+				// XXX: This is a Chromium Bug, two parallel connections
+				// lead to ::ffff:127.0.0.2-255 remote address
+				// whereas the initial connection uses ::1
+				if (address === '::1' || address.startsWith('127.0.0.')) {
+					address = '127.0.0.1';
+				}
+
+
+				let ip   = IP.parse(address);
+				let host = this.settings.hosts.find((host) => {
+
+					let found = host.hosts.find((h) => h.ip === ip.ip) || null;
+					if (found !== null) {
+						return true;
+					}
+
+					return false;
+
+				}) || null;
+
+				let sid = ip.ip || null;
+				if (sid === '::1') {
+					headers.id = sid = HOSTNAME;
+				} else if (sid === '127.0.0.1') {
+					headers.id = sid = HOSTNAME;
+				} else if (host !== null) {
+					headers.id = sid = host.domain;
+				}
 
 				if (sid !== null) {
 

@@ -107,17 +107,21 @@ const remove_request = function(request) {
 
 const Session = function(data, stealth) {
 
-	let headers = Object.assign({}, data);
+	let settings = Object.assign({}, data);
 
 
 	this.id      = 'session-' + Date.now();
-	this.agent   = null;
+	this.agent   = {
+		engine:  null,
+		system:  null,
+		version: null
+	};
 	this.history = {};
 	this.stealth = stealth;
 	this.tabs    = {};
 	this.warning = 0;
 
-	this.set(headers);
+	this.set(settings);
 
 };
 
@@ -298,11 +302,11 @@ Session.prototype = {
 				});
 
 				request.on('connect', () => {
-					console.log('Session #' + this.id + ' tab #' + tab + ' requests "' + request.url + '".');
+					console.log('Session "' + this.id + '" tab #' + tab + ' requests "' + request.url + '".');
 				});
 
 				request.on('progress', (response, progress) => {
-					console.step('Session #' + this.id + ' tab #' + tab + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
+					console.step('Session "' + this.id + '" tab #' + tab + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
 				});
 
 				request.on('error',    () => remove_request.call(this, request));
@@ -317,25 +321,37 @@ Session.prototype = {
 
 	},
 
-	set: function(headers) {
+	set: function(settings) {
 
-		headers = isObject(headers) ? headers : {};
+		settings = isObject(settings) ? settings : {};
 
 
-		let address = headers['@remote'] || null;
-		if (address !== null) {
+		let id = settings['id'] || null;
+		if (id !== null) {
+			this.id = id;
+		}
 
-			let ip = IP.parse(address);
-			if (ip.type !== null) {
-				this.id = IP.render(ip);
+		if (this.id.startsWith('session-')) {
+
+			let address = settings['@remote'] || null;
+			if (address !== null) {
+
+				let ip = IP.parse(address);
+				if (ip.type !== null) {
+					this.id = IP.render(ip);
+				}
+
 			}
 
 		}
 
+		if (this.agent.engine === null) {
 
-		let agent = headers['user-agent'] || null;
-		if (agent !== null) {
-			this.agent = UA.parse(agent);
+			let agent = settings['user-agent'] || null;
+			if (agent !== null) {
+				this.agent = UA.parse(agent);
+			}
+
 		}
 
 	},
@@ -353,15 +369,15 @@ Session.prototype = {
 		if (service !== null) {
 
 			if (method !== null) {
-				console.warn('Session #' + this.id + ' received warning #' + this.warning + ' for ' + service + '.' + method + '() call.');
+				console.warn('Session "' + this.id + '" received warning #' + this.warning + ' for ' + service + '.' + method + '() call.');
 			} else if (event !== null) {
-				console.warn('Session #' + this.id + ' received warning #' + this.warning + ' for ' + service + '@' + event + ' call.');
+				console.warn('Session "' + this.id + '" received warning #' + this.warning + ' for ' + service + '@' + event + ' call.');
 			} else {
-				console.warn('Session #' + this.id + ' received warning #' + this.warning + ' for ' + service + ' abuse.');
+				console.warn('Session "' + this.id + '" received warning #' + this.warning + ' for ' + service + ' abuse.');
 			}
 
 		} else {
-			console.warn('Session #' + this.id + ' received warning #' + this.warning + '.');
+			console.warn('Session "' + this.id + '" received warning #' + this.warning + '.');
 		}
 
 
@@ -376,12 +392,12 @@ Session.prototype = {
 		for (let tab in this.tabs) {
 
 			this.tabs[tab].forEach((request) => {
-				console.log('Session #' + this.id + ' tab #' + tab + ' remains "' + request.url + '".');
+				console.log('Session "' + this.id + '" tab #' + tab + ' remains "' + request.url + '".');
 			});
 
 		}
 
-		console.log('Session #' + this.id + ' disconnected.');
+		console.log('Session "' + this.id + '" disconnected.');
 
 	}
 
