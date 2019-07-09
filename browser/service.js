@@ -75,7 +75,7 @@ const ASSETS  = [
 	'internal/settings/sites.css',
 	'internal/settings/sites.mjs',
 	'internal/welcome.html',
-	'internal/welcome/index.mjs',
+	'internal/welcome/index.css',
 	'source/console.mjs',
 	'source/POLYFILLS.mjs',
 	'source/Browser.mjs',
@@ -175,6 +175,8 @@ self.addEventListener('install', (event) => {
 			console.error(err);
 		});
 
+	}).catch((err) => {
+		console.error(err);
 	}));
 
 });
