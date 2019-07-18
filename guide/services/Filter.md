@@ -30,7 +30,7 @@ It always responds with an Array of filter Objects.
 
 ## read()
 
-`remove({ id: String }, callback)`
+`read({ id: String }, callback)`
 
 reads a `filter` setting from the local Stealth `profile` folder.
 

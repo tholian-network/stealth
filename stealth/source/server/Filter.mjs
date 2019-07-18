@@ -100,7 +100,9 @@ Filter.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (payload.subdomain !== null) {
 					filters = settings.filters.filter((f) => f.domain === payload.subdomain + '.' + payload.domain);
-				} else{
+				} else if (payload.domain === '*') {
+					filters = settings.filters;
+				} else {
 					filters = settings.filters.filter((f) => f.domain === payload.domain);
 				}
 

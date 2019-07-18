@@ -348,21 +348,21 @@ Stealth.prototype = {
 
 				}) || null;
 
-				let sid = ip.ip || null;
-				if (sid === '::1') {
-					headers.id = sid = HOSTNAME;
-				} else if (sid === '127.0.0.1') {
-					headers.id = sid = HOSTNAME;
+				let sdomain = ip.ip || null;
+				if (sdomain === '::1') {
+					headers['domain'] = sdomain = HOSTNAME;
+				} else if (sdomain === '127.0.0.1') {
+					headers['domain'] = sdomain = HOSTNAME;
 				} else if (host !== null) {
-					headers.id = sid = host.domain;
+					headers['domain'] = sdomain = host.domain;
 				}
 
-				if (sid !== null) {
+				if (sdomain !== null) {
 
 					for (let s = 0; s < sessions.length; s++) {
 
 						let other = sessions[s];
-						if (other.id === sid) {
+						if (other.domain === sdomain) {
 							session = other;
 							break;
 						}

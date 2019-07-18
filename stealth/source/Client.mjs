@@ -117,12 +117,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 						let event   = response.headers.event   || null;
 						let method  = response.headers.method  || null;
-						let session = response.headers.session || null;
 						let service = response.headers.service || null;
-
-						if (session !== null) {
-							this.emit('session', [ session ]);
-						}
 
 						if (service !== null && event !== null) {
 
@@ -217,10 +212,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 				});
 
 				this.connection.on('@disconnect', () => {
-
 					this.disconnect();
-					this.emit('session', [ null ]);
-
 				});
 
 				return true;

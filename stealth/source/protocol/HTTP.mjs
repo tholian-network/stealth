@@ -426,64 +426,82 @@ const HTTP = {
 				let socket = emitter.socket || null;
 				if (socket === null) {
 
-					socket = net.connect({
-						host: hosts[0].ip,
-						port: ref.port || 80,
-					}, () => {
+					try {
 
-						onconnect(socket, ref, buffer, emitter);
-						emitter.socket = socket;
+						socket = net.connect({
+							host: hosts[0].ip,
+							port: ref.port || 80,
+						}, () => {
 
-					});
+							onconnect(socket, ref, buffer, emitter);
+							emitter.socket = socket;
+
+						});
+
+					} catch (err) {
+						// Ignore Errors
+					}
 
 				}
 
-				socket.on('data', (fragment) => {
-					ondata(socket, ref, buffer, emitter, fragment);
-				});
 
-				socket.on('timeout', () => {
+				if (socket !== null) {
 
-					if (emitter.socket !== null) {
+					socket.on('data', (fragment) => {
+						ondata(socket, ref, buffer, emitter, fragment);
+					});
 
-						emitter.socket = null;
+					socket.on('timeout', () => {
 
-						if (buffer !== null && buffer.partial === true) {
-							emitter.emit('timeout', [{
-								headers: ref.headers,
-								payload: buffer.payload
-							}]);
-						} else {
-							emitter.emit('timeout', [ null ]);
+						if (emitter.socket !== null) {
+
+							emitter.socket = null;
+
+							if (buffer !== null && buffer.partial === true) {
+								emitter.emit('timeout', [{
+									headers: ref.headers,
+									payload: buffer.payload
+								}]);
+							} else {
+								emitter.emit('timeout', [ null ]);
+							}
+
 						}
 
-					}
+					});
 
-				});
+					socket.on('error', () => {
 
-				socket.on('error', () => {
+						if (emitter.socket !== null) {
 
-					if (emitter.socket !== null) {
+							onerror(socket, ref, buffer, emitter);
+							emitter.socket = null;
 
-						onerror(socket, ref, buffer, emitter);
-						emitter.socket = null;
+						}
 
-					}
+					});
 
-				});
+					socket.on('end', () => {
 
-				socket.on('end', () => {
+						if (emitter.socket !== null) {
 
-					if (emitter.socket !== null) {
+							onend(socket, ref, buffer, emitter);
+							emitter.socket = null;
 
-						onend(socket, ref, buffer, emitter);
-						emitter.socket = null;
+						}
 
-					}
+					});
 
-				});
+					return emitter;
 
-				return emitter;
+				} else {
+
+					emitter.socket = null;
+					emitter.emit('error', [{ type: 'request' }]);
+
+					return null;
+
+				}
 
 			} else {
 

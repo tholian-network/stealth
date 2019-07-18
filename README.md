@@ -123,6 +123,8 @@ Peer-to-Peer Services:
 - [Host](./guide/services/Host.md)
 - [Mode](./guide/services/Mode.md)
 - [Peer](./guide/services/Peer.md)
+- [Redirect](./guide/services/Redirect.md)
+- [Session](./guide/services/Session.md)
 - [Settings](./guide/services/Settings.md)
 - [Stash](./guide/services/Stash.md)
 

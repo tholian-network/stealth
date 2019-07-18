@@ -327,7 +327,7 @@ const read = function(profile, keepdata, callback) {
 						return Session.from(raw);
 					}).filter((v) => v !== null).forEach((session) => {
 
-						let other = this.sessions.find((s) => s.id === session.id) || null;
+						let other = this.sessions.find((s) => s.domain === session.domain) || null;
 						if (other !== null) {
 							Session.merge(other, session);
 						} else {

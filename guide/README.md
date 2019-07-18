@@ -99,6 +99,7 @@ or proxied (which means remotely through another middle-man Peer) via `Peer.prox
 - [Mode](./services/Mode.md)
 - [Peer](./services/Peer.md)
 - [Redirect](./services/Redirect.md)
+- [Session](./services/Session.md)
 - [Settings](./services/Settings.md)
 - [Stash](./services/Stash.md)
 

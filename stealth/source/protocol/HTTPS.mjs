@@ -51,9 +51,23 @@ const lookup = function(host, options, callback) {
 
 
 	if (options.all === true) {
-		callback(null, results);
+
+		// XXX: SNI TLS extension can fire net-level errors
+		try {
+			callback(null, results);
+		} catch (err) {
+			// Ignore Errors
+		}
+
 	} else {
-		callback(null, results[0].address, results[0].family);
+
+		// XXX: SNI TLS extension can fire net-level errors
+		try {
+			callback(null, results[0].address, results[0].family);
+		} catch (err) {
+			// Ignore Errors
+		}
+
 	}
 
 };
@@ -116,86 +130,140 @@ const HTTPS = {
 				}
 
 
-				let socket = tls.connect({
-					host:           hostname,
-					port:           ref.port || 443,
-					ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
-					secureProtocol: 'TLS_method',
-					servername:     hostname,
-					lookup:         lookup.bind(ref),
-					socket:         emitter.socket || null
-				}, () => {
+				let socket = emitter.socket || null;
+				if (socket === null) {
 
-					if (socket.authorized === true) {
+					try {
 
-						onconnect(socket, ref, buffer, emitter);
-						emitter.socket = socket;
+						socket = tls.connect({
+							host:           hostname,
+							port:           ref.port || 443,
+							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+							secureProtocol: 'TLS_method',
+							servername:     hostname,
+							lookup:         lookup.bind(ref)
+						}, () => {
 
-					} else {
+							if (socket.authorized === true) {
 
-						emitter.socket = null;
-						emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+								onconnect(socket, ref, buffer, emitter);
+								emitter.socket = socket;
 
+							} else {
+
+								emitter.socket = null;
+								emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+
+							}
+
+						});
+
+					} catch (err) {
+						socket = null;
 					}
 
-				});
+				} else {
 
-				socket.on('data', (fragment) => {
-					ondata(socket, ref, buffer, emitter, fragment);
-				});
+					try {
 
-				socket.on('timeout', () => {
+						socket = tls.connect({
+							host:           hostname,
+							port:           ref.port || 443,
+							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+							secureProtocol: 'TLS_method',
+							servername:     hostname,
+							lookup:         lookup.bind(ref),
+							socket:         emitter.socket || null
+						}, () => {
 
-					if (emitter.socket !== null) {
+							if (socket.authorized === true) {
 
-						emitter.socket = null;
+								onconnect(socket, ref, buffer, emitter);
+								emitter.socket = socket;
 
-						if (buffer !== null && buffer.partial === true) {
-							emitter.emit('timeout', [{
-								headers: ref.headers,
-								payload: buffer.payload
-							}]);
-						} else {
-							emitter.emit('timeout', [ null ]);
+							} else {
+
+								emitter.socket = null;
+								emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+
+							}
+
+						});
+
+					} catch (err) {
+						socket = null;
+					}
+
+				}
+
+
+				if (socket !== null) {
+
+					socket.on('data', (fragment) => {
+						ondata(socket, ref, buffer, emitter, fragment);
+					});
+
+					socket.on('timeout', () => {
+
+						if (emitter.socket !== null) {
+
+							emitter.socket = null;
+
+							if (buffer !== null && buffer.partial === true) {
+								emitter.emit('timeout', [{
+									headers: ref.headers,
+									payload: buffer.payload
+								}]);
+							} else {
+								emitter.emit('timeout', [ null ]);
+							}
+
 						}
 
-					}
+					});
 
-				});
+					socket.on('error', (err) => {
 
-				socket.on('error', (err) => {
+						if (emitter.socket !== null) {
 
-					if (emitter.socket !== null) {
+							emitter.socket = null;
 
-						emitter.socket = null;
+							let code = (err.code || '');
+							if (code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
+								emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+							} else if (code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
+								emitter.emit('timeout', [ null ]);
+							} else if (code.startsWith('ERR_TLS')) {
+								emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+							} else {
+								onerror(socket, ref, buffer, emitter);
+							}
 
-						let code = (err.code || '');
-						if (code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
-							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-						} else if (code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
-							emitter.emit('timeout', [ null ]);
-						} else if (code.startsWith('ERR_TLS')) {
-							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-						} else {
-							onerror(socket, ref, buffer, emitter);
 						}
 
-					}
+					});
 
-				});
+					socket.on('end', () => {
 
-				socket.on('end', () => {
+						if (emitter.socket !== null) {
 
-					if (emitter.socket !== null) {
+							onend(socket, ref, buffer, emitter);
+							emitter.socket = null;
 
-						onend(socket, ref, buffer, emitter);
-						emitter.socket = null;
+						}
 
-					}
+					});
 
-				});
+					return emitter;
 
-				return emitter;
+				} else {
+
+					emitter.socket = null;
+					emitter.emit('error', [{ type: 'request' }]);
+
+					return null;
+
+				}
 
 			} else {
 

@@ -110,8 +110,8 @@ const Session = function(data, stealth) {
 	let settings = Object.assign({}, data);
 
 
-	this.id      = 'session-' + Date.now();
-	this.agent   = {
+	this.domain = Date.now() + '.artificial.engineering';
+	this.agent  = {
 		engine:  null,
 		system:  null,
 		version: null
@@ -140,7 +140,7 @@ Session.from = function(json) {
 
 			let session = new Session();
 
-			if (isString(data.id))      session.id      = data.id;
+			if (isString(data.domain))  session.domain  = data.domain;
 			if (isObject(data.agent))   session.agent   = data.agent;
 			if (isNumber(data.warning)) session.warning = data.warning;
 
@@ -172,8 +172,8 @@ Session.merge = function(target, source) {
 
 	if (target !== null && source !== null) {
 
-		if (source.id !== null)    target.id    = source.id;
-		if (source.agent !== null) target.agent = source.agent;
+		if (source.domain !== null) target.domain = source.domain;
+		if (source.agent  !== null) target.agent  = source.agent;
 
 		if (isObject(source.history)) {
 
@@ -210,7 +210,7 @@ Session.prototype = {
 	toJSON: function() {
 
 		let data = {
-			id:      this.id,
+			domain:  this.domain,
 			agent:   this.agent,
 			history: {},
 			tabs:    {},
@@ -302,11 +302,11 @@ Session.prototype = {
 				});
 
 				request.on('connect', () => {
-					console.log('Session "' + this.id + '" tab #' + tab + ' requests "' + request.url + '".');
+					console.log('Session "' + this.domain + '" tab #' + tab + ' requests "' + request.url + '".');
 				});
 
 				request.on('progress', (response, progress) => {
-					console.step('Session "' + this.id + '" tab #' + tab + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
+					console.step('Session "' + this.domain + '" tab #' + tab + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
 				});
 
 				request.on('error',    () => remove_request.call(this, request));
@@ -326,19 +326,19 @@ Session.prototype = {
 		settings = isObject(settings) ? settings : {};
 
 
-		let id = settings['id'] || null;
-		if (id !== null) {
-			this.id = id;
+		let domain = settings['domain'] || null;
+		if (domain !== null) {
+			this.domain = domain;
 		}
 
-		if (this.id.startsWith('session-')) {
+		if (this.domain.endsWith('.artificial.engineering')) {
 
 			let address = settings['@remote'] || null;
 			if (address !== null) {
 
 				let ip = IP.parse(address);
 				if (ip.type !== null) {
-					this.id = IP.render(ip);
+					this.domain = IP.render(ip);
 				}
 
 			}
@@ -369,15 +369,15 @@ Session.prototype = {
 		if (service !== null) {
 
 			if (method !== null) {
-				console.warn('Session "' + this.id + '" received warning #' + this.warning + ' for ' + service + '.' + method + '() call.');
+				console.warn('Session "' + this.domain + '" received warning #' + this.warning + ' for ' + service + '.' + method + '() call.');
 			} else if (event !== null) {
-				console.warn('Session "' + this.id + '" received warning #' + this.warning + ' for ' + service + '@' + event + ' call.');
+				console.warn('Session "' + this.domain + '" received warning #' + this.warning + ' for ' + service + '@' + event + ' call.');
 			} else {
-				console.warn('Session "' + this.id + '" received warning #' + this.warning + ' for ' + service + ' abuse.');
+				console.warn('Session "' + this.domain + '" received warning #' + this.warning + ' for ' + service + ' abuse.');
 			}
 
 		} else {
-			console.warn('Session "' + this.id + '" received warning #' + this.warning + '.');
+			console.warn('Session "' + this.domain + '" received warning #' + this.warning + '.');
 		}
 
 
@@ -392,12 +392,12 @@ Session.prototype = {
 		for (let tab in this.tabs) {
 
 			this.tabs[tab].forEach((request) => {
-				console.log('Session "' + this.id + '" tab #' + tab + ' remains "' + request.url + '".');
+				console.log('Session "' + this.domain + '" tab #' + tab + ' remains "' + request.url + '".');
 			});
 
 		}
 
-		console.log('Session "' + this.id + '" disconnected.');
+		console.log('Session "' + this.domain + '" disconnected.');
 
 	}
 

@@ -32,6 +32,51 @@ const Session = function(stealth) {
 
 Session.prototype = Object.assign({}, Emitter.prototype, {
 
+	query: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			let sessions = [];
+			let settings = this.stealth.settings;
+
+			if (payload.domain !== null) {
+
+				if (payload.subdomain !== null) {
+					sessions = settings.sessions.filter((s) => s.domain === payload.subdomain + '.' + payload.domain);
+				} else if (payload.domain === '*') {
+					sessions = settings.sessions;
+				} else {
+					sessions = settings.sessions.filter((s) => s.domain === payload.domain);
+				}
+
+			}
+
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'query'
+				},
+				payload: sessions
+			});
+
+		} else if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'query'
+				}
+			});
+
+		}
+
+	},
+
 	read: function(payload, callback, session) {
 
 		payload  = isObject(payload)    ? payloadify(payload) : null;
