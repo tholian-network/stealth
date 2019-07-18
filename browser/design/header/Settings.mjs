@@ -56,11 +56,20 @@ const toggle = function(name, widgets) {
 		if (button !== null && widget !== null) {
 
 			if (sidebar === name) {
-				button.state('active');
-				widget.emit('show');
+
+				if (button.state() === 'active') {
+					button.state('');
+					widget.emit('hide');
+				} else {
+					button.state('active');
+					widget.emit('show');
+				}
+
 			} else {
+
 				button.state('');
 				widget.emit('hide');
+
 			}
 
 		}

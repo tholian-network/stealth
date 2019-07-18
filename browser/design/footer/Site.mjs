@@ -25,7 +25,14 @@ const Site = function(browser, widgets) {
 	});
 
 	this.element.on('hide', () => {
+
+		let settings = widgets.settings || null;
+		if (settings !== null && settings.site !== null) {
+			settings.site.state('');
+		}
+
 		this.element.state('');
+
 	});
 
 };

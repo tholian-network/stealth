@@ -30,7 +30,14 @@ const Beacon = function(browser, widgets) {
 	});
 
 	this.element.on('hide', () => {
+
+		let settings = widgets.settings || null;
+		if (settings !== null && settings.beacon !== null) {
+			settings.beacon.state('');
+		}
+
 		this.element.state('');
+
 	});
 
 };

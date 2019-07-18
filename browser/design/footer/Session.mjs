@@ -3,12 +3,13 @@ import { Element } from '../Element.mjs';
 
 
 
-const TEMPLATE = (session) => `
+const TEMPLATE = (sessions, session) => `
 <article>
-	<h3>Session #${session.id}</h3>
+	<h3>Sessions</h3>
+	${sessions.map((session) => '<input type="radio" name="browser-sessions-choice" value="' + session.id + '">').join('')}
 </article>
 <article>
-	<h3>Requests</h3>
+	<h3>Requests for Session ${session.id}</h3>
 	<table>
 		<thead>
 			<tr>
@@ -56,15 +57,43 @@ const Session = function(browser, widgets) {
 
 	this.element.on('show', () => {
 
-		let service = browser.client.services.session || null;
-		if (service !== null) {
+		let service  = browser.client.services.session  || null;
+		let settings = browser.client.services.settings || null;
+
+		if (service !== null && settings !== null) {
 
 			service.read({}, (session) => {
 
-				// TODO: Render session correctly
-				this.element.value(TEMPLATE(session));
-
 				console.log('session', session);
+
+				settings.read({ sessions: true }, (data) => {
+
+					console.log('sessions', data.sessions);
+
+					let sessions = data.sessions || [];
+					if (sessions.length > 0) {
+
+						let other = sessions.find((s) => s.data.domain === session.domain) || null;
+						if (other !== null) {
+
+							console.log('correct?', other);
+
+						} else {
+							// TODO: No access to sessions
+						}
+
+					} else {
+
+						// TODO: Render blank content for no session data!?
+
+					}
+
+
+					// TODO: Render session correctly
+					// this.element.value(TEMPLATE(data.sessions, session));
+
+				});
+
 
 			});
 
@@ -75,7 +104,14 @@ const Session = function(browser, widgets) {
 	});
 
 	this.element.on('hide', () => {
+
+		let settings = widgets.settings || null;
+		if (settings !== null && settings.session !== null) {
+			settings.session.state('');
+		}
+
 		this.element.state('');
+
 	});
 
 };
