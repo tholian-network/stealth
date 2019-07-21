@@ -318,13 +318,55 @@ const read = function(profile, keepdata, callback) {
 				if (keepdata === false) {
 
 					this.sessions = sessions.map((raw) => {
-						return Session.from(raw);
+
+						let session = Session.from(raw);
+						if (session !== null) {
+
+							if (Object.keys(session.history).length > 0) {
+
+								let count = 0;
+
+								Object.values(session.history).forEach((history) => {
+									count += history.length;
+								});
+
+								if (count > 0) {
+									return session;
+								}
+
+							}
+
+						}
+
+						return null;
+
 					}).filter((v) => v !== null);
 
 				} else {
 
 					sessions.map((raw) => {
-						return Session.from(raw);
+
+						let session = Session.from(raw);
+						if (session !== null) {
+
+							if (Object.keys(session.history).length > 0) {
+
+								let count = 0;
+
+								Object.values(session.history).forEach((history) => {
+									count += history.length;
+								});
+
+								if (count > 0) {
+									return session;
+								}
+
+							}
+
+						}
+
+						return null;
+
 					}).filter((v) => v !== null).forEach((session) => {
 
 						let other = this.sessions.find((s) => s.domain === session.domain) || null;
