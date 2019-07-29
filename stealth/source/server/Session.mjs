@@ -32,13 +32,14 @@ const Session = function(stealth) {
 
 Session.prototype = Object.assign({}, Emitter.prototype, {
 
-	query: function(payload, callback) {
+	query: function(payload, callback, session) {
 
 		payload  = isObject(payload)    ? payloadify(payload) : null;
 		callback = isFunction(callback) ? callback            : null;
+		session  = isObject(session)    ? session             : null;
 
 
-		if (payload !== null && callback !== null) {
+		if (payload !== null && callback !== null && session !== null) {
 
 			let sessions = [];
 			let settings = this.stealth.settings;
@@ -56,6 +57,12 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 
+			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
+			if (check === null) {
+				settings.sessions.push(session);
+			}
+
+
 			callback({
 				headers: {
 					service: 'session',
@@ -64,13 +71,32 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 				payload: sessions
 			});
 
+		} else if (callback !== null && session !== null) {
+
+			let settings = this.stealth.settings;
+
+			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
+			if (check === null) {
+				settings.sessions.push(session);
+			}
+
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'query'
+				},
+				payload: settings.sessions
+			});
+
 		} else if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'session',
 					event:   'query'
-				}
+				},
+				payload: this.stealth.settings.sessions
 			});
 
 		}
@@ -85,6 +111,14 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		if (callback !== null && session !== null) {
+
+			let settings = this.stealth.settings;
+
+			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
+			if (check === null) {
+				settings.sessions.push(session);
+			}
+
 
 			callback({
 				headers: {

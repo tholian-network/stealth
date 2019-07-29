@@ -15,8 +15,6 @@ a callback in the currently loaded iframe (via the browser/design adapters).
 ### Session
 
 - [ ] Render `session` result from client service correctly.
-- [ ] On `query()` and `read()` calls make sure that the Session is included in the `settings.session` object.
-      If it is, merge data correctly. If it is not, push serialized object state into settings.
 - [ ] Implement `stealth/source/server/Session.mjs` service that is used for the sidebar.
 - [ ] Implement `stealth/source/client/Session.mjs` (and add it to the `./bin/*.sh` files).
 - [ ] Implement `pause` button event handling that should kill all requests that are part of
