@@ -6,11 +6,9 @@
 ### Current
 
 - [ ] Create a Review Process that is executed _inside_ multiple Browser instances and
-uses the `Element.query()` method and the Browser API in order to load and execute
-tests. Offer a `Browser.execute()` and `browser.on('execute')` workflow that executes
-a callback in the currently loaded iframe (via the browser/design adapters).
-
-- [ ] Review `Settings.read()` method.
+  uses the `Element.query()` method and the Browser API in order to load and execute
+  tests. Offer a `Browser.execute()` and `browser.on('execute')` workflow that executes
+  a callback in the currently loaded iframe (via the browser/design adapters).
 
 ### Session
 

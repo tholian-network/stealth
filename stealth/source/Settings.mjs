@@ -699,16 +699,15 @@ Settings.prototype = {
 	toJSON: function() {
 
 		let data = {
-			internet: {},
-			filters:  [],
-			hosts:    [],
-			modes:    [],
-			peers:    [],
-			sessions: []
+			internet:  {},
+			blockers:  null, // XXX: private
+			filters:   [],
+			hosts:     [],
+			modes:     [],
+			peers:     [],
+			redirects: null, // XXX: private
+			sessions:  []
 		};
-
-		// XXX: this.blockers  is private
-		// XXX: this.redirects is private
 
 		Object.keys(this.internet).forEach((key) => {
 			data.internet[key] = this.internet[key];

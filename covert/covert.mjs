@@ -22,6 +22,7 @@ import Client_Host     from './review/client/Host.mjs';
 import Client_Mode     from './review/client/Mode.mjs';
 import Client_Peer     from './review/client/Peer.mjs';
 import Client_Redirect from './review/client/Redirect.mjs';
+import Client_Settings from './review/client/Settings.mjs';
 import Client_Stash    from './review/client/Stash.mjs';
 import Peer            from './review/Peer.mjs';
 import Peer_Cache      from './review/peer/Cache.mjs';
@@ -100,6 +101,7 @@ const settings = {
 			Client_Mode,
 			Client_Peer,
 			Client_Redirect,
+			Client_Settings,
 			Client_Stash,
 
 			// Request
