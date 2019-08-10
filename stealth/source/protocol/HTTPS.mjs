@@ -50,25 +50,19 @@ const lookup = function(host, options, callback) {
 	}));
 
 
-	if (options.all === true) {
+	// XXX: SNI TLS extension can fire ENETUNREACH errors
 
-		// XXX: SNI TLS extension can fire net-level errors
-		try {
+	// setTimeout() delegates errors to socket listeners
+	// Please don't ask why.
+	setTimeout(() => {
+
+		if (options.all === true) {
 			callback(null, results);
-		} catch (err) {
-			// Ignore Errors
-		}
-
-	} else {
-
-		// XXX: SNI TLS extension can fire net-level errors
-		try {
+		} else {
 			callback(null, results[0].address, results[0].family);
-		} catch (err) {
-			// Ignore Errors
 		}
 
-	}
+	}, 0);
 
 };
 

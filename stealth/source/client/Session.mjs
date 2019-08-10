@@ -15,6 +15,30 @@ const Session = function(client) {
 
 Session.prototype = Object.assign({}, Emitter.prototype, {
 
+	query: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			this.once('query', (response) => callback(response));
+
+			this.client.send({
+				headers: {
+					service: 'session',
+					method:  'query'
+				},
+				payload: payload
+			});
+
+		} else if (callback !== null) {
+			callback(null);
+		}
+
+	},
+
 	read: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;

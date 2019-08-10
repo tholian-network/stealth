@@ -23,12 +23,12 @@ const ROOT = (() => {
 
 })();
 
-const ARGV  = Array.from(process.argv).slice(2).map((v) => v.trim()).filter((v) => v !== '');
 const FLAGS = (() => {
 
+	let argv  = Array.from(process.argv).slice(2).map((v) => v.trim()).filter((v) => v !== '');
 	let flags = {};
 
-	Array.from(ARGV).filter((v) => v.startsWith('--') === true).forEach((flag) => {
+	Array.from(argv).filter((v) => v.startsWith('--') === true).forEach((flag) => {
 
 		let tmp = flag.substr(2).split('=');
 		if (tmp.length === 2) {

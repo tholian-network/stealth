@@ -50,11 +50,19 @@ const lookup = function(host, options, callback) {
 	}));
 
 
-	if (options.all === true) {
-		callback(null, results);
-	} else {
-		callback(null, results[0].address, results[0].family);
-	}
+	// XXX: SNI TLS extension can fire ENETUNREACH errors
+
+	// setTimeout() delegates errors to socket listeners
+	// Please don't ask why.
+	setTimeout(() => {
+
+		if (options.all === true) {
+			callback(null, results);
+		} else {
+			callback(null, results[0].address, results[0].family);
+		}
+
+	}, 0);
 
 };
 

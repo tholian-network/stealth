@@ -2,14 +2,46 @@
 import { Element } from '../Element.mjs';
 
 
-
-const TEMPLATE = (sessions, session) => `
+const TEMPLATE = `
 <article>
 	<h3>Sessions</h3>
-	${sessions.map((session) => '<input type="radio" name="browser-sessions-choice" value="' + session.id + '">').join('')}
+	<div></div>
 </article>
 <article>
-	<h3>Requests for Session ${session.id}</h3>
+	<h3>Requests</h3>
+	<table>
+		<thead>
+			<tr>
+				<th>URL</th>
+				<th>Timeline</th>
+				<th>State</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr data-visible="true">
+				<td colspan="4">No Requests</td>
+			</tr>
+		</tbody>
+	</table>
+</article>
+`;
+
+const render_choice = (session, active) => `
+<div>
+	<input id="browser-session-choice-${session.domain}" name="browser-session-choice" type="radio" value="${session.domain}" ${active === true ? 'checked' : ''}>
+	<label for="browser-session-choice-${session.domain}">${session.domain} (${session.agent.engine} ${session.agent.version} on ${session.agent.system})</label>
+</div>
+`;
+
+
+const TEMPLATE_SESSION = (sessions, session) => `
+<article>
+	<h3>Sessions</h3>
+	${sessions.map((session) => '<input type="radio" name="browser-sessions-choice" value="' + session.domain + '">').join('')}
+</article>
+<article>
+	<h3>Requests for Session ${session.domain}</h3>
 	<table>
 		<thead>
 			<tr>
@@ -47,8 +79,14 @@ const TEMPLATE = (sessions, session) => `
 
 const Session = function(browser, widgets) {
 
-	this.element = Element.from('browser-session', TEMPLATE);
+	this.element  = Element.from('browser-session', TEMPLATE);
+	this.choices  = this.element.query('article div');
+	this.requests = this.element.query('article table tbody');
+	this.session  = null;
+	this.sessions = [];
 
+
+	console.log(this);
 
 	this.element.on('contextmenu', (e) => {
 		e.preventDefault();
@@ -57,37 +95,31 @@ const Session = function(browser, widgets) {
 
 	this.element.on('show', () => {
 
-		let service  = browser.client.services.session  || null;
-		let settings = browser.client.services.settings || null;
-
-		if (service !== null && settings !== null) {
+		let service = browser.client.services.session || null;
+		if (service !== null) {
 
 			service.read({}, (session) => {
 
-				console.log('session', session);
+				service.query({
+					domain: '*'
+				}, (sessions) => {
 
-				settings.read({ sessions: true }, (data) => {
+					// Make sure reference is to same Array
+					session = sessions.find((s) => s.domain === session.domain) || null;
 
-					console.log('sessions', data.sessions);
+					this.session  = session.domain;
+					this.sessions = sessions;
 
-					let sessions = data.sessions || [];
-					if (sessions.length > 0) {
+					this.choices.value(sessions.map((s) => render_choice(s, s.domain === this.session)));
 
-						let other = sessions.find((s) => s.data.domain === session.domain) || null;
-						if (other !== null) {
+					// TODO: click/change listener
+					// this.choices.query('input').forEach((input) => {
+					// });
 
-							console.log('correct?', other);
+					console.log(inputs);
 
-						} else {
-							// TODO: No access to sessions
-						}
-
-					} else {
-
-						// TODO: Render blank content for no session data!?
-
-					}
-
+					console.info(session);
+					console.warn(sessions);
 
 					// TODO: Render session correctly
 					// this.element.value(TEMPLATE(data.sessions, session));

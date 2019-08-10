@@ -68,7 +68,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'session',
 					event:   'query'
 				},
-				payload: sessions
+				payload: sessions.map((s) => s.toJSON().data)
 			});
 
 		} else if (callback !== null && session !== null) {
@@ -86,7 +86,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'session',
 					event:   'query'
 				},
-				payload: settings.sessions
+				payload: settings.sessions.map((s) => s.toJSON().data)
 			});
 
 		} else if (callback !== null) {
@@ -96,7 +96,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'session',
 					event:   'query'
 				},
-				payload: this.stealth.settings.sessions
+				payload: this.stealth.settings.sessions.map((s) => s.toJSON().data)
 			});
 
 		}

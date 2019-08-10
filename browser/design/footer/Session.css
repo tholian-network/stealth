@@ -25,9 +25,35 @@ browser-session.active {
 	transform: translate(0%, 0%);
 }
 
-article button[data-key="state"]:before                      { color: #ffffff; content: '\e86a'; }
-article button[data-key="state"][data-val="error"]:before    { content: '\e001'; }
-article button[data-key="state"][data-val="kill"]:before     { content: '\e033'; }
-article button[data-key="state"][data-val="redirect"]:before { content: '\e8ba'; }
-article button[data-key="state"][data-val="response"]:before { content: '\e7e9'; }
+browser-session article > div {
+	width: 416px;
+	margin: 0px auto 0px auto;
+}
+
+browser-session article > div input[type="radio"] + label[for] {
+	display: inline-block;
+	width: calc(100% - 48px);
+	cursor: pointer;
+}
+
+browser-session article > div div {
+	line-height: 32px;
+	vertical-align: middle;
+}
+
+browser-session button[data-key="state"]:before                      { color: #ffffff; content: '\e86a'; }
+browser-session button[data-key="state"][data-val="error"]:before    { content: '\e001'; }
+browser-session button[data-key="state"][data-val="kill"]:before     { content: '\e033'; }
+browser-session button[data-key="state"][data-val="redirect"]:before { content: '\e8ba'; }
+browser-session button[data-key="state"][data-val="response"]:before { content: '\e7e9'; }
+
+
+
+@media screen and (max-width: 706px) {
+
+	browser-session article > div {
+		width: auto;
+	}
+
+}
 
