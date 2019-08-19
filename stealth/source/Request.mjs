@@ -430,25 +430,27 @@ const Request = function(data, stealth) {
 
 	this.on('optimize', () => {
 
-		this.emit('response', [ this.response ]);
+		Optimizer.check(this.ref, this.config, (result) => {
 
-		// Optimizer.check(this.ref, this.config, (result) => {
+			this.timeline.optimize = Date.now();
 
-		// 	if (result === true) {
+			if (result === true) {
 
-		// 		Optimizer.optimize(this.ref, this.config, this.response, (response) => {
+				Optimizer.optimize(this.ref, this.config, this.response, (response) => {
 
-		// 			// TODO: render stuff with different URLs
-		// 			// and prefix everything to /stealth
-		// 			console.log('optimize()', response);
+					if (response !== null) {
+						this.emit('response', [ response ]);
+					} else {
+						this.emit('response', [ this.response ]);
+					}
 
-		// 		});
+				});
 
-		// 	} else {
-		// 		this.emit('response', [ this.response ]);
-		// 	}
+			} else {
+				this.emit('response', [ this.response ]);
+			}
 
-		// });
+		});
 
 	});
 

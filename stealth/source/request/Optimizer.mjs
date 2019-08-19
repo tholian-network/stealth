@@ -1,33 +1,80 @@
 
+import { isFunction, isObject } from '../POLYFILLS.mjs';
+
+import { Optimizer as CSS  } from '../optimizer/CSS.mjs';
+import { Optimizer as HTML } from '../optimizer/HTML.mjs';
+
+
+
+const OPTIMIZERS = [
+	CSS,
+	HTML
+];
+
+
+
 const Optimizer = {
 
 	check: function(ref, config, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		config   = config instanceof Object       ? config   : null;
-		callback = typeof callback === 'function' ? callback : null;
+		ref      = isObject(ref)        ? ref      : null;
+		config   = isObject(config)     ? config   : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (ref !== null && config !== null && callback !== null) {
 
-			// TODO: Verify allowed download
+			let result = false;
+
+			for (let o = 0, ol = OPTIMIZERS.length; o < ol; o++) {
+
+				let optimizer = OPTIMIZERS[o];
+				if (optimizer.check(ref, config) === true) {
+					result = true;
+					break;
+				}
+
+			}
+
+			callback(result);
 
 		} else if (callback !== null) {
 			callback(false);
 		}
 
-
 	},
 
-	optimize: function(ref, config, raw, callback) {
+	optimize: function(ref, config, response, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		config   = config instanceof Object       ? config   : null;
-		raw      = raw instanceof Object          ? raw      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		ref      = isObject(ref)        ? ref      : null;
+		config   = isObject(config)     ? config   : null;
+		response = isObject(response)   ? response : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (ref !== null && config !== null && raw !== null && callback !== null) {
+		if (ref !== null && config !== null && response !== null && callback !== null) {
+
+			let optimizer = null;
+
+			for (let o = 0, ol = OPTIMIZERS.length; o < ol; o++) {
+
+				let other = OPTIMIZERS[o];
+				if (other.check(ref, config) === true) {
+					optimizer = other;
+					break;
+				}
+
+			}
+
+			if (optimizer !== null) {
+
+				optimizer.optimize(ref, config, response, (result) => {
+					callback(result);
+				});
+
+			} else {
+				callback(null);
+			}
 
 		} else if (callback !== null) {
 			callback(null);

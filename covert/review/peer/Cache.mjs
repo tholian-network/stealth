@@ -112,7 +112,7 @@ describe('peers[0].client.services.cache.save', function(assert) {
 		headers: {
 			'content-type': 'text/html'
 		},
-		payload: FILE
+		payload: FILE.payload
 	}, (response) => {
 		assert(response === true);
 	});

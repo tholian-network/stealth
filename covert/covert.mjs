@@ -9,6 +9,7 @@ import Request         from './review/Request.mjs';
 import Parser_HOSTS    from './review/parser/HOSTS.mjs';
 import Parser_IP       from './review/parser/IP.mjs';
 import Parser_URL      from './review/parser/URL.mjs';
+import Optimizer_CSS   from './review/optimizer/CSS.mjs';
 import Protocol_DNS    from './review/protocol/DNS.mjs';
 import Protocol_HTTP   from './review/protocol/HTTP.mjs';
 import Protocol_HTTPS  from './review/protocol/HTTPS.mjs';
@@ -81,6 +82,9 @@ const settings = {
 			Parser_HOSTS,
 			Parser_IP,
 			Parser_URL,
+
+			// Optimizers
+			Optimizer_CSS,
 
 			// Network Protocols
 			Protocol_DNS,

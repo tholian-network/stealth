@@ -222,6 +222,47 @@ export const create = function(url) {
 
 
 
+export const config = function(path) {
+
+	path = isString(path) ? path : null;
+
+
+	let cfg = {
+		domain: null,
+		mode:   {
+			text:  false,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	};
+
+	if (path !== null) {
+
+		let ref  = URL.parse(path);
+		let mime = MIME.find((m) => {
+
+			if (ref.path.endsWith('.' + m.ext)) {
+				return true;
+			}
+
+			return false;
+
+		}) || null;
+
+		if (mime !== null) {
+			cfg.mode[mime.type] = true;
+		}
+
+	}
+
+
+	return cfg;
+
+};
+
+
 export const sketch = function(path) {
 
 	let stat = null;
@@ -233,14 +274,21 @@ export const sketch = function(path) {
 
 	if (stat !== null && stat.isFile()) {
 
-		let buffer = null;
-		try {
-			buffer = fs.readFileSync(process.env.PWD + '/covert/sketch/' + path);
-		} catch (err) {
-			buffer = null;
+		let ref = URL.parse(process.env.PWD + '/covert/sketch/' + path);
+		if (ref !== null) {
+
+			let payload = null;
+			try {
+				payload = fs.readFileSync(process.env.PWD + '/covert/sketch/' + path);
+			} catch (err) {
+				payload = null;
+			}
+
+			ref.payload = payload;
+
 		}
 
-		return buffer;
+		return ref;
 
 	}
 

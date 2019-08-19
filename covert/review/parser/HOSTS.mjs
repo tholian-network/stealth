@@ -6,8 +6,8 @@ import { after, before, describe, finish } from '../../source/Review.mjs';
 
 import { HOSTS } from '../../../stealth/source/parser/HOSTS.mjs';
 
-const PAYLOAD_POSIX = sketch('hosts/posix.txt');
-const PAYLOAD_BLOCK = sketch('hosts/block.txt');
+const BLOCK = sketch('hosts/block.txt');
+const POSIX = sketch('hosts/posix.txt');
 
 const find_domain = (data, domain) => {
 
@@ -25,8 +25,8 @@ const find_domain = (data, domain) => {
 
 before('prepare', function(assert) {
 
-	this.block = HOSTS.parse(PAYLOAD_BLOCK);
-	this.posix = HOSTS.parse(PAYLOAD_POSIX);
+	this.block = HOSTS.parse(BLOCK.payload);
+	this.posix = HOSTS.parse(POSIX.payload);
 
 	assert(this.block !== null);
 	assert(this.posix !== null);
