@@ -44,15 +44,14 @@ const Optimizer = {
 
 	},
 
-	optimize: function(ref, config, response, callback) {
+	optimize: function(ref, config, callback) {
 
 		ref      = isObject(ref)        ? ref      : null;
 		config   = isObject(config)     ? config   : null;
-		response = isObject(response)   ? response : null;
 		callback = isFunction(callback) ? callback : null;
 
 
-		if (ref !== null && config !== null && response !== null && callback !== null) {
+		if (ref !== null && config !== null && callback !== null) {
 
 			let optimizer = null;
 
@@ -68,7 +67,7 @@ const Optimizer = {
 
 			if (optimizer !== null) {
 
-				optimizer.optimize(ref, config, response, (result) => {
+				optimizer.optimize(ref, config, (result) => {
 					callback(result);
 				});
 

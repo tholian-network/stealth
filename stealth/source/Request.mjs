@@ -430,13 +430,20 @@ const Request = function(data, stealth) {
 
 	this.on('optimize', () => {
 
-		Optimizer.check(this.ref, this.config, (result) => {
+		let url = URL.render(this.ref);
+		let ref = URL.parse(url);
+
+		ref.headers = this.response.headers;
+		ref.payload = this.response.payload;
+
+
+		Optimizer.check(ref, this.config, (result) => {
 
 			this.timeline.optimize = Date.now();
 
 			if (result === true) {
 
-				Optimizer.optimize(this.ref, this.config, this.response, (response) => {
+				Optimizer.optimize(ref, this.config, (response) => {
 
 					if (response !== null) {
 						this.emit('response', [ response ]);

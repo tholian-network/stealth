@@ -38,11 +38,10 @@ const Optimizer = {
 
 	},
 
-	optimize: function(ref, config, response, callback) {
+	optimize: function(ref, config, callback) {
 
 		ref      = isObject(ref)        ? ref      : null;
 		config   = isObject(config)     ? config   : null;
-		response = isObject(response)   ? response : null;
 		callback = isFunction(callback) ? callback : null;
 
 	}

@@ -9,18 +9,19 @@ import { Optimizer } from '../../../stealth/source/optimizer/CSS.mjs';
 const SIMPLE_CFG = config('css/simple.css');
 const SIMPLE_REF = sketch('css/simple.css');
 
+const COMPLEX_CFG = config('css/complex.css');
+const COMPLEX_REF = sketch('css/complex.css');
 
-const PAYLOAD_SIMPLE   = sketch('css/simple.css');
-const PAYLOAD_COMPLEX  = sketch('css/complex.css');
-const PAYLOAD_MINIFIED = sketch('css/complex.min.css');
+const MINIFIED_CFG = config('css/minified.css');
+const MINIFIED_REF = sketch('css/minified.css');
 
 
 
 before('prepare', function(assert) {
 
-	this.simple   = Optimizer.optimize(SIMPLE_REF, SIMPLE_CFG);
-	this.complex  = Optimizer.optimize(PAYLOAD_COMPLEX);
-	this.minified = Optimizer.optimize(PAYLOAD_MINIFIED);
+	this.simple   = { ref: SIMPLE_REF,   cfg: SIMPLE_CFG   };
+	this.complex  = { ref: COMPLEX_REF,  cfg: COMPLEX_CFG  };
+	this.minified = { ref: MINIFIED_REF, cfg: MINIFIED_CFG };
 
 	assert(this.simple !== null);
 	assert(this.complex !== null);
@@ -28,6 +29,18 @@ before('prepare', function(assert) {
 
 });
 
+describe('optimize/simple', function(assert) {
+
+	assert(this.simple !== null);
+	assert(typeof Optimizer.optimize === 'function');
+
+	Optimizer.optimize(this.simple.ref, this.simple.cfg, (response) => {
+
+		assert(response !== null);
+
+	});
+
+});
 
 
 after('cleanup', function(assert) {
