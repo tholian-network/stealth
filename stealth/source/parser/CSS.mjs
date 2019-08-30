@@ -37,6 +37,41 @@ const minify_css = function(str) {
 
 	});
 
+	return strip_comments(str.trim());
+
+};
+
+const parse_condition = function(str) {
+
+	console.log('condition');
+	console.log(str);
+
+};
+
+const parse_selector = function(str) {
+
+	console.log('selector');
+	console.log(str);
+
+};
+
+const strip_comments = function(str) {
+
+	let index1 = str.indexOf('/*');
+	let index2 = str.indexOf('*/', index1 + 1);
+
+	while (index1 !== -1 && index2 !== -1) {
+
+		str    = str.substr(0, index1) + str.substr(index2 + 2);
+		index1 = str.indexOf('/*');
+		index2 = str.indexOf('*/', index1 + 1);
+
+	}
+
+	if (index1 !== -1) {
+		str = str.substr(0, index1);
+	}
+
 	return str.trim();
 
 };
@@ -59,30 +94,143 @@ const CSS = {
 		if (buffer !== null) {
 
 			let content  = minify_css(buffer.toString('utf8'));
-			let position = 0;
+			let current  = { query: null, rules: [], type: 'unknown' };
+			let pointer  = null;
+			let tree     = { query: null, resources: [], rules: [], type: 'root' };
 			let state    = {
-				comment:  false,
-				selector: false,
-				special:  false
+				condition: false,
+				rule:      false
 			};
 
-
-			// XXX: Idea: Rule-based parsing
-			// meaning }* has to be split correctly
-			// also respecting @ rules
-
-			// TODO: Read CSS 2.1/3 specification
-			// and figure out allowed charset for selectors
-			// and whether or not elements and selectors can
-			// have utf8 characterset as well.
-			//
-			// If it is ascii+special chars only, it would
-			// ease up the parsing process by allowing to
-			// use a simple split() call that would allow
-			// parsing each rule correctly
+			pointer = tree;
 
 
-			// TODO: Implement me
+			content.split('{').join('{\n').split('}').join('\n}\n').split('\n').forEach((line) => {
+
+				if (line.endsWith('{')) {
+
+					if (line.startsWith('@')) {
+
+						if (line.startsWith('@media') || line.startsWith('@supports')) {
+
+							state.condition = true;
+
+							current = {
+								query: parse_condition(line.substr(6, line.length - 7).trim()),
+								rules: [],
+								type:  'condition'
+							};
+
+							if (tree.rules.includes(current) === false) {
+								tree.rules.push(current);
+							}
+
+							pointer = current;
+
+						} else if (line.startsWith('@page')) {
+
+							state.rule = true;
+
+							current = {
+								type:         'rule-page',
+								query:        parse_selector(line.substr(5, line.length - 6).trim()),
+								declarations: []
+							};
+
+							pointer = current;
+
+							if (tree.rules.includes(current) === false) {
+								tree.rules.push(current);
+							}
+
+						} else if (line.startsWith('@font-face')) {
+
+							state.rule = true;
+
+							current = {
+								type:         'rule-font',
+								query:        null,
+								declarations: []
+							};
+
+							pointer = current;
+
+							if (tree.rules.includes(current) === false) {
+								tree.rules.push(current);
+							}
+
+						} else if (line.startsWith('@import')) {
+
+							// TODO: parse import url('') statement
+							// and push URL object to tree.resources[]
+
+						}
+
+					} else {
+
+						if (state.condition === true) {
+
+							state.rule = true;
+
+							current = {
+								type:         'rule',
+								query:        parse_selector(line.substr(0, line.length - 1).trim()),
+								declarations: []
+							};
+
+							pointer.rules.push(current);
+
+						} else {
+
+							state.rule = true;
+
+							current = {
+								type:         'rule',
+								query:        parse_selector(line.substr(0, line.length - 1).trim()),
+								declarations: []
+							};
+
+							tree.rules.push(current);
+
+						}
+
+					}
+
+				} else if (line.trim() === '}') {
+
+					if (state.rule === true) {
+
+						state.rule = false;
+
+						if (state.condition === true) {
+							// Keep pointer
+						} else {
+							pointer = tree;
+						}
+
+					} else if (state.condition === true) {
+
+						state.condition = false;
+						pointer = tree;
+
+					}
+
+				} else if (line.trim() !== '') {
+
+
+					if (current.type.startsWith('rule')) {
+
+						// TODO: Parse body into rule's declarations[] array
+
+					} else {
+
+						// XXX: Invalid CSS syntax
+
+					}
+
+				}
+
+			});
 
 			return Buffer.from(content, 'utf8');
 
