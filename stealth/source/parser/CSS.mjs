@@ -23,6 +23,21 @@ const MINIFY_MAP = {
 	' +': '+'
 };
 
+const SHORTHAND_MAP = {
+	'background': {
+		// TODO: Figure out a value: real-key structure
+	},
+	'border': {
+		// TODO: like above
+	},
+	'margin': {
+	},
+	'padding': {
+	},
+	'transform': {
+	}
+};
+
 const minify_css = function(str) {
 
 	Object.keys(MINIFY_MAP).forEach((key) => {
@@ -42,17 +57,45 @@ const minify_css = function(str) {
 };
 
 const parse_condition = function(str) {
+	return [ str.trim() ];
+};
 
-	console.log('condition');
-	console.log(str);
+const parse_declarations = function(str) {
+
+	let declarations = {};
+
+	if (str.endsWith(';')) {
+		str = str.substr(0, str.length - 1);
+	}
+
+	str.split(';').forEach((ch) => {
+
+		let key = ch.split(':')[0];
+		let val = ch.split(':').slice(1).join(':');
+
+		let is_shorthand = SHORTHAND_MAP[key] !== undefined;
+		if (is_shorthand === true) {
+
+			let map = parse_shorthand(SHORTHAND_MAP[key], val);
+
+			for (let k in map) {
+				declarations[k] = map[k] || declarations[k];
+			}
+
+		} else {
+
+			declarations[key] = parse_value(val);
+
+		}
+
+	});
+
+	return declarations;
 
 };
 
 const parse_selector = function(str) {
-
-	console.log('selector');
-	console.log(str);
-
+	return str.trim().split(',').map((ch) => ch.trim());
 };
 
 const strip_comments = function(str) {
@@ -94,9 +137,9 @@ const CSS = {
 		if (buffer !== null) {
 
 			let content  = minify_css(buffer.toString('utf8'));
-			let current  = { query: null, rules: [], type: 'unknown' };
+			let current  = { query: [], rules: [], type: 'unknown' };
 			let pointer  = null;
-			let tree     = { query: null, resources: [], rules: [], type: 'root' };
+			let tree     = { query: [], resources: [], rules: [], type: 'root' };
 			let state    = {
 				condition: false,
 				rule:      false
@@ -149,7 +192,7 @@ const CSS = {
 
 							current = {
 								type:         'rule-font',
-								query:        null,
+								query:        [],
 								declarations: []
 							};
 
@@ -204,28 +247,28 @@ const CSS = {
 
 						if (state.condition === true) {
 							// Keep pointer
+							current = null;
 						} else {
 							pointer = tree;
+							current = null;
 						}
 
 					} else if (state.condition === true) {
 
 						state.condition = false;
 						pointer = tree;
+						current = null;
 
 					}
 
 				} else if (line.trim() !== '') {
 
+					if (current !== null && current.type.startsWith('rule')) {
 
-					if (current.type.startsWith('rule')) {
-
-						// TODO: Parse body into rule's declarations[] array
+						parse_declarations(line);
 
 					} else {
-
-						// XXX: Invalid CSS syntax
-
+						// Invalid CSS Syntax
 					}
 
 				}
