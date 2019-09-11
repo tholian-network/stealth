@@ -3,8 +3,8 @@ import { Buffer, isBuffer, isString } from '../POLYFILLS.mjs';
 
 
 const MINIFY_MAP = {
+	'\t': ' ',
 	'\n': '',
-	'\t': '',
 	'{ ': '{',
 	' {': '{',
 	' }': '}',
@@ -24,18 +24,44 @@ const MINIFY_MAP = {
 };
 
 const SHORTHAND_MAP = {
+	'animation': {
+	},
 	'background': {
 		// TODO: Figure out a value: real-key structure
 	},
-	'border': {
-		// TODO: like above
-	},
-	'margin': {
-	},
-	'padding': {
-	},
-	'transform': {
-	}
+	'border':          {},
+	'border-bottom':   {},
+	'border-color':    {},
+	'border-left':     {},
+	'border-radius':   {},
+	'border-right':    {},
+	'border-style':    {},
+	'border-top':      {},
+	'border-width':    {},
+	'column-rule':     {},
+	'columns':         {},
+	'flex':            {},
+	'flex-flow':       {},
+	'font':            {},
+	'grid':            {},
+	'grid-area':       {},
+	'grid-column':     {},
+	'grid-row':        {},
+	'grid-template':   {},
+	'list-style':      {},
+	'margin':          {},
+	'offset':          {},
+	'outline':         {},
+	'overflow':        {},
+	'padding':         {},
+	'place-content':   {},
+	'place-items':     {},
+	'place-self':      {},
+	'text-decoration': {},
+	'transition':      {}
+};
+
+const VALUES_MAP = {
 };
 
 const minify_css = function(str) {
@@ -51,6 +77,14 @@ const minify_css = function(str) {
 		}
 
 	});
+
+
+	let dbl = str.indexOf('  ');
+
+	while (dbl !== -1) {
+		str = str.substr(0, dbl) + ' ' + str.substr(dbl + 2);
+		dbl = str.indexOf('  ', dbl);
+	}
 
 	return strip_comments(str.trim());
 
@@ -76,7 +110,7 @@ const parse_declarations = function(str) {
 		let is_shorthand = SHORTHAND_MAP[key] !== undefined;
 		if (is_shorthand === true) {
 
-			let map = parse_shorthand(SHORTHAND_MAP[key], val);
+			let map = parse_shorthand(key, SHORTHAND_MAP[key], val);
 
 			for (let k in map) {
 				declarations[k] = map[k] || declarations[k];
@@ -94,8 +128,33 @@ const parse_declarations = function(str) {
 
 };
 
+const parse_shorthand = function(key, map, val) {
+
+	console.info('parse shorthand');
+	console.log(key, val);
+
+};
+
 const parse_selector = function(str) {
 	return str.trim().split(',').map((ch) => ch.trim());
+};
+
+const parse_values = function(str) {
+
+	let tmp = str.split(' ');
+
+	console.log(tmp);
+	// TODO: Map data types
+	// TODO: Let shorthand functions decide which data type has
+	// what kind of meaning (in the returned map)
+
+};
+
+const parse_value = function(str) {
+
+	// TODO: Parse values correctly
+	return str;
+
 };
 
 const strip_comments = function(str) {

@@ -6,6 +6,7 @@ import { Covert  } from './source/Covert.mjs';
 
 import Server          from './review/Server.mjs';
 import Request         from './review/Request.mjs';
+import Parser_CSS      from './review/parser/CSS.mjs';
 import Parser_HOSTS    from './review/parser/HOSTS.mjs';
 import Parser_IP       from './review/parser/IP.mjs';
 import Parser_URL      from './review/parser/URL.mjs';
@@ -79,6 +80,7 @@ const settings = {
 		let reviews = [
 
 			// Parsers
+			Parser_CSS,
 			Parser_HOSTS,
 			Parser_IP,
 			Parser_URL,
@@ -150,7 +152,6 @@ const settings = {
 			}
 
 		} else if (FLAGS.internet === false) {
-
 
 			reviews.forEach((review) => {
 

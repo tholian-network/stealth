@@ -55,7 +55,6 @@ if [[ "$system" == "Linux" ]]; then
 	fi;
 
 	mkdir $folder;
-	cd "$root_dir";
 
 
 
@@ -197,7 +196,6 @@ elif [[ "$system" == "Darwin" ]]; then
 	fi;
 
 	mkdir $folder;
-	cd "$root_dir";
 
 
 
