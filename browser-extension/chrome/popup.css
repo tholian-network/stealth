@@ -1,0 +1,40 @@
+
+@import url("../design/content.css");
+@import url("../design/control.css");
+@import url("../design/other/index.css");
+
+
+
+body {
+	color: #ffffff;
+	background: #121212;
+}
+
+article {
+	display: block;
+	width: 96px;
+	margin: 0px;
+	padding: 0px;
+}
+
+article div {
+	line-height: 32px;
+	vertical-align: middle;
+}
+
+article input[type="radio"][value="direct"]:before  { content: '\e8be'; }
+article input[type="radio"][value="stealth"]:before { content: '\e32a'; }
+article input[type="radio"][value="i2p"]:before     { content: '\e32a'; }
+article input[type="radio"][value="tor"]:before     { content: '\e32a'; }
+
+article input[type="radio"] + label[for] {
+	display: inline-block;
+	width: calc(100% - 48px);
+	cursor: pointer;
+}
+
+article input[type="radio"][disabled],
+article input[type="radio"][disabled] + label[for] {
+	cursor: not-allowed;
+}
+

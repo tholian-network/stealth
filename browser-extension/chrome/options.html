@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Stealth Proxy Extension Options</title>
+		<link rel="stylesheet" href="options.css">
+	</head>
+	<body>
+		<article id="proxy">
+			<h3>Proxy</h3>
+			<p>
+				Setting a Proxy leads to tunneling all network communication
+				(except the <a href="#bypass">Bypassed Domains</a>) through
+				it; including <q>https</q>, <q>http</q>, <q>ftp</q> and
+				<q>ws</q> connections.
+			</p>
+			<div>
+				<div>
+					<input id="browser-extension-mode-1" name="browser-extension-mode" type="radio" value="direct">
+					<label for="browser-extension-mode-1">No&nbsp;Proxy</label>
+				</div>
+				<div>
+					<input id="browser-extension-mode-2" name="browser-extension-mode" type="radio" value="stealth">
+					<label for="browser-extension-mode-2">Stealth</label>
+				</div>
+				<div>
+					<input id="browser-extension-mode-3" name="browser-extension-mode" type="radio" value="i2p">
+					<label for="browser-extension-mode-3">I2P</label>
+				</div>
+				<div>
+					<input id="browser-extension-mode-4" name="browser-extension-mode" type="radio" value="tor">
+					<label for="browser-extension-mode-4">TOR</label>
+				</div>
+			</div>
+		</article>
+		<article id="stealth">
+			<h3>Stealth Instance</h3>
+			<p>
+				Setting the Stealth instance allows to use another
+				machine than the local one. The Stealth instance is
+				defaulted with <q>localhost</q>.
+			</p>
+			<input type="text" placeholder="localhost">
+		</article>
+		<article id="bypass">
+			<h3>Bypassed Domains</h3>
+			<p>
+				The Bypassed Domains are a whitelist that leads to bypassing
+				the Proxy setting.
+			</p>
+			<p>
+				You should only carefully whitelist domains that you absolutely
+				trust, as this will compromise and leak your identity with
+				those domains and make you traceable.
+			</p>
+			<div id="bypass-filter">
+				<input id="bypass-filter-search" type="text" placeholder="Search for Domain ...">
+				<label for="bypass-filter-search">0 out of 0 Domains.</label>
+			</div>
+			<table>
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+				<tfoot>
+					<tr>
+						<td><input data-key="domain" type="text" placeholder="Domain or Hostname"></td>
+						<td><button data-action="confirm"></button></td>
+					</tr>
+				</tfoot>
+			</table>
+		</article>
+		<script type="module" src="options.mjs"></script>
+	</body>
+</html>
+

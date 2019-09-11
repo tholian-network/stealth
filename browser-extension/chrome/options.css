@@ -1,0 +1,91 @@
+
+@import url("../design/content.css");
+@import url("../design/control.css");
+@import url("../design/other/index.css");
+
+
+
+body {
+	color: #ffffff;
+	background: #121212;
+}
+
+article {
+	display: block;
+	font-size: 16px;
+}
+
+article div {
+	line-height: 32px;
+	vertical-align: middle;
+}
+
+article input[type="radio"][value="direct"]:before  { content: '\e8be'; }
+article input[type="radio"][value="stealth"]:before { content: '\e32a'; }
+article input[type="radio"][value="i2p"]:before     { content: '\e32a'; }
+article input[type="radio"][value="tor"]:before     { content: '\e32a'; }
+
+article input[type="radio"] + label[for] {
+	display: inline-block;
+	width: calc(100% - 48px);
+	cursor: pointer;
+}
+
+article input[type="radio"][disabled],
+article input[type="radio"][disabled] + label[for] {
+	cursor: not-allowed;
+}
+
+
+
+#proxy > div {
+	width: 128px;
+	margin: 32px auto 0px auto;
+}
+
+
+
+#stealth input {
+	display: block;
+	width: 416px;
+	margin: 32px auto 0px auto;
+	text-align: center;
+}
+
+
+
+#bypass-filter {
+	display: block;
+	width: 100%;
+	margin: 48px 0px 48px 0px;
+	text-align: center;
+}
+
+#bypass-filter input {
+	display: block;
+	width: 416px;
+	margin: 0px auto 0px auto;
+	text-align: center;
+}
+
+#bypass-filter label {
+	font-size: 16px;
+	line-height: 32px;
+}
+
+#bypass table {
+	table-layout: fixed;
+}
+
+#bypass table tr td:last-child,
+#bypass table tr th:last-child {
+	width: 32px;
+	padding: 0px 0px 0px 4px;
+	border-color: transparent;
+}
+
+#bypass table tr:hover td:last-child,
+#bypass table tr:hover th:last-child {
+	background: transparent;
+}
+

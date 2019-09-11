@@ -1,0 +1,230 @@
+
+::selection {
+	color: #99ccff;
+	border-radius: 4px;
+	background: rgba(255,255,255,0.12);
+	cursor: text;
+}
+
+::-moz-selection {
+	color: #99ccff;
+	border-radius: 4px;
+	background: rgba(255,255,255,0.12);
+	cursor: text;
+}
+
+::-webkit-scrollbar {
+	width: 16px;
+	border: 0px solid transparent;
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	width: 16px;
+	border: 0px solid transparent;
+	border-radius: 2px;
+	background: #ffffff;
+}
+
+body {
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	overflow: auto;
+	color: #ffffff;
+	background: #121212;
+}
+
+article {
+	display: block;
+	min-width: 640px;
+	max-width: 800px;
+	margin: 64px auto;
+	padding: 32px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-weight: normal;
+	background: rgba(255,255,255,0.04);
+	border: 1px solid #666666;
+	border-radius: 8px;
+}
+
+article > *:first-child {
+	margin-top: 0px;
+}
+
+article h1,
+article h2 {
+	display: block;
+	margin: 1em 0px 1em 0px;
+	padding: 0px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 32px;
+	font-weight: normal;
+	text-align: center;
+}
+
+article h3 {
+	display: block;
+	margin: 48px 0px 1em 0px;
+	padding: 0px 0px 0.5em 0px;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 24px;
+	font-weight: normal;
+	text-align: center;
+	border-bottom: 2px solid #ffffff;
+}
+
+article code {
+	display: inline;
+	margin: 0px;
+	padding: 0px 0.25em;
+	font-family: 'vera-mono';
+	font-size: inherit;
+	font-weight: normal;
+	font-style: normal;
+	background: #202020;
+	border: 1px solid #666666;
+	border-radius: 4px;
+	overflow-x: auto;
+	overflow-y: auto;
+}
+
+article h3 + code {
+	display: block;
+	margin: 1em 0px;
+	padding: 0.5em;
+	font-size: 20px;
+	border-radius: 8px;
+}
+
+article hr {
+	display: block;
+	height: 0px;
+	margin: 24px 0px 24px 0px;
+	border: 0px none transparent;
+	border-style: none;
+	border-top: 2px solid #ffffff;
+	appearance: none;
+}
+
+article a {
+	padding: 0px 2px;
+	color: #99ccff;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	box-sizing: border-box;
+	text-decoration: underline;
+	transition: 200ms all ease-out;
+	outline: none;
+	cursor: pointer;
+}
+
+article a:focus {
+	border: 1px solid #99ccff;
+	background: rgba(255,255,255,0.12);
+	outline: none;
+}
+
+article a:hover {
+	border: 1px solid transparent;
+	background: rgba(255,255,255,0.04);
+	outline: none;
+}
+
+article abbr {
+	border: 0px solid transparent;
+	text-decoration: none;
+	cursor: help;
+}
+
+article b {
+	font-weight: bold;
+}
+
+article p {
+	margin: 1em 0px;
+	text-align: justify;
+}
+
+article table {
+	width: 100%;
+	color: #ffffff;
+	font-family: 'museo';
+	font-size: 16px;
+	font-weight: normal;
+	text-align: center;
+}
+
+article table tr[data-visible="false"] { display: none;      }
+article table tr[data-visible="true"]  { display: table-row; }
+
+article table tr th {
+	font-size: 20px;
+	padding: 0px 0px 0.5em 0px;
+}
+
+article table tr td {
+	margin: 0px;
+	padding: 0px;
+	line-height: 32px;
+	font-size: 16px;
+	border-top: 1px solid #666666;
+	transition: 200ms all ease-out;
+}
+
+article table tr td textarea {
+	display: block;
+	width: 100%;
+	border: 1px solid transparent;
+	vertical-align: middle;
+}
+
+article table tr td input[type="text"] {
+	display: block;
+	width: 100%;
+	text-align: center;
+	border: 1px solid transparent;
+}
+
+article table tbody tr:hover td {
+	background: rgba(255,255,255,0.04);
+}
+
+article table tfoot tr td {
+	border-top: 2px solid #ffffff;
+	background: transparent;
+}
+
+article table tr td:last-child button {
+	display: block;
+	margin: 0px auto;
+}
+
+article p + table {
+	margin-top: 48px;
+}
+
+article ul {
+	margin: 0px;
+	padding: 0px;
+}
+
+
+
+/* media queries */
+@media screen and (max-width: 706px) {
+
+	article {
+		width: auto;
+		min-width: unset;
+		max-width: unset;
+		margin: 32px auto;
+		padding: 8px;
+		border-radius: 0px;
+	}
+
+}
+

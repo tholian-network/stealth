@@ -1,0 +1,43 @@
+{
+	"name":                   "stealth",
+	"description":            "Stealth Proxy Extension",
+	"manifest_version":       2,
+	"minimum_chrome_version": "75.0.0",
+	"version":                "0.0.1",
+	"icons": {
+		"256": "design/other/popup-256x256.png",
+		"192": "design/other/popup-192x192.png",
+		"128": "design/other/popup-128x128.png"
+	},
+	"permissions": [
+		"<all_urls>",
+		"proxy",
+		"storage",
+		"tabs",
+		"webRequest",
+		"webRequestBlocking"
+	],
+	"background": {
+		"scripts": [
+			"chrome/background.mjs"
+		]
+	},
+	"commands": {
+		"open-options": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+S",
+				"mac":      "Command+Shift+S",
+				"chromeos": "Ctrl+Shift+S",
+				"linux":    "Ctrl+Shift+S"
+			},
+			"description": "Open Options Page"
+		}
+	},
+	"options_page": "chrome/options.html",
+	"browser_action": {
+		"default_icon":  "design/other/popup-256x256.png",
+		"default_popup": "chrome/popup.html",
+		"default_title": "Stealth Proxy Extension"
+	}
+}
+
