@@ -128,10 +128,38 @@ const parse_declarations = function(str) {
 
 };
 
+const parse_number = function(str) {
+
+	str = str.trim();
+
+
+	if (str.includes('.')) {
+
+		let num = parseFloat(str);
+        if (Number.isNaN(num) === false) {
+			return parseFloat(num.toFixed(2));
+		}
+
+	} else {
+
+		let num = parseInt(str, 10);
+		if (Number.isNaN(num) === false) {
+			return num;
+		}
+
+	}
+
+
+	return null;
+
+};
+
 const parse_shorthand = function(key, map, val) {
 
+	let values = parse_values(val);
+
 	console.info('parse shorthand');
-	console.log(key, val);
+	console.log(key, values);
 
 };
 
@@ -140,20 +168,197 @@ const parse_selector = function(str) {
 };
 
 const parse_values = function(str) {
-
-	let tmp = str.split(' ');
-
-	console.log(tmp);
-	// TODO: Map data types
-	// TODO: Let shorthand functions decide which data type has
-	// what kind of meaning (in the returned map)
-
+	return str.split(' ').filter((v) => v.trim() !== '').map((v) => parse_value(v));
 };
 
 const parse_value = function(str) {
 
-	// TODO: Parse values correctly
-	return str;
+	let value = null;
+
+	if (str.startsWith('calc(') && str.endsWith(')')) {
+
+		// TODO: calc() support
+
+	} else if (str.startsWith('url(') && str.endsWith(')')) {
+
+		let url = str.substr(4, str.length - 5);
+
+		if (url.startsWith('\'')) url = url.substr(1);
+		if (url.startsWith('"'))  url = url.substr(1);
+		if (url.endsWith('\''))   url = url.substr(0, url.length - 1);
+		if (url.endsWith('"'))    url = url.substr(0, url.length - 1);
+
+		value = {
+			ext: null,
+			raw: 'url("' + url + '")',
+			typ: 'url',
+			val: url
+		};
+
+	} else if (str.endsWith('grad') || str.endsWith('turn')) {
+
+		let ext = str.substr(str.length - 4);
+		let num = parse_number(str.substr(0, str.length - 4));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + ext,
+				typ: 'angle',
+				val: num
+			};
+
+		}
+
+	} else if (str.endsWith('deg') || str.endsWith('rad')) {
+
+		let ext = str.substr(str.length - 3);
+		let num = parse_number(str.substr(0, str.length - 3));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + ext,
+				typ: 'angle',
+				val: num
+			};
+
+		}
+
+	} else if (str.startsWith('#')) {
+
+		// TODO: color support
+
+	} else if (
+		(
+			str.startsWith('rgb(')
+			|| str.startsWith('rgba(')
+			|| str.startsWith('hsl(')
+			|| str.startsWith('hsla(')
+		) && str.endsWith(')')
+	) {
+
+		// TODO: color support
+
+	} else if (str.endsWith('%')) {
+
+		let ext = str.substr(str.length - 1);
+		let num = parse_number(str.substr(0, str.length - 1));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + '%',
+				typ: 'percentage',
+				val: num
+			};
+
+		}
+
+	} else if (
+		str.endsWith('cm')
+		|| str.endsWith('em')
+		|| str.endsWith('ex')
+		|| str.endsWith('in')
+		|| str.endsWith('lh')
+		|| str.endsWith('mm')
+		|| str.endsWith('pc')
+		|| str.endsWith('pt')
+		|| str.endsWith('px')
+	) {
+
+		let ext = str.substr(str.length - 2);
+		let num = parse_number(str.substr(0, str.length - 2));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + ext,
+				typ: 'length',
+				val: num
+			};
+
+		}
+
+	} else if (str.endsWith('rem')) {
+
+		let ext = str.substr(str.length - 3);
+		let num = parse_number(str.substr(0, str.length - 3));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + ext,
+				typ: 'length',
+				val: num
+			};
+
+		}
+
+	} else if (str.endsWith('ms')) {
+
+		let ext = str.substr(str.length - 2);
+		let num = parse_number(str.substr(0, str.length - 2));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + ext,
+				typ: 'time',
+				val: num
+			};
+
+		}
+
+	} else if (str.endsWith('s')) {
+
+		let ext = str.substr(str.length - 1);
+		let num = parse_number(str.substr(0, str.length - 1));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + ext,
+				typ: 'time',
+				val: num
+			};
+
+		}
+
+	} else if (str.endsWith('vmax') || str.endsWith('vmin')) {
+
+		let ext = str.substr(str.length - 4);
+		let num = parse_number(str.substr(0, str.length - 4));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + ext,
+				typ: 'viewport-length',
+				val: num
+			};
+
+		}
+
+	} else if (str.endsWith('vh') || str.endsWith('vw')) {
+
+		let ext = str.substr(str.length - 2);
+		let num = parse_number(str.substr(0, str.length - 2));
+		if (num !== null) {
+
+			value = {
+				ext: ext,
+				raw: num.toString() + ext,
+				typ: 'viewport-length',
+				val: num
+			};
+
+		}
+
+	}
+
+
+	return value;
 
 };
 

@@ -33,8 +33,9 @@ describe('CSS.parse/selector', function(assert) {
 		[ 'background-position-x', '37px'                                ]
 	]);
 
+	let result = null;
 	try {
-		let result = CSS.parse(buffer);
+		result = CSS.parse(buffer);
 	} catch (err) {
 		console.error(err);
 	}

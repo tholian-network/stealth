@@ -95,20 +95,6 @@ const DNS_POOL = [{
 		type:  'v6'
 	}]
 }, {
-	domain:   'doh.securedns.eu',
-	path:     '/dns-query',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '146.185.167.43',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2a03:b0c0:0000:1010:0000:0000:0e9a:3001',
-		scope: 'public',
-		type:  'v6'
-	}]
-}, {
 	domain:   'dns.quad9.net',
 	path:     '/dns-query',
 	port:     443,
@@ -119,6 +105,34 @@ const DNS_POOL = [{
 		type:  'v4'
 	}, {
 		ip:    '2620:00fe:0000:0000:0000:0000:0000:00fe',
+		scope: 'public',
+		type:  'v6'
+	}]
+}, {
+	domain:   'dns.rubyfish.cn',
+	path:     '/dns-query',
+	port:     443,
+	protocol: 'https',
+	hosts:    [{
+		ip:    '118.89.110.78',
+		scope: 'public',
+		type:  'v4'
+	}, {
+		ip:    '47.96.179.163',
+		scope: 'public',
+		type:  'v4'
+	}]
+}, {
+	domain:   'doh.securedns.eu',
+	path:     '/dns-query',
+	port:     443,
+	protocol: 'https',
+	hosts:    [{
+		ip:    '146.185.167.43',
+		scope: 'public',
+		type:  'v4'
+	}, {
+		ip:    '2a03:b0c0:0000:1010:0000:0000:0e9a:3001',
 		scope: 'public',
 		type:  'v6'
 	}]
@@ -139,8 +153,8 @@ const DNS_POOL = [{
 }].filter((dns) => {
 
 	// XXX: These DNS are broken at the moment :-/
-	if (dns.domain.includes('google-public-dns')) return false;
 	if (dns.domain.includes('blahdns.com'))       return false;
+	if (dns.domain.includes('google-public-dns')) return false;
 
 	return true;
 
