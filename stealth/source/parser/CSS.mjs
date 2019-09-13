@@ -136,7 +136,7 @@ const parse_number = function(str) {
 	if (str.includes('.')) {
 
 		let num = parseFloat(str);
-        if (Number.isNaN(num) === false) {
+		if (Number.isNaN(num) === false) {
 			return parseFloat(num.toFixed(2));
 		}
 
@@ -225,20 +225,173 @@ const parse_value = function(str) {
 
 		}
 
-	} else if (str.startsWith('#')) {
+	} else if (
+		str.startsWith('#')
+		|| (
+			str.startsWith('rgb(')
+			|| str.startsWith('rgba(')
+		) && str.endsWith(')')
+	) {
 
-		// TODO: color support
+		if (str.startsWith('#')) {
+
+			let tmp = str.substr(1);
+			if (tmp.length === 8) {
+
+				let nums = [
+					parseInt(tmp.substr(0, 2), 16),
+					parseInt(tmp.substr(2, 2), 16),
+					parseInt(tmp.substr(4, 2), 16),
+					parseInt(tmp.substr(6, 2), 16)
+				];
+
+				value = {
+					ext: null,
+					raw: 'rgba(' + nums.join(',') + ')',
+					typ: 'color',
+					val: nums
+				};
+
+			} else if (tmp.length === 6) {
+
+				let nums = [
+					parseInt(tmp.substr(0, 2), 16),
+					parseInt(tmp.substr(2, 2), 16),
+					parseInt(tmp.substr(4, 2), 16),
+					1
+				];
+
+				value = {
+					ext: null,
+					raw: 'rgba(' + nums.join(',') + ')',
+					typ: 'color',
+					val: nums
+				};
+
+			} else if (tmp.length === 4) {
+
+				let nums = [
+					parseInt(tmp.substr(0, 1) + tmp.substr(0, 1), 16),
+					parseInt(tmp.substr(1, 1) + tmp.substr(1, 1), 16),
+					parseInt(tmp.substr(2, 1) + tmp.substr(2, 1), 16),
+					parseInt(tmp.substr(3, 1) + tmp.substr(3, 1), 16) / 255
+				];
+
+				value = {
+					ext: null,
+					raw: 'rgba(' + nums.join(',') + ')',
+					typ: 'color',
+					val: nums
+				};
+
+			} else if (tmp.length === 3) {
+
+				let nums = [
+					parseInt(tmp.substr(0, 1) + tmp.substr(0, 1), 16),
+					parseInt(tmp.substr(1, 1) + tmp.substr(1, 1), 16),
+					parseInt(tmp.substr(2, 1) + tmp.substr(2, 1), 16),
+					1
+				];
+
+				value = {
+					ext: null,
+					raw: 'rgba(' + nums.join(',') + ')',
+					typ: 'color',
+					val: nums
+				};
+
+			}
+
+		} else {
+
+			let tmp1 = str.split('(').pop().split(')').shift();
+			let tmp2 = tmp1.split(',').map((v) => v.trim());
+
+			if (tmp2.length === 3) {
+
+				let nums = tmp2.map((v) => {
+
+					let val = 0;
+
+					if (v.endsWith('%')) {
+						val = parse_number(v.substr(0, v.length - 1)) / 100 * 255;
+					} else {
+						val = parse_number(v);
+					}
+
+					if (val < 0)   val = 0;
+					if (val > 255) val = 255;
+
+					return val;
+
+				});
+
+				if (nums.length === 3) {
+					nums.push(1);
+				}
+
+				value = {
+					ext: null,
+					raw: 'rgba(' + nums.join(',') + ')',
+					typ: 'color',
+					val: nums
+				};
+
+			} else if (tmp2.length === 4) {
+
+				let nums = tmp2.map((v, n) => {
+
+					let val = 0;
+
+					if (n < 3) {
+
+						if (v.endsWith('%')) {
+							val = parse_number(v.substr(0, v.length - 1)) / 100 * 255;
+						} else {
+							val = parse_number(v);
+						}
+
+						if (val < 0)   val = 0;
+						if (val > 255) val = 255;
+
+					} else {
+
+						if (v.endsWith('%')) {
+							val = parse_number(v.substr(0, v.length - 1)) / 100;
+						} else {
+							val = parse_number(v);
+						}
+
+						if (val < 0) val = 0;
+						if (val > 1) val = 1;
+
+					}
+
+
+					return val;
+
+				});
+
+				value = {
+					ext: null,
+					raw: 'rgba(' + nums.join(',') + ')',
+					typ: 'color',
+					val: nums
+				};
+
+			}
+
+		}
 
 	} else if (
 		(
-			str.startsWith('rgb(')
-			|| str.startsWith('rgba(')
-			|| str.startsWith('hsl(')
+			str.startsWith('hsl(')
 			|| str.startsWith('hsla(')
 		) && str.endsWith(')')
 	) {
 
-		// TODO: color support
+
+		// TODO: hsl/a color support
 
 	} else if (str.endsWith('%')) {
 
