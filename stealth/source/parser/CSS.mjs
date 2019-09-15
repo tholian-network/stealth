@@ -390,7 +390,6 @@ const parse_value = function(str) {
 		) && str.endsWith(')')
 	) {
 
-
 		// TODO: hsl/a color support
 
 	} else if (str.endsWith('%')) {
