@@ -28,11 +28,11 @@ describe('CSS.parse/selector', function(assert) {
 	let buffer = create([
 		'body > main'
 	], [
-		[ 'background',            'url(\'/path/to/image.jpg\') 0px 0px #ff0000' ],
-		[ 'background-color',      'rgba(255, 13%, 0, 17.5%)'                    ],
-		[ 'background-color',      '#ffcc00'                                     ],
-		[ 'background-position',   '13px 37px'                                   ],
-		[ 'background-position-x', '37px'                                        ]
+		[ 'background',            'scroll url(\'/path/to/image.jpg\') 0px 0px #ff0000' ],
+		[ 'background-color',      'rgba(255, 13%, 0, 17.5%)' ],
+		[ 'background-color',      '#ffcc00'                  ],
+		[ 'background-position',   '13px 37px'                ],
+		[ 'background-position-x', '37px'                     ]
 	]);
 
 	let result = null;

@@ -1,6 +1,8 @@
 
-import { Buffer, isBuffer, isString } from '../POLYFILLS.mjs';
+import { Buffer, isBuffer } from '../POLYFILLS.mjs';
 
+import NORMAL    from './CSS/NORMAL.mjs';
+import SHORTHAND from './CSS/SHORTHAND.mjs';
 
 const MINIFY_MAP = {
 	'\t': ' ',
@@ -21,47 +23,6 @@ const MINIFY_MAP = {
 	' -': '-',
 	'+ ': '+',
 	' +': '+'
-};
-
-const SHORTHAND_MAP = {
-	'animation': {
-	},
-	'background': {
-		// TODO: Figure out a value: real-key structure
-	},
-	'border':          {},
-	'border-bottom':   {},
-	'border-color':    {},
-	'border-left':     {},
-	'border-radius':   {},
-	'border-right':    {},
-	'border-style':    {},
-	'border-top':      {},
-	'border-width':    {},
-	'column-rule':     {},
-	'columns':         {},
-	'flex':            {},
-	'flex-flow':       {},
-	'font':            {},
-	'grid':            {},
-	'grid-area':       {},
-	'grid-column':     {},
-	'grid-row':        {},
-	'grid-template':   {},
-	'list-style':      {},
-	'margin':          {},
-	'offset':          {},
-	'outline':         {},
-	'overflow':        {},
-	'padding':         {},
-	'place-content':   {},
-	'place-items':     {},
-	'place-self':      {},
-	'text-decoration': {},
-	'transition':      {}
-};
-
-const VALUES_MAP = {
 };
 
 const minify_css = function(str) {
@@ -104,16 +65,41 @@ const parse_declarations = function(str) {
 
 	str.split(';').forEach((ch) => {
 
-		let key = ch.split(':')[0];
-		let val = ch.split(':').slice(1).join(':');
+		let key       = ch.split(':')[0];
+		let val       = ch.split(':').slice(1).join(':');
+		let normal    = NORMAL[key]    || null;
+		let shorthand = SHORTHAND[key] || null;
 
-		let is_shorthand = SHORTHAND_MAP[key] !== undefined;
-		if (is_shorthand === true) {
+		if (normal !== null) {
 
-			let map = parse_shorthand(key, SHORTHAND_MAP[key], val);
+			let map = normal(parse_values(val)) || null;
+			if (map !== null) {
 
-			for (let k in map) {
-				declarations[k] = map[k] || declarations[k];
+				for (let k in map) {
+
+					let v = map[k] || null;
+					if (v !== null) {
+						declarations[k] = map[k];
+					}
+
+				}
+
+			}
+
+		} else if (shorthand !== null) {
+
+			let map = shorthand(parse_values(val)) || null;
+			if (map !== null) {
+
+				for (let k in map) {
+
+					let v = map[k] || null;
+					if (v !== null) {
+						declarations[k] = map[k];
+					}
+
+				}
+
 			}
 
 		} else {
@@ -151,15 +137,6 @@ const parse_number = function(str) {
 
 
 	return null;
-
-};
-
-const parse_shorthand = function(key, map, val) {
-
-	let values = parse_values(val);
-
-	console.info('parse shorthand');
-	console.log(key, values);
 
 };
 
@@ -506,6 +483,46 @@ const parse_value = function(str) {
 			};
 
 		}
+
+	} else if (/^([0-9]+)$/g.test(str) === true) {
+
+		let num = parse_number(str);
+		if (num !== null) {
+
+			value = {
+				ext: null,
+				raw: num.toString(),
+				typ: 'number',
+				val: num
+			};
+
+		}
+
+	} else if (
+		(str.startsWith('\'') && str.endsWith('\''))
+		|| (str.startsWith('"') && str.endsWith('"'))
+	) {
+
+		let tmp = str.substr(1, str.length - 2);
+		if (tmp.length > 0) {
+
+			value = {
+				ext: null,
+				raw: '\'' + tmp.toString() + '\'',
+				typ: 'string',
+				val: tmp
+			};
+
+		}
+
+	} else {
+
+		value = {
+			ext: null,
+			raw: str,
+			typ: 'other',
+			val: str
+		};
 
 	}
 
