@@ -1,5 +1,5 @@
 
-import { Buffer, isBuffer } from '../POLYFILLS.mjs';
+import { Buffer, isArray, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
 
 import NORMAL    from './CSS/NORMAL.mjs';
 import SHORTHAND from './CSS/SHORTHAND.mjs';
@@ -51,11 +51,130 @@ const minify_css = function(str) {
 
 };
 
+export const extract_values = function(prop, search) {
+
+	prop   = isString(prop)  ? prop   : 'val';
+	search = isArray(search) ? search : [];
+
+
+	if (search.length > 0) {
+
+		let filtered = [];
+		let list     = Object(this);
+		let length   = list.length >>> 0;
+
+		for (let s = 0, sl = search.length; s < sl; s++) {
+
+			let value = search[s];
+			if (isNumber(value) || isString(value)) {
+
+				for (let i = 0; i < length; i++) {
+
+					let object  = this[i];
+					if (object[prop] === value) {
+
+						filtered.push(object);
+						this.splice(i, 1);
+
+						length--;
+						i--;
+
+					}
+
+				}
+
+			}
+
+		}
+
+
+		if (filtered.length > 0) {
+			return filtered;
+		}
+
+	}
+
+
+	return null;
+
+};
+
+export const extract_value = function(prop, search) {
+
+	let result = extract_values.call(this, prop, search);
+	if (result !== null) {
+
+		if (result.length > 0) {
+			return result.pop();
+		}
+
+	}
+
+
+	return null;
+
+};
+
+export const find = function(search, limit) {
+
+	search = isObject(search) ? search : {};
+	limit  = isObject(limit)  ? limit  : { min: 0, max: 1 };
+
+
+	let result = [];
+	let values = this;
+	if (values.length > 0) {
+
+		let min = isNumber(limit.min) ? limit.min : 1;
+		let max = isNumber(limit.max) ? limit.max : 1;
+
+		for (let v = 0, vl = values.length; v < vl; v++) {
+
+			let value = values[v];
+			let valid = false;
+
+			for (let key in search) {
+
+				let val = value[key];
+				if (val !== null && isString(val)) {
+
+					if (search[key].includes(val)) {
+						valid = true;
+						break;
+					}
+
+				}
+
+			}
+
+			if (valid === true) {
+				result.push(value);
+			} else {
+				break;
+			}
+
+			if (result.length >= max) {
+				break;
+			}
+
+		}
+
+		if (result.length >= min && result.length <= max) {
+			values.splice(0, result.length);
+		}
+
+	}
+
+
+	return result;
+
+};
+
 const parse_condition = function(str) {
 	return [ str.trim() ];
 };
 
-const parse_declarations = function(str) {
+export const parse_declarations = function(str) {
 
 	let declarations = {};
 
@@ -72,7 +191,7 @@ const parse_declarations = function(str) {
 
 		if (normal !== null) {
 
-			let map = normal(parse_values(val)) || null;
+			let map = normal(parse_values(val), {}) || null;
 			if (map !== null) {
 
 				for (let k in map) {
@@ -88,7 +207,7 @@ const parse_declarations = function(str) {
 
 		} else if (shorthand !== null) {
 
-			let map = shorthand(parse_values(val)) || null;
+			let map = shorthand(parse_values(val), {}) || null;
 			if (map !== null) {
 
 				for (let k in map) {
@@ -144,11 +263,11 @@ const parse_selector = function(str) {
 	return str.trim().split(',').map((ch) => ch.trim());
 };
 
-const parse_values = function(str) {
+export const parse_values = function(str) {
 	return str.split(' ').filter((v) => v.trim() !== '').map((v) => parse_value(v));
 };
 
-const parse_value = function(str) {
+export const parse_value = function(str) {
 
 	let value = null;
 
@@ -202,93 +321,117 @@ const parse_value = function(str) {
 
 		}
 
-	} else if (
-		str.startsWith('#')
-		|| (
-			str.startsWith('rgb(')
-			|| str.startsWith('rgba(')
-		) && str.endsWith(')')
-	) {
+	} else if (str.startsWith('#')) {
 
-		if (str.startsWith('#')) {
+		let tmp = str.substr(1);
+		if (tmp.length === 8) {
 
-			let tmp = str.substr(1);
-			if (tmp.length === 8) {
+			let nums = [
+				parseInt(tmp.substr(0, 2), 16),
+				parseInt(tmp.substr(2, 2), 16),
+				parseInt(tmp.substr(4, 2), 16),
+				parseInt(tmp.substr(6, 2), 16)
+			];
 
-				let nums = [
-					parseInt(tmp.substr(0, 2), 16),
-					parseInt(tmp.substr(2, 2), 16),
-					parseInt(tmp.substr(4, 2), 16),
-					parseInt(tmp.substr(6, 2), 16)
-				];
+			value = {
+				ext: null,
+				raw: 'rgba(' + nums.join(',') + ')',
+				typ: 'color',
+				val: nums
+			};
 
-				value = {
-					ext: null,
-					raw: 'rgba(' + nums.join(',') + ')',
-					typ: 'color',
-					val: nums
-				};
+		} else if (tmp.length === 6) {
 
-			} else if (tmp.length === 6) {
+			let nums = [
+				parseInt(tmp.substr(0, 2), 16),
+				parseInt(tmp.substr(2, 2), 16),
+				parseInt(tmp.substr(4, 2), 16),
+				1
+			];
 
-				let nums = [
-					parseInt(tmp.substr(0, 2), 16),
-					parseInt(tmp.substr(2, 2), 16),
-					parseInt(tmp.substr(4, 2), 16),
-					1
-				];
+			value = {
+				ext: null,
+				raw: 'rgba(' + nums.join(',') + ')',
+				typ: 'color',
+				val: nums
+			};
 
-				value = {
-					ext: null,
-					raw: 'rgba(' + nums.join(',') + ')',
-					typ: 'color',
-					val: nums
-				};
+		} else if (tmp.length === 4) {
 
-			} else if (tmp.length === 4) {
+			let nums = [
+				parse_value(tmp.substr(0, 1) + tmp.substr(0, 1)),
+				parse_value(tmp.substr(1, 1) + tmp.substr(1, 1)),
+				parse_value(tmp.substr(2, 1) + tmp.substr(2, 1)),
+				parse_value(tmp.substr(3, 1) + tmp.substr(3, 1)) / 255
+			];
 
-				let nums = [
-					parseInt(tmp.substr(0, 1) + tmp.substr(0, 1), 16),
-					parseInt(tmp.substr(1, 1) + tmp.substr(1, 1), 16),
-					parseInt(tmp.substr(2, 1) + tmp.substr(2, 1), 16),
-					parseInt(tmp.substr(3, 1) + tmp.substr(3, 1), 16) / 255
-				];
+			value = {
+				ext: null,
+				raw: 'rgba(' + nums.join(',') + ')',
+				typ: 'color',
+				val: nums
+			};
 
-				value = {
-					ext: null,
-					raw: 'rgba(' + nums.join(',') + ')',
-					typ: 'color',
-					val: nums
-				};
+		} else if (tmp.length === 3) {
 
-			} else if (tmp.length === 3) {
+			let nums = [
+				parseInt(tmp.substr(0, 1) + tmp.substr(0, 1), 16),
+				parseInt(tmp.substr(1, 1) + tmp.substr(1, 1), 16),
+				parseInt(tmp.substr(2, 1) + tmp.substr(2, 1), 16),
+				1
+			];
 
-				let nums = [
-					parseInt(tmp.substr(0, 1) + tmp.substr(0, 1), 16),
-					parseInt(tmp.substr(1, 1) + tmp.substr(1, 1), 16),
-					parseInt(tmp.substr(2, 1) + tmp.substr(2, 1), 16),
-					1
-				];
+			value = {
+				ext: null,
+				raw: 'rgba(' + nums.join(',') + ')',
+				typ: 'color',
+				val: nums
+			};
 
-				value = {
-					ext: null,
-					raw: 'rgba(' + nums.join(',') + ')',
-					typ: 'color',
-					val: nums
-				};
+		}
 
+	} else if ((str.startsWith('rgb(') || str.startsWith('rgba(')) && str.endsWith(')')) {
+
+		let tmp1 = str.split('(').pop().split(')').shift();
+		let tmp2 = tmp1.split(',').map((v) => v.trim());
+
+		if (tmp2.length === 3) {
+
+			let nums = tmp2.map((v) => {
+
+				let val = 0;
+
+				if (v.endsWith('%')) {
+					val = parse_number(v.substr(0, v.length - 1)) / 100 * 255;
+				} else {
+					val = parse_number(v);
+				}
+
+				if (val < 0)   val = 0;
+				if (val > 255) val = 255;
+
+				return val;
+
+			});
+
+			if (nums.length === 3) {
+				nums.push(1);
 			}
 
-		} else {
+			value = {
+				ext: null,
+				raw: 'rgba(' + nums.join(',') + ')',
+				typ: 'color',
+				val: nums
+			};
 
-			let tmp1 = str.split('(').pop().split(')').shift();
-			let tmp2 = tmp1.split(',').map((v) => v.trim());
+		} else if (tmp2.length === 4) {
 
-			if (tmp2.length === 3) {
+			let nums = tmp2.map((v, n) => {
 
-				let nums = tmp2.map((v) => {
+				let val = 0;
 
-					let val = 0;
+				if (n < 3) {
 
 					if (v.endsWith('%')) {
 						val = parse_number(v.substr(0, v.length - 1)) / 100 * 255;
@@ -299,64 +442,29 @@ const parse_value = function(str) {
 					if (val < 0)   val = 0;
 					if (val > 255) val = 255;
 
-					return val;
+				} else {
 
-				});
-
-				if (nums.length === 3) {
-					nums.push(1);
-				}
-
-				value = {
-					ext: null,
-					raw: 'rgba(' + nums.join(',') + ')',
-					typ: 'color',
-					val: nums
-				};
-
-			} else if (tmp2.length === 4) {
-
-				let nums = tmp2.map((v, n) => {
-
-					let val = 0;
-
-					if (n < 3) {
-
-						if (v.endsWith('%')) {
-							val = parse_number(v.substr(0, v.length - 1)) / 100 * 255;
-						} else {
-							val = parse_number(v);
-						}
-
-						if (val < 0)   val = 0;
-						if (val > 255) val = 255;
-
+					if (v.endsWith('%')) {
+						val = parse_number(v.substr(0, v.length - 1)) / 100;
 					} else {
-
-						if (v.endsWith('%')) {
-							val = parse_number(v.substr(0, v.length - 1)) / 100;
-						} else {
-							val = parse_number(v);
-						}
-
-						if (val < 0) val = 0;
-						if (val > 1) val = 1;
-
+						val = parse_number(v);
 					}
 
+					if (val < 0) val = 0;
+					if (val > 1) val = 1;
 
-					return val;
+				}
 
-				});
+				return val;
 
-				value = {
-					ext: null,
-					raw: 'rgba(' + nums.join(',') + ')',
-					typ: 'color',
-					val: nums
-				};
+			});
 
-			}
+			value = {
+				ext: null,
+				raw: 'rgba(' + nums.join(',') + ')',
+				typ: 'color',
+				val: nums
+			};
 
 		}
 

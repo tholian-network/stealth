@@ -43,6 +43,7 @@ describe('CSS.parse/selector', function(assert) {
 	}
 
 
+	console.log('RESULT');
 	console.info(buffer);
 	console.warn(result);
 
