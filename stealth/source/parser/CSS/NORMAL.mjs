@@ -1,7 +1,7 @@
 
 import { console } from '../../console.mjs';
 
-import { find, parse_value } from '../CSS.mjs';
+import { find, parse_chunk } from '../CSS.mjs';
 
 
 
@@ -57,20 +57,20 @@ const NORMAL = {
 			let val = position[0].val;
 			let typ = position[0].typ;
 			if (val === 'top') {
-				result['background-position-x'] = parse_value('50%');
-				result['background-position-y'] = parse_value('top');
+				result['background-position-x'] = parse_chunk('50%');
+				result['background-position-y'] = parse_chunk('top');
 			} else if (val === 'right') {
-				result['background-position-x'] = parse_value('right');
-				result['background-position-y'] = parse_value('50%');
+				result['background-position-x'] = parse_chunk('right');
+				result['background-position-y'] = parse_chunk('50%');
 			} else if (val === 'bottom') {
-				result['background-position-x'] = parse_value('50%');
-				result['background-position-y'] = parse_value('bottom');
+				result['background-position-x'] = parse_chunk('50%');
+				result['background-position-y'] = parse_chunk('bottom');
 			} else if (val === 'left') {
-				result['background-position-x'] = parse_value('left');
-				result['background-position-y'] = parse_value('50%');
+				result['background-position-x'] = parse_chunk('left');
+				result['background-position-y'] = parse_chunk('50%');
 			} else if (typ === 'length' || typ === 'percentage') {
 				result['background-position-x'] = position[0];
-				result['background-position-y'] = parse_value('50%');
+				result['background-position-y'] = parse_chunk('50%');
 			}
 
 		}
@@ -93,23 +93,23 @@ const NORMAL = {
 
 				let val = repeat[0].val;
 				if (val === 'repeat-x') {
-					result['background-repeat-x'] = parse_value('repeat');
-					result['background-repeat-y'] = parse_value('no-repeat');
+					result['background-repeat-x'] = parse_chunk('repeat');
+					result['background-repeat-y'] = parse_chunk('no-repeat');
 				} else if (val === 'repeat-y') {
-					result['background-repeat-x'] = parse_value('no-repeat');
-					result['background-repeat-y'] = parse_value('repeat');
+					result['background-repeat-x'] = parse_chunk('no-repeat');
+					result['background-repeat-y'] = parse_chunk('repeat');
 				} else if (val === 'repeat') {
-					result['background-repeat-x'] = parse_value('repeat');
-					result['background-repeat-y'] = parse_value('repeat');
+					result['background-repeat-x'] = parse_chunk('repeat');
+					result['background-repeat-y'] = parse_chunk('repeat');
 				} else if (val === 'space') {
-					result['background-repeat-x'] = parse_value('space');
-					result['background-repeat-y'] = parse_value('space');
+					result['background-repeat-x'] = parse_chunk('space');
+					result['background-repeat-y'] = parse_chunk('space');
 				} else if (val === 'round') {
-					result['background-repeat-x'] = parse_value('round');
-					result['background-repeat-y'] = parse_value('round');
+					result['background-repeat-x'] = parse_chunk('round');
+					result['background-repeat-y'] = parse_chunk('round');
 				} else if (val === 'no-repeat') {
-					result['background-repeat-x'] = parse_value('no-repeat');
-					result['background-repeat-y'] = parse_value('no-repeat');
+					result['background-repeat-x'] = parse_chunk('no-repeat');
+					result['background-repeat-y'] = parse_chunk('no-repeat');
 				}
 
 			}
@@ -139,17 +139,17 @@ const NORMAL = {
 				let val = size[0].val;
 				let typ = size[0].typ;
 				if (val === 'contain') {
-					result['background-size-x'] = parse_value('contain');
-					result['background-size-y'] = parse_value('contain');
+					result['background-size-x'] = parse_chunk('contain');
+					result['background-size-y'] = parse_chunk('contain');
 				} else if (val === 'cover') {
-					result['background-size-x'] = parse_value('cover');
-					result['background-size-y'] = parse_value('cover');
+					result['background-size-x'] = parse_chunk('cover');
+					result['background-size-y'] = parse_chunk('cover');
 				} else if (val === 'auto') {
-					result['background-size-x'] = parse_value('auto');
-					result['background-size-y'] = parse_value('auto');
+					result['background-size-x'] = parse_chunk('auto');
+					result['background-size-y'] = parse_chunk('auto');
 				} else if (typ === 'length' || typ === 'percentage') {
 					result['background-size-x'] = size[0];
-					result['background-size-y'] = parse_value('auto');
+					result['background-size-y'] = parse_chunk('auto');
 				}
 
 			}

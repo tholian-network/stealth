@@ -25,15 +25,19 @@ const create = (selectors, declarations) => {
 
 describe('CSS.parse/selector', function(assert) {
 
-	let buffer = create([
-		'body > main'
-	], [
-		[ 'background',            'scroll url(\'/path/to/image.jpg\') 0px 0px #ff0000' ],
-		[ 'background-color',      'rgba(255, 13%, 0, 17.5%)' ],
-		[ 'background-color',      '#ffcc00'                  ],
-		[ 'background-position',   '13px 37px'                ],
-		[ 'background-position-x', '37px'                     ]
-	]);
+	let declarations = [
+		[ 'background',            'url(\'/path/to/image.jpg\') top 13px repeat no-repeat #ff0000' ],
+		// [ 'background-color',      'rgba(255, 13%, 0, 17.5%)' ],
+		// [ 'background-size',       'contain'                  ],
+		// [ 'background-size',       '70%'                      ],
+		// [ 'background-color',      '#ffcc00'                  ],
+		// [ 'background-position',   '13px 37px'                ],
+		// [ 'background-position-x', '37px'                     ]
+	];
+
+	let buffer = create([ 'body > main' ], declarations);
+
+	console.info(declarations.map((v) => v[0] + ': ' + v[1]).join('\n'));
 
 	let result = null;
 	try {

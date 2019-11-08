@@ -1,5 +1,5 @@
 
-import { Buffer, isArray, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
+import { Buffer, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
 
 import NORMAL    from './CSS/NORMAL.mjs';
 import SHORTHAND from './CSS/SHORTHAND.mjs';
@@ -48,70 +48,6 @@ const minify_css = function(str) {
 	}
 
 	return strip_comments(str.trim());
-
-};
-
-export const extract_values = function(prop, search) {
-
-	prop   = isString(prop)  ? prop   : 'val';
-	search = isArray(search) ? search : [];
-
-
-	if (search.length > 0) {
-
-		let filtered = [];
-		let list     = Object(this);
-		let length   = list.length >>> 0;
-
-		for (let s = 0, sl = search.length; s < sl; s++) {
-
-			let value = search[s];
-			if (isNumber(value) || isString(value)) {
-
-				for (let i = 0; i < length; i++) {
-
-					let object  = this[i];
-					if (object[prop] === value) {
-
-						filtered.push(object);
-						this.splice(i, 1);
-
-						length--;
-						i--;
-
-					}
-
-				}
-
-			}
-
-		}
-
-
-		if (filtered.length > 0) {
-			return filtered;
-		}
-
-	}
-
-
-	return null;
-
-};
-
-export const extract_value = function(prop, search) {
-
-	let result = extract_values.call(this, prop, search);
-	if (result !== null) {
-
-		if (result.length > 0) {
-			return result.pop();
-		}
-
-	}
-
-
-	return null;
 
 };
 
@@ -174,62 +110,51 @@ const parse_condition = function(str) {
 	return [ str.trim() ];
 };
 
-export const parse_declarations = function(str) {
+const parse_declaration = function(str) {
 
-	let declarations = {};
+	let key    = str.split(':')[0].trim();
+	let val    = str.split(':').slice(1).join(':').trim();
+	let result = {};
 
-	if (str.endsWith(';')) {
-		str = str.substr(0, str.length - 1);
-	}
+	if (typeof NORMAL[key] === 'function') {
 
-	str.split(';').forEach((ch) => {
+		let map = NORMAL[key](parse_values(val), {}) || null;
+		if (map !== null) {
 
-		let key       = ch.split(':')[0];
-		let val       = ch.split(':').slice(1).join(':');
-		let normal    = NORMAL[key]    || null;
-		let shorthand = SHORTHAND[key] || null;
+			for (let k in map) {
 
-		if (normal !== null) {
-
-			let map = normal(parse_values(val), {}) || null;
-			if (map !== null) {
-
-				for (let k in map) {
-
-					let v = map[k] || null;
-					if (v !== null) {
-						declarations[k] = map[k];
-					}
-
+				let v = map[k] || null;
+				if (v !== null) {
+					result[k] = map[k];
 				}
 
 			}
-
-		} else if (shorthand !== null) {
-
-			let map = shorthand(parse_values(val), {}) || null;
-			if (map !== null) {
-
-				for (let k in map) {
-
-					let v = map[k] || null;
-					if (v !== null) {
-						declarations[k] = map[k];
-					}
-
-				}
-
-			}
-
-		} else {
-
-			declarations[key] = parse_value(val);
 
 		}
 
-	});
+	} else if (typeof SHORTHAND[key] === 'function') {
 
-	return declarations;
+		let map = SHORTHAND[key](parse_values(val), {}) || null;
+		if (map !== null) {
+
+			for (let k in map) {
+
+				let v = map[k] || null;
+				if (v !== null) {
+					result[k] = map[k];
+				}
+
+			}
+
+		}
+
+	} else {
+
+		result[key] = parse_value(val);
+
+	}
+
+	return result;
 
 };
 
@@ -805,9 +730,7 @@ const CSS = {
 				} else if (line.trim() !== '') {
 
 					if (current !== null && current.type.startsWith('rule')) {
-
-						parse_declarations(line);
-
+						CSS.parse_chunk(line);
 					} else {
 						// Invalid CSS Syntax
 					}
@@ -816,7 +739,69 @@ const CSS = {
 
 			});
 
-			return Buffer.from(content, 'utf8');
+
+			return tree;
+
+		}
+
+
+		return null;
+
+	},
+
+	parse_chunk: function(str) {
+
+		str = isString(str) ? str : '';
+
+
+		if (str.endsWith(';')) {
+			str = str.substr(0, str.length - 1);
+		}
+
+		if (str.includes(';')) {
+
+			let result = {};
+
+			let declarations = str.split(';');
+			if (declarations.length > 0) {
+
+				declarations.forEach((declaration) => {
+
+					let tmp = parse_declaration(declaration);
+					if (Object.keys(tmp).length > 0) {
+
+						Object.keys(tmp).forEach((key) => {
+							result[key] = tmp[key];
+						});
+
+					}
+
+				});
+
+			}
+
+			return result;
+
+		} else {
+
+			if (str.includes(':')) {
+
+				return parse_declaration(str);
+
+			} else {
+
+				if (str.includes(' ')) {
+
+					return parse_values(str);
+
+				} else {
+
+					// TODO: parse_value() method
+					return parse_value(str);
+
+				}
+
+			}
 
 		}
 
@@ -831,9 +816,10 @@ const CSS = {
 };
 
 
-export const isCSS   = CSS.isCSS;
-export const parse   = CSS.parse;
-export const render  = CSS.render;
+export const isCSS       = CSS.isCSS;
+export const parse       = CSS.parse;
+export const parse_chunk = CSS.parse_chunk;
+export const render      = CSS.render;
 
 export { CSS };
 
