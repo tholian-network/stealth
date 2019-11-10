@@ -4,6 +4,8 @@ import { Buffer, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs
 import NORMAL    from './CSS/NORMAL.mjs';
 import SHORTHAND from './CSS/SHORTHAND.mjs';
 
+const ALPHABET   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const MINIFY_OPS = [ '+', '-', '*', '/' ];
 const MINIFY_MAP = {
 	'\t': ' ',
 	'\n': '',
@@ -47,8 +49,16 @@ const minify_css = function(str) {
 		dbl = str.indexOf('  ', dbl);
 	}
 
-	return strip_comments(str.trim());
 
+	str = strip_comments(str.trim());
+
+
+	return str;
+
+};
+
+export const clone = function(object) {
+	return JSON.parse(JSON.stringify(object));
 };
 
 export const find = function(search, limit) {
@@ -106,6 +116,64 @@ export const find = function(search, limit) {
 
 };
 
+export const has = function(search, limit) {
+
+	search = isObject(search) ? search : {};
+	limit  = isObject(limit)  ? limit  : { min: 0, max: 1 };
+
+
+	let result = [];
+	let values = this;
+	if (values.length > 0) {
+
+		let min = isNumber(limit.min) ? limit.min : 1;
+		let max = isNumber(limit.max) ? limit.max : 1;
+
+		for (let v = 0, vl = values.length; v < vl; v++) {
+
+			let value = values[v];
+			let valid = null;
+
+			for (let key in search) {
+
+				let val = value[key];
+				if (val !== null && isString(val)) {
+
+					if (search[key].includes(val)) {
+						valid = true;
+						break;
+					} else if (valid === true) {
+						valid = false;
+						break;
+					}
+
+				}
+
+			}
+
+			if (valid === true) {
+				result.push(value);
+			} else if (valid === false) {
+				break;
+			}
+
+			if (result.length >= max) {
+				break;
+			}
+
+		}
+
+		if (result.length >= min && result.length <= max) {
+			return true;
+		}
+
+	}
+
+
+	return false;
+
+};
+
 const parse_condition = function(str) {
 	return [ str.trim() ];
 };
@@ -116,42 +184,27 @@ const parse_declaration = function(str) {
 	let val    = str.split(':').slice(1).join(':').trim();
 	let result = {};
 
+	MINIFY_OPS.forEach((op) => {
+
+		let index = val.indexOf(op);
+		if (index !== -1) {
+
+			let before = val.charAt(index - 1);
+			let after  = val.charAt(index + 1);
+			if (ALPHABET.includes(before) === false || ALPHABET.includes(after) === false) {
+				val = val.substr(0, index) + ' ' + op + ' ' + val.substr(index + 1);
+			}
+
+		}
+
+	});
+
 	if (typeof NORMAL[key] === 'function') {
-
-		let map = NORMAL[key](parse_values(val), {}) || null;
-		if (map !== null) {
-
-			for (let k in map) {
-
-				let v = map[k] || null;
-				if (v !== null) {
-					result[k] = map[k];
-				}
-
-			}
-
-		}
-
+		NORMAL[key](parse_values(val), result);
 	} else if (typeof SHORTHAND[key] === 'function') {
-
-		let map = SHORTHAND[key](parse_values(val), {}) || null;
-		if (map !== null) {
-
-			for (let k in map) {
-
-				let v = map[k] || null;
-				if (v !== null) {
-					result[k] = map[k];
-				}
-
-			}
-
-		}
-
+		SHORTHAND[key](parse_values(val), result);
 	} else {
-
 		result[key] = parse_value(val);
-
 	}
 
 	return result;
@@ -393,12 +446,7 @@ export const parse_value = function(str) {
 
 		}
 
-	} else if (
-		(
-			str.startsWith('hsl(')
-			|| str.startsWith('hsla(')
-		) && str.endsWith(')')
-	) {
+	} else if ((str.startsWith('hsl(')|| str.startsWith('hsla(')) && str.endsWith(')')) {
 
 		// TODO: hsl/a color support
 
@@ -730,7 +778,7 @@ const CSS = {
 				} else if (line.trim() !== '') {
 
 					if (current !== null && current.type.startsWith('rule')) {
-						CSS.parse_chunk(line);
+						current.declarations.push(CSS.parse_chunk(line));
 					} else {
 						// Invalid CSS Syntax
 					}

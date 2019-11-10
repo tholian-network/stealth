@@ -1,7 +1,7 @@
 
 import { console } from '../../console.mjs';
 
-import { find  } from '../CSS.mjs';
+import { clone, find, has } from '../CSS.mjs';
 
 import NORMAL from './NORMAL.mjs';
 
@@ -182,7 +182,125 @@ const SHORTHAND = {
 
 	},
 
-	'border-radius': () => {},
+	'border-radius': (values, result) => {
+
+		let filtered = {
+			'top-left':     [],
+			'top-right':    [],
+			'bottom-right': [],
+			'bottom-left':  []
+		};
+
+
+		let has_slash = has.call(values, {
+			'val': [ '/' ]
+		}, { min: 1, max: 1 });
+		if (has_slash === true) {
+
+			let before = find.call(values, {
+				'typ': [ 'length', 'percentage' ]
+			}, { min: 1, max: 4 });
+
+			// strip out the slash
+			find.call(values, {
+				'val': [ '/' ]
+			}, { min: 1, max: 1 });
+
+			let after = find.call(values, {
+				'typ': [ 'length', 'percentage' ]
+			}, { min: 1, max: 4 });
+
+			if (before.length === 4) {
+				filtered['top-left'].push(clone(before[0]));
+				filtered['top-right'].push(clone(before[1]));
+				filtered['bottom-right'].push(clone(before[2]));
+				filtered['bottom-left'].push(clone(before[3]));
+			} else if (before.length === 3) {
+				filtered['top-left'].push(clone(before[0]));
+				filtered['top-right'].push(clone(before[1]));
+				filtered['bottom-right'].push(clone(before[2]));
+				filtered['bottom-left'].push(clone(before[1]));
+			} else if (before.length === 2) {
+				filtered['top-left'].push(clone(before[0]));
+				filtered['top-right'].push(clone(before[1]));
+				filtered['bottom-right'].push(clone(before[0]));
+				filtered['bottom-left'].push(clone(before[1]));
+			} else if (before.length === 1) {
+				filtered['top-left'].push(clone(before[0]));
+				filtered['top-right'].push(clone(before[0]));
+				filtered['bottom-right'].push(clone(before[0]));
+				filtered['bottom-left'].push(clone(before[0]));
+			}
+
+			if (after.length === 4) {
+				filtered['top-left'].push(clone(after[0]));
+				filtered['top-right'].push(clone(after[1]));
+				filtered['bottom-right'].push(clone(after[2]));
+				filtered['bottom-left'].push(clone(after[3]));
+			} else if (after.length === 3) {
+				filtered['top-left'].push(clone(after[0]));
+				filtered['top-right'].push(clone(after[1]));
+				filtered['bottom-right'].push(clone(after[2]));
+				filtered['bottom-left'].push(clone(after[1]));
+			} else if (after.length === 2) {
+				filtered['top-left'].push(clone(after[0]));
+				filtered['top-right'].push(clone(after[1]));
+				filtered['bottom-right'].push(clone(after[0]));
+				filtered['bottom-left'].push(clone(after[1]));
+			} else if (after.length === 1) {
+				filtered['top-left'].push(clone(after[0]));
+				filtered['top-right'].push(clone(after[0]));
+				filtered['bottom-right'].push(clone(after[0]));
+				filtered['bottom-left'].push(clone(after[0]));
+			}
+
+		} else {
+
+			let radius = find.call(values, {
+				'typ': [ 'length', 'percentage' ]
+			}, { min: 1, max: 4 });
+
+			if (radius.length === 4) {
+				filtered['top-left'].push(clone(radius[0]));
+				filtered['top-right'].push(clone(radius[1]));
+				filtered['bottom-right'].push(clone(radius[2]));
+				filtered['bottom-left'].push(clone(radius[3]));
+			} else if (radius.length === 3) {
+				filtered['top-left'].push(clone(radius[0]));
+				filtered['top-right'].push(clone(radius[1]));
+				filtered['bottom-right'].push(clone(radius[2]));
+				filtered['bottom-left'].push(clone(radius[1]));
+			} else if (radius.length === 2) {
+				filtered['top-left'].push(clone(radius[0]));
+				filtered['top-right'].push(clone(radius[1]));
+				filtered['bottom-right'].push(clone(radius[0]));
+				filtered['bottom-left'].push(clone(radius[1]));
+			} else if (radius.length === 1) {
+				filtered['top-left'].push(clone(radius[0]));
+				filtered['top-right'].push(clone(radius[0]));
+				filtered['bottom-right'].push(clone(radius[0]));
+				filtered['bottom-left'].push(clone(radius[0]));
+			}
+
+		}
+
+		if (filtered['top-left'].length > 0) {
+			NORMAL['border-top-left-radius'](filtered['top-left'], result);
+		}
+
+		if (filtered['top-right'].length > 0) {
+			NORMAL['border-top-right-radius'](filtered['top-right'], result);
+		}
+
+		if (filtered['bottom-right'].length > 0) {
+			NORMAL['border-bottom-right-radius'](filtered['bottom-right'], result);
+		}
+
+		if (filtered['bottom-left'].length > 0) {
+			NORMAL['border-bottom-left-radius'](filtered['bottom-left'], result);
+		}
+
+	},
 
 	'border-right': (values, result) => {
 

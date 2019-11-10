@@ -158,6 +158,58 @@ const NORMAL = {
 
 	},
 
+	'border-bottom-left-radius': function(values, result) {
+
+		let radius = find.call(values, {
+			'typ': [ 'length', 'percentage' ]
+		}, { min: 1, max: 2 });
+		if (radius.length === 2) {
+			result['border-bottom-left-radius'] = radius;
+		} else if (radius.length === 1) {
+			result['border-bottom-left-radius'] = radius[0];
+		}
+
+	},
+
+	'border-bottom-right-radius': function(values, result) {
+
+		let radius = find.call(values, {
+			'typ': [ 'length', 'percentage' ]
+		}, { min: 1, max: 2 });
+		if (radius.length === 2) {
+			result['border-bottom-right-radius'] = radius;
+		} else if (radius.length === 1) {
+			result['border-bottom-right-radius'] = radius[0];
+		}
+
+	},
+
+	'border-top-left-radius': function(values, result) {
+
+		let radius = find.call(values, {
+			'typ': [ 'length', 'percentage' ]
+		}, { min: 1, max: 2 });
+		if (radius.length === 2) {
+			result['border-top-left-radius'] = radius;
+		} else if (radius.length === 1) {
+			result['border-top-left-radius'] = radius[0];
+		}
+
+	},
+
+	'border-top-right-radius': function(values, result) {
+
+		let radius = find.call(values, {
+			'typ': [ 'length', 'percentage' ]
+		}, { min: 1, max: 2 });
+		if (radius.length === 2) {
+			result['border-top-right-radius'] = radius;
+		} else if (radius.length === 1) {
+			result['border-top-right-radius'] = radius[0];
+		}
+
+	},
+
 	'font-weight': () => {},
 
 };
