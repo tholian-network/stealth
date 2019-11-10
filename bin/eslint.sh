@@ -11,8 +11,7 @@ fi;
 
 
 cd "$root_dir/browser";
-eslint --ext mjs ./browser.mjs;
-eslint --ext js  ./design;
+eslint --ext mjs ./design;
 eslint --ext mjs ./internal;
 eslint --ext mjs ./source;
 
