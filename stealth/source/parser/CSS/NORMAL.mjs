@@ -18,6 +18,12 @@ const NORMAL = {
 
 	},
 
+	'background-clip': (values, result) => {
+
+		// TODO: Implement me
+
+	},
+
 	'background-color': (values, result) => {
 
 		let color = find.call(values, {
@@ -37,6 +43,12 @@ const NORMAL = {
 		if (image.length > 0) {
 			result['background-image'] = image.pop();
 		}
+
+	},
+
+	'background-origin': (values, result) => {
+
+		// TODO: Implement me
 
 	},
 

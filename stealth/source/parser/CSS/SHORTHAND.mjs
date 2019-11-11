@@ -51,6 +51,9 @@ const SHORTHAND = {
 			NORMAL['background-attachment'](attachment, result);
 		}
 
+		console.warn('WHAT');
+		console.warn(values);
+
 		let boxes = find.call(values, {
 			'val': [ 'border-box', 'padding-box', 'content-box' ]
 		}, { min: 1, max: 2 });
@@ -62,6 +65,7 @@ const SHORTHAND = {
 			NORMAL['background-clip']([ boxes[0] ], result);
 		}
 
+		console.warn('WHAT');
 
 		// XXX: Technically a spec violation, but most people are idiots.
 		let color_bg = find.call(values, {

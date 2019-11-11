@@ -1,15 +1,15 @@
 
+import { console } from '../../source/console.mjs';
+
 import { Buffer } from 'buffer';
 
 import { describe, finish } from '../../source/Review.mjs';
 
 import { CSS } from '../../../stealth/source/parser/CSS.mjs';
 
-const create = (selectors, declarations) => {
+const create = (selector, declarations) => {
 
-	let str = '';
-
-	str += selectors.join(',\n') + ' {\n';
+	let str = selector + ' {\n';
 
 	declarations.forEach((ch) => {
 		str += '\t' + ch[0] + ': ' + ch[1] + ';\n';
@@ -21,71 +21,105 @@ const create = (selectors, declarations) => {
 
 };
 
+const query = (selector, tree) => {
 
-describe('CSS.parse/normal', function(assert, debug) {
+	let declarations = [];
 
-	let declarations = [
+	if (tree instanceof Object && tree.type === 'root') {
+
+		if (tree.rules instanceof Array) {
+
+			for (let r = 0, rl = tree.rules.length; r < rl; r++) {
+
+				let rule = tree.rules[r];
+				if (rule.query.includes(selector)) {
+					declarations.push.apply(declarations, rule.declarations);
+				}
+
+			}
+
+		}
+
+	}
+
+	return declarations;
+
+};
+
+
+describe('CSS.parse/normal', function(assert) {
+
+	let buffer = create('body > main', [
 		[ 'background-color',      'rgba(255, 13%, 0, 17.5%)' ],
 		[ 'background-size',       'contain'                  ],
 		[ 'background-color',      '#ffcc00'                  ],
-		[ 'background-position',   '13% 37px'                ],
+		[ 'background-position',   '13% 37px'                 ],
 		[ 'background-position-y', '137px'                    ]
-	];
+	]);
 
-	let buffer = create([ 'body > main' ], declarations);
-	let result = null;
-	try {
-		result = CSS.parse(buffer);
-	} catch (err) {
-		console.error(err);
-	}
+	let result       = CSS.parse(buffer);
+	let declarations = query('body > main', result);
 
-	console.log(result);
-	let rule   = result.rules[0];
+	assert(declarations.length > 0);
 
-	debug(result);
+	assert(declarations[0]['background-color'].val, [ 255, 204, 0, 1 ]);
+	assert(declarations[0]['background-size-x'].val, 'contain');
+	assert(declarations[0]['background-size-y'].val, 'contain');
+	assert(declarations[0]['background-position-x'].ext, '%');
+	assert(declarations[0]['background-position-x'].val, 13);
+	assert(declarations[0]['background-position-y'].ext, 'px');
+	assert(declarations[0]['background-position-y'].val, 137);
 
-	assert(rule.declarations[0]['background-color'] === '#ff0000');
+});
+
+describe('CSS.parse/background', function(assert) {
+
+	let buffer = create('body > main', [
+		[ 'background', 'url(\'/path/to/image.jpg\') top 13px repeat no-repeat fixed border-box content-box #ff0000' ],
+	]);
+
+	let result       = CSS.parse(buffer);
+	let declarations = query('body > main', result);
+
+	assert(declarations.length > 0);
 
 	console.log(result);
 
 });
 
-describe('CSS.parse/shorthand', function(assert) {
+describe('CSS.parse/border-radius', function(assert) {
+
+	let buffer = create('body > main', [
+		[ 'border-radius', '1px 2px 3% / 4px 5px 6px 7px' ]
+	]);
+
+	let result       = CSS.parse(buffer);
+	let declarations = query('body > main', result);
+
+	assert(declarations.length > 0);
+
+	assert(declarations[0]['border-top-left-radius'][0].ext, 'px');
+	assert(declarations[0]['border-top-left-radius'][0].val, 1);
+	assert(declarations[0]['border-top-left-radius'][1].ext, 'px');
+	assert(declarations[0]['border-top-left-radius'][1].val, 4);
+
+	assert(declarations[0]['border-top-right-radius'][0].ext, 'px');
+	assert(declarations[0]['border-top-right-radius'][0].val, 2);
+	assert(declarations[0]['border-top-right-radius'][1].ext, 'px');
+	assert(declarations[0]['border-top-right-radius'][1].val, 5);
+
+	assert(declarations[0]['border-bottom-right-radius'][0].ext, '%');
+	assert(declarations[0]['border-bottom-right-radius'][0].val, 3);
+	assert(declarations[0]['border-bottom-right-radius'][1].ext, 'px');
+	assert(declarations[0]['border-bottom-right-radius'][1].val, 6);
+
+	assert(declarations[0]['border-bottom-left-radius'][0].ext, 'px');
+	assert(declarations[0]['border-bottom-left-radius'][0].val, 2);
+	assert(declarations[0]['border-bottom-left-radius'][1].ext, 'px');
+	assert(declarations[0]['border-bottom-left-radius'][1].val, 7);
+
 });
 
-
-// describe('CSS.parse/selector', function(assert) {
-//
-// 	let declarations = [
-// 		[ 'border-radius', '3px 4px 5px / 13px 14px 15px 16px' ]
-// 		// [ 'background',            'url(\'/path/to/image.jpg\') top 13px repeat no-repeat #ff0000' ],
-// 		// [ 'background-color',      'rgba(255, 13%, 0, 17.5%)' ],
-// 		// [ 'background-size',       'contain'                  ],
-// 		// [ 'background-size',       '70%'                      ],
-// 		// [ 'background-color',      '#ffcc00'                  ],
-// 		// [ 'background-position',   '13px 37px'                ],
-// 		// [ 'background-position-x', '37px'                     ]
-// 	];
-//
-// 	let buffer = create([ 'body > main' ], declarations);
-//
-// 	console.info(declarations.map((v) => v[0] + ': ' + v[1]).join('\n'));
-//
-// 	let result = null;
-// 	try {
-// 		result = CSS.parse(buffer);
-// 	} catch (err) {
-// 		console.error(err);
-// 	}
-//
-//
-// 	console.info('RESULT');
-// 	console.warn(JSON.stringify(result, null, '\t'));
-//
-// 	assert(false);
-//
-// });
 
 // describe('CSS.parse/selectors', function(assert) {
 // 	// TODO: Multiple selectors test

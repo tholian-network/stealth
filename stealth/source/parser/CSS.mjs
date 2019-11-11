@@ -184,20 +184,27 @@ const parse_declaration = function(str) {
 	let val    = str.split(':').slice(1).join(':').trim();
 	let result = {};
 
-	MINIFY_OPS.forEach((op) => {
 
-		let index = val.indexOf(op);
-		if (index !== -1) {
+	if (val.includes('\'') === false && val.includes('"') === false) {
 
-			let before = val.charAt(index - 1);
-			let after  = val.charAt(index + 1);
-			if (ALPHABET.includes(before) === false || ALPHABET.includes(after) === false) {
-				val = val.substr(0, index) + ' ' + op + ' ' + val.substr(index + 1);
+		MINIFY_OPS.forEach((op) => {
+
+			let index = val.indexOf(op);
+			if (index !== -1) {
+
+				let before = val.charAt(index - 1);
+				let after  = val.charAt(index + 1);
+
+				if (ALPHABET.includes(before) === false || ALPHABET.includes(after) === false) {
+					val = val.substr(0, index) + ' ' + op + ' ' + val.substr(index + 1);
+				}
+
 			}
 
-		}
+		});
 
-	});
+	}
+
 
 	if (typeof NORMAL[key] === 'function') {
 		NORMAL[key](parse_values(val), result);

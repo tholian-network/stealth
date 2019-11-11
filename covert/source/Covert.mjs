@@ -11,13 +11,13 @@ const isModule = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Module]';
 };
 
-const assert = function(timeline, results, result) {
+const assert = function(timeline, results, result, expect) {
 
-	result = typeof result === 'boolean' ? result : false;
-
+	result = result !== undefined ? result : null;
+	expect = expect !== undefined ? expect : null;
 
 	timeline.time();
-	results.assert(result);
+	results.assert(result, expect);
 
 };
 
