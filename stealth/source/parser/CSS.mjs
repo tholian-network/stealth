@@ -242,7 +242,26 @@ const parse_selector = function(str) {
 };
 
 export const parse_values = function(str) {
-	return str.split(' ').filter((v) => v.trim() !== '').map((v) => parse_value(v));
+
+	let tmp    = str.split(' ');
+	let result = [];
+
+	for (let t = 0, tl = tmp.length; t < tl; t++) {
+
+		let raw = tmp[t];
+		if (raw.trim() !== '') {
+
+			let value = parse_value(raw);
+			if (value !== null) {
+				result.push(value);
+			}
+
+		}
+
+	}
+
+	return result;
+
 };
 
 export const parse_value = function(str) {
@@ -466,15 +485,18 @@ export const parse_value = function(str) {
 		}
 
 	} else if (
-		str.endsWith('cm')
-		|| str.endsWith('em')
-		|| str.endsWith('ex')
-		|| str.endsWith('in')
-		|| str.endsWith('lh')
-		|| str.endsWith('mm')
-		|| str.endsWith('pc')
-		|| str.endsWith('pt')
-		|| str.endsWith('px')
+		str.charAt(0).match(/^([0-9]+)/g) !== null
+		&& (
+			str.endsWith('cm')
+			|| str.endsWith('em')
+			|| str.endsWith('ex')
+			|| str.endsWith('in')
+			|| str.endsWith('lh')
+			|| str.endsWith('mm')
+			|| str.endsWith('pc')
+			|| str.endsWith('pt')
+			|| str.endsWith('px')
+		)
 	) {
 
 		let ext = str.substr(str.length - 2);
@@ -490,7 +512,7 @@ export const parse_value = function(str) {
 
 		}
 
-	} else if (str.endsWith('rem')) {
+	} else if (str.charAt(0).match(/^([0-9]+)/g) !== null && str.endsWith('rem')) {
 
 		let ext = str.substr(str.length - 3);
 		let num = parse_number(str.substr(0, str.length - 3));
@@ -505,7 +527,7 @@ export const parse_value = function(str) {
 
 		}
 
-	} else if (str.endsWith('ms')) {
+	} else if (str.charAt(0).match(/^([0-9]+)/g) !== null && str.endsWith('ms')) {
 
 		let ext = str.substr(str.length - 2);
 		let num = parse_number(str.substr(0, str.length - 2));
@@ -520,7 +542,7 @@ export const parse_value = function(str) {
 
 		}
 
-	} else if (str.endsWith('s')) {
+	} else if (str.charAt(0).match(/^([0-9]+)/g) !== null && str.endsWith('s')) {
 
 		let ext = str.substr(str.length - 1);
 		let num = parse_number(str.substr(0, str.length - 1));
@@ -535,7 +557,7 @@ export const parse_value = function(str) {
 
 		}
 
-	} else if (str.endsWith('vmax') || str.endsWith('vmin')) {
+	} else if (str.charAt(0).match(/^([0-9]+)/g) !== null && (str.endsWith('vmax') || str.endsWith('vmin'))) {
 
 		let ext = str.substr(str.length - 4);
 		let num = parse_number(str.substr(0, str.length - 4));
@@ -550,7 +572,7 @@ export const parse_value = function(str) {
 
 		}
 
-	} else if (str.endsWith('vh') || str.endsWith('vw')) {
+	} else if (str.charAt(0).match(/^([0-9]+)/g) !== null && (str.endsWith('vh') || str.endsWith('vw'))) {
 
 		let ext = str.substr(str.length - 2);
 		let num = parse_number(str.substr(0, str.length - 2));
@@ -579,10 +601,7 @@ export const parse_value = function(str) {
 
 		}
 
-	} else if (
-		(str.startsWith('\'') && str.endsWith('\''))
-		|| (str.startsWith('"') && str.endsWith('"'))
-	) {
+	} else if ((str.startsWith('\'') && str.endsWith('\'')) || (str.startsWith('"') && str.endsWith('"'))) {
 
 		let tmp = str.substr(1, str.length - 2);
 		if (tmp.length > 0) {

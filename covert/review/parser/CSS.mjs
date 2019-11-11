@@ -22,23 +22,17 @@ const create = (selectors, declarations) => {
 };
 
 
-
-describe('CSS.parse/selector', function(assert) {
+describe('CSS.parse/normal', function(assert, debug) {
 
 	let declarations = [
-		[ 'background',            'url(\'/path/to/image.jpg\') top 13px repeat no-repeat #ff0000' ],
-		// [ 'background-color',      'rgba(255, 13%, 0, 17.5%)' ],
-		// [ 'background-size',       'contain'                  ],
-		// [ 'background-size',       '70%'                      ],
-		// [ 'background-color',      '#ffcc00'                  ],
-		// [ 'background-position',   '13px 37px'                ],
-		// [ 'background-position-x', '37px'                     ]
+		[ 'background-color',      'rgba(255, 13%, 0, 17.5%)' ],
+		[ 'background-size',       'contain'                  ],
+		[ 'background-color',      '#ffcc00'                  ],
+		[ 'background-position',   '13% 37px'                ],
+		[ 'background-position-y', '137px'                    ]
 	];
 
 	let buffer = create([ 'body > main' ], declarations);
-
-	console.info(declarations.map((v) => v[0] + ': ' + v[1]).join('\n'));
-
 	let result = null;
 	try {
 		result = CSS.parse(buffer);
@@ -46,14 +40,52 @@ describe('CSS.parse/selector', function(assert) {
 		console.error(err);
 	}
 
+	console.log(result);
+	let rule   = result.rules[0];
 
-	console.log('RESULT');
-	console.info(buffer);
-	console.warn(result);
+	debug(result);
 
-	assert(false);
+	assert(rule.declarations[0]['background-color'] === '#ff0000');
+
+	console.log(result);
 
 });
+
+describe('CSS.parse/shorthand', function(assert) {
+});
+
+
+// describe('CSS.parse/selector', function(assert) {
+//
+// 	let declarations = [
+// 		[ 'border-radius', '3px 4px 5px / 13px 14px 15px 16px' ]
+// 		// [ 'background',            'url(\'/path/to/image.jpg\') top 13px repeat no-repeat #ff0000' ],
+// 		// [ 'background-color',      'rgba(255, 13%, 0, 17.5%)' ],
+// 		// [ 'background-size',       'contain'                  ],
+// 		// [ 'background-size',       '70%'                      ],
+// 		// [ 'background-color',      '#ffcc00'                  ],
+// 		// [ 'background-position',   '13px 37px'                ],
+// 		// [ 'background-position-x', '37px'                     ]
+// 	];
+//
+// 	let buffer = create([ 'body > main' ], declarations);
+//
+// 	console.info(declarations.map((v) => v[0] + ': ' + v[1]).join('\n'));
+//
+// 	let result = null;
+// 	try {
+// 		result = CSS.parse(buffer);
+// 	} catch (err) {
+// 		console.error(err);
+// 	}
+//
+//
+// 	console.info('RESULT');
+// 	console.warn(JSON.stringify(result, null, '\t'));
+//
+// 	assert(false);
+//
+// });
 
 // describe('CSS.parse/selectors', function(assert) {
 // 	// TODO: Multiple selectors test
