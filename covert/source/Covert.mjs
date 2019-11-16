@@ -13,8 +13,8 @@ const isModule = function(obj) {
 
 const assert = function(timeline, results, result, expect) {
 
-	result = result !== undefined ? result : null;
-	expect = expect !== undefined ? expect : null;
+	result = result !== undefined ? result : undefined;
+	expect = expect !== undefined ? expect : undefined;
 
 	timeline.time();
 	results.assert(result, expect);

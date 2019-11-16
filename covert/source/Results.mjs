@@ -163,21 +163,28 @@ Results.prototype = {
 
 	assert: function(result, expect) {
 
-		result = result !== undefined ? result : null;
-		expect = expect !== undefined ? expect : null;
+		result = result !== undefined ? result : undefined;
+		expect = expect !== undefined ? expect : undefined;
 
 
-		if (result === null || result === true || result === false) {
+		if (result !== undefined && expect !== undefined) {
+
+			if (this.index < this.data.length) {
+				this.data[this.index] = diff(result, expect) === false;
+				this.index++;
+			}
+
+		} else if (result === true || result === false) {
 
 			if (this.index < this.data.length) {
 				this.data[this.index] = result;
 				this.index++;
 			}
 
-		} else if (expect !== null) {
+		} else {
 
 			if (this.index < this.data.length) {
-				this.data[this.index] = diff(result, expect) === false;
+				this.data[this.index] = null;
 				this.index++;
 			}
 

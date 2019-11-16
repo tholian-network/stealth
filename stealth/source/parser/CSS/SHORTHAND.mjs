@@ -9,6 +9,18 @@ import NORMAL from './NORMAL.mjs';
 
 const SHORTHAND = {
 
+	/*
+	 * UNSUPPORTED
+	 */
+
+	'offset': () => {},
+
+
+
+	/*
+	 * SUPPORTED
+	 */
+
 	'animation': () => {
 		// TODO: animation
 	},
@@ -51,21 +63,17 @@ const SHORTHAND = {
 			NORMAL['background-attachment'](attachment, result);
 		}
 
-		console.warn('WHAT');
-		console.warn(values);
-
 		let boxes = find.call(values, {
-			'val': [ 'border-box', 'padding-box', 'content-box' ]
+			'val': [ 'border-box', 'content-box', 'padding-box' ]
 		}, { min: 1, max: 2 });
 		if (boxes.length === 2) {
-			NORMAL['background-origin'](boxes.slice(0, 1), result);
-			NORMAL['background-clip'](boxes.slice(1, 1), result);
+			NORMAL['background-origin']([ boxes[0] ], result);
+			NORMAL['background-clip']([ boxes[1] ], result);
 		} else if (boxes.length === 1) {
 			NORMAL['background-origin']([ boxes[0] ], result);
 			NORMAL['background-clip']([ boxes[0] ], result);
 		}
 
-		console.warn('WHAT');
 
 		// XXX: Technically a spec violation, but most people are idiots.
 		let color_bg = find.call(values, {
@@ -74,8 +82,6 @@ const SHORTHAND = {
 		if (color_bg.length > 0) {
 			NORMAL['background-color'](color_bg, result);
 		}
-
-		console.warn(result);
 
 	},
 
@@ -393,7 +399,7 @@ const SHORTHAND = {
 		let width = find.call(values, {
 			'val': [ 'thin', 'medium', 'thick' ],
 			'typ': [ 'length' ]
-		});
+		}, { min: 1, max: 4 });
 
 		if (width.length === 4) {
 			NORMAL['border-top-width']([ width[0] ], result);
@@ -430,11 +436,110 @@ const SHORTHAND = {
 	'grid-row':        () => {},
 	'grid-template':   () => {},
 	'list-style':      () => {},
-	'margin':          () => {},
-	'offset':          () => {},
-	'outline':         () => {},
-	'overflow':        () => {},
-	'padding':         () => {},
+
+	'margin': (values, result) => {
+
+		let margin = find.call(values, {
+			'val': [ 'auto' ],
+			'typ': [ 'length', 'percentage' ]
+		}, { min: 1, max: 4 });
+
+		if (margin.length === 4) {
+			NORMAL['margin-top']([ margin[0] ], result);
+			NORMAL['margin-right']([ margin[1] ], result);
+			NORMAL['margin-bottom']([ margin[2] ], result);
+			NORMAL['margin-left']([ margin[3] ], result);
+		} else if (margin.length === 3) {
+			NORMAL['margin-top']([ margin[0] ], result);
+			NORMAL['margin-right']([ margin[1] ], result);
+			NORMAL['margin-bottom']([ margin[2] ], result);
+			NORMAL['margin-left']([ margin[1] ], result);
+		} else if (margin.length === 2) {
+			NORMAL['margin-top']([ margin[0] ], result);
+			NORMAL['margin-right']([ margin[1] ], result);
+			NORMAL['margin-bottom']([ margin[0] ], result);
+			NORMAL['margin-left']([ margin[1] ], result);
+		} else if (margin.length === 1) {
+			NORMAL['margin-top']([ margin[0] ], result);
+			NORMAL['margin-right']([ margin[0] ], result);
+			NORMAL['margin-bottom']([ margin[0] ], result);
+			NORMAL['margin-left']([ margin[0] ], result);
+		}
+
+	},
+
+	'outline': (values, result) => {
+
+		let color = find.call(values, {
+			'typ': [ 'color' ]
+		});
+		if (color.length > 0) {
+			NORMAL['outline-color']([ color[0] ], result);
+		}
+
+		let style = find.call(values, {
+			'val': [ 'auto', 'none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
+		});
+		if (style.length > 0) {
+			NORMAL['outline-style']([ style[0] ], result);
+		}
+
+		let width = find.call(values, {
+			'val': [ 'thin', 'medium', 'thick' ],
+			'typ': [ 'length' ]
+		});
+		if (width.length > 0) {
+			NORMAL['outline-width']([ width[0] ], result);
+		}
+
+	},
+
+	'overflow': (values, result) => {
+
+		let overflow = find.call(values, {
+			'val': [ 'auto', 'clip', 'hidden', 'scroll', 'visible' ]
+		}, { min: 1, max: 2 });
+
+		if (overflow.length === 2) {
+			NORMAL['overflow-x']([ overflow[0] ], result);
+			NORMAL['overflow-y']([ overflow[1] ], result);
+		} else if (overflow.length === 1) {
+			NORMAL['overflow-x']([ overflow[0] ], result);
+			NORMAL['overflow-y']([ overflow[0] ], result);
+		}
+
+	},
+
+	'padding': (values, result) => {
+
+		let padding = find.call(values, {
+			'typ': [ 'length', 'percentage' ]
+		}, { min: 1, max: 4 });
+
+		if (padding.length === 4) {
+			NORMAL['padding-top']([ padding[0] ], result);
+			NORMAL['padding-right']([ padding[1] ], result);
+			NORMAL['padding-bottom']([ padding[2] ], result);
+			NORMAL['padding-left']([ padding[3] ], result);
+		} else if (padding.length === 3) {
+			NORMAL['padding-top']([ padding[0] ], result);
+			NORMAL['padding-right']([ padding[1] ], result);
+			NORMAL['padding-bottom']([ padding[2] ], result);
+			NORMAL['padding-left']([ padding[1] ], result);
+		} else if (padding.length === 2) {
+			NORMAL['padding-top']([ padding[0] ], result);
+			NORMAL['padding-right']([ padding[1] ], result);
+			NORMAL['padding-bottom']([ padding[0] ], result);
+			NORMAL['padding-left']([ padding[1] ], result);
+		} else if (padding.length === 1) {
+			NORMAL['padding-top']([ padding[0] ], result);
+			NORMAL['padding-right']([ padding[0] ], result);
+			NORMAL['padding-bottom']([ padding[0] ], result);
+			NORMAL['padding-left']([ padding[0] ], result);
+		}
+
+	},
+
 	'place-content':   () => {},
 	'place-items':     () => {},
 	'place-self':      () => {},

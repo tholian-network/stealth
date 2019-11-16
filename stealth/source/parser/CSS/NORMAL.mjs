@@ -5,6 +5,52 @@ import { find, parse_chunk } from '../CSS.mjs';
 
 
 
+const STYLES = {
+	'border-color': {
+		'typ': [ 'color' ]
+	},
+	'border-style': {
+		'val': [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
+	},
+	'border-width': {
+		'val': [ 'thin', 'medium', 'thick' ],
+		'typ': [ 'length' ]
+	},
+	'margin': {
+		'val': [ 'auto' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'outline-color': {
+		'typ': [ 'color' ]
+	},
+	'outline-style': {
+		'val': [ 'auto', 'none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
+	},
+	'outline-width': {
+		'val': [ 'thin', 'medium', 'thick' ],
+		'typ': [ 'length' ]
+	},
+	'overflow': {
+		'val': [ 'auto', 'clip', 'hidden', 'scroll', 'visible' ]
+	},
+	'padding': {
+		'typ': [ 'length', 'percentage' ]
+	}
+};
+
+
+
+const single_value = function(property, search, values, result) {
+
+	let tmp = find.call(values, search, { min: 1, max: 1 });
+	if (tmp.length === 1) {
+		result[property] = tmp[0];
+	}
+
+};
+
+
+
 const NORMAL = {
 
 	'background-attachment': (values, result) => {
@@ -20,7 +66,12 @@ const NORMAL = {
 
 	'background-clip': (values, result) => {
 
-		// TODO: Implement me
+		let clip = find.call(values, {
+			'val': [ 'border-box', 'content-box', 'padding-box' ]
+		}, { min: 1, max: 2 });
+		if (clip.length > 0) {
+			result['background-clip'] = clip.pop();
+		}
 
 	},
 
@@ -48,7 +99,12 @@ const NORMAL = {
 
 	'background-origin': (values, result) => {
 
-		// TODO: Implement me
+		let origin = find.call(values, {
+			'val': [ 'border-box', 'content-box', 'padding-box' ]
+		}, { min: 1, max: 2 });
+		if (origin.length > 0) {
+			result['background-origin'] = origin.pop();
+		}
 
 	},
 
@@ -222,7 +278,37 @@ const NORMAL = {
 
 	},
 
-	'font-weight': () => {},
+
+
+	'border-top-color':    single_value.bind(null, 'border-top-color',    STYLES['border-color']),
+	'border-top-style':    single_value.bind(null, 'border-top-style',    STYLES['border-style']),
+	'border-top-width':    single_value.bind(null, 'border-top-width',    STYLES['border-width']),
+	'border-right-color':  single_value.bind(null, 'border-right-color',  STYLES['border-color']),
+	'border-right-style':  single_value.bind(null, 'border-right-style',  STYLES['border-style']),
+	'border-right-width':  single_value.bind(null, 'border-right-width',  STYLES['border-width']),
+	'border-bottom-color': single_value.bind(null, 'border-bottom-color', STYLES['border-color']),
+	'border-bottom-style': single_value.bind(null, 'border-bottom-style', STYLES['border-style']),
+	'border-bottom-width': single_value.bind(null, 'border-bottom-width', STYLES['border-width']),
+	'border-left-color':   single_value.bind(null, 'border-left-color',   STYLES['border-color']),
+	'border-left-style':   single_value.bind(null, 'border-left-style',   STYLES['border-style']),
+	'border-left-width':   single_value.bind(null, 'border-left-width',   STYLES['border-width']),
+
+	'margin-top':          single_value.bind(null, 'margin-top',          STYLES['margin']),
+	'margin-right':        single_value.bind(null, 'margin-right',        STYLES['margin']),
+	'margin-bottom':       single_value.bind(null, 'margin-bottom',       STYLES['margin']),
+	'margin-left':         single_value.bind(null, 'margin-left',         STYLES['margin']),
+
+	'outline-color':       single_value.bind(null, 'outline-color',       STYLES['outline-color']),
+	'outline-style':       single_value.bind(null, 'outline-style',       STYLES['outline-style']),
+	'outline-width':       single_value.bind(null, 'outline-width',       STYLES['outline-width']),
+
+	'overflow-x':          single_value.bind(null, 'overflow-x',          STYLES['overflow']),
+	'overflow-y':          single_value.bind(null, 'overflow-y',          STYLES['overflow']),
+
+	'padding-top':         single_value.bind(null, 'padding-top',         STYLES['padding']),
+	'padding-right':       single_value.bind(null, 'padding-right',       STYLES['padding']),
+	'padding-bottom':      single_value.bind(null, 'padding-bottom',      STYLES['padding']),
+	'padding-left':        single_value.bind(null, 'padding-left',        STYLES['padding']),
 
 };
 

@@ -82,8 +82,41 @@ describe('CSS.parse/background', function(assert) {
 	let declarations = query('body > main', result);
 
 	assert(declarations.length > 0);
+	assert(declarations[0]['background-image'].val,      '/path/to/image.jpg');
+	assert(declarations[0]['background-position-x'].ext, null);
+	assert(declarations[0]['background-position-x'].val, 'top');
+	assert(declarations[0]['background-position-y'].ext, 'px');
+	assert(declarations[0]['background-position-y'].val, 13);
+	assert(declarations[0]['background-repeat-x'].val,   'repeat');
+	assert(declarations[0]['background-repeat-y'].val,   'no-repeat');
+	assert(declarations[0]['background-attachment'].val, 'fixed');
+	assert(declarations[0]['background-origin'].val,     'border-box');
+	assert(declarations[0]['background-clip'].val,       'content-box');
+	assert(declarations[0]['background-color'].val,      [ 255, 0, 0, 1 ]);
 
-	console.log(result);
+});
+
+describe('CSS.parse/border', function(assert) {
+
+	let buffer = create('body > main', [
+		[ 'border', 'medium dotted #ff00cc' ]
+	]);
+
+	let result       = CSS.parse(buffer);
+	let declarations = query('body > main', result);
+
+	assert(declarations[0]['border-top-width'].val,    'medium');
+	assert(declarations[0]['border-right-width'].val,  'medium');
+	assert(declarations[0]['border-bottom-width'].val, 'medium');
+	assert(declarations[0]['border-left-width'].val,   'medium');
+	assert(declarations[0]['border-top-style'].val,    'dotted');
+	assert(declarations[0]['border-right-style'].val,  'dotted');
+	assert(declarations[0]['border-bottom-style'].val, 'dotted');
+	assert(declarations[0]['border-left-style'].val,   'dotted');
+	assert(declarations[0]['border-top-color'].val,    [ 255, 0, 204, 1 ]);
+	assert(declarations[0]['border-right-color'].val,  [ 255, 0, 204, 1 ]);
+	assert(declarations[0]['border-bottom-color'].val, [ 255, 0, 204, 1 ]);
+	assert(declarations[0]['border-left-color'].val,   [ 255, 0, 204, 1 ]);
 
 });
 
