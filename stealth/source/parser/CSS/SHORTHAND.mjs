@@ -3,11 +3,12 @@ import { console } from '../../console.mjs';
 
 import { clone, find, has } from '../CSS.mjs';
 
-import NORMAL from './NORMAL.mjs';
+import { NORMAL } from './NORMAL.mjs';
+import { STYLES } from './STYLES.mjs';
 
 
 
-const SHORTHAND = {
+export const SHORTHAND = {
 
 	/*
 	 * UNSUPPORTED
@@ -27,45 +28,34 @@ const SHORTHAND = {
 
 	'background': (values, result) => {
 
-		let color = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color = find.call(values, STYLES['background-color']);
 		if (color.length > 0) {
 			NORMAL['background-color'](color, result);
 		}
 
-		let image = find.call(values, {
-			'typ': [ 'url', 'gradient' ]
-		});
+		let image = find.call(values, STYLES['background-image']);
 		if (image.length > 0) {
 			NORMAL['background-image'](image, result);
 		}
 
-		let position = find.call(values, {
-			'val': [ 'top', 'right', 'bottom', 'left', 'center' ],
-			'typ': [ 'length', 'percentage' ]
-		}, { min: 1, max: 2 });
+		let position = find.call(values, STYLES['background-position'], { min: 1, max: 2 });
 		if (position.length > 0) {
 			NORMAL['background-position'](position, result);
 		}
 
-		let repeat = find.call(values, {
-			'val': [ 'repeat-x', 'repeat-y', 'repeat', 'space', 'round', 'no-repeat' ]
-		}, { min: 1, max: 2 });
+		let repeat = find.call(values, STYLES['background-repeat'], { min: 1, max: 2 });
 		if (repeat.length > 0) {
 			NORMAL['background-repeat'](repeat, result);
 		}
 
-		let attachment = find.call(values, {
-			'val': [ 'scroll', 'fixed', 'local' ]
-		});
+		let attachment = find.call(values, STYLES['background-attachment']);
 		if (attachment.length > 0) {
 			NORMAL['background-attachment'](attachment, result);
 		}
 
-		let boxes = find.call(values, {
-			'val': [ 'border-box', 'content-box', 'padding-box' ]
-		}, { min: 1, max: 2 });
+
+		// XXX: background-clip has same values as background-origin
+		let boxes = find.call(values, STYLES['background-clip'], { min: 1, max: 2 });
 		if (boxes.length === 2) {
 			NORMAL['background-origin']([ boxes[0] ], result);
 			NORMAL['background-clip']([ boxes[1] ], result);
@@ -76,9 +66,7 @@ const SHORTHAND = {
 
 
 		// XXX: Technically a spec violation, but most people are idiots.
-		let color_bg = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color_bg = find.call(values, STYLES['background-color']);
 		if (color_bg.length > 0) {
 			NORMAL['background-color'](color_bg, result);
 		}
@@ -87,24 +75,17 @@ const SHORTHAND = {
 
 	'border': (values, result) => {
 
-		let width = find.call(values, {
-			'val': [ 'thin', 'medium', 'thick' ],
-			'typ': [ 'length' ]
-		});
+		let width = find.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			SHORTHAND['border-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, {
-			'val': [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
-		});
+		let style = find.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			SHORTHAND['border-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color = find.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			SHORTHAND['border-color']([ color[0] ], result);
 		}
@@ -113,24 +94,17 @@ const SHORTHAND = {
 
 	'border-bottom': (values, result) => {
 
-		let width = find.call(values, {
-			'val': [ 'thin', 'medium', 'thick' ],
-			'typ': [ 'length' ]
-		});
+		let width = find.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['border-bottom-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, {
-			'val': [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
-		});
+		let style = find.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['border-bottom-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color = find.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['border-bottom-color']([ color[0] ], result);
 		}
@@ -139,9 +113,7 @@ const SHORTHAND = {
 
 	'border-color': (values, result) => {
 
-		let color = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color = find.call(values, STYLES['border-color'], { min: 1, max: 4 });
 		if (color.length === 4) {
 			NORMAL['border-top-color']([ color[0] ], result);
 			NORMAL['border-right-color']([ color[1] ], result);
@@ -168,24 +140,17 @@ const SHORTHAND = {
 
 	'border-left': (values, result) => {
 
-		let width = find.call(values, {
-			'val': [ 'thin', 'medium', 'thick' ],
-			'typ': [ 'length' ]
-		});
+		let width = find.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['border-left-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, {
-			'val': [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
-		});
+		let style = find.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['border-left-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color = find.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['border-left-color']([ color[0] ], result);
 		}
@@ -314,24 +279,17 @@ const SHORTHAND = {
 
 	'border-right': (values, result) => {
 
-		let width = find.call(values, {
-			'val': [ 'thin', 'medium', 'thick' ],
-			'typ': [ 'length' ]
-		});
+		let width = find.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['border-right-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, {
-			'val': [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
-		});
+		let style = find.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['border-right-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color = find.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['border-right-color']([ color[0] ], result);
 		}
@@ -340,10 +298,7 @@ const SHORTHAND = {
 
 	'border-style': (values, result) => {
 
-		let style = find.call(values, {
-			'val': [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
-		});
-
+		let style = find.call(values, STYLES['border-style'], { min: 1, max: 4 });
 		if (style.length === 4) {
 			NORMAL['border-top-style']([ style[0] ], result);
 			NORMAL['border-right-style']([ style[1] ], result);
@@ -370,24 +325,17 @@ const SHORTHAND = {
 
 	'border-top': (values, result) => {
 
-		let width = find.call(values, {
-			'val': [ 'thin', 'medium', 'thick' ],
-			'typ': [ 'length' ]
-		});
+		let width = find.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['border-top-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, {
-			'val': [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
-		});
+		let style = find.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['border-top-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color = find.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['border-top-color']([ color[0] ], result);
 		}
@@ -396,11 +344,7 @@ const SHORTHAND = {
 
 	'border-width': (values, result) => {
 
-		let width = find.call(values, {
-			'val': [ 'thin', 'medium', 'thick' ],
-			'typ': [ 'length' ]
-		}, { min: 1, max: 4 });
-
+		let width = find.call(values, STYLES['border-width'], { min: 1, max: 4 });
 		if (width.length === 4) {
 			NORMAL['border-top-width']([ width[0] ], result);
 			NORMAL['border-right-width']([ width[1] ], result);
@@ -429,21 +373,87 @@ const SHORTHAND = {
 	'columns':         () => {},
 	'flex':            () => {},
 	'flex-flow':       () => {},
-	'font':            () => {},
+
+	'font': (values, result) => {
+
+		let style = find.call(values, STYLES['font-style']);
+		if (style.length > 0) {
+			NORMAL['font-style']([ style[0] ], result);
+		}
+
+		let weight = find.call(values, STYLES['font-weight']);
+		if (weight.length > 0) {
+			NORMAL['font-weight']([ weight[0] ], result);
+		}
+
+		let stretch = find.call(values, STYLES['font-stretch']);
+		if (stretch.length > 0) {
+			NORMAL['font-stretch']([ stretch[0] ], result);
+		}
+
+
+		let has_slash = has.call(values, {
+			'val': [ '/' ]
+		}, { min: 1, max: 1 });
+		if (has_slash === true) {
+
+			let before = find.call(values, STYLES['font-size']);
+
+			// strip out the slash
+			find.call(values, {
+				'val': [ '/' ]
+			}, { min: 1, max: 1 });
+
+			let after = find.call(values, STYLES['line-height']);
+
+			if (before.length === 1 && after.length === 1) {
+
+				NORMAL['font-size']([ before[0] ], result);
+				NORMAL['line-height']([ after[0] ], result);
+
+			}
+
+		} else {
+
+			let size = find.call(values, STYLES['font-size']);
+			if (size.length > 0) {
+				NORMAL['font-size']([ size[0] ], result);
+			}
+
+		}
+
+		// TODO: font-family
+
+	},
+
 	'grid':            () => {},
 	'grid-area':       () => {},
 	'grid-column':     () => {},
 	'grid-row':        () => {},
 	'grid-template':   () => {},
-	'list-style':      () => {},
+
+	'list-style': (values, result) => {
+
+		let type = find.call(values, STYLES['list-style-type']);
+		if (type.length === 1) {
+			NORMAL['list-style-type']([ type[0] ], result);
+		}
+
+		let image = find.call(values, STYLES['list-style-image']);
+		if (image.length > 0) {
+			NORMAL['list-style-image'](image, result);
+		}
+
+		let position = find.call(values, STYLES['list-style-position']);
+		if (position.length > 0) {
+			NORMAL['list-style-position']([ position[0] ], result);
+		}
+
+	},
 
 	'margin': (values, result) => {
 
-		let margin = find.call(values, {
-			'val': [ 'auto' ],
-			'typ': [ 'length', 'percentage' ]
-		}, { min: 1, max: 4 });
-
+		let margin = find.call(values, STYLES['margin'], { min: 1, max: 4 });
 		if (margin.length === 4) {
 			NORMAL['margin-top']([ margin[0] ], result);
 			NORMAL['margin-right']([ margin[1] ], result);
@@ -470,24 +480,17 @@ const SHORTHAND = {
 
 	'outline': (values, result) => {
 
-		let color = find.call(values, {
-			'typ': [ 'color' ]
-		});
+		let color = find.call(values, STYLES['outline-color']);
 		if (color.length > 0) {
 			NORMAL['outline-color']([ color[0] ], result);
 		}
 
-		let style = find.call(values, {
-			'val': [ 'auto', 'none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
-		});
+		let style = find.call(values, STYLES['outline-style']);
 		if (style.length > 0) {
 			NORMAL['outline-style']([ style[0] ], result);
 		}
 
-		let width = find.call(values, {
-			'val': [ 'thin', 'medium', 'thick' ],
-			'typ': [ 'length' ]
-		});
+		let width = find.call(values, STYLES['outline-width']);
 		if (width.length > 0) {
 			NORMAL['outline-width']([ width[0] ], result);
 		}
@@ -496,10 +499,7 @@ const SHORTHAND = {
 
 	'overflow': (values, result) => {
 
-		let overflow = find.call(values, {
-			'val': [ 'auto', 'clip', 'hidden', 'scroll', 'visible' ]
-		}, { min: 1, max: 2 });
-
+		let overflow = find.call(values, STYLES['overflow'], { min: 1, max: 2 });
 		if (overflow.length === 2) {
 			NORMAL['overflow-x']([ overflow[0] ], result);
 			NORMAL['overflow-y']([ overflow[1] ], result);
@@ -512,10 +512,7 @@ const SHORTHAND = {
 
 	'padding': (values, result) => {
 
-		let padding = find.call(values, {
-			'typ': [ 'length', 'percentage' ]
-		}, { min: 1, max: 4 });
-
+		let padding = find.call(values, STYLES['padding'], { min: 1, max: 4 });
 		if (padding.length === 4) {
 			NORMAL['padding-top']([ padding[0] ], result);
 			NORMAL['padding-right']([ padding[1] ], result);
@@ -550,5 +547,5 @@ const SHORTHAND = {
 
 
 
-export default SHORTHAND;
+export default { SHORTHAND };
 

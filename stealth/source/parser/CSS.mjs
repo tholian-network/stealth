@@ -1,8 +1,8 @@
 
 import { Buffer, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
 
-import NORMAL    from './CSS/NORMAL.mjs';
-import SHORTHAND from './CSS/SHORTHAND.mjs';
+import { NORMAL    } from './CSS/NORMAL.mjs';
+import { SHORTHAND } from './CSS/SHORTHAND.mjs';
 
 const ALPHABET   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const MINIFY_OPS = [ '+', '-', '*', '/' ];

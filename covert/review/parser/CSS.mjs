@@ -61,7 +61,6 @@ describe('CSS.parse/normal', function(assert) {
 	let declarations = query('body > main', result);
 
 	assert(declarations.length > 0);
-
 	assert(declarations[0]['background-color'].val, [ 255, 204, 0, 1 ]);
 	assert(declarations[0]['background-size-x'].val, 'contain');
 	assert(declarations[0]['background-size-y'].val, 'contain');
@@ -153,6 +152,25 @@ describe('CSS.parse/border-radius', function(assert) {
 
 });
 
+describe('CSS.parse/font', function(assert) {
+
+	let buffer = create('body > main', [
+		[ 'font', 'italic bold condensed 13px/37px Arial' ]
+	]);
+
+	let result = null;
+	try {
+		result = CSS.parse(buffer);
+	} catch (err) {
+		console.error(err);
+	}
+	let declarations = query('body > main', result);
+
+	assert(declarations.length > 0);
+
+	console.log(declarations);
+
+});
 
 // describe('CSS.parse/selectors', function(assert) {
 // 	// TODO: Multiple selectors test
