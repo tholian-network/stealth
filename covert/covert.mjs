@@ -143,6 +143,23 @@ const settings = {
 					return review.id.startsWith(prefix) && review.id.endsWith(suffix);
 				});
 
+			} else if (filter.includes('#')) {
+
+				let prefix = filter.split('#').shift();
+				let suffix = filter.split('#').pop();
+
+				reviews = reviews.filter((review) => {
+					return review.id === prefix;
+				});
+
+				reviews.forEach((review) => {
+
+					review.tests = review.tests.filter((test) => {
+						return test.name.includes(suffix);
+					});
+
+				});
+
 			} else {
 
 				reviews = reviews.filter((review) => {

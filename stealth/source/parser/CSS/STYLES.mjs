@@ -39,6 +39,10 @@ export const STYLES = {
 		'val': [ 'thin', 'medium', 'thick' ],
 		'typ': [ 'length' ]
 	},
+	'font-family': {
+		'val': [ 'cursive', 'emoji', 'fangsong', 'fantasy', 'math', 'monospace', 'sans-serif', 'serif', 'system-ui' ],
+		'typ': [ 'string' ]
+	},
 	'font-size': {
 		'val': [
 			'xx-small', 'x-small', 'small',

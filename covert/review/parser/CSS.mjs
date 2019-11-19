@@ -155,7 +155,7 @@ describe('CSS.parse/border-radius', function(assert) {
 describe('CSS.parse/font', function(assert) {
 
 	let buffer = create('body > main', [
-		[ 'font', 'italic bold condensed 13px/37px Arial' ]
+		[ 'font', 'italic bold condensed 13px/37px "Times New Roman", "Arial", Sedana, sans-serif' ]
 	]);
 
 	let result = null;

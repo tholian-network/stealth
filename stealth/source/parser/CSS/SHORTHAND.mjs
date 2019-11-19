@@ -1,7 +1,7 @@
 
 import { console } from '../../console.mjs';
 
-import { clone, find, has } from '../CSS.mjs';
+import { clone, find, has, match, parse_value } from '../CSS.mjs';
 
 import { NORMAL } from './NORMAL.mjs';
 import { STYLES } from './STYLES.mjs';
@@ -381,6 +381,11 @@ export const SHORTHAND = {
 			NORMAL['font-style']([ style[0] ], result);
 		}
 
+		let check = values[0];
+		if (match.call(check, [ STYLES['font-weight'], STYLES['font-stretch'], STYLES['font-size'] ]) === false) {
+			values.splice(0, 1);
+		}
+
 		let weight = find.call(values, STYLES['font-weight']);
 		if (weight.length > 0) {
 			NORMAL['font-weight']([ weight[0] ], result);
@@ -422,7 +427,57 @@ export const SHORTHAND = {
 
 		}
 
-		// TODO: font-family
+
+		if (values.length > 0) {
+
+			let probably_family = false;
+
+			let first_value = values[0];
+			if (
+				first_value.raw.includes('"')
+				|| first_value.raw.includes('\'')
+				|| first_value.raw.includes(',')
+				|| first_value.raw.toLowerCase() !== first_value.raw
+			) {
+				probably_family = true;
+			}
+
+			if (probably_family === true) {
+
+				let family = parse_value(values.map((val) => val.raw).join(' '));
+				if (family.typ === 'string' || family.typ === 'other') {
+					NORMAL['font-family']([ family ], result);
+				}
+
+			} else {
+
+				let first_value = values.find((value) => {
+
+					if (
+						value.raw.includes('"')
+						|| value.raw.includes('\'')
+						|| value.raw.includes(',')
+						|| value.raw.toLowerCase() !== value.raw
+					) {
+						return true;
+					}
+
+					return false;
+
+				}) || null;
+
+				if (first_value !== null) {
+
+					let family = parse_value(values.slice(values.indexOf(first_value)).map((val) => val.raw).join(' '));
+					if (family.typ === 'string' || family.typ === 'other') {
+						NORMAL['font-family']([ family ], result);
+					}
+
+				}
+
+			}
+
+		}
 
 	},
 

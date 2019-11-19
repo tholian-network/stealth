@@ -1,8 +1,8 @@
 
 import { console } from '../../console.mjs';
 
-import { find, parse_chunk } from '../CSS.mjs';
-import { STYLES            } from './STYLES.mjs';
+import { find, match, parse_chunk, parse_value } from '../CSS.mjs';
+import { STYLES                                } from './STYLES.mjs';
 
 
 
@@ -133,6 +133,37 @@ export const NORMAL = {
 
 			}
 
+		}
+
+	},
+
+	'font-family': function(values, result) {
+
+		let val = values.map((val) => val.raw).join(' ').trim();
+		if (val.includes(',')) {
+
+			values = val.split(',').map((val) => parse_value(val));
+
+			let family = [];
+
+			values.forEach((value) => {
+
+				if (match.call(value, [ STYLES['font-family'] ]) === true) {
+					family.push(value);
+				}
+
+			});
+
+			result['font-family'] = family;
+
+		} else if (val.length > 0) {
+
+			let value = parse_value(val);
+			if (match.call(value, [ STYLES['font-family'] ]) === true) {
+				result['font-family'] = [ value ];
+			}
+
+			result['font-family'] = [ parse_value(val) ];
 		}
 
 	},

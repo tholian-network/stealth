@@ -29,10 +29,11 @@ the Reviews. This allows to debug a single Review or a Suite of related
 Reviews.
 
 ```bash
-./bin/covert.sh Client;       # Execute review/Client.mjs
-./bin/covert.sh client*;      # Execute reviews starting with "client"
-./bin/covert.sh *Cache;       # Execute reviews ending with "Cache"
-./bin/covert.sh client*Cache; # Execute reviews starting with "client" and ending with "Cache"
+./bin/covert.sh Client;              # Execute review/Client.mjs
+./bin/covert.sh client/Cache#offline # Execute review/client/Cache.mjs and only tests that include "offline"
+./bin/covert.sh client*;             # Execute reviews starting with "client"
+./bin/covert.sh *Cache;              # Execute reviews ending with "Cache"
+./bin/covert.sh client*Cache;        # Execute reviews starting with "client" and ending with "Cache"
 
 ./bin/covert.sh --debug=true;     # Execute reviews in debug mode
 ./bin/covert.sh --internet=false; # Execute reviews in offline mode

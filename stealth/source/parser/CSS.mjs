@@ -1,5 +1,5 @@
 
-import { Buffer, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
+import { Buffer, isArray, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
 
 import { NORMAL    } from './CSS/NORMAL.mjs';
 import { SHORTHAND } from './CSS/SHORTHAND.mjs';
@@ -174,6 +174,47 @@ export const has = function(search, limit) {
 
 };
 
+export const match = function(searches) {
+
+	searches = isArray(searches) ? searches : [];
+
+
+	let value = this;
+	if (isObject(value) === true) {
+
+		let valid = null;
+
+		for (let s = 0, sl = searches.length; s < sl; s++) {
+
+			let search = searches[s];
+
+			for (let key in search) {
+
+				let val = value[key];
+				if (val !== null && isString(val)) {
+
+					if (search[key].includes(val)) {
+						valid = true;
+						break;
+					}
+
+				}
+
+			}
+
+		}
+
+		if (valid === true) {
+			return true;
+		}
+
+	}
+
+
+	return false;
+
+};
+
 const parse_condition = function(str) {
 	return [ str.trim() ];
 };
@@ -185,23 +226,30 @@ const parse_declaration = function(str) {
 	let result = {};
 
 
-	if (val.includes('\'') === false && val.includes('"') === false) {
+	let string1 = false;
+	let string2 = false;
 
-		MINIFY_OPS.forEach((op) => {
+	for (let v = 0, vl = val.length; v < vl; v++) {
 
-			let index = val.indexOf(op);
-			if (index !== -1) {
+		let chr = val[v];
+		if (chr === '"') {
+			string1 = string1 === true ? false : true;
+		} else if (chr === '\'') {
+			string2 = string2 === true ? false : true;
+		} else if (MINIFY_OPS.includes(chr) && string1 === false && string2 === false) {
 
-				let before = val.charAt(index - 1);
-				let after  = val.charAt(index + 1);
+			let before = val.charAt(v - 1);
+			let after  = val.charAt(v + 1);
 
-				if (ALPHABET.includes(before) === false || ALPHABET.includes(after) === false) {
-					val = val.substr(0, index) + ' ' + op + ' ' + val.substr(index + 1);
-				}
+			if (ALPHABET.includes(before) === false || ALPHABET.includes(after) === false) {
+
+				val = val.substr(0, v) + ' ' + chr + ' ' + val.substr(v + 1);
+				vl  = val.length;
+				v  += 2;
 
 			}
 
-		});
+		}
 
 	}
 
