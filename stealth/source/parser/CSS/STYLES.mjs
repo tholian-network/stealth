@@ -58,7 +58,7 @@ export const STYLES = {
 		'typ': [ 'length' ]
 	},
 	'flex-basis': {
-		'val': [ 'content', 'fit-content', 'max-content', 'min-content' ],
+		'val': [ 'auto', 'content', 'fit-content', 'max-content', 'min-content' ],
 		'typ': [ 'length', 'percentage' ]
 	},
 	'flex-direction': {
