@@ -194,6 +194,21 @@ export const NORMAL = {
 	'border-left-style':     single_value.bind(null, 'border-left-style',     STYLES['border-style']),
 	'border-left-width':     single_value.bind(null, 'border-left-width',     STYLES['border-width']),
 
+	'column-count':          single_value.bind(null, 'column-count',          STYLES['column-count']),
+	'column-fill':           single_value.bind(null, 'column-fill',           STYLES['column-fill']),
+	'column-gap':            single_value.bind(null, 'column-gap',            STYLES['column-gap']),
+	'column-rule-color':     single_value.bind(null, 'column-rule-color',     STYLES['border-color']),
+	'column-rule-style':     single_value.bind(null, 'column-rule-style',     STYLES['border-style']),
+	'column-rule-width':     single_value.bind(null, 'column-rule-width',     STYLES['border-width']),
+	'column-span':           single_value.bind(null, 'column-span',           STYLES['column-span']),
+	'column-width':          single_value.bind(null, 'column-width',          STYLES['column-width']),
+
+	'flex-basis':            single_value.bind(null, 'flex-basis',            STYLES['flex-basis']),
+	'flex-direction':        single_value.bind(null, 'flex-direction',        STYLES['flex-direction']),
+	'flex-grow':             single_value.bind(null, 'flex-grow',             STYLES['flex-grow']),
+	'flex-shrink':           single_value.bind(null, 'flex-shrink',           STYLES['flex-shrink']),
+	'flex-wrap':             single_value.bind(null, 'flex-wrap',             STYLES['flex-wrap']),
+
 	'font-stretch':          single_value.bind(null, 'font-stretch',          STYLES['font-stretch']),
 	'font-size':             single_value.bind(null, 'font-size',             STYLES['font-size']),
 	'font-style':            single_value.bind(null, 'font-style',            STYLES['font-style']),
@@ -210,6 +225,8 @@ export const NORMAL = {
 	'margin-bottom':         single_value.bind(null, 'margin-bottom',         STYLES['margin']),
 	'margin-left':           single_value.bind(null, 'margin-left',           STYLES['margin']),
 
+	'order':                 single_value.bind(null, 'order',                 STYLES['order']),
+
 	'outline-color':         single_value.bind(null, 'outline-color',         STYLES['outline-color']),
 	'outline-style':         single_value.bind(null, 'outline-style',         STYLES['outline-style']),
 	'outline-width':         single_value.bind(null, 'outline-width',         STYLES['outline-width']),
@@ -221,6 +238,10 @@ export const NORMAL = {
 	'padding-right':         single_value.bind(null, 'padding-right',         STYLES['padding']),
 	'padding-bottom':        single_value.bind(null, 'padding-bottom',        STYLES['padding']),
 	'padding-left':          single_value.bind(null, 'padding-left',          STYLES['padding']),
+
+	'text-decoration-color': single_value.bind(null, 'text-decoration-color', STYLES['text-decoration-color']),
+	'text-decoration-line':  single_value.bind(null, 'text-decoration-line',  STYLES['text-decoration-line']),
+	'text-decoration-style': single_value.bind(null, 'text-decoration-style', STYLES['text-decoration-style'])
 
 };
 

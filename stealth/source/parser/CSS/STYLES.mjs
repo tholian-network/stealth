@@ -39,6 +39,40 @@ export const STYLES = {
 		'val': [ 'thin', 'medium', 'thick' ],
 		'typ': [ 'length' ]
 	},
+	'column-count': {
+		'val': [ 'auto' ],
+		'typ': [ 'number' ]
+	},
+	'column-fill': {
+		'val': [ 'auto', 'balance', 'balance-all' ]
+	},
+	'column-gap': {
+		'val': [ 'normal' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'column-span': {
+		'val': [ 'all', 'none' ]
+	},
+	'column-width': {
+		'val': [ 'auto' ],
+		'typ': [ 'length' ]
+	},
+	'flex-basis': {
+		'val': [ 'content', 'fit-content', 'max-content', 'min-content' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'flex-direction': {
+		'val': [ 'column', 'column-reverse', 'row', 'row-reverse' ]
+	},
+	'flex-grow': {
+		'typ': [ 'number' ]
+	},
+	'flex-shrink': {
+		'typ': [ 'number' ]
+	},
+	'flex-wrap': {
+		'val': [ 'nowrap', 'wrap', 'wrap-reverse' ]
+	},
 	'font-family': {
 		'val': [ 'cursive', 'emoji', 'fangsong', 'fantasy', 'math', 'monospace', 'sans-serif', 'serif', 'system-ui' ],
 		'typ': [ 'string' ]
@@ -87,6 +121,9 @@ export const STYLES = {
 		'val': [ 'auto' ],
 		'typ': [ 'length', 'percentage' ]
 	},
+	'order': {
+		'typ': [ 'number' ]
+	},
 	'outline-color': {
 		'typ': [ 'color' ]
 	},
@@ -102,6 +139,15 @@ export const STYLES = {
 	},
 	'padding': {
 		'typ': [ 'length', 'percentage' ]
+	},
+	'text-decoration-color': {
+		'typ': [ 'color' ]
+	},
+	'text-decoration-line': {
+		'val': [ 'line-through', 'none', 'overline', 'underline' ]
+	},
+	'text-decoration-style': {
+		'val': [ 'dashed', 'dotted', 'double', 'solid', 'wavy' ]
 	}
 };
 

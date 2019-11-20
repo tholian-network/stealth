@@ -61,9 +61,9 @@ describe('CSS.parse/normal', function(assert) {
 	let declarations = query('body > main', result);
 
 	assert(declarations.length > 0);
-	assert(declarations[0]['background-color'].val, [ 255, 204, 0, 1 ]);
-	assert(declarations[0]['background-size-x'].val, 'contain');
-	assert(declarations[0]['background-size-y'].val, 'contain');
+	assert(declarations[0]['background-color'].val,      [ 255, 204, 0, 1 ]);
+	assert(declarations[0]['background-size-x'].val,     'contain');
+	assert(declarations[0]['background-size-y'].val,     'contain');
 	assert(declarations[0]['background-position-x'].ext, '%');
 	assert(declarations[0]['background-position-x'].val, 13);
 	assert(declarations[0]['background-position-y'].ext, 'px');
@@ -129,26 +129,22 @@ describe('CSS.parse/border-radius', function(assert) {
 	let declarations = query('body > main', result);
 
 	assert(declarations.length > 0);
-
-	assert(declarations[0]['border-top-left-radius'][0].ext, 'px');
-	assert(declarations[0]['border-top-left-radius'][0].val, 1);
-	assert(declarations[0]['border-top-left-radius'][1].ext, 'px');
-	assert(declarations[0]['border-top-left-radius'][1].val, 4);
-
-	assert(declarations[0]['border-top-right-radius'][0].ext, 'px');
-	assert(declarations[0]['border-top-right-radius'][0].val, 2);
-	assert(declarations[0]['border-top-right-radius'][1].ext, 'px');
-	assert(declarations[0]['border-top-right-radius'][1].val, 5);
-
+	assert(declarations[0]['border-top-left-radius'][0].ext,     'px');
+	assert(declarations[0]['border-top-left-radius'][0].val,     1);
+	assert(declarations[0]['border-top-left-radius'][1].ext,     'px');
+	assert(declarations[0]['border-top-left-radius'][1].val,     4);
+	assert(declarations[0]['border-top-right-radius'][0].ext,    'px');
+	assert(declarations[0]['border-top-right-radius'][0].val,    2);
+	assert(declarations[0]['border-top-right-radius'][1].ext,    'px');
+	assert(declarations[0]['border-top-right-radius'][1].val,    5);
 	assert(declarations[0]['border-bottom-right-radius'][0].ext, '%');
 	assert(declarations[0]['border-bottom-right-radius'][0].val, 3);
 	assert(declarations[0]['border-bottom-right-radius'][1].ext, 'px');
 	assert(declarations[0]['border-bottom-right-radius'][1].val, 6);
-
-	assert(declarations[0]['border-bottom-left-radius'][0].ext, 'px');
-	assert(declarations[0]['border-bottom-left-radius'][0].val, 2);
-	assert(declarations[0]['border-bottom-left-radius'][1].ext, 'px');
-	assert(declarations[0]['border-bottom-left-radius'][1].val, 7);
+	assert(declarations[0]['border-bottom-left-radius'][0].ext,  'px');
+	assert(declarations[0]['border-bottom-left-radius'][0].val,  2);
+	assert(declarations[0]['border-bottom-left-radius'][1].ext,  'px');
+	assert(declarations[0]['border-bottom-left-radius'][1].val,  7);
 
 });
 
@@ -158,17 +154,37 @@ describe('CSS.parse/font', function(assert) {
 		[ 'font', 'italic bold condensed 13px/37px "Times New Roman", "Arial", Sedana, sans-serif' ]
 	]);
 
-	let result = null;
-	try {
-		result = CSS.parse(buffer);
-	} catch (err) {
-		console.error(err);
-	}
+	let result       = CSS.parse(buffer);
 	let declarations = query('body > main', result);
 
 	assert(declarations.length > 0);
+	assert(declarations[0]['font-style'].val,     'italic');
+	assert(declarations[0]['font-weight'].val,    'bold');
+	assert(declarations[0]['font-stretch'].val,   'condensed');
+	assert(declarations[0]['font-size'].ext,      'px');
+	assert(declarations[0]['font-size'].val,      13);
+	assert(declarations[0]['line-height'].ext,    'px');
+	assert(declarations[0]['line-height'].val,    37);
+	assert(declarations[0]['font-family'].length, 3);
+	assert(declarations[0]['font-family'][0].val, 'Times New Roman');
+	assert(declarations[0]['font-family'][1].val, 'Arial');
+	assert(declarations[0]['font-family'][2].val, 'sans-serif');
 
-	console.log(declarations);
+});
+
+describe('CSS.parse/text-decoration', function(assert) {
+
+	let buffer = create('body > main', [
+		[ 'text-decoration', 'underline dashed #ffcc00' ]
+	]);
+
+	let result       = CSS.parse(buffer);
+	let declarations = query('body > main', result);
+
+	assert(declarations.length > 0);
+	assert(declarations[0]['text-decoration-line'].val,  'underline');
+	assert(declarations[0]['text-decoration-style'].val, 'dashed');
+	assert(declarations[0]['text-decoration-color'].val, [ 255, 204, 0, 1 ]);
 
 });
 

@@ -369,10 +369,85 @@ export const SHORTHAND = {
 
 	},
 
-	'column-rule':     () => {},
-	'columns':         () => {},
-	'flex':            () => {},
-	'flex-flow':       () => {},
+	'column-rule': (values, result) => {
+
+		let width = find.call(values, STYLES['border-width']);
+		if (width.length > 0) {
+			NORMAL['column-rule-width']([ width[0] ], result);
+		}
+
+		let style = find.call(values, STYLES['border-style']);
+		if (style.length > 0) {
+			NORMAL['column-rule-style']([ style[0] ], result);
+		}
+
+		let color = find.call(values, STYLES['border-color']);
+		if (color.length > 0) {
+			NORMAL['column-rule-color']([ color[0] ], result);
+		}
+
+	},
+
+	'columns': (values, result) => {
+
+		let width = find.call(values, STYLES['column-width']);
+		if (width.length > 0) {
+			NORMAL['column-width']([ width[0] ], result);
+		}
+
+		let count = find.call(values, STYLES['column-count']);
+		if (count.length > 0) {
+			NORMAL['column-count']([ count[0] ], result);
+		}
+
+	},
+
+	'flex': (values, result) => {
+
+		if (values.length === 1) {
+
+			let keyword = values[0];
+			if (keyword.val === 'initial') {
+				values = [ '0', '1', 'auto' ].map((v) => parse_value(v));
+			} else if (keyword.val === 'auto') {
+				values = [ '1', '1', 'auto' ].map((v) => parse_value(v));
+			} else if (keyword.val === 'none') {
+				values = [ '0', '0', 'auto' ].map((v) => parse_value(v));
+			}
+
+		}
+
+
+		let grow = find.call(values, STYLES['flex-grow']);
+		if (grow.length > 0) {
+			NORMAL['flex-grow']([ grow[0] ], result);
+		}
+
+		let shrink = find.call(values, STYLES['flex-shrink']);
+		if (shrink.length > 0) {
+			NORMAL['flex-shrink']([ shrink[0] ], result);
+		}
+
+		let basis = find.call(values, STYLES['flex-basis']);
+		if (basis.length > 0) {
+			NORMAL['flex-basis']([ basis[0] ], result);
+		}
+
+	},
+
+	'flex-flow': (values, result) => {
+
+		let direction = find.call(values, STYLES['flex-direction']);
+		if (direction.length > 0) {
+			NORMAL['flex-direction']([ direction[0] ], result);
+		}
+
+		let wrap = find.call(values, STYLES['flex-wrap']);
+		if (wrap.length > 0) {
+			NORMAL['flex-wrap']([ wrap[0] ], result);
+		}
+
+	},
 
 	'font': (values, result) => {
 
@@ -595,7 +670,27 @@ export const SHORTHAND = {
 	'place-content':   () => {},
 	'place-items':     () => {},
 	'place-self':      () => {},
-	'text-decoration': () => {},
+
+	'text-decoration': (values, result) => {
+
+		let line = find.call(values, STYLES['text-decoration-line']);
+		if (line.length > 0) {
+			NORMAL['text-decoration-line']([ line[0] ], result);
+		}
+
+		let style = find.call(values, STYLES['text-decoration-style']);
+		if (style.length > 0) {
+			NORMAL['text-decoration-style']([ style[0] ], result);
+		}
+
+		let color = find.call(values, STYLES['text-decoration-color']);
+		if (color.length > 0) {
+			NORMAL['text-decoration-color']([ color[0] ], result);
+		}
+
+
+	},
+
 	'transition':      () => {}
 
 };
