@@ -19,12 +19,21 @@ export const SHORTHAND = {
 
 
 	/*
-	 * SUPPORTED
+	 * NOT IMPLEMENTED
 	 */
 
-	'animation': () => {
-		// TODO: animation
-	},
+	'animation':     () => {},
+	'grid':          () => {},
+	'grid-area':     () => {},
+	'grid-column':   () => {},
+	'grid-row':      () => {},
+	'grid-template': () => {},
+
+
+
+	/*
+	 * SUPPORTED
+	 */
 
 	'background': (values, result) => {
 
@@ -556,12 +565,6 @@ export const SHORTHAND = {
 
 	},
 
-	'grid':            () => {},
-	'grid-area':       () => {},
-	'grid-column':     () => {},
-	'grid-row':        () => {},
-	'grid-template':   () => {},
-
 	'list-style': (values, result) => {
 
 		let type = find.call(values, STYLES['list-style-type']);
@@ -667,9 +670,44 @@ export const SHORTHAND = {
 
 	},
 
-	'place-content':   () => {},
-	'place-items':     () => {},
-	'place-self':      () => {},
+	'place-content': (values, result) => {
+
+		let place = find.call(values, STYLES['align-content'], { min: 1, max: 2 });
+		if (place.length === 2) {
+			NORMAL['align-content']([ place[0] ], result);
+			NORMAL['justify-content']([ place[1] ], result);
+		} else if (place.length === 1) {
+			NORMAL['align-content']([ place[0] ], result);
+			NORMAL['justify-content']([ place[0] ], result);
+		}
+
+	},
+
+	'place-items': (values, result) => {
+
+		let place = find.call(values, STYLES['align-items'], { min: 1, max: 2 });
+		if (place.length === 2) {
+			NORMAL['align-items']([ place[0] ], result);
+			NORMAL['justify-items']([ place[1] ], result);
+		} else if (place.length === 1) {
+			NORMAL['align-items']([ place[0] ], result);
+			NORMAL['justify-items']([ place[0] ], result);
+		}
+
+	},
+
+	'place-self': (values, result) => {
+
+		let place = find.call(values, STYLES['align-self'], { min: 1, max: 2 });
+		if (place.length === 2) {
+			NORMAL['align-self']([ place[0] ], result);
+			NORMAL['justify-self']([ place[1] ], result);
+		} else if (place.length === 1) {
+			NORMAL['align-self']([ place[0] ], result);
+			NORMAL['justify-self']([ place[0] ], result);
+		}
+
+	},
 
 	'text-decoration': (values, result) => {
 
@@ -691,7 +729,11 @@ export const SHORTHAND = {
 
 	},
 
-	'transition':      () => {}
+	'transition': (values, result) => {
+
+		// TODO: Implement multiple transitions
+
+	}
 
 };
 

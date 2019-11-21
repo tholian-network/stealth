@@ -1,5 +1,33 @@
 
 export const STYLES = {
+	'align-content': {
+		'val': [
+			'normal', 'baseline',
+			'start', 'center', 'end',
+			'flex-start', 'flex-end',
+			'space-around', 'space-between', 'space-evenly',
+			'stretch', 'safe', 'unsafe'
+		]
+	},
+	'align-items': {
+		'val': [
+			'normal', 'baseline',
+			'start', 'center', 'end',
+			'flex-start', 'flex-end',
+			'self-start', 'self-end',
+			'space-around', 'space-between', 'space-evenly',
+			'stretch', 'safe', 'unsafe'
+		]
+	},
+	'align-self': {
+		'val': [
+			'auto', 'normal', 'baseline',
+			'center',
+			'flex-start', 'flex-end',
+			'self-start', 'self-end',
+			'stretch', 'safe', 'unsafe'
+		]
+	},
 	'background-attachment': {
 		'val': [ 'scroll', 'fixed', 'local' ]
 	},
@@ -99,6 +127,35 @@ export const STYLES = {
 	'font-weight': {
 		'val': [ 'normal', 'bold', 'bolder', 'lighter' ],
 		'typ': [ 'number' ]
+	},
+	'justify-content': {
+		'val': [
+			'normal', 'baseline', 'left', 'right',
+			'start', 'center', 'end',
+			'flex-start', 'flex-end',
+			'space-around', 'space-between', 'space-evenly',
+			'stretch', 'safe', 'unsafe'
+		]
+	},
+	'justify-items': {
+		'val': [
+			'auto', 'normal', 'baseline', 'left', 'right',
+			'start', 'center', 'end',
+			'flex-start', 'flex-end',
+			'self-start', 'self-end',
+			'space-around', 'space-between', 'space-evenly',
+			'stretch', 'safe', 'unsafe'
+		]
+	},
+	'justify-self': {
+		'val': [
+			'auto', 'normal', 'baseline', 'left', 'right',
+			'start', 'center', 'end',
+			'flex-start', 'flex-end',
+			'self-start', 'self-end',
+			'space-around', 'space-between', 'space-evenly',
+			'stretch', 'safe', 'unsafe'
+		]
 	},
 	'line-height': {
 		'val': [ 'normal' ],

@@ -175,6 +175,10 @@ export const NORMAL = {
 	'border-top-left-radius':     multi_values.bind(null, 'border-top-left-radius',     STYLES['border-radius'], { min: 1, max: 2 }),
 	'border-top-right-radius':    multi_values.bind(null, 'border-top-right-radius',    STYLES['border-radius'], { min: 1, max: 2 }),
 
+	'align-content':         single_value.bind(null, 'align-content',         STYLES['align-content']),
+	'align-items':           single_value.bind(null, 'align-items',           STYLES['align-items']),
+	'align-self':            single_value.bind(null, 'align-self',            STYLES['align-self']),
+
 	'background-attachment': single_value.bind(null, 'background-attachment', STYLES['background-attachment']),
 	'background-clip':       single_value.bind(null, 'background-clip',       STYLES['background-clip']),
 	'background-color':      single_value.bind(null, 'background-color',      STYLES['background-color']),
@@ -213,6 +217,10 @@ export const NORMAL = {
 	'font-size':             single_value.bind(null, 'font-size',             STYLES['font-size']),
 	'font-style':            single_value.bind(null, 'font-style',            STYLES['font-style']),
 	'font-weight':           single_value.bind(null, 'font-weight',           STYLES['font-weight']),
+
+	'justify-content':       single_value.bind(null, 'justify-content',       STYLES['justify-content']),
+	'justify-items':         single_value.bind(null, 'justify-items',         STYLES['justify-items']),
+	'justify-self':          single_value.bind(null, 'justify-self',          STYLES['justify-self']),
 
 	'line-height':           single_value.bind(null, 'line-height',           STYLES['line-height']),
 
