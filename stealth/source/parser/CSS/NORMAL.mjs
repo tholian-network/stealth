@@ -28,6 +28,10 @@ const multi_values = function(property, search, limit, values, result) {
 
 export const NORMAL = {
 
+	// TODO: text-emphasis
+	// TODO: text-emphasis-color
+	// TODO: text-indent
+
 	'background-position': (values, result) => {
 
 		let position = find.call(values, STYLES['background-position'], { min: 1, max: 2 });
@@ -168,12 +172,28 @@ export const NORMAL = {
 
 	},
 
+	'opacity': (values, result) => {
+
+		let opacity = find.call(values, STYLES['opacity']);
+		if (opacity.length > 0) {
+
+			if (opacity[0].val >= 0.0 && opacity[0].val <= 1.0) {
+				result['opacity'] = opacity[0];
+			}
+
+		}
+
+	},
+
+
 
 
 	'border-bottom-left-radius':  multi_values.bind(null, 'border-bottom-left-radius',  STYLES['border-radius'], { min: 1, max: 2 }),
 	'border-bottom-right-radius': multi_values.bind(null, 'border-bottom-right-radius', STYLES['border-radius'], { min: 1, max: 2 }),
 	'border-top-left-radius':     multi_values.bind(null, 'border-top-left-radius',     STYLES['border-radius'], { min: 1, max: 2 }),
 	'border-top-right-radius':    multi_values.bind(null, 'border-top-right-radius',    STYLES['border-radius'], { min: 1, max: 2 }),
+
+
 
 	'align-content':         single_value.bind(null, 'align-content',         STYLES['align-content']),
 	'align-items':           single_value.bind(null, 'align-items',           STYLES['align-items']),
@@ -184,7 +204,6 @@ export const NORMAL = {
 	'background-color':      single_value.bind(null, 'background-color',      STYLES['background-color']),
 	'background-image':      single_value.bind(null, 'background-image',      STYLES['background-image']),
 	'background-origin':     single_value.bind(null, 'background-origin',     STYLES['background-origin']),
-
 	'border-top-color':      single_value.bind(null, 'border-top-color',      STYLES['border-color']),
 	'border-top-style':      single_value.bind(null, 'border-top-style',      STYLES['border-style']),
 	'border-top-width':      single_value.bind(null, 'border-top-width',      STYLES['border-width']),
@@ -197,7 +216,9 @@ export const NORMAL = {
 	'border-left-color':     single_value.bind(null, 'border-left-color',     STYLES['border-color']),
 	'border-left-style':     single_value.bind(null, 'border-left-style',     STYLES['border-style']),
 	'border-left-width':     single_value.bind(null, 'border-left-width',     STYLES['border-width']),
+	'bottom':                single_value.bind(null, 'bottom',                STYLES['bottom']),
 
+	'color':                 single_value.bind(null, 'color',                 STYLES['color']),
 	'column-count':          single_value.bind(null, 'column-count',          STYLES['column-count']),
 	'column-fill':           single_value.bind(null, 'column-fill',           STYLES['column-fill']),
 	'column-gap':            single_value.bind(null, 'column-gap',            STYLES['column-gap']),
@@ -215,15 +236,18 @@ export const NORMAL = {
 
 	'font-stretch':          single_value.bind(null, 'font-stretch',          STYLES['font-stretch']),
 	'font-size':             single_value.bind(null, 'font-size',             STYLES['font-size']),
+	'font-size-adjust':      single_value.bind(null, 'font-size-adjust',      STYLES['font-size-adjust']),
 	'font-style':            single_value.bind(null, 'font-style',            STYLES['font-style']),
 	'font-weight':           single_value.bind(null, 'font-weight',           STYLES['font-weight']),
+
+	'height':                single_value.bind(null, 'height',                STYLES['height']),
 
 	'justify-content':       single_value.bind(null, 'justify-content',       STYLES['justify-content']),
 	'justify-items':         single_value.bind(null, 'justify-items',         STYLES['justify-items']),
 	'justify-self':          single_value.bind(null, 'justify-self',          STYLES['justify-self']),
 
+	'left':                  single_value.bind(null, 'left',                  STYLES['left']),
 	'line-height':           single_value.bind(null, 'line-height',           STYLES['line-height']),
-
 	'list-style-image':      single_value.bind(null, 'list-style-image',      STYLES['list-style-image']),
 	'list-style-position':   single_value.bind(null, 'list-style-position',   STYLES['list-style-position']),
 	'list-style-type':       single_value.bind(null, 'list-style-type',       STYLES['list-style-type']),
@@ -232,13 +256,16 @@ export const NORMAL = {
 	'margin-right':          single_value.bind(null, 'margin-right',          STYLES['margin']),
 	'margin-bottom':         single_value.bind(null, 'margin-bottom',         STYLES['margin']),
 	'margin-left':           single_value.bind(null, 'margin-left',           STYLES['margin']),
+	'max-height':            single_value.bind(null, 'max-height',            STYLES['max-height']),
+	'max-width':             single_value.bind(null, 'max-width',             STYLES['max-width']),
+	'min-height':            single_value.bind(null, 'min-height',            STYLES['min-height']),
+	'min-width':             single_value.bind(null, 'min-width',             STYLES['min-width']),
 
 	'order':                 single_value.bind(null, 'order',                 STYLES['order']),
-
 	'outline-color':         single_value.bind(null, 'outline-color',         STYLES['outline-color']),
+	'outline-offset':        single_value.bind(null, 'outline-offset',        STYLES['outline-offset']),
 	'outline-style':         single_value.bind(null, 'outline-style',         STYLES['outline-style']),
 	'outline-width':         single_value.bind(null, 'outline-width',         STYLES['outline-width']),
-
 	'overflow-x':            single_value.bind(null, 'overflow-x',            STYLES['overflow']),
 	'overflow-y':            single_value.bind(null, 'overflow-y',            STYLES['overflow']),
 
@@ -247,9 +274,21 @@ export const NORMAL = {
 	'padding-bottom':        single_value.bind(null, 'padding-bottom',        STYLES['padding']),
 	'padding-left':          single_value.bind(null, 'padding-left',          STYLES['padding']),
 
+	'right':                 single_value.bind(null, 'right',                 STYLES['right']),
+
+	'tab-size':              single_value.bind(null, 'tab-size',              STYLES['tab-size']),
 	'text-decoration-color': single_value.bind(null, 'text-decoration-color', STYLES['text-decoration-color']),
 	'text-decoration-line':  single_value.bind(null, 'text-decoration-line',  STYLES['text-decoration-line']),
-	'text-decoration-style': single_value.bind(null, 'text-decoration-style', STYLES['text-decoration-style'])
+	'text-decoration-style': single_value.bind(null, 'text-decoration-style', STYLES['text-decoration-style']),
+	'top':                   single_value.bind(null, 'top',                   STYLES['top']),
+
+	'visibility':            single_value.bind(null, 'visibility',            STYLES['visibility']),
+
+	'width':                 single_value.bind(null, 'width',                 STYLES['width']),
+	'word-spacing':          single_value.bind(null, 'word-spacing',          STYLES['word-spacing']),
+
+	'z-index':               single_value.bind(null, 'z-index',               STYLES['z-index']),
+	'zoom':                  single_value.bind(null, 'zoom',                  STYLES['zoom']),
 
 };
 

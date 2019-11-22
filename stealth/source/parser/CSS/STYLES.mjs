@@ -67,6 +67,13 @@ export const STYLES = {
 		'val': [ 'thin', 'medium', 'thick' ],
 		'typ': [ 'length' ]
 	},
+	'bottom': {
+		'val': [ 'auto' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'color': {
+		'typ': [ 'color' ]
+	},
 	'column-count': {
 		'val': [ 'auto' ],
 		'typ': [ 'number' ]
@@ -113,6 +120,10 @@ export const STYLES = {
 		],
 		'typ': [ 'length', 'percentage' ]
 	},
+	'font-size-adjust': {
+		'val': [ 'none' ],
+		'typ': [ 'number' ]
+	},
 	'font-stretch': {
 		'val': [
 			'normal',
@@ -127,6 +138,10 @@ export const STYLES = {
 	'font-weight': {
 		'val': [ 'normal', 'bold', 'bolder', 'lighter' ],
 		'typ': [ 'number' ]
+	},
+	'height': {
+		'val': [ 'auto', 'available', 'border-box', 'content-box', 'fill', 'min-content', 'fit-content', 'max-content' ],
+		'typ': [ 'length', 'percentage' ]
 	},
 	'justify-content': {
 		'val': [
@@ -157,6 +172,14 @@ export const STYLES = {
 			'stretch', 'safe', 'unsafe'
 		]
 	},
+	'left': {
+		'val': [ 'auto' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'letter-spacing': {
+		'val': [ 'normal' ],
+		'typ': [ 'length' ]
+	},
 	'line-height': {
 		'val': [ 'normal' ],
 		'typ': [ 'number', 'length', 'percentage' ]
@@ -178,11 +201,33 @@ export const STYLES = {
 		'val': [ 'auto' ],
 		'typ': [ 'length', 'percentage' ]
 	},
+	'max-height': {
+		'val': [ 'auto', 'min-content', 'fit-content', 'max-content', 'fill-available' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'max-width': {
+		'val': [ 'auto', 'min-content', 'fit-content', 'max-content', 'fill-available' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'min-height': {
+		'val': [ 'auto', 'min-content', 'fit-content', 'max-content', 'fill-available' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'min-width': {
+		'val': [ 'auto', 'min-content', 'fit-content', 'max-content', 'fill-available' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'opacity': {
+		'typ': [ 'number' ]
+	},
 	'order': {
 		'typ': [ 'number' ]
 	},
 	'outline-color': {
 		'typ': [ 'color' ]
+	},
+	'outline-offset': {
+		'typ': [ 'length' ]
 	},
 	'outline-style': {
 		'val': [ 'auto', 'none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
@@ -197,6 +242,13 @@ export const STYLES = {
 	'padding': {
 		'typ': [ 'length', 'percentage' ]
 	},
+	'right': {
+		'val': [ 'auto' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'tab-size': {
+		'typ': [ 'length', 'number' ]
+	},
 	'text-decoration-color': {
 		'typ': [ 'color' ]
 	},
@@ -205,6 +257,70 @@ export const STYLES = {
 	},
 	'text-decoration-style': {
 		'val': [ 'dashed', 'dotted', 'double', 'solid', 'wavy' ]
+	},
+	'top': {
+		'val': [ 'auto' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'transition-delay': {
+		'typ': [ 'time' ]
+	},
+	'transition-duration': {
+		'typ': [ 'time' ]
+	},
+	'transition-timing-function': {
+		'val': [
+			'ease', 'ease-in', 'ease-out', 'ease-in-out',
+			'linear', 'step-start', 'step-end'
+		]
+	},
+	'transition-property': {
+		'val': [
+			'all', 'none',
+			'background', 'background-color', 'background-position', 'background-size',
+			'border', 'border-color', 'border-radius', 'border-width',
+			'border-top', 'border-top-color', 'border-top-left-radius', 'border-top-right-radius', 'border-top-width',
+			'border-right', 'border-right-color', 'border-right-width',
+			'border-bottom', 'border-bottom-color', 'border-bottom-left-radius', 'border-bottom-right-radius', 'border-bottom-width',
+			'border-left', 'border-left-color', 'border-left-width',
+			'top', 'right', 'bottom', 'left',
+			'color', 'width', 'height',
+			'column-count', 'column-gap', 'column-rule', 'column-rule-color', 'column-rule-width', 'column-width', 'columns',
+			'flex', 'flex-basis', 'flex-grow', 'flex-shrink',
+			'font', 'font-size', 'font-size-adjust', 'font-stretch', 'font-weight',
+			'letter-spacing', 'line-height',
+			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+			'min-width', 'max-width', 'min-height', 'max-height',
+			'opacity', 'order',
+			'outline', 'outline-color', 'outline-offset', 'outline-width',
+			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+			'tab-size',
+			'text-decoration', 'text-decoration-color',
+			'text-emphasis', 'text-emphasis-color', 'text-indent',
+			'visibility',
+			'word-spacing',
+			'z-index',
+			'zoom'
+		]
+	},
+	'visibility': {
+		'val': [ 'collapse', 'hidden', 'visible' ]
+	},
+	'width': {
+		'val': [ 'auto', 'available', 'border-box', 'content-box', 'fill', 'min-content', 'fit-content', 'max-content' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'word-spacing': {
+		'val': [ 'normal' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'z-index': {
+		'val': [ 'auto' ],
+		'typ': [ 'number' ]
+	},
+	'zoom': {
+		'val': [ 'normal', 'reset' ],
+		'typ': [ 'number', 'percentage' ]
 	}
 };
 

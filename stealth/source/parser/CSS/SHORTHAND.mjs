@@ -8,6 +8,61 @@ import { STYLES } from './STYLES.mjs';
 
 
 
+const parse_single_transition = function(values) {
+
+	console.error(values);
+
+
+	let transition = {
+		'transition-property':        null,
+		'transition-duration':        null,
+		'transition-timing-function': null,
+		'transition-delay':           null
+	};
+
+	if (values.length > 0) {
+
+		let check = values[0];
+		if (check.val !== 'none') {
+
+			let property = find.call(values, STYLES['transition-property']);
+			if (property.length > 0) {
+				transition['transition-property'] = property.pop();
+			}
+
+			let duration = find.call(values, STYLES['transition-duration'], { min: 1, max: 2 });
+			if (duration.length === 2) {
+				transition['transition-duration'] = duration[0];
+				transition['transition-delay']    = duration[1];
+			} else if (duration.length === 1) {
+				transition['transition-duration'] = duration[0];
+			}
+
+			let timing = find.call(values, STYLES['transition-timing-function']);
+			if (timing.length > 0) {
+				transition['transition-timing-function'] = timing.pop();
+			}
+
+			// XXX: Two <time> values may appear first, or split, or suffixed
+			let delay = find.call(values, STYLES['transition-delay'], { min: 1, max: 2 });
+			if (delay.length === 2) {
+				transition['transition-duration'] = delay[0];
+				transition['transition-delay']    = delay[1];
+			} else if (delay.length === 1) {
+				transition['transition-delay']    = delay[0];
+			}
+
+		}
+
+	}
+
+
+	return transition;
+
+};
+
+
+
 export const SHORTHAND = {
 
 	/*
@@ -672,39 +727,57 @@ export const SHORTHAND = {
 
 	'place-content': (values, result) => {
 
-		let place = find.call(values, STYLES['align-content'], { min: 1, max: 2 });
-		if (place.length === 2) {
-			NORMAL['align-content']([ place[0] ], result);
-			NORMAL['justify-content']([ place[1] ], result);
-		} else if (place.length === 1) {
-			NORMAL['align-content']([ place[0] ], result);
-			NORMAL['justify-content']([ place[0] ], result);
+		if (values.length === 2) {
+
+			NORMAL['align-content']([ values[0] ], result);
+			NORMAL['justify-content']([ values[1] ], result);
+
+		} else if (values.length === 1) {
+
+			let check = values[0];
+			if (match.call(check, [ STYLES['align-content'] ]) === true && match.call(check, [ STYLES['justify-content'] ]) === true) {
+				NORMAL['align-content']([ values[0] ], result);
+				NORMAL['justify-content']([ values[0] ], result);
+			}
+
 		}
 
 	},
 
 	'place-items': (values, result) => {
 
-		let place = find.call(values, STYLES['align-items'], { min: 1, max: 2 });
-		if (place.length === 2) {
-			NORMAL['align-items']([ place[0] ], result);
-			NORMAL['justify-items']([ place[1] ], result);
-		} else if (place.length === 1) {
-			NORMAL['align-items']([ place[0] ], result);
-			NORMAL['justify-items']([ place[0] ], result);
+		if (values.length === 2) {
+
+			NORMAL['align-items']([ values[0] ], result);
+			NORMAL['justify-items']([ values[1] ], result);
+
+		} else if (values.length === 1) {
+
+			let check = values[0];
+			if (match.call(check, [ STYLES['align-items'] ]) === true && match.call(check, [ STYLES['justify-items'] ]) === true) {
+				NORMAL['align-items']([ values[0] ], result);
+				NORMAL['justify-items']([ values[0] ], result);
+			}
+
 		}
 
 	},
 
 	'place-self': (values, result) => {
 
-		let place = find.call(values, STYLES['align-self'], { min: 1, max: 2 });
-		if (place.length === 2) {
-			NORMAL['align-self']([ place[0] ], result);
-			NORMAL['justify-self']([ place[1] ], result);
-		} else if (place.length === 1) {
-			NORMAL['align-self']([ place[0] ], result);
-			NORMAL['justify-self']([ place[0] ], result);
+		if (values.length === 2) {
+
+			NORMAL['align-self']([ values[0] ], result);
+			NORMAL['justify-self']([ values[1] ], result);
+
+		} else if (values.length === 1) {
+
+			let check = values[0];
+			if (match.call(check, [ STYLES['align-self'] ]) === true && match.call(check, [ STYLES['justify-self'] ]) === true) {
+				NORMAL['align-self']([ values[0] ], result);
+				NORMAL['justify-self']([ values[0] ], result);
+			}
+
 		}
 
 	},
@@ -726,12 +799,52 @@ export const SHORTHAND = {
 			NORMAL['text-decoration-color']([ color[0] ], result);
 		}
 
-
 	},
 
 	'transition': (values, result) => {
 
-		// TODO: Implement multiple transitions
+		let raw = values.map((val) => val.raw).join(' ').trim();
+
+		console.info(raw);
+
+		if (raw.includes(',')) {
+
+			raw.split(',').forEach((chunk) => {
+
+				let values = chunk.split(' ').map((val) => parse_value(val));
+				if (values.length > 0) {
+
+					let transition = parse_single_transition(values);
+					if (transition !== null) {
+
+						console.log(transition);
+
+						// TODO: For each property
+						// - reset array
+						// - push incrementally
+
+					}
+
+				}
+
+			});
+
+		} else {
+
+			let values = raw.split(' ').map((val) => parse_value(val));
+			if (values.length > 0) {
+
+				let transition = parse_single_transition(values);
+				if (transition !== null) {
+
+					// TODO: For each property
+					// - reset array to [0] = value
+
+				}
+
+			}
+
+		}
 
 	}
 

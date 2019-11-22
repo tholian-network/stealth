@@ -381,6 +381,90 @@ describe('CSS.parse/padding', function(assert) {
 
 });
 
+describe('CSS.parse/place-content', function(assert) {
+
+	let result1 = create({
+		'place-content': 'flex-start'
+	});
+
+	let result2 = create({
+		'place-content': 'flex-start unsafe'
+	});
+
+	let result3 = create({
+		'place-content': 'invalid'
+	});
+
+	assert(result1 !== null);
+	assert(result1['align-content'].val,   'flex-start');
+	assert(result1['justify-content'].val, 'flex-start');
+
+	assert(result2 !== null);
+	assert(result2['align-content'].val,   'flex-start');
+	assert(result2['justify-content'].val, 'unsafe');
+
+	assert(result3 !== null);
+	assert(result3['align-content'] === undefined);
+	assert(result3['justify-content'] === undefined);
+
+});
+
+describe('CSS.parse/place-items', function(assert) {
+
+	let result1 = create({
+		'place-items': 'flex-start'
+	});
+
+	let result2 = create({
+		'place-items': 'flex-start auto'
+	});
+
+	let result3 = create({
+		'place-items': 'invalid'
+	});
+
+	assert(result1 !== null);
+	assert(result1['align-items'].val,   'flex-start');
+	assert(result1['justify-items'].val, 'flex-start');
+
+	assert(result2 !== null);
+	assert(result2['align-items'].val,   'flex-start');
+	assert(result2['justify-items'].val, 'auto');
+
+	assert(result3 !== null);
+	assert(result3['align-items'] === undefined);
+	assert(result3['justify-items'] === undefined);
+
+});
+
+describe('CSS.parse/place-self', function(assert) {
+
+	let result1 = create({
+		'place-self': 'flex-start'
+	});
+
+	let result2 = create({
+		'place-self': 'flex-start auto'
+	});
+
+	let result3 = create({
+		'place-self': 'invalid'
+	});
+
+	assert(result1 !== null);
+	assert(result1['align-self'].val,   'flex-start');
+	assert(result1['justify-self'].val, 'flex-start');
+
+	assert(result2 !== null);
+	assert(result2['align-self'].val,   'flex-start');
+	assert(result2['justify-self'].val, 'auto');
+
+	assert(result3 !== null);
+	assert(result3['align-self'] === undefined);
+	assert(result3['justify-self'] === undefined);
+
+});
+
 describe('CSS.parse/text-decoration', function(assert) {
 
 	let result = create({
@@ -391,6 +475,26 @@ describe('CSS.parse/text-decoration', function(assert) {
 	assert(result['text-decoration-line'].val,  'underline');
 	assert(result['text-decoration-style'].val, 'dashed');
 	assert(result['text-decoration-color'].val, [ 255, 204, 0, 1 ]);
+
+});
+
+describe('CSS.parse/transition', function(assert) {
+
+	let result = create({
+		'transition': 'margin-left ease-out, padding 1s ease-in 200ms'
+	});
+
+	assert(result !== null);
+	assert(result['transition-property'].length === 2);
+	assert(result['transition-property'].map((e) => e.val), [ 'margin-left', 'padding' ]);
+	assert(result['transition-timing-function'].length === 2);
+	assert(result['transition-timing-function'].map((e) => e.val), [ 'ease-out', 'ease-in' ]);
+	assert(result['transition-duration'].length === 2);
+	assert(result['transition-duration'].map((e) => e.ext), [ 's', 's' ]);
+	assert(result['transition-duration'].map((e) => e.val), [ 0, 1 ]);
+	assert(result['transition-delay'].length === 2);
+	assert(result['transition-delay'].map((e) => e.ext), [ 's', 'ms' ]);
+	assert(result['transition-delay'].map((e) => e.val), [ 0, 200 ]);
 
 });
 
