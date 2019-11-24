@@ -114,9 +114,9 @@ const Session = function(browser, widgets) {
 
 					// TODO: click/change listener
 					// this.choices.query('input').forEach((input) => {
+					// console.log(input);
 					// });
 
-					console.log(inputs);
 
 					console.info(session);
 					console.warn(sessions);

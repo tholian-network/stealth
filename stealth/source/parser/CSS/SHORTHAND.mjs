@@ -69,7 +69,12 @@ export const SHORTHAND = {
 	 * UNSUPPORTED
 	 */
 
-	'offset': () => {},
+	'grid':          () => {},
+	'grid-area':     () => {},
+	'grid-column':   () => {},
+	'grid-row':      () => {},
+	'grid-template': () => {},
+	'offset':        () => {},
 
 
 
@@ -77,12 +82,7 @@ export const SHORTHAND = {
 	 * NOT IMPLEMENTED
 	 */
 
-	'animation':     () => {},
-	'grid':          () => {},
-	'grid-area':     () => {},
-	'grid-column':   () => {},
-	'grid-row':      () => {},
-	'grid-template': () => {},
+	'animation': () => {},
 
 
 
