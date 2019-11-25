@@ -56,6 +56,9 @@ export const STYLES = {
 	'animation-play-state': {
 		'val': [ 'paused', 'running' ]
 	},
+	'backface-visibility': {
+		'val': [ 'hidden', 'visible' ]
+	},
 	'background-attachment': {
 		'val': [ 'scroll', 'fixed', 'local' ]
 	},
@@ -82,11 +85,21 @@ export const STYLES = {
 		'val': [ 'contain', 'cover', 'auto' ],
 		'typ': [ 'length', 'percentage' ]
 	},
+	'block-size': {
+		'val': [ 'auto', 'available', 'border-box', 'content-box', 'fill', 'min-content', 'fit-content', 'max-content' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'border-collapse': {
+		'val': [ 'collapse', 'separate' ]
+	},
 	'border-color': {
 		'typ': [ 'color' ]
 	},
 	'border-radius': {
 		'typ': [ 'length', 'percentage' ]
+	},
+	'border-spacing': {
+		'typ': [ 'length' ]
 	},
 	'border-style': {
 		'val': [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ]
@@ -98,6 +111,28 @@ export const STYLES = {
 	'bottom': {
 		'val': [ 'auto' ],
 		'typ': [ 'length', 'percentage' ]
+	},
+	'box-sizing': {
+		'val': [ 'border-box', 'content-box' ]
+	},
+	'break-after': {
+		'val': [
+			'all', 'always', 'auto',
+			'avoid', 'avoid-column', 'avoid-page', 'avoid-region',
+			'column', 'page', 'region',
+			'left', 'right', 'recto', 'verso'
+		]
+	},
+	'break-before': {
+		'val': [
+			'all', 'always', 'auto',
+			'avoid', 'avoid-column', 'avoid-page', 'avoid-region',
+			'column', 'page', 'region',
+			'left', 'right', 'recto', 'verso'
+		]
+	},
+	'break-inside': {
+		'val': [ 'auto', 'avoid', 'avoid-column', 'avoid-page', 'avoid-region' ]
 	},
 	'color': {
 		'typ': [ 'color' ]
@@ -285,6 +320,16 @@ export const STYLES = {
 	},
 	'text-decoration-style': {
 		'val': [ 'dashed', 'dotted', 'double', 'solid', 'wavy' ]
+	},
+	'text-emphasis-color': {
+		'typ': [ 'color' ]
+	},
+	'text-emphasis-style': {
+		'val': [ 'circle', 'dot', 'double-circle', 'filled', 'none', 'open', 'sesame', 'triangle' ],
+		'typ': [ 'string' ]
+	},
+	'text-indent': {
+		'typ': [ 'length', 'percentage' ]
 	},
 	'top': {
 		'val': [ 'auto' ],

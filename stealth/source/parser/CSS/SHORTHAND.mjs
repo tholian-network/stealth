@@ -140,6 +140,9 @@ export const SHORTHAND = {
 	 * UNSUPPORTED
 	 */
 
+	'border-block':  () => {},
+	'border-image':  () => {},
+	'border-inline': () => {},
 	'grid':          () => {},
 	'grid-area':     () => {},
 	'grid-column':   () => {},
@@ -912,6 +915,20 @@ export const SHORTHAND = {
 		let color = find.call(values, STYLES['text-decoration-color']);
 		if (color.length > 0) {
 			NORMAL['text-decoration-color']([ color[0] ], result);
+		}
+
+	},
+
+	'text-emphasis': (values, result) => {
+
+		let style = find.call(values, STYLES['text-emphasis-style']);
+		if (style.length > 0) {
+			NORMAL['text-emphasis-style']([ style[0] ], result);
+		}
+
+		let color = find.call(values, STYLES['text-emphasis-color']);
+		if (color.length > 0) {
+			NORMAL['text-emphasis-color']([ color[0] ], result);
 		}
 
 	},

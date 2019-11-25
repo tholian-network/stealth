@@ -28,9 +28,18 @@ const multi_values = function(property, search, limit, values, result) {
 
 export const NORMAL = {
 
-	// TODO: text-emphasis
-	// TODO: text-emphasis-color
-	// TODO: text-indent
+	/*
+	 * UNSUPPORTED
+	 */
+
+	'box-decoration-break': () => {},
+	'box-shadow':           () => {},
+	'text-shadow':          () => {},
+
+
+	/*
+	 * SUPPORTED
+	 */
 
 	'background-position': (values, result) => {
 
@@ -141,7 +150,20 @@ export const NORMAL = {
 
 	},
 
-	'font-family': function(values, result) {
+	'border-spacing': (values, result) => {
+
+		let spacing = find.call(values, STYLES['border-spacing'], { min: 1, max: 2 });
+		if (spacing.length === 2) {
+			result['border-spacing-x'] = spacing[0];
+			result['border-spacing-y'] = spacing[1];
+		} else if (spacing.length === 1) {
+			result['border-spacing-x'] = spacing[0];
+			result['border-spacing-y'] = spacing[0];
+		}
+
+	},
+
+	'font-family': (values, result) => {
 
 		let val = values.map((val) => val.raw).join(' ').trim();
 		if (val.includes(',')) {
@@ -185,6 +207,21 @@ export const NORMAL = {
 
 	},
 
+	'text-emphasis-style': (values, result) => {
+
+		let style = find.call(values, STYLES['text-emphasis-style']);
+		if (style.length > 0) {
+
+			if (style[0].typ === 'string' && style[0].val.length > 1) {
+				style[0] = parse_value(style[0].val.charAt(0));
+			}
+
+			result['text-emphasis-style'] = style[0];
+
+		}
+
+	},
+
 
 
 	'animation-delay':            multi_values.bind(null, 'animation-delay',            STYLES['animation-delay'],            { min: 1, max: 16 }),
@@ -212,6 +249,10 @@ export const NORMAL = {
 	'align-items':                single_value.bind(null, 'align-items',                STYLES['align-items']),
 	'align-self':                 single_value.bind(null, 'align-self',                 STYLES['align-self']),
 
+	'break-after':                single_value.bind(null, 'break-after',                STYLES['break-after']),
+	'break-before':               single_value.bind(null, 'break-before',               STYLES['break-before']),
+	'break-inside':               single_value.bind(null, 'break-inside',               STYLES['break-inside']),
+	'backface-visibility':        single_value.bind(null, 'backface-visibility',        STYLES['backface-visibility']),
 	'background-attachment':      single_value.bind(null, 'background-attachment',      STYLES['background-attachment']),
 	'background-clip':            single_value.bind(null, 'background-clip',            STYLES['background-clip']),
 	'background-color':           single_value.bind(null, 'background-color',           STYLES['background-color']),
@@ -230,6 +271,7 @@ export const NORMAL = {
 	'border-left-style':          single_value.bind(null, 'border-left-style',          STYLES['border-style']),
 	'border-left-width':          single_value.bind(null, 'border-left-width',          STYLES['border-width']),
 	'bottom':                     single_value.bind(null, 'bottom',                     STYLES['bottom']),
+	'box-sizing':                 single_value.bind(null, 'box-sizing',                 STYLES['box-sizing']),
 
 	'color':                      single_value.bind(null, 'color',                      STYLES['color']),
 	'column-count':               single_value.bind(null, 'column-count',               STYLES['column-count']),
@@ -293,6 +335,8 @@ export const NORMAL = {
 	'text-decoration-color':      single_value.bind(null, 'text-decoration-color',      STYLES['text-decoration-color']),
 	'text-decoration-line':       single_value.bind(null, 'text-decoration-line',       STYLES['text-decoration-line']),
 	'text-decoration-style':      single_value.bind(null, 'text-decoration-style',      STYLES['text-decoration-style']),
+	'text-emphasis-color':        single_value.bind(null, 'text-emphasis-color',        STYLES['text-emphasis-color']),
+	'text-indent':                single_value.bind(null, 'text-indent',                STYLES['text-indent']),
 	'top':                        single_value.bind(null, 'top',                        STYLES['top']),
 
 	'visibility':                 single_value.bind(null, 'visibility',                 STYLES['visibility']),
