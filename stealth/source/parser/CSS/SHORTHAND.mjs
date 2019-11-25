@@ -10,14 +10,11 @@ import { STYLES } from './STYLES.mjs';
 
 const parse_single_transition = function(values) {
 
-	console.error(values);
-
-
 	let transition = {
-		'transition-property':        null,
-		'transition-duration':        null,
-		'transition-timing-function': null,
-		'transition-delay':           null
+		'transition-property':        parse_value('all'),
+		'transition-duration':        parse_value('0s'),
+		'transition-timing-function': parse_value('ease'),
+		'transition-delay':           parse_value('0s')
 	};
 
 	if (values.length > 0) {
@@ -804,10 +801,13 @@ export const SHORTHAND = {
 	'transition': (values, result) => {
 
 		let raw = values.map((val) => val.raw).join(' ').trim();
-
-		console.info(raw);
-
 		if (raw.includes(',')) {
+
+			result['transition-property']        = [];
+			result['transition-duration']        = [];
+			result['transition-timing-function'] = [];
+			result['transition-delay']           = [];
+
 
 			raw.split(',').forEach((chunk) => {
 
@@ -817,11 +817,10 @@ export const SHORTHAND = {
 					let transition = parse_single_transition(values);
 					if (transition !== null) {
 
-						console.log(transition);
-
-						// TODO: For each property
-						// - reset array
-						// - push incrementally
+						result['transition-property'].push(transition['transition-property']);
+						result['transition-duration'].push(transition['transition-duration']);
+						result['transition-timing-function'].push(transition['transition-timing-function']);
+						result['transition-delay'].push(transition['transition-delay']);
 
 					}
 
@@ -837,8 +836,10 @@ export const SHORTHAND = {
 				let transition = parse_single_transition(values);
 				if (transition !== null) {
 
-					// TODO: For each property
-					// - reset array to [0] = value
+					result['transition-property']        = [ transition['transition-property'] ];
+					result['transition-duration']        = [ transition['transition-duration'] ];
+					result['transition-timing-function'] = [ transition['transition-timing-function'] ];
+					result['transition-delay']           = [ transition['transition-delay'] ];
 
 				}
 
