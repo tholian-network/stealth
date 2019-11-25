@@ -25,7 +25,7 @@ const create = (declarations) => {
 	try {
 		result = CSS.parse(buffer);
 	} catch (err) {
-		// Do nothing
+		console.error(err);
 	}
 
 	if (result instanceof Object && result.type === 'root') {
@@ -59,6 +59,35 @@ describe('CSS.parse/normal', function(assert) {
 	assert(result['background-position-x'].val, 13);
 	assert(result['background-position-y'].ext, 'px');
 	assert(result['background-position-y'].val, 137);
+
+});
+
+describe('CSS.parse/animation', function(assert) {
+
+	let result = create({
+		'animation': 'ease-out move, 1s ease-in 200ms infinite alternate backwards paused shake'
+	});
+
+	assert(result !== null);
+	assert(result['animation-duration'].length === 2);
+	assert(result['animation-duration'].map((e) => e.ext), [ 's', 's' ]);
+	assert(result['animation-duration'].map((e) => e.val), [ 0, 1 ]);
+	assert(result['animation-timing-function'].length === 2);
+	assert(result['animation-timing-function'].map((e) => e.val), [ 'ease-out', 'ease-in' ]);
+	assert(result['animation-delay'].length === 2);
+	assert(result['animation-delay'].map((e) => e.ext), [ 's', 'ms' ]);
+	assert(result['animation-delay'].map((e) => e.val), [ 0, 200 ]);
+	assert(result['animation-iteration-count'].length === 2);
+	assert(result['animation-iteration-count'].map((e) => e.typ), [ 'number', 'other' ]);
+	assert(result['animation-iteration-count'].map((e) => e.val), [ 1, 'infinite' ]);
+	assert(result['animation-direction'].length === 2);
+	assert(result['animation-direction'].map((e) => e.val), [ 'normal', 'alternate' ]);
+	assert(result['animation-fill-mode'].length === 2);
+	assert(result['animation-fill-mode'].map((e) => e.val), [ 'none', 'backwards' ]);
+	assert(result['animation-play-state'].length === 2);
+	assert(result['animation-play-state'].map((e) => e.val), [ 'running', 'paused' ]);
+	assert(result['animation-name'].length === 2);
+	assert(result['animation-name'].map((e) => e.val), [ 'move', 'shake' ]);
 
 });
 
@@ -129,6 +158,22 @@ describe('CSS.parse/border-radius', function(assert) {
 	assert(result['border-bottom-left-radius'][0].val,  2);
 	assert(result['border-bottom-left-radius'][1].ext,  'px');
 	assert(result['border-bottom-left-radius'][1].val,  7);
+
+});
+
+describe('CSS.parse/column-rule', function(assert) {
+
+	let result = create({
+		'column-rule': '13px dashed #ffcc00'
+	});
+
+	assert(result !== null);
+	assert(result['column-rule-width'].ext, 'px');
+	assert(result['column-rule-width'].val, 13);
+	assert(result['column-rule-style'].ext, null);
+	assert(result['column-rule-style'].val, 'dashed');
+	assert(result['column-rule-color'].ext, null);
+	assert(result['column-rule-color'].val, [ 255, 204, 0, 1 ]);
 
 });
 

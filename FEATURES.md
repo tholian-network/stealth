@@ -13,5 +13,6 @@ Additionally, these CSS features are not implemented:
 - [ ] `@counter-style` is unsupported.
 - [ ] `grid`, `grid-area`, `grid-column`, `grid-row`, `grid-template` are unsupported.
 - [ ] `offset` is unsupported.
+- [ ] `transition-timing-function` steps are unsupported.
 
 

@@ -28,6 +28,34 @@ export const STYLES = {
 			'stretch', 'safe', 'unsafe'
 		]
 	},
+	'animation-delay': {
+		'typ': [ 'time' ]
+	},
+	'animation-direction': {
+		'val': [ 'alternate', 'alternate-reverse', 'normal', 'reverse' ]
+	},
+	'animation-duration': {
+		'typ': [ 'time' ]
+	},
+	'animation-fill-mode': {
+		'val': [ 'backwards', 'both', 'forwards', 'none' ]
+	},
+	'animation-iteration-count': {
+		'val': [ 'infinite' ],
+		'typ': [ 'number' ]
+	},
+	'animation-name': {
+		'typ': [ 'other', 'string' ]
+	},
+	'animation-timing-function': {
+		'val': [
+			'ease', 'ease-in', 'ease-out', 'ease-in-out',
+			'linear', 'step-start', 'step-end'
+		]
+	},
+	'animation-play-state': {
+		'val': [ 'paused', 'running' ]
+	},
 	'background-attachment': {
 		'val': [ 'scroll', 'fixed', 'local' ]
 	},

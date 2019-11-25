@@ -1,12 +1,85 @@
 
-import { console } from '../../console.mjs';
-
 import { clone, find, has, match, parse_value } from '../CSS.mjs';
 
 import { NORMAL } from './NORMAL.mjs';
 import { STYLES } from './STYLES.mjs';
 
 
+
+const parse_single_animation = function(values) {
+
+	let animation = {
+		'animation-duration':        parse_value('0s'),
+		'animation-timing-function': parse_value('ease'),
+		'animation-delay':           parse_value('0s'),
+		'animation-iteration-count': parse_value('1'),
+		'animation-direction':       parse_value('normal'),
+		'animation-fill-mode':       parse_value('none'),
+		'animation-play-state':      parse_value('running'),
+		'animation-name':            parse_value('none')
+	};
+
+	if (values.length > 0) {
+
+		let check = values[0];
+		if (check.val !== 'none') {
+
+			// XXX: Two <time> values may appear first, or split, or suffixed
+			let duration = find.call(values, STYLES['animation-duration'], { min: 1, max: 2 });
+			if (duration.length === 2) {
+				animation['animation-duration'] = duration[0];
+				animation['animation-delay']    = duration[1];
+			} else if (duration.length === 1) {
+				animation['animation-duration'] = duration[0];
+			}
+
+			let timing = find.call(values, STYLES['animation-timing-function']);
+			if (timing.length > 0) {
+				animation['animation-timing-function'] = timing[0];
+			}
+
+			// XXX: Two <time> values may appear first, or split, or suffixed
+			let delay = find.call(values, STYLES['animation-delay'], { min: 1, max: 2 });
+			if (delay.length === 2) {
+				animation['animation-duration'] = delay[0];
+				animation['animation-delay']    = delay[1];
+			} else if (delay.length === 1) {
+				animation['animation-delay'] = delay[0];
+			}
+
+			let iteration = find.call(values, STYLES['animation-iteration-count']);
+			if (iteration.length > 0) {
+				animation['animation-iteration-count'] = iteration[0];
+			}
+
+			let direction = find.call(values, STYLES['animation-direction']);
+			if (direction.length > 0) {
+				animation['animation-direction'] = direction[0];
+			}
+
+			let fillmode = find.call(values, STYLES['animation-fill-mode']);
+			if (fillmode.length > 0) {
+				animation['animation-fill-mode'] = fillmode[0];
+			}
+
+			let playstate = find.call(values, STYLES['animation-play-state']);
+			if (playstate.length > 0) {
+				animation['animation-play-state'] = playstate[0];
+			}
+
+			let name = find.call(values, STYLES['animation-name']);
+			if (name.length > 0) {
+				animation['animation-name'] = name[0];
+			}
+
+		}
+
+	}
+
+
+	return animation;
+
+};
 
 const parse_single_transition = function(values) {
 
@@ -24,9 +97,10 @@ const parse_single_transition = function(values) {
 
 			let property = find.call(values, STYLES['transition-property']);
 			if (property.length > 0) {
-				transition['transition-property'] = property.pop();
+				transition['transition-property'] = property[0];
 			}
 
+			// XXX: Two <time> values may appear first, or split, or suffixed
 			let duration = find.call(values, STYLES['transition-duration'], { min: 1, max: 2 });
 			if (duration.length === 2) {
 				transition['transition-duration'] = duration[0];
@@ -37,7 +111,7 @@ const parse_single_transition = function(values) {
 
 			let timing = find.call(values, STYLES['transition-timing-function']);
 			if (timing.length > 0) {
-				transition['transition-timing-function'] = timing.pop();
+				transition['transition-timing-function'] = timing[0];
 			}
 
 			// XXX: Two <time> values may appear first, or split, or suffixed
@@ -76,16 +150,60 @@ export const SHORTHAND = {
 
 
 	/*
-	 * NOT IMPLEMENTED
-	 */
-
-	'animation': () => {},
-
-
-
-	/*
 	 * SUPPORTED
 	 */
+
+	'animation': (values, result) => {
+
+		let raw = values.map((val) => val.raw).join(' ').trim();
+		if (raw.includes(',')) {
+
+			result['animation-duration']        = [];
+			result['animation-timing-function'] = [];
+			result['animation-delay']           = [];
+			result['animation-iteration-count'] = [];
+			result['animation-direction']       = [];
+			result['animation-fill-mode']       = [];
+			result['animation-play-state']      = [];
+			result['animation-name']            = [];
+
+			raw.split(',').forEach((chunk) => {
+
+				let values = chunk.split(' ').map((val) => parse_value(val));
+				if (values.length > 0) {
+
+					let animation = parse_single_animation(values);
+					if (animation !== null) {
+
+						Object.keys(animation).forEach((key) => {
+							result[key].push(animation[key]);
+						});
+
+					}
+
+				}
+
+			});
+
+		} else {
+
+			let values = raw.split(' ').map((val) => parse_value(val));
+			if (values.length > 0) {
+
+				let animation = parse_single_animation(values);
+				if (animation !== null) {
+
+					Object.keys(animation).forEach((key) => {
+						result[key] = [ animation[key] ];
+					});
+
+				}
+
+			}
+
+		}
+
+	},
 
 	'background': (values, result) => {
 
@@ -817,10 +935,9 @@ export const SHORTHAND = {
 					let transition = parse_single_transition(values);
 					if (transition !== null) {
 
-						result['transition-property'].push(transition['transition-property']);
-						result['transition-duration'].push(transition['transition-duration']);
-						result['transition-timing-function'].push(transition['transition-timing-function']);
-						result['transition-delay'].push(transition['transition-delay']);
+						Object.keys(transition).forEach((key) => {
+							result[key].push(transition[key]);
+						});
 
 					}
 
@@ -836,10 +953,9 @@ export const SHORTHAND = {
 				let transition = parse_single_transition(values);
 				if (transition !== null) {
 
-					result['transition-property']        = [ transition['transition-property'] ];
-					result['transition-duration']        = [ transition['transition-duration'] ];
-					result['transition-timing-function'] = [ transition['transition-timing-function'] ];
-					result['transition-delay']           = [ transition['transition-delay'] ];
+					Object.keys(transition).forEach((key) => {
+						result[key] = [ transition[key] ];
+					});
 
 				}
 
