@@ -13,6 +13,7 @@ Additionally, these CSS features are not implemented:
 - [ ] `@counter-style` is unsupported.
 - [ ] comma-separated `background` syntax is unsupported.
 - [ ] `border-block`, `border-image`, `border-inline` are unsupported.
+- [ ] `clip`, `clip-path` are unsupported.
 - [ ] `grid`, `grid-area`, `grid-column`, `grid-row`, `grid-template` are unsupported.
 - [ ] `offset` is unsupported.
 - [ ] `text-indent` supports no trailing `each-line` and neither `hanging`.

@@ -134,8 +134,21 @@ export const STYLES = {
 	'break-inside': {
 		'val': [ 'auto', 'avoid', 'avoid-column', 'avoid-page', 'avoid-region' ]
 	},
+	'caption-side': {
+		'val': [ 'block-start', 'block-end', 'bottom', 'inline-start', 'inline-end', 'top' ]
+	},
+	'caret-color': {
+		'val': [ 'auto' ],
+		'typ': [ 'color' ]
+	},
+	'clear': {
+		'val': [ 'both', 'inline-start', 'inline-end', 'left', 'none', 'right' ]
+	},
 	'color': {
 		'typ': [ 'color' ]
+	},
+	'color-adjust': {
+		'val': [ 'economy', 'exact' ]
 	},
 	'column-count': {
 		'val': [ 'auto' ],

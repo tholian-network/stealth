@@ -34,6 +34,7 @@ export const NORMAL = {
 
 	'box-decoration-break': () => {},
 	'box-shadow':           () => {},
+	'clip':                 () => {},
 	'text-shadow':          () => {},
 
 
@@ -273,7 +274,11 @@ export const NORMAL = {
 	'bottom':                     single_value.bind(null, 'bottom',                     STYLES['bottom']),
 	'box-sizing':                 single_value.bind(null, 'box-sizing',                 STYLES['box-sizing']),
 
+	'caption-side':               single_value.bind(null, 'caption-side',               STYLES['caption-side']),
+	'caret-color':                single_value.bind(null, 'caret-color',                STYLES['caret-color']),
+	'clear':                      single_value.bind(null, 'clear',                      STYLES['clear']),
 	'color':                      single_value.bind(null, 'color',                      STYLES['color']),
+	'color-adjust':               single_value.bind(null, 'color-adjust',               STYLES['color-adjust']),
 	'column-count':               single_value.bind(null, 'column-count',               STYLES['column-count']),
 	'column-fill':                single_value.bind(null, 'column-fill',                STYLES['column-fill']),
 	'column-gap':                 single_value.bind(null, 'column-gap',                 STYLES['column-gap']),
