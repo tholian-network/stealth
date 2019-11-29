@@ -1,10 +1,34 @@
 
 import { console } from '../../console.mjs';
 
-import { find, match, parse_chunk, parse_value } from '../CSS.mjs';
-import { STYLES                                } from './STYLES.mjs';
+import { find, match, parse_chunk, parse_value, split } from '../CSS.mjs';
+import { STYLES                                       } from './STYLES.mjs';
 
 
+
+const comma_values = function(property, search, limit, values, result) {
+
+	let tmp = split.call(values, { 'val': [ ',' ] });
+	if (tmp.length > 0) {
+
+		result[property] = [];
+
+		tmp.forEach((values) => {
+
+			if (values.length === 1) {
+
+				let value = values[0];
+				if (match.call(value, search) === true) {
+					result[property].push(value);
+				}
+
+			}
+
+		});
+
+	}
+
+};
 
 const single_value = function(property, search, values, result) {
 
@@ -35,6 +59,8 @@ export const NORMAL = {
 	'box-decoration-break': () => {},
 	'box-shadow':           () => {},
 	'clip':                 () => {},
+	'filter':               () => {},
+	'font-variant':         () => {},
 	'text-shadow':          () => {},
 
 
@@ -164,37 +190,6 @@ export const NORMAL = {
 
 	},
 
-	'font-family': (values, result) => {
-
-		let val = values.map((val) => val.raw).join(' ').trim();
-		if (val.includes(',')) {
-
-			values = val.split(',').map((val) => parse_value(val));
-
-			let family = [];
-
-			values.forEach((value) => {
-
-				if (match.call(value, [ STYLES['font-family'] ]) === true) {
-					family.push(value);
-				}
-
-			});
-
-			result['font-family'] = family;
-
-		} else if (val.length > 0) {
-
-			let value = parse_value(val);
-			if (match.call(value, [ STYLES['font-family'] ]) === true) {
-				result['font-family'] = [ value ];
-			}
-
-			result['font-family'] = [ parse_value(val) ];
-		}
-
-	},
-
 	'opacity': (values, result) => {
 
 		let opacity = find.call(values, STYLES['opacity']);
@@ -202,6 +197,25 @@ export const NORMAL = {
 
 			if (opacity[0].val >= 0.0 && opacity[0].val <= 1.0) {
 				result['opacity'] = opacity[0];
+			}
+
+		}
+
+	},
+
+	'quotes': (values, result) => {
+
+		let quotes = find.call(values, STYLES['quotes'], { min: 1, max: 2 });
+		if (quotes.length > 1 && quotes.length % 2 === 0) {
+
+			if (match.call(quotes, { 'typ': 'string' }) === true) {
+				result['quotes'] = quotes;
+			}
+
+		} else if (quotes.length === 1) {
+
+			if (quotes[0].val === 'auto' || quotes[0].val === 'none') {
+				result['quotes'] = quotes[0];
 			}
 
 		}
@@ -225,26 +239,36 @@ export const NORMAL = {
 
 
 
-	'animation-delay':            multi_values.bind(null, 'animation-delay',            STYLES['animation-delay'],            { min: 1, max: 16 }),
-	'animation-direction':        multi_values.bind(null, 'animation-direction',        STYLES['animation-direction'],        { min: 1, max: 16 }),
-	'animation-duration':         multi_values.bind(null, 'animation-duration',         STYLES['animation-duration'],         { min: 1, max: 16 }),
-	'animation-fill-mode':        multi_values.bind(null, 'animation-fill-mode',        STYLES['animation-fill-mode'],        { min: 1, max: 16 }),
-	'animation-iteration-count':  multi_values.bind(null, 'animation-iteration-count',  STYLES['animation-iteration-count'],  { min: 1, max: 16 }),
-	'animation-name':             multi_values.bind(null, 'animation-name',             STYLES['animation-name'],             { min: 1, max: 16 }),
-	'animation-play-state':       multi_values.bind(null, 'animation-play-state',       STYLES['animation-play-state'],       { min: 1, max: 16 }),
-	'animation-timing-function':  multi_values.bind(null, 'animation-timing-function',  STYLES['animation-timing-function'],  { min: 1, max: 16 }),
+	/*
+	 * SPECIAL SYNTAX
+	 */
+
+	'animation-delay':            comma_values.bind(null, 'animation-delay',            STYLES['animation-delay'],            { min: 1, max: 16 }),
+	'animation-direction':        comma_values.bind(null, 'animation-direction',        STYLES['animation-direction'],        { min: 1, max: 16 }),
+	'animation-duration':         comma_values.bind(null, 'animation-duration',         STYLES['animation-duration'],         { min: 1, max: 16 }),
+	'animation-fill-mode':        comma_values.bind(null, 'animation-fill-mode',        STYLES['animation-fill-mode'],        { min: 1, max: 16 }),
+	'animation-iteration-count':  comma_values.bind(null, 'animation-iteration-count',  STYLES['animation-iteration-count'],  { min: 1, max: 16 }),
+	'animation-name':             comma_values.bind(null, 'animation-name',             STYLES['animation-name'],             { min: 1, max: 16 }),
+	'animation-play-state':       comma_values.bind(null, 'animation-play-state',       STYLES['animation-play-state'],       { min: 1, max: 16 }),
+	'animation-timing-function':  comma_values.bind(null, 'animation-timing-function',  STYLES['animation-timing-function'],  { min: 1, max: 16 }),
 
 	'border-bottom-left-radius':  multi_values.bind(null, 'border-bottom-left-radius',  STYLES['border-radius'],              { min: 1, max:  2 }),
 	'border-bottom-right-radius': multi_values.bind(null, 'border-bottom-right-radius', STYLES['border-radius'],              { min: 1, max:  2 }),
 	'border-top-left-radius':     multi_values.bind(null, 'border-top-left-radius',     STYLES['border-radius'],              { min: 1, max:  2 }),
 	'border-top-right-radius':    multi_values.bind(null, 'border-top-right-radius',    STYLES['border-radius'],              { min: 1, max:  2 }),
 
-	'transition-delay':           multi_values.bind(null, 'transition-delay',           STYLES['transition-delay'],           { min: 1, max: 16 }),
-	'transition-duration':        multi_values.bind(null, 'transition-duration',        STYLES['transition-duration'],        { min: 1, max: 16 }),
-	'transition-timing-function': multi_values.bind(null, 'transition-timing-function', STYLES['transition-timing-function'], { min: 1, max: 16 }),
-	'transition-property':        multi_values.bind(null, 'transition-property',        STYLES['transition-property'],        { min: 1, max: 16 }),
+	'font-family':                comma_values.bind(null, 'font-family',                STYLES['font-family'],                { min: 1, max: 16 }),
+
+	'transition-delay':           comma_values.bind(null, 'transition-delay',           STYLES['transition-delay'],           { min: 1, max: 16 }),
+	'transition-duration':        comma_values.bind(null, 'transition-duration',        STYLES['transition-duration'],        { min: 1, max: 16 }),
+	'transition-timing-function': comma_values.bind(null, 'transition-timing-function', STYLES['transition-timing-function'], { min: 1, max: 16 }),
+	'transition-property':        comma_values.bind(null, 'transition-property',        STYLES['transition-property'],        { min: 1, max: 16 }),
 
 
+
+	/*
+	 * SINGLE SYNTAX
+	 */
 
 	'align-content':              single_value.bind(null, 'align-content',              STYLES['align-content']),
 	'align-items':                single_value.bind(null, 'align-items',                STYLES['align-items']),
@@ -287,13 +311,19 @@ export const NORMAL = {
 	'column-rule-width':          single_value.bind(null, 'column-rule-width',          STYLES['border-width']),
 	'column-span':                single_value.bind(null, 'column-span',                STYLES['column-span']),
 	'column-width':               single_value.bind(null, 'column-width',               STYLES['column-width']),
+	'cursor':                     single_value.bind(null, 'cursor',                     STYLES['cursor']),
+
+	'direction':                  single_value.bind(null, 'direction',                  STYLES['direction']),
+
+	'empty-cells':                single_value.bind(null, 'empty-cells',                STYLES['empty-cells']),
 
 	'flex-basis':                 single_value.bind(null, 'flex-basis',                 STYLES['flex-basis']),
 	'flex-direction':             single_value.bind(null, 'flex-direction',             STYLES['flex-direction']),
 	'flex-grow':                  single_value.bind(null, 'flex-grow',                  STYLES['flex-grow']),
 	'flex-shrink':                single_value.bind(null, 'flex-shrink',                STYLES['flex-shrink']),
 	'flex-wrap':                  single_value.bind(null, 'flex-wrap',                  STYLES['flex-wrap']),
-
+	'float':                      single_value.bind(null, 'float',                      STYLES['float']),
+	'font-kerning':               single_value.bind(null, 'font-kerning',               STYLES['font-kerning']),
 	'font-stretch':               single_value.bind(null, 'font-stretch',               STYLES['font-stretch']),
 	'font-size':                  single_value.bind(null, 'font-size',                  STYLES['font-size']),
 	'font-size-adjust':           single_value.bind(null, 'font-size-adjust',           STYLES['font-size-adjust']),
@@ -301,6 +331,7 @@ export const NORMAL = {
 	'font-weight':                single_value.bind(null, 'font-weight',                STYLES['font-weight']),
 
 	'height':                     single_value.bind(null, 'height',                     STYLES['height']),
+	'hyphens':                    single_value.bind(null, 'hyphens',                    STYLES['hyphens']),
 
 	'justify-content':            single_value.bind(null, 'justify-content',            STYLES['justify-content']),
 	'justify-items':              single_value.bind(null, 'justify-items',              STYLES['justify-items']),

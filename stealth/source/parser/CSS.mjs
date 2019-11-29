@@ -5,7 +5,7 @@ import { NORMAL    } from './CSS/NORMAL.mjs';
 import { SHORTHAND } from './CSS/SHORTHAND.mjs';
 
 const ALPHABET   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-const MINIFY_OPS = [ '+', '-', '*', '/' ];
+const OPERATORS  = [ '+', '-', '*', '/', ',' ];
 const MINIFY_MAP = {
 	'\t': ' ',
 	'\n': '',
@@ -174,23 +174,23 @@ export const has = function(search, limit) {
 
 };
 
-export const match = function(searches) {
+export const match = function(search) {
 
-	searches = isArray(searches) ? searches : [];
+	search = isObject(search) ? search : {};
 
 
 	let value = this;
-	if (isObject(value) === true) {
+	if (isArray(value) === true) {
 
-		let valid = null;
+		let result = [];
 
-		for (let s = 0, sl = searches.length; s < sl; s++) {
+		for (let v = 0, vl = value.length; v < vl; v++) {
 
-			let search = searches[s];
+			let valid = null;
 
 			for (let key in search) {
 
-				let val = value[key];
+				let val = value[v][key];
 				if (val !== null && isString(val)) {
 
 					if (search[key].includes(val)) {
@@ -198,6 +198,33 @@ export const match = function(searches) {
 						break;
 					}
 
+				}
+
+			}
+
+			result.push(valid);
+
+		}
+
+		if (result.includes(false) === false) {
+			return true;
+		}
+
+
+		return false;
+
+	} else if (isObject(value) === true) {
+
+		let valid = null;
+
+		for (let key in search) {
+
+			let val = value[key];
+			if (val !== null && isString(val)) {
+
+				if (search[key].includes(val)) {
+					valid = true;
+					break;
 				}
 
 			}
@@ -224,35 +251,6 @@ const parse_declaration = function(str) {
 	let key    = str.split(':')[0].trim();
 	let val    = str.split(':').slice(1).join(':').trim();
 	let result = {};
-
-
-	let string1 = false;
-	let string2 = false;
-
-	for (let v = 0, vl = val.length; v < vl; v++) {
-
-		let chr = val[v];
-		if (chr === '"') {
-			string1 = string1 === true ? false : true;
-		} else if (chr === '\'') {
-			string2 = string2 === true ? false : true;
-		} else if (MINIFY_OPS.includes(chr) && string1 === false && string2 === false) {
-
-			let before = val.charAt(v - 1);
-			let after  = val.charAt(v + 1);
-
-			if (ALPHABET.includes(before) === false || ALPHABET.includes(after) === false) {
-
-				val = val.substr(0, v) + ' ' + chr + ' ' + val.substr(v + 1);
-				vl  = val.length;
-				v  += 2;
-
-			}
-
-		}
-
-	}
-
 
 	if (typeof NORMAL[key] === 'function') {
 		NORMAL[key](parse_values(val), result);
@@ -296,24 +294,91 @@ const parse_selector = function(str) {
 	return str.trim().split(',').map((ch) => ch.trim());
 };
 
-export const parse_values = function(str) {
+export const parse_values = function(raw) {
 
-	let tmp    = str.split(' ');
+	let chunk  = '';
 	let result = [];
 
-	for (let t = 0, tl = tmp.length; t < tl; t++) {
+	for (let r = 0, rl = raw.length; r < rl; r++) {
 
-		let raw = tmp[t];
-		if (raw.trim() !== '') {
+		let chr = raw[r];
+		if (chr === '(') {
 
-			let value = parse_value(raw);
-			if (value !== null) {
-				result.push(value);
+			let index = raw.indexOf(')', r + 1);
+			if (index !== -1) {
+
+				chunk += raw.substr(r, index - r + 1);
+				result.push(parse_value(chunk));
+
+				chunk = '';
+				r = index;
+
 			}
+
+		} else if (chr === '"' || chr === '\'') {
+
+			let index = raw.indexOf(chr, r + 1);
+			if (index !== -1) {
+
+				chunk = chunk.trim();
+
+				if (chunk.length > 0) {
+					result.push(parse_value(chunk));
+					chunk = '';
+				}
+
+				result.push(parse_value(raw.substr(r, index - r + 1)));
+				r = index;
+
+			}
+
+		} else if (OPERATORS.includes(chr)) {
+
+			let last = raw[r - 1] || '';
+			let next = raw[r + 1] || '';
+
+			if (chr === '-' && ALPHABET.includes(last) && ALPHABET.includes(next)) {
+
+				chunk += chr;
+
+			} else {
+
+				chunk = chunk.trim();
+
+				if (chunk.length > 0) {
+					result.push(parse_value(chunk));
+					chunk = '';
+				}
+
+				result.push(parse_value(chr));
+
+			}
+
+		} else if (chr === ' ') {
+
+			chunk = chunk.trim();
+
+			if (chunk.length > 0) {
+				result.push(parse_value(chunk));
+				chunk = '';
+			}
+
+		} else {
+
+			chunk += chr;
 
 		}
 
 	}
+
+
+	chunk = chunk.trim();
+
+	if (chunk.length > 0) {
+		result.push(parse_value(chunk));
+		chunk = '';
+	}
+
 
 	return result;
 
@@ -323,7 +388,20 @@ export const parse_value = function(str) {
 
 	let value = null;
 
-	if (str.startsWith('calc(') && str.endsWith(')')) {
+	if (OPERATORS.includes(str)) {
+
+		value = {
+			ext: null,
+			raw: str,
+			typ: 'operator',
+			val: str
+		};
+
+	} else if (str.startsWith('attr(') && str.endsWith(')')) {
+
+		// TODO: attr() support
+
+	} else if (str.startsWith('calc(') && str.endsWith(')')) {
 
 		// TODO: calc() support
 
@@ -670,6 +748,15 @@ export const parse_value = function(str) {
 
 		}
 
+	} else if (str !== str.toLowerCase()) {
+
+		value = {
+			ext: null,
+			raw: '\'' + str + '\'',
+			typ: 'string',
+			val: str
+		};
+
 	} else {
 
 		value = {
@@ -683,6 +770,42 @@ export const parse_value = function(str) {
 
 
 	return value;
+
+};
+
+export const split = function(search) {
+
+	search = isObject(search) ? search : {};
+
+	let result = [];
+	let values = this;
+	if (values.length > 0) {
+
+		let stack = [];
+
+		for (let v = 0, vl = values.length; v < vl; v++) {
+
+			let value = values[v];
+			if (match.call(value, search) === true) {
+
+				result.push(stack);
+				stack = [];
+
+			} else {
+
+				stack.push(value);
+
+			}
+
+		}
+
+		if (result.includes(stack) === false) {
+			result.push(stack);
+		}
+
+	}
+
+	return result;
 
 };
 
@@ -794,6 +917,10 @@ const CSS = {
 
 							// TODO: parse import url('') statement
 							// and push URL object to tree.resources[]
+
+						} else if (line.startsWith('@keyframes')) {
+
+							// TODO: parse keyframes statement
 
 						}
 
@@ -912,13 +1039,16 @@ const CSS = {
 
 			} else {
 
-				if (str.includes(' ')) {
+				if (str.includes(',')) {
+
+					return parse_values(str);
+
+				} else if (str.includes(' ')) {
 
 					return parse_values(str);
 
 				} else {
 
-					// TODO: parse_value() method
 					return parse_value(str);
 
 				}

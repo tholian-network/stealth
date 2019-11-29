@@ -91,6 +91,65 @@ describe('CSS.parse/animation', function(assert) {
 
 });
 
+describe('CSS.parse/animation-delay', function(assert) {
+
+	let result1 = create({
+		'animation-delay': '13ms'
+	});
+
+	let result2 = create({
+		'animation-delay': '13ms, 37s'
+	});
+
+	assert(result1 !== null);
+	assert(result1['animation-delay'][0].ext, 'ms');
+	assert(result1['animation-delay'][0].val, 13);
+
+	assert(result2 !== null);
+	assert(result2['animation-delay'][0].ext, 'ms');
+	assert(result2['animation-delay'][0].val, 13);
+	assert(result2['animation-delay'][1].ext, 's');
+	assert(result2['animation-delay'][1].val, 37);
+
+});
+
+describe('CSS.parse/animation-direction', function(assert) {
+
+	let result1 = create({
+		'animation-direction': 'normal'
+	});
+
+	let result2 = create({
+		'animation-direction': 'reverse, alternate'
+	});
+
+	assert(result1 !== null);
+	assert(result1['animation-direction'][0].val, 'normal');
+
+	assert(result2 !== null);
+	assert(result2['animation-direction'][0].val, 'reverse');
+	assert(result2['animation-direction'][1].val, 'alternate');
+
+});
+
+describe('CSS.parse/animation-duration', function(assert) {
+});
+
+describe('CSS.parse/animation-fill-mode', function(assert) {
+});
+
+describe('CSS.parse/animation-iteration-count', function(assert) {
+});
+
+describe('CSS.parse/animation-name', function(assert) {
+});
+
+describe('CSS.parse/animation-play-state', function(assert) {
+});
+
+describe('CSS.parse/animation-timing-function', function(assert) {
+});
+
 describe('CSS.parse/background', function(assert) {
 
 	let result = create({
@@ -253,10 +312,11 @@ describe('CSS.parse/font', function(assert) {
 	assert(result['font-size'].val,      13);
 	assert(result['line-height'].ext,    'px');
 	assert(result['line-height'].val,    37);
-	assert(result['font-family'].length, 3);
+	assert(result['font-family'].length, 4);
 	assert(result['font-family'][0].val, 'Times New Roman');
 	assert(result['font-family'][1].val, 'Arial');
-	assert(result['font-family'][2].val, 'sans-serif');
+	assert(result['font-family'][2].val, 'Sedana');
+	assert(result['font-family'][3].val, 'sans-serif');
 
 });
 
@@ -520,6 +580,26 @@ describe('CSS.parse/text-decoration', function(assert) {
 	assert(result['text-decoration-line'].val,  'underline');
 	assert(result['text-decoration-style'].val, 'dashed');
 	assert(result['text-decoration-color'].val, [ 255, 204, 0, 1 ]);
+
+});
+
+describe('CSS.parse/text-emphasis', function(assert) {
+
+	let result1 = create({
+		'text-emphasis': 'circle #ff0000'
+	});
+
+	let result2 = create({
+		'text-emphasis': '"foo" #ffcc00'
+	});
+
+	assert(result1 !== null);
+	assert(result1['text-emphasis-style'].val, 'circle');
+	assert(result1['text-emphasis-color'].val, [ 255, 0, 0, 1 ]);
+
+	assert(result2 !== null);
+	assert(result2['text-emphasis-style'].val, 'f');
+	assert(result2['text-emphasis-color'].val, [ 255, 204, 0, 1 ]);
 
 });
 

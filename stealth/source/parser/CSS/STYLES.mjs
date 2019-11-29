@@ -168,6 +168,25 @@ export const STYLES = {
 		'val': [ 'auto' ],
 		'typ': [ 'length' ]
 	},
+	'cursor': {
+		'val': [
+			'auto', 'default', 'none',
+			'context-menu', 'help', 'pointer', 'progress', 'wait',
+			'cell', 'crosshair', 'text', 'vertical-text',
+			'alias', 'copy', 'move', 'no-drop', 'not-allowed', 'grab', 'grabbing',
+			'all-scroll', 'col-resize', 'row-resize',
+			'n-resize', 'e-resize', 's-resize', 'w-resize',
+			'ne-resize', 'nw-resize', 'se-resize', 'sw-resize',
+			'ew-resize', 'ns-resize', 'nesw-resize', 'nwse-resize',
+			'zoom-in', 'zoom-out'
+		]
+	},
+	'direction': {
+		'val': [ 'ltr', 'rtl' ]
+	},
+	'empty-cells': {
+		'val': [ 'hide', 'show' ]
+	},
 	'flex-basis': {
 		'val': [ 'auto', 'content', 'fit-content', 'max-content', 'min-content' ],
 		'typ': [ 'length', 'percentage' ]
@@ -184,9 +203,15 @@ export const STYLES = {
 	'flex-wrap': {
 		'val': [ 'nowrap', 'wrap', 'wrap-reverse' ]
 	},
+	'float': {
+		'val': [ 'inline-start', 'inline-end', 'left', 'none', 'right' ]
+	},
 	'font-family': {
 		'val': [ 'cursive', 'emoji', 'fangsong', 'fantasy', 'math', 'monospace', 'sans-serif', 'serif', 'system-ui' ],
 		'typ': [ 'string' ]
+	},
+	'font-kerning': {
+		'val': [ 'auto', 'none', 'normal' ]
 	},
 	'font-size': {
 		'val': [
@@ -218,6 +243,9 @@ export const STYLES = {
 	'height': {
 		'val': [ 'auto', 'available', 'border-box', 'content-box', 'fill', 'min-content', 'fit-content', 'max-content' ],
 		'typ': [ 'length', 'percentage' ]
+	},
+	'hyphens': {
+		'val': [ 'auto', 'manual', 'none' ]
 	},
 	'justify-content': {
 		'val': [
@@ -317,6 +345,10 @@ export const STYLES = {
 	},
 	'padding': {
 		'typ': [ 'length', 'percentage' ]
+	},
+	'quotes': {
+		'val': [ 'auto', 'none' ],
+		'typ': [ 'string' ]
 	},
 	'right': {
 		'val': [ 'auto' ],

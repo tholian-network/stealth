@@ -1,5 +1,6 @@
 
-import { clone, find, has, match, parse_value } from '../CSS.mjs';
+import { console } from '../../console.mjs';
+import { clone, find, has, match, parse_value, split } from '../CSS.mjs';
 
 import { NORMAL } from './NORMAL.mjs';
 import { STYLES } from './STYLES.mjs';
@@ -158,8 +159,11 @@ export const SHORTHAND = {
 
 	'animation': (values, result) => {
 
-		let raw = values.map((val) => val.raw).join(' ').trim();
-		if (raw.includes(',')) {
+		let animations = split.call(values, {
+			'val': [ ',' ]
+		});
+
+		if (animations.length > 0) {
 
 			result['animation-duration']        = [];
 			result['animation-timing-function'] = [];
@@ -170,39 +174,18 @@ export const SHORTHAND = {
 			result['animation-play-state']      = [];
 			result['animation-name']            = [];
 
-			raw.split(',').forEach((chunk) => {
-
-				let values = chunk.split(' ').map((val) => parse_value(val));
-				if (values.length > 0) {
-
-					let animation = parse_single_animation(values);
-					if (animation !== null) {
-
-						Object.keys(animation).forEach((key) => {
-							result[key].push(animation[key]);
-						});
-
-					}
-
-				}
-
-			});
-
-		} else {
-
-			let values = raw.split(' ').map((val) => parse_value(val));
-			if (values.length > 0) {
+			animations.forEach((values) => {
 
 				let animation = parse_single_animation(values);
 				if (animation !== null) {
 
 					Object.keys(animation).forEach((key) => {
-						result[key] = [ animation[key] ];
+						result[key].push(animation[key]);
 					});
 
 				}
 
-			}
+			});
 
 		}
 
@@ -639,7 +622,11 @@ export const SHORTHAND = {
 		}
 
 		let check = values[0];
-		if (match.call(check, [ STYLES['font-weight'], STYLES['font-stretch'], STYLES['font-size'] ]) === false) {
+		if (
+			match.call(check, STYLES['font-weight']) === false
+			&& match.call(check, STYLES['font-stretch']) === false
+			&& match.call(check, STYLES['font-size']) === false
+		) {
 			values.splice(0, 1);
 		}
 
@@ -686,54 +673,7 @@ export const SHORTHAND = {
 
 
 		if (values.length > 0) {
-
-			let probably_family = false;
-
-			let first_value = values[0];
-			if (
-				first_value.raw.includes('"')
-				|| first_value.raw.includes('\'')
-				|| first_value.raw.includes(',')
-				|| first_value.raw.toLowerCase() !== first_value.raw
-			) {
-				probably_family = true;
-			}
-
-			if (probably_family === true) {
-
-				let family = parse_value(values.map((val) => val.raw).join(' '));
-				if (family.typ === 'string' || family.typ === 'other') {
-					NORMAL['font-family']([ family ], result);
-				}
-
-			} else {
-
-				let first_value = values.find((value) => {
-
-					if (
-						value.raw.includes('"')
-						|| value.raw.includes('\'')
-						|| value.raw.includes(',')
-						|| value.raw.toLowerCase() !== value.raw
-					) {
-						return true;
-					}
-
-					return false;
-
-				}) || null;
-
-				if (first_value !== null) {
-
-					let family = parse_value(values.slice(values.indexOf(first_value)).map((val) => val.raw).join(' '));
-					if (family.typ === 'string' || family.typ === 'other') {
-						NORMAL['font-family']([ family ], result);
-					}
-
-				}
-
-			}
-
+			NORMAL['font-family'](values, result);
 		}
 
 	},
@@ -853,7 +793,10 @@ export const SHORTHAND = {
 		} else if (values.length === 1) {
 
 			let check = values[0];
-			if (match.call(check, [ STYLES['align-content'] ]) === true && match.call(check, [ STYLES['justify-content'] ]) === true) {
+			if (
+				match.call(check, STYLES['align-content']) === true
+				&& match.call(check, STYLES['justify-content']) === true
+			) {
 				NORMAL['align-content']([ values[0] ], result);
 				NORMAL['justify-content']([ values[0] ], result);
 			}
@@ -872,7 +815,10 @@ export const SHORTHAND = {
 		} else if (values.length === 1) {
 
 			let check = values[0];
-			if (match.call(check, [ STYLES['align-items'] ]) === true && match.call(check, [ STYLES['justify-items'] ]) === true) {
+			if (
+				match.call(check, STYLES['align-items']) === true
+				&& match.call(check, STYLES['justify-items']) === true
+			) {
 				NORMAL['align-items']([ values[0] ], result);
 				NORMAL['justify-items']([ values[0] ], result);
 			}
@@ -891,7 +837,10 @@ export const SHORTHAND = {
 		} else if (values.length === 1) {
 
 			let check = values[0];
-			if (match.call(check, [ STYLES['align-self'] ]) === true && match.call(check, [ STYLES['justify-self'] ]) === true) {
+			if (
+				match.call(check, STYLES['align-self']) === true
+				&& match.call(check, STYLES['justify-self']) === true
+			) {
 				NORMAL['align-self']([ values[0] ], result);
 				NORMAL['justify-self']([ values[0] ], result);
 			}
@@ -935,48 +884,29 @@ export const SHORTHAND = {
 
 	'transition': (values, result) => {
 
-		let raw = values.map((val) => val.raw).join(' ').trim();
-		if (raw.includes(',')) {
+		let transitions = split.call(values, {
+			'val': [ ',' ]
+		});
+
+		if (transitions.length > 0) {
 
 			result['transition-property']        = [];
 			result['transition-duration']        = [];
 			result['transition-timing-function'] = [];
 			result['transition-delay']           = [];
 
-
-			raw.split(',').forEach((chunk) => {
-
-				let values = chunk.split(' ').map((val) => parse_value(val));
-				if (values.length > 0) {
-
-					let transition = parse_single_transition(values);
-					if (transition !== null) {
-
-						Object.keys(transition).forEach((key) => {
-							result[key].push(transition[key]);
-						});
-
-					}
-
-				}
-
-			});
-
-		} else {
-
-			let values = raw.split(' ').map((val) => parse_value(val));
-			if (values.length > 0) {
+			transitions.forEach((values) => {
 
 				let transition = parse_single_transition(values);
 				if (transition !== null) {
 
 					Object.keys(transition).forEach((key) => {
-						result[key] = [ transition[key] ];
+						result[key].push(transition[key]);
 					});
 
 				}
 
-			}
+			});
 
 		}
 
