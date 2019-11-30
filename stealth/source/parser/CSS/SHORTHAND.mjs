@@ -678,6 +678,33 @@ export const SHORTHAND = {
 
 	},
 
+	'inset': (values, result) => {
+
+		let inset = find.call(values, STYLES['inset'], { min: 1, max: 4 });
+		if (inset.length === 4) {
+			NORMAL['top']([ inset[0] ], result);
+			NORMAL['right']([ inset[1] ], result);
+			NORMAL['bottom']([ inset[2] ], result);
+			NORMAL['left']([ inset[3] ], result);
+		} else if (inset.length === 3) {
+			NORMAL['top']([ inset[0] ], result);
+			NORMAL['right']([ inset[1] ], result);
+			NORMAL['bottom']([ inset[2] ], result);
+			NORMAL['left']([ inset[1] ], result);
+		} else if (inset.length === 2) {
+			NORMAL['top']([ inset[0] ], result);
+			NORMAL['right']([ inset[1] ], result);
+			NORMAL['bottom']([ inset[0] ], result);
+			NORMAL['left']([ inset[1] ], result);
+		} else if (inset.length === 1) {
+			NORMAL['top']([ inset[0] ], result);
+			NORMAL['right']([ inset[0] ], result);
+			NORMAL['bottom']([ inset[0] ], result);
+			NORMAL['left']([ inset[0] ], result);
+		}
+
+	},
+
 	'list-style': (values, result) => {
 
 		let type = find.call(values, STYLES['list-style-type']);

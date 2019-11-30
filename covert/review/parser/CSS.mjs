@@ -320,6 +320,66 @@ describe('CSS.parse/font', function(assert) {
 
 });
 
+describe('CSS.parse/inset', function(assert) {
+
+	let result1 = create({
+		'inset': '1em 2px 3% 4pt'
+	});
+
+	let result2 = create({
+		'inset': '1px 2% 3pt'
+	});
+
+	let result3 = create({
+		'inset': '1% 2px'
+	});
+
+	let result4 = create({
+		'inset': '1337px'
+	});
+
+	assert(result1 !== null);
+	assert(result1['top'].ext,    'em');
+	assert(result1['top'].val,    1);
+	assert(result1['right'].ext,  'px');
+	assert(result1['right'].val,  2);
+	assert(result1['bottom'].ext, '%');
+	assert(result1['bottom'].val, 3);
+	assert(result1['left'].ext,   'pt');
+	assert(result1['left'].val,   4);
+
+	assert(result2 !== null);
+	assert(result2['top'].ext,    'px');
+	assert(result2['top'].val,    1);
+	assert(result2['right'].ext,  '%');
+	assert(result2['right'].val,  2);
+	assert(result2['bottom'].ext, 'pt');
+	assert(result2['bottom'].val, 3);
+	assert(result2['left'].ext,   '%');
+	assert(result2['left'].val,   2);
+
+	assert(result3 !== null);
+	assert(result3['top'].ext,    '%');
+	assert(result3['top'].val,    1);
+	assert(result3['right'].ext,  'px');
+	assert(result3['right'].val,  2);
+	assert(result3['bottom'].ext, '%');
+	assert(result3['bottom'].val, 1);
+	assert(result3['left'].ext,   'px');
+	assert(result3['left'].val,   2);
+
+	assert(result4 !== null);
+	assert(result4['top'].ext,    'px');
+	assert(result4['top'].val,    1337);
+	assert(result4['right'].ext,  'px');
+	assert(result4['right'].val,  1337);
+	assert(result4['bottom'].ext, 'px');
+	assert(result4['bottom'].val, 1337);
+	assert(result4['left'].ext,   'px');
+	assert(result4['left'].val,   1337);
+
+});
+
 describe('CSS.parse/list-style', function(assert) {
 
 	let result = create({

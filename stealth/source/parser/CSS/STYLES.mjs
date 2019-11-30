@@ -247,6 +247,14 @@ export const STYLES = {
 	'hyphens': {
 		'val': [ 'auto', 'manual', 'none' ]
 	},
+	'inline-size': {
+		'val': [ 'auto', 'available', 'border-box', 'content-box', 'fill', 'min-content', 'fit-content', 'max-content' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'inset': {
+		'val': [ 'auto' ],
+		'typ': [ 'length', 'percentage' ]
+	},
 	'justify-content': {
 		'val': [
 			'normal', 'baseline', 'left', 'right',
@@ -427,6 +435,9 @@ export const STYLES = {
 	'width': {
 		'val': [ 'auto', 'available', 'border-box', 'content-box', 'fill', 'min-content', 'fit-content', 'max-content' ],
 		'typ': [ 'length', 'percentage' ]
+	},
+	'writing-mode': {
+		'val': [ 'horizontal-tb', 'vertical-rl', 'vertical-lr', 'sideways-rl', 'sideways-lr' ]
 	},
 	'word-spacing': {
 		'val': [ 'normal' ],

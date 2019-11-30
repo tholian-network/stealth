@@ -61,6 +61,14 @@ export const NORMAL = {
 	'clip':                 () => {},
 	'filter':               () => {},
 	'font-variant':         () => {},
+	'inset-block':          () => {},
+	'inset-block-end':      () => {},
+	'inset-block-start':    () => {},
+	'inset-inline':         () => {},
+	'inset-inline-end':     () => {},
+	'inset-inline-start':   () => {},
+	'isolation':            () => {},
+	'mix-blend-mode':       () => {},
 	'text-shadow':          () => {},
 
 
@@ -186,6 +194,110 @@ export const NORMAL = {
 		} else if (spacing.length === 1) {
 			result['border-spacing-x'] = spacing[0];
 			result['border-spacing-y'] = spacing[0];
+		}
+
+	},
+
+	'display': (values, result) => {
+
+		// display: run-in model is dropped
+		// display: ruby model is unsupported
+		// display: grid, inside-grid are unsupported
+
+		let outside = find.call(values, {
+			'val': [
+				'block',
+				'contents',
+				'flex',
+				'flow',
+				'flow-root',
+				'inline',
+				'inline-block',
+				'inline-flex',
+				'inline-list-item',
+				'inline-table',
+				'list-item',
+				'table',
+				'none'
+			]
+		}, { min: 1, max: 2});
+
+		if (outside.length > 0) {
+
+			let model = outside[0].val;
+			if (
+				model === 'block'
+				|| model === 'contents'
+				|| model === 'flex'
+				|| model === 'flow'
+				|| model === 'flow-root'
+				|| model === 'none'
+			) {
+
+				if (outside.length > 1) {
+					// TODO: Support flow, table
+				}
+
+				result['display'] = outside[0];
+
+			} else if (model === 'inline') {
+
+				if (outside.length === 2) {
+
+					let double_keyword_syntax = match.call(outside[1], {
+						'val': [ 'block', 'flex', 'list-item', 'table' ]
+					});
+
+					if (double_keyword_syntax === true) {
+						result['display'] = parse_value('inline-' + outside[1].val);
+					} else {
+						result['display'] = outside[0];
+					}
+
+				} else {
+
+					result['display'] = outside[0];
+
+				}
+
+			} else if (model === 'list-item') {
+
+				if (outside.length === 3) {
+
+					// TODO: display-outside
+					// TODO: display-inside
+
+					// TODO: Support block, inline, flow, flow-root
+				} else if (outside.length === 2) {
+
+
+				} else {
+
+					result['display'] = outside[0];
+
+				}
+
+			}
+
+		} else {
+
+			let internal = find.call(values, {
+				'val': [
+					'table-header-group',
+					'table-footer-group',
+					'table-row-group',
+					'table-column-group',
+					'table-caption',
+					'table-row',
+					'table-column',
+					'table-cell'
+				]
+			});
+
+			if (internal.length > 0) {
+				result['display'] = internal[0];
+			}
+
 		}
 
 	},
@@ -333,6 +445,8 @@ export const NORMAL = {
 	'height':                     single_value.bind(null, 'height',                     STYLES['height']),
 	'hyphens':                    single_value.bind(null, 'hyphens',                    STYLES['hyphens']),
 
+	'inline-size':                single_value.bind(null, 'inline-size',                STYLES['inline-size']),
+
 	'justify-content':            single_value.bind(null, 'justify-content',            STYLES['justify-content']),
 	'justify-items':              single_value.bind(null, 'justify-items',              STYLES['justify-items']),
 	'justify-self':               single_value.bind(null, 'justify-self',               STYLES['justify-self']),
@@ -378,6 +492,7 @@ export const NORMAL = {
 	'visibility':                 single_value.bind(null, 'visibility',                 STYLES['visibility']),
 
 	'width':                      single_value.bind(null, 'width',                      STYLES['width']),
+	'writing-mode':               single_value.bind(null, 'writing-mode',               STYLES['writing-mode']),
 	'word-spacing':               single_value.bind(null, 'word-spacing',               STYLES['word-spacing']),
 
 	'z-index':                    single_value.bind(null, 'z-index',                    STYLES['z-index']),
