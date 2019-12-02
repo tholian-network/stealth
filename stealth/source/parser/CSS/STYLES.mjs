@@ -292,6 +292,9 @@ export const STYLES = {
 		'val': [ 'normal' ],
 		'typ': [ 'length' ]
 	},
+	'line-break': {
+		'val': [ 'anywhere', 'auto', 'loose', 'normal', 'strict' ]
+	},
 	'line-height': {
 		'val': [ 'normal' ],
 		'typ': [ 'number', 'length', 'percentage' ]
@@ -329,10 +332,20 @@ export const STYLES = {
 		'val': [ 'auto', 'min-content', 'fit-content', 'max-content', 'fill-available' ],
 		'typ': [ 'length', 'percentage' ]
 	},
+	'object-fit': {
+		'val': [ 'contain', 'cover', 'fill', 'none', 'scale-down' ]
+	},
+	'object-position': {
+		'val': [ 'top', 'right', 'bottom', 'left', 'center' ],
+		'typ': [ 'length', 'percentage' ]
+	},
 	'opacity': {
-		'typ': [ 'number' ]
+		'typ': [ 'number', 'percentage' ]
 	},
 	'order': {
+		'typ': [ 'number' ]
+	},
+	'orphans': {
 		'typ': [ 'number' ]
 	},
 	'outline-color': {
@@ -350,6 +363,9 @@ export const STYLES = {
 	},
 	'overflow': {
 		'val': [ 'auto', 'clip', 'hidden', 'scroll', 'visible' ]
+	},
+	'overflow-wrap': {
+		'val': [ 'anywhere', 'break-word', 'normal' ]
 	},
 	'padding': {
 		'typ': [ 'length', 'percentage' ]

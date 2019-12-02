@@ -276,6 +276,118 @@ describe('CSS.parse/background', function(assert) {
 
 });
 
+describe('CSS.parse/background-position', function(assert) {
+
+	let result1 = create({
+		'background-position': 'center'
+	});
+
+	let result2 = create({
+		'background-position': 'top 13%'
+	});
+
+	let result3 = create({
+		'background-position': '37px left'
+	});
+
+	let result4 = create({
+		'background-position': 'top right'
+	});
+
+	assert(result1 !== null);
+	assert(result1['background-position-x'].val, 'center');
+	assert(result1['background-position-y'].val, 'center');
+
+	assert(result2 !== null);
+	assert(result2['background-position-x'].val, 'top');
+	assert(result2['background-position-y'].ext, '%');
+	assert(result2['background-position-y'].val, 13);
+
+	assert(result3 !== null);
+	assert(result3['background-position-x'].ext, 'px');
+	assert(result3['background-position-x'].val, 37);
+	assert(result3['background-position-y'].val, 'left');
+
+	assert(result4 !== null);
+	assert(result4['background-position-x'].val, 'top');
+	assert(result4['background-position-y'].val, 'right');
+
+});
+
+describe('CSS.parse/background-repeat', function(assert) {
+
+	let result1 = create({
+		'background-repeat': 'repeat-x repeat-y'
+	});
+
+	let result2 = create({
+		'background-repeat': 'repeat no-repeat'
+	});
+
+	let result3 = create({
+		'background-repeat': 'space'
+	});
+
+	let result4 = create({
+		'background-repeat': 'round repeat-y'
+	});
+
+	assert(result1 !== null);
+	assert(result1['background-repeat-x'].val, 'repeat');
+	assert(result1['background-repeat-y'].val, 'repeat');
+
+	assert(result2 !== null);
+	assert(result2['background-repeat-x'].val, 'repeat');
+	assert(result2['background-repeat-y'].val, 'no-repeat');
+
+	assert(result3 !== null);
+	assert(result3['background-repeat-x'].val, 'space');
+	assert(result3['background-repeat-y'].val, 'space');
+
+	assert(result4 !== null);
+	assert(result4['background-repeat-x'].val, 'round');
+	assert(result4['background-repeat-y'].val, 'repeat');
+
+});
+
+describe('CSS.parse/background-size', function(assert) {
+
+	let result1 = create({
+		'background-size': 'cover'
+	});
+
+	let result2 = create({
+		'background-size': 'contain cover'
+	});
+
+	let result3 = create({
+		'background-size': 'auto 37%'
+	});
+
+	let result4 = create({
+		'background-size': '13px cover'
+	});
+
+	assert(result1 !== null);
+	assert(result1['background-size-x'].val, 'cover');
+	assert(result1['background-size-y'].val, 'cover');
+
+	assert(result2 !== null);
+	assert(result2['background-size-x'].val, 'contain');
+	assert(result2['background-size-y'].val, 'cover');
+
+	assert(result3 !== null);
+	assert(result3['background-size-x'].val, 'auto');
+	assert(result3['background-size-y'].ext, '%');
+	assert(result3['background-size-y'].val, 37);
+
+	assert(result4 !== null);
+	assert(result4['background-size-x'].ext, 'px');
+	assert(result4['background-size-x'].val, 13);
+	assert(result4['background-size-y'].val, 'cover');
+
+});
+
 describe('CSS.parse/border', function(assert) {
 
 	let result = create({
@@ -321,6 +433,30 @@ describe('CSS.parse/border-radius', function(assert) {
 	assert(result['border-bottom-left-radius'][0].val,  2);
 	assert(result['border-bottom-left-radius'][1].ext,  'px');
 	assert(result['border-bottom-left-radius'][1].val,  7);
+
+});
+
+describe('CSS.parse/border-spacing', function(assert) {
+
+	let result1 = create({
+		'border-spacing': '13em'
+	});
+
+	let result2 = create({
+		'border-spacing': '13px 37cm'
+	});
+
+	assert(result1 !== null);
+	assert(result1['border-spacing-x'].ext, 'em');
+	assert(result1['border-spacing-x'].val, 13);
+	assert(result1['border-spacing-y'].ext, 'em');
+	assert(result1['border-spacing-y'].val, 13);
+
+	assert(result2 !== null);
+	assert(result2['border-spacing-x'].ext, 'px');
+	assert(result2['border-spacing-x'].val, 13);
+	assert(result2['border-spacing-y'].ext, 'cm');
+	assert(result2['border-spacing-y'].val, 37);
 
 });
 
@@ -597,6 +733,64 @@ describe('CSS.parse/margin', function(assert) {
 
 });
 
+describe('CSS.parse/object-position', function(assert) {
+
+	let result1 = create({
+		'object-position': 'center'
+	});
+
+	let result2 = create({
+		'object-position': 'top 13%'
+	});
+
+	let result3 = create({
+		'object-position': '37px left'
+	});
+
+	let result4 = create({
+		'object-position': 'top right'
+	});
+
+	assert(result1 !== null);
+	assert(result1['object-position-x'].val, 'center');
+	assert(result1['object-position-y'].val, 'center');
+
+	assert(result2 !== null);
+	assert(result2['object-position-x'].val, 'top');
+	assert(result2['object-position-y'].ext, '%');
+	assert(result2['object-position-y'].val, 13);
+
+	assert(result3 !== null);
+	assert(result3['object-position-x'].ext, 'px');
+	assert(result3['object-position-x'].val, 37);
+	assert(result3['object-position-y'].val, 'left');
+
+	assert(result4 !== null);
+	assert(result4['object-position-x'].val, 'top');
+	assert(result4['object-position-y'].val, 'right');
+
+});
+
+describe('CSS.parse/opacity', function(assert) {
+
+	let result1 = create({
+		'opacity': '0.13'
+	});
+
+	let result2 = create({
+		'opacity': '37%'
+	});
+
+	assert(result1 !== null);
+	assert(result1['opacity'].ext, null);
+	assert(result1['opacity'].val, 0.13);
+
+	assert(result2 !== null);
+	assert(result2['opacity'].ext, '%');
+	assert(result2['opacity'].val, 37);
+
+});
+
 describe('CSS.parse/outline', function(assert) {
 
 	let result = create({
@@ -812,6 +1006,11 @@ describe('CSS.parse/position', function(assert) {
 	assert(result5['position'].val === 'sticky');
 
 });
+
+// describe('CSS.parse/quotes', function(assert) {
+// TODO: Implement a quotes test... no idea how to
+// verify that UTF-8 is working!?
+// });
 
 describe('CSS.parse/text-decoration', function(assert) {
 

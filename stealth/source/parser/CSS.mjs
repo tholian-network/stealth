@@ -727,7 +727,7 @@ export const parse_value = function(str) {
 
 		}
 
-	} else if (/^([0-9]+)$/g.test(str) === true) {
+	} else if (/^([0-9.]+)$/g.test(str) === true) {
 
 		let num = parse_number(str);
 		if (num !== null) {

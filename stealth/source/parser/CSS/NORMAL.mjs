@@ -196,6 +196,13 @@ export const NORMAL = {
 	'inset-inline':         () => {},
 	'inset-inline-end':     () => {},
 	'inset-inline-start':   () => {},
+	'margin-block':         () => {},
+	'margin-block-end':     () => {},
+	'margin-block-start':   () => {},
+	'margin-inline':        () => {},
+	'margin-inline-end':    () => {},
+	'margin-inline-start':  () => {},
+	'min-block-size':       () => {},
 	'isolation':            () => {},
 	'mix-blend-mode':       () => {},
 	'text-shadow':          () => {},
@@ -210,8 +217,22 @@ export const NORMAL = {
 		let position = shift.call(values, STYLES['background-position'], { min: 1, max: 2 });
 		if (position.length === 2) {
 
-			result['background-position-x'] = position[0];
-			result['background-position-y'] = position[1];
+			let val_x = position[0].val;
+			let val_y = position[1].val;
+			let typ_x = position[0].typ;
+			let typ_y = position[1].typ;
+
+			if (val_x === 'top' || val_x === 'bottom' || val_x === 'center') {
+				result['background-position-x'] = position[0];
+			} else if (typ_x === 'length' || typ_x === 'percentage') {
+				result['background-position-x'] = position[0];
+			}
+
+			if (val_y === 'left' || val_y === 'right' || val_y === 'center') {
+				result['background-position-y'] = position[1];
+			} else if (typ_y === 'length' || typ_y === 'percentage') {
+				result['background-position-y'] = position[1];
+			}
 
 		} else if (position.length === 1) {
 
@@ -229,6 +250,9 @@ export const NORMAL = {
 			} else if (val === 'left') {
 				result['background-position-x'] = parse_chunk('left');
 				result['background-position-y'] = parse_chunk('50%');
+			} else if (val === 'center') {
+				result['background-position-x'] = parse_chunk('center');
+				result['background-position-y'] = parse_chunk('center');
 			} else if (typ === 'length' || typ === 'percentage') {
 				result['background-position-x'] = position[0];
 				result['background-position-y'] = parse_chunk('50%');
@@ -245,8 +269,20 @@ export const NORMAL = {
 
 			if (repeat.length === 2) {
 
-				result['background-repeat-x'] = repeat[0];
-				result['background-repeat-y'] = repeat[1];
+				let val_x = repeat[0].val;
+				let val_y = repeat[1].val;
+
+				if (val_x === 'repeat-x') {
+					result['background-repeat-x'] = parse_chunk('repeat');
+				} else if (val_x !== 'repeat-y') {
+					result['background-repeat-x'] = repeat[0];
+				}
+
+				if (val_y === 'repeat-y') {
+					result['background-repeat-y'] = parse_chunk('repeat');
+				} else if (val_y !== 'repeat-x') {
+					result['background-repeat-y'] = repeat[1];
+				}
 
 			} else if (repeat.length === 1) {
 
@@ -379,13 +415,73 @@ export const NORMAL = {
 
 	},
 
+	'object-position': (values, result) => {
+
+		let position = shift.call(values, STYLES['object-position'], { min: 1, max: 2 });
+		if (position.length === 2) {
+
+			let val_x = position[0].val;
+			let val_y = position[1].val;
+			let typ_x = position[0].typ;
+			let typ_y = position[1].typ;
+
+			if (val_x === 'top' || val_x === 'bottom' || val_x === 'center') {
+				result['object-position-x'] = position[0];
+			} else if (typ_x === 'length' || typ_x === 'percentage') {
+				result['object-position-x'] = position[0];
+			}
+
+			if (val_y === 'left' || val_y === 'right' || val_y === 'center') {
+				result['object-position-y'] = position[1];
+			} else if (typ_y === 'length' || typ_y === 'percentage') {
+				result['object-position-y'] = position[1];
+			}
+
+		} else if (position.length === 1) {
+
+			let val = position[0].val;
+			let typ = position[0].typ;
+			if (val === 'top') {
+				result['object-position-x'] = parse_chunk('50%');
+				result['object-position-y'] = parse_chunk('top');
+			} else if (val === 'right') {
+				result['object-position-x'] = parse_chunk('right');
+				result['object-position-y'] = parse_chunk('50%');
+			} else if (val === 'bottom') {
+				result['object-position-x'] = parse_chunk('50%');
+				result['object-position-y'] = parse_chunk('bottom');
+			} else if (val === 'left') {
+				result['object-position-x'] = parse_chunk('left');
+				result['object-position-y'] = parse_chunk('50%');
+			} else if (val === 'center') {
+				result['object-position-x'] = parse_chunk('center');
+				result['object-position-y'] = parse_chunk('center');
+			} else if (typ === 'length' || typ === 'percentage') {
+				result['object-position-x'] = position[0];
+				result['object-position-y'] = parse_chunk('50%');
+			}
+
+		}
+
+	},
+
 	'opacity': (values, result) => {
 
 		let opacity = shift.call(values, STYLES['opacity']);
 		if (opacity.length > 0) {
 
-			if (opacity[0].val >= 0.0 && opacity[0].val <= 1.0) {
-				result['opacity'] = opacity[0];
+			if (opacity[0].typ === 'number') {
+
+				if (opacity[0].val >= 0.0 && opacity[0].val <= 1.0) {
+					result['opacity'] = opacity[0];
+				}
+
+			} else if (opacity[0].typ === 'percentage') {
+
+				if (opacity[0].val >= 0 && opacity[0].val <= 100) {
+					result['opacity'] = opacity[0];
+				}
+
 			}
 
 		}
@@ -529,6 +625,7 @@ export const NORMAL = {
 	'justify-self':               single_value.bind(null, 'justify-self',               STYLES['justify-self']),
 
 	'left':                       single_value.bind(null, 'left',                       STYLES['left']),
+	'line-break':                 single_value.bind(null, 'line-break',                 STYLES['line-break']),
 	'line-height':                single_value.bind(null, 'line-height',                STYLES['line-height']),
 	'list-style-image':           single_value.bind(null, 'list-style-image',           STYLES['list-style-image']),
 	'list-style-position':        single_value.bind(null, 'list-style-position',        STYLES['list-style-position']),
@@ -543,11 +640,14 @@ export const NORMAL = {
 	'min-height':                 single_value.bind(null, 'min-height',                 STYLES['min-height']),
 	'min-width':                  single_value.bind(null, 'min-width',                  STYLES['min-width']),
 
+	'object-fit':                 single_value.bind(null, 'object-fit',                 STYLES['object-fit']),
 	'order':                      single_value.bind(null, 'order',                      STYLES['order']),
+	'orphans':                    single_value.bind(null, 'orphans',                    STYLES['orphans']),
 	'outline-color':              single_value.bind(null, 'outline-color',              STYLES['outline-color']),
 	'outline-offset':             single_value.bind(null, 'outline-offset',             STYLES['outline-offset']),
 	'outline-style':              single_value.bind(null, 'outline-style',              STYLES['outline-style']),
 	'outline-width':              single_value.bind(null, 'outline-width',              STYLES['outline-width']),
+	'overflow-wrap':              single_value.bind(null, 'overflow-wrap',              STYLES['overflow-wrap']),
 	'overflow-x':                 single_value.bind(null, 'overflow-x',                 STYLES['overflow']),
 	'overflow-y':                 single_value.bind(null, 'overflow-y',                 STYLES['overflow']),
 
