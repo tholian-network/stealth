@@ -1012,6 +1012,126 @@ describe('CSS.parse/position', function(assert) {
 // verify that UTF-8 is working!?
 // });
 
+describe('CSS.parse/scroll-margin', function(assert) {
+
+	let result1 = create({
+		'scroll-margin': '1em 2px 3% 4pt'
+	});
+
+	let result2 = create({
+		'scroll-margin': '1px 2% 3pt'
+	});
+
+	let result3 = create({
+		'scroll-margin': '1% 2px'
+	});
+
+	let result4 = create({
+		'scroll-margin': '1337px'
+	});
+
+	assert(result1 !== null);
+	assert(result1['scroll-margin-top'].ext,    'em');
+	assert(result1['scroll-margin-top'].val,    1);
+	assert(result1['scroll-margin-right'].ext,  'px');
+	assert(result1['scroll-margin-right'].val,  2);
+	assert(result1['scroll-margin-bottom'].ext, '%');
+	assert(result1['scroll-margin-bottom'].val, 3);
+	assert(result1['scroll-margin-left'].ext,   'pt');
+	assert(result1['scroll-margin-left'].val,   4);
+
+	assert(result2 !== null);
+	assert(result2['scroll-margin-top'].ext,    'px');
+	assert(result2['scroll-margin-top'].val,    1);
+	assert(result2['scroll-margin-right'].ext,  '%');
+	assert(result2['scroll-margin-right'].val,  2);
+	assert(result2['scroll-margin-bottom'].ext, 'pt');
+	assert(result2['scroll-margin-bottom'].val, 3);
+	assert(result2['scroll-margin-left'].ext,   '%');
+	assert(result2['scroll-margin-left'].val,   2);
+
+	assert(result3 !== null);
+	assert(result3['scroll-margin-top'].ext,    '%');
+	assert(result3['scroll-margin-top'].val,    1);
+	assert(result3['scroll-margin-right'].ext,  'px');
+	assert(result3['scroll-margin-right'].val,  2);
+	assert(result3['scroll-margin-bottom'].ext, '%');
+	assert(result3['scroll-margin-bottom'].val, 1);
+	assert(result3['scroll-margin-left'].ext,   'px');
+	assert(result3['scroll-margin-left'].val,   2);
+
+	assert(result4 !== null);
+	assert(result4['scroll-margin-top'].ext,    'px');
+	assert(result4['scroll-margin-top'].val,    1337);
+	assert(result4['scroll-margin-right'].ext,  'px');
+	assert(result4['scroll-margin-right'].val,  1337);
+	assert(result4['scroll-margin-bottom'].ext, 'px');
+	assert(result4['scroll-margin-bottom'].val, 1337);
+	assert(result4['scroll-margin-left'].ext,   'px');
+	assert(result4['scroll-margin-left'].val,   1337);
+
+});
+
+describe('CSS.parse/scroll-padding', function(assert) {
+
+	let result1 = create({
+		'scroll-padding': '1em 2px 3% 4pt'
+	});
+
+	let result2 = create({
+		'scroll-padding': '1px 2% 3pt'
+	});
+
+	let result3 = create({
+		'scroll-padding': '1% 2px'
+	});
+
+	let result4 = create({
+		'scroll-padding': '1337px'
+	});
+
+	assert(result1 !== null);
+	assert(result1['scroll-padding-top'].ext,    'em');
+	assert(result1['scroll-padding-top'].val,    1);
+	assert(result1['scroll-padding-right'].ext,  'px');
+	assert(result1['scroll-padding-right'].val,  2);
+	assert(result1['scroll-padding-bottom'].ext, '%');
+	assert(result1['scroll-padding-bottom'].val, 3);
+	assert(result1['scroll-padding-left'].ext,   'pt');
+	assert(result1['scroll-padding-left'].val,   4);
+
+	assert(result2 !== null);
+	assert(result2['scroll-padding-top'].ext,    'px');
+	assert(result2['scroll-padding-top'].val,    1);
+	assert(result2['scroll-padding-right'].ext,  '%');
+	assert(result2['scroll-padding-right'].val,  2);
+	assert(result2['scroll-padding-bottom'].ext, 'pt');
+	assert(result2['scroll-padding-bottom'].val, 3);
+	assert(result2['scroll-padding-left'].ext,   '%');
+	assert(result2['scroll-padding-left'].val,   2);
+
+	assert(result3 !== null);
+	assert(result3['scroll-padding-top'].ext,    '%');
+	assert(result3['scroll-padding-top'].val,    1);
+	assert(result3['scroll-padding-right'].ext,  'px');
+	assert(result3['scroll-padding-right'].val,  2);
+	assert(result3['scroll-padding-bottom'].ext, '%');
+	assert(result3['scroll-padding-bottom'].val, 1);
+	assert(result3['scroll-padding-left'].ext,   'px');
+	assert(result3['scroll-padding-left'].val,   2);
+
+	assert(result4 !== null);
+	assert(result4['scroll-padding-top'].ext,    'px');
+	assert(result4['scroll-padding-top'].val,    1337);
+	assert(result4['scroll-padding-right'].ext,  'px');
+	assert(result4['scroll-padding-right'].val,  1337);
+	assert(result4['scroll-padding-bottom'].ext, 'px');
+	assert(result4['scroll-padding-bottom'].val, 1337);
+	assert(result4['scroll-padding-left'].ext,   'px');
+	assert(result4['scroll-padding-left'].val,   1337);
+
+});
+
 describe('CSS.parse/text-decoration', function(assert) {
 
 	let result = create({

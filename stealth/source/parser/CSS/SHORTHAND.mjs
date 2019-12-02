@@ -876,6 +876,60 @@ export const SHORTHAND = {
 
 	},
 
+	'scroll-margin': (values, result) => {
+
+		let margin = shift.call(values, STYLES['scroll-margin'], { min: 1, max: 4 });
+		if (margin.length === 4) {
+			NORMAL['scroll-margin-top']([ margin[0] ], result);
+			NORMAL['scroll-margin-right']([ margin[1] ], result);
+			NORMAL['scroll-margin-bottom']([ margin[2] ], result);
+			NORMAL['scroll-margin-left']([ margin[3] ], result);
+		} else if (margin.length === 3) {
+			NORMAL['scroll-margin-top']([ margin[0] ], result);
+			NORMAL['scroll-margin-right']([ margin[1] ], result);
+			NORMAL['scroll-margin-bottom']([ margin[2] ], result);
+			NORMAL['scroll-margin-left']([ margin[1] ], result);
+		} else if (margin.length === 2) {
+			NORMAL['scroll-margin-top']([ margin[0] ], result);
+			NORMAL['scroll-margin-right']([ margin[1] ], result);
+			NORMAL['scroll-margin-bottom']([ margin[0] ], result);
+			NORMAL['scroll-margin-left']([ margin[1] ], result);
+		} else if (margin.length === 1) {
+			NORMAL['scroll-margin-top']([ margin[0] ], result);
+			NORMAL['scroll-margin-right']([ margin[0] ], result);
+			NORMAL['scroll-margin-bottom']([ margin[0] ], result);
+			NORMAL['scroll-margin-left']([ margin[0] ], result);
+		}
+
+	},
+
+	'scroll-padding': (values, result) => {
+
+		let padding = shift.call(values, STYLES['scroll-padding'], { min: 1, max: 4 });
+		if (padding.length === 4) {
+			NORMAL['scroll-padding-top']([ padding[0] ], result);
+			NORMAL['scroll-padding-right']([ padding[1] ], result);
+			NORMAL['scroll-padding-bottom']([ padding[2] ], result);
+			NORMAL['scroll-padding-left']([ padding[3] ], result);
+		} else if (padding.length === 3) {
+			NORMAL['scroll-padding-top']([ padding[0] ], result);
+			NORMAL['scroll-padding-right']([ padding[1] ], result);
+			NORMAL['scroll-padding-bottom']([ padding[2] ], result);
+			NORMAL['scroll-padding-left']([ padding[1] ], result);
+		} else if (padding.length === 2) {
+			NORMAL['scroll-padding-top']([ padding[0] ], result);
+			NORMAL['scroll-padding-right']([ padding[1] ], result);
+			NORMAL['scroll-padding-bottom']([ padding[0] ], result);
+			NORMAL['scroll-padding-left']([ padding[1] ], result);
+		} else if (padding.length === 1) {
+			NORMAL['scroll-padding-top']([ padding[0] ], result);
+			NORMAL['scroll-padding-right']([ padding[0] ], result);
+			NORMAL['scroll-padding-bottom']([ padding[0] ], result);
+			NORMAL['scroll-padding-left']([ padding[0] ], result);
+		}
+
+	},
+
 	'text-decoration': (values, result) => {
 
 		let line = shift.call(values, STYLES['text-decoration-line']);

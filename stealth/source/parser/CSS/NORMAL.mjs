@@ -1,8 +1,8 @@
 
 import { console } from '../../console.mjs';
 
-import { clone, filter, match, parse_chunk, parse_value, shift, split } from '../CSS.mjs';
-import { STYLES                                                       } from './STYLES.mjs';
+import { clone, filter, match, parse_chunk, shift, split } from '../CSS.mjs';
+import { STYLES                                          } from './STYLES.mjs';
 
 
 
@@ -50,7 +50,7 @@ const multi_values = function(property, search, limit, values, result) {
 
 
 
-// XXX: Identical structure as parse_value(val)
+// XXX: Identical structure as parse_chunk(val)
 // but ES2016 imports are fucked, so we have to
 // do this separately via this helper method.
 const create = (val) => ({
@@ -185,27 +185,47 @@ export const NORMAL = {
 	 * UNSUPPORTED
 	 */
 
-	'box-decoration-break': () => {},
-	'box-shadow':           () => {},
-	'clip':                 () => {},
-	'filter':               () => {},
-	'font-variant':         () => {},
-	'inset-block':          () => {},
-	'inset-block-end':      () => {},
-	'inset-block-start':    () => {},
-	'inset-inline':         () => {},
-	'inset-inline-end':     () => {},
-	'inset-inline-start':   () => {},
-	'margin-block':         () => {},
-	'margin-block-end':     () => {},
-	'margin-block-start':   () => {},
-	'margin-inline':        () => {},
-	'margin-inline-end':    () => {},
-	'margin-inline-start':  () => {},
-	'min-block-size':       () => {},
-	'isolation':            () => {},
-	'mix-blend-mode':       () => {},
-	'text-shadow':          () => {},
+	'box-decoration-break':        () => {},
+	'box-shadow':                  () => {},
+	'clip':                        () => {},
+	'filter':                      () => {},
+	'font-variant':                () => {},
+	'inset-block':                 () => {},
+	'inset-block-end':             () => {},
+	'inset-block-start':           () => {},
+	'inset-inline':                () => {},
+	'inset-inline-end':            () => {},
+	'inset-inline-start':          () => {},
+	'isolation':                   () => {},
+	'margin-block':                () => {},
+	'margin-block-end':            () => {},
+	'margin-block-start':          () => {},
+	'margin-inline':               () => {},
+	'margin-inline-end':           () => {},
+	'margin-inline-start':         () => {},
+	'min-block-size':              () => {},
+	'mix-blend-mode':              () => {},
+	'padding-block':               () => {},
+	'padding-block-end':           () => {},
+	'padding-block-start':         () => {},
+	'padding-inline':              () => {},
+	'padding-inline-end':          () => {},
+	'padding-inline-start':        () => {},
+	'rotate':                      () => {},
+	'scale':                       () => {},
+	'scroll-margin-block':         () => {},
+	'scroll-margin-block-end':     () => {},
+	'scroll-margin-block-start':   () => {},
+	'scroll-margin-inline':        () => {},
+	'scroll-margin-inline-end':    () => {},
+	'scroll-margin-inline-start':  () => {},
+	'scroll-padding-block':        () => {},
+	'scroll-padding-block-end':    () => {},
+	'scroll-padding-block-start':  () => {},
+	'scroll-padding-inline':       () => {},
+	'scroll-padding-inline-end':   () => {},
+	'scroll-padding-inline-start': () => {},
+	'text-shadow':                 () => {},
 
 
 	/*
@@ -406,8 +426,8 @@ export const NORMAL = {
 			} else {
 
 				result['display']         = display[0];
-				result['display-outside'] = parse_value('block');
-				result['display-inside']  = parse_value('flow');
+				result['display-outside'] = parse_chunk('block');
+				result['display-inside']  = parse_chunk('flow');
 
 			}
 
@@ -507,13 +527,49 @@ export const NORMAL = {
 
 	},
 
+	'scroll-snap-type': (values, result) => {
+
+		let snap = shift.call(values, {
+			'val': [ 'block', 'both', 'inline', 'none', 'x', 'y' ]
+		});
+
+		let strictness = match.call(values, {
+			'val': [ 'mandatory', 'proximity' ]
+		});
+
+		if (snap.length > 0 && strictness.length > 0) {
+			result['scroll-snap-type'] = [ snap[0], strictness[0] ];
+		} else if (snap.length > 0) {
+			result['scroll-snap-type'] = [ snap[0], parse_chunk('proximity') ];
+		}
+
+	},
+
+	'scrollbar-color': (values, result) => {
+
+		let color = shift.call(values, STYLES['scrollbar-color'], { min: 1, max: 2 });
+		if (color.length === 2) {
+
+			let typ1 = color[0].typ;
+			let typ2 = color[1].typ;
+
+			if (typ1 === 'color' && typ2 === 'color') {
+				result['scrollbar-color'] = [ color[0], color[1] ];
+			}
+
+		} else if (color.length === 1) {
+			result['scrollbar-color'] = color[0];
+		}
+
+	},
+
 	'text-emphasis-style': (values, result) => {
 
 		let style = shift.call(values, STYLES['text-emphasis-style']);
 		if (style.length > 0) {
 
 			if (style[0].typ === 'string' && style[0].val.length > 1) {
-				style[0] = parse_value(style[0].val.charAt(0));
+				style[0] = parse_chunk(style[0].val.charAt(0));
 			}
 
 			result['text-emphasis-style'] = style[0];
@@ -655,9 +711,23 @@ export const NORMAL = {
 	'padding-right':              single_value.bind(null, 'padding-right',              STYLES['padding']),
 	'padding-bottom':             single_value.bind(null, 'padding-bottom',             STYLES['padding']),
 	'padding-left':               single_value.bind(null, 'padding-left',               STYLES['padding']),
+	'perspective':                single_value.bind(null, 'perspective',                STYLES['perspective']),
 	'position':                   single_value.bind(null, 'position',                   STYLES['position']),
 
+	'resize':                     single_value.bind(null, 'resize',                     STYLES['resize']),
 	'right':                      single_value.bind(null, 'right',                      STYLES['right']),
+
+	'scroll-behavior':            single_value.bind(null, 'scroll-behavior',            STYLES['scroll-behavior']),
+	'scroll-margin-top':          single_value.bind(null, 'scroll-margin-top',          STYLES['scroll-margin']),
+	'scroll-margin-right':        single_value.bind(null, 'scroll-margin-right',        STYLES['scroll-margin']),
+	'scroll-margin-bottom':       single_value.bind(null, 'scroll-margin-bottom',       STYLES['scroll-margin']),
+	'scroll-margin-left':         single_value.bind(null, 'scroll-margin-left',         STYLES['scroll-margin']),
+	'scroll-padding-top':         single_value.bind(null, 'scroll-padding-top',         STYLES['scroll-padding']),
+	'scroll-padding-right':       single_value.bind(null, 'scroll-padding-right',       STYLES['scroll-padding']),
+	'scroll-padding-bottom':      single_value.bind(null, 'scroll-padding-bottom',      STYLES['scroll-padding']),
+	'scroll-padding-left':        single_value.bind(null, 'scroll-padding-left',        STYLES['scroll-padding']),
+	'scroll-snap-align':          single_value.bind(null, 'scroll-snap-align',          STYLES['scroll-snap-align']),
+	'scroll-snap-stop':           single_value.bind(null, 'scroll-snap-stop',           STYLES['scroll-snap-stop']),
 
 	'tab-size':                   single_value.bind(null, 'tab-size',                   STYLES['tab-size']),
 	'text-decoration-color':      single_value.bind(null, 'text-decoration-color',      STYLES['text-decoration-color']),
@@ -675,6 +745,16 @@ export const NORMAL = {
 
 	'z-index':                    single_value.bind(null, 'z-index',                    STYLES['z-index']),
 	'zoom':                       single_value.bind(null, 'zoom',                       STYLES['zoom']),
+
+
+
+	/*
+	 * LEGACY SYNTAX
+	 */
+
+	'page-break-after':           single_value.bind(null, 'break-after',                STYLES['break-after']),
+	'page-break-before':          single_value.bind(null, 'break-before',               STYLES['break-before']),
+	'page-break-inside':          single_value.bind(null, 'break-inside',               STYLES['break-inside'])
 
 };
 

@@ -368,7 +368,12 @@ export const STYLES = {
 		'val': [ 'anywhere', 'break-word', 'normal' ]
 	},
 	'padding': {
+		'val': [ 'auto' ],
 		'typ': [ 'length', 'percentage' ]
+	},
+	'perspective': {
+		'val': [ 'none' ],
+		'typ': [ 'length' ]
 	},
 	'position': {
 		'val': [ 'absolute', 'fixed', 'relative', 'static', 'sticky' ]
@@ -377,9 +382,39 @@ export const STYLES = {
 		'val': [ 'auto', 'none' ],
 		'typ': [ 'string' ]
 	},
+	'resize': {
+		'val': [ 'block', 'both', 'horizontal', 'inline', 'vertical', 'none' ]
+	},
 	'right': {
 		'val': [ 'auto' ],
 		'typ': [ 'length', 'percentage' ]
+	},
+	'scroll-behavior': {
+		'val': [ 'auto', 'smooth' ]
+	},
+	'scroll-margin': {
+		'val': [ 'auto' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'scroll-padding': {
+		'val': [ 'auto' ],
+		'typ': [ 'length', 'percentage' ]
+	},
+	'scroll-snap-align': {
+		'val': [ 'center', 'end', 'none', 'start' ]
+	},
+	'scroll-snap-stop': {
+		'val': [ 'always', 'normal' ]
+	},
+	'scroll-snap-type': {
+		'val': [
+			'block', 'both', 'inline', 'none',
+			'x', 'y', 'mandatory', 'proximity'
+		]
+	},
+	'scrollbar-color': {
+		'typ': [ 'color' ],
+		'val': [ 'auto', 'dark', 'light' ]
 	},
 	'tab-size': {
 		'typ': [ 'length', 'number' ]
