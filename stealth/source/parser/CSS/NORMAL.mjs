@@ -334,22 +334,10 @@ export const NORMAL = {
 		// display: grid, inside-grid are unsupported
 
 		let display = shift.call(values, {
-			'val': [
-				'block',
-				'contents',
-				'flex',
-				'flow',
-				'flow-root',
-				'inline',
-				'inline-block',
-				'inline-flex',
-				'inline-list-item',
-				'inline-table',
-				'list-item',
-				'table',
-				'none'
-			]
-		}, { min: 1, max: 2});
+			'val': Object.keys(DISPLAY_MODEL).concat([
+				'flow'
+			])
+		}, { min: 1, max: 3});
 
 		if (display.length > 0) {
 
@@ -567,6 +555,7 @@ export const NORMAL = {
 	'padding-right':              single_value.bind(null, 'padding-right',              STYLES['padding']),
 	'padding-bottom':             single_value.bind(null, 'padding-bottom',             STYLES['padding']),
 	'padding-left':               single_value.bind(null, 'padding-left',               STYLES['padding']),
+	'position':                   single_value.bind(null, 'position',                   STYLES['position']),
 
 	'right':                      single_value.bind(null, 'right',                      STYLES['right']),
 

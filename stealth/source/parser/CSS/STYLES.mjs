@@ -354,6 +354,9 @@ export const STYLES = {
 	'padding': {
 		'typ': [ 'length', 'percentage' ]
 	},
+	'position': {
+		'val': [ 'absolute', 'fixed', 'relative', 'static', 'sticky' ]
+	},
 	'quotes': {
 		'val': [ 'auto', 'none' ],
 		'typ': [ 'string' ]

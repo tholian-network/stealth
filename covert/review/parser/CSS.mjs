@@ -133,21 +133,125 @@ describe('CSS.parse/animation-direction', function(assert) {
 });
 
 describe('CSS.parse/animation-duration', function(assert) {
+
+	let result1 = create({
+		'animation-duration': '13ms'
+	});
+
+	let result2 = create({
+		'animation-duration': '13ms, 37s'
+	});
+
+	assert(result1 !== null);
+	assert(result1['animation-duration'][0].ext, 'ms');
+	assert(result1['animation-duration'][0].val, 13);
+
+	assert(result2 !== null);
+	assert(result2['animation-duration'][0].ext, 'ms');
+	assert(result2['animation-duration'][0].val, 13);
+	assert(result2['animation-duration'][1].ext, 's');
+	assert(result2['animation-duration'][1].val, 37);
+
 });
 
 describe('CSS.parse/animation-fill-mode', function(assert) {
+
+	let result1 = create({
+		'animation-fill-mode': 'both'
+	});
+
+	let result2 = create({
+		'animation-fill-mode': 'backwards, forwards'
+	});
+
+	assert(result1 !== null);
+	assert(result1['animation-fill-mode'][0].val, 'both');
+
+	assert(result2 !== null);
+	assert(result2['animation-fill-mode'][0].val, 'backwards');
+	assert(result2['animation-fill-mode'][1].val, 'forwards');
+
 });
 
 describe('CSS.parse/animation-iteration-count', function(assert) {
+
+	let result1 = create({
+		'animation-iteration-count': 'infinite'
+	});
+
+	let result2 = create({
+		'animation-iteration-count': '13, 37'
+	});
+
+	assert(result1 !== null);
+	assert(result1['animation-iteration-count'][0].val, 'infinite');
+
+	assert(result2 !== null);
+	assert(result2['animation-iteration-count'][0].ext, null);
+	assert(result2['animation-iteration-count'][0].val, 13);
+	assert(result2['animation-iteration-count'][1].ext, null);
+	assert(result2['animation-iteration-count'][1].val, 37);
+
 });
 
 describe('CSS.parse/animation-name', function(assert) {
+
+	let result1 = create({
+		'animation-name': 'move-vertically'
+	});
+
+	let result2 = create({
+		'animation-name': 'move-horizontally, "something something"'
+	});
+
+	assert(result1 !== null);
+	assert(result1['animation-name'][0].typ, 'other');
+	assert(result1['animation-name'][0].val, 'move-vertically');
+
+	assert(result2 !== null);
+	assert(result2['animation-name'][0].typ, 'other');
+	assert(result2['animation-name'][0].val, 'move-horizontally');
+	assert(result2['animation-name'][1].typ, 'string');
+	assert(result2['animation-name'][1].val, 'something something');
+
 });
 
 describe('CSS.parse/animation-play-state', function(assert) {
+
+	let result1 = create({
+		'animation-play-state': 'paused'
+	});
+
+	let result2 = create({
+		'animation-play-state': 'running, paused'
+	});
+
+	assert(result1 !== null);
+	assert(result1['animation-play-state'][0].val, 'paused');
+
+	assert(result2 !== null);
+	assert(result2['animation-play-state'][0].val, 'running');
+	assert(result2['animation-play-state'][1].val, 'paused');
+
 });
 
 describe('CSS.parse/animation-timing-function', function(assert) {
+
+	let result1 = create({
+		'animation-timing-function': 'ease'
+	});
+
+	let result2 = create({
+		'animation-timing-function': 'ease-out, ease-in'
+	});
+
+	assert(result1 !== null);
+	assert(result1['animation-timing-function'][0].val, 'ease');
+
+	assert(result2 !== null);
+	assert(result2['animation-timing-function'][0].val, 'ease-out');
+	assert(result2['animation-timing-function'][1].val, 'ease-in');
+
 });
 
 describe('CSS.parse/background', function(assert) {
@@ -253,6 +357,46 @@ describe('CSS.parse/columns', function(assert) {
 	assert(result['column-gap'].val,   37);
 	assert(result['column-span'].val,  'all');
 	assert(result['column-width'].val, 'auto');
+
+});
+
+describe('CSS.parse/display', function(assert) {
+
+	let result1 = create({
+		'display': 'block'
+	});
+
+	let result2 = create({
+		'display': 'list-item block flow-root'
+	});
+
+	let result3 = create({
+		'display': 'table-row-group'
+	});
+
+	let result4 = create({
+		'display': 'table-row'
+	});
+
+	assert(result1 !== null);
+	assert(result1['display'].val         === 'block');
+	assert(result1['display-outside'].val === 'block');
+	assert(result1['display-inside'].val  === 'flow');
+
+	assert(result2 !== null);
+	assert(result2['display'].val         === 'list-item');
+	assert(result2['display-outside'].val === 'block');
+	assert(result2['display-inside'].val  === 'flow-root');
+
+	assert(result3 !== null);
+	assert(result3['display'].val         === 'table-row-group');
+	assert(result3['display-outside'].val === 'table-row-group');
+	assert(result3['display-inside'].val  === 'table-row');
+
+	assert(result4 !== null);
+	assert(result4['display'].val         === 'table-row');
+	assert(result4['display-outside'].val === 'table-row');
+	assert(result4['display-inside'].val  === 'table-cell');
 
 });
 
@@ -627,6 +771,45 @@ describe('CSS.parse/place-self', function(assert) {
 	assert(result3 !== null);
 	assert(result3['align-self'] === undefined);
 	assert(result3['justify-self'] === undefined);
+
+});
+
+describe('CSS.parse/position', function(assert) {
+
+	let result1 = create({
+		'position': 'absolute'
+	});
+
+	let result2 = create({
+		'position': 'fixed'
+	});
+
+	let result3 = create({
+		'position': 'relative'
+	});
+
+	let result4 = create({
+		'position': 'static'
+	});
+
+	let result5 = create({
+		'position': 'sticky'
+	});
+
+	assert(result1 !== null);
+	assert(result1['position'].val === 'absolute');
+
+	assert(result2 !== null);
+	assert(result2['position'].val === 'fixed');
+
+	assert(result3 !== null);
+	assert(result3['position'].val === 'relative');
+
+	assert(result4 !== null);
+	assert(result4['position'].val === 'static');
+
+	assert(result5 !== null);
+	assert(result5['position'].val === 'sticky');
 
 });
 
