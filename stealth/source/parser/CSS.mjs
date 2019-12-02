@@ -61,7 +61,7 @@ export const clone = function(object) {
 	return JSON.parse(JSON.stringify(object));
 };
 
-export const find = function(search, limit) {
+export const filter = function(search, limit) {
 
 	search = isObject(search) ? search : {};
 	limit  = isObject(limit)  ? limit  : { min: 0, max: 1 };
@@ -95,8 +95,6 @@ export const find = function(search, limit) {
 
 			if (valid === true) {
 				result.push(value);
-			} else {
-				break;
 			}
 
 			if (result.length >= max) {
@@ -106,7 +104,16 @@ export const find = function(search, limit) {
 		}
 
 		if (result.length >= min && result.length <= max) {
-			values.splice(0, result.length);
+
+			result.forEach((other) => {
+
+				let index = values.indexOf(other);
+				if (index !== -1) {
+					values.splice(index, 1);
+				}
+
+			});
+
 		}
 
 	}
@@ -770,6 +777,61 @@ export const parse_value = function(str) {
 
 
 	return value;
+
+};
+
+export const shift = function(search, limit) {
+
+	search = isObject(search) ? search : {};
+	limit  = isObject(limit)  ? limit  : { min: 0, max: 1 };
+
+
+	let result = [];
+	let values = this;
+	if (values.length > 0) {
+
+		let min = isNumber(limit.min) ? limit.min : 1;
+		let max = isNumber(limit.max) ? limit.max : 1;
+
+		for (let v = 0, vl = values.length; v < vl; v++) {
+
+			let value = values[v];
+			let valid = false;
+
+			for (let key in search) {
+
+				let val = value[key];
+				if (val !== null && isString(val)) {
+
+					if (search[key].includes(val)) {
+						valid = true;
+						break;
+					}
+
+				}
+
+			}
+
+			if (valid === true) {
+				result.push(value);
+			} else {
+				break;
+			}
+
+			if (result.length >= max) {
+				break;
+			}
+
+		}
+
+		if (result.length >= min && result.length <= max) {
+			values.splice(0, result.length);
+		}
+
+	}
+
+
+	return result;
 
 };
 

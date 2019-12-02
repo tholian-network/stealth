@@ -1,8 +1,8 @@
 
 import { console } from '../../console.mjs';
 
-import { find, match, parse_chunk, parse_value, split } from '../CSS.mjs';
-import { STYLES                                       } from './STYLES.mjs';
+import { clone, filter, match, parse_chunk, parse_value, shift, split } from '../CSS.mjs';
+import { STYLES                                                       } from './STYLES.mjs';
 
 
 
@@ -32,7 +32,7 @@ const comma_values = function(property, search, limit, values, result) {
 
 const single_value = function(property, search, values, result) {
 
-	let tmp = find.call(values, search, { min: 1, max: 1 });
+	let tmp = shift.call(values, search, { min: 1, max: 1 });
 	if (tmp.length > 0) {
 		result[property] = tmp[0];
 	}
@@ -41,9 +41,138 @@ const single_value = function(property, search, values, result) {
 
 const multi_values = function(property, search, limit, values, result) {
 
-	let tmp = find.call(values, search, limit);
+	let tmp = shift.call(values, search, limit);
 	if (tmp.length > 0) {
 		result[property] = tmp;
+	}
+
+};
+
+
+
+// XXX: Identical structure as parse_value(val)
+// but ES2016 imports are fucked, so we have to
+// do this separately via this helper method.
+const create = (val) => ({
+	ext: null,
+	raw: val,
+	typ: 'other',
+	val: val
+});
+
+const DISPLAY_MODEL = {
+
+	'contents': {
+		'display': create('contents')
+	},
+
+	'none': {
+		'display': create('none')
+	},
+
+	'block': {
+		'display':         create('block'),
+		'display-outside': create('block'),
+		'display-inside':  create('flow')
+	},
+
+	'flex': {
+		'display':         create('flex'),
+		'display-outside': create('block'),
+		'display-inside':  create('flex')
+	},
+
+	'flow-root': {
+		'display':         create('flow-root'),
+		'display-outside': create('block'),
+		'display-inside':  create('flow-root')
+	},
+
+	'inline': {
+		'display':         create('inline'),
+		'display-outside': create('inline'),
+		'display-inside':  create('flow')
+	},
+
+	'inline-block': {
+		'display':         create('inline-block'),
+		'display-outside': create('inline'),
+		'display-inside':  create('flow-root')
+	},
+
+	'inline-flex': {
+		'display':         create('inline-flex'),
+		'display-outside': create('inline'),
+		'display-inside':  create('flex')
+	},
+
+	'inline-list-item': {
+		'display':         create('inline-list-item'),
+		'display-outside': create('inline'),
+		'display-inside':  create('flow')
+	},
+
+	'inline-table': {
+		'display':         create('inline-table'),
+		'display-outside': create('inline'),
+		'display-inside':  create('table')
+	},
+
+	'list-item': {
+		'display':         create('list-item'),
+		'display-outside': create('block'),
+		'display-inside':  create('flow')
+	},
+
+	'table': {
+		'display':         create('table'),
+		'display-outside': create('block'),
+		'display-inside':  create('table')
+	},
+
+	// TODO: Verify behaviour of table-caption
+	'table-caption': {
+		'display':         create('table-caption'),
+		'display-outside': create('inherit'),
+		'display-inside':  create('flow-root')
+	},
+
+	'table-cell': {
+		'display':         create('table-cell'),
+		'display-outside': create('table-cell'),
+		'display-inside':  create('flow')
+	},
+
+	'table-column': {
+		// TODO: table-column
+	},
+
+	'table-column-group': {
+		// TODO: table-column-group
+	},
+
+	'table-footer-group': {
+		'display':         create('table-footer-group'),
+		'display-outside': create('table-footer-group'),
+		'display-inside':  create('table-row')
+	},
+
+	'table-header-group': {
+		'display':         create('table-header-group'),
+		'display-outside': create('table-header-group'),
+		'display-inside':  create('table-row')
+	},
+
+	'table-row': {
+		'display':         create('table-row'),
+		'display-outside': create('table-row'),
+		'display-inside':  create('table-cell')
+	},
+
+	'table-row-group': {
+		'display':         create('table-row-group'),
+		'display-outside': create('table-row-group'),
+		'display-inside':  create('table-row')
 	}
 
 };
@@ -78,7 +207,7 @@ export const NORMAL = {
 
 	'background-position': (values, result) => {
 
-		let position = find.call(values, STYLES['background-position'], { min: 1, max: 2 });
+		let position = shift.call(values, STYLES['background-position'], { min: 1, max: 2 });
 		if (position.length === 2) {
 
 			result['background-position-x'] = position[0];
@@ -111,7 +240,7 @@ export const NORMAL = {
 
 	'background-repeat': (values, result) => {
 
-		let repeat = find.call(values, STYLES['background-repeat'], { min: 1, max: 2 });
+		let repeat = shift.call(values, STYLES['background-repeat'], { min: 1, max: 2 });
 		if (repeat.length > 0) {
 
 			if (repeat.length === 2) {
@@ -150,7 +279,7 @@ export const NORMAL = {
 
 	'background-size': (values, result) => {
 
-		let size = find.call(values, STYLES['background-size'], { min: 1, max: 2 });
+		let size = shift.call(values, STYLES['background-size'], { min: 1, max: 2 });
 		if (size.length > 0) {
 
 			if (size.length === 2) {
@@ -187,7 +316,7 @@ export const NORMAL = {
 
 	'border-spacing': (values, result) => {
 
-		let spacing = find.call(values, STYLES['border-spacing'], { min: 1, max: 2 });
+		let spacing = shift.call(values, STYLES['border-spacing'], { min: 1, max: 2 });
 		if (spacing.length === 2) {
 			result['border-spacing-x'] = spacing[0];
 			result['border-spacing-y'] = spacing[1];
@@ -204,7 +333,7 @@ export const NORMAL = {
 		// display: ruby model is unsupported
 		// display: grid, inside-grid are unsupported
 
-		let outside = find.call(values, {
+		let display = shift.call(values, {
 			'val': [
 				'block',
 				'contents',
@@ -222,80 +351,40 @@ export const NORMAL = {
 			]
 		}, { min: 1, max: 2});
 
-		if (outside.length > 0) {
+		if (display.length > 0) {
 
-			let model = outside[0].val;
-			if (
-				model === 'block'
-				|| model === 'contents'
-				|| model === 'flex'
-				|| model === 'flow'
-				|| model === 'flow-root'
-				|| model === 'none'
-			) {
+			let model = DISPLAY_MODEL[display[0].val] || null;
+			if (model !== null) {
 
-				if (outside.length > 1) {
-					// TODO: Support flow, table
-				}
+				Object.keys(model).forEach((key) => {
+					result[key] = clone(model[key]);
+				});
 
-				result['display'] = outside[0];
 
-			} else if (model === 'inline') {
+				if (model['display'].val === 'list-item') {
 
-				if (outside.length === 2) {
-
-					let double_keyword_syntax = match.call(outside[1], {
-						'val': [ 'block', 'flex', 'list-item', 'table' ]
+					let outside = filter.call(display, {
+						'val': [ 'block', 'inline' ]
 					});
-
-					if (double_keyword_syntax === true) {
-						result['display'] = parse_value('inline-' + outside[1].val);
-					} else {
-						result['display'] = outside[0];
+					if (outside.length > 0) {
+						result['display-outside'] = outside[0];
 					}
 
-				} else {
-
-					result['display'] = outside[0];
-
-				}
-
-			} else if (model === 'list-item') {
-
-				if (outside.length === 3) {
-
-					// TODO: display-outside
-					// TODO: display-inside
-
-					// TODO: Support block, inline, flow, flow-root
-				} else if (outside.length === 2) {
-
-
-				} else {
-
-					result['display'] = outside[0];
+					let inside = filter.call(display, {
+						'val': [ 'flow', 'flow-root' ]
+					});
+					if (inside.length > 0) {
+						result['display-inside'] = inside[0];
+					}
 
 				}
 
-			}
+			} else {
 
-		} else {
+				result['display']         = display[0];
+				result['display-outside'] = parse_value('block');
+				result['display-inside']  = parse_value('flow');
 
-			let internal = find.call(values, {
-				'val': [
-					'table-header-group',
-					'table-footer-group',
-					'table-row-group',
-					'table-column-group',
-					'table-caption',
-					'table-row',
-					'table-column',
-					'table-cell'
-				]
-			});
-
-			if (internal.length > 0) {
-				result['display'] = internal[0];
 			}
 
 		}
@@ -304,7 +393,7 @@ export const NORMAL = {
 
 	'opacity': (values, result) => {
 
-		let opacity = find.call(values, STYLES['opacity']);
+		let opacity = shift.call(values, STYLES['opacity']);
 		if (opacity.length > 0) {
 
 			if (opacity[0].val >= 0.0 && opacity[0].val <= 1.0) {
@@ -317,7 +406,7 @@ export const NORMAL = {
 
 	'quotes': (values, result) => {
 
-		let quotes = find.call(values, STYLES['quotes'], { min: 1, max: 2 });
+		let quotes = shift.call(values, STYLES['quotes'], { min: 1, max: 2 });
 		if (quotes.length > 1 && quotes.length % 2 === 0) {
 
 			if (match.call(quotes, { 'typ': 'string' }) === true) {
@@ -336,7 +425,7 @@ export const NORMAL = {
 
 	'text-emphasis-style': (values, result) => {
 
-		let style = find.call(values, STYLES['text-emphasis-style']);
+		let style = shift.call(values, STYLES['text-emphasis-style']);
 		if (style.length > 0) {
 
 			if (style[0].typ === 'string' && style[0].val.length > 1) {

@@ -1,6 +1,6 @@
 
 import { console } from '../../console.mjs';
-import { clone, find, has, match, parse_value, split } from '../CSS.mjs';
+import { clone, has, match, parse_value, shift, split } from '../CSS.mjs';
 
 import { NORMAL } from './NORMAL.mjs';
 import { STYLES } from './STYLES.mjs';
@@ -26,7 +26,7 @@ const parse_single_animation = function(values) {
 		if (check.val !== 'none') {
 
 			// XXX: Two <time> values may appear first, or split, or suffixed
-			let duration = find.call(values, STYLES['animation-duration'], { min: 1, max: 2 });
+			let duration = shift.call(values, STYLES['animation-duration'], { min: 1, max: 2 });
 			if (duration.length === 2) {
 				animation['animation-duration'] = duration[0];
 				animation['animation-delay']    = duration[1];
@@ -34,13 +34,13 @@ const parse_single_animation = function(values) {
 				animation['animation-duration'] = duration[0];
 			}
 
-			let timing = find.call(values, STYLES['animation-timing-function']);
+			let timing = shift.call(values, STYLES['animation-timing-function']);
 			if (timing.length > 0) {
 				animation['animation-timing-function'] = timing[0];
 			}
 
 			// XXX: Two <time> values may appear first, or split, or suffixed
-			let delay = find.call(values, STYLES['animation-delay'], { min: 1, max: 2 });
+			let delay = shift.call(values, STYLES['animation-delay'], { min: 1, max: 2 });
 			if (delay.length === 2) {
 				animation['animation-duration'] = delay[0];
 				animation['animation-delay']    = delay[1];
@@ -48,27 +48,27 @@ const parse_single_animation = function(values) {
 				animation['animation-delay'] = delay[0];
 			}
 
-			let iteration = find.call(values, STYLES['animation-iteration-count']);
+			let iteration = shift.call(values, STYLES['animation-iteration-count']);
 			if (iteration.length > 0) {
 				animation['animation-iteration-count'] = iteration[0];
 			}
 
-			let direction = find.call(values, STYLES['animation-direction']);
+			let direction = shift.call(values, STYLES['animation-direction']);
 			if (direction.length > 0) {
 				animation['animation-direction'] = direction[0];
 			}
 
-			let fillmode = find.call(values, STYLES['animation-fill-mode']);
+			let fillmode = shift.call(values, STYLES['animation-fill-mode']);
 			if (fillmode.length > 0) {
 				animation['animation-fill-mode'] = fillmode[0];
 			}
 
-			let playstate = find.call(values, STYLES['animation-play-state']);
+			let playstate = shift.call(values, STYLES['animation-play-state']);
 			if (playstate.length > 0) {
 				animation['animation-play-state'] = playstate[0];
 			}
 
-			let name = find.call(values, STYLES['animation-name']);
+			let name = shift.call(values, STYLES['animation-name']);
 			if (name.length > 0) {
 				animation['animation-name'] = name[0];
 			}
@@ -96,13 +96,13 @@ const parse_single_transition = function(values) {
 		let check = values[0];
 		if (check.val !== 'none') {
 
-			let property = find.call(values, STYLES['transition-property']);
+			let property = shift.call(values, STYLES['transition-property']);
 			if (property.length > 0) {
 				transition['transition-property'] = property[0];
 			}
 
 			// XXX: Two <time> values may appear first, or split, or suffixed
-			let duration = find.call(values, STYLES['transition-duration'], { min: 1, max: 2 });
+			let duration = shift.call(values, STYLES['transition-duration'], { min: 1, max: 2 });
 			if (duration.length === 2) {
 				transition['transition-duration'] = duration[0];
 				transition['transition-delay']    = duration[1];
@@ -110,13 +110,13 @@ const parse_single_transition = function(values) {
 				transition['transition-duration'] = duration[0];
 			}
 
-			let timing = find.call(values, STYLES['transition-timing-function']);
+			let timing = shift.call(values, STYLES['transition-timing-function']);
 			if (timing.length > 0) {
 				transition['transition-timing-function'] = timing[0];
 			}
 
 			// XXX: Two <time> values may appear first, or split, or suffixed
-			let delay = find.call(values, STYLES['transition-delay'], { min: 1, max: 2 });
+			let delay = shift.call(values, STYLES['transition-delay'], { min: 1, max: 2 });
 			if (delay.length === 2) {
 				transition['transition-duration'] = delay[0];
 				transition['transition-delay']    = delay[1];
@@ -193,34 +193,34 @@ export const SHORTHAND = {
 
 	'background': (values, result) => {
 
-		let color = find.call(values, STYLES['background-color']);
+		let color = shift.call(values, STYLES['background-color']);
 		if (color.length > 0) {
 			NORMAL['background-color'](color, result);
 		}
 
-		let image = find.call(values, STYLES['background-image']);
+		let image = shift.call(values, STYLES['background-image']);
 		if (image.length > 0) {
 			NORMAL['background-image'](image, result);
 		}
 
-		let position = find.call(values, STYLES['background-position'], { min: 1, max: 2 });
+		let position = shift.call(values, STYLES['background-position'], { min: 1, max: 2 });
 		if (position.length > 0) {
 			NORMAL['background-position'](position, result);
 		}
 
-		let repeat = find.call(values, STYLES['background-repeat'], { min: 1, max: 2 });
+		let repeat = shift.call(values, STYLES['background-repeat'], { min: 1, max: 2 });
 		if (repeat.length > 0) {
 			NORMAL['background-repeat'](repeat, result);
 		}
 
-		let attachment = find.call(values, STYLES['background-attachment']);
+		let attachment = shift.call(values, STYLES['background-attachment']);
 		if (attachment.length > 0) {
 			NORMAL['background-attachment'](attachment, result);
 		}
 
 
 		// XXX: background-clip has same values as background-origin
-		let boxes = find.call(values, STYLES['background-clip'], { min: 1, max: 2 });
+		let boxes = shift.call(values, STYLES['background-clip'], { min: 1, max: 2 });
 		if (boxes.length === 2) {
 			NORMAL['background-origin']([ boxes[0] ], result);
 			NORMAL['background-clip']([ boxes[1] ], result);
@@ -231,7 +231,7 @@ export const SHORTHAND = {
 
 
 		// XXX: Technically a spec violation, but most people are idiots.
-		let color_bg = find.call(values, STYLES['background-color']);
+		let color_bg = shift.call(values, STYLES['background-color']);
 		if (color_bg.length > 0) {
 			NORMAL['background-color'](color_bg, result);
 		}
@@ -240,17 +240,17 @@ export const SHORTHAND = {
 
 	'border': (values, result) => {
 
-		let width = find.call(values, STYLES['border-width']);
+		let width = shift.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			SHORTHAND['border-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, STYLES['border-style']);
+		let style = shift.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			SHORTHAND['border-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, STYLES['border-color']);
+		let color = shift.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			SHORTHAND['border-color']([ color[0] ], result);
 		}
@@ -259,17 +259,17 @@ export const SHORTHAND = {
 
 	'border-bottom': (values, result) => {
 
-		let width = find.call(values, STYLES['border-width']);
+		let width = shift.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['border-bottom-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, STYLES['border-style']);
+		let style = shift.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['border-bottom-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, STYLES['border-color']);
+		let color = shift.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['border-bottom-color']([ color[0] ], result);
 		}
@@ -278,7 +278,7 @@ export const SHORTHAND = {
 
 	'border-color': (values, result) => {
 
-		let color = find.call(values, STYLES['border-color'], { min: 1, max: 4 });
+		let color = shift.call(values, STYLES['border-color'], { min: 1, max: 4 });
 		if (color.length === 4) {
 			NORMAL['border-top-color']([ color[0] ], result);
 			NORMAL['border-right-color']([ color[1] ], result);
@@ -305,17 +305,17 @@ export const SHORTHAND = {
 
 	'border-left': (values, result) => {
 
-		let width = find.call(values, STYLES['border-width']);
+		let width = shift.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['border-left-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, STYLES['border-style']);
+		let style = shift.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['border-left-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, STYLES['border-color']);
+		let color = shift.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['border-left-color']([ color[0] ], result);
 		}
@@ -337,16 +337,16 @@ export const SHORTHAND = {
 		}, { min: 1, max: 1 });
 		if (has_slash === true) {
 
-			let before = find.call(values, {
+			let before = shift.call(values, {
 				'typ': [ 'length', 'percentage' ]
 			}, { min: 1, max: 4 });
 
 			// strip out the slash
-			find.call(values, {
+			shift.call(values, {
 				'val': [ '/' ]
 			}, { min: 1, max: 1 });
 
-			let after = find.call(values, {
+			let after = shift.call(values, {
 				'typ': [ 'length', 'percentage' ]
 			}, { min: 1, max: 4 });
 
@@ -396,7 +396,7 @@ export const SHORTHAND = {
 
 		} else {
 
-			let radius = find.call(values, {
+			let radius = shift.call(values, {
 				'typ': [ 'length', 'percentage' ]
 			}, { min: 1, max: 4 });
 
@@ -444,17 +444,17 @@ export const SHORTHAND = {
 
 	'border-right': (values, result) => {
 
-		let width = find.call(values, STYLES['border-width']);
+		let width = shift.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['border-right-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, STYLES['border-style']);
+		let style = shift.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['border-right-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, STYLES['border-color']);
+		let color = shift.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['border-right-color']([ color[0] ], result);
 		}
@@ -463,7 +463,7 @@ export const SHORTHAND = {
 
 	'border-style': (values, result) => {
 
-		let style = find.call(values, STYLES['border-style'], { min: 1, max: 4 });
+		let style = shift.call(values, STYLES['border-style'], { min: 1, max: 4 });
 		if (style.length === 4) {
 			NORMAL['border-top-style']([ style[0] ], result);
 			NORMAL['border-right-style']([ style[1] ], result);
@@ -490,17 +490,17 @@ export const SHORTHAND = {
 
 	'border-top': (values, result) => {
 
-		let width = find.call(values, STYLES['border-width']);
+		let width = shift.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['border-top-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, STYLES['border-style']);
+		let style = shift.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['border-top-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, STYLES['border-color']);
+		let color = shift.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['border-top-color']([ color[0] ], result);
 		}
@@ -509,7 +509,7 @@ export const SHORTHAND = {
 
 	'border-width': (values, result) => {
 
-		let width = find.call(values, STYLES['border-width'], { min: 1, max: 4 });
+		let width = shift.call(values, STYLES['border-width'], { min: 1, max: 4 });
 		if (width.length === 4) {
 			NORMAL['border-top-width']([ width[0] ], result);
 			NORMAL['border-right-width']([ width[1] ], result);
@@ -536,17 +536,17 @@ export const SHORTHAND = {
 
 	'column-rule': (values, result) => {
 
-		let width = find.call(values, STYLES['border-width']);
+		let width = shift.call(values, STYLES['border-width']);
 		if (width.length > 0) {
 			NORMAL['column-rule-width']([ width[0] ], result);
 		}
 
-		let style = find.call(values, STYLES['border-style']);
+		let style = shift.call(values, STYLES['border-style']);
 		if (style.length > 0) {
 			NORMAL['column-rule-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, STYLES['border-color']);
+		let color = shift.call(values, STYLES['border-color']);
 		if (color.length > 0) {
 			NORMAL['column-rule-color']([ color[0] ], result);
 		}
@@ -555,12 +555,12 @@ export const SHORTHAND = {
 
 	'columns': (values, result) => {
 
-		let width = find.call(values, STYLES['column-width']);
+		let width = shift.call(values, STYLES['column-width']);
 		if (width.length > 0) {
 			NORMAL['column-width']([ width[0] ], result);
 		}
 
-		let count = find.call(values, STYLES['column-count']);
+		let count = shift.call(values, STYLES['column-count']);
 		if (count.length > 0) {
 			NORMAL['column-count']([ count[0] ], result);
 		}
@@ -583,17 +583,17 @@ export const SHORTHAND = {
 		}
 
 
-		let grow = find.call(values, STYLES['flex-grow']);
+		let grow = shift.call(values, STYLES['flex-grow']);
 		if (grow.length > 0) {
 			NORMAL['flex-grow']([ grow[0] ], result);
 		}
 
-		let shrink = find.call(values, STYLES['flex-shrink']);
+		let shrink = shift.call(values, STYLES['flex-shrink']);
 		if (shrink.length > 0) {
 			NORMAL['flex-shrink']([ shrink[0] ], result);
 		}
 
-		let basis = find.call(values, STYLES['flex-basis']);
+		let basis = shift.call(values, STYLES['flex-basis']);
 		if (basis.length > 0) {
 			NORMAL['flex-basis']([ basis[0] ], result);
 		}
@@ -602,12 +602,12 @@ export const SHORTHAND = {
 
 	'flex-flow': (values, result) => {
 
-		let direction = find.call(values, STYLES['flex-direction']);
+		let direction = shift.call(values, STYLES['flex-direction']);
 		if (direction.length > 0) {
 			NORMAL['flex-direction']([ direction[0] ], result);
 		}
 
-		let wrap = find.call(values, STYLES['flex-wrap']);
+		let wrap = shift.call(values, STYLES['flex-wrap']);
 		if (wrap.length > 0) {
 			NORMAL['flex-wrap']([ wrap[0] ], result);
 		}
@@ -616,7 +616,7 @@ export const SHORTHAND = {
 
 	'font': (values, result) => {
 
-		let style = find.call(values, STYLES['font-style']);
+		let style = shift.call(values, STYLES['font-style']);
 		if (style.length > 0) {
 			NORMAL['font-style']([ style[0] ], result);
 		}
@@ -630,12 +630,12 @@ export const SHORTHAND = {
 			values.splice(0, 1);
 		}
 
-		let weight = find.call(values, STYLES['font-weight']);
+		let weight = shift.call(values, STYLES['font-weight']);
 		if (weight.length > 0) {
 			NORMAL['font-weight']([ weight[0] ], result);
 		}
 
-		let stretch = find.call(values, STYLES['font-stretch']);
+		let stretch = shift.call(values, STYLES['font-stretch']);
 		if (stretch.length > 0) {
 			NORMAL['font-stretch']([ stretch[0] ], result);
 		}
@@ -646,14 +646,14 @@ export const SHORTHAND = {
 		}, { min: 1, max: 1 });
 		if (has_slash === true) {
 
-			let before = find.call(values, STYLES['font-size']);
+			let before = shift.call(values, STYLES['font-size']);
 
 			// strip out the slash
-			find.call(values, {
+			shift.call(values, {
 				'val': [ '/' ]
 			}, { min: 1, max: 1 });
 
-			let after = find.call(values, STYLES['line-height']);
+			let after = shift.call(values, STYLES['line-height']);
 
 			if (before.length === 1 && after.length === 1) {
 
@@ -664,7 +664,7 @@ export const SHORTHAND = {
 
 		} else {
 
-			let size = find.call(values, STYLES['font-size']);
+			let size = shift.call(values, STYLES['font-size']);
 			if (size.length > 0) {
 				NORMAL['font-size']([ size[0] ], result);
 			}
@@ -680,7 +680,7 @@ export const SHORTHAND = {
 
 	'inset': (values, result) => {
 
-		let inset = find.call(values, STYLES['inset'], { min: 1, max: 4 });
+		let inset = shift.call(values, STYLES['inset'], { min: 1, max: 4 });
 		if (inset.length === 4) {
 			NORMAL['top']([ inset[0] ], result);
 			NORMAL['right']([ inset[1] ], result);
@@ -707,17 +707,17 @@ export const SHORTHAND = {
 
 	'list-style': (values, result) => {
 
-		let type = find.call(values, STYLES['list-style-type']);
+		let type = shift.call(values, STYLES['list-style-type']);
 		if (type.length === 1) {
 			NORMAL['list-style-type']([ type[0] ], result);
 		}
 
-		let image = find.call(values, STYLES['list-style-image']);
+		let image = shift.call(values, STYLES['list-style-image']);
 		if (image.length > 0) {
 			NORMAL['list-style-image'](image, result);
 		}
 
-		let position = find.call(values, STYLES['list-style-position']);
+		let position = shift.call(values, STYLES['list-style-position']);
 		if (position.length > 0) {
 			NORMAL['list-style-position']([ position[0] ], result);
 		}
@@ -726,7 +726,7 @@ export const SHORTHAND = {
 
 	'margin': (values, result) => {
 
-		let margin = find.call(values, STYLES['margin'], { min: 1, max: 4 });
+		let margin = shift.call(values, STYLES['margin'], { min: 1, max: 4 });
 		if (margin.length === 4) {
 			NORMAL['margin-top']([ margin[0] ], result);
 			NORMAL['margin-right']([ margin[1] ], result);
@@ -753,17 +753,17 @@ export const SHORTHAND = {
 
 	'outline': (values, result) => {
 
-		let color = find.call(values, STYLES['outline-color']);
+		let color = shift.call(values, STYLES['outline-color']);
 		if (color.length > 0) {
 			NORMAL['outline-color']([ color[0] ], result);
 		}
 
-		let style = find.call(values, STYLES['outline-style']);
+		let style = shift.call(values, STYLES['outline-style']);
 		if (style.length > 0) {
 			NORMAL['outline-style']([ style[0] ], result);
 		}
 
-		let width = find.call(values, STYLES['outline-width']);
+		let width = shift.call(values, STYLES['outline-width']);
 		if (width.length > 0) {
 			NORMAL['outline-width']([ width[0] ], result);
 		}
@@ -772,7 +772,7 @@ export const SHORTHAND = {
 
 	'overflow': (values, result) => {
 
-		let overflow = find.call(values, STYLES['overflow'], { min: 1, max: 2 });
+		let overflow = shift.call(values, STYLES['overflow'], { min: 1, max: 2 });
 		if (overflow.length === 2) {
 			NORMAL['overflow-x']([ overflow[0] ], result);
 			NORMAL['overflow-y']([ overflow[1] ], result);
@@ -785,7 +785,7 @@ export const SHORTHAND = {
 
 	'padding': (values, result) => {
 
-		let padding = find.call(values, STYLES['padding'], { min: 1, max: 4 });
+		let padding = shift.call(values, STYLES['padding'], { min: 1, max: 4 });
 		if (padding.length === 4) {
 			NORMAL['padding-top']([ padding[0] ], result);
 			NORMAL['padding-right']([ padding[1] ], result);
@@ -878,17 +878,17 @@ export const SHORTHAND = {
 
 	'text-decoration': (values, result) => {
 
-		let line = find.call(values, STYLES['text-decoration-line']);
+		let line = shift.call(values, STYLES['text-decoration-line']);
 		if (line.length > 0) {
 			NORMAL['text-decoration-line']([ line[0] ], result);
 		}
 
-		let style = find.call(values, STYLES['text-decoration-style']);
+		let style = shift.call(values, STYLES['text-decoration-style']);
 		if (style.length > 0) {
 			NORMAL['text-decoration-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, STYLES['text-decoration-color']);
+		let color = shift.call(values, STYLES['text-decoration-color']);
 		if (color.length > 0) {
 			NORMAL['text-decoration-color']([ color[0] ], result);
 		}
@@ -897,12 +897,12 @@ export const SHORTHAND = {
 
 	'text-emphasis': (values, result) => {
 
-		let style = find.call(values, STYLES['text-emphasis-style']);
+		let style = shift.call(values, STYLES['text-emphasis-style']);
 		if (style.length > 0) {
 			NORMAL['text-emphasis-style']([ style[0] ], result);
 		}
 
-		let color = find.call(values, STYLES['text-emphasis-color']);
+		let color = shift.call(values, STYLES['text-emphasis-color']);
 		if (color.length > 0) {
 			NORMAL['text-emphasis-color']([ color[0] ], result);
 		}
