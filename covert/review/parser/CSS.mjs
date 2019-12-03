@@ -1132,6 +1132,24 @@ describe('CSS.parse/scroll-padding', function(assert) {
 
 });
 
+describe('CSS.parse/scroll-snap-align', function(assert) {
+
+	let result1 = create({
+		'scroll-snap-align': 'center'
+	});
+
+	let result2 = create({
+		'scroll-snap-align': 'start'
+	});
+
+	assert(result1 !== null);
+	assert(result1['scroll-snap-align'].val, 'center');
+
+	assert(result2 !== null);
+	assert(result2['scroll-snap-align'].val, 'start');
+
+});
+
 describe('CSS.parse/text-decoration', function(assert) {
 
 	let result = create({

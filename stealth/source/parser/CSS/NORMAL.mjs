@@ -188,6 +188,7 @@ export const NORMAL = {
 	'box-decoration-break':        () => {},
 	'box-shadow':                  () => {},
 	'clip':                        () => {},
+	'clip-path':                   () => {},
 	'filter':                      () => {},
 	'font-variant':                () => {},
 	'inset-block':                 () => {},
