@@ -64,6 +64,9 @@ Here's the cumulative list of CSS features that Stealth does not support:
 | padding-inline-start        | specification unclear                       |
 | rotate                      |                                             |
 | scale                       |                                             |
+| shape-image-threshold       | accessibility concerns                      |
+| shape-margin                | accessibility concerns                      |
+| shape-outside               | accessibility concerns                      |
 | scroll-margin-block         | specification unclear                       |
 | scroll-margin-block-end     | specification unclear                       |
 | scroll-margin-block-start   | specification unclear                       |
@@ -80,5 +83,4 @@ Here's the cumulative list of CSS features that Stealth does not support:
 | text-indent                 | `each-line` or `hanging` suffix unsupported |
 | text-shadow                 | accessibility concerns                      |
 | transition-timing-function  | `<step>` syntax unsupported                 |
-| --------------------------- | ------------------------------------------- |
 

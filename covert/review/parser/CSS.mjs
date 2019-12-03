@@ -1150,6 +1150,44 @@ describe('CSS.parse/scroll-snap-align', function(assert) {
 
 });
 
+describe('CSS.parse/scroll-snap-stop', function(assert) {
+
+	let result1 = create({
+		'scroll-snap-stop': 'always'
+	});
+
+	let result2 = create({
+		'scroll-snap-stop': 'normal'
+	});
+
+	assert(result1 !== null);
+	assert(result1['scroll-snap-stop'].val, 'always');
+
+	assert(result2 !== null);
+	assert(result2['scroll-snap-stop'].val, 'normal');
+
+});
+
+describe('CSS.parse/scroll-snap-type', function(assert) {
+
+	let result1 = create({
+		'scroll-snap-type': 'block'
+	});
+
+	let result2 = create({
+		'scroll-snap-type': 'x mandatory'
+	});
+
+	assert(result1 !== null);
+	assert(result1['scroll-snap-type'][0].val, 'block');
+	assert(result1['scroll-snap-type'][1].val, 'proximity');
+
+	assert(result2 !== null);
+	assert(result2['scroll-snap-type'][0].val, 'x');
+	assert(result2['scroll-snap-type'][1].val, 'mandatory');
+
+});
+
 describe('CSS.parse/text-decoration', function(assert) {
 
 	let result = create({

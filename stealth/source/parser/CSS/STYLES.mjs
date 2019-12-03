@@ -419,6 +419,15 @@ export const STYLES = {
 	'tab-size': {
 		'typ': [ 'length', 'number' ]
 	},
+	'table-layout': {
+		'val': [ 'auto', 'fixed' ]
+	},
+	'text-align': {
+		'val': [ 'center', 'end', 'justify', 'left', 'right', 'start' ]
+	},
+	'text-align-last': {
+		'val': [ 'auto', 'center', 'end', 'justify', 'left', 'right', 'start' ]
+	},
 	'text-decoration-color': {
 		'typ': [ 'color' ]
 	},
@@ -427,6 +436,10 @@ export const STYLES = {
 	},
 	'text-decoration-style': {
 		'val': [ 'dashed', 'dotted', 'double', 'solid', 'wavy' ]
+	},
+	'text-decoration-thickness': {
+		'typ': [ 'length' ],
+		'val': [ 'auto', 'from-font' ]
 	},
 	'text-emphasis-color': {
 		'typ': [ 'color' ]
@@ -437,6 +450,19 @@ export const STYLES = {
 	},
 	'text-indent': {
 		'typ': [ 'length', 'percentage' ]
+	},
+	'text-justify': {
+		'val': [ 'auto', 'inter-character', 'inter-word', 'none' ]
+	},
+	'text-orientation': {
+		'val': [ 'mixed', 'sideways', 'upright', 'use-glyph-orientation' ]
+	},
+	'text-transform': {
+		'val': [ 'capitalize', 'full-width', 'lowercase', 'none', 'uppercase' ]
+	},
+	'text-underline-offset': {
+		'typ': [ 'length' ],
+		'val': [ 'auto', 'from-font' ]
 	},
 	'top': {
 		'val': [ 'auto' ],

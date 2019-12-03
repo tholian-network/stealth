@@ -947,6 +947,11 @@ export const SHORTHAND = {
 			NORMAL['text-decoration-color']([ color[0] ], result);
 		}
 
+		let thickness = shift.call(values, STYLES['text-decoration-thickness']);
+		if (thickness.length > 0) {
+			NORMAL['text-decoration-thickness']([ thickness[0] ], result);
+		}
+
 	},
 
 	'text-emphasis': (values, result) => {

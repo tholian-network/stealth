@@ -534,7 +534,7 @@ export const NORMAL = {
 			'val': [ 'block', 'both', 'inline', 'none', 'x', 'y' ]
 		});
 
-		let strictness = match.call(values, {
+		let strictness = filter.call(values, {
 			'val': [ 'mandatory', 'proximity' ]
 		});
 
@@ -731,11 +731,18 @@ export const NORMAL = {
 	'scroll-snap-stop':           single_value.bind(null, 'scroll-snap-stop',           STYLES['scroll-snap-stop']),
 
 	'tab-size':                   single_value.bind(null, 'tab-size',                   STYLES['tab-size']),
+	'table-layout':               single_value.bind(null, 'table-layout',               STYLES['table-layout']),
+	'text-align':                 single_value.bind(null, 'text-align',                 STYLES['text-align']),
 	'text-decoration-color':      single_value.bind(null, 'text-decoration-color',      STYLES['text-decoration-color']),
 	'text-decoration-line':       single_value.bind(null, 'text-decoration-line',       STYLES['text-decoration-line']),
 	'text-decoration-style':      single_value.bind(null, 'text-decoration-style',      STYLES['text-decoration-style']),
+	'text-decoration-thickness':  single_value.bind(null, 'text-decoration-thickness',  STYLES['text-decoration-thickness']),
 	'text-emphasis-color':        single_value.bind(null, 'text-emphasis-color',        STYLES['text-emphasis-color']),
 	'text-indent':                single_value.bind(null, 'text-indent',                STYLES['text-indent']),
+	'text-justify':               single_value.bind(null, 'text-justify',               STYLES['text-justify']),
+	'text-orientation':           single_value.bind(null, 'text-orientation',           STYLES['text-orientation']),
+	'text-transform':             single_value.bind(null, 'text-transform',             STYLES['text-transform']),
+	'text-underline-offset':      single_value.bind(null, 'text-underline-offset',      STYLES['text-underline-offset']),
 	'top':                        single_value.bind(null, 'top',                        STYLES['top']),
 
 	'visibility':                 single_value.bind(null, 'visibility',                 STYLES['visibility']),
