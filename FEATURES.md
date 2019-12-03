@@ -18,9 +18,8 @@ abused in the past with already published proof of concepts or cases in the past
 Here's the cumulative list of CSS features that Stealth does not support:
 
 
-| --------------------------- | ------------------------------------------- |
 | FEATURE                     | REASON                                      |
-| :-------------------------- | :------------------------------------------ |
+|:--------------------------- |:------------------------------------------- |
 | @counter-style              | specification unclear                       |
 | background                  | `,` separated syntax unsupported            |
 | border-block                |                                             |
