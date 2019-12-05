@@ -62,8 +62,7 @@ Here's the cumulative list of CSS features that Stealth does not support:
 | padding-inline              | specification unclear                       |
 | padding-inline-end          | specification unclear                       |
 | padding-inline-start        | specification unclear                       |
-| rotate                      |                                             |
-| scale                       |                                             |
+| pointer-events              | accessibility concerns                      |
 | shape-image-threshold       | accessibility concerns                      |
 | shape-margin                | accessibility concerns                      |
 | shape-outside               | accessibility concerns                      |
@@ -80,7 +79,37 @@ Here's the cumulative list of CSS features that Stealth does not support:
 | scroll-padding-inline-end   | specification unclear                       |
 | scroll-padding-inline-start | specification unclear                       |
 | scroll-snap-align           | two-value syntax unsupported                |
+| text-combine-uright         |                                             |
+| text-underline-position     | accessibility concerns                      |
 | text-indent                 | `each-line` or `hanging` suffix unsupported |
+| text-overflow               | two-value syntax unsupported                |
 | text-shadow                 | accessibility concerns                      |
+| touch-action                | accessibility concerns                      |
 | transition-timing-function  | `<step>` syntax unsupported                 |
+| user-zoom                   | accessibility concerns                      |
+
+## Currently Unsupported CSS Features
+
+These CSS features are currently unsupported because the Browser Engine(s) Stealth
+is using are not supporting them, therefore we currently can't do anything about it.
+
+These features will probably arrive in Stealth once the specification is ready in
+either an upgrade mechanism or in their pure forms.
+
+| FEATURE                     | REASON                                      |
+|:--------------------------- |:------------------------------------------- |
+| transform                   | accesibility concerns                       |
+| transform-origin            | specification [1] incomplete                |
+| translate                   | specification [1] incomplete                |
+| rotate                      | specification [1] incomplete                |
+| scale                       | specification [1] incomplete                |
+
+
+Specifications List:
+
+- [1] https://drafts.csswg.org/css-transforms-2/#ctm
+
+
+
+
 

@@ -375,6 +375,14 @@ export const STYLES = {
 		'val': [ 'none' ],
 		'typ': [ 'length' ]
 	},
+	'perspective-origin': {
+		'val': [
+			'center',
+			'left', 'right',
+			'bottom', 'top'
+		],
+		'typ': [ 'length', 'percentage' ]
+	},
 	'position': {
 		'val': [ 'absolute', 'fixed', 'relative', 'static', 'sticky' ]
 	},
@@ -457,6 +465,13 @@ export const STYLES = {
 	'text-orientation': {
 		'val': [ 'mixed', 'sideways', 'upright', 'use-glyph-orientation' ]
 	},
+	'text-overflow': {
+		'typ': [ 'string' ],
+		'val': [ 'clip', 'ellipsis' ]
+	},
+	'text-rendering': {
+		'val': [ 'auto', 'optimizeSpeed', 'optimizeLegibility' ]
+	},
 	'text-transform': {
 		'val': [ 'capitalize', 'full-width', 'lowercase', 'none', 'uppercase' ]
 	},
@@ -467,6 +482,12 @@ export const STYLES = {
 	'top': {
 		'val': [ 'auto' ],
 		'typ': [ 'length', 'percentage' ]
+	},
+	'transform-box': {
+		'val': [ 'border-box', 'fill-box', 'view-box' ]
+	},
+	'transform-style': {
+		'val': [ 'flat', 'preserve-3d' ]
 	},
 	'transition-delay': {
 		'typ': [ 'time' ]
@@ -508,6 +529,9 @@ export const STYLES = {
 			'z-index',
 			'zoom'
 		]
+	},
+	'unicode-bidi': {
+		'val': [ 'bidi-override', 'embed', 'isolate', 'isolate-override', 'normal', 'plaintext' ]
 	},
 	'visibility': {
 		'val': [ 'collapse', 'hidden', 'visible' ]

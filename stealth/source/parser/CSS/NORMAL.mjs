@@ -226,7 +226,9 @@ export const NORMAL = {
 	'scroll-padding-inline':       () => {},
 	'scroll-padding-inline-end':   () => {},
 	'scroll-padding-inline-start': () => {},
+	'text-combine-upright':        () => {},
 	'text-shadow':                 () => {},
+	'text-underline-position':     () => {},
 
 
 	/*
@@ -345,9 +347,6 @@ export const NORMAL = {
 				result['background-size-y'] = size[1];
 
 			} else if (size.length === 1) {
-
-				// TODO: Two modes: keywords or values
-				// If length or percentage, value represents width and height is auto
 
 				let val = size[0].val;
 				let typ = size[0].typ;
@@ -503,6 +502,37 @@ export const NORMAL = {
 					result['opacity'] = opacity[0];
 				}
 
+			}
+
+		}
+
+	},
+
+	'perspective-origin': (values, result) => {
+
+		let origin = shift.call(values, STYLES['perspective-origin']);
+		if (origin.length === 2) {
+
+			let origin_x = filter.call(values, { 'val': [ 'left', 'right' ] });
+			let origin_y = filter.call(values, { 'val': [ 'bottom', 'top' ] });
+
+			if (origin_x.length === 1 && origin_y.length === 1) {
+				result['perspective-origin-x'] = origin_x[0];
+				result['perspective-origin-y'] = origin_y[0];
+			} else {
+				result['perspective-origin-x'] = origin[0];
+				result['perspective-origin-y'] = origin[1];
+			}
+
+		} else if (origin.length === 1) {
+
+			let val = origin[0].val;
+			if (val === 'center' || val === 'left' || val === 'right') {
+				result['perspective-origin-x'] = origin[0];
+				result['perspective-origin-y'] = parse_chunk('center');
+			} else if (val === 'bottom' || val === 'top') {
+				result['perspective-origin-x'] = parse_chunk('center');
+				result['perspective-origin-y'] = origin[0];
 			}
 
 		}
@@ -741,9 +771,15 @@ export const NORMAL = {
 	'text-indent':                single_value.bind(null, 'text-indent',                STYLES['text-indent']),
 	'text-justify':               single_value.bind(null, 'text-justify',               STYLES['text-justify']),
 	'text-orientation':           single_value.bind(null, 'text-orientation',           STYLES['text-orientation']),
+	'text-overflow':              single_value.bind(null, 'text-overflow',              STYLES['text-overflow']),
+	'text-rendering':             single_value.bind(null, 'text-rendering',             STYLES['text-rendering']),
 	'text-transform':             single_value.bind(null, 'text-transform',             STYLES['text-transform']),
 	'text-underline-offset':      single_value.bind(null, 'text-underline-offset',      STYLES['text-underline-offset']),
 	'top':                        single_value.bind(null, 'top',                        STYLES['top']),
+	'transform-box':              single_value.bind(null, 'transform-box',              STYLES['transform-box']),
+	'transform-style':            single_value.bind(null, 'transform-style',            STYLES['transform-style']),
+
+	'unicode-bidi':               single_value.bind(null, 'unicode-bidi',               STYLES['unicode-bidi']),
 
 	'visibility':                 single_value.bind(null, 'visibility',                 STYLES['visibility']),
 
