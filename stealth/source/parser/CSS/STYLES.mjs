@@ -533,15 +533,57 @@ export const STYLES = {
 	'unicode-bidi': {
 		'val': [ 'bidi-override', 'embed', 'isolate', 'isolate-override', 'normal', 'plaintext' ]
 	},
+	'vertical-align': {
+		'val': [ 'baseline', 'bottom', 'middle', 'sub', 'super', 'text-bottom', 'text-top', 'top' ],
+		'typ': [ 'length', 'percentage' ]
+	},
 	'visibility': {
 		'val': [ 'collapse', 'hidden', 'visible' ]
+	},
+	'white-space': {
+		'val': [ 'break-spaces', 'no-wrap', 'normal', 'pre', 'pre-line', 'pre-wrap' ]
 	},
 	'width': {
 		'val': [ 'auto', 'available', 'border-box', 'content-box', 'fill', 'min-content', 'fit-content', 'max-content' ],
 		'typ': [ 'length', 'percentage' ]
 	},
+	'widows': {
+		'typ': [ 'number' ]
+	},
+	'will-change': {
+		'val': [
+			'auto', 'contents', 'scroll-position',
+			'background', 'background-color', 'background-position', 'background-size',
+			'border', 'border-color', 'border-radius', 'border-width',
+			'border-top', 'border-top-color', 'border-top-left-radius', 'border-top-right-radius', 'border-top-width',
+			'border-right', 'border-right-color', 'border-right-width',
+			'border-bottom', 'border-bottom-color', 'border-bottom-left-radius', 'border-bottom-right-radius', 'border-bottom-width',
+			'border-left', 'border-left-color', 'border-left-width',
+			'top', 'right', 'bottom', 'left',
+			'color', 'width', 'height',
+			'column-count', 'column-gap', 'column-rule', 'column-rule-color', 'column-rule-width', 'column-width', 'columns',
+			'flex', 'flex-basis', 'flex-grow', 'flex-shrink',
+			'font', 'font-size', 'font-size-adjust', 'font-stretch', 'font-weight',
+			'letter-spacing', 'line-height',
+			'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+			'min-width', 'max-width', 'min-height', 'max-height',
+			'opacity', 'order',
+			'outline', 'outline-color', 'outline-offset', 'outline-width',
+			'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+			'tab-size',
+			'text-decoration', 'text-decoration-color',
+			'text-emphasis', 'text-emphasis-color', 'text-indent',
+			'visibility',
+			'word-spacing',
+			'z-index',
+			'zoom'
+		]
+	},
 	'writing-mode': {
 		'val': [ 'horizontal-tb', 'vertical-rl', 'vertical-lr', 'sideways-rl', 'sideways-lr' ]
+	},
+	'word-break': {
+		'val': [ 'break-all', 'break-word', 'keep-all', 'normal' ]
 	},
 	'word-spacing': {
 		'val': [ 'normal' ],

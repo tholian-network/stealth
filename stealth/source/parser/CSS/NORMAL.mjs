@@ -781,10 +781,15 @@ export const NORMAL = {
 
 	'unicode-bidi':               single_value.bind(null, 'unicode-bidi',               STYLES['unicode-bidi']),
 
+	'vertical-align':             single_value.bind(null, 'vertical-align',             STYLES['vertical-align']),
 	'visibility':                 single_value.bind(null, 'visibility',                 STYLES['visibility']),
 
+	'white-space':                single_value.bind(null, 'white-space',                STYLES['white-space']),
 	'width':                      single_value.bind(null, 'width',                      STYLES['width']),
+	'widows':                     single_value.bind(null, 'widows',                     STYLES['widows']),
+	'will-change':                single_value.bind(null, 'will-change',                STYLES['will-change']),
 	'writing-mode':               single_value.bind(null, 'writing-mode',               STYLES['writing-mode']),
+	'word-break':                 single_value.bind(null, 'word-break',                 STYLES['word-break']),
 	'word-spacing':               single_value.bind(null, 'word-spacing',               STYLES['word-spacing']),
 
 	'z-index':                    single_value.bind(null, 'z-index',                    STYLES['z-index']),
