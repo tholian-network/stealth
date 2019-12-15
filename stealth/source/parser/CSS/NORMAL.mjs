@@ -510,7 +510,7 @@ export const NORMAL = {
 
 	'perspective-origin': (values, result) => {
 
-		let origin = shift.call(values, STYLES['perspective-origin']);
+		let origin = shift.call(values, STYLES['perspective-origin'], { min: 1, max: 2 });
 		if (origin.length === 2) {
 
 			let origin_x = filter.call(values, { 'val': [ 'left', 'right' ] });
@@ -589,7 +589,7 @@ export const NORMAL = {
 			}
 
 		} else if (color.length === 1) {
-			result['scrollbar-color'] = color[0];
+			result['scrollbar-color'] = [ color[0], parse_chunk('transparent') ];
 		}
 
 	},
@@ -600,7 +600,7 @@ export const NORMAL = {
 		if (style.length > 0) {
 
 			if (style[0].typ === 'string' && style[0].val.length > 1) {
-				style[0] = parse_chunk(style[0].val.charAt(0));
+				style[0] = parse_chunk('"' + style[0].val.charAt(0) + '"');
 			}
 
 			result['text-emphasis-style'] = style[0];
@@ -633,8 +633,8 @@ export const NORMAL = {
 
 	'transition-delay':           comma_values.bind(null, 'transition-delay',           STYLES['transition-delay'],           { min: 1, max: 16 }),
 	'transition-duration':        comma_values.bind(null, 'transition-duration',        STYLES['transition-duration'],        { min: 1, max: 16 }),
-	'transition-timing-function': comma_values.bind(null, 'transition-timing-function', STYLES['transition-timing-function'], { min: 1, max: 16 }),
 	'transition-property':        comma_values.bind(null, 'transition-property',        STYLES['transition-property'],        { min: 1, max: 16 }),
+	'transition-timing-function': comma_values.bind(null, 'transition-timing-function', STYLES['transition-timing-function'], { min: 1, max: 16 }),
 
 
 
@@ -646,9 +646,6 @@ export const NORMAL = {
 	'align-items':                single_value.bind(null, 'align-items',                STYLES['align-items']),
 	'align-self':                 single_value.bind(null, 'align-self',                 STYLES['align-self']),
 
-	'break-after':                single_value.bind(null, 'break-after',                STYLES['break-after']),
-	'break-before':               single_value.bind(null, 'break-before',               STYLES['break-before']),
-	'break-inside':               single_value.bind(null, 'break-inside',               STYLES['break-inside']),
 	'backface-visibility':        single_value.bind(null, 'backface-visibility',        STYLES['backface-visibility']),
 	'background-attachment':      single_value.bind(null, 'background-attachment',      STYLES['background-attachment']),
 	'background-clip':            single_value.bind(null, 'background-clip',            STYLES['background-clip']),
@@ -669,6 +666,9 @@ export const NORMAL = {
 	'border-left-width':          single_value.bind(null, 'border-left-width',          STYLES['border-width']),
 	'bottom':                     single_value.bind(null, 'bottom',                     STYLES['bottom']),
 	'box-sizing':                 single_value.bind(null, 'box-sizing',                 STYLES['box-sizing']),
+	'break-after':                single_value.bind(null, 'break-after',                STYLES['break-after']),
+	'break-before':               single_value.bind(null, 'break-before',               STYLES['break-before']),
+	'break-inside':               single_value.bind(null, 'break-inside',               STYLES['break-inside']),
 
 	'caption-side':               single_value.bind(null, 'caption-side',               STYLES['caption-side']),
 	'caret-color':                single_value.bind(null, 'caret-color',                STYLES['caret-color']),
@@ -806,7 +806,6 @@ export const NORMAL = {
 	'page-break-inside':          single_value.bind(null, 'break-inside',               STYLES['break-inside'])
 
 };
-
 
 
 export default { NORMAL };

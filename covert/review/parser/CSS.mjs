@@ -410,6 +410,105 @@ describe('CSS.parse/border', function(assert) {
 
 });
 
+describe('CSS.parse/border-bottom', function(assert) {
+
+	let result = create({
+		'border-bottom': 'medium dotted #ff00cc'
+	});
+
+	assert(result !== null);
+	assert(result['border-bottom-width'].val, 'medium');
+	assert(result['border-bottom-style'].val, 'dotted');
+	assert(result['border-bottom-color'].val, [ 255, 0, 204, 1 ]);
+
+});
+
+describe('CSS.parse/border-bottom-left-radius', function(assert) {
+
+	let result = create({
+		'border-bottom-left-radius': '13em 37px'
+	});
+
+	assert(result !== null);
+	assert(result['border-bottom-left-radius'][0].ext, 'em');
+	assert(result['border-bottom-left-radius'][0].val, 13);
+	assert(result['border-bottom-left-radius'][1].ext, 'px');
+	assert(result['border-bottom-left-radius'][1].val, 37);
+
+});
+
+describe('CSS.parse/border-bottom-right-radius', function(assert) {
+
+	let result = create({
+		'border-bottom-right-radius': '13em 37px'
+	});
+
+	assert(result !== null);
+	assert(result['border-bottom-right-radius'][0].ext, 'em');
+	assert(result['border-bottom-right-radius'][0].val, 13);
+	assert(result['border-bottom-right-radius'][1].ext, 'px');
+	assert(result['border-bottom-right-radius'][1].val, 37);
+
+});
+
+describe('CSS.parse/border-color', function(assert) {
+
+	let result1 = create({
+		'border-color': '#ffcc00 #ff00cc #00ffcc #00ccff'
+	});
+
+	let result2 = create({
+		'border-color': '#ffcc00 #ff00cc #00ffcc'
+	});
+
+	let result3 = create({
+		'border-color': '#ffcc00 #ff00cc'
+	});
+
+	let result4 = create({
+		'border-color': '#ffcc00'
+	});
+
+	assert(result1 !== null);
+	assert(result1['border-top-color'].val,    [ 255, 204, 0, 1 ]);
+	assert(result1['border-right-color'].val,  [ 255, 0, 204, 1 ]);
+	assert(result1['border-bottom-color'].val, [ 0, 255, 204, 1 ]);
+	assert(result1['border-left-color'].val,   [ 0, 204, 255, 1 ]);
+
+	assert(result2 !== null);
+	assert(result2['border-top-color'].val,    [ 255, 204, 0, 1 ]);
+	assert(result2['border-right-color'].val,  [ 255, 0, 204, 1 ]);
+	assert(result2['border-bottom-color'].val, [ 0, 255, 204, 1 ]);
+	assert(result2['border-left-color'].val,   [ 255, 0, 204, 1 ]);
+
+	assert(result3 !== null);
+	assert(result3['border-top-color'].val,    [ 255, 204, 0, 1 ]);
+	assert(result3['border-right-color'].val,  [ 255, 0, 204, 1 ]);
+	assert(result3['border-bottom-color'].val, [ 255, 204, 0, 1 ]);
+	assert(result3['border-left-color'].val,   [ 255, 0, 204, 1 ]);
+
+	assert(result4 !== null);
+	assert(result4['border-top-color'].val,    [ 255, 204, 0, 1 ]);
+	assert(result4['border-right-color'].val,  [ 255, 204, 0, 1 ]);
+	assert(result4['border-bottom-color'].val, [ 255, 204, 0, 1 ]);
+	assert(result4['border-left-color'].val,   [ 255, 204, 0, 1 ]);
+
+
+});
+
+describe('CSS.parse/border-left', function(assert) {
+
+	let result = create({
+		'border-left': 'medium dotted #ff00cc'
+	});
+
+	assert(result !== null);
+	assert(result['border-left-width'].val, 'medium');
+	assert(result['border-left-style'].val, 'dotted');
+	assert(result['border-left-color'].val, [ 255, 0, 204, 1 ]);
+
+});
+
 describe('CSS.parse/border-radius', function(assert) {
 
 	let result = create({
@@ -436,6 +535,19 @@ describe('CSS.parse/border-radius', function(assert) {
 
 });
 
+describe('CSS.parse/border-right', function(assert) {
+
+	let result = create({
+		'border-right': 'medium dotted #ff00cc'
+	});
+
+	assert(result !== null);
+	assert(result['border-right-width'].val, 'medium');
+	assert(result['border-right-style'].val, 'dotted');
+	assert(result['border-right-color'].val, [ 255, 0, 204, 1 ]);
+
+});
+
 describe('CSS.parse/border-spacing', function(assert) {
 
 	let result1 = create({
@@ -457,6 +569,179 @@ describe('CSS.parse/border-spacing', function(assert) {
 	assert(result2['border-spacing-x'].val, 13);
 	assert(result2['border-spacing-y'].ext, 'cm');
 	assert(result2['border-spacing-y'].val, 37);
+
+});
+
+describe('CSS.parse/border-style', function(assert) {
+
+	let result1 = create({
+		'border-style': 'dotted dashed solid double'
+	});
+
+	let result2 = create({
+		'border-style': 'dotted dashed solid'
+	});
+
+	let result3 = create({
+		'border-style': 'dotted dashed'
+	});
+
+	let result4 = create({
+		'border-style': 'dotted'
+	});
+
+	assert(result1 !== null);
+	assert(result1['border-top-style'].val,    'dotted');
+	assert(result1['border-right-style'].val,  'dashed');
+	assert(result1['border-bottom-style'].val, 'solid');
+	assert(result1['border-left-style'].val,   'double');
+
+	assert(result2 !== null);
+	assert(result2['border-top-style'].val,    'dotted');
+	assert(result2['border-right-style'].val,  'dashed');
+	assert(result2['border-bottom-style'].val, 'solid');
+	assert(result2['border-left-style'].val,   'dashed');
+
+	assert(result3 !== null);
+	assert(result3['border-top-style'].val,    'dotted');
+	assert(result3['border-right-style'].val,  'dashed');
+	assert(result3['border-bottom-style'].val, 'dotted');
+	assert(result3['border-left-style'].val,   'dashed');
+
+	assert(result4 !== null);
+	assert(result4['border-top-style'].val,    'dotted');
+	assert(result4['border-right-style'].val,  'dotted');
+	assert(result4['border-bottom-style'].val, 'dotted');
+	assert(result4['border-left-style'].val,   'dotted');
+
+});
+
+describe('CSS.parse/border-top', function(assert) {
+
+	let result = create({
+		'border-top': 'medium dotted #ff00cc'
+	});
+
+	assert(result !== null);
+	assert(result['border-top-width'].val, 'medium');
+	assert(result['border-top-style'].val, 'dotted');
+	assert(result['border-top-color'].val, [ 255, 0, 204, 1 ]);
+
+});
+
+describe('CSS.parse/border-top-left-radius', function(assert) {
+
+	let result = create({
+		'border-top-left-radius': '13em 37px'
+	});
+
+	assert(result !== null);
+	assert(result['border-top-left-radius'][0].ext, 'em');
+	assert(result['border-top-left-radius'][0].val, 13);
+	assert(result['border-top-left-radius'][1].ext, 'px');
+	assert(result['border-top-left-radius'][1].val, 37);
+
+});
+
+describe('CSS.parse/border-top-right-radius', function(assert) {
+
+	let result = create({
+		'border-top-right-radius': '13em 37px'
+	});
+
+	assert(result !== null);
+	assert(result['border-top-right-radius'][0].ext, 'em');
+	assert(result['border-top-right-radius'][0].val, 13);
+	assert(result['border-top-right-radius'][1].ext, 'px');
+	assert(result['border-top-right-radius'][1].val, 37);
+
+});
+
+describe('CSS.parse/border-width', function(assert) {
+
+	let result1 = create({
+		'border-width': 'thin medium thick 13em'
+	});
+
+	let result2 = create({
+		'border-width': 'thin medium thick'
+	});
+
+	let result3 = create({
+		'border-width': 'thin medium'
+	});
+
+	let result4 = create({
+		'border-width': 'thin'
+	});
+
+	assert(result1 !== null);
+	assert(result1['border-top-width'].ext,    null);
+	assert(result1['border-top-width'].val,    'thin');
+	assert(result1['border-right-width'].ext,  null);
+	assert(result1['border-right-width'].val,  'medium');
+	assert(result1['border-bottom-width'].ext, null);
+	assert(result1['border-bottom-width'].val, 'thick');
+	assert(result1['border-left-width'].ext,   'em');
+	assert(result1['border-left-width'].val,   13);
+
+	assert(result2 !== null);
+	assert(result2['border-top-width'].ext,    null);
+	assert(result2['border-top-width'].val,    'thin');
+	assert(result2['border-right-width'].ext,  null);
+	assert(result2['border-right-width'].val,  'medium');
+	assert(result2['border-bottom-width'].ext, null);
+	assert(result2['border-bottom-width'].val, 'thick');
+	assert(result2['border-left-width'].ext,   null);
+	assert(result2['border-left-width'].val,   'medium');
+
+	assert(result3 !== null);
+	assert(result3['border-top-width'].ext,    null);
+	assert(result3['border-top-width'].val,    'thin');
+	assert(result3['border-right-width'].ext,  null);
+	assert(result3['border-right-width'].val,  'medium');
+	assert(result3['border-bottom-width'].ext, null);
+	assert(result3['border-bottom-width'].val, 'thin');
+	assert(result3['border-left-width'].ext,   null);
+	assert(result3['border-left-width'].val,   'medium');
+
+	assert(result4 !== null);
+	assert(result4['border-top-width'].ext,    null);
+	assert(result4['border-top-width'].val,    'thin');
+	assert(result4['border-right-width'].ext,  null);
+	assert(result4['border-right-width'].val,  'thin');
+	assert(result4['border-bottom-width'].ext, null);
+	assert(result4['border-bottom-width'].val, 'thin');
+	assert(result4['border-left-width'].ext,   null);
+	assert(result4['border-left-width'].val,   'thin');
+
+});
+
+describe('CSS.parse/color', function(assert) {
+
+	let result1 = create({
+		'color': 'rgba(255, 204, 0, 0.5)'
+	});
+
+	let result2 = create({
+		'color': 'orange'
+	});
+
+	let result3 = create({
+		'color': 'transparent'
+	});
+
+	assert(result1 !== null);
+	assert(result1['color'].typ, 'color');
+	assert(result1['color'].val, [ 255, 204, 0, 0.5 ]);
+
+	assert(result2 !== null);
+	assert(result2['color'].typ, 'color');
+	assert(result2['color'].val, [ 255, 165, 0, 1 ]);
+
+	assert(result3 !== null);
+	assert(result3['color'].typ, 'color');
+	assert(result3['color'].val, [ 0, 0, 0, 0 ]);
 
 });
 
@@ -592,6 +877,21 @@ describe('CSS.parse/font', function(assert) {
 	assert(result['font-size'].val,      13);
 	assert(result['line-height'].ext,    'px');
 	assert(result['line-height'].val,    37);
+	assert(result['font-family'].length, 4);
+	assert(result['font-family'][0].val, 'Times New Roman');
+	assert(result['font-family'][1].val, 'Arial');
+	assert(result['font-family'][2].val, 'Sedana');
+	assert(result['font-family'][3].val, 'sans-serif');
+
+});
+
+describe('CSS.parse/font-family', function(assert) {
+
+	let result = create({
+		'font-family': '"Times New Roman", "Arial", Sedana, sans-serif'
+	});
+
+	assert(result !== null);
 	assert(result['font-family'].length, 4);
 	assert(result['font-family'][0].val, 'Times New Roman');
 	assert(result['font-family'][1].val, 'Arial');
@@ -881,6 +1181,50 @@ describe('CSS.parse/padding', function(assert) {
 	assert(result4['padding-bottom'].val, 1337);
 	assert(result4['padding-left'].ext,   'px');
 	assert(result4['padding-left'].val,   1337);
+
+});
+
+describe('CSS.parse/perspective-origin', function(assert) {
+
+	let result1 = create({
+		'perspective-origin': 'center top'
+	});
+
+	let result2 = create({
+		'perspective-origin': 'center'
+	});
+
+	let result3 = create({
+		'perspective-origin': 'center 13%'
+	});
+
+	let result4 = create({
+		'perspective-origin': '13% 37em'
+	});
+
+	assert(result1 !== null);
+	assert(result1['perspective-origin-x'].ext, null);
+	assert(result1['perspective-origin-x'].val, 'center');
+	assert(result1['perspective-origin-y'].ext, null);
+	assert(result1['perspective-origin-y'].val, 'top');
+
+	assert(result2 !== null);
+	assert(result2['perspective-origin-x'].ext, null);
+	assert(result2['perspective-origin-x'].val, 'center');
+	assert(result2['perspective-origin-y'].ext, null);
+	assert(result2['perspective-origin-y'].val, 'center');
+
+	assert(result3 !== null);
+	assert(result3['perspective-origin-x'].ext, null);
+	assert(result3['perspective-origin-x'].val, 'center');
+	assert(result3['perspective-origin-y'].ext, '%');
+	assert(result3['perspective-origin-y'].val, 13);
+
+	assert(result4 !== null);
+	assert(result4['perspective-origin-x'].ext, '%');
+	assert(result4['perspective-origin-x'].val, 13);
+	assert(result4['perspective-origin-y'].ext, 'em');
+	assert(result4['perspective-origin-y'].val, 37);
 
 });
 
@@ -1188,6 +1532,30 @@ describe('CSS.parse/scroll-snap-type', function(assert) {
 
 });
 
+describe('CSS.parse/scrollbar-color', function(assert) {
+
+	let result1 = create({
+		'scrollbar-color': '#ffcc00 #00ffcc'
+	});
+
+	let result2 = create({
+		'scrollbar-color': '#ffcc00'
+	});
+
+	assert(result1 !== null);
+	assert(result1['scrollbar-color'].length, 2);
+	assert(result1['scrollbar-color'][0].typ, 'color');
+	assert(result1['scrollbar-color'][0].val, [ 255, 204, 0, 1 ]);
+	assert(result1['scrollbar-color'][1].typ, 'color');
+	assert(result1['scrollbar-color'][1].val, [ 0, 255, 204, 1 ]);
+
+	assert(result2['scrollbar-color'][0].typ, 'color');
+	assert(result2['scrollbar-color'][0].val, [ 255, 204, 0, 1 ]);
+	assert(result2['scrollbar-color'][1].typ, 'color');
+	assert(result2['scrollbar-color'][1].val, [ 0, 0, 0, 0 ]);
+
+});
+
 describe('CSS.parse/text-decoration', function(assert) {
 
 	let result = create({
@@ -1221,6 +1589,46 @@ describe('CSS.parse/text-emphasis', function(assert) {
 
 });
 
+describe('CSS.parse/text-emphasis-color', function(assert) {
+
+	let result1 = create({
+		'text-emphasis-color': '#ffcc00'
+	});
+
+	let result2 = create({
+		'text-emphasis-color': 'orange'
+	});
+
+	assert(result1 !== null);
+	assert(result1['text-emphasis-color'].typ, 'color');
+	assert(result1['text-emphasis-color'].val, [ 255, 204, 0, 1 ]);
+
+	assert(result2 !== null);
+	assert(result2['text-emphasis-color'].typ, 'color');
+	assert(result2['text-emphasis-color'].val, [ 255, 165, 0, 1 ]);
+
+});
+
+describe('CSS.parse/text-emphasis-style', function(assert) {
+
+	let result1 = create({
+		'text-emphasis-style': '"foo"'
+	});
+
+	let result2 = create({
+		'text-emphasis-style': 'Bar'
+	});
+
+	assert(result1 !== null);
+	assert(result1['text-emphasis-style'].typ, 'string');
+	assert(result1['text-emphasis-style'].val, 'f');
+
+	assert(result2 !== null);
+	assert(result2['text-emphasis-style'].typ, 'string');
+	assert(result2['text-emphasis-style'].val, 'B');
+
+});
+
 describe('CSS.parse/transition', function(assert) {
 
 	let result = create({
@@ -1238,6 +1646,90 @@ describe('CSS.parse/transition', function(assert) {
 	assert(result['transition-delay'].length === 2);
 	assert(result['transition-delay'].map((e) => e.ext), [ 's', 'ms' ]);
 	assert(result['transition-delay'].map((e) => e.val), [ 0, 200 ]);
+
+});
+
+describe('CSS.parse/transition-delay', function(assert) {
+
+	let result1 = create({
+		'transition-delay': '13ms, 37s'
+	});
+
+	let result2 = create({
+		'transition-delay': '13s'
+	});
+
+	assert(result1 !== null);
+	assert(result1['transition-delay'].length === 2);
+	assert(result1['transition-delay'].map((e) => e.ext), [ 'ms', 's' ]);
+	assert(result1['transition-delay'].map((e) => e.val), [ 13, 37 ]);
+
+	assert(result2 !== null);
+	assert(result2['transition-delay'].length === 1);
+	assert(result2['transition-delay'].map((e) => e.ext), [ 's' ]);
+	assert(result2['transition-delay'].map((e) => e.val), [ 13 ]);
+
+});
+
+describe('CSS.parse/transition-duration', function(assert) {
+
+	let result1 = create({
+		'transition-duration': '13ms, 37s'
+	});
+
+	let result2 = create({
+		'transition-duration': '13s'
+	});
+
+	assert(result1 !== null);
+	assert(result1['transition-duration'].length === 2);
+	assert(result1['transition-duration'].map((e) => e.ext), [ 'ms', 's' ]);
+	assert(result1['transition-duration'].map((e) => e.val), [ 13, 37 ]);
+
+	assert(result2 !== null);
+	assert(result2['transition-duration'].length === 1);
+	assert(result2['transition-duration'].map((e) => e.ext), [ 's' ]);
+	assert(result2['transition-duration'].map((e) => e.val), [ 13 ]);
+
+});
+
+describe('CSS.parse/transition-property', function(assert) {
+
+	let result1 = create({
+		'transition-property': 'margin, padding'
+	});
+
+	let result2 = create({
+		'transition-property': 'max-width'
+	});
+
+	assert(result1 !== null);
+	assert(result1['transition-property'].length === 2);
+	assert(result1['transition-property'].map((e) => e.val), [ 'margin', 'padding' ]);
+
+	assert(result2 !== null);
+	assert(result2['transition-property'].length === 1);
+	assert(result2['transition-property'].map((e) => e.val), [ 'max-width' ]);
+
+});
+
+describe('CSS.parse/transition-timing-function', function(assert) {
+
+	let result1 = create({
+		'transition-timing-function': 'ease-in, ease-out'
+	});
+
+	let result2 = create({
+		'transition-timing-function': 'linear'
+	});
+
+	assert(result1 !== null);
+	assert(result1['transition-timing-function'].length === 2);
+	assert(result1['transition-timing-function'].map((e) => e.val), [ 'ease-in', 'ease-out' ]);
+
+	assert(result2 !== null);
+	assert(result2['transition-timing-function'].length === 1);
+	assert(result2['transition-timing-function'].map((e) => e.val), [ 'linear' ]);
 
 });
 

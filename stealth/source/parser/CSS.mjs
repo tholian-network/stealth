@@ -1,6 +1,7 @@
 
 import { Buffer, isArray, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
 
+import { COLORS    } from './CSS/COLORS.mjs';
 import { NORMAL    } from './CSS/NORMAL.mjs';
 import { SHORTHAND } from './CSS/SHORTHAND.mjs';
 
@@ -526,6 +527,17 @@ export const parse_value = function(str) {
 			};
 
 		}
+
+	} else if (COLORS[str] !== undefined) {
+
+		let nums = COLORS[str];
+
+		value = {
+			ext: null,
+			raw: 'rgba(' + nums.join(',') + ')',
+			typ: 'color',
+			val: nums
+		};
 
 	} else if ((str.startsWith('rgb(') || str.startsWith('rgba(')) && str.endsWith(')')) {
 

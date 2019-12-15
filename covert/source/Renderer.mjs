@@ -129,7 +129,9 @@ Renderer.prototype = {
 						all_ok = false;
 						status = 'fail';
 						console.error(message);
-					} else if (nulls === false) {
+					} else if (nulls === false && test.results.length === 0) {
+						console.warn(message);
+					} else if (nulls === false && test.results.length > 0) {
 						console.info(message);
 					} else if (nulls === true && test.results.index > 0) {
 						all_ok = false;

@@ -206,24 +206,32 @@ Results.prototype = {
 
 		let str = '';
 
-		str += '|';
+		if (this.data.length > 0) {
 
-		for (let d = 0, dl = this.data.length; d < dl; d++) {
+			str += '|';
 
-			let value = this.data[d];
-			if (value === null) {
-				str += '?';
-			} else if (value === true) {
-				str += '+';
-			} else if (value === false) {
-				str += '-';
-			} else {
-				str += '?';
+			for (let d = 0, dl = this.data.length; d < dl; d++) {
+
+				let value = this.data[d];
+				if (value === null) {
+					str += '?';
+				} else if (value === true) {
+					str += '+';
+				} else if (value === false) {
+					str += '-';
+				} else {
+					str += '?';
+				}
+
 			}
 
-		}
+			str += '|';
 
-		str += '|';
+		} else {
+
+			str += '| no assert() calls |';
+
+		}
 
 		return str;
 

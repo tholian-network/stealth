@@ -1001,6 +1001,5 @@ export const SHORTHAND = {
 };
 
 
-
 export default { SHORTHAND };
 
