@@ -6,7 +6,6 @@ export const debug = _console.debug;
 export const error = _console.error;
 export const info  = _console.info;
 export const log   = _console.log;
-export const step  = _console.log;
 export const warn  = _console.warn;
 
 export const console = {
@@ -15,7 +14,6 @@ export const console = {
 	error: error,
 	info:  info,
 	log:   log,
-	step:  step,
 	warn:  warn
 };
 

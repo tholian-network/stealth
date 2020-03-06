@@ -23,15 +23,11 @@
 ### UI
 
 - [ ] Implement Beacon Sidebar (a Dummy View, as it is released with X1).
-- [ ] Implement Peer Sidebar.
 - [ ] Implement Site Sidebar.
-- [ ] `stealth:fix-request` Page (Download Assistant for Peers and the Web Archive).
 
 ### Other
 
-- [ ] Implement `browser.download(url)` method (that schedules Requests via `Client`).
 - [ ] Optimizer for HTML files.
-- [ ] Optimizer for CSS files.
 - [ ] Re-Generate Vendor Profile.
 - [ ] Clarify whether Win10 crypt32.dll supports `TLS_Method` or really only `SSLv3`.
 

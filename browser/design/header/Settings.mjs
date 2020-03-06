@@ -132,6 +132,7 @@ const Settings = function(browser, widgets) {
 
 	browser.on('show',    (tab) => update.call(this, tab));
 	browser.on('refresh', (tab) => update.call(this, tab));
+	browser.on('hide',    ()    => toggle.call(this, null, widgets));
 
 };
 

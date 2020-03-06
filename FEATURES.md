@@ -40,46 +40,28 @@ Here's the cumulative list of CSS features that Stealth does not support:
 | grid-row                    |                                             |
 | grid-template               |                                             |
 | font-variant                | specification unclear                       |
-| inset-block                 | specification unclear                       |
-| inset-block-end             | specification unclear                       |
-| inset-block-start           | specification unclear                       |
-| inset-inline                | specification unclear                       |
-| inset-inline-end            | specification unclear                       |
-| inset-inline-start          | specification unclear                       |
 | isolation                   | accessibility concerns                      |
-| margin-block                | specification unclear                       |
-| margin-block-end            | specification unclear                       |
-| margin-block-start          | specification unclear                       |
-| margin-inline               | specification unclear                       |
-| margin-inline-end           | specification unclear                       |
-| margin-inline-start         | specification unclear                       |
 | min-block-size              | specification unclear                       |
 | mix-blend-mode              | accessibility concerns                      |
 | offset                      | too complex: requires SVG path parser       |
-| padding-block               | specification unclear                       |
-| padding-block-end           | specification unclear                       |
-| padding-block-start         | specification unclear                       |
-| padding-inline              | specification unclear                       |
-| padding-inline-end          | specification unclear                       |
-| padding-inline-start        | specification unclear                       |
 | pointer-events              | accessibility concerns                      |
 | shape-image-threshold       | accessibility concerns                      |
 | shape-margin                | accessibility concerns                      |
 | shape-outside               | accessibility concerns                      |
-| scroll-margin-block         | specification unclear                       |
-| scroll-margin-block-end     | specification unclear                       |
-| scroll-margin-block-start   | specification unclear                       |
-| scroll-margin-inline        | specification unclear                       |
-| scroll-margin-inline-end    | specification unclear                       |
-| scroll-margin-inline-start  | specification unclear                       |
-| scroll-padding-block        | specification unclear                       |
-| scroll-padding-block-end    | specification unclear                       |
-| scroll-padding-block-start  | specification unclear                       |
-| scroll-padding-inline       | specification unclear                       |
-| scroll-padding-inline-end   | specification unclear                       |
-| scroll-padding-inline-start | specification unclear                       |
+| scroll-margin-block         | accessibility concerns                      |
+| scroll-margin-block-end     | accessibility concerns                      |
+| scroll-margin-block-start   | accessibility concerns                      |
+| scroll-margin-inline        | accessibility concerns                      |
+| scroll-margin-inline-end    | accessibility concerns                      |
+| scroll-margin-inline-start  | accessibility concerns                      |
+| scroll-padding-block        | accessibility concerns                      |
+| scroll-padding-block-end    | accessibility concerns                      |
+| scroll-padding-block-start  | accessibility concerns                      |
+| scroll-padding-inline       | accessibility concerns                      |
+| scroll-padding-inline-end   | accessibility concerns                      |
+| scroll-padding-inline-start | accessibility concerns                      |
 | scroll-snap-align           | two-value syntax unsupported                |
-| text-combine-uright         |                                             |
+| text-combine-upright        |                                             |
 | text-underline-position     | accessibility concerns                      |
 | text-indent                 | `each-line` or `hanging` suffix unsupported |
 | text-overflow               | two-value syntax unsupported                |
@@ -98,6 +80,24 @@ either an upgrade mechanism or in their pure forms.
 
 | FEATURE                     | REASON                                      |
 |:--------------------------- |:------------------------------------------- |
+| inset-block                 | specification unclear                       |
+| inset-block-end             | specification unclear                       |
+| inset-block-start           | specification unclear                       |
+| inset-inline                | specification unclear                       |
+| inset-inline-end            | specification unclear                       |
+| inset-inline-start          | specification unclear                       |
+| margin-block                | specification unclear                       |
+| margin-block-end            | specification unclear                       |
+| margin-block-start          | specification unclear                       |
+| margin-inline               | specification unclear                       |
+| margin-inline-end           | specification unclear                       |
+| margin-inline-start         | specification unclear                       |
+| padding-block               | specification unclear                       |
+| padding-block-end           | specification unclear                       |
+| padding-block-start         | specification unclear                       |
+| padding-inline              | specification unclear                       |
+| padding-inline-end          | specification unclear                       |
+| padding-inline-start        | specification unclear                       |
 | transform                   | accesibility concerns                       |
 | transform-origin            | specification [1] incomplete                |
 | translate                   | specification [1] incomplete                |

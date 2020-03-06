@@ -500,9 +500,7 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
 			if (frame !== null) {
 
-				// TODO: buffer.fragment should be
-				// buffer.fragment.length - frame.length
-				// but dunno for sure :-/
+				// TODO: buffer.fragment should be buffer.fragment.length - frame.length but don't know for sure
 
 				buffer.fragment = null;
 				emitter.emit('response', [ frame ]);
@@ -521,7 +519,7 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
 			if (frame !== null) {
 
-				// TODO: like above
+				// TODO: buffer.fragment should be buffer.fragment.length - frame.length but don't know for sure
 
 				buffer.fragment = null;
 				emitter.emit('request', [ frame ]);

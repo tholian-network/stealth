@@ -369,20 +369,6 @@ export const log = function() {
 
 };
 
-export const step = function() {
-
-	let al   = arguments.length;
-	let args = [ '(L)' ];
-	for (let a = 0; a < al; a++) {
-		args.push(arguments[a]);
-	}
-
-	process.stdout.moveCursor(null, -1);
-	process.stdout.clearLine(1);
-	process.stdout.write('\u001b[49m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
-
-};
-
 export const warn = function() {
 
 	let al   = arguments.length;
@@ -403,7 +389,6 @@ export const console = {
 	error: error,
 	info:  info,
 	log:   log,
-	step:  step,
 	warn:  warn
 };
 

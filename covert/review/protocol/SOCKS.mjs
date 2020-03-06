@@ -30,8 +30,6 @@ before('SOCKS.connect', function(assert) {
 		this.socket = null;
 	});
 
-}, {
-	internet: true
 });
 
 describe('SOCKS.send', function(assert) {
@@ -52,8 +50,6 @@ describe('SOCKS.send', function(assert) {
 
 	SOCKS.send(this.socket, REQUEST);
 
-}, {
-	internet: true
 });
 
 describe('SOCKS.receive', function(assert) {
@@ -97,5 +93,7 @@ after('SOCKS.disconnect', function(assert) {
 });
 
 
-export default finish('protocol/SOCKS');
+export default finish('protocol/SOCKS', {
+	internet: true
+});
 

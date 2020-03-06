@@ -67,8 +67,6 @@ describe('client.services.host.refresh', function(assert) {
 
 	});
 
-}, {
-	internet: true
 });
 
 describe('client.services.host.read', function(assert) {
@@ -91,8 +89,6 @@ describe('client.services.host.read', function(assert) {
 
 	});
 
-}, {
-	internet: true
 });
 
 describe('client.services.host.remove', function(assert) {
@@ -112,5 +108,8 @@ describe(cli_disconnect);
 after(srv_disconnect);
 
 
-export default finish('client/Host');
+
+export default finish('client/Host', {
+	internet: true
+});
 

@@ -202,6 +202,16 @@ Results.prototype = {
 
 	},
 
+	includes: function(result) {
+
+		if (typeof result === 'boolean' || result === null) {
+			return this.data.includes(result);
+		}
+
+		return false;
+
+	},
+
 	render: function() {
 
 		let str = '';

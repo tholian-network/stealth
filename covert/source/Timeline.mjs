@@ -1,4 +1,29 @@
 
+const prettify = (milliseconds) => {
+
+	if (milliseconds < 10) {
+		return '  ' + milliseconds + 'ms';
+	} else if (milliseconds < 100) {
+		return ' ' + milliseconds + 'ms';
+	} else if (milliseconds < 1000) {
+		return milliseconds + 'ms';
+	} else {
+
+		let seconds = Math.round(milliseconds / 1000);
+		if (seconds < 10) {
+			return '  ' + seconds + 's ';
+		} else if (seconds < 100) {
+			return ' ' + seconds + 's ';
+		}
+
+	}
+
+	return '  ?  ';
+
+};
+
+
+
 export const Timeline = function(length) {
 
 	length = typeof length === 'number' ? length : 0;
@@ -55,6 +80,57 @@ Timeline.prototype = {
 
 
 		return 0;
+
+	},
+
+	includes: function(time) {
+
+		if (typeof time === 'number') {
+			return this.data.includes(time);
+		}
+
+		return false;
+
+	},
+
+	render: function() {
+
+		let start = this.start;
+		let str   = '';
+
+		if (start !== null && this.data.length > 0) {
+
+			str += '|';
+
+			for (let d = 0, dl = this.data.length; d < dl; d++) {
+
+				let now = this.data[d];
+				if (now === null) {
+					str  += '  ?  ';
+					start = now;
+				} else if (start === null) {
+					str  += '  ?  ';
+					start = now;
+				} else if (start !== null) {
+					str  += prettify(now - start);
+					start = now;
+				}
+
+				if (d < dl - 1) {
+					str += '|';
+				}
+
+			}
+
+			str += '|';
+
+		} else {
+
+			str += '| no assert() calls |';
+
+		}
+
+		return str;
 
 	},
 

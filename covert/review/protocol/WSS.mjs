@@ -28,8 +28,6 @@ describe('WSS.connect', function(assert) {
 		this.socket = null;
 	});
 
-}, {
-	internet: true
 });
 
 describe('WSS.send', function(assert) {
@@ -55,11 +53,11 @@ describe('WSS.send', function(assert) {
 		payload: 'payload'
 	});
 
-}, {
-	internet: true
 });
 
 
 
-export default finish('protocol/WSS');
+export default finish('protocol/WSS', {
+	internet: true
+});
 

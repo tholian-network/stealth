@@ -1,5 +1,5 @@
 
-import { isBoolean, isFunction, isObject, isString } from './POLYFILLS.mjs';
+import { isFunction, isObject, isString } from './POLYFILLS.mjs';
 
 import { Results  } from './Results.mjs';
 import { Timeline } from './Timeline.mjs';
@@ -35,6 +35,7 @@ export const after = function(name, callback) {
 		} else {
 			REVIEW = {
 				id:     null,
+				flags:  {},
 				before: null,
 				after:  test,
 				scope:  {},
@@ -73,6 +74,7 @@ export const before = function(name, callback) {
 
 		REVIEW = {
 			id:     null,
+			flags:  {},
 			before: test,
 			after:  null,
 			scope:  {},
@@ -88,42 +90,23 @@ export const before = function(name, callback) {
 
 };
 
-export const describe = function(name, callback, flags) {
+export const describe = function(name, callback) {
 
 	if (isObject(name) === true) {
 		callback = isFunction(name.callback) ? name.callback : null;
 		name     = isString(name.name)       ? name.name     : null;
-		flags    = isObject(name.flags)      ? name.flags    : null;
 	} else {
 		name     = isString(name)       ? name     : null;
 		callback = isFunction(callback) ? callback : null;
-		flags    = isObject(flags)      ? flags    : null;
 	}
 
 
 	if (name !== null && callback !== null) {
 
-		if (flags !== null) {
-
-			for (let key in flags) {
-
-				let val = flags[key];
-				if (isBoolean(val) === false) {
-					delete flags[key];
-				}
-
-			}
-
-		} else {
-			flags = {};
-		}
-
-
 		let test = {
 			name:     name,
 			callback: callback,
 			results:  Results.from(callback),
-			flags:    flags,
 			timeline: Timeline.from(callback)
 		};
 
@@ -132,6 +115,7 @@ export const describe = function(name, callback, flags) {
 		} else {
 			REVIEW = {
 				id:     null,
+				flags:  {},
 				before: null,
 				after:  null,
 				scope:  {},
@@ -148,16 +132,18 @@ export const describe = function(name, callback, flags) {
 
 };
 
-export const finish = function(id) {
+export const finish = function(id, flags) {
 
-	id = isString(id) ? id : ('Review-' + _id++);
+	id    = isString(id)    ? id    : ('Review-' + _id++);
+	flags = isObject(flags) ? flags : {};
 
 
 	let review = REVIEW || null;
 	if (review !== null) {
 
-		review.id = id;
-		REVIEW = null;
+		review.id    = id;
+		review.flags = flags;
+		REVIEW       = null;
 
 		return review;
 

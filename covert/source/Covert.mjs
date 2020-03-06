@@ -2,6 +2,7 @@
 import { isFunction, isObject } from './POLYFILLS.mjs';
 
 import { console  } from './console.mjs';
+import { Network  } from './Network.mjs';
 import { Renderer } from './Renderer.mjs';
 
 
@@ -28,38 +29,69 @@ const debug = function(data) {
 
 };
 
-const map_to_data = function(review, type) {
+const map_to_result = function(review) {
 
-	type = typeof type === 'string' ? type : 'results';
+	let result = {
+		id:    review.id || null,
+		state: 'okay',
+		tests: []
+	};
 
 
-	let before = [];
-	let tests  = [];
-	let after  = [];
+	if (review.before !== null) {
 
+		result.tests.push({
+			name:     review.before.name,
+			results:  review.before.results,
+			timeline: review.before.timeline
+		});
 
-	if (type === 'results' || type === 'timeline') {
-
-		if (review.before !== null) {
-			before = Array.from(review.before[type].data);
+		if (review.before.results.includes(null)) {
+			result.state = 'wait';
+		} else if (review.before.results.includes(false)) {
+			result.state = 'fail';
 		}
 
-		if (review.after !== null) {
-			after = Array.from(review.after[type].data);
-		}
+	}
 
-		if (review.tests.length > 0) {
-			tests = review.tests.map((test) => Array.from(test[type].data));
+	if (review.tests.length > 0) {
+
+		review.tests.forEach((test) => {
+
+			result.tests.push({
+				name:     test.name,
+				results:  test.results,
+				timeline: test.timeline
+			});
+
+			if (test.results.includes(null)) {
+				result.state = 'wait';
+			} else if (test.results.includes(false)) {
+				result.state = 'fail';
+			}
+
+		});
+
+	}
+
+	if (review.after !== null) {
+
+		result.tests.push({
+			name:     review.after.name,
+			results:  review.after.results,
+			timeline: review.after.timeline
+		});
+
+		if (review.after.results.includes(null)) {
+			result.state = 'wait';
+		} else if (review.after.results.includes(false)) {
+			result.state = 'fail';
 		}
 
 	}
 
 
-	return {
-		before: before,
-		tests:  tests,
-		after:  after
-	};
+	return result;
 
 };
 
@@ -177,6 +209,7 @@ export const Covert = function(settings) {
 	this.settings = Object.assign({}, settings);
 	this.callback = null;
 	this.interval = null;
+	this.network  = new Network(this.settings);
 	this.renderer = new Renderer(this.settings);
 	this.reviews  = [];
 
@@ -211,10 +244,8 @@ Covert.prototype = {
 					clearInterval(this.interval);
 					this.interval = null;
 
-					this.callback(
-						this.reviews.map((review) => map_to_data(review, 'results')),
-						this.reviews.map((review) => map_to_data(review, 'timeline'))
-					);
+					this.network.disconnect();
+					this.callback(this.reviews.map((review) => map_to_result(review)));
 
 				} else {
 					this.renderer.render(data);
@@ -222,12 +253,22 @@ Covert.prototype = {
 
 			}, 100);
 
+			this.network.connect();
+
 
 			return true;
 
 		} else {
 			return false;
 		}
+
+	},
+
+	disconnect: function() {
+
+		this.network.disconnect();
+
+		return true;
 
 	},
 

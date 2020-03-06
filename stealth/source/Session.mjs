@@ -306,7 +306,7 @@ Session.prototype = {
 				});
 
 				request.on('progress', (response, progress) => {
-					console.step('Session "' + this.domain + '" tab #' + tab + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
+					console.log('Session "' + this.domain + '" tab #' + tab + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
 				});
 
 				request.on('error',    () => remove_request.call(this, request));

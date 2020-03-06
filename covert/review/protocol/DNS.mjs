@@ -29,10 +29,11 @@ describe('DNS.resolve', function(assert) {
 
 	});
 
-}, {
-	internet: true
 });
 
 
-export default finish('protocol/DNS');
+
+export default finish('protocol/DNS', {
+	internet: true
+});
 

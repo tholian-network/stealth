@@ -29,8 +29,6 @@ before('HTTPS.connect', function(assert) {
 		this.socket = null;
 	});
 
-}, {
-	internet: true
 });
 
 describe('HTTPS.send', function(assert) {
@@ -51,8 +49,6 @@ describe('HTTPS.send', function(assert) {
 
 	HTTPS.send(this.socket, REQUEST);
 
-}, {
-	internet: true
 });
 
 describe('HTTPS.receive', function(assert) {
@@ -94,5 +90,8 @@ after('HTTPS.disconnect', function(assert) {
 });
 
 
-export default finish('protocol/HTTPS');
+
+export default finish('protocol/HTTPS', {
+	internet: true
+});
 

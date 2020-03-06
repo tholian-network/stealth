@@ -327,8 +327,11 @@ const Request = function(data, stealth) {
 						this.download = download;
 
 						download.on('progress', (partial, progress) => {
-							this.stealth.server.services.stash.save(Object.assign({}, this.ref, partial), () => {});
-							this.emit('progress', [ partial, progress ]);
+
+							this.stealth.server.services.stash.save(Object.assign({}, this.ref, partial), () => {
+								this.emit('progress', [ partial, progress ]);
+							});
+
 						});
 
 						download.on('timeout', (partial) => {
@@ -430,34 +433,38 @@ const Request = function(data, stealth) {
 
 	this.on('optimize', () => {
 
-		let url = URL.render(this.ref);
-		let ref = URL.parse(url);
+		/* IGNORE OPTIMIZE EVENT FOR NAO */
 
-		ref.headers = this.response.headers;
-		ref.payload = this.response.payload;
+		this.emit('response', [ this.response ]);
+
+		// let url = URL.render(this.ref);
+		// let ref = URL.parse(url);
+
+		// ref.headers = this.response.headers;
+		// ref.payload = this.response.payload;
 
 
-		Optimizer.check(ref, this.config, (result) => {
+		// Optimizer.check(ref, this.config, (result) => {
 
-			this.timeline.optimize = Date.now();
+		// 	this.timeline.optimize = Date.now();
 
-			if (result === true) {
+		// 	if (result === true) {
 
-				Optimizer.optimize(ref, this.config, (response) => {
+		// 		Optimizer.optimize(ref, this.config, (response) => {
 
-					if (response !== null) {
-						this.emit('response', [ response ]);
-					} else {
-						this.emit('response', [ this.response ]);
-					}
+		// 			if (response !== null) {
+		// 				this.emit('response', [ response ]);
+		// 			} else {
+		// 				this.emit('response', [ this.response ]);
+		// 			}
 
-				});
+		// 		});
 
-			} else {
-				this.emit('response', [ this.response ]);
-			}
+		// 	} else {
+		// 		this.emit('response', [ this.response ]);
+		// 	}
 
-		});
+		// });
 
 	});
 

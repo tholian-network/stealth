@@ -24,6 +24,10 @@ so no external libraries and no external programs are necessary.
   protocol tests against the internet or online reference test suites.
   The default value is `true`.
 
+- `--network` is a string flag to emulate a traffic-controlled internet
+  connection. It can be set to either of `1G`, `2G`, `3G` or `4G`.
+  The default value is `null`.
+
 If a non-flag parameter is given, it is assumed to be a Query to filter
 the Reviews. This allows to debug a single Review or a Suite of related
 Reviews.
@@ -85,6 +89,9 @@ On MacOS it is necessary to create an alias for the loopback interface
 before Covert itself is run. The `./bin/covert.sh` automatically creates
 an alias for above mentioned additional IPs on MacOS and will ask for
 your password in order to do so.
+
+Currently there's no way to simulate network connections as there's no
+`netem` and neither `tc` available on MacOS.
 
 
 ## Implementation Notes

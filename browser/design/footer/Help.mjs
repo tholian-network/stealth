@@ -19,7 +19,7 @@ const TEXT = () => `
 	<li data-key="f8"><code>[F8]</code> Show next Tab</li>
 	<li data-key="f9"><code>[F9]</code> Toggle through Site Modes</li>
 	<li data-key="f10"><code>[F10]</code> (reserved)</li>
-	<li data-key="f11"><code>[F11]</code> Toggle through Beacon/Session/Site Sidebars</li>
+	<li data-key="f11"><code>[F11]</code> Toggle through Beacon/Session/Site Settings</li>
 	<li data-key="f12"><code>[F12]</code> Open Browser Settings</li>
 </ul>
 `;

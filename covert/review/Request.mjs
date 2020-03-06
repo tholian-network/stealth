@@ -58,8 +58,6 @@ describe('request', function(assert) {
 
 	this.request.init();
 
-}, {
-	internet: true
 });
 
 describe('request/kill', function(assert) {
@@ -121,8 +119,6 @@ describe('request/cache', function(assert) {
 
 	this.request.init();
 
-}, {
-	internet: true
 });
 
 describe('request/kill', function(assert) {
@@ -184,5 +180,8 @@ describe('request/kill', function(assert) {
 after(disconnect);
 
 
-export default finish('Request');
+
+export default finish('Request', {
+	internet: true
+});
 

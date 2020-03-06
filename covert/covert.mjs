@@ -36,7 +36,8 @@ const FLAGS = (() => {
 
 	let flags = {
 		debug:    false,
-		internet: true
+		internet: true,
+		network:  null
 	};
 
 	Array.from(ARGV).filter((v) => v.startsWith('--') === true).forEach((flag) => {
@@ -68,8 +69,60 @@ const FLAGS = (() => {
 
 
 
+const inspect = (result) => {
+
+	if (result.state === 'wait' || result.state === 'fail') {
+
+		console.log('');
+
+		if (result.state === 'wait') {
+			console.warn('review/' + result.id + '.mjs:');
+		} else if (result.state === 'fail') {
+			console.error('review/' + result.id + '.mjs:');
+		}
+
+
+		let blank1 = '';
+		let blank2 = '';
+
+		result.tests.forEach((test) => {
+
+			let str1 = test.name;
+			if (str1.length > blank1.length) {
+				blank1 = new Array(str1.length).fill(' ').join('');
+			}
+
+			let str2 = test.results.render();
+			if (str2.length > blank2.length) {
+				blank2 = new Array(str2.length).fill(' ').join('');
+			}
+
+		});
+
+		result.tests.forEach((test) => {
+
+			let results  = test.results.render();
+			let timeline = test.timeline.render();
+			let indent1  = blank1.substr(0, blank1.length - test.name.length);
+			let indent2  = blank2.substr(0, blank2.length - results.length);
+
+			if (test.results.includes(null)) {
+				console.warn('> ' + test.name + ' ' + indent1 + results + indent2 + ' => ' + timeline);
+			} else if (test.results.includes(false)) {
+				console.error('> ' + test.name + ' ' + indent1 + results + indent2 + ' => ' + timeline);
+			}
+
+		});
+
+	}
+
+};
+
+
+
 const settings = {
-	debug: FLAGS.debug || false
+	debug:   FLAGS.debug   || false,
+	network: FLAGS.network || null
 };
 
 (function(global) {
@@ -168,14 +221,13 @@ const settings = {
 
 			}
 
-		} else if (FLAGS.internet === false) {
+		}
 
-			reviews.forEach((review) => {
 
-				review.tests = review.tests.filter((test) => {
-					return test.flags.internet !== true;
-				});
+		if (FLAGS.internet === false) {
 
+			reviews = reviews.filter((review) => {
+				return review.flags.internet !== true;
 			});
 
 		}
@@ -188,40 +240,54 @@ const settings = {
 			});
 
 
-			covert.connect((results, timelines) => {
+			const on_error = () => {
+				covert.disconnect();
+			};
 
-				let flat_results   = [];
-				let flat_timelines = [];
-
-
-				results.forEach((data) => {
-					data.before.forEach((v) => flat_results.push(v));
-					data.tests.forEach((v)  => flat_results.push(...v));
-					data.after.forEach((v)  => flat_results.push(v));
-				});
-
-				timelines.forEach((data) => {
-					data.before.forEach((v) => flat_timelines.push(v));
-					data.tests.forEach((v)  => flat_timelines.push(...v));
-					data.after.forEach((v)  => flat_timelines.push(v));
-				});
+			process.on('SIGHUP',  on_error);
+			process.on('SIGINT',  on_error);
+			process.on('SIGQUIT', on_error);
+			process.on('SIGABRT', on_error);
+			process.on('SIGTERM', on_error);
+			process.on('error',   on_error);
+			process.on('exit',    () => {});
 
 
-				console.log('');
+			covert.connect((results) => {
 
-				if (flat_results.includes(null)) {
+				let waits = results.filter((result) => result.state === 'wait');
+				let fails = results.filter((result) => result.state === 'fail');
 
-					console.warn('Covert: Some tests incomplete.');
+				if (waits.length > 0) {
+
+					console.log('');
+					console.warn('');
+					console.warn('Covert: Some reviews didn\'t complete.');
+					console.warn('');
+
+					waits.forEach((result) => inspect(result));
+					fails.forEach((result) => inspect(result));
+
 					process.exit(2);
 
-				} else if (flat_results.includes(false)) {
+				} else if (fails.length > 0) {
 
-					console.error('Covert: Some tests failed.');
+					console.log('');
+					console.error('');
+					console.error('Covert: Some reviews didn\'t succeed.');
+					console.error('');
+
+					fails.forEach((result) => inspect(result));
+
 					process.exit(1);
 
 				} else {
 
-					console.info('Covert: All tests okay.');
+					console.log('');
+					console.info('');
+					console.info('Covert: All reviews did succeed.');
+					console.info('');
+
 					process.exit(0);
 
 				}

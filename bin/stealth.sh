@@ -34,6 +34,7 @@ cp ./stealth/source/parser/URL.mjs      ./browser/source/parser/URL.mjs;
 cp ./stealth/source/console.mjs   ./covert/source/console.mjs;
 cp ./stealth/source/Emitter.mjs   ./covert/source/Emitter.mjs;
 cp ./stealth/source/POLYFILLS.mjs ./covert/source/POLYFILLS.mjs;
+cp ./stealth/source/parser/IP.mjs ./covert/source/parser/IP.mjs;
 
 exec "$node_bin" --tls-cipher-list="ECDHE-RSA-AES128-GCM-SHA256" --no-warnings --experimental-modules ./stealth/stealth.mjs "$@";
 

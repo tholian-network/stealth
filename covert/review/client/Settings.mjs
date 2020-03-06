@@ -184,10 +184,9 @@ describe('client.services.settings.read/internet', function(assert) {
 
 });
 
-
-
 describe(cli_disconnect);
 after(srv_disconnect);
+
 
 
 export default finish('client/Settings');
