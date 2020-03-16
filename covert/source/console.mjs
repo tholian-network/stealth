@@ -381,15 +381,55 @@ export const warn = function() {
 
 };
 
+const BLINK = {
+	colors:   [
+		16, 17, 18, 19, 20,
+		21, 27, 33, 39, 45,
+		45, 39, 33, 27, 21,
+		20, 19, 18, 17, 16
+	],
+	index:    0,
+	interval: null
+};
+
+export const blink = function() {
+
+	let al   = arguments.length;
+	let args = [ '(!)' ];
+	for (let a = 0; a < al; a++) {
+		args.push(arguments[a]);
+	}
+
+	if (BLINK.interval === null) {
+
+		BLINK.interval = setInterval(() => {
+			BLINK.index++;
+		}, (1000 / BLINK.colors.length) * 2);
+
+	}
+
+
+	let color = BLINK.colors[BLINK.index % BLINK.colors.length] || null;
+	if (color !== null) {
+		process.stdout.write('\u001b[48;5;' + color + 'm\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+	} else {
+		process.stdout.write('\u001b[49m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+	}
+
+};
+
 
 
 export const console = {
+
+	blink: blink,
 	clear: clear,
 	debug: debug,
 	error: error,
 	info:  info,
 	log:   log,
 	warn:  warn
+
 };
 
 

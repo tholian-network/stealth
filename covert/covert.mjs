@@ -4,8 +4,9 @@ import process from 'process';
 import { console } from './source/console.mjs';
 import { Covert  } from './source/Covert.mjs';
 
-import Server          from './review/Server.mjs';
 import Request         from './review/Request.mjs';
+import Review          from './review/Review.mjs';
+import Server          from './review/Server.mjs';
 import Parser_CSS      from './review/parser/CSS.mjs';
 import Parser_HOSTS    from './review/parser/HOSTS.mjs';
 import Parser_IP       from './review/parser/IP.mjs';
@@ -30,8 +31,22 @@ import Peer            from './review/Peer.mjs';
 import Peer_Cache      from './review/peer/Cache.mjs';
 
 
-const ARGV  = Array.from(process.argv).slice(2).map((v) => v.trim()).filter((v) => v !== '');
-const ARGS  = Array.from(ARGV).filter((v) => v.startsWith('--') === false);
+
+const ACTION = (() => {
+
+	let value = Array.from(process.argv).slice(2)[0] || '';
+	if (/^([watch]{5})$/g.test(value)) {
+		return 'watch';
+	} else if (/^([scan]{4})$/g.test(value)) {
+		return 'scan';
+	} else if (/^([time]{4})$/g.test(value)) {
+		return 'time';
+	}
+
+	return 'help';
+
+})();
+
 const FLAGS = (() => {
 
 	let flags = {
@@ -40,9 +55,9 @@ const FLAGS = (() => {
 		network:  null
 	};
 
-	Array.from(ARGV).filter((v) => v.startsWith('--') === true).forEach((flag) => {
+	Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === true).forEach((flag) => {
 
-		let tmp = flag.substr(2).split('=');
+		let tmp = flag.substr(2).split('=').map((v) => v.trim());
 		if (tmp.length === 2) {
 
 			let key = tmp[0];
@@ -51,11 +66,13 @@ const FLAGS = (() => {
 			let num = parseInt(val, 10);
 			if (!isNaN(num) && (num).toString() === val) {
 				val = num;
+			} else if (val === 'true') {
+				val = true;
+			} else if (val === 'false') {
+				val = false;
+			} else if (val === 'null') {
+				val = null;
 			}
-
-			if (val === 'true')  val = true;
-			if (val === 'false') val = false;
-			if (val === 'null')  val = null;
 
 			flags[key] = val;
 
@@ -67,223 +84,270 @@ const FLAGS = (() => {
 
 })();
 
+const REVIEWS = (() => {
+
+	let reviews = [
+
+		Review,
+
+		// Parsers
+		Parser_CSS,
+		Parser_HOSTS,
+		Parser_IP,
+		Parser_URL,
+
+		// Optimizers
+		Optimizer_CSS,
+
+		// Network Protocols
+		Protocol_DNS,
+		Protocol_HTTP,
+		Protocol_HTTPS,
+		Protocol_SOCKS,
+		Protocol_WS,
+		Protocol_WSS,
+
+		// Server/Client
+		Server,
+		Client,
+
+		// Network Services
+		Client_Cache,
+		Client_Filter,
+		Client_Host,
+		Client_Mode,
+		Client_Peer,
+		Client_Redirect,
+		Client_Settings,
+		Client_Stash,
+
+		// Request
+		Request,
+
+		// Peer-to-Peer
+		Peer,
+		Peer_Cache
+
+	];
+
+	let include  = reviews.map(() => false);
+	let filtered = false;
+
+	Array.from(process.argv).slice(3).filter((v) => v.startsWith('--') === false).forEach((pattern) => {
+
+		filtered = true;
 
 
-const inspect = (result) => {
+		if (pattern.startsWith('*')) {
 
-	if (result.state === 'wait' || result.state === 'fail') {
+			reviews.forEach((review, r) => {
 
-		console.log('');
+				if (review.id.endsWith(pattern.substr(1))) {
+					include[r] = true;
+				}
 
-		if (result.state === 'wait') {
-			console.warn('review/' + result.id + '.mjs:');
-		} else if (result.state === 'fail') {
-			console.error('review/' + result.id + '.mjs:');
+			});
+
+		} else if (pattern.endsWith('*')) {
+
+			reviews.forEach((review, r) => {
+
+				if (review.id.startsWith(pattern.substr(0, pattern.length - 1))) {
+					include[r] = true;
+				}
+
+			});
+
+		} else if (pattern.includes('*')) {
+
+			let prefix = pattern.split('*').shift();
+			let suffix = pattern.split('*').pop();
+
+			reviews.forEach((review, r) => {
+
+				if (review.id.startsWith(prefix) && review.id.endsWith(suffix)) {
+					include[r] = true;
+				}
+
+			});
+
+		} else {
+
+			reviews.forEach((review, r) => {
+
+				if (review.id === pattern) {
+					include[r] = true;
+				}
+
+			});
+
 		}
 
+	});
 
-		let blank1 = '';
-		let blank2 = '';
 
-		result.tests.forEach((test) => {
+	// --internet defaulted with true
+	if (FLAGS.internet === false) {
 
-			let str1 = test.name;
-			if (str1.length > blank1.length) {
-				blank1 = new Array(str1.length).fill(' ').join('');
-			}
+		reviews.forEach((review, r) => {
 
-			let str2 = test.results.render();
-			if (str2.length > blank2.length) {
-				blank2 = new Array(str2.length).fill(' ').join('');
-			}
-
-		});
-
-		result.tests.forEach((test) => {
-
-			let results  = test.results.render();
-			let timeline = test.timeline.render();
-			let indent1  = blank1.substr(0, blank1.length - test.name.length);
-			let indent2  = blank2.substr(0, blank2.length - results.length);
-
-			if (test.results.includes(null)) {
-				console.warn('> ' + test.name + ' ' + indent1 + results + indent2 + ' => ' + timeline);
-			} else if (test.results.includes(false)) {
-				console.error('> ' + test.name + ' ' + indent1 + results + indent2 + ' => ' + timeline);
+			if (review.flags.internet === true) {
+				include[r] = false;
 			}
 
 		});
 
 	}
 
+
+	if (filtered === true) {
+
+		return include.map((inc, i) => {
+			return inc === true ? reviews[i] : null;
+		}).filter((v) => v !== null);
+
+	}
+
+
+	return reviews;
+
+})();
+
+const show_help = () => {
+
+	console.log('');
+	console.info('Covert');
+	console.log('');
+	console.log('Usage: covert [Action] [Identifier...] [--Flag=Value...]');
+	console.log('');
+	console.log('Usage Notes:');
+	console.log('');
+	console.log('    Identifier can also have a wildcard prefix or suffix.        ');
+	console.log('    If no Identifier is given, all available Reviews are matched.');
+	console.log('');
+	console.log('Available Actions:');
+	console.log('');
+	console.log('    Action     | Description                                              ');
+	console.log('    -----------|----------------------------------------------------------');
+	console.log('    scan       | Scans reviews and executes their tests.                  ');
+	console.log('    time       | Scans reviews and benchmarks their test timelines.       ');
+	console.log('    watch      | Observes Filesystem changes and scans Reviews on changes.');
+	console.log('');
+	console.log('Available Flags:');
+	console.log('');
+	console.log('    Flag       | Default | Values      | Description                                         ');
+	console.log('    -----------|---------|-------------|-----------------------------------------------------');
+	console.log('    --debug    | true    | true, false | Enable/Disable debug messages. Defaulted with false.');
+	console.log('    --internet | false   | true, false | Enable/Disable internet usage. Defaulted with true. ');
+	console.log('    --network  | null    | 2G, 3G, 4G  | Simulate network behaviour. Defaulted with null.    ');
+	console.log('');
+	console.log('Examples:');
+	console.log('');
+	console.log('    covert scan protocol/*;');
+	console.log('    covert time protocol/DNS --network=2G;');
+	console.log('    covert watch protocol/DNS protocol/HTTPS;');
+	console.log('');
+
 };
 
 
 
-const settings = {
-	debug:   FLAGS.debug   || false,
-	network: FLAGS.network || null
-};
+((settings) => {
 
-(function(global) {
+	let action = settings.render || null;
+	if (action === 'scan' || action === 'time' || action === 'watch') {
 
-	let covert = global.covert = new Covert(settings);
-	if (covert !== null) {
-
-		let reviews = [
-
-			// Parsers
-			Parser_CSS,
-			Parser_HOSTS,
-			Parser_IP,
-			Parser_URL,
-
-			// Optimizers
-			Optimizer_CSS,
-
-			// Network Protocols
-			Protocol_DNS,
-			Protocol_HTTP,
-			Protocol_HTTPS,
-			Protocol_SOCKS,
-			Protocol_WS,
-			Protocol_WSS,
-
-			// Server/Client
-			Server,
-			Client,
-
-			// Network Services
-			Client_Cache,
-			Client_Filter,
-			Client_Host,
-			Client_Mode,
-			Client_Peer,
-			Client_Redirect,
-			Client_Settings,
-			Client_Stash,
-
-			// Request
-			Request,
-
-			// Peer-to-Peer
-			Peer,
-			Peer_Cache
-
-		];
-
-		let filter = ARGS[0] || null;
-		if (filter !== null) {
-
-			if (filter.startsWith('*')) {
-
-				reviews = reviews.filter((review) => {
-					return review.id.endsWith(filter.substr(1));
-				});
-
-			} else if (filter.endsWith('*')) {
-
-				reviews = reviews.filter((review) => {
-					return review.id.startsWith(filter.substr(0, filter.length - 1));
-				});
-
-			} else if (filter.includes('*')) {
-
-				let prefix = filter.split('*').shift();
-				let suffix = filter.split('*').pop();
-
-				reviews = reviews.filter((review) => {
-					return review.id.startsWith(prefix) && review.id.endsWith(suffix);
-				});
-
-			} else if (filter.includes('#')) {
-
-				let prefix = filter.split('#').shift();
-				let suffix = filter.split('#').pop();
-
-				reviews = reviews.filter((review) => {
-					return review.id === prefix;
-				});
-
-				reviews.forEach((review) => {
-
-					review.tests = review.tests.filter((test) => {
-						return test.name.includes(suffix);
-					});
-
-				});
-
-			} else {
-
-				reviews = reviews.filter((review) => {
-					return review.id === filter;
-				});
-
-			}
-
-		}
+		console.log('');
+		console.info('Covert: ' + action[0].toUpperCase() + action.substr(1) + ' Mode');
+		console.log('');
 
 
-		if (FLAGS.internet === false) {
+		let covert = global.covert = new Covert(settings);
+		if (covert !== null) {
 
-			reviews = reviews.filter((review) => {
-				return review.flags.internet !== true;
-			});
+			process.on('SIGHUP',  () => covert.disconnect());
+			process.on('SIGINT',  () => covert.disconnect());
+			process.on('SIGQUIT', () => covert.disconnect());
+			process.on('SIGABRT', () => covert.disconnect());
+			process.on('SIGTERM', () => covert.disconnect());
+			process.on('error',   () => covert.disconnect());
+			process.on('exit',    () => {});
 
-		}
-
-
-		if (reviews.length > 0) {
-
-			reviews.forEach((review) => {
+			REVIEWS.forEach((review) => {
 				covert.scan(review);
 			});
 
-
-			const on_error = () => {
-				covert.disconnect();
-			};
-
-			process.on('SIGHUP',  on_error);
-			process.on('SIGINT',  on_error);
-			process.on('SIGQUIT', on_error);
-			process.on('SIGABRT', on_error);
-			process.on('SIGTERM', on_error);
-			process.on('error',   on_error);
-			process.on('exit',    () => {});
+		}
 
 
-			covert.connect((results) => {
+		if (action === 'scan') {
 
-				let waits = results.filter((result) => result.state === 'wait');
-				let fails = results.filter((result) => result.state === 'fail');
+			covert.connect((reviews) => {
+
+				let waits = reviews.filter((r) => r.state === 'wait');
+				let fails = reviews.filter((r) => r.state === 'fail');
 
 				if (waits.length > 0) {
 
-					console.log('');
+					if (settings.debug === true) {
+						console.log('');
+					} else {
+						console.clear();
+					}
+
 					console.warn('');
 					console.warn('Covert: Some reviews didn\'t complete.');
 					console.warn('');
 
-					waits.forEach((result) => inspect(result));
-					fails.forEach((result) => inspect(result));
+					waits.forEach((review, r) => {
+
+						if (r > 0) console.log('');
+
+						covert.renderer.render(review, 'summary');
+					});
+
+
+					if (fails.length > 0) {
+						console.log('');
+					}
+
+					fails.forEach((review, r) => {
+
+						if (r > 0) console.log('');
+
+						covert.renderer.render(review, 'summary');
+
+					});
+
 
 					process.exit(2);
 
 				} else if (fails.length > 0) {
 
-					console.log('');
+					if (settings.debug === true) {
+						console.log('');
+					} else {
+						console.clear();
+					}
+
 					console.error('');
 					console.error('Covert: Some reviews didn\'t succeed.');
 					console.error('');
 
-					fails.forEach((result) => inspect(result));
+					fails.forEach((review) => {
+						covert.renderer.render(review, 'summary');
+					});
 
 					process.exit(1);
 
 				} else {
 
-					console.log('');
+					if (settings.debug === true) {
+						console.log('');
+					} else {
+						console.clear();
+					}
+
 					console.info('');
 					console.info('Covert: All reviews did succeed.');
 					console.info('');
@@ -292,16 +356,37 @@ const settings = {
 
 				}
 
+				// TODO: review.state to be wait, okay or fail
+
 			});
+
+		} else if (action === 'time') {
+
+			// TODO: Update Loop integration for all Reviews
+			// TODO: Final render() call for summary
+
+		} else if (action === 'watch') {
+
+			// TODO: fs.watch() integration
+			// TODO: Diff Mode, left old results, right new results
 
 		} else {
 
-			console.warn('Covert: No matching reviews found.');
-			process.exit(2);
+			show_help();
+			process.exit(1);
 
 		}
 
+	} else {
+
+		show_help();
+		process.exit(1);
+
 	}
 
-})(global);
+})({
+	render:  ACTION        || null,
+	debug:   FLAGS.debug   || false,
+	network: FLAGS.network || null
+});
 

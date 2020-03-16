@@ -27,6 +27,7 @@ export const after = function(name, callback) {
 			name:     name,
 			callback: callback,
 			results:  Results.from(callback),
+			state:    null,
 			timeline: Timeline.from(callback)
 		};
 
@@ -39,6 +40,7 @@ export const after = function(name, callback) {
 				before: null,
 				after:  test,
 				scope:  {},
+				state:  null,
 				tests:  []
 			};
 		}
@@ -69,6 +71,7 @@ export const before = function(name, callback) {
 			name:     name,
 			callback: callback,
 			results:  Results.from(callback),
+			state:    null,
 			timeline: Timeline.from(callback)
 		};
 
@@ -78,6 +81,7 @@ export const before = function(name, callback) {
 			before: test,
 			after:  null,
 			scope:  {},
+			state:  null,
 			tests:  []
 		};
 
@@ -107,6 +111,7 @@ export const describe = function(name, callback) {
 			name:     name,
 			callback: callback,
 			results:  Results.from(callback),
+			state:    null,
 			timeline: Timeline.from(callback)
 		};
 
@@ -119,6 +124,7 @@ export const describe = function(name, callback) {
 				before: null,
 				after:  null,
 				scope:  {},
+				state:  null,
 				tests:  [ test ]
 			};
 		}

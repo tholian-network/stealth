@@ -1,23 +1,405 @@
 
-import { console  } from './console.mjs';
+import { console                                } from './console.mjs';
+import { isArray, isBoolean, isObject, isString } from './POLYFILLS.mjs';
 
 
 
-const compare = function(array1, array2) {
+const flatten_tests = (review) => {
 
-	if (array1.length !== array2.length) {
-		return true;
+	let array = [];
+
+	if (review.before !== null) {
+		array.push(review.before);
 	}
 
-	for (let a = 0, al = array1.length; a < al; a++) {
+	if (review.tests.length > 0) {
+		review.tests.forEach((test) => {
+			array.push(test);
+		});
+	}
 
-		if (array1[a] !== array2[a]) {
-			return true;
+	if (review.after !== null) {
+		array.push(review.after);
+	}
+
+	return array;
+
+};
+
+const indent = (data) => {
+
+	let dummy = '';
+
+	if (isArray(data)) {
+
+		data.forEach((value) => {
+
+			if (value.length > dummy.length) {
+				dummy = new Array(value.length).fill(' ').join('');
+			}
+
+		});
+
+	}
+
+	return function(str) {
+
+		if (isString(str)) {
+			return dummy.substr(0, dummy.length - str.length);
+		}
+
+		return '';
+
+	};
+
+};
+
+const render_complete = function(review, is_current) {
+
+	is_current = isBoolean(is_current) ? is_current : false;
+
+
+	if (review.state === null) {
+
+		if (is_current === true) {
+			console.blink('review/' + review.id + '.mjs:');
+		} else {
+			console.log('review/' + review.id + '.mjs:');
+		}
+
+	} else if (review.state === 'okay') {
+		console.info('review/' + review.id + '.mjs:');
+	} else if (review.state === 'wait') {
+		console.warn('review/' + review.id + '.mjs:');
+	} else if (review.state === 'fail') {
+		console.error('review/' + review.id + '.mjs:');
+	}
+
+
+	let tests   = flatten_tests(review);
+	let current = tests.find((test) => test.state === null) || null;
+	let div1    = indent(tests.map((test) => test.name));
+	let div2    = indent(tests.map((test) => test.results.render()));
+	let render  = this.settings.render || null;
+
+	tests.forEach((test) => {
+
+		let message = '>';
+
+		message += ' ' + test.name;
+		message += ' ' + div1(test.name);
+
+		if (render === 'scan') {
+
+			message += test.results.render();
+
+		} else if (render === 'time') {
+
+			message += test.timeline.render();
+
+		} else if (render === 'watch') {
+
+			let str1 = test.results.render();
+			let str2 = test.timeline.render();
+
+			message += str1;
+			message += div2(str1);
+			message += str2;
+
+		}
+
+		if (
+			is_current === true
+			&& (test === current || test.state === null)
+		) {
+			console.blink(message);
+		} else if (test.state === null) {
+			console.log(message);
+		} else if (test.state === 'okay') {
+			console.info(message);
+		} else if (test.state === 'wait') {
+			console.warn(message);
+		} else if (test.state === 'fail') {
+			console.error(message);
+		}
+
+	});
+
+
+	if (review.state === null) {
+
+		if (is_current === true) {
+			console.blink('running ...');
+		} else {
+			console.log('what?');
+		}
+
+	} else if (review.state === 'okay') {
+		console.info('okay.');
+	} else if (review.state === 'wait') {
+		console.warn('wait ...');
+	} else if (review.state === 'fail') {
+		console.error('fail!');
+	}
+
+};
+
+const render_partial = function(reviews, prev_state, curr_state) {
+
+	let candidates         = [];
+	let unrendered_reviews = [];
+	let unrendered_tests   = [];
+
+	if (prev_state.review === null && curr_state.review !== null) {
+
+		let index1 = 0;
+		let index2 = reviews.indexOf(curr_state.review);
+
+		if (index1 !== -1 && index2 !== -1) {
+			candidates = reviews.slice(index1, index2 + 1);
+		}
+
+	} else if (prev_state.review !== null && curr_state.review !== null) {
+
+		let index1 = reviews.indexOf(prev_state.review);
+		let index2 = reviews.indexOf(curr_state.review);
+		if (index1 !== -1 && index2 !== -1) {
+			candidates = reviews.slice(index1, index2 + 1);
 		}
 
 	}
 
-	return false;
+
+	if (candidates.length > 0) {
+
+		candidates.forEach((review) => {
+
+			let tests  = flatten_tests(review);
+			let index1 = -1;
+			let index2 = -1;
+
+			if (prev_state.test !== null) {
+
+				let check = tests.indexOf(prev_state.test);
+				if (check !== -1) {
+					index1 = tests.indexOf(prev_state.test);
+				} else {
+					index1 = 0;
+				}
+
+			} else {
+				index1 = 0;
+			}
+
+			if (curr_state.test !== null) {
+
+				let check = tests.indexOf(curr_state.test);
+				if (check !== -1) {
+					index2 = check + 1;
+				} else {
+					index2 = tests.length;
+				}
+
+			} else {
+
+				let current = tests.find((test) => test.state === null) || null;
+				if (current !== null) {
+					index2 = tests.indexOf(current) + 1;
+				} else {
+					index2 = tests.length;
+				}
+
+			}
+
+
+			if (index1 !== -1 && index2 !== -1) {
+
+				tests.slice(index1, index2).forEach((test) => {
+					unrendered_reviews.push(review);
+					unrendered_tests.push(test);
+				});
+
+			}
+
+		});
+
+	}
+
+
+	if (unrendered_reviews.length > 0 && unrendered_tests.length > 0) {
+
+		let last_review = prev_state.review || null;
+		let last_test   = prev_state.test   || null;
+		let last_result = prev_state.result || null;
+		let div1        = indent(unrendered_tests.map((test) => test.name));
+		let div2        = indent(unrendered_tests.map((test) => test.results.render()));
+		let render      = this.settings.render || null;
+
+		unrendered_tests.forEach((test, t) => {
+
+			let review = unrendered_reviews[t] || null;
+			if (review !== last_review) {
+
+				if (review.state === null) {
+					console.log('review/' + review.id + '.mjs:');
+				} else if (review.state === 'okay') {
+					console.info('review/' + review.id + '.mjs:');
+				} else if (review.state === 'wait') {
+					console.warn('review/' + review.id + '.mjs:');
+				} else if (review.state === 'fail') {
+					console.error('review/' + review.id + '.mjs:');
+				}
+
+				last_review = review;
+
+			}
+
+			let result = test.results.current();
+
+			if (
+				test !== last_test
+				|| (test === last_test && result !== last_result)
+			) {
+
+				let message = '>';
+
+				message += ' ' + test.name;
+				message += ' ' + div1(test.name);
+
+				if (render === 'scan') {
+
+					message += test.results.render();
+
+				} else if (render === 'time') {
+
+					message += test.timeline.render();
+
+				} else if (render === 'watch') {
+
+					let str1 = test.results.render();
+					let str2 = test.timeline.render();
+
+					message += str1;
+					message += div2(str1);
+					message += str2;
+
+				}
+
+				if (test.state === null) {
+					console.log(message);
+				} else if (test.state === 'okay') {
+					console.info(message);
+				} else if (test.state === 'wait') {
+					console.warn(message);
+				} else if (test.state === 'fail') {
+					console.error(message);
+				}
+
+			}
+
+		});
+
+
+		prev_state.review = curr_state.review;
+		prev_state.test   = curr_state.test;
+		prev_state.result = curr_state.test.results.current();
+
+	}
+
+};
+
+const render_summary = function(review, is_current) {
+
+	is_current = isBoolean(is_current) ? is_current : false;
+
+
+	if (review.state === 'okay') {
+
+		console.info('review/' + review.id + '.mjs: okay.');
+
+	} else if (
+		review.state === null
+		|| review.state === 'wait'
+		|| review.state === 'fail'
+	) {
+
+		if (review.state === null) {
+
+			if (is_current === true) {
+				console.blink('review/' + review.id + '.mjs:');
+			} else {
+				console.log('review/' + review.id + '.mjs:');
+			}
+
+		} else if (review.state === 'wait') {
+			console.warn('review/' + review.id + '.mjs:');
+		} else if (review.state === 'fail') {
+			console.error('review/' + review.id + '.mjs:');
+		}
+
+
+		let tests   = flatten_tests(review).filter((test) => test.state !== 'okay');
+		let current = tests.find((test) => test.state === null) || null;
+		let div1    = indent(tests.map((test) => test.name));
+		let div2    = indent(tests.map((test) => test.results.render()));
+		let render  = this.settings.render || null;
+
+		tests.forEach((test) => {
+
+			let message = '>';
+
+			message += ' ' + test.name;
+			message += ' ' + div1(test.name);
+
+			if (render === 'scan') {
+
+				message += test.results.render();
+
+			} else if (render === 'time') {
+
+				message += test.timeline.render();
+
+			} else if (render === 'watch') {
+
+				let str1 = test.results.render();
+				let str2 = test.timeline.render();
+
+				message += str1;
+				message += div2(str1);
+				message += str2;
+
+			}
+
+			if (
+				is_current === true
+				&& (test === current || test.state === null)
+			) {
+				console.blink(message);
+			} else if (test.state === null) {
+				console.log(message);
+			} else if (test.state === 'wait') {
+				console.warn(message);
+			} else if (test.state === 'fail') {
+				console.error(message);
+			}
+
+		});
+
+		if (review.state === null) {
+
+			if (is_current === true) {
+				console.blink('running ...');
+			} else {
+				console.log('what?');
+			}
+
+		} else if (review.state === 'wait') {
+			console.warn('wait ...');
+		} else if (review.state === 'fail') {
+			console.error('fail!');
+		}
+
+	}
 
 };
 
@@ -26,149 +408,90 @@ const compare = function(array1, array2) {
 export const Renderer = function(settings) {
 
 	this.settings = Object.assign({}, settings);
-	this._cache   = null;
+
+	this.__state  = {
+		review: null,
+		test:   null,
+		result: null
+	};
 
 };
 
 
 Renderer.prototype = {
 
-	render: function(data) {
+	render: function(data, mode) {
 
-		let cache = this._cache || null;
-		if (cache !== null) {
+		mode = isString(mode) ? mode : 'complete';
 
-			let temp = [];
 
-			data.states.forEach((state) => {
+		if (isArray(data) === true) {
 
-				state.tests.forEach((test) => {
+			let debug   = this.settings.debug || false;
+			let reviews = data;
+			let current = reviews.find((r) => r.state === null) || null;
 
-					test.results.data.forEach((result) => {
-						temp.push(result);
+
+			if (debug === true) {
+
+				if (current !== null) {
+
+					render_partial.call(this, reviews, this.__state, {
+						review: current,
+						test:   flatten_tests(current).find((test) => test.state === null) || null
 					});
 
-				});
-
-			});
-
-
-			let diff = compare(temp, cache);
-			if (diff === false) {
-
-				if (data.state !== null) {
-					return;
 				}
 
-			}
-
-		}
-
-
-		if (this.settings.debug === true) {
-			console.log('');
-		} else {
-			console.clear();
-		}
-
-
-		// Reset cache
-		cache = this._cache = [];
-
-
-		let blank = '';
-
-		data.states.forEach((state) => {
-
-			state.tests.forEach((test) => {
-
-				if (test.name.length > blank.length) {
-					blank = new Array(test.name.length).fill(' ').join('');
-				}
-
-			});
-
-		});
-
-		data.states.forEach((state, s) => {
-
-			if (s > 0) console.log('');
-
-
-			let status = 'unknown';
-
-			if (data.state === state) {
-				console.warn('review/' + state.id + '.mjs:');
 			} else {
-				console.log('review/' + state.id + '.mjs:');
-			}
+
+				console.clear();
 
 
-			let all_ok = true;
+				let state = null;
 
-			state.tests.forEach((test) => {
+				reviews.forEach((review, r) => {
 
-				test.results.data.forEach((result) => {
-					cache.push(result);
-				});
+					if (r > 0) {
 
+						if (review.state === null && state === null) {
+							console.log('');
+						} else if (review.state !== state) {
+							console.log('');
+						}
 
-				let indent  = blank.substr(0, blank.length - test.name.length);
-				let message = '> ' + test.name + ' ' + indent + test.results.render();
-
-				if (data.state === state && data.state.test === test) {
-
-					console.warn(message);
-
-				} else {
-
-					let fails = test.results.data.includes(false);
-					let nulls = test.results.data.includes(null);
-
-					if (fails === true) {
-						all_ok = false;
-						status = 'fail';
-						console.error(message);
-					} else if (nulls === false && test.results.length === 0) {
-						console.warn(message);
-					} else if (nulls === false && test.results.length > 0) {
-						console.info(message);
-					} else if (nulls === true && test.results.index > 0) {
-						all_ok = false;
-						status = 'fail';
-						console.warn(message);
-					} else {
-						all_ok = false;
-						console.log(message);
 					}
 
-				}
 
-			});
+					if (mode === 'complete') {
 
+						if (current === review) {
+							render_complete.call(this, review, true);
+						} else {
+							render_summary.call(this, review);
+						}
 
-			if (all_ok === true) {
-				status = 'okay';
+					} else if (mode === 'summary') {
+
+						render_summary.call(this, review);
+
+					}
+
+					state = review.state;
+
+				});
+
 			}
 
+		} else if (isObject(data) === true) {
 
-			if (data.state === state) {
-
-				if (data.state.test !== null) {
-					console.warn('running "' + data.state.test.name + '" ... ');
-				} else {
-					console.warn('running ... ');
-				}
-
-			} else if (status === 'okay') {
-				console.info('okay.');
-			} else if (status === 'fail') {
-				console.error('fail!');
-			} else {
-				console.log('unknown?');
+			if (mode === 'complete') {
+				render_complete.call(this, data);
+			} else if (mode === 'summary') {
+				render_summary.call(this, data);
 			}
 
-		});
+		}
 
 	}
 

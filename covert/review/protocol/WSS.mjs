@@ -1,13 +1,13 @@
 
 import { create } from '../../EXAMPLE.mjs';
 
-import { describe, finish } from '../../source/Review.mjs';
+import { after, before, describe, finish } from '../../source/Review.mjs';
 
 import { WSS } from '../../../stealth/source/protocol/WSS.mjs';
 
 
 
-describe('WSS.connect', function(assert) {
+before('WSS.connect', function(assert) {
 
 	this.buffer     = {};
 	this.connection = null;
@@ -52,6 +52,24 @@ describe('WSS.send', function(assert) {
 		},
 		payload: 'payload'
 	});
+
+});
+
+after('WSS.disconnect', function(assert) {
+
+	if (this.socket !== null) {
+		this.socket.end();
+	}
+
+	this.buffer     = null;
+	this.connection = null;
+	this.ref        = null;
+	this.socket     = null;
+
+	assert(this.buffer === null);
+	assert(this.connection === null);
+	assert(this.ref === null);
+	assert(this.socket === null);
 
 });
 

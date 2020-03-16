@@ -202,6 +202,12 @@ Results.prototype = {
 
 	},
 
+	current: function() {
+
+		return this.index;
+
+	},
+
 	includes: function(result) {
 
 		if (typeof result === 'boolean' || result === null) {

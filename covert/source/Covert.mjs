@@ -22,114 +22,224 @@ const assert = function(timeline, results, result, expect) {
 
 };
 
-const debug = function(data) {
+const rebind_console_method = function(method, prefix) {
 
-	console.error(data);
-	process.exit(1);
+	return function() {
+
+		let al   = arguments.length;
+		let args = [ prefix ];
+		for (let a = 0; a < al; a++) {
+			args.push(arguments[a]);
+		}
+
+		if (typeof console[method] === 'function') {
+			console[method].apply(console, args);
+		}
+
+		if (method === 'debug') {
+			process.exit(1);
+		}
+
+	};
 
 };
 
-const map_to_result = function(review) {
+const console_sandbox = function(id) {
 
-	let result = {
-		id:    review.id || null,
-		state: 'okay',
-		tests: []
+	let prefix = id + ' > ';
+
+	return {
+
+		clear: () => {}, // No clear() allowed
+
+		blink: rebind_console_method('blink', prefix),
+		debug: rebind_console_method('debug', prefix),
+		error: rebind_console_method('error', prefix),
+		info:  rebind_console_method('info',  prefix),
+		log:   rebind_console_method('log',   prefix),
+		warn:  rebind_console_method('warn',  prefix),
+
 	};
 
+};
+
+const flatten_tests = (review) => {
+
+	let array = [];
 
 	if (review.before !== null) {
-
-		result.tests.push({
-			name:     review.before.name,
-			results:  review.before.results,
-			timeline: review.before.timeline
-		});
-
-		if (review.before.results.includes(null)) {
-			result.state = 'wait';
-		} else if (review.before.results.includes(false)) {
-			result.state = 'fail';
-		}
-
+		array.push(review.before);
 	}
 
 	if (review.tests.length > 0) {
-
 		review.tests.forEach((test) => {
+			array.push(test);
+		});
+	}
 
-			result.tests.push({
-				name:     test.name,
-				results:  test.results,
-				timeline: test.timeline
-			});
+	if (review.after !== null) {
+		array.push(review.after);
+	}
 
-			if (test.results.includes(null)) {
-				result.state = 'wait';
-			} else if (test.results.includes(false)) {
-				result.state = 'fail';
+	return array;
+
+};
+
+const next_review = function(reviews, review) {
+
+	let next = null;
+
+	if (review !== null) {
+
+		let undone = reviews.filter((review) => review.state === null);
+		if (undone.length > 0) {
+
+			let temp = undone[undone.indexOf(review) + 1] || null;
+			if (temp !== null) {
+				next = temp;
 			}
 
-		});
+		}
 
-	}
+	} else {
 
-	if (review.after !== null) {
-
-		result.tests.push({
-			name:     review.after.name,
-			results:  review.after.results,
-			timeline: review.after.timeline
-		});
-
-		if (review.after.results.includes(null)) {
-			result.state = 'wait';
-		} else if (review.after.results.includes(false)) {
-			result.state = 'fail';
+		let undone = reviews.filter((review) => review.state === null);
+		if (undone.length > 0) {
+			next = undone[0];
 		}
 
 	}
 
-
-	return result;
-
-};
-
-const map_to_state = function(review) {
-
-	let state = {
-		id:    review.id    || null,
-		scope: review.scope || {},
-		test:  null,
-		tests: []
-	};
-
-
-	if (review.before !== null) {
-		state.tests.push(review.before);
-	}
-
-	if (review.tests.length > 0) {
-		review.tests.forEach((test) => state.tests.push(test));
-	}
-
-	if (review.after !== null) {
-		state.tests.push(review.after);
-	}
-
-	state.test = state.tests[0] || null;
-
-
-	return state;
+	return next;
 
 };
 
-const update = function(data) {
+const next_test = function(review, test) {
 
-	let state = data.state || null;
-	if (state !== null && state.test !== null) {
+	let next = null;
 
-		let test = state.test;
+	if (test !== null) {
+
+		if (review.before === test) {
+
+			if (review.tests.length > 0) {
+				next = review.tests[0];
+			} else {
+				next = review.after || null;
+			}
+
+		} else if (review.tests.includes(test)) {
+
+			let temp = review.tests[review.tests.indexOf(test) + 1] || null;
+			if (temp !== null) {
+				next = temp;
+			} else {
+				next = review.after || null;
+			}
+
+		} else if (review.after === test) {
+
+			next = null;
+
+		}
+
+	} else {
+
+		if (next === null && review.before !== null) {
+			next = review.before;
+		}
+
+		if (next === null && review.tests.length > 0) {
+			next = review.tests[0];
+		}
+
+		if (next === null && review.after !== null) {
+			next = review.after;
+		}
+
+	}
+
+	return next;
+
+};
+
+const next = function() {
+
+	let review = this.__state.review || null;
+	let test   = this.__state.test   || null;
+
+	if (review !== null && test !== null) {
+		update_test(test);
+	}
+
+	if (review !== null) {
+
+		if (test !== null) {
+
+			let next = next_test(review, test);
+			if (next !== null) {
+
+				update_review(this.__state.review);
+				this.__state.test = next;
+
+			} else {
+
+				let next = next_review(this.reviews, this.__state.review);
+				if (next !== null) {
+
+					update_review(this.__state.review);
+
+					this.__state.review = next;
+					this.__state.test   = next_test(next, null);
+
+				} else {
+
+					update_review(this.__state.review);
+
+					this.__state.review = null;
+					this.__state.test   = null;
+
+				}
+
+			}
+
+		} else {
+
+			let next = next_review(this.reviews, this.__state.review);
+			if (next !== null) {
+
+				update_review(this.__state.review);
+
+				this.__state.review = next;
+				this.__state.test   = next_test(next, null);
+
+			} else {
+
+				update_review(this.__state.review);
+
+				this.__state.review = null;
+				this.__state.test   = null;
+
+			}
+
+		}
+
+	} else {
+
+		this.__state.review = null;
+		this.__state.test   = null;
+
+	}
+
+};
+
+const update = function() {
+
+	let review = this.__state.review || null;
+	let test   = this.__state.test   || null;
+
+	if (review !== null && test !== null) {
+
 		if (test.timeline.start === null) {
 
 			test.timeline.time(true);
@@ -137,20 +247,13 @@ const update = function(data) {
 			try {
 
 				test.callback.call(
-					state.scope,
-					assert.bind(state.scope, test.timeline, test.results),
-					debug.bind(state.scope)
+					review.scope,
+					assert.bind(review.scope, test.timeline, test.results),
+					console_sandbox(test.name)
 				);
 
 			} catch (err) {
-
-				let next = state.tests[state.tests.indexOf(state.test) + 1] || null;
-				if (next !== null) {
-					state.test = next;
-				} else {
-					state.test = null;
-				}
-
+				next.call(this);
 			}
 
 		} else {
@@ -159,22 +262,11 @@ const update = function(data) {
 			let progress = test.timeline.progress();
 
 			if (complete === true) {
-
-				let next = state.tests[state.tests.indexOf(state.test) + 1] || null;
-				if (next !== null) {
-					state.test = next;
-				} else {
-					state.test = null;
-				}
-
+				next.call(this);
 			} else if (progress > TIMEOUT) {
 
-				let next = state.tests[state.tests.indexOf(state.test) + 1] || null;
-				if (next !== null) {
-					state.test = next;
-				} else {
-					state.test = null;
-				}
+				test.state = 'wait';
+				next.call(this);
 
 			}
 
@@ -183,15 +275,9 @@ const update = function(data) {
 
 		return true;
 
-	} else if (state !== null && state.test === null) {
+	} else if (review !== null && test === null) {
 
-		let next = data.states[data.states.indexOf(state) + 1] || null;
-		if (next !== null) {
-			data.state = next;
-		} else {
-			data.state = null;
-		}
-
+		next.call(this);
 
 		return true;
 
@@ -202,16 +288,71 @@ const update = function(data) {
 
 };
 
+const update_review = function(review) {
+
+	let tests = flatten_tests(review);
+	if (tests.length > 0) {
+
+		let check = tests.filter((test) => test.state !== null);
+		if (check.length === tests.length) {
+
+			let state = 'okay';
+
+			tests.forEach((test) => {
+
+				if (test.results.includes(false)) {
+					state = 'fail';
+				} else if (test.results.includes(null)) {
+					state = 'wait';
+				}
+
+			});
+
+			review.state = state;
+
+
+			return true;
+
+		}
+
+	}
+
+
+	return false;
+
+};
+
+const update_test = function(test) {
+
+	let is_complete = test.results.complete();
+	if (is_complete === true) {
+
+		if (test.results.includes(false)) {
+			test.state = 'fail';
+		} else if (test.results.includes(null)) {
+			test.state = 'wait';
+		} else {
+			test.state = 'okay';
+		}
+
+	}
+
+};
+
 
 
 export const Covert = function(settings) {
 
 	this.settings = Object.assign({}, settings);
-	this.callback = null;
 	this.interval = null;
 	this.network  = new Network(this.settings);
 	this.renderer = new Renderer(this.settings);
 	this.reviews  = [];
+
+	this.__state  = {
+		review: null,
+		test:   null
+	};
 
 };
 
@@ -225,42 +366,67 @@ Covert.prototype = {
 
 		if (this.interval === null && callback !== null) {
 
-			this.callback = callback;
+			let review = this.reviews[0] || null;
+			let test   = null;
 
+			if (review !== null) {
 
-			let data = {
-				state:  null,
-				states: this.reviews.map((review) => map_to_state(review))
-			};
-
-			data.state = data.states[0] || null;
-
-
-			this.interval = setInterval(() => {
-
-				let busy = update.call(this, data);
-				if (busy === false) {
-
-					clearInterval(this.interval);
-					this.interval = null;
-
-					this.network.disconnect();
-					this.callback(this.reviews.map((review) => map_to_result(review)));
-
-				} else {
-					this.renderer.render(data);
+				if (review.before !== null) {
+					test = review.before;
+				} else if (review.tests.length > 0) {
+					test = review.tests[0];
+				} else if (review.after !== null) {
+					test = review.after;
 				}
 
-			}, 100);
-
-			this.network.connect();
+			}
 
 
-			return true;
+			if (review !== null && test !== null) {
 
-		} else {
-			return false;
+				this.__state.review = review;
+				this.__state.test   = test;
+
+
+				this.interval = setInterval(() => {
+
+					let is_busy = false;
+
+					if (this.settings.debug === true) {
+						this.renderer.render(this.reviews, 'complete');
+					}
+
+					is_busy = update.call(this);
+
+					if (this.settings.debug === false) {
+						this.renderer.render(this.reviews, 'complete');
+					}
+
+
+					if (is_busy === false) {
+
+						clearInterval(this.interval);
+						this.interval = null;
+
+						this.network.disconnect();
+
+						callback.call(null, this.reviews);
+
+					}
+
+				}, 100);
+
+				this.network.connect();
+
+
+				return true;
+
+			}
+
 		}
+
+
+		return false;
 
 	},
 
@@ -289,9 +455,19 @@ Covert.prototype = {
 
 		if (review !== null) {
 
-			this.reviews.push(review);
+			if (
+				review.before !== null
+				|| review.tests.length > 0
+				|| review.after !== null
+			) {
 
-			return true;
+				if (this.reviews.includes(review) === false) {
+					this.reviews.push(review);
+				}
+
+				return true;
+
+			}
 
 		}
 

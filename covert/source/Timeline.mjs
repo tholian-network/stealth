@@ -72,6 +72,22 @@ Timeline.from = function(data) {
 
 Timeline.prototype = {
 
+	complete: function() {
+
+		if (this.index < this.data.length) {
+			return false;
+		}
+
+		return true;
+
+	},
+
+	current: function() {
+
+		return this.index;
+
+	},
+
 	progress: function() {
 
 		if (this.start !== null) {
@@ -85,7 +101,7 @@ Timeline.prototype = {
 
 	includes: function(time) {
 
-		if (typeof time === 'number') {
+		if (typeof time === 'number' || time === null) {
 			return this.data.includes(time);
 		}
 
