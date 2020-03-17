@@ -231,8 +231,6 @@ const render_partial = function(reviews, prev_state, curr_state) {
 		let last_review = prev_state.review || null;
 		let last_test   = prev_state.test   || null;
 		let last_result = prev_state.result || null;
-		let div1        = indent(unrendered_tests.map((test) => test.name));
-		let div2        = indent(unrendered_tests.map((test) => test.results.render()));
 		let render      = this.settings.render || null;
 
 		unrendered_tests.forEach((test, t) => {
@@ -264,7 +262,7 @@ const render_partial = function(reviews, prev_state, curr_state) {
 				let message = '>';
 
 				message += ' ' + test.name;
-				message += ' ' + div1(test.name);
+				message += ' ';
 
 				if (render === 'scan') {
 
@@ -280,7 +278,7 @@ const render_partial = function(reviews, prev_state, curr_state) {
 					let str2 = test.timeline.render();
 
 					message += str1;
-					message += div2(str1);
+					message += ' ';
 					message += str2;
 
 				}
@@ -429,34 +427,49 @@ Renderer.prototype = {
 
 			let debug   = this.settings.debug || false;
 			let reviews = data;
-			let current = reviews.find((r) => r.state === null) || null;
+			let state   = {
+				review: this.__state.review,
+				test:   this.__state.test,
+				result: this.__state.result
+			};
+
+			if (reviews.length > 0) {
+
+				let tmp = reviews.find((review) => review.state === null) || null;
+				if (tmp !== null) {
+					state.review = tmp;
+				}
+
+			}
+
+			if (state.review !== null) {
+
+				let tmp = flatten_tests(state.review).find((test) => test.state === null) || null;
+				if (tmp !== null) {
+					state.test = tmp;
+				}
+
+			}
 
 
 			if (debug === true) {
 
-				if (current !== null) {
-
-					render_partial.call(this, reviews, this.__state, {
-						review: current,
-						test:   flatten_tests(current).find((test) => test.state === null) || null
-					});
-
-				}
+				render_partial.call(this, reviews, this.__state, state);
 
 			} else {
 
 				console.clear();
 
 
-				let state = null;
+				let last_state = null;
 
 				reviews.forEach((review, r) => {
 
 					if (r > 0) {
 
-						if (review.state === null && state === null) {
+						if (review.state === null && last_state === null) {
 							console.log('');
-						} else if (review.state !== state) {
+						} else if (review.state !== last_state) {
 							console.log('');
 						}
 
@@ -465,7 +478,7 @@ Renderer.prototype = {
 
 					if (mode === 'complete') {
 
-						if (current === review) {
+						if (state.review === review) {
 							render_complete.call(this, review, true);
 						} else {
 							render_summary.call(this, review);
@@ -477,7 +490,7 @@ Renderer.prototype = {
 
 					}
 
-					state = review.state;
+					last_state = review.state;
 
 				});
 

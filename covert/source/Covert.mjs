@@ -46,7 +46,7 @@ const rebind_console_method = function(method, prefix) {
 
 const console_sandbox = function(id) {
 
-	let prefix = id + ' > ';
+	let prefix = '  ' + (new Array(id.length)).fill(' ').join('') + ' |>';
 
 	return {
 
@@ -387,31 +387,27 @@ Covert.prototype = {
 				this.__state.review = review;
 				this.__state.test   = test;
 
+				this.renderer.render(this.reviews, 'complete');
+
 
 				this.interval = setInterval(() => {
 
-					let is_busy = false;
-
-					if (this.settings.debug === true) {
-						this.renderer.render(this.reviews, 'complete');
-					}
-
-					is_busy = update.call(this);
-
-					if (this.settings.debug === false) {
-						this.renderer.render(this.reviews, 'complete');
-					}
-
-
+					let is_busy = update.call(this);
 					if (is_busy === false) {
+
+						this.renderer.render(this.reviews, 'complete');
 
 						clearInterval(this.interval);
 						this.interval = null;
 
 						this.network.disconnect();
 
-						callback.call(null, this.reviews);
+						setTimeout(() => {
+							callback.call(null, this.reviews);
+						}, 0);
 
+					} else {
+						this.renderer.render(this.reviews, 'complete');
 					}
 
 				}, 100);
