@@ -2,12 +2,11 @@
 import net from 'net';
 
 import { isObject } from '../POLYFILLS.mjs';
-
-import { Emitter } from '../Emitter.mjs';
-import { HTTP    } from './HTTP.mjs';
-import { HTTPS   } from './HTTPS.mjs';
-import { WS      } from './WS.mjs';
-import { WSS     } from './WSS.mjs';
+import { Emitter  } from '../Emitter.mjs';
+import { HTTP     } from './HTTP.mjs';
+import { HTTPS    } from './HTTPS.mjs';
+import { WS       } from './WS.mjs';
+import { WSS      } from './WSS.mjs';
 
 
 

@@ -1,210 +1,53 @@
 
 import { Buffer } from 'buffer';
 
-import { isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
-
-import { IP    } from '../parser/IP.mjs';
-import { HTTPS } from './HTTPS.mjs';
-
-
-
-const DNS_POOL = [{
-	domain:   'cloudflare-dns.com',
-	path:     '/dns-query',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '1.1.1.1',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2606:4700:4700:0000:0000:0000:0000:1111',
-		scope: 'public',
-		type:  'v6'
-	}, {
-		ip:    '1.0.0.1',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2606:4700:4700:0000:0000:0000:0000:1001',
-		scope: 'public',
-		type:  'v6'
-	}]
-}, {
-	domain:   'dns.google.com',
-	path:     '/resolve',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '172.217.22.14',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2a00:1450:4001:081a:0000:0000:0000:200e',
-		scope: 'public',
-		type:  'v6'
-	}]
-}, {
-	domain:   'google-public-dns-a.google.com',
-	path:     '/resolve',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '8.8.8.8',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2001:4860:4860:0000:0000:0000:0000:8888',
-		scope: 'public',
-		type:  'v6'
-	}]
-}, {
-	domain:   'google-public-dns-b.google.com',
-	path:     '/resolve',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '8.8.4.4',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2001:4860:4860:0000:0000:0000:0000:8844',
-		scope: 'public',
-		type:  'v6'
-	}]
-}, {
-	domain:   'doh.dns.sb',
-	path:     '/dns-query',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '104.18.56.150',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2606:4700:0030:0000:0000:0000:6812:3896',
-		scope: 'public',
-		type:  'v6'
-	}, {
-		ip:    '104.18.57.150',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2606:4700:0030:0000:0000:0000:6812:3996',
-		scope: 'public',
-		type:  'v6'
-	}]
-}, {
-	domain:   'dns.quad9.net',
-	path:     '/dns-query',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '9.9.9.9',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2620:00fe:0000:0000:0000:0000:0000:00fe',
-		scope: 'public',
-		type:  'v6'
-	}]
-}, {
-	domain:   'dns.rubyfish.cn',
-	path:     '/dns-query',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '118.89.110.78',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '47.96.179.163',
-		scope: 'public',
-		type:  'v4'
-	}]
-}, {
-	domain:   'doh.securedns.eu',
-	path:     '/dns-query',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '146.185.167.43',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2a03:b0c0:0000:1010:0000:0000:0e9a:3001',
-		scope: 'public',
-		type:  'v6'
-	}]
-}, {
-	domain:   'doh-jp.blahdns.com',
-	path:     '/dns-query',
-	port:     443,
-	protocol: 'https',
-	hosts:    [{
-		ip:    '108.61.201.119',
-		scope: 'public',
-		type:  'v4'
-	}, {
-		ip:    '2001:19f0:7001:1ded:5400:01ff:fe90:945b',
-		scope: 'public',
-		type:  'v6'
-	}]
-}].filter((dns) => {
-
-	// XXX: These DNS are broken at the moment :-/
-	if (dns.domain.includes('blahdns.com'))       return false;
-	if (dns.domain.includes('google-public-dns')) return false;
-
-	return true;
-
-});
-let DNS_ROTATE = (Math.random() * DNS_POOL.length) | 0;
+import { isArray, isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { IP                                      } from '../parser/IP.mjs';
+import { HTTPS                                   } from './HTTPS.mjs';
 
 
 
-const parse = function(data) {
+let DNS_RONIN = 0;
+
+
+
+const parse = function(raw) {
 
 	let hosts = [];
 
+	if (isBuffer(raw)) {
 
-	if (isBuffer(data)) {
+		let data = null;
 
-		let tmp = null;
 		try {
-			tmp = JSON.parse(data.toString('utf8'));
+			data = JSON.parse(raw.toString('utf8'));
 		} catch (err) {
-			tmp = null;
+			data = null;
 		}
 
-		if (tmp !== null) {
-			data = tmp;
-		}
 
-	}
+		if (isObject(data) && isArray(data['Answer'])) {
 
-
-	if (isObject(data)) {
-
-		let answers = Array.from(data['Answer'] || []).filter((answer) => {
-			return answer.type === DNS.TYPE.A || answer.type === DNS.TYPE.AAAA;
-		});
-
-		if (answers.length > 0) {
-
-			answers.forEach((answer) => {
-
-				let ip = IP.parse(answer.data);
-				if (ip.type !== null) {
-					hosts.push(ip);
-				}
-
+			let answers = Array.from(data['Answer']).filter((answer) => {
+				return answer.type === DNS.TYPE.A || answer.type === DNS.TYPE.AAAA;
 			});
 
+			if (answers.length > 0) {
+
+				answers.forEach((answer) => {
+
+					let ip = IP.parse(answer.data);
+					if (ip.type !== null) {
+						hosts.push(ip);
+					}
+
+				});
+
+			}
+
 		}
 
 	}
-
 
 	return hosts;
 
@@ -260,6 +103,139 @@ const query = function(ref, name, type, callback) {
 
 const DNS = {
 
+	SERVER:  null,
+
+	SERVERS: [{
+		domain:   'cloudflare-dns.com',
+		path:     '/dns-query',
+		port:     443,
+		protocol: 'https',
+		hosts:    [{
+			ip:    '1.1.1.1',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '2606:4700:4700:0000:0000:0000:0000:1111',
+			scope: 'public',
+			type:  'v6'
+		}, {
+			ip:    '1.0.0.1',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '2606:4700:4700:0000:0000:0000:0000:1001',
+			scope: 'public',
+			type:  'v6'
+		}]
+	}, {
+		domain:   'dns.google',
+		path:     '/resolve',
+		port:     443,
+		protocol: 'https',
+		hosts:    [{
+			ip:    '8.8.4.4',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '8.8.8.8',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '2001:4860:4860:0000:0000:0000:0000:8844',
+			scope: 'public',
+			type:  'v6'
+		}, {
+			ip:    '2001:4860:4860:0000:0000:0000:0000:8888',
+			scope: 'public',
+			type:  'v6'
+		}]
+	}, {
+		domain:   'doh.dns.sb',
+		path:     '/dns-query',
+		port:     443,
+		protocol: 'https',
+		hosts:    [{
+			ip:    '104.18.56.150',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '2606:4700:0030:0000:0000:0000:6812:3896',
+			scope: 'public',
+			type:  'v6'
+		}, {
+			ip:    '104.18.57.150',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '2606:4700:0030:0000:0000:0000:6812:3996',
+			scope: 'public',
+			type:  'v6'
+		}]
+	}, {
+		domain:   'dns.quad9.net',
+		path:     '/dns-query',
+		port:     443,
+		protocol: 'https',
+		hosts:    [{
+			ip:    '9.9.9.9',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '2620:00fe:0000:0000:0000:0000:0000:00fe',
+			scope: 'public',
+			type:  'v6'
+		}]
+	}, {
+		domain:   'dns.rubyfish.cn',
+		path:     '/dns-query',
+		port:     443,
+		protocol: 'https',
+		hosts:    [{
+			ip:    '118.89.110.78',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '47.96.179.163',
+			scope: 'public',
+			type:  'v4'
+		}]
+	}, {
+		domain:   'doh.securedns.eu',
+		path:     '/dns-query',
+		port:     443,
+		protocol: 'https',
+		hosts:    [{
+			ip:    '146.185.167.43',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '2a03:b0c0:0000:1010:0000:0000:0e9a:3001',
+			scope: 'public',
+			type:  'v6'
+		}]
+	}, {
+		domain:   'doh-jp.blahdns.com',
+		path:     '/dns-query',
+		port:     443,
+		protocol: 'https',
+		hosts:    [{
+			ip:    '108.61.201.119',
+			scope: 'public',
+			type:  'v4'
+		}, {
+			ip:    '2001:19f0:7001:1ded:5400:01ff:fe90:945b',
+			scope: 'public',
+			type:  'v6'
+		}]
+	}].filter((dns) => {
+
+		// XXX: These DNS are broken at the moment :-/
+		if (dns.domain.includes('blahdns.com')) return false;
+
+		return true;
+
+	}),
+
 	TYPE: {
 		A:     1,
 		AAAA: 28
@@ -274,15 +250,32 @@ const DNS = {
 		if (ref !== null && callback !== null) {
 
 			let domain = ref.domain || null;
-			let server = DNS_POOL[DNS_ROTATE] || null;
+			let server = null;
+
+			if (DNS.SERVER === null) {
+
+				server = DNS.SERVERS[DNS_RONIN];
+
+				DNS_RONIN += 1;
+				DNS_RONIN %= DNS.SERVERS.length;
+
+			} else if (DNS.SERVERS.includes(DNS.SERVER) === true) {
+
+				server = DNS.SERVER;
+
+			} else {
+
+				DNS.SERVER = null;
+
+				server = DNS.SERVERS[DNS_RONIN];
+
+				DNS_RONIN += 1;
+				DNS_RONIN %= DNS.SERVERS.length;
+
+			}
+
 
 			if (domain !== null && server !== null) {
-
-				// Rotate DNS to prevent endless
-				// repeating resolution errors
-				DNS_ROTATE += 1;
-				DNS_ROTATE %= DNS_POOL.length;
-
 
 				let subdomain = ref.subdomain || null;
 				if (subdomain !== null) {

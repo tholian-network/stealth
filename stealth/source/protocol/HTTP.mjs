@@ -4,8 +4,7 @@ import zlib       from 'zlib';
 import { Buffer } from 'buffer';
 
 import { isBuffer, isFunction, isObject, isString } from '../POLYFILLS.mjs';
-
-import { Emitter } from '../Emitter.mjs';
+import { Emitter                                  } from '../Emitter.mjs';
 
 
 
@@ -14,7 +13,6 @@ const decode_chunked = function(buffer) {
 	let offset = 0;
 	let stream = buffer.toString('utf8');
 	let target = Buffer.from('', 'utf8');
-
 
 	let pos = stream.indexOf('\r\n');
 	let num = parseInt(stream.substr(0, pos), 16);
@@ -175,17 +173,38 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 				let tmp4 = (response.headers['@status'] || '').split(' ').shift();
 				let tmp5 = (response.headers['content-range'] || null);
 				if (tmp4 === '206' && tmp5 !== null) {
+
 					buffer.partial = true;
-					buffer.payload = Buffer.concat([ buffer.payload, response.payload ]);
+
+					if (response.payload !== null) {
+
+						if (buffer.payload !== null) {
+							buffer.payload = Buffer.concat([ buffer.payload, response.payload ]);
+						} else {
+							buffer.payload = response.payload;
+						}
+
+					}
+
 				} else if (tmp4 === '200') {
+
 					buffer.partial = false;
-					buffer.payload = response.payload;
+
+					if (response.payload !== null) {
+						buffer.payload = response.payload;
+					}
+
 				} else if (tmp4 === '416') {
+
 					emitter.emit('error', [{ type: 'stash' }]);
+
 				} else {
 
 					buffer.partial = false;
-					buffer.payload = response.payload;
+
+					if (response.payload !== null) {
+						buffer.payload = response.payload;
+					}
 
 					socket.removeAllListeners('data');
 					socket.end();
@@ -193,7 +212,7 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 				}
 
 
-				if (buffer.length === buffer.payload.length) {
+				if (buffer.length !== null && buffer.length === buffer.payload.length) {
 					socket.end();
 				}
 
@@ -225,12 +244,42 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
 export const onend = function(socket, ref, buffer, emitter) {
 
+	if (buffer.length !== null && buffer.length !== buffer.payload.length) {
+
+		if (isBuffer(buffer._temp)) {
+
+			let check = buffer._temp.toString('utf8').indexOf('\r\n\r\n');
+			if (check !== -1) {
+
+				HTTP.receive(socket, buffer._temp, (response) => {
+
+					if (ref.headers === null) {
+						ref.headers = response.headers;
+					}
+
+					if (response.payload !== null) {
+
+						if (response.payload.length === buffer.length) {
+							buffer.payload = response.payload;
+						}
+
+					}
+
+				});
+
+			}
+
+		}
+
+	}
+
+
 	if (ref.headers !== null) {
 
 		let code = (ref.headers['@status'] || '500').split(' ').shift();
 		if (code === '200' || code === '204' || code === '205' || code === '206') {
 
-			if (buffer.length === buffer.payload.length) {
+			if (buffer.length === null || buffer.length === buffer.payload.length) {
 
 				if (buffer.encoding === 'chunked') {
 					buffer.payload = decode_chunked(buffer.payload);
@@ -240,26 +289,6 @@ export const onend = function(socket, ref, buffer, emitter) {
 					delete buffer.encoding;
 				}
 
-
-				let raw_payload = buffer.payload || null;
-				if (raw_payload !== null) {
-
-					// Check for potential JSON "{" (123) or "[" (91)
-					if (raw_payload[0] === 123 || raw_payload[0] === 91) {
-
-						try {
-							buffer.payload = JSON.parse(raw_payload.toString('utf8'));
-						} catch (err) {
-							buffer.payload = raw_payload;
-						}
-
-					} else {
-
-						buffer.payload = raw_payload;
-
-					}
-
-				}
 
 				emitter.emit('response', [{
 					headers: ref.headers,
@@ -327,25 +356,10 @@ export const onerror = function(socket, ref, buffer, emitter) {
 				}
 
 
-				let raw_payload = buffer.payload || null;
-				if (raw_payload !== null) {
-
-					// Check for potential JSON "{" (123) or "[" (91)
-					if (raw_payload[0] === 123 || raw_payload[0] === 91) {
-
-						try {
-							buffer.payload = JSON.parse(raw_payload.toString('utf8'));
-						} catch (err) {
-							buffer.payload = raw_payload;
-						}
-
-					} else {
-
-						buffer.payload = raw_payload;
-
-					}
-
-				}
+				emitter.emit('response', [{
+					headers: ref.headers,
+					payload: buffer.payload
+				}]);
 
 			} else if (buffer.length < buffer.payload.length) {
 
@@ -587,22 +601,7 @@ const HTTP = {
 
 
 			if (raw_payload !== null) {
-
-				// Check for potential JSON "{" (123) or "[" (91)
-				if (raw_payload[0] === 123 || raw_payload[0] === 91) {
-
-					try {
-						payload = JSON.parse(raw_payload.toString('utf8'));
-					} catch (err) {
-						payload = raw_payload;
-					}
-
-				} else {
-
-					payload = raw_payload;
-
-				}
-
+				payload = raw_payload;
 			}
 
 

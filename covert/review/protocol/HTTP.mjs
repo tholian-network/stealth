@@ -42,7 +42,9 @@ describe('HTTP.send', function(assert) {
 
 		let html = (response.payload || '').toString('utf8');
 
-		assert(response.payload !== null && html.includes('Example Domain'));
+		assert(response.payload !== null && html.includes('<html>'));
+		assert(response.payload !== null && html.includes('<title>Example Domain</title>'));
+		assert(response.payload !== null && html.includes('</html>'));
 
 	});
 
@@ -65,7 +67,9 @@ describe('HTTP.receive', function(assert) {
 
 		let html = (response.payload || '').toString('utf8');
 
-		assert(response.payload !== null && html.includes('Example Domain'));
+		assert(response.payload !== null && html.includes('<html>'));
+		assert(response.payload !== null && html.includes('<title>Example Domain</title>'));
+		assert(response.payload !== null && html.includes('</html>'));
 
 	});
 

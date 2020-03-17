@@ -4,9 +4,8 @@ import net        from 'net';
 import { Buffer } from 'buffer';
 
 import { isBuffer, isFunction, isNumber, isObject } from '../POLYFILLS.mjs';
-
-import { Emitter } from '../Emitter.mjs';
-import { HTTP    } from './HTTP.mjs';
+import { Emitter                                  } from '../Emitter.mjs';
+import { HTTP                                     } from './HTTP.mjs';
 
 
 

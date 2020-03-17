@@ -265,13 +265,32 @@ const show_help = () => {
 		let covert = global.covert = new Covert(settings);
 		if (covert !== null) {
 
-			process.on('SIGHUP',  () => covert.disconnect());
-			process.on('SIGINT',  () => covert.disconnect());
-			process.on('SIGQUIT', () => covert.disconnect());
+			process.on('SIGHUP', () => {
+				covert.disconnect();
+			});
+
+			process.on('SIGINT', () => {
+				covert.disconnect();
+				process.exit(1);
+			});
+
+			process.on('SIGQUIT', () => {
+				covert.disconnect();
+				process.exit(1);
+			});
+
 			process.on('SIGABRT', () => covert.disconnect());
-			process.on('SIGTERM', () => covert.disconnect());
-			process.on('error',   () => covert.disconnect());
-			process.on('exit',    () => {});
+
+			process.on('SIGTERM', () => {
+				covert.disconnect();
+			});
+
+			process.on('error', () => {
+				covert.disconnect();
+				process.exit(1);
+			});
+
+			process.on('exit', () => {});
 
 			REVIEWS.forEach((review) => {
 				covert.scan(review);

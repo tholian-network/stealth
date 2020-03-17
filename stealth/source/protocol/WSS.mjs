@@ -1,10 +1,9 @@
 
 import tls from 'tls';
 
-import { isFunction, isObject } from '../POLYFILLS.mjs';
-
-import { Emitter } from '../Emitter.mjs';
-import { WS      } from './WS.mjs';
+import { isFunction, isObject              } from '../POLYFILLS.mjs';
+import { Emitter                           } from '../Emitter.mjs';
+import { WS                                } from './WS.mjs';
 import { onconnect, ondata, onend, onerror } from './WS.mjs';
 
 

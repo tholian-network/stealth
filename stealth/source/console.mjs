@@ -1,7 +1,7 @@
 
 import process from 'process';
 
-import { isArray, isDate, isFunction, isNumber, isObject, isString } from './POLYFILLS.mjs';
+import { isArray, isBuffer, isDate, isFunction, isNumber, isObject, isString } from './POLYFILLS.mjs';
 
 
 
@@ -23,6 +23,25 @@ const isMatrix = function(value) {
 const INDENT      = '    ';
 const WHITESPACE  = new Array(512).fill(' ').join('');
 const format_date = (n) => (n < 10 ? '0' + n : '' + n);
+
+const cleanify = function(raw) {
+
+	let str = '';
+
+	for (let r = 0, rl = raw.length; r < rl; r++) {
+
+		if (raw.charCodeAt(r) <= 127) {
+			str += raw.charAt(r);
+		}
+
+	}
+
+	str = str.split('\r').join('\\r');
+	str = str.split('\n').join('\\n');
+
+	return str;
+
+};
 
 const stringify = function(data, indent) {
 
@@ -148,6 +167,18 @@ const stringify = function(data, indent) {
 			str += indent + ']';
 
 		}
+
+	} else if (isBuffer(data)) {
+
+		str  = indent;
+		str += 'Buffer.from(\'';
+
+		let tmp = cleanify(data.toString('utf8'));
+		if (tmp.length > 0) {
+			str += tmp;
+		}
+
+		str += '\', \'utf8\')';
 
 	} else if (isDate(data)) {
 
