@@ -4,11 +4,12 @@ import os      from 'os';
 import path    from 'path';
 import process from 'process';
 
+import { console                                            } from './console.mjs';
 import { isArray, isBoolean, isFunction, isObject, isString } from './POLYFILLS.mjs';
+import { Session                                            } from './Session.mjs';
+import { HOSTS                                              } from './parser/HOSTS.mjs';
 
-import { console } from './console.mjs';
-import { Session } from './Session.mjs';
-import { HOSTS   } from './parser/HOSTS.mjs';
+
 
 const ETC_HOSTS = (function(platform) {
 

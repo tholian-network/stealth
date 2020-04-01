@@ -1,9 +1,7 @@
 
-import { console } from '../../console.mjs';
 import { clone, has, match, parse_value, shift, split } from '../CSS.mjs';
-
-import { NORMAL } from './NORMAL.mjs';
-import { STYLES } from './STYLES.mjs';
+import { NORMAL                                       } from './NORMAL.mjs';
+import { STYLES                                       } from './STYLES.mjs';
 
 
 

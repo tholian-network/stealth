@@ -1,10 +1,9 @@
 
 import net        from 'net';
 import zlib       from 'zlib';
-import { Buffer } from 'buffer';
 
-import { isBuffer, isFunction, isObject, isString } from '../POLYFILLS.mjs';
-import { Emitter                                  } from '../Emitter.mjs';
+import { Buffer, isBuffer, isFunction, isObject, isString } from '../POLYFILLS.mjs';
+import { Emitter                                          } from '../Emitter.mjs';
 
 
 

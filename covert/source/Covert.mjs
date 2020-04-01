@@ -1,12 +1,14 @@
 
-import { isFunction, isObject } from './POLYFILLS.mjs';
+import process from 'process';
 
-import { console  } from './console.mjs';
-import { Network  } from './Network.mjs';
-import { Renderer } from './Renderer.mjs';
+import { isObject   } from './POLYFILLS.mjs';
+import { console    } from './console.mjs';
+import { Emitter    } from './Emitter.mjs';
+import { Filesystem } from './Filesystem.mjs';
+import { Network    } from './Network.mjs';
+import { Renderer   } from './Renderer.mjs';
 
 
-const TIMEOUT = 30 * 1000;
 
 const isModule = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Module]';
@@ -263,7 +265,7 @@ const update = function() {
 
 			if (complete === true) {
 				next.call(this);
-			} else if (progress > TIMEOUT) {
+			} else if (progress > this.settings.timeout) {
 
 				test.state = 'wait';
 				next.call(this);
@@ -343,28 +345,130 @@ const update_test = function(test) {
 
 export const Covert = function(settings) {
 
-	this.settings = Object.assign({}, settings);
-	this.interval = null;
-	this.network  = new Network(this.settings);
-	this.renderer = new Renderer(this.settings);
-	this.reviews  = [];
+	this.settings = Object.assign({
+		action:  null, // 'scan', 'time' or 'watch'
+		root:    process.cwd(),
+		timeout: 30 * 1000
+	}, settings);
 
-	this.__state  = {
-		review: null,
-		test:   null
+	this.interval   = null;
+	this.filesystem = new Filesystem(this.settings);
+	this.network    = new Network(this.settings);
+	this.renderer   = new Renderer(this.settings);
+	this.reviews    = [];
+
+	this.__state = {
+		connected: false,
+		review:    null,
+		test:      null,
+		watch:     {}
 	};
+
+
+	Emitter.call(this);
+
+	this.on('connect', (reviews) => {
+
+		if (this.__state.connected === false) {
+
+			this.renderer.render(reviews, 'complete');
+
+			this.filesystem.connect();
+			this.network.connect();
+
+			this.__state.connected = true;
+
+		}
+
+	});
+
+	this.on('render', (reviews) => {
+
+		this.renderer.render(reviews, 'complete');
+
+	});
+
+	this.on('disconnect', (reviews) => {
+
+		let interval = this.interval;
+		if (interval !== null) {
+
+			clearInterval(this.interval);
+			this.interval = null;
+
+
+			let review = this.__state.review || null;
+			if (review !== null) {
+
+				if (review.tests.length > 0) {
+					review.tests.forEach((test) => {
+
+						if (test.state === null) {
+							test.state = 'wait';
+						}
+
+					});
+				}
+
+				let test = review.after || null;
+				if (test.state === null && test.timeline.start === null) {
+
+					test.timeline.time(true);
+
+					try {
+
+						test.callback.call(
+							review.scope,
+							assert.bind(review.scope, test.timeline, test.results),
+							console_sandbox(test.name)
+						);
+
+					} catch (err) {
+						review.after.state = 'wait';
+					}
+
+				}
+
+			}
+
+		}
+
+		this.renderer.render(reviews, 'complete');
+
+		if (this.__state.connected === true) {
+
+			if (this.settings.action === 'watch') {
+				// Do nothing
+			} else {
+
+				this.network.disconnect();
+				this.filesystem.disconnect();
+
+				this.__state.connected = false;
+
+			}
+
+		}
+
+	});
+
+	this.filesystem.on('change', (source) => {
+
+		let review = this.__state.watch[source] || null;
+		if (review !== null) {
+			this.emit('change', [ this.reviews, review ]);
+		}
+
+	});
 
 };
 
 
-Covert.prototype = {
+Covert.prototype = Object.assign({}, Emitter.prototype, {
 
-	connect: function(callback) {
+	connect: function() {
 
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (this.interval === null && callback !== null) {
+		if (this.interval === null) {
 
 			let review = this.reviews[0] || null;
 			let test   = null;
@@ -387,7 +491,8 @@ Covert.prototype = {
 				this.__state.review = review;
 				this.__state.test   = test;
 
-				this.renderer.render(this.reviews, 'complete');
+
+				this.emit('connect', [ this.reviews ]);
 
 
 				this.interval = setInterval(() => {
@@ -395,24 +500,18 @@ Covert.prototype = {
 					let is_busy = update.call(this);
 					if (is_busy === false) {
 
-						this.renderer.render(this.reviews, 'complete');
-
 						clearInterval(this.interval);
 						this.interval = null;
 
-						this.network.disconnect();
-
-						setTimeout(() => {
-							callback.call(null, this.reviews);
-						}, 0);
+						this.emit('disconnect', [ this.reviews ]);
 
 					} else {
-						this.renderer.render(this.reviews, 'complete');
+
+						this.emit('render', [ this.reviews ]);
+
 					}
 
 				}, 100);
-
-				this.network.connect();
 
 
 				return true;
@@ -428,7 +527,7 @@ Covert.prototype = {
 
 	disconnect: function() {
 
-		this.network.disconnect();
+		this.emit('disconnect', [ this.reviews ]);
 
 		return true;
 
@@ -470,7 +569,45 @@ Covert.prototype = {
 
 		return false;
 
+	},
+
+	watch: function(review) {
+
+		// Allow import * syntax
+		if (isModule(review)) {
+
+			if ('default' in review) {
+				review = review['default'] || null;
+			}
+
+		}
+
+
+		review = isObject(review) ? review : null;
+
+
+		if (review !== null) {
+
+			let source = this.settings.root + '/stealth/source/' + review.id + '.mjs';
+			if (this.filesystem.exists(source) === true) {
+
+				let result = this.filesystem.watch(source);
+				if (result === true) {
+
+					this.__state.watch[source] = review;
+
+					return true;
+
+				}
+
+			}
+
+		}
+
+
+		return false;
+
 	}
 
-};
+});
 

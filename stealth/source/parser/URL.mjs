@@ -1,7 +1,6 @@
 
 import { isArray, isNumber, isObject, isString } from '../POLYFILLS.mjs';
-
-import { IP } from './IP.mjs';
+import { IP                                    } from './IP.mjs';
 
 
 

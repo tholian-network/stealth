@@ -2,9 +2,10 @@
 import fs          from 'fs';
 import path        from 'path';
 import process     from 'process';
-import { Buffer  } from 'buffer';
 
-import { isFunction, isObject } from '../POLYFILLS.mjs';
+import { Buffer, isFunction, isObject } from '../POLYFILLS.mjs';
+
+
 
 const ROOT = (function() {
 

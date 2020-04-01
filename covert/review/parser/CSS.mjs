@@ -1,8 +1,6 @@
 
-import { console } from '../../source/console.mjs';
-
-import { Buffer } from 'buffer';
-
+import { Buffer           } from '../../source/POLYFILLS.mjs';
+import { console          } from '../../source/console.mjs';
 import { describe, finish } from '../../source/Review.mjs';
 import { CSS              } from '../../../stealth/source/parser/CSS.mjs';
 

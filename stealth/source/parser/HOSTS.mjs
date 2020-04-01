@@ -1,7 +1,8 @@
 
-import { Buffer } from 'buffer';
+import { Buffer } from '../POLYFILLS.mjs';
 import { IP     } from './IP.mjs';
 import { URL    } from './URL.mjs';
+
 
 
 const parse_payload = function(payload) {

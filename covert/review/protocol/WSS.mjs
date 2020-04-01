@@ -1,9 +1,7 @@
 
-import { create } from '../../EXAMPLE.mjs';
-
+import { create                          } from '../../EXAMPLE.mjs';
 import { after, before, describe, finish } from '../../source/Review.mjs';
-
-import { WSS } from '../../../stealth/source/protocol/WSS.mjs';
+import { WSS                             } from '../../../stealth/source/protocol/WSS.mjs';
 
 
 

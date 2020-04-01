@@ -1,11 +1,11 @@
 
 import { isFunction, isObject } from '../POLYFILLS.mjs';
+import { ERROR                } from './ERROR.mjs';
+import { FILE                 } from './FILE.mjs';
+import { PAC                  } from './PAC.mjs';
+import { REDIRECT             } from './REDIRECT.mjs';
+import { URL                  } from '../parser/URL.mjs';
 
-import { ERROR    } from './ERROR.mjs';
-import { FILE     } from './FILE.mjs';
-import { PAC      } from './PAC.mjs';
-import { REDIRECT } from './REDIRECT.mjs';
-import { URL      } from '../parser/URL.mjs';
 
 
 const ROUTER = {

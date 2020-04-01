@@ -1,15 +1,11 @@
 
-import { Buffer } from 'buffer';
-
-import { isArray, isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
-import { IP                                      } from '../parser/IP.mjs';
-import { HTTPS                                   } from './HTTPS.mjs';
+import { Buffer, isArray, isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { IP                                              } from '../parser/IP.mjs';
+import { HTTPS                                           } from './HTTPS.mjs';
 
 
 
 let DNS_RONIN = 0;
-
-
 
 const parse = function(raw) {
 

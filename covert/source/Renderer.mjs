@@ -76,11 +76,11 @@ const render_complete = function(review, is_current) {
 	}
 
 
+	let action  = this.settings.action || null;
 	let tests   = flatten_tests(review);
 	let current = tests.find((test) => test.state === null) || null;
 	let div1    = indent(tests.map((test) => test.name));
 	let div2    = indent(tests.map((test) => test.results.render()));
-	let render  = this.settings.render || null;
 
 	tests.forEach((test) => {
 
@@ -89,15 +89,15 @@ const render_complete = function(review, is_current) {
 		message += ' ' + test.name;
 		message += ' ' + div1(test.name);
 
-		if (render === 'scan') {
+		if (action === 'scan') {
 
 			message += test.results.render();
 
-		} else if (render === 'time') {
+		} else if (action === 'time') {
 
 			message += test.timeline.render();
 
-		} else if (render === 'watch') {
+		} else if (action === 'watch') {
 
 			let str1 = test.results.render();
 			let str2 = test.timeline.render();
@@ -228,10 +228,10 @@ const render_partial = function(reviews, prev_state, curr_state) {
 
 	if (unrendered_reviews.length > 0 && unrendered_tests.length > 0) {
 
-		let last_review = prev_state.review || null;
-		let last_test   = prev_state.test   || null;
-		let last_result = prev_state.result || null;
-		let render      = this.settings.render || null;
+		let action      = this.settings.action || null;
+		let last_review = prev_state.review    || null;
+		let last_test   = prev_state.test      || null;
+		let last_result = prev_state.result    || null;
 
 		unrendered_tests.forEach((test, t) => {
 
@@ -264,15 +264,15 @@ const render_partial = function(reviews, prev_state, curr_state) {
 				message += ' ' + test.name;
 				message += ' ';
 
-				if (render === 'scan') {
+				if (action === 'scan') {
 
 					message += test.results.render();
 
-				} else if (render === 'time') {
+				} else if (action === 'time') {
 
 					message += test.timeline.render();
 
-				} else if (render === 'watch') {
+				} else if (action === 'watch') {
 
 					let str1 = test.results.render();
 					let str2 = test.timeline.render();
@@ -336,11 +336,11 @@ const render_summary = function(review, is_current) {
 		}
 
 
+		let action  = this.settings.action || null;
 		let tests   = flatten_tests(review).filter((test) => test.state !== 'okay');
 		let current = tests.find((test) => test.state === null) || null;
 		let div1    = indent(tests.map((test) => test.name));
 		let div2    = indent(tests.map((test) => test.results.render()));
-		let render  = this.settings.render || null;
 
 		tests.forEach((test) => {
 
@@ -349,15 +349,15 @@ const render_summary = function(review, is_current) {
 			message += ' ' + test.name;
 			message += ' ' + div1(test.name);
 
-			if (render === 'scan') {
+			if (action === 'scan') {
 
 				message += test.results.render();
 
-			} else if (render === 'time') {
+			} else if (action === 'time') {
 
 				message += test.timeline.render();
 
-			} else if (render === 'watch') {
+			} else if (action === 'watch') {
 
 				let str1 = test.results.render();
 				let str2 = test.timeline.render();
@@ -405,7 +405,10 @@ const render_summary = function(review, is_current) {
 
 export const Renderer = function(settings) {
 
-	this.settings = Object.assign({}, settings);
+	this.settings = Object.assign({
+		action: null,  // 'scan', 'time' or 'watch'
+		debug:  false
+	}, settings);
 
 	this.__state  = {
 		review: null,
@@ -461,38 +464,46 @@ Renderer.prototype = {
 				console.clear();
 
 
-				let last_state = null;
+				if (reviews.length === 1) {
 
-				reviews.forEach((review, r) => {
+					render_complete.call(this, reviews[0], state.review === reviews[0]);
 
-					if (r > 0) {
+				} else {
 
-						if (review.state === null && last_state === null) {
-							console.log('');
-						} else if (review.state !== last_state) {
-							console.log('');
+					let last_state = null;
+
+					reviews.forEach((review, r) => {
+
+						if (r > 0) {
+
+							if (review.state === null && last_state === null) {
+								console.log('');
+							} else if (review.state !== last_state) {
+								console.log('');
+							}
+
 						}
 
-					}
 
+						if (mode === 'complete') {
 
-					if (mode === 'complete') {
+							if (state.review === review) {
+								render_complete.call(this, review, true);
+							} else {
+								render_summary.call(this, review);
+							}
 
-						if (state.review === review) {
-							render_complete.call(this, review, true);
-						} else {
+						} else if (mode === 'summary') {
+
 							render_summary.call(this, review);
+
 						}
 
-					} else if (mode === 'summary') {
+						last_state = review.state;
 
-						render_summary.call(this, review);
+					});
 
-					}
-
-					last_state = review.state;
-
-				});
+				}
 
 			}
 

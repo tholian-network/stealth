@@ -1,8 +1,7 @@
 
 import { isFunction, isObject } from '../POLYFILLS.mjs';
-
-import { Optimizer as CSS  } from '../optimizer/CSS.mjs';
-import { Optimizer as HTML } from '../optimizer/HTML.mjs';
+import { Optimizer as CSS     } from '../optimizer/CSS.mjs';
+import { Optimizer as HTML    } from '../optimizer/HTML.mjs';
 
 
 

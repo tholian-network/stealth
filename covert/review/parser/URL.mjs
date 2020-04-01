@@ -1,7 +1,6 @@
 
 import { describe, finish } from '../../source/Review.mjs';
-
-import { URL } from '../../../stealth/source/parser/URL.mjs';
+import { URL              } from '../../../stealth/source/parser/URL.mjs';
 
 
 

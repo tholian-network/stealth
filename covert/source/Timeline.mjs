@@ -150,6 +150,17 @@ Timeline.prototype = {
 
 	},
 
+	reset: function() {
+
+		for (let d = 0, dl = this.data.length; d < dl; d++) {
+			this.data[d] = null;
+		}
+
+		this.index = 0;
+		this.start = null;
+
+	},
+
 	time: function(reset) {
 
 		reset = typeof reset === 'boolean' ? reset : false;

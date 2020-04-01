@@ -2,9 +2,8 @@
 import process from 'process';
 
 import { after, before, describe, finish } from '../source/Review.mjs';
-
-import { Client  } from '../../stealth/source/Client.mjs';
-import { Stealth } from '../../stealth/source/Stealth.mjs';
+import { Client                          } from '../../stealth/source/Client.mjs';
+import { Stealth                         } from '../../stealth/source/Stealth.mjs';
 
 
 before('peers[].connect', function(assert) {

@@ -1,9 +1,10 @@
 
 import { after, before, describe, finish } from '../../source/Review.mjs';
+import { sketch                          } from '../../EXAMPLE.mjs';
+import { Client                          } from '../../../stealth/source/Client.mjs';
+import { Stealth                         } from '../../../stealth/source/Stealth.mjs';
 
-import { sketch  } from '../../EXAMPLE.mjs';
-import { Client  } from '../../../stealth/source/Client.mjs';
-import { Stealth } from '../../../stealth/source/Stealth.mjs';
+
 
 const FILE = sketch('cache/payload/example.com/file.html');
 

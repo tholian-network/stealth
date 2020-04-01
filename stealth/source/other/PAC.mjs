@@ -1,9 +1,8 @@
 
-import { Buffer } from 'buffer';
+import { Buffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { URL                          } from '../parser/URL.mjs';
 
-import { isFunction, isObject } from '../POLYFILLS.mjs';
 
-import { URL } from '../parser/URL.mjs';
 
 const _generate_script = (address, host, port) => `
 function FindProxyForURL(url, host) {

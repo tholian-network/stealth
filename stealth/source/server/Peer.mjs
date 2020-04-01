@@ -2,14 +2,13 @@
 import os from 'os';
 
 import { isFunction, isObject } from '../POLYFILLS.mjs';
+import { Emitter              } from '../Emitter.mjs';
+import { IP                   } from '../parser/IP.mjs';
+import { Client               } from '../Client.mjs';
 
-import { Emitter } from '../Emitter.mjs';
-import { IP      } from '../parser/IP.mjs';
-import { Client  } from '../Client.mjs';
+
 
 const HOSTNAME = os.hostname();
-
-
 
 const on_connect = function(callback, client, ips, result) {
 

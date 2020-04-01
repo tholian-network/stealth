@@ -1,12 +1,10 @@
 
-import fs          from 'fs';
-import path        from 'path';
-import { Buffer  } from 'buffer';
+import fs   from 'fs';
+import path from 'path';
 
-import { isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
-
-import { Emitter } from '../Emitter.mjs';
-import { URL     } from '../parser/URL.mjs';
+import { Buffer, isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { Emitter                                } from '../Emitter.mjs';
+import { URL                                    } from '../parser/URL.mjs';
 
 
 

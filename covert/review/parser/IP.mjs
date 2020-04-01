@@ -1,7 +1,6 @@
 
 import { describe, finish } from '../../source/Review.mjs';
-
-import { IP } from '../../../stealth/source/parser/IP.mjs';
+import { IP               } from '../../../stealth/source/parser/IP.mjs';
 
 
 

@@ -1,7 +1,6 @@
 
 import { isArray, isFunction, isObject } from '../POLYFILLS.mjs';
-
-import { Emitter } from '../Emitter.mjs';
+import { Emitter                       } from '../Emitter.mjs';
 
 
 

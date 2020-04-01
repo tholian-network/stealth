@@ -2,6 +2,7 @@
 import { isArray, isFunction, isString } from './POLYFILLS.mjs';
 
 
+
 const Emitter = function() {
 
 	this.__events = {};

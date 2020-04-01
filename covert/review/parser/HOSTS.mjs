@@ -1,10 +1,10 @@
 
-import { sketch, HOSTS as EXAMPLE_HOSTS } from '../../EXAMPLE.mjs';
-import { isArray, isString } from '../../source/POLYFILLS.mjs';
-
+import { sketch, HOSTS as EXAMPLE_HOSTS  } from '../../EXAMPLE.mjs';
+import { isArray, isString               } from '../../source/POLYFILLS.mjs';
 import { after, before, describe, finish } from '../../source/Review.mjs';
+import { HOSTS                           } from '../../../stealth/source/parser/HOSTS.mjs';
 
-import { HOSTS } from '../../../stealth/source/parser/HOSTS.mjs';
+
 
 const BLOCK = sketch('hosts/block.txt');
 const POSIX = sketch('hosts/posix.txt');

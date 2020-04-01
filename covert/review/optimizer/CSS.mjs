@@ -1,10 +1,9 @@
 
-import { config, sketch } from '../../EXAMPLE.mjs';
-import { isArray, isObject, isString } from '../../source/POLYFILLS.mjs';
-
+import { config, sketch                  } from '../../EXAMPLE.mjs';
 import { after, before, describe, finish } from '../../source/Review.mjs';
+import { Optimizer                       } from '../../../stealth/source/optimizer/CSS.mjs';
 
-import { Optimizer } from '../../../stealth/source/optimizer/CSS.mjs';
+
 
 const SIMPLE_CFG = config('css/simple.css');
 const SIMPLE_REF = sketch('css/simple.css');

@@ -1,7 +1,7 @@
 
-import { Buffer } from 'buffer';
+import { Buffer, isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
 
-import { isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
+
 
 const CODES = {
 	200: 'OK',

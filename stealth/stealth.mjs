@@ -2,6 +2,8 @@
 import process     from 'process';
 import { Stealth } from './source/Stealth.mjs';
 
+
+
 const ROOT = (() => {
 
 	let pwd = process.env.PWD || null;

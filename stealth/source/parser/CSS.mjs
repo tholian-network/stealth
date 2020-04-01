@@ -1,9 +1,10 @@
 
 import { Buffer, isArray, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
+import { COLORS                                                  } from './CSS/COLORS.mjs';
+import { NORMAL                                                  } from './CSS/NORMAL.mjs';
+import { SHORTHAND                                               } from './CSS/SHORTHAND.mjs';
 
-import { COLORS    } from './CSS/COLORS.mjs';
-import { NORMAL    } from './CSS/NORMAL.mjs';
-import { SHORTHAND } from './CSS/SHORTHAND.mjs';
+
 
 const ALPHABET   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const OPERATORS  = [ '+', '-', '*', '/', ',' ];

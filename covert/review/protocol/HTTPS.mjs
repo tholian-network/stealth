@@ -1,9 +1,7 @@
 
-import { create, PAYLOAD, REQUEST } from '../../EXAMPLE.mjs';
-
+import { create, PAYLOAD, REQUEST        } from '../../EXAMPLE.mjs';
 import { after, before, describe, finish } from '../../source/Review.mjs';
-
-import { HTTPS } from '../../../stealth/source/protocol/HTTPS.mjs';
+import { HTTPS                           } from '../../../stealth/source/protocol/HTTPS.mjs';
 
 
 

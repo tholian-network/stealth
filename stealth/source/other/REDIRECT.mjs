@@ -1,10 +1,7 @@
 
-import { Buffer } from 'buffer';
-
-import { isFunction, isObject } from '../POLYFILLS.mjs';
-
-import { ERROR } from './ERROR.mjs';
-import { IP    } from '../parser/IP.mjs';
+import { Buffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { ERROR                        } from './ERROR.mjs';
+import { IP                           } from '../parser/IP.mjs';
 
 
 

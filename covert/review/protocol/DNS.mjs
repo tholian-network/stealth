@@ -1,9 +1,7 @@
 
-import { DOMAIN } from '../../EXAMPLE.mjs';
-
+import { DOMAIN           } from '../../EXAMPLE.mjs';
 import { describe, finish } from '../../source/Review.mjs';
-
-import { DNS } from '../../../stealth/source/protocol/DNS.mjs';
+import { DNS              } from '../../../stealth/source/protocol/DNS.mjs';
 
 
 

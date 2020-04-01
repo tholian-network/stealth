@@ -1,8 +1,7 @@
 
 import { isFunction, isObject, isString } from './POLYFILLS.mjs';
-
-import { Results  } from './Results.mjs';
-import { Timeline } from './Timeline.mjs';
+import { Results                        } from './Results.mjs';
+import { Timeline                       } from './Timeline.mjs';
 
 
 

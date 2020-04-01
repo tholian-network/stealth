@@ -1,6 +1,4 @@
 
-import { console } from '../../console.mjs';
-
 import { clone, filter, match, parse_chunk, shift, split } from '../CSS.mjs';
 import { STYLES                                          } from './STYLES.mjs';
 

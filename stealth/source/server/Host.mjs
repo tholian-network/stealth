@@ -1,9 +1,8 @@
 
 import { isArray, isFunction, isObject } from '../POLYFILLS.mjs';
-
-import { DNS     } from '../protocol/DNS.mjs';
-import { Emitter } from '../Emitter.mjs';
-import { IP      } from '../parser/IP.mjs';
+import { DNS                           } from '../protocol/DNS.mjs';
+import { Emitter                       } from '../Emitter.mjs';
+import { IP                            } from '../parser/IP.mjs';
 
 
 

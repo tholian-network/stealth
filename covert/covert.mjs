@@ -1,217 +1,36 @@
 
 import process from 'process';
 
-import { console } from './source/console.mjs';
-import { Covert  } from './source/Covert.mjs';
-
-import Request         from './review/Request.mjs';
-import Review          from './review/Review.mjs';
-import Server          from './review/Server.mjs';
-import Parser_CSS      from './review/parser/CSS.mjs';
-import Parser_HOSTS    from './review/parser/HOSTS.mjs';
-import Parser_IP       from './review/parser/IP.mjs';
-import Parser_URL      from './review/parser/URL.mjs';
-import Optimizer_CSS   from './review/optimizer/CSS.mjs';
-import Protocol_DNS    from './review/protocol/DNS.mjs';
-import Protocol_HTTP   from './review/protocol/HTTP.mjs';
-import Protocol_HTTPS  from './review/protocol/HTTPS.mjs';
-import Protocol_SOCKS  from './review/protocol/SOCKS.mjs';
-import Protocol_WS     from './review/protocol/WS.mjs';
-import Protocol_WSS    from './review/protocol/WSS.mjs';
-import Client          from './review/Client.mjs';
-import Client_Cache    from './review/client/Cache.mjs';
-import Client_Filter   from './review/client/Filter.mjs';
-import Client_Host     from './review/client/Host.mjs';
-import Client_Mode     from './review/client/Mode.mjs';
-import Client_Peer     from './review/client/Peer.mjs';
-import Client_Redirect from './review/client/Redirect.mjs';
-import Client_Settings from './review/client/Settings.mjs';
-import Client_Stash    from './review/client/Stash.mjs';
-import Peer            from './review/Peer.mjs';
-import Peer_Cache      from './review/peer/Cache.mjs';
+import { create, ACTION } from './covert-worker.mjs';
+import { console        } from './source/console.mjs';
 
 
 
-const ACTION = (() => {
+const reset = (review) => {
 
-	let value = Array.from(process.argv).slice(2)[0] || '';
-	if (/^([watch]{5})$/g.test(value)) {
-		return 'watch';
-	} else if (/^([scan]{4})$/g.test(value)) {
-		return 'scan';
-	} else if (/^([time]{4})$/g.test(value)) {
-		return 'time';
+	review.state = null;
+
+	if (review.before !== null) {
+		review.before.state = null;
+		review.before.results.reset();
+		review.before.timeline.reset();
 	}
 
-	return 'help';
-
-})();
-
-const FLAGS = (() => {
-
-	let flags = {
-		debug:    false,
-		internet: true,
-		network:  null
-	};
-
-	Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === true).forEach((flag) => {
-
-		let tmp = flag.substr(2).split('=').map((v) => v.trim());
-		if (tmp.length === 2) {
-
-			let key = tmp[0];
-			let val = tmp[1];
-
-			let num = parseInt(val, 10);
-			if (!isNaN(num) && (num).toString() === val) {
-				val = num;
-			} else if (val === 'true') {
-				val = true;
-			} else if (val === 'false') {
-				val = false;
-			} else if (val === 'null') {
-				val = null;
-			}
-
-			flags[key] = val;
-
-		}
-
-	});
-
-	return flags;
-
-})();
-
-const REVIEWS = (() => {
-
-	let reviews = [
-
-		Review,
-
-		// Parsers
-		Parser_CSS,
-		Parser_HOSTS,
-		Parser_IP,
-		Parser_URL,
-
-		// Optimizers
-		Optimizer_CSS,
-
-		// Network Protocols
-		Protocol_DNS,
-		Protocol_HTTP,
-		Protocol_HTTPS,
-		Protocol_SOCKS,
-		Protocol_WS,
-		Protocol_WSS,
-
-		// Server/Client
-		Server,
-		Client,
-
-		// Network Services
-		Client_Cache,
-		Client_Filter,
-		Client_Host,
-		Client_Mode,
-		Client_Peer,
-		Client_Redirect,
-		Client_Settings,
-		Client_Stash,
-
-		// Request
-		Request,
-
-		// Peer-to-Peer
-		Peer,
-		Peer_Cache
-
-	];
-
-	let include  = reviews.map(() => false);
-	let filtered = false;
-
-	Array.from(process.argv).slice(3).filter((v) => v.startsWith('--') === false).forEach((pattern) => {
-
-		filtered = true;
-
-
-		if (pattern.startsWith('*')) {
-
-			reviews.forEach((review, r) => {
-
-				if (review.id.endsWith(pattern.substr(1))) {
-					include[r] = true;
-				}
-
-			});
-
-		} else if (pattern.endsWith('*')) {
-
-			reviews.forEach((review, r) => {
-
-				if (review.id.startsWith(pattern.substr(0, pattern.length - 1))) {
-					include[r] = true;
-				}
-
-			});
-
-		} else if (pattern.includes('*')) {
-
-			let prefix = pattern.split('*').shift();
-			let suffix = pattern.split('*').pop();
-
-			reviews.forEach((review, r) => {
-
-				if (review.id.startsWith(prefix) && review.id.endsWith(suffix)) {
-					include[r] = true;
-				}
-
-			});
-
-		} else {
-
-			reviews.forEach((review, r) => {
-
-				if (review.id === pattern) {
-					include[r] = true;
-				}
-
-			});
-
-		}
-
-	});
-
-
-	// --internet defaulted with true
-	if (FLAGS.internet === false) {
-
-		reviews.forEach((review, r) => {
-
-			if (review.flags.internet === true) {
-				include[r] = false;
-			}
-
+	if (review.tests.length > 0) {
+		review.tests.forEach((test) => {
+			test.state = null;
+			test.results.reset();
+			test.timeline.reset();
 		});
-
 	}
 
-
-	if (filtered === true) {
-
-		return include.map((inc, i) => {
-			return inc === true ? reviews[i] : null;
-		}).filter((v) => v !== null);
-
+	if (review.after !== null) {
+		review.after.state = null;
+		review.after.results.reset();
+		review.after.timeline.reset();
 	}
 
-
-	return reviews;
-
-})();
+};
 
 const show_help = () => {
 
@@ -250,151 +69,184 @@ const show_help = () => {
 
 };
 
+const on_complete = (covert) => {
+
+	let fails = covert.reviews.filter((r) => r.state === 'fail');
+	let skips = covert.reviews.filter((r) => r.state === null);
+	let waits = covert.reviews.filter((r) => r.state === 'wait');
+
+	if (skips.length > 0 || waits.length > 0) {
+
+		if (covert.settings.debug === true) {
+			console.log('');
+		} else {
+			console.clear();
+		}
+
+		console.warn('');
+		console.warn('Covert: Some reviews didn\'t complete.');
+		console.warn('');
+
+		skips.forEach((review, r) => {
+
+			if (r > 0) console.log('');
+
+			covert.renderer.render(review, 'complete');
+
+		});
+
+		if (waits.length > 0) {
+			console.log('');
+		}
+
+		waits.forEach((review, r) => {
+
+			if (r > 0) console.log('');
+
+			covert.renderer.render(review, 'summary');
+
+		});
 
 
-((settings) => {
+		if (fails.length > 0) {
+			console.log('');
+		}
 
-	let action = settings.render || null;
-	if (action === 'scan' || action === 'time' || action === 'watch') {
+		fails.forEach((review, r) => {
 
-		console.log('');
-		console.info('Covert: ' + action[0].toUpperCase() + action.substr(1) + ' Mode');
-		console.log('');
+			if (r > 0) console.log('');
+
+			covert.renderer.render(review, 'summary');
+
+		});
 
 
-		let covert = global.covert = new Covert(settings);
-		if (covert !== null) {
+		process.exit(2);
 
-			process.on('SIGHUP', () => {
-				covert.disconnect();
-			});
+	} else if (fails.length > 0) {
 
-			process.on('SIGINT', () => {
-				covert.disconnect();
-				process.exit(1);
-			});
+		if (covert.settings.debug === true) {
+			console.log('');
+		} else {
+			console.clear();
+		}
 
-			process.on('SIGQUIT', () => {
-				covert.disconnect();
-				process.exit(1);
-			});
+		console.error('');
+		console.error('Covert: Some reviews didn\'t succeed.');
+		console.error('');
 
-			process.on('SIGABRT', () => covert.disconnect());
+		fails.forEach((review) => {
+			covert.renderer.render(review, 'summary');
+		});
 
-			process.on('SIGTERM', () => {
-				covert.disconnect();
-			});
+		process.exit(1);
 
-			process.on('error', () => {
-				covert.disconnect();
-				process.exit(1);
-			});
+	} else {
 
-			process.on('exit', () => {});
+		if (covert.settings.debug === true) {
+			console.log('');
+		} else {
+			console.clear();
+		}
 
-			REVIEWS.forEach((review) => {
-				covert.scan(review);
+
+		console.info('');
+		console.info('Covert: All reviews did succeed.');
+		console.info('');
+
+		let action = covert.settings.action || null;
+		if (action === 'time' || action === 'watch') {
+
+			console.log('');
+
+			covert.reviews.forEach((review, r) => {
+
+				if (r > 0) console.log('');
+
+				covert.renderer.render(review, 'complete');
+
 			});
 
 		}
 
+		process.exit(0);
 
-		if (action === 'scan') {
+	}
 
-			covert.connect((reviews) => {
-
-				let waits = reviews.filter((r) => r.state === 'wait');
-				let fails = reviews.filter((r) => r.state === 'fail');
-
-				if (waits.length > 0) {
-
-					if (settings.debug === true) {
-						console.log('');
-					} else {
-						console.clear();
-					}
-
-					console.warn('');
-					console.warn('Covert: Some reviews didn\'t complete.');
-					console.warn('');
-
-					waits.forEach((review, r) => {
-
-						if (r > 0) console.log('');
-
-						covert.renderer.render(review, 'summary');
-					});
+};
 
 
-					if (fails.length > 0) {
-						console.log('');
-					}
 
-					fails.forEach((review, r) => {
+if (ACTION === 'watch') {
 
-						if (r > 0) console.log('');
+	let covert = create();
+	if (covert !== null) {
 
-						covert.renderer.render(review, 'summary');
+		process.on('SIGINT', () => {
 
-					});
+			setTimeout(() => {
+				on_complete(covert);
+			}, 1000);
 
+		});
 
-					process.exit(2);
+		process.on('SIGQUIT', () => {
 
-				} else if (fails.length > 0) {
+			setTimeout(() => {
+				on_complete(covert);
+			}, 1000);
 
-					if (settings.debug === true) {
-						console.log('');
-					} else {
-						console.clear();
-					}
+		});
 
-					console.error('');
-					console.error('Covert: Some reviews didn\'t succeed.');
-					console.error('');
+		process.on('SIGABRT', () => {
 
-					fails.forEach((review) => {
-						covert.renderer.render(review, 'summary');
-					});
+			setTimeout(() => {
+				on_complete(covert);
+			}, 1000);
 
-					process.exit(1);
+		});
 
-				} else {
+		process.on('SIGTERM', () => {
 
-					if (settings.debug === true) {
-						console.log('');
-					} else {
-						console.clear();
-					}
+			setTimeout(() => {
+				on_complete(covert);
+			}, 1000);
 
-					console.info('');
-					console.info('Covert: All reviews did succeed.');
-					console.info('');
+		});
 
-					process.exit(0);
+		covert.reviews.forEach((review) => {
+			covert.watch(review);
+		});
 
+		covert.on('disconnect', () => {
+
+			let stub = setInterval(() => {
+				// Do nothing
+			}, 500);
+
+			covert.once('connect', () => {
+
+				if (stub !== null) {
+					clearInterval(stub);
+					stub = null;
 				}
 
-				// TODO: review.state to be wait, okay or fail
-
 			});
 
-		} else if (action === 'time') {
+		});
 
-			// TODO: Update Loop integration for all Reviews
-			// TODO: Final render() call for summary
+		covert.on('change', (reviews, review) => {
 
-		} else if (action === 'watch') {
+			covert.once('disconnect', () => {
+				reset(review);
+				covert.connect();
+			});
 
-			// TODO: fs.watch() integration
-			// TODO: Diff Mode, left old results, right new results
+			covert.disconnect();
 
-		} else {
+		});
 
-			show_help();
-			process.exit(1);
-
-		}
+		covert.connect();
 
 	} else {
 
@@ -403,9 +255,33 @@ const show_help = () => {
 
 	}
 
-})({
-	render:  ACTION        || null,
-	debug:   FLAGS.debug   || false,
-	network: FLAGS.network || null
-});
+} else if (ACTION === 'scan' || ACTION === 'time') {
+
+	console.log('');
+	console.info('Covert: ' + ACTION[0].toUpperCase() + ACTION.substr(1) + ' Mode');
+	console.log('');
+
+
+	let covert = create();
+	if (covert !== null) {
+
+		covert.on('disconnect', () => {
+			on_complete(covert);
+		});
+
+		covert.connect();
+
+	} else {
+
+		show_help();
+		process.exit(1);
+
+	}
+
+} else {
+
+	show_help();
+	process.exit(1);
+
+}
 

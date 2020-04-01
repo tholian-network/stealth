@@ -1,8 +1,7 @@
 
-import { after, before, describe, finish } from '../source/Review.mjs';
+import { after, before, describe, finish                      } from '../source/Review.mjs';
 import { connect as srv_connect, disconnect as srv_disconnect } from './Server.mjs';
-
-import { Client } from '../../stealth/source/Client.mjs';
+import { Client                                               } from '../../stealth/source/Client.mjs';
 
 
 

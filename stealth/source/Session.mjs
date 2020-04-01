@@ -1,10 +1,9 @@
 
+import { console                      } from './console.mjs';
 import { isNumber, isObject, isString } from './POLYFILLS.mjs';
-
-import { console } from './console.mjs';
-import { IP      } from './parser/IP.mjs';
-import { UA      } from './parser/UA.mjs';
-import { Request } from './Request.mjs';
+import { IP                           } from './parser/IP.mjs';
+import { UA                           } from './parser/UA.mjs';
+import { Request                      } from './Request.mjs';
 
 
 

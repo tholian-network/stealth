@@ -1,12 +1,11 @@
 
 import { isBoolean, isObject, isString } from './POLYFILLS.mjs';
-
-import { Emitter    } from './Emitter.mjs';
-import { URL        } from './parser/URL.mjs';
-import { Blocker    } from './request/Blocker.mjs';
-import { Downloader } from './request/Downloader.mjs';
-import { Filter     } from './request/Filter.mjs';
-import { Optimizer  } from './request/Optimizer.mjs';
+import { Emitter                       } from './Emitter.mjs';
+import { URL                           } from './parser/URL.mjs';
+import { Blocker                       } from './request/Blocker.mjs';
+import { Downloader                    } from './request/Downloader.mjs';
+import { Filter                        } from './request/Filter.mjs';
+import { Optimizer                     } from './request/Optimizer.mjs';
 
 
 

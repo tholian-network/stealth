@@ -1,6 +1,4 @@
 
-
-
 const RULE = {
 
 	'font-face': (body, result) => {
