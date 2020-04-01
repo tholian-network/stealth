@@ -1,7 +1,7 @@
 
-import { Buffer } from '../POLYFILLS.mjs';
-import { IP     } from './IP.mjs';
-import { URL    } from './URL.mjs';
+import { isArray, isObject, isString } from '../POLYFILLS.mjs';
+import { IP                          } from './IP.mjs';
+import { URL                         } from './URL.mjs';
 
 
 
@@ -9,7 +9,7 @@ const parse_payload = function(payload) {
 
 	let hosts = [];
 
-	let buffer = payload.toString('utf8').split('\n');
+	let buffer = payload.split('\n');
 	if (buffer.length > 0) {
 
 		let lines = [];
@@ -171,24 +171,227 @@ const parse_payload = function(payload) {
 
 const HOSTS = {
 
-	parse: function(payload) {
+	isHost: function(ref) {
 
-		payload = Buffer.isBuffer(payload) ? payload : null;
+		ref = isObject(ref) ? ref : null;
 
 
-		if (payload !== null) {
-			return parse_payload(payload);
+		if (ref !== null) {
+
+			if (isString(ref.domain) === true) {
+
+				let tmp = URL.parse(ref.domain);
+				if (tmp.domain !== null) {
+
+					if (tmp.subdomain !== null) {
+
+						if (ref.domain === tmp.subdomain + '.' + tmp.domain) {
+
+							let check = ref.hosts.map((ip) => IP.isIP(ip));
+							if (check.includes(false) === false) {
+								return true;
+							}
+
+						}
+
+					} else {
+
+						if (ref.domain === tmp.domain) {
+
+							let check = ref.hosts.map((ip) => IP.isIP(ip));
+							if (check.includes(false) === false) {
+								return true;
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	isHosts: function(array) {
+
+		array = isArray(array) ? array : null;
+
+
+		if (array !== null) {
+
+			let check = array.map((host) => HOSTS.isHost(host));
+			if (check.includes(false) === false) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	parse: function(hosts) {
+
+		hosts = isString(hosts) ? hosts : null;
+
+
+		if (hosts !== null) {
+			return parse_payload(hosts);
 		}
 
 
 		return null;
+
+	},
+
+	render: function(array) {
+
+		array = isArray(array) ? array : null;
+
+
+		if (array !== null) {
+
+			let lines = [];
+
+			array.forEach((entry) => {
+
+				let domain = entry.domain || null;
+				let hosts  = entry.hosts  || null;
+
+				if (isString(domain) && isArray(hosts)) {
+
+					if (hosts.length > 0) {
+						hosts.forEach((ip) => {
+
+							let chunk = IP.render(ip);
+							if (chunk !== null) {
+								lines.push(chunk + '\t' + domain);
+							}
+
+						});
+					}
+
+				}
+
+			});
+
+			if (lines.length > 0) {
+				return lines.join('\n');
+			}
+
+		}
+
+
+		return null;
+
+	},
+
+	sort: function(array) {
+
+		array = isArray(array) ? array : null;
+
+
+		if (array !== null) {
+
+			return array.filter((host) => HOSTS.isHost(host)).sort((a, b) => {
+
+				let ref_a = URL.parse(a.domain);
+				let ref_b = URL.parse(b.domain);
+
+				if (ref_a.domain !== null && ref_b.domain !== null) {
+
+					if (ref_a.domain < ref_b.domain) return -1;
+					if (ref_b.domain < ref_a.domain) return  1;
+
+					if (ref_a.subdomain !== null && ref_b.subdomain !== null) {
+
+						if (ref_a.subdomain < ref_b.subdomain) return -1;
+						if (ref_b.subdomain < ref_a.subdomain) return  1;
+
+					} else {
+
+						if (ref_a.subdomain !== null) return  1;
+						if (ref_b.subdomain !== null) return -1;
+
+					}
+
+				} else {
+
+					if (ref_a.domain !== null) return -1;
+					if (ref_b.domain !== null) return  1;
+
+				}
+
+
+				let a_private = a.hosts.filter((ip) => ip.scope === 'private');
+				let b_private = b.hosts.filter((ip) => ip.scope === 'private');
+
+				if (a_private.length > 0 && b_private.length === 0) return -1;
+				if (b_private.length > 0 && a_private.length === 0) return  1;
+
+				if (a_private.length > 0 && b_private.length > 0) {
+
+					let a_v4 = a.hosts.filter((ip) => ip.type === 'v4');
+					let b_v4 = b.hosts.filter((ip) => ip.type === 'v4');
+
+					if (a_v4.length > 0 && b_v4.length === 0) return -1;
+					if (b_v4.length > 0 && a_v4.length === 0) return  1;
+
+					let a_ip = IP.sort(a_v4)[0];
+					let b_ip = IP.sort(b_v4)[0];
+
+					if (a_ip.ip < b_ip.ip) return -1;
+					if (b_ip.ip < a_ip.ip) return  1;
+
+				}
+
+
+				let a_public = a.hosts.filter((ip) => ip.scope === 'public');
+				let b_public = b.hosts.filter((ip) => ip.scope === 'public');
+
+				if (a_public.length > 0 && b_public.length > 0) {
+
+					let a_v4 = a.hosts.filter((ip) => ip.type === 'v4');
+					let b_v4 = b.hosts.filter((ip) => ip.type === 'v4');
+
+					if (a_v4.length > 0 && b_v4.length === 0) return -1;
+					if (b_v4.length > 0 && a_v4.length === 0) return  1;
+
+					let a_ip = IP.sort(a_v4)[0];
+					let b_ip = IP.sort(b_v4)[0];
+
+					if (a_ip.ip < b_ip.ip) return -1;
+					if (b_ip.ip < a_ip.ip) return  1;
+
+				}
+
+
+				return 0;
+
+			});
+
+		}
+
+
+		return [];
 
 	}
 
 };
 
 
-export const parse = HOSTS.parse;
+export const isHosts = HOSTS.isHosts;
+export const isHost  = HOSTS.isHost;
+export const parse   = HOSTS.parse;
+export const render  = HOSTS.render;
+export const sort    = HOSTS.sort;
 
 export { HOSTS };
 

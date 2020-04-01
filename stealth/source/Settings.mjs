@@ -126,9 +126,9 @@ const init = function(callback) {
 			let tmp = null;
 
 			try {
-				tmp = fs.readFileSync(path.resolve(ETC_HOSTS));
+				tmp = fs.readFileSync(path.resolve(ETC_HOSTS), 'utf8');
 			} catch (err) {
-				// Do nothing
+				tmp = null;
 			}
 
 			if (tmp !== null) {

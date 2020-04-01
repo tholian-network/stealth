@@ -2,16 +2,15 @@
 import fs      from 'fs';
 import path    from 'path';
 import process from 'process';
-import Buffer  from 'buffer';
 
 import { console } from '../stealth/source/console.mjs';
 import { HOSTS   } from '../stealth/source/parser/HOSTS.mjs';
 import { URL     } from '../stealth/source/parser/URL.mjs';
 
-const DOMAINS  = {};
-const PROFILE  = process.env.PWD + '/profile';
-const PAYLOADS = [];
 
+
+const DOMAINS = {};
+const PROFILE = process.env.PWD + '/profile';
 
 const get_url = function(ref) {
 
@@ -55,8 +54,9 @@ const read = function(link) {
 
 	let buffer = null;
 	try {
-		buffer = fs.readFileSync(PROFILE + '/cache/payload/' + url);
+		buffer = fs.readFileSync(PROFILE + '/cache/payload/' + url, 'utf8');
 	} catch (err) {
+		buffer = null;
 	}
 
 	return buffer;
@@ -67,11 +67,11 @@ const write = function(file, data) {
 
 	let folder = path.dirname(file);
 
-	fs.lstat(folder, (err, stat) => {
+	fs.lstat(folder, (err) => {
 
 		if (!err) {
 
-			fs.writeFile(file, JSON.stringify(data, null, '\t'), 'utf8', err => {
+			fs.writeFile(file, JSON.stringify(data, null, '\t'), 'utf8', (err) => {
 
 				if (!err) {
 					console.info('Blockers stored to "' + file.substr(process.env.PWD.length) + '".');
@@ -86,15 +86,21 @@ const write = function(file, data) {
 			fs.mkdir(folder, {
 				recursive: true
 			}, (err) => {
-				fs.writeFile(file, JSON.stringify(data, null, '\t'), 'utf8', err => {
 
-					if (!err) {
-						console.info('Blockers stored to "' + file.substr(process.env.PWD.length) + '".');
-					} else {
-						console.error('Settings at "' + PROFILE.substr(0, process.env.PWD.length) + '" are not writeable!');
-					}
+				if (!err) {
 
-				});
+					fs.writeFile(file, JSON.stringify(data, null, '\t'), 'utf8', (err) => {
+
+						if (!err) {
+							console.info('Blockers stored to "' + file.substr(process.env.PWD.length) + '".');
+						} else {
+							console.error('Settings at "' + PROFILE.substr(0, process.env.PWD.length) + '" are not writeable!');
+						}
+
+					});
+
+				}
+
 			});
 
 		}

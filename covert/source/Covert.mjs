@@ -255,7 +255,13 @@ const update = function() {
 				);
 
 			} catch (err) {
+
+				if (this.settings.debug === true) {
+					console.error(err);
+				}
+
 				next.call(this);
+
 			}
 
 		} else {
@@ -424,7 +430,13 @@ export const Covert = function(settings) {
 						);
 
 					} catch (err) {
+
+						if (this.settings.debug === true) {
+							console.error(err);
+						}
+
 						review.after.state = 'wait';
+
 					}
 
 				}
