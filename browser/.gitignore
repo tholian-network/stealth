@@ -1,0 +1,8 @@
+
+# shared with /base
+/source/BASE.mjs
+
+# shared with /stealth
+/source/client
+/source/parser
+

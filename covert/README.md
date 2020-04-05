@@ -33,6 +33,8 @@ the Reviews. This allows to debug a single Review or a Suite of related
 Reviews.
 
 ```bash
+cd /path/to/covert;
+
 ./bin/covert.sh Client;              # Execute review/Client.mjs
 ./bin/covert.sh client/Cache#offline # Execute review/client/Cache.mjs and only tests that include "offline"
 ./bin/covert.sh client*;             # Execute reviews starting with "client"
@@ -49,7 +51,7 @@ Reviews.
 - Install [node.js](https://nodejs.org/en/download) version `10+`.
 
 ```bash
-cd /path/to/stealth;
+cd /path/to/covert;
 
 bash ./bin/covert.sh;
 ```
@@ -63,11 +65,6 @@ before Covert itself can actually run.
 
 The requirements are a C-compiler and `make`. If you run `./bin/covert.sh`,
 the `socks-proxy` is automatically being compiled and executed in parallel.
-
-```bash
-cd /path/to/stealth;
-bash ./bin/covert.sh;
-```
 
 
 ## Network Requirements

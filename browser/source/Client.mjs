@@ -1,29 +1,37 @@
 
-import { Buffer, isArray, isFunction, isObject, isString } from './POLYFILLS.mjs';
+import { Buffer, isArray, isFunction, isObject, isString } from './BASE.mjs';
+import { Emitter                                         } from './Emitter.mjs';
+import { Cache                                           } from './client/Cache.mjs';
+import { Filter                                          } from './client/Filter.mjs';
+import { Host                                            } from './client/Host.mjs';
+import { Mode                                            } from './client/Mode.mjs';
+import { Peer                                            } from './client/Peer.mjs';
+import { Redirect                                        } from './client/Redirect.mjs';
+import { Session                                         } from './client/Session.mjs';
+import { Settings                                        } from './client/Settings.mjs';
+import { URL                                             } from './parser/URL.mjs';
 
-import { Emitter  } from './Emitter.mjs';
-import { Cache    } from './client/Cache.mjs';
-import { Filter   } from './client/Filter.mjs';
-import { Host     } from './client/Host.mjs';
-import { Mode     } from './client/Mode.mjs';
-import { Peer     } from './client/Peer.mjs';
-import { Redirect } from './client/Redirect.mjs';
-import { Session  } from './client/Session.mjs';
-import { Settings } from './client/Settings.mjs';
-import { URL      } from './parser/URL.mjs';
 
-const HOSTNAME = (function(location) {
 
-	let hostname = location.hostname || null;
-	if (hostname !== null) {
-		return hostname;
+const HOSTNAME = (function(window) {
+
+	if (
+		isObject(window) === true
+		&& isObject(window.location) === true
+		&& isString(window.location.hostname) === true
+	) {
+
+		let hostname = window.location.hostname || null;
+		if (hostname !== null) {
+			return hostname;
+		}
+
 	}
+
 
 	return 'localhost';
 
-})(window.location);
-
-
+})(typeof window !== 'undefined' ? window : null);
 
 const receive = function(data) {
 

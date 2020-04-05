@@ -1,5 +1,5 @@
 
-import { isArray, isObject, isString } from '../POLYFILLS.mjs';
+import { isArray, isObject, isString } from '../BASE.mjs';
 
 
 

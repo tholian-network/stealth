@@ -1,8 +1,7 @@
 
-import { isString } from '../../source/POLYFILLS.mjs';
-
-import { Element } from '../Element.mjs';
-import { URL     } from '../../source/parser/URL.mjs';
+import { isString } from '../../source/BASE.mjs';
+import { Element  } from '../Element.mjs';
+import { URL      } from '../../source/parser/URL.mjs';
 
 
 
@@ -10,8 +9,6 @@ const TEMPLATE = `
 <ul><li data-key="protocol" data-val="stealth"></li><li>welcome</li></ul>
 <input type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">
 `;
-
-
 
 const update = function(tab) {
 

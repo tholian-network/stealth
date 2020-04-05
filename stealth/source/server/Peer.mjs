@@ -1,7 +1,7 @@
 
 import os from 'os';
 
-import { isFunction, isObject } from '../POLYFILLS.mjs';
+import { isFunction, isObject } from '../BASE.mjs';
 import { Emitter              } from '../Emitter.mjs';
 import { IP                   } from '../parser/IP.mjs';
 import { Client               } from '../Client.mjs';

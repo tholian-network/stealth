@@ -1,6 +1,6 @@
 
-import { console                                } from './console.mjs';
-import { isArray, isBoolean, isObject, isString } from './POLYFILLS.mjs';
+import { isArray, isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
+import { console                                } from '../../stealth/source/console.mjs';
 
 
 

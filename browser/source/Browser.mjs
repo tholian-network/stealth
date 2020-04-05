@@ -1,10 +1,9 @@
 
-import { isFunction, isObject, isString } from './POLYFILLS.mjs';
-
-import { Emitter } from './Emitter.mjs';
-import { Client  } from './Client.mjs';
-import { Tab     } from './Tab.mjs';
-import { URL     } from './parser/URL.mjs';
+import { isFunction, isObject, isString } from './BASE.mjs';
+import { Emitter                        } from './Emitter.mjs';
+import { Client                         } from './Client.mjs';
+import { Tab                            } from './Tab.mjs';
+import { URL                            } from './parser/URL.mjs';
 
 
 
@@ -165,11 +164,34 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	download: function(url) {
+	download: function(url, callback) {
 
-		// TODO: Implement download() method
-		// that spawns a Request on the server
-		// via the request service (?) or session service
+		url      = URL.isURL(URL.parse(url)) ? url      : null;
+		callback = isFunction(callback)      ? callback : null;
+
+
+		let client = this.client;
+		if (client !== null && url !== null) {
+
+			if (callback !== null) {
+
+				client.services.session.request(URL.parse(url), (response) => {
+					callback(response);
+				});
+
+				return true;
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			}
+
+			return false;
+
+		}
 
 	},
 
@@ -292,7 +314,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.tabs.splice(this.tabs.indexOf(tab), 1);
 
-				if (isFunction(tab.kill)) {
+				if (isFunction(tab.kill) === true) {
 					tab.kill();
 				}
 
@@ -594,7 +616,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		callback = isFunction(callback) ? callback : null;
 
 
-		if (config !== null && isObject(config.mode)) {
+		if (config !== null && isObject(config.mode) === true) {
 
 			let domain = config.domain || null;
 			if (domain !== null) {

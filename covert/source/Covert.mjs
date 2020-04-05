@@ -1,9 +1,9 @@
 
 import process from 'process';
 
-import { isObject   } from './POLYFILLS.mjs';
-import { console    } from './console.mjs';
-import { Emitter    } from './Emitter.mjs';
+import { isObject   } from '../../stealth/source/BASE.mjs';
+import { console    } from '../../stealth/source/console.mjs';
+import { Emitter    } from '../../stealth/source/Emitter.mjs';
 import { Filesystem } from './Filesystem.mjs';
 import { Network    } from './Network.mjs';
 import { Renderer   } from './Renderer.mjs';

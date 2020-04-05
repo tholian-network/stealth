@@ -1,8 +1,8 @@
 
-import { Buffer, isArray, isBuffer, isNumber, isObject, isString } from '../POLYFILLS.mjs';
-import { COLORS                                                  } from './CSS/COLORS.mjs';
-import { NORMAL                                                  } from './CSS/NORMAL.mjs';
-import { SHORTHAND                                               } from './CSS/SHORTHAND.mjs';
+import { isArray, isBuffer, isNumber, isObject, isString } from '../BASE.mjs';
+import { COLORS                                          } from './CSS/COLORS.mjs';
+import { NORMAL                                          } from './CSS/NORMAL.mjs';
+import { SHORTHAND                                       } from './CSS/SHORTHAND.mjs';
 
 
 

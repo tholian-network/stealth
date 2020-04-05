@@ -1,5 +1,5 @@
 
-import { isArray, isFunction, isObject } from '../POLYFILLS.mjs';
+import { isArray, isFunction, isObject } from '../BASE.mjs';
 import { DNS                           } from '../protocol/DNS.mjs';
 import { Emitter                       } from '../Emitter.mjs';
 import { IP                            } from '../parser/IP.mjs';

@@ -1,5 +1,5 @@
 
-import { Buffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { Buffer, isFunction, isObject } from '../BASE.mjs';
 import { URL                          } from '../parser/URL.mjs';
 
 

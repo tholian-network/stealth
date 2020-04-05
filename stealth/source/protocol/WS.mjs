@@ -1,8 +1,8 @@
 
-import crypto     from 'crypto';
-import net        from 'net';
+import crypto from 'crypto';
+import net    from 'net';
 
-import { Buffer, isBuffer, isFunction, isNumber, isObject } from '../POLYFILLS.mjs';
+import { Buffer, isBuffer, isFunction, isNumber, isObject } from '../BASE.mjs';
 import { Emitter                                          } from '../Emitter.mjs';
 import { HTTP                                             } from './HTTP.mjs';
 

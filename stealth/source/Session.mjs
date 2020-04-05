@@ -1,6 +1,6 @@
 
 import { console                      } from './console.mjs';
-import { isNumber, isObject, isString } from './POLYFILLS.mjs';
+import { isNumber, isObject, isString } from './BASE.mjs';
 import { IP                           } from './parser/IP.mjs';
 import { UA                           } from './parser/UA.mjs';
 import { Request                      } from './Request.mjs';

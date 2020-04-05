@@ -1,8 +1,9 @@
 
-import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '../source/POLYFILLS.mjs';
+import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '../source/BASE.mjs';
+import { IP                                                           } from '../source/parser/IP.mjs';
+import { URL                                                          } from '../source/parser/URL.mjs';
 
-import { IP  } from '../source/parser/IP.mjs';
-import { URL } from '../source/parser/URL.mjs';
+
 
 const global = (typeof window !== 'undefined' ? window : this);
 const doc    = global.document;

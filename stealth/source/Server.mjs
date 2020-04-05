@@ -2,7 +2,7 @@
 import net from 'net';
 
 import { console              } from './console.mjs';
-import { isFunction, isString } from './POLYFILLS.mjs';
+import { isFunction, isString } from './BASE.mjs';
 import { HTTP                 } from './protocol/HTTP.mjs';
 import { WS                   } from './protocol/WS.mjs';
 import { REDIRECT             } from './other/REDIRECT.mjs';

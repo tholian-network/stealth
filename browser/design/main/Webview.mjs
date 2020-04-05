@@ -1,16 +1,13 @@
 
-import { isBoolean, isFunction } from '../../source/POLYFILLS.mjs';
-
-import { dispatch } from '../control.mjs';
-import { Element  } from '../Element.mjs';
+import { isBoolean, isFunction } from '../../source/BASE.mjs';
+import { dispatch              } from '../control.mjs';
+import { Element               } from '../Element.mjs';
 
 
 
 const TEMPLATE = `
 <iframe sandbox="allow-scripts allow-same-origin" src="/browser/internal/welcome.html"></iframe>
 `;
-
-
 
 const get_url = function(tab, refresh) {
 

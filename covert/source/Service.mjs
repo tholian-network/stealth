@@ -1,5 +1,5 @@
 
-import { Emitter } from './Emitter.mjs';
+import { Emitter } from '../../stealth/source/Emitter.mjs';
 
 
 

@@ -1,13 +1,12 @@
 
-import { isBoolean, isString } from '../source/POLYFILLS.mjs';
+import { isBoolean, isString } from '../source/BASE.mjs';
+import { Element             } from './Element.mjs';
+import { URL                 } from '../source/parser/URL.mjs';
 
-import { Element } from './Element.mjs';
-import { URL     } from '../source/parser/URL.mjs';
+
 
 const global  = (typeof window !== 'undefined' ? window : this);
 const WIDGETS = global.WIDGETS || {};
-
-
 
 const oncontext = function(window, browser, element, autofocus) {
 

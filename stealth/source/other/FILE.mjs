@@ -1,9 +1,9 @@
 
-import fs          from 'fs';
-import path        from 'path';
-import process     from 'process';
+import fs      from 'fs';
+import path    from 'path';
+import process from 'process';
 
-import { Buffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { Buffer, isFunction, isObject } from '../BASE.mjs';
 
 
 

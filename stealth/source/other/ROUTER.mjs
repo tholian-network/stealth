@@ -1,5 +1,5 @@
 
-import { isFunction, isObject } from '../POLYFILLS.mjs';
+import { isFunction, isObject } from '../BASE.mjs';
 import { ERROR                } from './ERROR.mjs';
 import { FILE                 } from './FILE.mjs';
 import { PAC                  } from './PAC.mjs';

@@ -1,5 +1,5 @@
 
-import { Buffer, isArray, isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { Buffer, isArray, isBuffer, isFunction, isObject } from '../BASE.mjs';
 import { IP                                              } from '../parser/IP.mjs';
 import { HTTPS                                           } from './HTTPS.mjs';
 

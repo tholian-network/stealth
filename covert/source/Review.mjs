@@ -1,5 +1,5 @@
 
-import { isFunction, isObject, isString } from './POLYFILLS.mjs';
+import { isFunction, isObject, isString } from '../../stealth/source/BASE.mjs';
 import { Results                        } from './Results.mjs';
 import { Timeline                       } from './Timeline.mjs';
 
@@ -7,7 +7,6 @@ import { Timeline                       } from './Timeline.mjs';
 
 let _id    = 0;
 let REVIEW = null;
-
 
 export const after = function(name, callback) {
 

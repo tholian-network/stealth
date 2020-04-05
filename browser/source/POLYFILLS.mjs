@@ -332,7 +332,7 @@ const _copy_hexadecimal = function(source, target, offset, length) {
 	for (i = 0; i < length; i++) {
 
 		let num = parseInt(source.substr(i * 2, 2), 16);
-		if (isNaN(num)) {
+		if (isNaN(num) === true) {
 			return i;
 		}
 

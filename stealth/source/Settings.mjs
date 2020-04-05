@@ -5,7 +5,7 @@ import path    from 'path';
 import process from 'process';
 
 import { console                                            } from './console.mjs';
-import { isArray, isBoolean, isFunction, isObject, isString } from './POLYFILLS.mjs';
+import { isArray, isBoolean, isFunction, isObject, isString } from './BASE.mjs';
 import { Session                                            } from './Session.mjs';
 import { HOSTS                                              } from './parser/HOSTS.mjs';
 

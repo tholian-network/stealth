@@ -1,5 +1,5 @@
 
-import { isFunction, isObject, isString } from './POLYFILLS.mjs';
+import { isFunction, isObject, isString } from './BASE.mjs';
 import { Emitter                        } from './Emitter.mjs';
 import { Cache                          } from './client/Cache.mjs';
 import { Filter                         } from './client/Filter.mjs';

@@ -1,7 +1,7 @@
 
 import tls from 'tls';
 
-import { isFunction, isObject              } from '../POLYFILLS.mjs';
+import { isFunction, isObject              } from '../BASE.mjs';
 import { Emitter                           } from '../Emitter.mjs';
 import { HTTP                              } from './HTTP.mjs';
 import { onconnect, ondata, onend, onerror } from './HTTP.mjs';

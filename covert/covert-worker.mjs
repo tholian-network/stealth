@@ -3,6 +3,7 @@ import process from 'process';
 
 import { Covert } from './source/Covert.mjs';
 
+import Browser         from './review/Browser.mjs';
 import Request         from './review/Request.mjs';
 import Review          from './review/Review.mjs';
 import Server          from './review/Server.mjs';
@@ -120,7 +121,8 @@ export const REVIEWS = (() => {
 		Client_Settings,
 		Client_Stash,
 
-		// Request
+		// Browser
+		Browser,
 		Request,
 
 		// Peer-to-Peer

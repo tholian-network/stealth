@@ -1,7 +1,7 @@
 
 import process from 'process';
 
-import { isArray, isBuffer, isDate, isFunction, isNumber, isObject, isString } from './POLYFILLS.mjs';
+import { isArray, isBuffer, isDate, isFunction, isNumber, isObject, isString } from './BASE.mjs';
 
 
 
@@ -18,7 +18,6 @@ const isMatrix = function(value) {
 	return false;
 
 };
-
 
 const INDENT      = '    ';
 const WHITESPACE  = new Array(512).fill(' ').join('');

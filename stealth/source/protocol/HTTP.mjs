@@ -1,8 +1,8 @@
 
-import net        from 'net';
-import zlib       from 'zlib';
+import net  from 'net';
+import zlib from 'zlib';
 
-import { Buffer, isBuffer, isFunction, isObject, isString } from '../POLYFILLS.mjs';
+import { Buffer, isBuffer, isFunction, isObject, isString } from '../BASE.mjs';
 import { Emitter                                          } from '../Emitter.mjs';
 
 

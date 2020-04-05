@@ -16,11 +16,30 @@
 		"WIDGETS": true
 	},
 	"overrides": [{
-		"files": [ "browser.mjs", "service.js" ],
-		"rules": { "no-console": "off" }
+		"files": [ "bin/electron/application.js" ],
+		"env": {
+			"node": true
+		}
 	}, {
-		"files": [ "source/POLYFILLS.mjs" ],
-		"rules": { "no-global-assign": "off", "no-undef": "off" }
+		"files": [ "bin/firefox/defaults/preferences/prefs.js" ],
+		"globals": {
+			"pref": true
+		}
+	}, {
+		"files": [ "bin/gjs/application.js" ],
+		"globals": {
+			"imports": true
+		}
+	}, {
+		"files": [ "browser.mjs", "service.js" ],
+		"rules": {
+			"no-console": "off"
+		}
+	}, {
+		"files": [ "source/BASE.mjs" ],
+		"globals": {
+			"global": true
+		}
 	}],
 	"rules": {
 		"arrow-parens": [

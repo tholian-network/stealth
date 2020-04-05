@@ -2,8 +2,8 @@
 import fs      from 'fs';
 import process from 'process';
 
-import { isString } from './POLYFILLS.mjs';
-import { Emitter  } from './Emitter.mjs';
+import { isString } from '../../stealth/source/BASE.mjs';
+import { Emitter  } from '../../stealth/source/Emitter.mjs';
 
 
 

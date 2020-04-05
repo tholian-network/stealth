@@ -1,8 +1,9 @@
 
-import { isArray, isFunction, isNumber, isObject, isString } from '../../source/POLYFILLS.mjs';
+import { isArray, isFunction, isNumber, isObject, isString } from '../../source/BASE.mjs';
+import { Element                                           } from '../Element.mjs';
+import { URL                                               } from '../../source/parser/URL.mjs';
 
-import { Element } from '../Element.mjs';
-import { URL     } from '../../source/parser/URL.mjs';
+
 
 const global    = (typeof window !== 'undefined' ? window : this);
 const CLIPBOARD = (function(navigator) {
@@ -75,7 +76,6 @@ const CLIPBOARD = (function(navigator) {
 
 })(global.navigator || {});
 
-
 const ACTIONS = [{
 	icon:     'copy',
 	label:    'copy',
@@ -132,8 +132,6 @@ const ACTIONS = [{
 		browser.refresh();
 	}
 }];
-
-
 
 const is_action = function(action) {
 

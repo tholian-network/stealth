@@ -1,8 +1,8 @@
 
 import process from 'process';
 
+import { console        } from '../stealth/source/console.mjs';
 import { create, ACTION } from './covert-worker.mjs';
-import { console        } from './source/console.mjs';
 
 
 

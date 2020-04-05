@@ -2,7 +2,7 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { Buffer, isBuffer, isFunction, isObject } from '../POLYFILLS.mjs';
+import { Buffer, isBuffer, isFunction, isObject } from '../BASE.mjs';
 import { Emitter                                } from '../Emitter.mjs';
 import { URL                                    } from '../parser/URL.mjs';
 

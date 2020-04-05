@@ -1,7 +1,8 @@
 
-import { isArray, isObject } from '../../source/POLYFILLS.mjs';
+import { isArray, isObject } from '../../source/BASE.mjs';
+import { Element           } from '../../design/Element.mjs';
 
-import { Element } from '../../design/Element.mjs';
+
 
 const ELEMENTS = {
 	input: {

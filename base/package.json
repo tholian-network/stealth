@@ -1,0 +1,9 @@
+{
+	"name":    "base",
+	"main":    "./build/node/BASE.mjs",
+	"module":  "./build/node/BASE.mjs",
+	"browser": "./build/browser/BASE.mjs",
+	"scripts": {
+		"postinstall": "sh ./bin/base.sh"
+	}
+}

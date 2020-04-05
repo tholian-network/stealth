@@ -1,5 +1,5 @@
 
-import { isArray, isNumber, isObject, isString } from '../POLYFILLS.mjs';
+import { isArray, isNumber, isObject, isString } from '../BASE.mjs';
 import { IP                                    } from './IP.mjs';
 
 
@@ -351,7 +351,7 @@ const URL = {
 
 				if (
 					(MIME.includes(mime) || mime === null)
-					&& isString(path)
+					&& isString(path) === true
 				) {
 					return true;
 				}
@@ -366,29 +366,32 @@ const URL = {
 				|| protocol === 'socks'
 			) {
 
-				if (isString(domain) && (isString(subdomain) || subdomain === null)) {
+				if (
+					isString(domain) === true
+					&& (isString(subdomain) === true || subdomain === null)
+				) {
 
 					if (
-						(isString(hash) || hash === null)
+						(isString(hash) === true || hash === null)
 						&& host === null
 						&& (MIME.includes(mime) || mime === null)
-						&& isString(path)
-						&& isNumber(port)
-						&& (isString(query) || query === null)
+						&& isString(path) === true
+						&& isNumber(port) === true
+						&& (isString(query) === true || query === null)
 					) {
 						return true;
 					}
 
-				} else if (isString(host)) {
+				} else if (isString(host) === true) {
 
 					if (
 						domain === null
 						&& subdomain === null
-						&& (isString(hash) || hash === null)
+						&& (isString(hash) === true || hash === null)
 						&& (MIME.includes(mime) || mime === null)
-						&& isString(path)
-						&& isNumber(port)
-						&& (isString(query) || query === null)
+						&& isString(path) === true
+						&& isNumber(port) === true
+						&& (isString(query) === true || query === null)
 					) {
 						return true;
 					}
@@ -398,10 +401,10 @@ const URL = {
 			} else if (protocol === 'stealth') {
 
 				if (
-					isString(domain)
-					&& (isString(hash)  || hash === null)
+					isString(domain) === true
+					&& (isString(hash) === true || hash === null)
 					&& (MIME.includes(mime) || mime === null)
-					&& (isString(query) || query === null)
+					&& (isString(query) === true || query === null)
 				) {
 					return true;
 				}

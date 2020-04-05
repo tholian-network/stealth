@@ -1,5 +1,5 @@
 
-import { isBoolean, isObject, isString } from './POLYFILLS.mjs';
+import { isBoolean, isObject, isString } from './BASE.mjs';
 import { Emitter                       } from './Emitter.mjs';
 import { URL                           } from './parser/URL.mjs';
 import { Blocker                       } from './request/Blocker.mjs';

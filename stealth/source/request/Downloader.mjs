@@ -1,5 +1,5 @@
 
-import { Buffer  } from '../POLYFILLS.mjs';
+import { Buffer  } from '../BASE.mjs';
 import { Emitter } from '../Emitter.mjs';
 import { HTTP    } from '../protocol/HTTP.mjs';
 import { HTTPS   } from '../protocol/HTTPS.mjs';

@@ -49,7 +49,23 @@ const Tab = function(data) {
 Tab.prototype = {
 
 	kill: function() {
-		// TODO: Cleanup for GC and stuff
+
+		this.config = {
+			domain: null,
+			mode: {
+				text:  false,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		};
+
+		this.history  = [];
+		this.ref      = null;
+		this.requests = [];
+		this.url      = null;
+
 	}
 
 };

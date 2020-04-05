@@ -1,7 +1,6 @@
 
-import { isObject, isString } from '../../source/POLYFILLS.mjs';
-
-import { Element } from '../Element.mjs';
+import { isObject, isString } from '../../source/BASE.mjs';
+import { Element            } from '../Element.mjs';
 
 
 
@@ -23,7 +22,6 @@ const TEXT = () => `
 	<li data-key="f12"><code>[F12]</code> Open Browser Settings</li>
 </ul>
 `;
-
 
 const get_area = function(elements) {
 
@@ -108,7 +106,7 @@ const render_hint = function(key, area, title) {
 	title = isString(title) ? title : null;
 
 
-	if (isString(key) && isObject(area)) {
+	if (isString(key) === true && isObject(area) === true) {
 
 		let element = Element.from('browser-hint', key.toUpperCase(), false);
 

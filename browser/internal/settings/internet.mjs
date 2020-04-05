@@ -1,7 +1,8 @@
 
-import { isObject } from '../../source/POLYFILLS.mjs';
+import { isObject } from '../../source/BASE.mjs';
+import { Element  } from '../../design/Element.mjs';
 
-import { Element } from '../../design/Element.mjs';
+
 
 const ELEMENTS = {
 	connection: Element.query('#internet-connection input'),

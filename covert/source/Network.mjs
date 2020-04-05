@@ -2,9 +2,9 @@
 import { execSync          } from 'child_process';
 import { networkInterfaces } from 'os';
 
-import { console  } from './console.mjs';
-import { isString } from './POLYFILLS.mjs';
-import { IP       } from './parser/IP.mjs';
+import { isString } from '../../stealth/source/BASE.mjs';
+import { console  } from '../../stealth/source/console.mjs';
+import { IP       } from '../../stealth/source/parser/IP.mjs';
 
 
 
@@ -39,8 +39,6 @@ const PROFILES = {
 const STATE = {
 	network: null
 };
-
-
 
 const connect = (network) => {
 

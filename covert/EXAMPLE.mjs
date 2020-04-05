@@ -1,10 +1,10 @@
 
 import fs from 'fs';
 
-import { Buffer, isString } from './source/POLYFILLS.mjs';
+import { Buffer, isString } from '../stealth/source/BASE.mjs';
+import { IP               } from '../stealth/source/parser/IP.mjs';
+import { MIME, URL        } from '../stealth/source/parser/URL.mjs';
 
-import { IP        } from '../stealth/source/parser/IP.mjs';
-import { MIME, URL } from '../stealth/source/parser/URL.mjs';
 
 
 const FILE = Buffer.from([
@@ -182,6 +182,15 @@ export const create = function(url) {
 
 			ref.hosts = [
 				IP.parse('174.129.224.73')
+			];
+
+		} else if (config.domain === 'cookie.engineer') {
+
+			ref.hosts = [
+				IP.parse('185.199.108.153'),
+				IP.parse('185.199.109.153'),
+				IP.parse('185.199.110.153'),
+				IP.parse('185.199.111.153')
 			];
 
 		}

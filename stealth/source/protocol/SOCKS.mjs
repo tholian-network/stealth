@@ -1,7 +1,7 @@
 
 import net from 'net';
 
-import { isObject } from '../POLYFILLS.mjs';
+import { isObject } from '../BASE.mjs';
 import { Emitter  } from '../Emitter.mjs';
 import { HTTP     } from './HTTP.mjs';
 import { HTTPS    } from './HTTPS.mjs';
