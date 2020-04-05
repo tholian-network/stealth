@@ -51,9 +51,10 @@ cd /path/to/covert;
 - Install [node.js](https://nodejs.org/en/download) version `10+`.
 
 ```bash
-cd /path/to/covert;
+cd /path/to/stealth;
 
-bash ./bin/covert.sh;
+# Execute and validate all Reviews
+bash ./covert/bin/covert.sh;
 ```
 
 
@@ -99,11 +100,4 @@ Currently there's no way to simulate network connections as there's no
 - Reviews need to `export default` via `finish()` to ensure `ESM` compatibility.
 - `assert()` calls have to be in a separate line.
 - `assert()` calls have to be branch-less, surrounding `if/elseif/else` conditions are not allowed.
-
-
-## Roadmap - Untested Implementations
-
-These implementations are currently untested and need end-to-end reviews.
-
-- [ ] `review/client/Settings.mjs`
 

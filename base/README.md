@@ -17,13 +17,13 @@ generates the [/build](./build) folder. The build script is called by both the
 [browser.sh](../browser/bin/browser.sh) and [stealth.sh](../stealth/bin/stealth.sh).
 
 ```bash
-cd /path/to/base;
+cd /path/to/stealth;
 
 # Build the Base Library
-bash ./bin/base.sh;
+bash ./base/bin/base.sh;
 
 # Afterwards, simply copy/paste the BASE.mjs and use ES6 import syntax
-# cp ./build/browser/BASE.mjs ./to/a/browser/project/;
-# cp ./build/node/BASE.mjs    ./to/a/node/project/;
+# cp ./base/build/browser/BASE.mjs ./to/a/browser/project/;
+# cp ./base/build/node/BASE.mjs    ./to/a/node/project/;
 ```
 
