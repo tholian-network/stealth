@@ -75,10 +75,10 @@ export const handle_request = function(socket, ref) {
 			if (type !== null) {
 
 				ROUTER.error({
-					address: ref.headers['@local'] || null,
-					url:     url || null,
-					err:     err || null,
-					flags:   request.flags
+					headers: ref.headers   || {},
+					url:     url           || null,
+					err:     err           || null,
+					flags:   request.flags || {}
 				}, (response) => HTTP.send(socket, response));
 
 			} else {
@@ -109,7 +109,9 @@ export const handle_request = function(socket, ref) {
 				REDIRECT.send({
 					code: 301,
 					path: path
-				}, (response) => HTTP.send(socket, response));
+				}, (response) => {
+					HTTP.send(socket, response);
+				});
 
 			} else {
 
@@ -121,7 +123,9 @@ export const handle_request = function(socket, ref) {
 				REDIRECT.send({
 					code: 301,
 					path: path
-				}, (response) => HTTP.send(socket, response));
+				}, (response) => {
+					HTTP.send(socket, response);
+				});
 
 			}
 

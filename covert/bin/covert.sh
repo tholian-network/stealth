@@ -42,7 +42,7 @@ fi;
 start_socks_proxy() {
 
 	cd "$root_dir/covert/sketch/socks-proxy";
-	make -C "$root_dir/covert/sketch/socks-proxy";
+	make -C "$root_dir/covert/sketch/socks-proxy" -s > /dev/null;
 
 	if [[ $? != 0 ]]; then
 		echo "Compilation of SOCKS Proxy failed.";

@@ -93,6 +93,10 @@ export const HOSTS = [
 	IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
 ];
 
+export const IPV4 = IP.parse('93.184.216.34');
+
+export const IPV6 = IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946');
+
 export const PAYLOAD = Buffer.concat([
 	Buffer.from([
 		'HTTP/1.1 200 OK',
@@ -229,8 +233,6 @@ export const create = function(url) {
 
 };
 
-
-
 export const config = function(path) {
 
 	path = isString(path) ? path : null;
@@ -270,7 +272,6 @@ export const config = function(path) {
 	return cfg;
 
 };
-
 
 export const sketch = function(path) {
 

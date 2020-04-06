@@ -14,7 +14,6 @@ const ROOT = (function() {
 		return pwd;
 	}
 
-
 	let cwd = process.cwd();
 	if (cwd.includes('\\')) {
 		cwd = cwd.split('\\').join('/');
@@ -38,35 +37,80 @@ const FILE = {
 		callback = isFunction(callback) ? callback : null;
 
 
-		if (data !== null && callback !== null) {
+		if (data !== null) {
 
 			let url = data.path || null;
 			if (url !== null) {
 
-				fs.readFile(path.resolve(ROOT + url), (err, buffer) => {
+				if (callback !== null) {
 
-					if (!err) {
+					fs.readFile(path.resolve(ROOT + url), (err, buffer) => {
 
-						callback({
+						if (!err) {
+
+							callback({
+								headers: {
+									'@code':          200,
+									'@status':        '200 OK',
+									'content-type':   data.mime.format,
+									'content-length': Buffer.byteLength(buffer)
+								},
+								payload: buffer
+							});
+
+						} else if (callback !== null) {
+							callback(null);
+						}
+
+					});
+
+				} else {
+
+					let buffer = null;
+					try {
+						buffer = fs.readFileSync(path.resolve(ROOT + url));
+					} catch (err) {
+						buffer = null;
+					}
+
+					if (buffer !== null) {
+
+						return {
 							headers: {
+								'@code':          200,
+								'@status':        '200 OK',
 								'content-type':   data.mime.format,
 								'content-length': Buffer.byteLength(buffer)
 							},
 							payload: buffer
-						});
+						};
 
-					} else if (callback !== null) {
-						callback(null);
+					} else {
+
+						return null;
+
 					}
 
-				});
+				}
 
-			} else if (callback !== null) {
-				callback(null);
+			} else {
+
+				if (callback !== null) {
+					callback(null);
+				} else {
+					return null;
+				}
+
 			}
 
-		} else if (callback !== null) {
-			callback(null);
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			} else {
+				return null;
+			}
+
 		}
 
 	}

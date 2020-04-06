@@ -7,6 +7,11 @@ import Browser         from './review/Browser.mjs';
 import Request         from './review/Request.mjs';
 import Review          from './review/Review.mjs';
 import Server          from './review/Server.mjs';
+import Other_ERROR     from './review/other/ERROR.mjs';
+import Other_FILE      from './review/other/FILE.mjs';
+import Other_PAC       from './review/other/PAC.mjs';
+import Other_REDIRECT  from './review/other/REDIRECT.mjs';
+import Other_ROUTER    from './review/other/ROUTER.mjs';
 import Parser_CSS      from './review/parser/CSS.mjs';
 import Parser_HOSTS    from './review/parser/HOSTS.mjs';
 import Parser_IP       from './review/parser/IP.mjs';
@@ -84,11 +89,20 @@ export const FLAGS = (() => {
 
 })();
 
+export const PATTERNS = Array.from(process.argv).slice(3).filter((v) => v.startsWith('--') === false);
+
 export const REVIEWS = (() => {
 
 	let reviews = [
 
 		Review,
+
+		// Server Modules
+		Other_ERROR,
+		Other_FILE,
+		Other_PAC,
+		Other_REDIRECT,
+		Other_ROUTER,
 
 		// Parsers
 		Parser_CSS,
@@ -131,10 +145,11 @@ export const REVIEWS = (() => {
 
 	];
 
+
 	let include  = reviews.map(() => false);
 	let filtered = false;
 
-	Array.from(process.argv).slice(3).filter((v) => v.startsWith('--') === false).forEach((pattern) => {
+	PATTERNS.forEach((pattern) => {
 
 		filtered = true;
 

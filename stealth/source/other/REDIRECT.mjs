@@ -1,7 +1,7 @@
 
-import { Buffer, isFunction, isObject } from '../BASE.mjs';
-import { ERROR                        } from './ERROR.mjs';
-import { IP                           } from '../parser/IP.mjs';
+import { Buffer, isFunction, isNumber, isObject, isString } from '../BASE.mjs';
+import { ERROR                                            } from './ERROR.mjs';
+import { IP                                               } from '../parser/IP.mjs';
 
 
 
@@ -30,13 +30,15 @@ const REDIRECT = {
 
 		if (data !== null) {
 
-			let url   = data.url   || null;
-			let err   = data.err   || null;
-			let flags = data.flags || {};
-			let page  = null;
-			let vars  = [];
+			let url     = data.url     || null;
+			let err     = data.err     || null;
+			let headers = data.headers || {};
+			let flags   = data.flags   || {};
+			let page    = null;
+			let vars    = [];
 
-			if (err !== null && typeof err.type === 'string') {
+
+			if (err !== null && isString(err.type) === true) {
 				page = PAGES[err.type] || null;
 			}
 
@@ -44,11 +46,11 @@ const REDIRECT = {
 				vars.push('url=' + encodeURIComponent(url));
 			}
 
-			if (err !== null && typeof err.code === 'number') {
+			if (err !== null && isNumber(err.code) === true) {
 				vars.push('code=' + encodeURIComponent(err.code));
 			}
 
-			if (err !== null && typeof err.cause === 'string') {
+			if (err !== null && isString(err.cause) === true) {
 				vars.push('cause=' + encodeURIComponent(err.cause));
 			}
 
@@ -81,14 +83,14 @@ const REDIRECT = {
 			} else if (proxy === true && page !== null) {
 
 				let hostname = 'localhost';
-				let address  = data.address || null;
+				let address  = headers['@local'] || null;
 
 				if (address !== null) {
 
 					let ip = IP.parse(address);
-					if (ip.type === 'ipv4') {
+					if (ip.type === 'v4') {
 						hostname = ip.ip;
-					} else if (ip.type === 'ipv6') {
+					} else if (ip.type === 'v6') {
 						hostname = '[' + ip.ip + ']';
 					}
 
@@ -112,18 +114,25 @@ const REDIRECT = {
 
 			} else {
 
+				let payload = Buffer.from('Error for "' + url + '".', 'utf8');
+
+				if (err !== null && isString(err.type) === true) {
+					payload = Buffer.from('"' + err.type + '" Error for "' + url + '".', 'utf8');
+				}
+
+
 				if (callback !== null) {
 
 					ERROR.send({
 						code:    500,
-						payload: Buffer.from((typeof err.type === 'string' ? '"' + err.type + '"' : '') + ' Error for "' + url + '".', 'utf8')
+						payload: payload
 					}, callback);
 
 				} else {
 
 					return ERROR.send({
 						code:    500,
-						payload: Buffer.from((typeof err.type === 'string' ? '"' + err.type + '"' : '') + ' Error for "' + url + '".', 'utf8')
+						payload: payload
 					});
 
 				}
@@ -159,13 +168,13 @@ const REDIRECT = {
 		if (data !== null) {
 
 			let location = data.location || null;
+			let path     = data.path     || null;
 
-			let path = data.path || null;
-			if (path !== null && location === null) {
+			if (isString(location) === false && isString(path) === true) {
 				location = path;
 			}
 
-			if (location !== null) {
+			if (isString(location) === true) {
 
 				let code    = 301;
 				let message = CODES[code];

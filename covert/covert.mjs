@@ -1,8 +1,8 @@
 
 import process from 'process';
 
-import { console        } from '../stealth/source/console.mjs';
-import { create, ACTION } from './covert-worker.mjs';
+import { console                  } from '../stealth/source/console.mjs';
+import { create, ACTION, PATTERNS } from './covert-worker.mjs';
 
 
 
@@ -182,71 +182,84 @@ if (ACTION === 'watch') {
 	let covert = create();
 	if (covert !== null) {
 
-		process.on('SIGINT', () => {
+		if (covert.reviews.length > 0) {
 
-			setTimeout(() => {
-				on_complete(covert);
-			}, 1000);
+			process.on('SIGINT', () => {
 
-		});
-
-		process.on('SIGQUIT', () => {
-
-			setTimeout(() => {
-				on_complete(covert);
-			}, 1000);
-
-		});
-
-		process.on('SIGABRT', () => {
-
-			setTimeout(() => {
-				on_complete(covert);
-			}, 1000);
-
-		});
-
-		process.on('SIGTERM', () => {
-
-			setTimeout(() => {
-				on_complete(covert);
-			}, 1000);
-
-		});
-
-		covert.reviews.forEach((review) => {
-			covert.watch(review);
-		});
-
-		covert.on('disconnect', () => {
-
-			let stub = setInterval(() => {
-				// Do nothing
-			}, 500);
-
-			covert.once('connect', () => {
-
-				if (stub !== null) {
-					clearInterval(stub);
-					stub = null;
-				}
+				setTimeout(() => {
+					on_complete(covert);
+				}, 1000);
 
 			});
 
-		});
+			process.on('SIGQUIT', () => {
 
-		covert.on('change', (reviews, review) => {
+				setTimeout(() => {
+					on_complete(covert);
+				}, 1000);
 
-			covert.once('disconnect', () => {
-				reset(review);
-				covert.connect();
 			});
 
-			covert.disconnect();
+			process.on('SIGABRT', () => {
 
-		});
+				setTimeout(() => {
+					on_complete(covert);
+				}, 1000);
 
-		covert.connect();
+			});
+
+			process.on('SIGTERM', () => {
+
+				setTimeout(() => {
+					on_complete(covert);
+				}, 1000);
+
+			});
+
+			covert.reviews.forEach((review) => {
+				covert.watch(review);
+			});
+
+			covert.on('disconnect', () => {
+
+				let stub = setInterval(() => {
+					// Do nothing
+				}, 500);
+
+				covert.once('connect', () => {
+
+					if (stub !== null) {
+						clearInterval(stub);
+						stub = null;
+					}
+
+				});
+
+			});
+
+			covert.on('change', (reviews, review) => {
+
+				covert.once('disconnect', () => {
+					reset(review);
+					covert.connect();
+				});
+
+				covert.disconnect();
+
+			});
+
+			covert.connect();
+
+		} else {
+
+			console.log('');
+			console.info('Covert: ' + ACTION[0].toUpperCase() + ACTION.substr(1) + ' Mode');
+			console.log('');
+
+			console.warn('Covert: No matching Reviews for "' + PATTERNS.join(' ') + '" found.');
+			process.exit(2);
+
+		}
 
 	} else {
 
@@ -265,11 +278,20 @@ if (ACTION === 'watch') {
 	let covert = create();
 	if (covert !== null) {
 
-		covert.on('disconnect', () => {
-			on_complete(covert);
-		});
+		if (covert.reviews.length > 0) {
 
-		covert.connect();
+			covert.on('disconnect', () => {
+				on_complete(covert);
+			});
+
+			covert.connect();
+
+		} else {
+
+			console.warn('Covert: No matching Reviews for "' + PATTERNS.join(' ') + '" found.');
+			process.exit(2);
+
+		}
 
 	} else {
 

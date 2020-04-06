@@ -55,7 +55,8 @@ const PAC = {
 					port = ref.port;
 				}
 
-				let address = data.address || 'localhost';
+				let headers = data.headers      || {};
+				let address = headers['@local'] || 'localhost';
 				if (address.startsWith('::ffff:')) {
 					address = address.substr(7);
 				}
@@ -67,13 +68,39 @@ const PAC = {
 			}
 
 
-			callback({
-				headers: {
-					'@code':   200,
-					'@status': '200 OK'
-				},
-				payload: payload
-			});
+			if (payload !== null) {
+
+				if (callback !== null) {
+
+					callback({
+						headers: {
+							'@code':   200,
+							'@status': '200 OK'
+						},
+						payload: payload
+					});
+
+				} else {
+
+					return {
+						headers: {
+							'@code':   200,
+							'@status': '200 OK'
+						},
+						payload: payload
+					};
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(null);
+				} else {
+					return null;
+				}
+
+			}
 
 		} else {
 

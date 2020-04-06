@@ -1,10 +1,10 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { ERROR                } from './ERROR.mjs';
-import { FILE                 } from './FILE.mjs';
-import { PAC                  } from './PAC.mjs';
-import { REDIRECT             } from './REDIRECT.mjs';
-import { URL                  } from '../parser/URL.mjs';
+import { isFunction, isNumber, isObject, isString } from '../BASE.mjs';
+import { ERROR                                    } from './ERROR.mjs';
+import { FILE                                     } from './FILE.mjs';
+import { PAC                                      } from './PAC.mjs';
+import { REDIRECT                                 } from './REDIRECT.mjs';
+import { URL                                      } from '../parser/URL.mjs';
 
 
 
@@ -16,40 +16,70 @@ const ROUTER = {
 		callback = isFunction(callback) ? callback : null;
 
 
-		let err = data.err || null;
-		if (err !== null && typeof err.type === 'string') {
+		if (data !== null) {
 
-			REDIRECT.error(data, (response) => {
-
-				if (callback !== null) {
-					callback(response);
-				}
-
-			});
-
-		} else if (err !== null && typeof err.code === 'number') {
-
-			ERROR.send({
-				code: err.code
-			}, (response) => {
+			let err = data.err || null;
+			if (err !== null && isString(err.type) === true) {
 
 				if (callback !== null) {
-					callback(response);
+
+					REDIRECT.error(data, callback);
+
+				} else {
+
+					return REDIRECT.error(data);
+
 				}
 
-			});
+			} else if (err !== null && isNumber(err.code) === true) {
+
+				if (callback !== null) {
+
+					ERROR.send({
+						code: err.code
+					}, callback);
+
+				} else {
+
+					return ERROR.send({
+						code: err.code
+					});
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+
+					ERROR.send({
+						code: 500
+					}, callback);
+
+				} else {
+
+					return ERROR.send({
+						code: 500
+					});
+
+				}
+
+			}
 
 		} else {
 
-			ERROR.send({
-				code: 500
-			}, (response) => {
+			if (callback !== null) {
 
-				if (callback !== null) {
-					callback(response);
-				}
+				ERROR.send({
+					code: 500
+				}, callback);
 
-			});
+			} else {
+
+				return ERROR.send({
+					code: 500
+				});
+
+			}
 
 		}
 
@@ -61,133 +91,184 @@ const ROUTER = {
 		callback = isFunction(callback) ? callback : null;
 
 
-		let check = ref.path || null;
-		if (check === null) {
+		if (ref !== null) {
 
-			let url = ref.headers['@url'] || null;
-			if (url !== null) {
+			let check = ref.path || null;
+			if (check === null) {
 
-				let headers = Object.assign({}, ref.headers);
-				ref         = URL.parse(url);
-				ref.headers = headers;
+				let url = (ref.headers || {})['@url'] || null;
+				if (url !== null) {
+
+					let headers = Object.assign({}, ref.headers);
+					ref         = URL.parse(url);
+					ref.headers = headers;
+
+				}
 
 			}
 
-		}
 
+			let headers = ref.headers || {};
+			let path    = ref.path || '';
 
-		if (ref.path === '/') {
-
-			REDIRECT.send({
-				code: 301,
-				path: '/browser/index.html' + (ref.headers['@debug'] ? '?debug' : '')
-			}, (response) => {
+			if (path === '/') {
 
 				if (callback !== null) {
-					callback(response);
-				}
 
-			});
-
-		} else if (ref.path === '/favicon.ico') {
-
-			REDIRECT.send({
-				code: 301,
-				path: '/browser/design/other/favicon.ico'
-			}, (response) => {
-
-				if (response !== null) {
-
-					if (callback !== null) {
-						callback(response);
-					}
+					REDIRECT.send({
+						code: 301,
+						path: '/browser/index.html' + (headers['@debug'] ? '?debug' : '')
+					}, callback);
 
 				} else {
 
-					ERROR.send({
-						code: 404
-					}, (response) => {
-
-						if (callback !== null) {
-							callback(response);
-						}
-
+					return REDIRECT.send({
+						code: 301,
+						path: '/browser/index.html' + (headers['@debug'] ? '?debug' : '')
 					});
 
 				}
 
-			});
+			} else if (path === '/favicon.ico') {
 
-		} else if (ref.path === '/proxy.pac') {
+				if (callback !== null) {
 
-			PAC.send({
-				url:     'http://' + ref.headers['host'] + '/proxy.pac',
-				address: ref.headers['@address'] || 'localhost'
-			}, (response) => {
-
-				if (response !== null) {
-
-					if (callback !== null) {
-						callback(response);
-					}
+					REDIRECT.send({
+						code: 301,
+						path: '/browser/design/other/favicon.ico'
+					}, callback);
 
 				} else {
 
-					ERROR.send({
-						code: 404
-					}, (response) => {
-
-						if (callback !== null) {
-							callback(response);
-						}
-
+					return REDIRECT.send({
+						code: 301,
+						path: '/browser/design/other/favicon.ico'
 					});
 
 				}
 
-			});
+			} else if (path === '/proxy.pac') {
 
-		} else if (ref.path.startsWith('/browser')) {
+				if (callback !== null) {
 
-			FILE.send(ref, (response) => {
-
-				if (response !== null && response.payload !== null) {
-
-					if (ref.path === '/browser/index.html') {
-						response.headers['Service-Worker-Allowed'] = '/browser';
-					}
-
-					if (callback !== null) {
-						callback(response);
-					}
-
-				} else {
-
-					ERROR.send({
-						code: 404
+					PAC.send({
+						url:     'http://' + headers['host'] + '/proxy.pac',
+						headers: headers
 					}, (response) => {
 
-						if (callback !== null) {
+						if (response !== null) {
+
 							callback(response);
+
+						} else {
+
+							ERROR.send({
+								code: 404
+							}, callback);
+
 						}
 
 					});
 
+				} else {
+
+					let response = PAC.send({
+						url:     'http://' + headers['host'] + '/proxy.pac',
+						headers: headers
+					});
+
+					if (response !== null) {
+
+						return response;
+
+					} else {
+
+						return ERROR.send({
+							code: 404
+						});
+
+					}
+
 				}
 
-			});
+			} else if (path.startsWith('/browser')) {
+
+				if (callback !== null) {
+
+					FILE.send(ref, (response) => {
+
+						if (response !== null && response.payload !== null) {
+
+							if (ref.path === '/browser/index.html') {
+								response.headers['Service-Worker-Allowed'] = '/browser';
+							}
+
+							callback(response);
+
+						} else {
+
+							ERROR.send({
+								code: 404
+							}, callback);
+
+						}
+
+					});
+
+				} else {
+
+					let response = FILE.send(ref);
+					if (response !== null && response.payload !== null) {
+
+						if (ref.path === '/browser/index.html') {
+							response.headers['Service-Worker-Allowed'] = '/browser';
+						}
+
+						return response;
+
+					} else {
+
+						return ERROR.send({
+							code: 404
+						});
+
+					}
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+
+					ERROR.send({
+						code: 500
+					}, callback);
+
+				} else {
+
+					return ERROR.send({
+						code: 500
+					});
+
+				}
+
+			}
 
 		} else {
 
-			ERROR.send({
-				code: 500
-			}, (response) => {
+			if (callback !== null) {
 
-				if (callback !== null) {
-					callback(response);
-				}
+				ERROR.send({
+					code: 500
+				}, callback);
 
-			});
+			} else {
+
+				return ERROR.send({
+					code: 500
+				});
+
+			}
 
 		}
 
