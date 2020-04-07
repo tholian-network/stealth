@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 root_dir="$(dirname "$(dirname "$(dirname "$(readlink -f "$0")")")")";
 node_bin="$(which node)";
@@ -16,7 +16,7 @@ build_browser() {
 
 	cd "$root_dir";
 
-	sh "./base/bin/base.sh";
+	bash "./base/bin/base.sh";
 
 	if [ -f "./browser/source/BASE.mjs" ]; then
 		rm "./browser/source/BASE.mjs";

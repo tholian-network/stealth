@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash
 
 base_dir="$(dirname "$(dirname "$(readlink -f "$0")")")";
 
