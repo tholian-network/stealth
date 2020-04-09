@@ -31,6 +31,6 @@ the Stealth Service `/browser/index.html` URL as a Web App).
 cd /path/to/stealth;
 
 # Example shows default values for optional flags
-bash ./stealth/bin/stealth.sh --host=null --profile=/home/$USER/Stealth;
+bash ./bin/stealth.sh --host=null --profile=/home/$USER/Stealth;
 ```
 

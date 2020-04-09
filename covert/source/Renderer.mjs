@@ -62,17 +62,17 @@ const render_complete = function(review, is_current) {
 	if (review.state === null) {
 
 		if (is_current === true) {
-			console.blink('review/' + review.id + '.mjs:');
+			console.blink(review.id);
 		} else {
-			console.log('review/' + review.id + '.mjs:');
+			console.log(review.id);
 		}
 
 	} else if (review.state === 'okay') {
-		console.info('review/' + review.id + '.mjs:');
+		console.info(review.id);
 	} else if (review.state === 'wait') {
-		console.warn('review/' + review.id + '.mjs:');
+		console.warn(review.id);
 	} else if (review.state === 'fail') {
-		console.error('review/' + review.id + '.mjs:');
+		console.error(review.id);
 	}
 
 
@@ -239,13 +239,13 @@ const render_partial = function(reviews, prev_state, curr_state) {
 			if (review !== last_review) {
 
 				if (review.state === null) {
-					console.log('review/' + review.id + '.mjs:');
+					console.log(review.id);
 				} else if (review.state === 'okay') {
-					console.info('review/' + review.id + '.mjs:');
+					console.info(review.id);
 				} else if (review.state === 'wait') {
-					console.warn('review/' + review.id + '.mjs:');
+					console.warn(review.id);
 				} else if (review.state === 'fail') {
-					console.error('review/' + review.id + '.mjs:');
+					console.error(review.id);
 				}
 
 				last_review = review;
@@ -313,7 +313,7 @@ const render_summary = function(review, is_current) {
 
 	if (review.state === 'okay') {
 
-		console.info('review/' + review.id + '.mjs: okay.');
+		console.info(review.id + ': okay.');
 
 	} else if (
 		review.state === null
@@ -324,15 +324,15 @@ const render_summary = function(review, is_current) {
 		if (review.state === null) {
 
 			if (is_current === true) {
-				console.blink('review/' + review.id + '.mjs:');
+				console.blink(review.id);
 			} else {
-				console.log('review/' + review.id + '.mjs:');
+				console.log(review.id);
 			}
 
 		} else if (review.state === 'wait') {
-			console.warn('review/' + review.id + '.mjs:');
+			console.warn(review.id);
 		} else if (review.state === 'fail') {
-			console.error('review/' + review.id + '.mjs:');
+			console.error(review.id);
 		}
 
 

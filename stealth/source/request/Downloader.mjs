@@ -1,9 +1,9 @@
 
-import { Buffer  } from '../BASE.mjs';
-import { Emitter } from '../Emitter.mjs';
-import { HTTP    } from '../protocol/HTTP.mjs';
-import { HTTPS   } from '../protocol/HTTPS.mjs';
-import { SOCKS   } from '../protocol/SOCKS.mjs';
+import { Buffer, isFunction, isObject } from '../BASE.mjs';
+import { Emitter                      } from '../Emitter.mjs';
+import { HTTP                         } from '../protocol/HTTP.mjs';
+import { HTTPS                        } from '../protocol/HTTPS.mjs';
+import { SOCKS                        } from '../protocol/SOCKS.mjs';
 
 
 
@@ -273,9 +273,9 @@ const Downloader = {
 
 	check: function(ref, config, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		config   = config instanceof Object       ? config   : null;
-		callback = typeof callback === 'function' ? callback : null;
+		ref      = isObject(ref)        ? ref      : null;
+		config   = isObject(config)     ? config   : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (ref !== null && config !== null && callback !== null) {
@@ -297,9 +297,9 @@ const Downloader = {
 
 	download: function(ref, config, callback) {
 
-		ref      = ref instanceof Object          ? ref      : null;
-		config   = config instanceof Object       ? config   : null;
-		callback = typeof callback === 'function' ? callback : null;
+		ref      = isObject(ref)        ? ref      : null;
+		config   = isObject(config)     ? config   : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (ref !== null && config !== null && callback !== null) {

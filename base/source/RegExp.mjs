@@ -1,4 +1,6 @@
 
+export const RegExp = (typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this)).RegExp;
+
 if (typeof RegExp.isRegExp !== 'function') {
 
 	RegExp.isRegExp = function(reg) {
@@ -6,4 +8,6 @@ if (typeof RegExp.isRegExp !== 'function') {
 	};
 
 }
+
+export const isRegExp = RegExp.isRegExp;
 

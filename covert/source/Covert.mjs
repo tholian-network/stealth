@@ -1,12 +1,12 @@
 
 import process from 'process';
 
-import { isObject   } from '../../stealth/source/BASE.mjs';
-import { console    } from '../../stealth/source/console.mjs';
-import { Emitter    } from '../../stealth/source/Emitter.mjs';
-import { Filesystem } from './Filesystem.mjs';
-import { Network    } from './Network.mjs';
-import { Renderer   } from './Renderer.mjs';
+import { isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
+import { console                       } from '../../stealth/source/console.mjs';
+import { Emitter                       } from '../../stealth/source/Emitter.mjs';
+import { Filesystem                    } from './Filesystem.mjs';
+import { Network                       } from './Network.mjs';
+import { Renderer                      } from './Renderer.mjs';
 
 
 
@@ -84,6 +84,112 @@ const flatten_tests = (review) => {
 	}
 
 	return array;
+
+};
+
+const init = function(settings) {
+
+	let action   = isString(settings.action)    ? settings.action   : null;
+	let internet = isBoolean(settings.internet) ? settings.internet : false;
+	let include  = settings.reviews.map(() => false);
+	let filtered = false;
+
+	settings.patterns.forEach((pattern) => {
+
+		filtered = true;
+
+
+		if (pattern.startsWith('*')) {
+
+			settings.reviews.forEach((review, r) => {
+
+				if (review.id.endsWith(pattern.substr(1))) {
+					include[r] = true;
+				}
+
+			});
+
+		} else if (pattern.endsWith('*')) {
+
+			settings.reviews.forEach((review, r) => {
+
+				if (review.id.startsWith(pattern.substr(0, pattern.length - 1))) {
+					include[r] = true;
+				}
+
+			});
+
+		} else if (pattern.includes('*')) {
+
+			let prefix = pattern.split('*').shift();
+			let suffix = pattern.split('*').pop();
+
+			settings.reviews.forEach((review, r) => {
+
+				if (review.id.startsWith(prefix) && review.id.endsWith(suffix)) {
+					include[r] = true;
+				}
+
+			});
+
+		} else {
+
+			settings.reviews.forEach((review, r) => {
+
+				if (review.id === pattern) {
+					include[r] = true;
+				}
+
+			});
+
+		}
+
+	});
+
+
+	// --internet defaulted with true
+	if (internet === false) {
+
+		settings.reviews.forEach((review, r) => {
+
+			if (review.flags.internet === true) {
+				include[r] = false;
+			}
+
+		});
+
+	}
+
+
+	if (filtered === true) {
+
+		let reviews = include.map((inc, i) => (inc === true ? settings.reviews[i] : null)).filter((r) => r !== null);
+		if (reviews.length > 0) {
+
+			if (action === 'scan') {
+
+				reviews.forEach((review) => {
+					this.scan(review);
+				});
+
+			} else if (action === 'time') {
+
+				reviews.forEach((review) => {
+					this.scan(review);
+				});
+
+			} else if (action === 'watch') {
+
+				reviews.forEach((review) => {
+					this.scan(review);
+					this.watch(review);
+				});
+
+			}
+
+		}
+
+	}
 
 };
 
@@ -352,9 +458,12 @@ const update_test = function(test) {
 export const Covert = function(settings) {
 
 	this.settings = Object.assign({
-		action:  null, // 'scan', 'time' or 'watch'
-		root:    process.cwd(),
-		timeout: 30 * 1000
+		action:   null, // 'scan', 'time' or 'watch'
+		internet: true,
+		patterns: [],
+		reviews:  [],
+		root:     process.cwd(),
+		timeout:  10 * 1000
 	}, settings);
 
 	this.interval   = null;
@@ -372,6 +481,7 @@ export const Covert = function(settings) {
 
 
 	Emitter.call(this);
+
 
 	this.on('connect', (reviews) => {
 
@@ -472,6 +582,34 @@ export const Covert = function(settings) {
 		}
 
 	});
+
+
+	process.on('SIGHUP', () => {
+		this.disconnect();
+	});
+
+	process.on('SIGINT', () => {
+		this.disconnect();
+	});
+
+	process.on('SIGQUIT', () => {
+		this.disconnect();
+	});
+
+	process.on('SIGABRT', () => {
+		this.disconnect();
+	});
+
+	process.on('SIGTERM', () => {
+		this.disconnect();
+	});
+
+	process.on('error', () => {
+		this.disconnect();
+	});
+
+
+	init.call(this, this.settings);
 
 };
 
@@ -600,7 +738,10 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (review !== null) {
 
-			let source = this.settings.root + '/stealth/source/' + review.id + '.mjs';
+			let name   = review.id.split('/').shift();
+			let id     = review.id.split('/').slice(1).join('/');
+			let source = this.settings.root + '/' + name + '/source/' + id + '.mjs';
+
 			if (this.filesystem.exists(source) === true) {
 
 				let result = this.filesystem.watch(source);

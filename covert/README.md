@@ -35,11 +35,10 @@ Reviews.
 ```bash
 cd /path/to/covert;
 
-./bin/covert.sh Client;              # Execute review/Client.mjs
-./bin/covert.sh client/Cache#offline # Execute review/client/Cache.mjs and only tests that include "offline"
-./bin/covert.sh client*;             # Execute reviews starting with "client"
-./bin/covert.sh *Cache;              # Execute reviews ending with "Cache"
-./bin/covert.sh client*Cache;        # Execute reviews starting with "client" and ending with "Cache"
+./bin/covert.sh stealth/Client;       # Execute Stealth's review/Client.mjs
+./bin/covert.sh stealth/client*;      # Execute Stealth's reviews starting with "client"
+./bin/covert.sh *Cache;               # Execute all reviews ending with "Cache"
+./bin/covert.sh stealth/client*Cache; # Execute Stealth's reviews starting with "client" and ending with "Cache"
 
 ./bin/covert.sh --debug=true;     # Execute reviews in debug mode
 ./bin/covert.sh --internet=false; # Execute reviews in offline mode
@@ -97,7 +96,7 @@ Currently there's no way to simulate network connections as there's no
 - Reviews can have a single `before()` entry for preparation.
 - Reviews can have a single `after()` entry for cleanup.
 - Reviews can have multiple stateless `describe()` entries.
-- Reviews need to `export default` via `finish()` to ensure `ESM` compatibility.
+- Reviews need to `export default` via `finish('library/namespace/Identifier')` to ensure `ESM` compatibility.
 - `assert()` calls have to be in a separate line.
 - `assert()` calls have to be branch-less, surrounding `if/elseif/else` conditions are not allowed.
 

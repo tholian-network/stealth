@@ -1,11 +1,15 @@
 
+import { isArray, isFunction, isObject } from '../BASE.mjs';
+
+
+
 const Filter = {
 
 	check: function(all_filters, ref, callback) {
 
-		all_filters = all_filters instanceof Array   ? all_filters : [];
-		ref         = ref instanceof Object          ? ref         : null;
-		callback    = typeof callback === 'function' ? callback    : null;
+		all_filters = isArray(all_filters) ? all_filters : [];
+		ref         = isObject(ref)        ? ref         : null;
+		callback    = isFunction(callback) ? callback    : null;
 
 
 		if (ref !== null && callback !== null) {

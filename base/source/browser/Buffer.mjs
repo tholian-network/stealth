@@ -399,18 +399,21 @@ export const Buffer = (function(global) {
 			length = typeof length === 'number' ? (length | 0) : null;
 
 
-			if (list !== null && length === null) {
+			if (list === null) {
 
-				length = 0;
+				throw new Error('The "list" argument must be an instance of Array.');
 
-				for (let l = 0, ll = list.length; l < ll; l++) {
-					length += list[l].length;
+			} else {
+
+				if (length === null) {
+
+					length = 0;
+
+					for (let l = 0, ll = list.length; l < ll; l++) {
+						length += list[l].length;
+					}
+
 				}
-
-			}
-
-
-			if (list !== null && length !== null) {
 
 				let buffer = Buffer.alloc(length);
 				let offset = 0;
@@ -430,10 +433,6 @@ export const Buffer = (function(global) {
 				}
 
 				return buffer;
-
-			} else if (length !== null) {
-
-				return Buffer.alloc(length);
 
 			}
 

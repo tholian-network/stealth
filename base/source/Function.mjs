@@ -1,4 +1,6 @@
 
+export const Function = (typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this)).Function;
+
 if (typeof Function.isFunction !== 'function') {
 
 	Function.isFunction = function(fun) {
@@ -6,4 +8,6 @@ if (typeof Function.isFunction !== 'function') {
 	};
 
 }
+
+export const isFunction = Function.isFunction;
 

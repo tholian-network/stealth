@@ -29,17 +29,15 @@ BASE_FILES=(
 BROWSER_FILES=(
 	"$base_dir/source/browser/Buffer.mjs"
 	"$base_dir/source/browser/WebSocket.mjs"
-	"$base_dir/source/MODULE.mjs"
 );
 
 NODE_FILES=(
 	"$base_dir/source/node/Buffer.mjs"
 	"$base_dir/source/node/WebSocket.mjs"
-	"$base_dir/source/MODULE.mjs"
 );
 
-cat "${BASE_FILES[@]}" "${BROWSER_FILES[@]}" > $base_dir/build/browser/BASE.mjs;
-cat "${BASE_FILES[@]}" "${NODE_FILES[@]}"    > $base_dir/build/node/BASE.mjs;
+cat "${BASE_FILES[@]}" "${BROWSER_FILES[@]}" "$base_dir/source/MODULE.mjs" > $base_dir/build/browser/BASE.mjs;
+cat "${BASE_FILES[@]}" "${NODE_FILES[@]}"    "$base_dir/source/MODULE.mjs" > $base_dir/build/node/BASE.mjs;
 
 exit 0;
 

@@ -1,4 +1,6 @@
 
+export const Boolean = (typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this)).Boolean;
+
 if (typeof Boolean.isBoolean !== 'function') {
 
 	Boolean.isBoolean = function(bol) {
@@ -6,4 +8,6 @@ if (typeof Boolean.isBoolean !== 'function') {
 	};
 
 }
+
+export const isBoolean = Boolean.isBoolean;
 

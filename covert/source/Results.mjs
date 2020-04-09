@@ -1,4 +1,8 @@
 
+import { isArray, isBoolean, isDate, isFunction, isNumber, isObject, isRegExp, isString } from '../../stealth/source/BASE.mjs';
+
+
+
 const diff = function(aobject, bobject) {
 
 	aobject = aobject !== undefined ? aobject : undefined;
@@ -9,7 +13,7 @@ const diff = function(aobject, bobject) {
 
 		return false;
 
-	} else if (aobject instanceof Array && bobject instanceof Array) {
+	} else if (isArray(aobject) === true && isArray(bobject) === true) {
 
 		for (let a = 0, al = aobject.length; a < al; a++) {
 
@@ -17,32 +21,38 @@ const diff = function(aobject, bobject) {
 
 				if (aobject[a] !== null && bobject[a] !== null) {
 
-					if (aobject[a] instanceof Object && bobject[a] instanceof Object) {
+					let is_different = diff(aobject[a], bobject[a]);
+					if (is_different === true) {
 
-						if (diff(aobject[a], bobject[a]) === true) {
+						if (isObject(aobject[a]) === true) {
 
-							// Allows aobject[a].builds = {} and bobject[a].builds = { stuff: {}}
-							if (Object.keys(aobject[a]).length > 0) {
+							if (Object.keys(aobject[a].length > 0)) {
 								return true;
 							}
 
+						} else {
+
+							return true;
+
 						}
 
-					} else if (typeof aobject[a] !== typeof bobject[a]) {
-						return true;
-					} else if (aobject[a] !== bobject[a]) {
-						return true;
 					}
 
 				}
 
 			} else {
+
 				return true;
+
 			}
 
 		}
 
-	} else if (aobject instanceof Date && bobject instanceof Date) {
+	} else if (isBoolean(aobject) === true && isBoolean(bobject) === true) {
+
+		return aobject !== bobject;
+
+	} else if (isDate(aobject) === true && isDate(bobject) === true) {
 
 		let astr = aobject.toString();
 		let bstr = bobject.toString();
@@ -51,7 +61,7 @@ const diff = function(aobject, bobject) {
 			return true;
 		}
 
-	} else if (aobject instanceof RegExp && bobject instanceof RegExp) {
+	} else if (isFunction(aobject) === true && isFunction(bobject) === true) {
 
 		let astr = aobject.toString();
 		let bstr = bobject.toString();
@@ -60,7 +70,11 @@ const diff = function(aobject, bobject) {
 			return true;
 		}
 
-	} else if (aobject instanceof Object && bobject instanceof Object) {
+	} else if (isNumber(aobject) === true && isNumber(bobject) === true) {
+
+		return aobject !== bobject;
+
+	} else if (isObject(aobject) === true && isObject(bobject) === true) {
 
 		let akeys = Object.keys(aobject);
 		let bkeys = Object.keys(bobject);
@@ -78,33 +92,50 @@ const diff = function(aobject, bobject) {
 
 				if (aobject[key] !== null && bobject[key] !== null) {
 
-					if (aobject[key] instanceof Object && bobject[key] instanceof Object) {
+					let is_different = diff(aobject[key], bobject[key]);
+					if (is_different === true) {
 
-						if (diff(aobject[key], bobject[key]) === true) {
+						if (isObject(aobject[key]) === true) {
 
-							// Allows aobject[key].builds = {} and bobject[key].builds = { stuff: {}}
-							if (Object.keys(aobject[key]).length > 0) {
+							if (Object.keys(aobject[key].length > 0)) {
 								return true;
 							}
 
+						} else {
+
+							return true;
+
 						}
 
-					} else if (typeof aobject[key] !== typeof bobject[key]) {
-						return true;
-					} else if (aobject[key] !== bobject[key]) {
-						return true;
 					}
 
 				}
 
 			} else {
+
 				return true;
+
 			}
 
 		}
 
+	} else if (isRegExp(aobject) === true && isRegExp(bobject) === true) {
+
+		let astr = aobject.toString();
+		let bstr = bobject.toString();
+
+		if (astr !== bstr) {
+			return true;
+		}
+
+	} else if (isString(aobject) === true && isString(bobject) === true) {
+
+		return aobject !== bobject;
+
 	} else if (aobject !== bobject) {
+
 		return true;
+
 	}
 
 
@@ -116,7 +147,7 @@ const diff = function(aobject, bobject) {
 
 export const Results = function(length) {
 
-	length = typeof length === 'number' ? length : 0;
+	length = isNumber(length) ? length : 0;
 
 
 	this.data   = new Array(length).fill(null);
@@ -130,7 +161,7 @@ Results.from = function(data) {
 
 	let length = 0;
 
-	if (typeof data === 'function') {
+	if (isFunction(data) === true) {
 
 		let body = data.toString().split('\n').slice(1, -1);
 		if (body.length > 0) {
@@ -145,14 +176,13 @@ Results.from = function(data) {
 
 		}
 
-	} else if (typeof data === 'number') {
+	} else if (isNumber(data) === true) {
 
 		if (Number.isNaN(data) === false) {
 			length = (data | 0);
 		}
 
 	}
-
 
 	return new Results(length);
 
@@ -210,7 +240,7 @@ Results.prototype = {
 
 	includes: function(result) {
 
-		if (typeof result === 'boolean' || result === null) {
+		if (isBoolean(result) === true || result === null) {
 			return this.data.includes(result);
 		}
 

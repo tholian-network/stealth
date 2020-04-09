@@ -1,4 +1,6 @@
 
+export const String = (typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this)).String;
+
 if (typeof String.isString !== 'function') {
 
 	String.isString = function(str) {
@@ -6,4 +8,6 @@ if (typeof String.isString !== 'function') {
 	};
 
 }
+
+export const isString = String.isString;
 

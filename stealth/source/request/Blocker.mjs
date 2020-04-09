@@ -1,11 +1,15 @@
 
+import { isArray, isFunction, isObject } from '../BASE.mjs';
+
+
+
 const Blocker = {
 
 	check: function(blockers, ref, callback) {
 
-		blockers = blockers instanceof Array      ? blockers : [];
-		ref      = ref instanceof Object          ? ref      : null;
-		callback = typeof callback === 'function' ? callback : null;
+		blockers = isArray(blockers)    ? blockers : null;
+		ref      = isObject(ref)        ? ref      : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (ref !== null && callback !== null) {

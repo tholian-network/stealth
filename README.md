@@ -111,21 +111,12 @@ User Interface ("Browser UI") which is implemented using Web Technologies.
 
 ## Stealth Guide (for Hackers?)
 
-- [Intro](./guide/README.md)
-- [Site Modes](./guide/concept/Modes.md)
-- [Service API](./guide/services/README.md)
+The [Stealth Guide](/guide/README.md) is currently meant for other Developers that are new
+to the Project. It explains all necessities to quickly get started to hack around with Stealth
+and modify it to fit your needs.
 
-Peer-to-Peer Services:
-
-- [Cache](./guide/services/Cache.md)
-- [Filter](./guide/services/Filter.md)
-- [Host](./guide/services/Host.md)
-- [Mode](./guide/services/Mode.md)
-- [Peer](./guide/services/Peer.md)
-- [Redirect](./guide/services/Redirect.md)
-- [Session](./guide/services/Session.md)
-- [Settings](./guide/services/Settings.md)
-- [Stash](./guide/services/Stash.md)
+A User's Guide probably will arrive at a later point in time, as Stealth currently has no
+public release yet.
 
 
 ## Quickstart

@@ -2,6 +2,7 @@
 import fs from 'fs';
 
 import { Buffer, isString } from '../stealth/source/BASE.mjs';
+import { Emitter          } from '../stealth/source/Emitter.mjs';
 import { IP               } from '../stealth/source/parser/IP.mjs';
 import { MIME, URL        } from '../stealth/source/parser/URL.mjs';
 
@@ -145,6 +146,41 @@ export const RESPONSE = {
 	},
 	payload: Buffer.from(FILE)
 };
+
+export const Service = function() {
+
+	Emitter.call(this);
+
+	this.on('event', (payload) => {
+
+		return {
+			headers: {
+				service: 'mockup',
+				event:   'event'
+			},
+			payload: payload
+		};
+
+	});
+
+};
+
+
+Service.prototype = Object.assign({}, Emitter.prototype, {
+
+	'method': function(payload, callback) {
+
+		callback({
+			headers: {
+				service: 'mockup',
+				method:  'method'
+			},
+			payload: payload
+		});
+
+	}
+
+});
 
 
 

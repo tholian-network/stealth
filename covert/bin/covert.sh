@@ -60,7 +60,7 @@ start_socks_proxy;
 
 cd "$root_dir";
 
-"$node_bin" --no-warnings --experimental-modules ./covert/covert.mjs "$@";
+"$node_bin" --no-warnings --experimental-modules ./covert/bin/covert.mjs "$@";
 
 exit_code="$?";
 proxy_pid=$(ps -o pid -C socks-proxy | tail -n +2);

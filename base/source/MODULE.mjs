@@ -24,13 +24,3 @@ export default {
 
 };
 
-export const isBoolean  = Boolean.isBoolean;
-export const isBuffer   = Buffer.isBuffer;
-export const isArray    = Array.isArray;
-export const isDate     = Date.isDate;
-export const isFunction = Function.isFunction;
-export const isNumber   = Number.isNumber;
-export const isObject   = Object.isObject;
-export const isRegExp   = RegExp.isRegExp;
-export const isString   = String.isString;
-

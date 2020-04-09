@@ -1,4 +1,6 @@
 
+export const Number = (typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this)).Number;
+
 if (typeof Number.isNumber !== 'function') {
 
 	Number.isNumber = function(num) {
@@ -6,4 +8,6 @@ if (typeof Number.isNumber !== 'function') {
 	};
 
 }
+
+export const isNumber = Number.isNumber;
 

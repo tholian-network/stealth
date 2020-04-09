@@ -7,6 +7,13 @@ and their documentation of implementations.
 The idea is that with this guide developers can implement their own Browser Frontend
 (or Client or Peer) that can reuse the Stealth Service and its provided APIs or Data.
 
+Currently, the Repository consists of these important folders:
+
+- [Base](/base) is a Library (`BASE.mjs`) containing Polyfills for both the Browser and Stealth.
+- [Browser](/browser) is the Web-Based Frontend for Stealth that can be used as a Progressive Web App.
+- [Covert](/covert) is the Test Runner.
+- [Stealth](/stealth) is the Stealth Service (that runs in node.js).
+
 
 # Browser Architecture
 
@@ -72,15 +79,19 @@ Stealth instance is restarted.
 
 Stealth serves its own Browser UI in order to allow usage via other Web Browsers or as a
 Web Proxy. This allows to reuse the Stealth Browser in isolated and locally networked
-environments, such as on Smartphones or Tablets and allows them to receive websites
+environments such as on Smartphones or Tablets, and allows them to receive websites
 even when no internet connection is available (given that the website was downloaded at
 least once before).
 
+- The socket port is always `:65432` for all network protocols.
 - If Peers connect via `HTTP/1.1` with the `Upgrade: websocket` and `Sec-WebSocket-Protocol: stealth` header, they receive a `WS/13` handshake.
 - If Peers connect via `WS/13`, they can use peer-to-peer network services.
+
+In case of an HTTP request:
+
 - Everything inside [/browser](../browser) is served publicly.
 - If Clients connect via `HTTP/1.1` to `/`, they receive a redirect to `/browser/index.html`.
-- If Clients connect via `HTTP/1.1` to `/favicon.ico`, they receive a redirect to `/browser/favicon.ico`.
+- If Clients connect via `HTTP/1.1` to `/favicon.ico`, they receive a redirect to `/browser/design/other/favicon.ico`.
 - If Clients connect via `HTTP/1.1` to `/browser/*`, they receive the file contents.
 - Other Client or Peer connections and requests are immediately closed.
 

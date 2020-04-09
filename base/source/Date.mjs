@@ -1,4 +1,6 @@
 
+export const Date = (typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this)).Date;
+
 if (typeof Date.isDate !== 'function') {
 
 	Date.isDate = function(dat) {
@@ -6,4 +8,6 @@ if (typeof Date.isDate !== 'function') {
 	};
 
 }
+
+export const isDate = Date.isDate;
 
