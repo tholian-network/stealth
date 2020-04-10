@@ -76,7 +76,7 @@ const render_complete = function(review, is_current) {
 	}
 
 
-	let action  = this.settings.action || null;
+	let action  = this._settings.action || null;
 	let tests   = flatten_tests(review);
 	let current = tests.find((test) => test.state === null) || null;
 	let div1    = indent(tests.map((test) => test.name));
@@ -228,7 +228,7 @@ const render_partial = function(reviews, prev_state, curr_state) {
 
 	if (unrendered_reviews.length > 0 && unrendered_tests.length > 0) {
 
-		let action      = this.settings.action || null;
+		let action      = this._settings.action || null;
 		let last_review = prev_state.review    || null;
 		let last_test   = prev_state.test      || null;
 		let last_result = prev_state.result    || null;
@@ -336,7 +336,7 @@ const render_summary = function(review, is_current) {
 		}
 
 
-		let action  = this.settings.action || null;
+		let action  = this._settings.action || null;
 		let tests   = flatten_tests(review).filter((test) => test.state !== 'okay');
 		let current = tests.find((test) => test.state === null) || null;
 		let div1    = indent(tests.map((test) => test.name));
@@ -405,12 +405,12 @@ const render_summary = function(review, is_current) {
 
 export const Renderer = function(settings) {
 
-	this.settings = Object.assign({
+	this._settings = Object.assign({
 		action: null,  // 'scan', 'time' or 'watch'
 		debug:  false
 	}, settings);
 
-	this.__state  = {
+	this.__state = {
 		review: null,
 		test:   null,
 		result: null
@@ -428,7 +428,6 @@ Renderer.prototype = {
 
 		if (isArray(data) === true) {
 
-			let debug   = this.settings.debug || false;
 			let reviews = data;
 			let state   = {
 				review: this.__state.review,
@@ -455,7 +454,7 @@ Renderer.prototype = {
 			}
 
 
-			if (debug === true) {
+			if (this._settings.debug === true) {
 
 				render_partial.call(this, reviews, this.__state, state);
 

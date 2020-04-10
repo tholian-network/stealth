@@ -4,6 +4,7 @@ import process from 'process';
 import { isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
 import { console                       } from '../../stealth/source/console.mjs';
 import { Emitter                       } from '../../stealth/source/Emitter.mjs';
+import { root                          } from './ENVIRONMENT.mjs';
 import { Filesystem                    } from './Filesystem.mjs';
 import { Network                       } from './Network.mjs';
 import { Renderer                      } from './Renderer.mjs';
@@ -362,7 +363,7 @@ const update = function() {
 
 			} catch (err) {
 
-				if (this.settings.debug === true) {
+				if (this._settings.debug === true) {
 					console.error(err);
 				}
 
@@ -377,7 +378,7 @@ const update = function() {
 
 			if (complete === true) {
 				next.call(this);
-			} else if (progress > this.settings.timeout) {
+			} else if (progress > this._settings.timeout) {
 
 				test.state = 'wait';
 				next.call(this);
@@ -453,23 +454,39 @@ const update_test = function(test) {
 
 };
 
+const prettify = (object) => {
+
+	let result = {};
+
+	Object.keys(object).filter((key) => key !== 'reviews').forEach((key) => {
+		result[key] = object[key];
+	});
+
+	return result;
+
+};
 
 
 export const Covert = function(settings) {
 
-	this.settings = Object.assign({
+	this._settings = Object.freeze(Object.assign({
 		action:   null, // 'scan', 'time' or 'watch'
 		internet: true,
 		patterns: [],
 		reviews:  [],
-		root:     process.cwd(),
+		root:     root,
 		timeout:  10 * 1000
-	}, settings);
+	}, settings));
+
+
+	console.log('Covert Command-Line Arguments:');
+	console.log(prettify(this._settings));
+
 
 	this.interval   = null;
-	this.filesystem = new Filesystem(this.settings);
-	this.network    = new Network(this.settings);
-	this.renderer   = new Renderer(this.settings);
+	this.filesystem = new Filesystem(this._settings);
+	this.network    = new Network(this._settings);
+	this.renderer   = new Renderer(this._settings);
 	this.reviews    = [];
 
 	this.__state = {
@@ -484,6 +501,27 @@ export const Covert = function(settings) {
 
 
 	this.on('connect', (reviews) => {
+
+		let interval = this.interval;
+		if (interval === null) {
+
+			this.interval = setInterval(() => {
+
+				let is_busy = update.call(this);
+				if (is_busy === false) {
+
+					clearInterval(this.interval);
+					this.interval = null;
+
+					this.emit('disconnect', [ this.reviews ]);
+
+				} else {
+					this.emit('render', [ this.reviews ]);
+				}
+
+			}, 100);
+
+		}
 
 		if (this.__state.connected === false) {
 
@@ -509,45 +547,44 @@ export const Covert = function(settings) {
 		let interval = this.interval;
 		if (interval !== null) {
 
-			clearInterval(this.interval);
+			clearInterval(interval);
 			this.interval = null;
 
+		}
 
-			let review = this.__state.review || null;
-			if (review !== null) {
+		let review = this.__state.review || null;
+		if (review !== null) {
 
-				if (review.tests.length > 0) {
-					review.tests.forEach((test) => {
+			if (review.tests.length > 0) {
+				review.tests.forEach((test) => {
 
-						if (test.state === null) {
-							test.state = 'wait';
-						}
-
-					});
-				}
-
-				let test = review.after || null;
-				if (test.state === null && test.timeline.start === null) {
-
-					test.timeline.time(true);
-
-					try {
-
-						test.callback.call(
-							review.scope,
-							assert.bind(review.scope, test.timeline, test.results),
-							console_sandbox(test.name)
-						);
-
-					} catch (err) {
-
-						if (this.settings.debug === true) {
-							console.error(err);
-						}
-
-						review.after.state = 'wait';
-
+					if (test.state === null) {
+						test.state = 'wait';
 					}
+
+				});
+			}
+
+			let test = review.after || null;
+			if (test.state === null && test.timeline.start === null) {
+
+				test.timeline.time(true);
+
+				try {
+
+					test.callback.call(
+						review.scope,
+						assert.bind(review.scope, test.timeline, test.results),
+						console_sandbox(test.name)
+					);
+
+				} catch (err) {
+
+					if (this._settings.debug === true) {
+						console.error(err);
+					}
+
+					review.after.state = 'wait';
 
 				}
 
@@ -555,11 +592,12 @@ export const Covert = function(settings) {
 
 		}
 
+
 		this.renderer.render(reviews, 'complete');
 
 		if (this.__state.connected === true) {
 
-			if (this.settings.action === 'watch') {
+			if (this._settings.action === 'watch') {
 				// Do nothing
 			} else {
 
@@ -609,7 +647,7 @@ export const Covert = function(settings) {
 	});
 
 
-	init.call(this, this.settings);
+	init.call(this, this._settings);
 
 };
 
@@ -618,55 +656,30 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 	connect: function() {
 
-		if (this.interval === null) {
+		let review = this.reviews[0] || null;
+		let test   = null;
 
-			let review = this.reviews[0] || null;
-			let test   = null;
+		if (review !== null) {
 
-			if (review !== null) {
-
-				if (review.before !== null) {
-					test = review.before;
-				} else if (review.tests.length > 0) {
-					test = review.tests[0];
-				} else if (review.after !== null) {
-					test = review.after;
-				}
-
+			if (review.before !== null) {
+				test = review.before;
+			} else if (review.tests.length > 0) {
+				test = review.tests[0];
+			} else if (review.after !== null) {
+				test = review.after;
 			}
 
-
-			if (review !== null && test !== null) {
-
-				this.__state.review = review;
-				this.__state.test   = test;
+		}
 
 
-				this.emit('connect', [ this.reviews ]);
+		if (review !== null && test !== null) {
 
+			this.__state.review = review;
+			this.__state.test   = test;
 
-				this.interval = setInterval(() => {
+			this.emit('connect', [ this.reviews ]);
 
-					let is_busy = update.call(this);
-					if (is_busy === false) {
-
-						clearInterval(this.interval);
-						this.interval = null;
-
-						this.emit('disconnect', [ this.reviews ]);
-
-					} else {
-
-						this.emit('render', [ this.reviews ]);
-
-					}
-
-				}, 100);
-
-
-				return true;
-
-			}
+			return true;
 
 		}
 
@@ -740,7 +753,7 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 			let name   = review.id.split('/').shift();
 			let id     = review.id.split('/').slice(1).join('/');
-			let source = this.settings.root + '/' + name + '/source/' + id + '.mjs';
+			let source = this._settings.root + '/' + name + '/source/' + id + '.mjs';
 
 			if (this.filesystem.exists(source) === true) {
 

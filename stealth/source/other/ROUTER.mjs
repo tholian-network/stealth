@@ -200,7 +200,8 @@ const ROUTER = {
 						if (response !== null && response.payload !== null) {
 
 							if (ref.path === '/browser/index.html') {
-								response.headers['Service-Worker-Allowed'] = '/browser';
+								response.headers['Content-Security-Policy'] = 'worker-src \'self\'; script-src \'self\' \'unsafe-inline\'; frame-src \'self\'';
+								response.headers['Service-Worker-Allowed']  = '/browser';
 							}
 
 							callback(response);
@@ -221,7 +222,8 @@ const ROUTER = {
 					if (response !== null && response.payload !== null) {
 
 						if (ref.path === '/browser/index.html') {
-							response.headers['Service-Worker-Allowed'] = '/browser';
+							response.headers['Content-Security-Policy'] = 'worker-src \'self\'; script-src \'self\' \'unsafe-inline\'; frame-src \'self\'';
+							response.headers['Service-Worker-Allowed']  = '/browser';
 						}
 
 						return response;

@@ -238,7 +238,9 @@ const sudo = (cmd, cwd) => {
 
 export const Network = function(settings) {
 
-	this.settings = Object.assign({}, settings);
+	this._settings = Object.assign({
+		network: null
+	}, settings);
 
 };
 
@@ -249,7 +251,7 @@ Network.prototype = {
 
 		if (
 			STATE.network !== null
-			&& STATE.network !== this.settings.network
+			&& STATE.network !== this._settings.network
 		) {
 
 			let result = disconnect();
@@ -262,7 +264,7 @@ Network.prototype = {
 
 		if (STATE.network === null) {
 
-			let network = this.settings.network || null;
+			let network = this._settings.network || null;
 			if (network !== null) {
 
 				let result = connect(network);
@@ -280,7 +282,7 @@ Network.prototype = {
 
 		if (STATE.network !== null) {
 
-			let network = this.settings.network || null;
+			let network = this._settings.network || null;
 			if (network !== null) {
 
 				let result = disconnect(network);

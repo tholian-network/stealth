@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="Content-Security-Policy" content="worker-src 'self'; script-src 'self' 'unsafe-inline'; frame-src 'self'">
 		<title>Stealth Browser</title>
 
 		<link rel="apple-touch-icon" sizes="180x180" href="design/other/apple-touch-icon.png">
@@ -30,31 +31,29 @@
 		<!-- Browser UI -->
 		<script type="module" src="design/index.mjs"></script>
 		<!-- Browser PWA -->
-		<script>
-			(function(navigator, location) {
+		<script type="module">
+			import { flags } from './source/ENVIRONMENT.mjs';
 
-				let debug  = false;
-				let search = location.search || '';
-				if (search.includes('debug')) {
-					debug = true;
-				}
 
-				if (debug === false) {
+			if (flags.debug === true) {
 
-					let worker = navigator.serviceWorker || null;
-					if (worker !== null && typeof worker.register === 'function') {
+				console.info('Browser: Debug Mode active');
 
-						worker.register('service.js').then((service) => {
-							console.info('Browser Service connected to http://localhost:65432.');
-						}).catch((err) => {
-							console.error('Browser Service could not connect to http://localhost:65432.');
-						});
+			} else {
 
-					}
+				let worker = (window.navigator || {}).serviceWorker || null;
+				if (worker !== null && typeof worker.register === 'function') {
+
+					worker.register('service.js').then((service) => {
+						console.info('Browser: Service connected to http://localhost:65432.');
+					}).catch((err) => {
+						console.error('Browser: Service could not connect to http://localhost:65432.');
+					});
 
 				}
 
-			})(window.navigator || {}, window.location || {});
+			}
+
 		</script>
 	</body>
 </html>

@@ -7,10 +7,12 @@ import { URL                            } from './parser/URL.mjs';
 
 
 
-const Browser = function() {
+const Browser = function(settings) {
 
-	Emitter.call(this);
-
+	this._settings = Object.freeze(Object.assign({
+		debug: false,
+		host:  'localhost'
+	}, settings));
 
 	this.client   = new Client(this);
 	this.settings = {
@@ -22,6 +24,30 @@ const Browser = function() {
 	};
 	this.tab      = null;
 	this.tabs     = [];
+
+	this.__state = {
+		connected: false
+	};
+
+
+	Emitter.call(this);
+
+
+	this.on('connect', () => {
+
+		this.client.services.settings.read(null, () => {
+
+			if (this._settings.debug === true) {
+				console.info('Browser Settings loaded from "' + this._settings.host + '".');
+			}
+
+		});
+
+	});
+
+	this.on('disconnect', () => {
+
+	});
 
 };
 
@@ -83,39 +109,39 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	connect: function(host, callback) {
+	connect: function(callback) {
 
-		host     = isString(host)       ? host     : null;
 		callback = isFunction(callback) ? callback : null;
 
 
-		let client = this.client;
-		if (client !== null && host !== null) {
+		if (this.__state.connected === false) {
+
+			let host = isString(this._settings.host) ? this._settings.host : 'localhost';
+
+			this.client.connect(host, (result) => {
+
+				if (result === true) {
+
+					this.__state.connected = true;
+					this.emit('connect');
+
+				} else {
+
+					this.__state.connected = false;
+					this.emit('disconnect');
+
+				}
+
+				if (callback !== null) {
+					callback(result);
+				}
+
+			});
 
 			if (callback !== null) {
-
-				client.connect(host, (result) => {
-
-					if (result === true) {
-
-						client.services.settings.read(null, (result) => {
-							callback(result !== null);
-						});
-
-					} else {
-
-						callback(false);
-
-					}
-
-				});
-
+				// Do nothing
 			} else {
-
-				client.connect(host);
-
 				return true;
-
 			}
 
 		} else {
@@ -135,21 +161,23 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		callback = isFunction(callback) ? callback : null;
 
 
-		let client = this.client;
-		if (client !== null) {
+		if (this.__state.connected === true) {
+
+			this.client.disconnect(() => {
+
+				this.__state.connected = false;
+				this.emit('disconnect');
+
+				if (callback !== null) {
+					callback(true);
+				}
+
+			});
 
 			if (callback !== null) {
-
-				client.disconnect((result) => {
-					callback(result);
-				});
-
+				// Do nothing
 			} else {
-
-				client.disconnect();
-
 				return true;
-
 			}
 
 		} else {
@@ -170,16 +198,31 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		callback = isFunction(callback)      ? callback : null;
 
 
-		let client = this.client;
-		if (client !== null && url !== null) {
+		if (url !== null) {
 
-			if (callback !== null) {
+			if (this.__state.connected === true) {
 
-				client.services.session.request(URL.parse(url), (response) => {
-					callback(response);
+				this.client.services.session.request(URL.parse(url), (response) => {
+
+					if (callback !== null) {
+						callback(response);
+					}
+
 				});
 
-				return true;
+				if (callback !== null) {
+					// Do nothing
+				} else {
+					return true;
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(null);
+				} else {
+					return false;
+				}
 
 			}
 
@@ -187,9 +230,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (callback !== null) {
 				callback(null);
+			} else {
+				return false;
 			}
-
-			return false;
 
 		}
 
@@ -201,25 +244,21 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 		callback = isFunction(callback) ? callback : null;
 
 
-		if (code !== null && callback !== null) {
+		if (code !== null) {
 
 			this.emit('execute', [ code, (result) => {
 
-				if (result === true) {
-					callback(true);
-				} else {
-					callback(false);
+				if (callback !== null) {
+					callback(result);
 				}
 
 			}]);
 
-		} else if (code !== null) {
-
-			this.emit('execute', [ code, () => {
+			if (callback !== null) {
 				// Do nothing
-			}]);
-
-			return true;
+			} else {
+				return true;
+			}
 
 		} else {
 

@@ -87,7 +87,7 @@ const on_complete = (covert) => {
 
 	if (skips.length > 0 || waits.length > 0) {
 
-		if (covert.settings.debug === true) {
+		if (covert._settings.debug === true) {
 			console.log('');
 		} else {
 			console.clear();
@@ -135,7 +135,7 @@ const on_complete = (covert) => {
 
 	} else if (fails.length > 0) {
 
-		if (covert.settings.debug === true) {
+		if (covert._settings.debug === true) {
 			console.log('');
 		} else {
 			console.clear();
@@ -153,7 +153,7 @@ const on_complete = (covert) => {
 
 	} else {
 
-		if (covert.settings.debug === true) {
+		if (covert._settings.debug === true) {
 			console.log('');
 		} else {
 			console.clear();
@@ -164,7 +164,7 @@ const on_complete = (covert) => {
 		console.info('Covert: All reviews did succeed.');
 		console.info('');
 
-		let action = covert.settings.action || null;
+		let action = covert._settings.action || null;
 		if (action === 'time' || action === 'watch') {
 
 			console.log('');

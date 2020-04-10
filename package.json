@@ -1,8 +1,16 @@
 {
 	"name":    "stealth",
 	"version": "2019-X0",
-	"main":    "bin/electron/application.js",
+	"module":  "./stealth/index.mjs",
 	"scripts": {
-		"start": "electron ."
+		"start":   "bash ./stealth/bin/stealth.sh",
+		"browser": "bash ./browser/bin/browser.sh",
+		"stealth": "bash ./stealth/bin/stealth.sh"
+	},
+	"exports": {
+		".":         "./stealth/index.mjs",
+		"./base":    "./base/index.mjs",
+		"./covert":  "./covert/index.mjs",
+		"./stealth": "./stealth/index.mjs"
 	}
 }

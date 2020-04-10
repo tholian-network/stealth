@@ -695,3 +695,5 @@ export const Buffer = (function(global) {
 
 })(typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this));
 
+export const isBuffer = Buffer.isBuffer;
+

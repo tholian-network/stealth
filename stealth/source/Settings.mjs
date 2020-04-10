@@ -1,59 +1,12 @@
 
-import fs      from 'fs';
-import os      from 'os';
-import path    from 'path';
-import process from 'process';
+import fs   from 'fs';
+import path from 'path';
 
-import { console                                            } from './console.mjs';
-import { isArray, isBoolean, isFunction, isObject, isString } from './BASE.mjs';
-import { Session                                            } from './Session.mjs';
-import { HOSTS                                              } from './parser/HOSTS.mjs';
-
-
-
-const ETC_HOSTS = (function(platform) {
-
-	let hosts = null;
-
-	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-		hosts = '/etc/hosts';
-	} else if (platform === 'darwin') {
-		hosts = '/etc/hosts';
-	} else if (platform === 'win32') {
-		hosts = path.resolve('C:\\windows\\system32\\drivers\\etc\\hosts').split('\\').join('/');
-	}
-
-	return hosts;
-
-})(os.platform());
-
-const PROFILE = (function(env, platform) {
-
-	let profile = '/tmp/stealth';
-	let user    = env.SUDO_USER || env.USER;
-
-	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-		profile = '/home/' + user + '/Stealth';
-	} else if (platform === 'darwin') {
-		profile = '/Users/' + user + '/Library/Application Support/Stealth';
-	} else if (platform === 'win32') {
-
-		let tmp = path.resolve(process.env.USERPROFILE || 'C:\\users\\' + user).split('\\').join('/');
-		if (tmp.includes(':')) {
-			tmp = tmp.split(':').slice(1).join(':');
-		}
-
-		profile = tmp + '/Stealth';
-
-	}
-
-	return profile;
-
-})(process.env, os.platform());
-
-const USER = (function(env) {
-	return env.SUDO_USER || env.USER;
-})(process.env);
+import { console                                                  } from './console.mjs';
+import { isArray, isBoolean, isFunction, isObject, isString       } from './BASE.mjs';
+import { hosts as default_hosts, profile as default_profile, temp } from './ENVIRONMENT.mjs';
+import { Session                                                  } from './Session.mjs';
+import { HOSTS                                                    } from './parser/HOSTS.mjs';
 
 
 
@@ -111,12 +64,12 @@ const init = function(callback) {
 
 	let result = false;
 
-	if (ETC_HOSTS !== null) {
+	if (default_hosts !== null) {
 
 		let stat = null;
 
 		try {
-			stat = fs.lstatSync(path.resolve(ETC_HOSTS));
+			stat = fs.lstatSync(path.resolve(default_hosts));
 		} catch (err) {
 			stat = null;
 		}
@@ -126,7 +79,7 @@ const init = function(callback) {
 			let tmp = null;
 
 			try {
-				tmp = fs.readFileSync(path.resolve(ETC_HOSTS), 'utf8');
+				tmp = fs.readFileSync(path.resolve(default_hosts), 'utf8');
 			} catch (err) {
 				tmp = null;
 			}
@@ -610,7 +563,7 @@ const setup = function(profile, callback) {
 
 const Settings = function(stealth, profile, vendor) {
 
-	profile = isString(profile) ? profile : PROFILE;
+	profile = isString(profile) ? profile : default_profile;
 	vendor  = isString(vendor)  ? vendor  : null;
 
 
@@ -634,7 +587,7 @@ const Settings = function(stealth, profile, vendor) {
 	init.call(this, (result) => {
 
 		if (result === true) {
-			console.info('Native Settings loaded from "' + ETC_HOSTS + '".');
+			console.info('Native Settings loaded from "' + default_hosts + '".');
 			console.log('> ' + this.hosts.length + ' Host' + (this.hosts.length === 1 ? '' : 's') + '.');
 		}
 
@@ -676,7 +629,7 @@ const Settings = function(stealth, profile, vendor) {
 
 			} else {
 
-				this.profile = '/tmp/stealth-' + USER;
+				this.profile = temp;
 
 				read.call(this, this.profile, true, (result) => {
 

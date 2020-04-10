@@ -1,18 +1,18 @@
 
-import os from 'os';
+import process from 'process';
 
-import { console                        } from './console.mjs';
-import { isFunction, isObject, isString } from './BASE.mjs';
-import { Request                        } from './Request.mjs';
-import { Server                         } from './Server.mjs';
-import { Session                        } from './Session.mjs';
-import { Settings                       } from './Settings.mjs';
-import { IP                             } from './parser/IP.mjs';
-import { URL                            } from './parser/URL.mjs';
+import { console            } from './console.mjs';
+import { isObject, isString } from './BASE.mjs';
+import { Emitter            } from './Emitter.mjs';
+import { hostname, root     } from './ENVIRONMENT.mjs';
+import { Request            } from './Request.mjs';
+import { Server             } from './Server.mjs';
+import { Session            } from './Session.mjs';
+import { Settings           } from './Settings.mjs';
+import { IP                 } from './parser/IP.mjs';
+import { URL                } from './parser/URL.mjs';
 
 
-
-const HOSTNAME = os.hostname();
 
 const get_config = function(url) {
 
@@ -84,116 +84,105 @@ const remove_request = function(request) {
 
 
 
-const Stealth = function(data) {
+const Stealth = function(settings) {
 
-	let settings = Object.assign({
+	this._settings = Object.freeze(Object.assign({
+		debug:   false,
+		host:    null,
 		profile: null,
-		root:    null
-	}, data);
-
-	console.log('Stealth Service Command-Line Arguments:');
-	console.log(settings);
+		root:    root
+	}, settings));
 
 
-	this.__debug  = settings.debug === true;
+	console.log('Stealth Command-Line Arguments:');
+	console.log(this._settings);
+
+
+	this.interval = null;
 	this.settings = new Settings(this,
-		settings.profile,
-		settings.debug === true ? null : settings.root + '/profile'
+		this._settings.profile,
+		this._settings.debug === true ? null : this._settings.root + '/profile'
 	);
 	this.peers    = [];
 	this.requests = [];
 	this.server   = new Server(this);
 
-
-	this.scheduler = setInterval(() => {
-
-		let cur_downloads = 0;
-		let max_downloads = 0;
-
-		for (let r = 0; r < this.requests.length; r++) {
-
-			let request = this.requests[r];
-			if (request.timeline.connect !== null) {
-				cur_downloads++;
-			}
-
-		}
+	this.__state = {
+		connected: false
+	};
 
 
-		let connection = this.settings.internet.connection;
-		if (connection === 'mobile') {
-			max_downloads = 2;
-		} else if (connection === 'broadband') {
-			max_downloads = 8;
-		} else if (connection === 'peer') {
-			max_downloads = 2;
-		} else if (connection === 'i2p') {
-			max_downloads = 2;
-		} else if (connection === 'tor') {
-			max_downloads = 2;
-		}
+	Emitter.call(this);
 
 
-		for (let r = 0; r < this.requests.length; r++) {
+	this.on('connect', () => {
 
-			if (cur_downloads <= max_downloads) {
+		let interval = this.interval;
+		if (interval === null) {
 
-				let request = this.requests[r];
-				if (request.flags.connect === false) {
+			this.interval = setInterval(() => {
 
-					if (request.timeline.connect === null) {
-						request.emit('connect');
+				let cur_downloads = 0;
+				let max_downloads = 0;
+
+				for (let r = 0; r < this.requests.length; r++) {
+
+					let request = this.requests[r];
+					if (request.timeline.connect !== null) {
 						cur_downloads++;
 					}
 
 				}
 
-			} else {
-				break;
-			}
+
+				let connection = this.settings.internet.connection;
+				if (connection === 'mobile') {
+					max_downloads = 2;
+				} else if (connection === 'broadband') {
+					max_downloads = 8;
+				} else if (connection === 'peer') {
+					max_downloads = 2;
+				} else if (connection === 'i2p') {
+					max_downloads = 2;
+				} else if (connection === 'tor') {
+					max_downloads = 2;
+				}
+
+
+				for (let r = 0; r < this.requests.length; r++) {
+
+					if (cur_downloads <= max_downloads) {
+
+						let request = this.requests[r];
+						if (request.flags.connect === false) {
+
+							if (request.timeline.connect === null) {
+								request.emit('connect');
+								cur_downloads++;
+							}
+
+						}
+
+					} else {
+						break;
+					}
+
+				}
+
+			}, 1000);
 
 		}
 
-	}, 1000);
+	});
 
-};
+	this.on('disconnect', () => {
 
+		let interval = this.interval;
+		if (interval !== null) {
 
-Stealth.prototype = {
+			clearInterval(interval);
+			this.interval = null;
 
-	connect: function(host, callback) {
-
-		host     = isString(host)       ? host     : 'localhost';
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (this.server !== null) {
-
-			if (callback !== null) {
-				this.server.connect(host, (result) => callback(result));
-			} else {
-				return this.server.connect(host);
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			}
-
-			return false;
-
-		}
-
-	},
-
-	disconnect: function(callback) {
-
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (this.scheduler !== null) {
-			clearInterval(this.scheduler);
 		}
 
 		if (this.peers.length > 0) {
@@ -203,53 +192,93 @@ Stealth.prototype = {
 		}
 
 		if (this.requests.length > 0) {
-			this.requests.forEach((request) => {
-				request.kill();
-			});
+			this.requests.forEach((request) => request.kill());
 		}
 
-		if (this.__debug === true) {
+	});
 
-			if (this.server !== null) {
 
-				if (callback !== null) {
-					this.server.disconnect((result) => callback(result));
+	process.on('SIGINT', () => {
+		this.disconnect();
+	});
+
+	process.on('SIGQUIT', () => {
+		this.disconnect();
+	});
+
+	process.on('SIGABRT', () => {
+		this.disconnect();
+	});
+
+	process.on('SIGTERM', () => {
+		this.disconnect();
+	});
+
+	process.on('error', () => {
+		this.disconnect();
+	});
+
+};
+
+
+Stealth.prototype = Object.assign({}, Emitter.prototype, {
+
+	connect: function() {
+
+		if (this.__state.connected === false) {
+
+			let host = isString(this._settings.host) ? this._settings.host : 'localhost';
+
+			this.server.connect(host, (result) => {
+
+				if (result === true) {
+
+					this.__state.connected = true;
+					this.emit('connect');
+
 				} else {
-					this.server.disconnect();
+
+					this.__state.connected = false;
+					this.emit('disconnect');
+
 				}
 
-			} else {
+			});
 
-				if (callback !== null) {
-					callback(false);
-				}
+			return true;
 
-			}
+		}
+
+
+		return false;
+
+	},
+
+	disconnect: function() {
+
+		if (this._settings.debug === true) {
+
+			this.server.disconnect(() => {
+
+				this.__state.connected = false;
+				this.emit('disconnect');
+
+			});
 
 		} else {
 
 			this.settings.save(true, () => {
 
-				if (this.server !== null) {
+				this.server.disconnect(() => {
 
-					if (callback !== null) {
-						this.server.disconnect((result) => callback(result));
-					} else {
-						this.server.disconnect();
-					}
+					this.__state.connected = false;
+					this.emit('disconnect');
 
-				} else {
-
-					if (callback !== null) {
-						callback(false);
-					}
-
-				}
+				});
 
 			});
 
 		}
-
 
 		return true;
 
@@ -349,9 +378,9 @@ Stealth.prototype = {
 
 				let sdomain = ip.ip || null;
 				if (sdomain === '::1') {
-					headers['domain'] = sdomain = HOSTNAME;
+					headers['domain'] = sdomain = hostname;
 				} else if (sdomain === '127.0.0.1') {
-					headers['domain'] = sdomain = HOSTNAME;
+					headers['domain'] = sdomain = hostname;
 				} else if (host !== null) {
 					headers['domain'] = sdomain = host.domain;
 				}
@@ -415,7 +444,7 @@ Stealth.prototype = {
 
 	}
 
-};
+});
 
 
 export { Stealth };

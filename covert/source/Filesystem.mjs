@@ -1,6 +1,5 @@
 
-import fs      from 'fs';
-import process from 'process';
+import fs from 'fs';
 
 import { isString } from '../../stealth/source/BASE.mjs';
 import { Emitter  } from '../../stealth/source/Emitter.mjs';
@@ -9,9 +8,7 @@ import { Emitter  } from '../../stealth/source/Emitter.mjs';
 
 export const Filesystem = function(settings) {
 
-	this.settings = Object.assign({
-		root: process.cwd()
-	}, settings);
+	this._settings = Object.assign({}, settings);
 
 	this.__state = {
 		watch: []

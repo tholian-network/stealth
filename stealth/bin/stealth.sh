@@ -58,5 +58,5 @@ cd "$root_dir";
 build_browser;
 build_stealth;
 
-exec "$node_bin" --tls-cipher-list="ECDHE-RSA-AES128-GCM-SHA256" --no-warnings --experimental-modules ./bin/stealth.mjs "$@";
+exec "$node_bin" --tls-cipher-list="ECDHE-RSA-AES128-GCM-SHA256" --no-warnings --experimental-modules ./stealth/bin/stealth.mjs "$@";
 

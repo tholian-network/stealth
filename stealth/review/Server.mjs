@@ -25,18 +25,28 @@ export const connect = before('stealth.connect', function(assert) {
 		root:    process.env.PWD
 	});
 
-	this.stealth.connect(null, (result) => {
+	this.stealth.once('connect', () => {
 
 		this.server = this.stealth.server;
 		this.server.services['mockup'] = new Service();
 
-		assert(result);
+		assert(true);
 
 	});
+
+	assert(this.stealth.connect());
 
 });
 
 export const disconnect = after('stealth.disconnect', function(assert) {
+
+	this.stealth.once('disconnect', () => {
+
+		this.server = null;
+
+		assert(true);
+
+	});
 
 	assert(this.stealth.disconnect());
 

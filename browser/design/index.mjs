@@ -6,6 +6,7 @@ const main   = doc.querySelector('main');
 const footer = doc.querySelector('footer');
 
 import { console  } from '../source/console.mjs';
+import { hostname } from '../source/ENVIRONMENT.mjs';
 import { dispatch } from './control.mjs';
 import { Address  } from './header/Address.mjs';
 import { Beacon   } from './footer/Beacon.mjs';
@@ -22,29 +23,10 @@ import { Webview  } from './main/Webview.mjs';
 
 
 
-const HOST = (function(location) {
+const BROWSER = global.BROWSER = new Browser({
+	host: hostname
+});
 
-	let host = 'localhost';
-
-	let tmp1 = location.host || '';
-	if (tmp1.includes(':')) {
-
-		let tmp2 = tmp1.split(':').shift();
-		if (tmp2 !== 'localhost') {
-			host = tmp2;
-		}
-
-	} else if (tmp1 !== '') {
-		host = tmp1;
-	}
-
-	return host;
-
-})(global.location || {});
-
-
-
-const BROWSER = global.BROWSER = new Browser();
 const WIDGETS = global.WIDGETS = {};
 
 
@@ -80,30 +62,30 @@ setTimeout(() => {
 
 	dispatch(window, BROWSER);
 
-	BROWSER.connect(HOST, (result) => {
+	BROWSER.once('connect', () => {
 
-		if (result === true) {
+		console.info('Browser: Design connected to ws://' + hostname + ':65432.');
 
-			console.info('Browser Design connected to ws://' + HOST + ':65432.');
-
-			[
-				// 'stealth:settings'
-				// 'stealth:fix-host?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-				// 'stealth:fix-mode?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-				// 'stealth:fix-filter?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-				// 'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=socket-stability&code=403'
-				'https://cookie.engineer/index.html'
-			].map((url) => {
-				return BROWSER.open(url);
-			}).slice(-1).forEach((tab) => {
-				BROWSER.show(tab);
-			});
-
-		} else {
-			console.error('Browser Design could not connect to ws://' + HOST + ':65432.');
-		}
+		[
+			// 'stealth:settings'
+			// 'stealth:fix-host?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+			// 'stealth:fix-mode?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+			// 'stealth:fix-filter?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+			// 'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=socket-stability&code=403'
+			'https://cookie.engineer/index.html'
+		].map((url) => {
+			return BROWSER.open(url);
+		}).slice(-1).forEach((tab) => {
+			BROWSER.show(tab);
+		});
 
 	});
+
+	BROWSER.once('disconnect', () => {
+		console.error('Browser: Design disconnected from ws://' + hostname + ':65432.');
+	});
+
+	BROWSER.connect();
 
 	if (typeof global.onbeforeunload !== 'undefined') {
 

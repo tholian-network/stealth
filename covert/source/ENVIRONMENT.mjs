@@ -2,6 +2,7 @@
 import process from 'process';
 
 
+
 export const action = (() => {
 
 	let value = Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === false).shift() || '';
@@ -66,13 +67,34 @@ export const patterns = (() => {
 
 })();
 
+export const root = (() => {
+
+	let pwd = process.env.PWD || null;
+	if (pwd !== null) {
+		return pwd;
+	}
+
+	let cwd = process.cwd();
+	if (cwd.includes('\\')) {
+		cwd = cwd.split('\\').join('/');
+	}
+
+	if (cwd.endsWith('/')) {
+		cwd = cwd.substr(0, cwd.length - 1);
+	}
+
+	return cwd;
+
+})();
+
 
 
 const ENVIRONMENT = {
 
 	action:   action,
 	flags:    flags,
-	patterns: patterns
+	patterns: patterns,
+	root:     root
 
 };
 

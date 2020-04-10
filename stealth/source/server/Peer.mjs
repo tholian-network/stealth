@@ -1,14 +1,11 @@
 
-import os from 'os';
-
 import { isFunction, isObject } from '../BASE.mjs';
+import { hostname             } from '../ENVIRONMENT.mjs';
 import { Emitter              } from '../Emitter.mjs';
 import { IP                   } from '../parser/IP.mjs';
 import { Client               } from '../Client.mjs';
 
 
-
-const HOSTNAME = os.hostname();
 
 const on_connect = function(callback, client, ips, result) {
 
@@ -184,7 +181,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 					event:   'info'
 				},
 				payload: {
-					domain:     HOSTNAME,
+					domain:     hostname,
 					connection: settings.internet.connection
 				}
 			});
