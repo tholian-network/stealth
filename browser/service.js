@@ -77,7 +77,6 @@ const ASSETS  = [
 	'internal/welcome.html',
 	'internal/welcome/index.css',
 	'source/BASE.mjs',
-	'source/console.mjs',
 	'source/Browser.mjs',
 	'source/Client.mjs',
 	'source/Emitter.mjs',
