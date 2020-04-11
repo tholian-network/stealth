@@ -1,6 +1,7 @@
 
 import { Buffer, isArray, isFunction, isObject, isString } from './BASE.mjs';
 import { Emitter                                         } from './Emitter.mjs';
+import { hostname                                        } from './ENVIRONMENT.mjs';
 import { Cache                                           } from './client/Cache.mjs';
 import { Filter                                          } from './client/Filter.mjs';
 import { Host                                            } from './client/Host.mjs';
@@ -12,26 +13,6 @@ import { Settings                                        } from './client/Settin
 import { URL                                             } from './parser/URL.mjs';
 
 
-
-const HOSTNAME = (function(window) {
-
-	if (
-		isObject(window) === true
-		&& isObject(window.location) === true
-		&& isString(window.location.hostname) === true
-	) {
-
-		let hostname = window.location.hostname || null;
-		if (hostname !== null) {
-			return hostname;
-		}
-
-	}
-
-
-	return 'localhost';
-
-})(typeof window !== 'undefined' ? window : null);
 
 const receive = function(data) {
 
@@ -148,7 +129,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	connect: function(host, callback) {
 
-		host     = isString(host)       ? host     : HOSTNAME;
+		host     = isString(host)       ? host     : hostname;
 		callback = isFunction(callback) ? callback : null;
 
 
@@ -188,12 +169,12 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 			});
 
 
-			if (ref.domain === HOSTNAME || hosts.length > 0) {
+			if (ref.domain === hostname || hosts.length > 0) {
 
 				let server = ref.domain;
 
 				// Ensure same websocket remote address as the iframe requests
-				if (ref.domain !== HOSTNAME && hosts.length > 0) {
+				if (ref.domain !== hostname && hosts.length > 0) {
 
 					let check = hosts.find((ip) => ip.scope === 'private') || null;
 					if (check === null) {

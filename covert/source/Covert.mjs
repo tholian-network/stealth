@@ -1,13 +1,12 @@
 
 import process from 'process';
 
-import { isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
-import { console                       } from '../../stealth/source/console.mjs';
-import { Emitter                       } from '../../stealth/source/Emitter.mjs';
-import { root                          } from './ENVIRONMENT.mjs';
-import { Filesystem                    } from './Filesystem.mjs';
-import { Network                       } from './Network.mjs';
-import { Renderer                      } from './Renderer.mjs';
+import { console, isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
+import { Emitter                                } from '../../stealth/source/Emitter.mjs';
+import { root                                   } from './ENVIRONMENT.mjs';
+import { Filesystem                             } from './Filesystem.mjs';
+import { Network                                } from './Network.mjs';
+import { Renderer                               } from './Renderer.mjs';
 
 
 
@@ -467,7 +466,7 @@ const prettify = (object) => {
 };
 
 
-export const Covert = function(settings) {
+const Covert = function(settings) {
 
 	this._settings = Object.freeze(Object.assign({
 		action:   null, // 'scan', 'time' or 'watch'
@@ -776,4 +775,7 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 	}
 
 });
+
+
+export { Covert };
 

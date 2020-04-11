@@ -1,7 +1,6 @@
 
 import { Buffer           } from '../../../base/index.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
-import { console          } from '../../source/console.mjs';
 import { CSS              } from '../../source/parser/CSS.mjs';
 
 
@@ -23,7 +22,7 @@ const create = (declarations) => {
 	try {
 		result = CSS.parse(buffer);
 	} catch (err) {
-		console.error(err);
+		result = null;
 	}
 
 	if (result instanceof Object && result.type === 'root') {

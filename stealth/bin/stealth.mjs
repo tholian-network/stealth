@@ -1,7 +1,7 @@
 
 import process from 'process';
 
-import { console } from '../source/console.mjs';
+import { console } from '../source/BASE.mjs';
 import { Stealth } from '../source/Stealth.mjs';
 import { flags   } from '../source/ENVIRONMENT.mjs';
 

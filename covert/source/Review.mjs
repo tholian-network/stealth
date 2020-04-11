@@ -5,8 +5,8 @@ import { Timeline                       } from './Timeline.mjs';
 
 
 
-let _id    = 0;
-let REVIEW = null;
+let CURRENT_ID     = 0;
+let CURRENT_REVIEW = null;
 
 export const after = function(name, callback) {
 
@@ -29,10 +29,13 @@ export const after = function(name, callback) {
 			timeline: Timeline.from(callback)
 		};
 
-		if (REVIEW !== null) {
-			REVIEW.after = test;
+		if (CURRENT_REVIEW !== null) {
+
+			CURRENT_REVIEW.after = test;
+
 		} else {
-			REVIEW = {
+
+			CURRENT_REVIEW = {
 				id:     null,
 				flags:  {},
 				before: null,
@@ -41,6 +44,7 @@ export const after = function(name, callback) {
 				state:  null,
 				tests:  []
 			};
+
 		}
 
 		return test;
@@ -73,7 +77,7 @@ export const before = function(name, callback) {
 			timeline: Timeline.from(callback)
 		};
 
-		REVIEW = {
+		CURRENT_REVIEW = {
 			id:     null,
 			flags:  {},
 			before: test,
@@ -113,10 +117,13 @@ export const describe = function(name, callback) {
 			timeline: Timeline.from(callback)
 		};
 
-		if (REVIEW !== null) {
-			REVIEW.tests.push(test);
+		if (CURRENT_REVIEW !== null) {
+
+			CURRENT_REVIEW.tests.push(test);
+
 		} else {
-			REVIEW = {
+
+			CURRENT_REVIEW = {
 				id:     null,
 				flags:  {},
 				before: null,
@@ -125,6 +132,7 @@ export const describe = function(name, callback) {
 				state:  null,
 				tests:  [ test ]
 			};
+
 		}
 
 		return test;
@@ -138,16 +146,16 @@ export const describe = function(name, callback) {
 
 export const finish = function(id, flags) {
 
-	id    = isString(id)    ? id    : ('Review-' + _id++);
+	id    = isString(id)    ? id    : ('Review-' + CURRENT_ID++);
 	flags = isObject(flags) ? flags : {};
 
 
-	let review = REVIEW || null;
+	let review = CURRENT_REVIEW || null;
 	if (review !== null) {
 
-		review.id    = id;
-		review.flags = flags;
-		REVIEW       = null;
+		review.id      = id;
+		review.flags   = flags;
+		CURRENT_REVIEW = null;
 
 		return review;
 
@@ -158,4 +166,17 @@ export const finish = function(id, flags) {
 
 };
 
+
+
+const REVIEW = {
+
+	after:    after,
+	before:   before,
+	describe: describe,
+	finish:   finish
+
+};
+
+
+export { REVIEW };
 

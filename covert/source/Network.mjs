@@ -2,9 +2,8 @@
 import { execSync          } from 'child_process';
 import { networkInterfaces } from 'os';
 
-import { isString } from '../../stealth/source/BASE.mjs';
-import { console  } from '../../stealth/source/console.mjs';
-import { IP       } from '../../stealth/source/parser/IP.mjs';
+import { console, isString } from '../../stealth/source/BASE.mjs';
+import { IP                } from '../../stealth/source/parser/IP.mjs';
 
 
 
@@ -236,7 +235,7 @@ const sudo = (cmd, cwd) => {
 
 
 
-export const Network = function(settings) {
+const Network = function(settings) {
 
 	this._settings = Object.assign({
 		network: null
@@ -297,4 +296,7 @@ Network.prototype = {
 	}
 
 };
+
+
+export { Network };
 

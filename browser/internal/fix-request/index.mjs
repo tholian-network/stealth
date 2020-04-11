@@ -1,10 +1,12 @@
 
 import { sort    } from '../settings/peers.mjs';
 import { Element } from '../../design/Element.mjs';
+import { flags   } from '../../source/ENVIRONMENT.mjs';
 import { URL     } from '../../source/parser/URL.mjs';
 
-const global = (typeof window !== 'undefined' ? window : this);
-const CACHES = [];
+
+
+const CACHES   = [];
 const ELEMENTS = {
 	status: {
 		cause: Element.query('p[data-key="cause"]'),
@@ -15,32 +17,6 @@ const ELEMENTS = {
 		output: Element.query('article#peers table tbody')
 	}
 };
-
-const STATUS = ((search) => {
-
-	let status = {
-		code:  null,
-		cause: null,
-		url:   URL.parse()
-	};
-
-	if (search.startsWith('?')) {
-
-		search.substr(1).split('&').map((ch) => ch.split('=')).forEach((ch) => {
-
-			if (ch[0] === 'url') {
-				status[ch[0]] = URL.parse(decodeURIComponent(ch.slice(1).join('=')));
-			} else {
-				status[ch[0]] = ch[1];
-			}
-
-		});
-
-	}
-
-	return status;
-
-})(document.location.search);
 
 const listen = (browser, callback) => {
 
@@ -145,167 +121,170 @@ const update = () => {
 
 
 
-let browser = global.parent.BROWSER || global.BROWSER || null;
-if (browser !== null) {
+(function(global) {
 
-	let service = browser.client.services.peer || null;
-	if (service !== null && browser.settings.peers.length > 0) {
+	let browser = global.parent.BROWSER || global.BROWSER || null;
+	if (browser !== null) {
 
-		browser.settings.peers.forEach((peer) => {
+		let service = browser.client.services.peer || null;
+		if (service !== null && browser.settings.peers.length > 0) {
 
-			service.proxy({
-				domain:  peer.domain,
-				headers: {
-					service: 'cache',
-					method:  'info'
-				},
-				payload: STATUS.url
-			}, (info) => {
+			browser.settings.peers.forEach((peer) => {
 
-				if (info === null) {
-					info = {
-						headers: {
-							size: null,
-							time: null
-						},
-						payload: {
-							size: null,
-							time: null
-						}
-					};
-				}
+				service.proxy({
+					domain:  peer.domain,
+					headers: {
+						service: 'cache',
+						method:  'info'
+					},
+					payload: flags.url
+				}, (info) => {
 
-				CACHES.push({
-					domain:     peer.domain,
-					connection: peer.connection,
-					cache:      info
+					if (info === null) {
+						info = {
+							headers: {
+								size: null,
+								time: null
+							},
+							payload: {
+								size: null,
+								time: null
+							}
+						};
+					}
+
+					CACHES.push({
+						domain:     peer.domain,
+						connection: peer.connection,
+						cache:      info
+					});
+
+					update();
+
 				});
-
-				update();
-
-			});
-
-		});
-
-	} else {
-		Element.query('#peers').erase();
-	}
-
-
-	let url = ELEMENTS.status.url || null;
-	if (url !== null) {
-		url.value(URL.render(STATUS.url));
-	}
-
-	let cause = ELEMENTS.status.cause || null;
-	if (cause !== null) {
-
-		if (STATUS.cause !== null) {
-
-			cause.forEach((block) => {
-
-				let value = block.value();
-				if (value !== STATUS.cause) {
-					block.erase();
-				}
 
 			});
 
 		} else {
-			cause.forEach((block) => block.erase());
+			Element.query('#peers').erase();
 		}
 
-	}
 
-	listen(browser, (action, data, done) => {
+		let url = ELEMENTS.status.url || null;
+		if (url !== null) {
+			url.value(URL.render(flags.url));
+		}
 
-		let service = browser.client.services.peer || null;
-		if (service !== null) {
+		let cause = ELEMENTS.status.cause || null;
+		if (cause !== null) {
 
-			if (action === 'request') {
+			if (flags.cause !== null) {
 
-				service.proxy({
-					domain:  data.domain,
-					headers: {
-						service: 'session',
-						method:  'request'
-					},
-					payload: STATUS.url
-				}, (response) => {
+				cause.forEach((block) => {
 
-					if (response !== null) {
-
-						let service = browser.client.services.cache || null;
-						if (service !== null) {
-
-							service.save({
-								domain:    STATUS.url.domain    || null,
-								host:      STATUS.url.host      || null,
-								subdomain: STATUS.url.subdomain || null,
-								path:      STATUS.url.path      || null,
-								headers:   response.headers     || null,
-								payload:   response.payload     || null
-							}, (result) => {
-								done(result);
-							});
-
-						} else {
-							done(false);
-						}
-
-					} else {
-						done(false);
-					}
-
-				});
-
-			} else if (action === 'download') {
-
-				service.proxy({
-					domain:  data.domain,
-					headers: {
-						service: 'cache',
-						method:  'read'
-					},
-					payload: STATUS.url
-				}, (response) => {
-
-					if (response !== null) {
-
-						let service = browser.client.services.cache || null;
-						if (service !== null) {
-
-							service.save({
-								domain:    STATUS.url.domain    || null,
-								host:      STATUS.url.host      || null,
-								subdomain: STATUS.url.subdomain || null,
-								path:      STATUS.url.path      || null,
-								headers:   response.headers     || null,
-								payload:   response.payload     || null
-							}, (result) => {
-								done(result);
-							});
-
-						} else {
-							done(false);
-						}
-
-					} else {
-						done(false);
+					let value = block.value();
+					if (value !== flags.cause) {
+						block.erase();
 					}
 
 				});
 
 			} else {
+				cause.forEach((block) => block.erase());
+			}
+
+		}
+
+		listen(browser, (action, data, done) => {
+
+			let service = browser.client.services.peer || null;
+			if (service !== null) {
+
+				if (action === 'request') {
+
+					service.proxy({
+						domain:  data.domain,
+						headers: {
+							service: 'session',
+							method:  'request'
+						},
+						payload: flags.url
+					}, (response) => {
+
+						if (response !== null) {
+
+							let service = browser.client.services.cache || null;
+							if (service !== null) {
+
+								service.save({
+									domain:    flags.url.domain    || null,
+									host:      flags.url.host      || null,
+									subdomain: flags.url.subdomain || null,
+									path:      flags.url.path      || null,
+									headers:   response.headers    || null,
+									payload:   response.payload    || null
+								}, (result) => {
+									done(result);
+								});
+
+							} else {
+								done(false);
+							}
+
+						} else {
+							done(false);
+						}
+
+					});
+
+				} else if (action === 'download') {
+
+					service.proxy({
+						domain:  data.domain,
+						headers: {
+							service: 'cache',
+							method:  'read'
+						},
+						payload: flags.url
+					}, (response) => {
+
+						if (response !== null) {
+
+							let service = browser.client.services.cache || null;
+							if (service !== null) {
+
+								service.save({
+									domain:    flags.url.domain    || null,
+									host:      flags.url.host      || null,
+									subdomain: flags.url.subdomain || null,
+									path:      flags.url.path      || null,
+									headers:   response.headers    || null,
+									payload:   response.payload    || null
+								}, (result) => {
+									done(result);
+								});
+
+							} else {
+								done(false);
+							}
+
+						} else {
+							done(false);
+						}
+
+					});
+
+				} else {
+					done(false);
+				}
+
+			} else {
 				done(false);
 			}
 
-		} else {
-			done(false);
-		}
+		});
 
-	});
+	}
 
-}
-
+})(typeof window !== 'undefined' ? window : this);
 

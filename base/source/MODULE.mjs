@@ -1,6 +1,8 @@
 
 export default {
 
+	console:    console,
+
 	Array:      Array,
 	Boolean:    Boolean,
 	Buffer:     Buffer,

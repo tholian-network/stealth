@@ -1,9 +1,9 @@
 
-import { isFunction, isObject, isString } from './BASE.mjs';
-import { Emitter                        } from './Emitter.mjs';
-import { Client                         } from './Client.mjs';
-import { Tab                            } from './Tab.mjs';
-import { URL                            } from './parser/URL.mjs';
+import { console, isFunction, isObject, isString } from './BASE.mjs';
+import { Emitter                                 } from './Emitter.mjs';
+import { Client                                  } from './Client.mjs';
+import { Tab                                     } from './Tab.mjs';
+import { URL                                     } from './parser/URL.mjs';
 
 
 

@@ -1,68 +1,48 @@
 
 import { init    } from '../settings/hosts.mjs';
 import { Element } from '../../design/Element.mjs';
-import { URL     } from '../../source/parser/URL.mjs';
+import { flags   } from '../../source/ENVIRONMENT.mjs';
 
-const code   = Element.query('code[data-key="domain"]');
-const global = (typeof window !== 'undefined' ? window : this);
-const STATUS = ((search) => {
+const code = Element.query('code[data-key="domain"]');
 
-	let status = {
-		url: URL.parse()
-	};
 
-	if (search.startsWith('?')) {
 
-		search.substr(1).split('&').map((ch) => ch.split('=')).forEach((ch) => {
+(function(global) {
 
-			if (ch[0] === 'url') {
-				status[ch[0]] = URL.parse(decodeURIComponent(ch.slice(1).join('=')));
+	let browser = global.parent.BROWSER || global.BROWSER || null;
+	if (browser !== null) {
+
+		let domain = null;
+
+		if (flags.url.domain !== null) {
+
+			if (flags.url.subdomain !== null) {
+				domain = flags.url.subdomain + '.' + flags.url.domain;
 			} else {
-				status[ch[0]] = ch[1];
+				domain = flags.url.domain;
 			}
 
-		});
-
-	}
-
-	return status;
-
-})(document.location.search);
-
-
-
-let browser = global.parent.BROWSER || global.BROWSER || null;
-if (browser !== null) {
-
-	let domain = null;
-
-	if (STATUS.url.domain !== null) {
-
-		if (STATUS.url.subdomain !== null) {
-			domain = STATUS.url.subdomain + '.' + STATUS.url.domain;
-		} else {
-			domain = STATUS.url.domain;
 		}
 
+		let cache = browser.settings.hosts.find((h) => h.domain === domain) || null;
+		if (cache === null) {
+
+			cache = {
+				domain: domain,
+				hosts:  []
+			};
+
+		}
+
+		if (code !== null) {
+			code.value(domain);
+		}
+
+		init(browser, {
+			hosts: [ cache ]
+		}, [ 'refresh', 'save' ]);
+
 	}
 
-	let cache = browser.settings.hosts.find((h) => h.domain === domain) || null;
-	if (cache === null) {
-
-		cache = {
-			domain: domain,
-			hosts:  []
-		};
-
-	}
-
-	if (code !== null) {
-		code.value(domain);
-	}
-
-	init(browser, {
-		hosts: [ cache ]
-	}, [ 'refresh', 'save' ]);
-
-}
+})(typeof window !== 'undefined' ? window : this);
 

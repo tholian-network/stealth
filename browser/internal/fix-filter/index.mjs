@@ -1,11 +1,11 @@
 
 import { init    } from '../settings/sites.mjs';
 import { Element } from '../../design/Element.mjs';
+import { flags   } from '../../source/ENVIRONMENT.mjs';
 import { URL     } from '../../source/parser/URL.mjs';
 
 const assistant = Element.query('#help-assistant');
 const code      = Element.query('article code[data-key="url"]');
-const global    = (typeof window !== 'undefined' ? window : this);
 const ELEMENTS  = {
 	domain: Element.query('#sites-filters tfoot *[data-key="domain"]'),
 	filter: {
@@ -14,29 +14,6 @@ const ELEMENTS  = {
 		suffix: Element.query('#sites-filters tfoot *[data-key="filter.suffix"]')
 	}
 };
-const STATUS = ((search) => {
-
-	let status = {
-		url: URL.parse()
-	};
-
-	if (search.startsWith('?')) {
-
-		search.substr(1).split('&').map((ch) => ch.split('=')).forEach((ch) => {
-
-			if (ch[0] === 'url') {
-				status[ch[0]] = URL.parse(decodeURIComponent(ch.slice(1).join('=')));
-			} else {
-				status[ch[0]] = ch[1];
-			}
-
-		});
-
-	}
-
-	return status;
-
-})(document.location.search);
 
 
 
@@ -67,79 +44,84 @@ const render_choice = (filter) => `
 
 
 
-let browser = global.parent.BROWSER || global.BROWSER || null;
-if (browser !== null) {
+(function(global) {
 
-	let domain = null;
+	let browser = global.parent.BROWSER || global.BROWSER || null;
+	if (browser !== null) {
 
-	if (STATUS.url.domain !== null) {
+		let domain = null;
 
-		if (STATUS.url.subdomain !== null) {
-			domain = STATUS.url.subdomain + '.' + STATUS.url.domain;
-		} else {
-			domain = STATUS.url.domain;
+		if (flags.url.domain !== null) {
+
+			if (flags.url.subdomain !== null) {
+				domain = flags.url.subdomain + '.' + flags.url.domain;
+			} else {
+				domain = flags.url.domain;
+			}
+
 		}
 
-	}
-
-	let cache = browser.settings.filters.filter((f) => f.domain === domain) || null;
-	if (cache === null) {
-		cache = [];
-	}
-
-	if (code !== null) {
-		code.value(URL.render(STATUS.url));
-	}
-
-
-	if (assistant !== null && STATUS.url.path !== '/') {
-
-		let folders = STATUS.url.path.split('/').filter((v) => v !== '');
-		let file    = folders.pop();
-		let choices = [];
-
-		choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: '/' + folders.join('/'), midfix: null, suffix: null }});
-		choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: '/' + folders.join('/'), midfix: null, suffix: file }});
-
-		if (folders.length > 0) {
-			choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: null, midfix: folders.join('/'), suffix: null }});
-			choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: null, midfix: folders.join('/'), suffix: file }});
+		let cache = browser.settings.filters.filter((f) => f.domain === domain) || null;
+		if (cache === null) {
+			cache = [];
 		}
 
-		choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: null, midfix: null, suffix: file }});
-		choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: null, midfix: null, suffix: folders.join('/') + '/' + file }});
+		if (code !== null) {
+			code.value(URL.render(flags.url));
+		}
 
-		assistant.on('click', (e) => {
 
-			let target = e.target;
-			let type   = target.tagName.toLowerCase();
+		if (assistant !== null && flags.url.path !== '/') {
 
-			if (type === 'input') {
+			let folders = flags.url.path.split('/').filter((v) => v !== '');
+			let file    = folders.pop();
+			let choices = [];
 
-				let input  = Element.from(target, null, false);
-				let filter = input.attr('data-val').split('|');
+			choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: '/' + folders.join('/'), midfix: null, suffix: null }});
+			choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: '/' + folders.join('/'), midfix: null, suffix: file }});
 
-				if (filter.length === 3) {
+			if (folders.length > 0) {
+				choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: null, midfix: folders.join('/'), suffix: null }});
+				choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: null, midfix: folders.join('/'), suffix: file }});
+			}
 
-					ELEMENTS.domain.value(domain);
+			choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: null, midfix: null, suffix: file }});
+			choices.push({ id: 'help-assistant-' + choices.length, domain: domain, filter: { prefix: null, midfix: null, suffix: folders.join('/') + '/' + file }});
 
-					ELEMENTS.filter.prefix.value(filter[0] === 'null' ? null : filter[0]);
-					ELEMENTS.filter.midfix.value(filter[1] === 'null' ? null : filter[1]);
-					ELEMENTS.filter.suffix.value(filter[2] === 'null' ? null : filter[2]);
+			assistant.on('click', (e) => {
+
+				let target = e.target;
+				let type   = target.tagName.toLowerCase();
+
+				if (type === 'input') {
+
+					let input  = Element.from(target, null, false);
+					let filter = input.attr('data-val').split('|');
+
+					if (filter.length === 3) {
+
+						ELEMENTS.domain.value(domain);
+
+						ELEMENTS.filter.prefix.value(filter[0] === 'null' ? null : filter[0]);
+						ELEMENTS.filter.midfix.value(filter[1] === 'null' ? null : filter[1]);
+						ELEMENTS.filter.suffix.value(filter[2] === 'null' ? null : filter[2]);
+
+					}
 
 				}
 
-			}
+			});
 
-		});
+			assistant.value(choices.map((c) => render_choice(c)).join(''));
 
-		assistant.value(choices.map((c) => render_choice(c)).join(''));
+		}
+
+		init(browser, {
+			filters: cache
+		}, [ 'remove' ]);
 
 	}
 
-	init(browser, {
-		filters: cache
-	}, [ 'remove' ]);
 
-}
+})(typeof window !== 'undefined' ? window : this);
 

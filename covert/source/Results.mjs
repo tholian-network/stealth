@@ -145,7 +145,7 @@ const diff = function(aobject, bobject) {
 
 
 
-export const Results = function(length) {
+const Results = function(length) {
 
 	length = isNumber(length) ? length : 0;
 
@@ -294,4 +294,7 @@ Results.prototype = {
 	}
 
 };
+
+
+export { Results };
 

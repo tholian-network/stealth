@@ -24,7 +24,7 @@ const prettify = (milliseconds) => {
 
 
 
-export const Timeline = function(length) {
+const Timeline = function(length) {
 
 	length = typeof length === 'number' ? length : 0;
 
@@ -187,4 +187,7 @@ Timeline.prototype = {
 	}
 
 };
+
+
+export { Timeline };
 

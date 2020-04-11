@@ -1,6 +1,5 @@
 
-import { isArray, isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
-import { console                                } from '../../stealth/source/console.mjs';
+import { console, isArray, isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
 
 
 
@@ -403,7 +402,7 @@ const render_summary = function(review, is_current) {
 
 
 
-export const Renderer = function(settings) {
+const Renderer = function(settings) {
 
 	this._settings = Object.assign({
 		action: null,  // 'scan', 'time' or 'watch'
@@ -519,4 +518,7 @@ Renderer.prototype = {
 	}
 
 };
+
+
+export { Renderer };
 

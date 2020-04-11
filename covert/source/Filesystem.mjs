@@ -6,7 +6,7 @@ import { Emitter  } from '../../stealth/source/Emitter.mjs';
 
 
 
-export const Filesystem = function(settings) {
+const Filesystem = function(settings) {
 
 	this._settings = Object.assign({}, settings);
 
@@ -182,4 +182,7 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 	}
 
 });
+
+
+export { Filesystem };
 
