@@ -1,5 +1,6 @@
 
-import { after, before, describe, finish } from '../index.mjs';
+import { after, before, describe, finish } from '../source/Review.mjs';
+
 
 
 before('before', function(assert, console) {
