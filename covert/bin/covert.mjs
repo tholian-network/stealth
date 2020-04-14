@@ -263,7 +263,14 @@ if (action === 'watch') {
 
 	});
 
-	covert.connect();
+	if (patterns.length > 0 && covert.reviews.length === 0) {
+
+		console.warn('Covert: No Review(s) matching the patterns "' + patterns.join('" or "') + '" found.');
+		process.exit(2);
+
+	} else {
+		covert.connect();
+	}
 
 } else if (action === 'scan' || action === 'time') {
 
@@ -285,7 +292,14 @@ if (action === 'watch') {
 		on_complete(covert);
 	});
 
-	covert.connect();
+	if (patterns.length > 0 && covert.reviews.length === 0) {
+
+		console.warn('Covert: No Review(s) matching the patterns "' + patterns.join('" or "') + '" found.');
+		process.exit(2);
+
+	} else {
+		covert.connect();
+	}
 
 } else {
 
