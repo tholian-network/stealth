@@ -28,13 +28,11 @@ BASE_FILES=(
 
 BROWSER_FILES=(
 	"$base_dir/source/browser/Buffer.mjs"
-	"$base_dir/source/browser/WebSocket.mjs"
 	"$base_dir/source/browser/console.mjs"
 );
 
 NODE_FILES=(
 	"$base_dir/source/node/Buffer.mjs"
-	"$base_dir/source/node/WebSocket.mjs"
 	"$base_dir/source/node/console.mjs"
 );
 

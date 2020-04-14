@@ -5,7 +5,7 @@
 // import Renderer   from './Renderer.mjs';
 import Results    from './Results.mjs';
 import Review     from './Review.mjs';
-// import Timeline   from './Timeline.mjs';
+import Timeline   from './Timeline.mjs';
 
 
 
@@ -14,7 +14,7 @@ export const REVIEWS = [
 	// Review and Benchmark
 	Review,
 	Results,
-	// Timeline,
+	Timeline,
 
 	// Covert
 	// Covert,

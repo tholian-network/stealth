@@ -3,6 +3,8 @@
 /source/BASE.mjs
 
 # shared with /stealth
+/source/Browser.mjs
+/source/Tab.mjs
 /source/client
 /source/parser
 

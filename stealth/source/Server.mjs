@@ -366,9 +366,9 @@ Server.prototype = {
 		this.__server.on('error', (err) => {
 
 			if (err.code === 'EADDRINUSE') {
-				console.warn('Stealth Service stopped because it is already running.');
+				console.warn('Server: Service stopped because it is already running.');
 			} else {
-				console.warn('Stealth Service stopped.');
+				console.warn('Server: Service stopped.');
 			}
 
 			this.__server.close();
@@ -381,10 +381,10 @@ Server.prototype = {
 
 
 		if (host !== null && host !== 'localhost') {
-			console.info('Stealth Service started on http+ws://' + host + ':65432' + '.');
+			console.info('Server: Service started on http+ws://' + host + ':65432' + '.');
 			this.__server.listen(65432, host);
 		} else {
-			console.info('Stealth Service started on http+ws://localhost:65432' + '.');
+			console.info('Server: Service started on http+ws://localhost:65432' + '.');
 			this.__server.listen(65432, null);
 		}
 
@@ -404,7 +404,7 @@ Server.prototype = {
 
 		if (this.__server !== null) {
 
-			console.warn('Stealth Service stopped.');
+			console.warn('Server: Service stopped.');
 
 			this.__server.close();
 			this.__server = null;

@@ -1,4 +1,8 @@
 
+import { isArray, isFunction, isNumber } from '../../stealth/source/BASE.mjs';
+
+
+
 const prettify = (milliseconds) => {
 
 	if (milliseconds < 10) {
@@ -26,7 +30,7 @@ const prettify = (milliseconds) => {
 
 const Timeline = function(length) {
 
-	length = typeof length === 'number' ? length : 0;
+	length = isNumber(length) ? length : 0;
 
 
 	this.data   = new Array(length).fill(null);
@@ -39,11 +43,11 @@ const Timeline = function(length) {
 
 Timeline.from = function(data) {
 
-	let length = 0;
+	if (isFunction(data) === true) {
 
-	if (typeof data === 'function') {
+		let length = 0;
+		let body   = data.toString().split('\n').slice(1, -1);
 
-		let body = data.toString().split('\n').slice(1, -1);
 		if (body.length > 0) {
 
 			body.map((line) => line.trim()).forEach((line) => {
@@ -56,16 +60,35 @@ Timeline.from = function(data) {
 
 		}
 
-	} else if (typeof data === 'number') {
+		return new Timeline(length);
+
+	} else if (isArray(data) === true) {
+
+		let length   = data.length;
+		let timeline = new Timeline(length);
+
+		data.forEach((value, d) => {
+
+			if (isNumber(value) === true) {
+				timeline.data[d] = value;
+			} else {
+				timeline.data[d] = null;
+			}
+
+		});
+
+		return timeline;
+
+	} else if (isNumber(data) === true) {
 
 		if (Number.isNaN(data) === false) {
-			length = (data | 0);
+			return new Timeline((data | 0));
 		}
 
 	}
 
 
-	return new Timeline(length);
+	return new Timeline(0);
 
 };
 
@@ -101,7 +124,7 @@ Timeline.prototype = {
 
 	includes: function(time) {
 
-		if (typeof time === 'number' || time === null) {
+		if (isNumber(time) === true || time === null) {
 			return this.data.includes(time);
 		}
 
@@ -111,25 +134,19 @@ Timeline.prototype = {
 
 	render: function() {
 
-		let start = this.start;
-		let str   = '';
+		let str = '';
 
-		if (start !== null && this.data.length > 0) {
+		if (this.data.length > 0) {
 
 			str += '|';
 
 			for (let d = 0, dl = this.data.length; d < dl; d++) {
 
-				let now = this.data[d];
-				if (now === null) {
-					str  += '  ?  ';
-					start = now;
-				} else if (start === null) {
-					str  += '  ?  ';
-					start = now;
-				} else if (start !== null) {
-					str  += prettify(now - start);
-					start = now;
+				let time = this.data[d];
+				if (time !== null) {
+					str += prettify(time);
+				} else if (time === null) {
+					str += '  ?  ';
 				}
 
 				if (d < dl - 1) {
@@ -161,24 +178,16 @@ Timeline.prototype = {
 
 	},
 
-	time: function(reset) {
+	time: function() {
 
-		reset = typeof reset === 'boolean' ? reset : false;
+		if (this.start === null) {
 
-
-		if (reset === true) {
-
-			this.index = 0;
 			this.start = Date.now();
-
-			for (let d = 0, dl = this.data.length; d < dl; d++) {
-				this.data[d] = null;
-			}
 
 		} else {
 
 			if (this.index < this.data.length) {
-				this.data[this.index] = Date.now();
+				this.data[this.index] = (Date.now() - this.start);
 				this.index++;
 			}
 

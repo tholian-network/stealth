@@ -159,11 +159,11 @@ const Results = function(length) {
 
 Results.from = function(data) {
 
-	let length = 0;
-
 	if (isFunction(data) === true) {
 
-		let body = data.toString().split('\n').slice(1, -1);
+		let length = 0;
+		let body   = data.toString().split('\n').slice(1, -1);
+
 		if (body.length > 0) {
 
 			body.map((line) => line.trim()).forEach((line) => {
@@ -176,15 +176,35 @@ Results.from = function(data) {
 
 		}
 
+		return new Results(length);
+
+	} else if (isArray(data) === true) {
+
+		let length  = data.length;
+		let results = new Results(length);
+
+		data.forEach((value, d) => {
+
+			if (isBoolean(value) === true) {
+				results.data[d] = value;
+			} else {
+				results.data[d] = null;
+			}
+
+		});
+
+		return results;
+
 	} else if (isNumber(data) === true) {
 
 		if (Number.isNaN(data) === false) {
-			length = (data | 0);
+			return new Results((data | 0));
 		}
 
 	}
 
-	return new Results(length);
+
+	return new Results(0);
 
 };
 

@@ -421,7 +421,7 @@ const save = function(profile, keepdata, callback) {
 					});
 
 					if (count > 0) {
-						console.warn('Settings cleared ' + count + ' Request' + (count === 1 ? '' : 's') + ' from History.');
+						console.warn('Settings: ' + count + ' Request' + (count === 1 ? '' : 's') + ' removed from History.');
 					}
 
 				}
@@ -506,7 +506,7 @@ const setup = function(profile, callback) {
 					].filter((v) => v === false);
 
 					if (check.length !== 0) {
-						console.error('Settings at "' + profile + '" are not writeable!');
+						console.error('Settings: Profile at "' + profile + '" is not writeable!');
 					}
 
 					if (callback !== null) {
@@ -515,7 +515,7 @@ const setup = function(profile, callback) {
 
 				} else {
 
-					console.error('Settings at "' + profile + '" are not writeable!');
+					console.error('Settings: Profile at "' + profile + '" is not writeable!');
 
 					if (callback !== null) {
 						callback(false);
@@ -537,7 +537,7 @@ const setup = function(profile, callback) {
 			].filter((v) => v === false);
 
 			if (check.length !== 0) {
-				console.error('Settings at "' + profile + '" are not writeable!');
+				console.error('Settings: Profile at "' + profile + '" is not writeable!');
 			}
 
 			if (callback !== null) {
@@ -546,7 +546,7 @@ const setup = function(profile, callback) {
 
 		} else {
 
-			console.error('Settings at "' + profile + '" is not a directory!');
+			console.error('Settings: Profile at "' + profile + '" is not a directory!');
 
 			if (callback !== null) {
 				callback(false);
@@ -586,7 +586,7 @@ const Settings = function(stealth, profile, vendor) {
 	init.call(this, (result) => {
 
 		if (result === true) {
-			console.info('Native Settings loaded from "' + default_hosts + '".');
+			console.info('Settings: Native Hosts imported from "' + default_hosts + '".');
 			console.log('> ' + this.hosts.length + ' Host' + (this.hosts.length === 1 ? '' : 's') + '.');
 		}
 
@@ -597,7 +597,7 @@ const Settings = function(stealth, profile, vendor) {
 
 				if (result === true) {
 
-					console.info('Vendor Settings loaded from "' + this.vendor + '".');
+					console.info('Settings: Vendor Profile imported from "' + this.vendor + '".');
 
 					let message = get_message(this).trim();
 					if (message.length > 0) {
@@ -615,7 +615,7 @@ const Settings = function(stealth, profile, vendor) {
 
 			if (result === true) {
 
-				console.info('Settings loaded from "' + this.profile + '".');
+				console.info('Settings: Profile imported from "' + this.profile + '".');
 
 				let message = get_message(this).trim();
 				if (message.length > 0) {
@@ -633,7 +633,7 @@ const Settings = function(stealth, profile, vendor) {
 				read.call(this, this.profile, true, (result) => {
 
 					if (result === true) {
-						console.warn('Settings loaded from "' + this.profile + '".');
+						console.warn('Settings: Profile imported from "' + this.profile + '".');
 					}
 
 				});
@@ -719,7 +719,7 @@ Settings.prototype = {
 		save.call(this, this.profile, keepdata, (result) => {
 
 			if (result === true) {
-				console.info('Settings stored to "' + this.profile + '".');
+				console.info('Settings: Profile saved to "' + this.profile + '".');
 			}
 
 			if (callback !== null) {

@@ -350,7 +350,7 @@ const update = function() {
 
 		if (test.timeline.start === null) {
 
-			test.timeline.time(true);
+			test.timeline.time();
 
 			try {
 
@@ -478,7 +478,7 @@ const Covert = function(settings) {
 	}, settings));
 
 
-	console.log('Covert Command-Line Arguments:');
+	console.log('Covert: Command-Line Arguments:');
 	console.log(prettify(this._settings));
 
 
@@ -567,7 +567,7 @@ const Covert = function(settings) {
 			let test = review.after || null;
 			if (test.state === null && test.timeline.start === null) {
 
-				test.timeline.time(true);
+				test.timeline.time();
 
 				try {
 

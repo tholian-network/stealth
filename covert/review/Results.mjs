@@ -17,20 +17,44 @@ const TEMPLATE = function(assert) {
 };
 
 
+
 describe('Results.from', function(assert) {
 
 	let results1 = Results.from(null);
 	let results2 = Results.from(5);
 	let results3 = Results.from(TEMPLATE);
+	let results4 = Results.from([ true, false, null ]);
+	let results5 = Results.from([ null, {}, true ]);
 
 
 	assert(results1.index === 0);
 	assert(results2.index === 0);
 	assert(results3.index === 0);
+	assert(results4.index === 0);
+	assert(results5.index === 0);
 
 	assert(results1.length === 0);
 	assert(results2.length === 5);
 	assert(results3.length === 2);
+	assert(results4.length === 3);
+	assert(results5.length === 3);
+
+	assert(results2.data[0] === null);
+	assert(results2.data[1] === null);
+	assert(results2.data[2] === null);
+	assert(results2.data[3] === null);
+	assert(results2.data[4] === null);
+
+	assert(results3.data[0] === null);
+	assert(results3.data[1] === null);
+
+	assert(results4.data[0] === true);
+	assert(results4.data[1] === false);
+	assert(results4.data[2] === null);
+
+	assert(results5.data[0] === null);
+	assert(results5.data[1] === null);
+	assert(results5.data[2] === true);
 
 });
 
@@ -390,7 +414,7 @@ describe('results.complete', function(assert) {
 	results.assert(null);
 	assert(results.complete(), false);
 
-	results.assert(null);
+	results.assert(true);
 	assert(results.complete(), true);
 
 });
@@ -403,22 +427,18 @@ describe('results.current', function(assert) {
 	assert(results.index,     0);
 
 	results.assert(true);
-
 	assert(results.current(), 1);
 	assert(results.index,     1);
 
 	results.assert(false);
-
 	assert(results.current(), 2);
 	assert(results.index,     2);
 
 	results.assert(null);
-
 	assert(results.current(), 3);
 	assert(results.index,     3);
 
 	results.assert(null);
-
 	assert(results.current(), 4);
 	assert(results.index,     4);
 
@@ -426,26 +446,10 @@ describe('results.current', function(assert) {
 
 describe('results.includes', function(assert) {
 
-	let results1 = Results.from(3);
-	let results2 = Results.from(3);
-	let results3 = Results.from(3);
-	let results4 = Results.from(3);
-
-	results1.assert(true);
-	results1.assert(false);
-	results1.assert(null);
-
-	results2.assert(true);
-	results2.assert(false);
-	results2.assert(true);
-
-	results3.assert(true);
-	results3.assert(null);
-	results3.assert(true);
-
-	results4.assert(false);
-	results4.assert(null);
-	results4.assert(false);
+	let results1 = Results.from([ true,  false, null  ]);
+	let results2 = Results.from([ true,  false, true  ]);
+	let results3 = Results.from([ true,  null,  true  ]);
+	let results4 = Results.from([ false, null,  false ]);
 
 
 	assert(results1.includes(true),  true);
@@ -468,30 +472,12 @@ describe('results.includes', function(assert) {
 
 describe('results.render', function(assert) {
 
-	let results1 = Results.from(3);
-	let results2 = Results.from(3);
-	let results3 = Results.from(3);
-	let results4 = Results.from(3);
-	let results5 = Results.from(3);
+	let results1 = Results.from([ true,  false, null  ]);
+	let results2 = Results.from([ true,  false, true  ]);
+	let results3 = Results.from([ true,  null,  true  ]);
+	let results4 = Results.from([ false, null,  false ]);
+	let results5 = Results.from([ true,  null,  null  ]);
 	let results6 = Results.from(0);
-
-	results1.assert(true);
-	results1.assert(false);
-	results1.assert(null);
-
-	results2.assert(true);
-	results2.assert(false);
-	results2.assert(true);
-
-	results3.assert(true);
-	results3.assert(null);
-	results3.assert(true);
-
-	results4.assert(false);
-	results4.assert(null);
-	results4.assert(false);
-
-	results5.assert(true);
 
 
 	assert(results1.render(), '|+-?|');

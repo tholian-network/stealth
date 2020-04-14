@@ -63,40 +63,6 @@ Covert requires a locally installed `SOCKS` proxy that is shipped in the
 [socks-proxy](/covert/sketch/socks-proxy) folder and needs to be compiled
 before Covert itself can actually run.
 
-The requirements are a C-compiler and `make`. If you run `./bin/covert.sh`,
-the `socks-proxy` is automatically being compiled and executed in parallel.
-
-
-## Network Requirements
-
-As Covert also includes peer-to-peer tests for end-to-end network services,
-it requires a machine to be reachable under at least two different IPs.
-
-If the machine has no internet connection, some network-protocol related
-tests will fail, such as `protocol/DNS`, `protocol/HTTPS`, `protocol/HTTP`
-or `client/Host`.
-
-As the only failsafe way to do this (without requiring a network card or
-WAN/LAN connection), there's the requirement to reach the local machine
-via the IPs `127.0.0.1`, `127.0.0.2` and `127.0.0.3`.
-
-**MacOS / Darwin**
-
-On MacOS it is necessary to create an alias for the loopback interface
-before Covert itself is run. The `./bin/covert.sh` automatically creates
-an alias for above mentioned additional IPs on MacOS and will ask for
-your password in order to do so.
-
-Currently there's no way to simulate network connections as there's no
-`netem` and neither `tc` available on MacOS.
-
-
-## Implementation Notes
-
-- Reviews can have a single `before()` entry for preparation.
-- Reviews can have a single `after()` entry for cleanup.
-- Reviews can have multiple stateless `describe()` entries.
-- Reviews need to `export default` via `finish('library/namespace/Identifier')` to ensure `ESM` compatibility.
-- `assert()` calls have to be in a separate line.
-- `assert()` calls have to be branch-less, surrounding `if/elseif/else` conditions are not allowed.
+Therefore on most systems, `gcc` and `make` are required, unless you've
+installed another compatible C compiler.
 

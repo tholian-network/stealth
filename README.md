@@ -25,10 +25,6 @@ are quite buggy and incomplete for the moment.
 However, due to the concept of using node.js and focussing on a privacy-oriented audience,
 Stealth will initially be released for `MacOS` and `GNU/Linux`.
 
-Network behaviour on `Windows` cannot be guaranteed, really, so it is recommended to install
-`Stealth` on an external `GNU/Linux` system (like a Raspberry Pi for a few bucks) and use Stealth
-as a Web App.
-
 (Download Links will be inserted here once the Stealth Releases are ready for the public)
 
 
@@ -111,9 +107,9 @@ User Interface ("Browser UI") which is implemented using Web Technologies.
 
 ## Stealth Guide (for Hackers?)
 
-The [Stealth Guide](/guide/README.md) is currently meant for other Developers that are new
-to the Project. It explains all necessities to quickly get started to hack around with Stealth
-and modify it to fit your needs.
+The [Guide](/guide/README.md) is currently meant for Developers that are new to the Project.
+It explains all necessities to quickly get started to hack around with Stealth and modify it
+to fit your needs.
 
 A User's Guide probably will arrive at a later point in time, as Stealth currently has no
 public release yet.
@@ -125,26 +121,6 @@ If you don't wanna deal with the native build toolchain, this
 is how to get started as quickly as possible:
 
 
-[Browser](/browser/source), the [Browser UI](/browser/design)
-and [Stealth](/stealth/source) are implemented using ECMAScript Modules (`.mjs`) in order
-to `export` and `import` code. This means that a modern ECMAScript Runtime like `node.js 10+`
-or `Chromium 70+` is necessary to execute the code.
-
-
-## Stealth as Web Browser
-
-- Install same dependencies as in "Stealth as Web App" (for now).
-
-Currently this repository does not contain a Web Browser Engine. At a later point in time
-it will be decided whether a hard-fork of another Engine (like `servo` or `blink` / `webkit`)
-is necessary.
-
-For now, use Stealth as a Web App that uses one of many natively available Web View
-based technologies.
-
-
-## Stealth as Web App
-
 - Install [node.js](https://nodejs.org/en/download) version `10+`.
 
 - Install [Ungoogled Chromium](https://github.com/Eloston/ungoogled-chromium/releases) version `70+`.
@@ -153,22 +129,19 @@ based technologies.
 - (Only Linux) Alternatively Install `gjs` and `WebKit2 GTK` version `4+`.
 - (Only Linux) Alternatively Install `qmlscene` and `Qt5 WebView` version `5+` and `Qt5 QuickControls` version `2+`.
 
-Stealth can be used via `<iframe>` or `<webview>` element inside a modern Browser Engine
-or can be used as a Progressive Web App. The [browser.sh](./bin/browser.sh) supports most
-commonly preinstalled Web Browsers among Desktop Environments (that need to be up-to-date
-and support `ESM` modules).
-
 ```bash
 cd /path/to/stealth;
-bash ./bin/stealth.sh;
+
+# Start Stealth Service
+bash stealth/bin/stealth.sh;
 
 # Open as Progressive Web App
-bash ./bin/browser.sh;
+bash browser/bin/browser.sh;
 ```
 
 **IMPORTANT**: On Android, Stealth can be used by visiting the URL and bookmarking it as
 a Web App. The Stealth Icon will appear on your home screen, and it will behave like a
-native Mobile App.
+native offline-ready mobile app.
 
 
 ## Roadmap

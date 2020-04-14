@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 root_dir="$(dirname "$(dirname "$(dirname "$(readlink -f "$0")")")")";
 
@@ -15,26 +15,21 @@ build_browser() {
 
 	cd "$root_dir";
 
-	sh "./base/bin/base.sh";
+	bash "./base/bin/base.sh";
 
-	if [ -f "./browser/source/BASE.mjs" ]; then
-		rm "./browser/source/BASE.mjs";
-	fi;
+	rm "./browser/source/BASE.mjs"    2> /dev/null;
+	rm "./browser/source/Browser.mjs" 2> /dev/null;
+	rm "./browser/source/Emitter.mjs" 2> /dev/null;
+	rm "./browser/source/Tab.mjs"     2> /dev/null;
+	rm -rf "./browser/source/client"  2> /dev/null;
+	rm -rf "./browser/source/parser"  2> /dev/null;
 
 	cp "./base/build/browser/BASE.mjs" "./browser/source/BASE.mjs";
-
-
-	if [ -d "./browser/source/client" ]; then
-		rm -rf "./browser/source/client";
-	fi;
-
-	cp -R "./stealth/source/client" "./browser/source/client";
-
-	if [ -d "./browser/source/parser" ]; then
-		rm -rf "./browser/source/parser";
-	fi;
-
-	cp -R "./stealth/source/parser" "./browser/source/parser";
+	cp "./stealth/source/Browser.mjs"  "./browser/source/Browser.mjs";
+	cp "./stealth/source/Emitter.mjs"  "./browser/source/Emitter.mjs";
+	cp "./stealth/source/Tab.mjs"      "./browser/source/Tab.mjs";
+	cp -R "./stealth/source/client"    "./browser/source/client";
+	cp -R "./stealth/source/parser"    "./browser/source/parser";
 
 }
 

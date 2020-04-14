@@ -1,0 +1,132 @@
+
+## Covert Guide
+
+The Usage is documented in Covert's [README.md](/covert/README.md) file.
+
+
+## Architecture
+
+The [Covert](/covert/source) Project is a standalone Testrunner that runs in
+`node.js` version `12+` and uses `ECMAScript imports` without transpilation to
+guarantee identical behaviour when it comes to API tests or Integration tests.
+
+- A [Review](/covet/source/Review.mjs) is a set of tests, including preparation and cleanup helpers.
+- Each Implementation in `/source/*.mjs` has a single Review located in `/review/*.mjs`.
+
+Covert is able to watch for filesystem changes (see Usage of `watch`) and can
+re-execute Review(s) when the Implementation has changed.
+
+
+## Execution Process
+
+The [covert.sh](/covert/bin/covert.sh) script builds the reference [socks proxy](/covert/sketch/socks-proxy)
+via `make` and starts it in the background before the given set of Reviews
+are executed.
+
+As Covert also includes peer-to-peer tests for end-to-end network services, it
+requires the host machine to be reachable under at least two different IPs.
+
+If the host machine has no internet connection, some network-protocol
+related tests will fail, such as
+[/stealth/protocol/DNS](/stealth/review/protocol/DNS.mjs),
+[/stealth/protocol/HTTPS](/stealth/review/protocol/HTTPS.mjs),
+[/stealth/protocol/HTTP](/stealth/review/protocol/HTTP.mjs),
+or [/stealth/client/Host](/stealth/review/client/Host.mjs).
+
+As the only failsafe way to do this (without requiring two network cards or
+WAN/LAN connections), there's the requirement to reach the local machine
+via the IPs `127.0.0.1`, `127.0.0.2` and `127.0.0.3`.
+
+**MacOS**
+
+On MacOS it is necessary to create an alias for the loopback interface
+before Covert itself can be run. The [covert.sh](/covert/bin/covert.sh)
+automatically creates an alias for above mentioned additional IPs on MacOS
+and will ask for your `sudo` password in order to do so.
+
+Currently there's no way to simulate slower network connections as there's
+no `netem` nor `tc` available on Darwin-based systems, so the `--network`
+should not be used.
+
+
+## Reviews
+
+Multiple Example Reviews are available in these folders:
+
+- [/base/review](/base/review)
+- [/covert/review](/covert/review)
+- [/stealth/review](/stealth/review)
+
+
+Codestyle Rules (Assumptions) of a Review:
+
+- Reviews can have a single `before()` entry for preparation.
+- Reviews can have a single `after()` entry for cleanup.
+- Reviews can have multiple stateless `describe()` entries.
+- Reviews need to `export default` via `finish('library/namespace/Identifier')` to ensure `ESM` compatibility.
+- `assert()` calls have to be in a separate line.
+- `assert()` calls have to be branch-less, surrounding `if/elseif/else` conditions are not allowed.
+
+
+**Example Review**:
+
+```javascript
+import { before, after, describe, finish } from '../path/to/covert/index.mjs';
+import { Example                         } from '../path/to/project/source/namespace/Example.mjs';
+
+
+
+before('prepare stuff', function(assert) {
+
+	this.example = new Example();
+
+	assert(this.example !== null);
+
+	this.example.on('event', () => {
+		assert(true);
+	});
+
+});
+
+describe('simple test', function(assert) {
+
+	assert(this.example !== null);
+	assert(this.example.method(), true);
+
+	this.example.async((response) => {
+		assert(response, { foo: 'bar' });
+	});
+
+	assert(this.example.url, 'https://example.com/index.html');
+
+});
+
+describe('debug test', function(assert, console) {
+
+	// This can be used with covert scan <Example> --debug=true
+
+	console.info('This is an info');
+	console.warn(this.example);
+	console.error('console is integrated');
+	console.blink('console is also sandboxed');
+
+});
+
+after('cleanup stuff', function(assert) {
+
+	this.example.on('destroy', () => {
+		assert(true);
+	});
+
+	this.example.destroy();
+	this.example = null;
+
+});
+
+
+// /project/source/namespace/Example.mjs is implementation
+// /project/review/namespace/Example.mjs is this review
+
+export default finish('project/namespace/Example');
+```
+

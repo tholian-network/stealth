@@ -29,7 +29,7 @@ These services are available on port `65432` via the `WS/13` Protocol. The
 `WebSocket Protocol` has to be set to `stealth` in order to make a successful
 handshake, other `Upgrade` requests are disconnected immediately.
 
-**IMPORTANT**: Stealth's [WS](../../stealth/source/protocol/WS.mjs) Protocol
+**IMPORTANT**: Stealth's [WS](/stealth/source/protocol/WS.mjs) Protocol
 implementation does not support Binary Frames (`0x02`) on purpose to reduce the attack
 surface of fragmented TCP frames.
 

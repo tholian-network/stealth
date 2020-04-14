@@ -93,7 +93,7 @@ const Stealth = function(settings) {
 	}, settings));
 
 
-	console.log('Stealth Command-Line Arguments:');
+	console.log('Stealth: Command-Line Arguments:');
 	console.log(this._settings);
 
 
