@@ -420,6 +420,8 @@ const Renderer = function(settings) {
 
 Renderer.prototype = {
 
+	[Symbol.toStringTag]: 'Renderer',
+
 	render: function(data, mode) {
 
 		mode = isString(mode) ? mode : 'complete';

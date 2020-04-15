@@ -127,6 +127,8 @@ const Client = function(browser) {
 
 Client.prototype = Object.assign({}, Emitter.prototype, {
 
+	[Symbol.toStringTag]: 'Client',
+
 	connect: function(host, callback) {
 
 		host     = isString(host)       ? host     : hostname;

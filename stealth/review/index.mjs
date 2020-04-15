@@ -1,10 +1,14 @@
 
 import Browser            from './Browser.mjs';
 import Client             from './Client.mjs';
+import Emitter            from './Emitter.mjs';
 import Peer               from './Peer.mjs';
 import Request            from './Request.mjs';
 // import Server             from './Server.mjs';
+// import Session            from './Session.mjs';
+// import Settings           from './Settings.mjs';
 import Stealth            from './Stealth.mjs';
+// import Tab                from './Tab.mjs';
 import client_Cache       from './client/Cache.mjs';
 import client_Filter      from './client/Filter.mjs';
 import client_Host        from './client/Host.mjs';
@@ -52,6 +56,12 @@ export const REVIEWS = [
 	other_REDIRECT,
 	other_ROUTER,
 
+	// Core Modules
+	Emitter,
+	// Session,
+	// Settings,
+	// Tab,
+
 	// Optimizers
 	optimizer_CSS,
 
@@ -72,6 +82,7 @@ export const REVIEWS = [
 	// Stealth
 	Stealth,
 	Client,
+	// Server,
 	Request,
 	Browser,
 

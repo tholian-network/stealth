@@ -95,6 +95,8 @@ Timeline.from = function(data) {
 
 Timeline.prototype = {
 
+	[Symbol.toStringTag]: 'Timeline',
+
 	complete: function() {
 
 		if (this.index < this.data.length) {

@@ -12,7 +12,6 @@ export default {
 	Object:     Object,
 	RegExp:     RegExp,
 	String:     String,
-	WebSocket:  WebSocket,
 
 	isBoolean:  Boolean.isBoolean,
 	isBuffer:   Buffer.isBuffer,

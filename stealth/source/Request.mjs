@@ -592,6 +592,8 @@ Request.from = function(json) {
 
 Request.prototype = Object.assign({}, Emitter.prototype, {
 
+	[Symbol.toStringTag]: 'Request',
+
 	toJSON: function() {
 
 		let data = {

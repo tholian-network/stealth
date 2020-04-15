@@ -5,8 +5,26 @@ import { Timeline                       } from './Timeline.mjs';
 
 
 
-let CURRENT_ID     = 0;
 let CURRENT_REVIEW = null;
+let REVIEW_ID      = 0;
+
+export const Review = function() {
+
+	this.id     = ('Review-' + REVIEW_ID++);
+	this.after  = null;
+	this.before = null;
+	this.flags  = {};
+	this.scope  = {};
+	this.state  = null;
+	this.tests  = [];
+
+};
+
+Review.prototype = {
+	[Symbol.toStringTag]: 'Review'
+};
+
+
 
 export const after = function(name, callback) {
 
@@ -35,15 +53,8 @@ export const after = function(name, callback) {
 
 		} else {
 
-			CURRENT_REVIEW = {
-				id:     null,
-				flags:  {},
-				before: null,
-				after:  test,
-				scope:  {},
-				state:  null,
-				tests:  []
-			};
+			CURRENT_REVIEW       = new Review();
+			CURRENT_REVIEW.after = test;
 
 		}
 
@@ -77,15 +88,8 @@ export const before = function(name, callback) {
 			timeline: Timeline.from(callback)
 		};
 
-		CURRENT_REVIEW = {
-			id:     null,
-			flags:  {},
-			before: test,
-			after:  null,
-			scope:  {},
-			state:  null,
-			tests:  []
-		};
+		CURRENT_REVIEW        = new Review();
+		CURRENT_REVIEW.before = test;
 
 		return test;
 
@@ -123,15 +127,8 @@ export const describe = function(name, callback) {
 
 		} else {
 
-			CURRENT_REVIEW = {
-				id:     null,
-				flags:  {},
-				before: null,
-				after:  null,
-				scope:  {},
-				state:  null,
-				tests:  [ test ]
-			};
+			CURRENT_REVIEW = new Review();
+			CURRENT_REVIEW.tests.push(test);
 
 		}
 
@@ -146,15 +143,21 @@ export const describe = function(name, callback) {
 
 export const finish = function(id, flags) {
 
-	id    = isString(id)    ? id    : ('Review-' + CURRENT_ID++);
+	id    = isString(id)    ? id    : null;
 	flags = isObject(flags) ? flags : {};
 
 
 	let review = CURRENT_REVIEW || null;
 	if (review !== null) {
 
-		review.id      = id;
-		review.flags   = flags;
+		if (id !== null) {
+			review.id = id;
+		}
+
+		if (flags !== null) {
+			review.flags = flags;
+		}
+
 		CURRENT_REVIEW = null;
 
 		return review;

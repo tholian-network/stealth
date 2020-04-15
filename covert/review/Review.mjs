@@ -1,5 +1,5 @@
 
-import { after, before, describe, finish } from '../source/Review.mjs';
+import { after, before, describe, finish, Review } from '../source/Review.mjs';
 
 
 
@@ -11,7 +11,7 @@ before('before', function(assert, console) {
 	setTimeout(() => {
 		console.log('before.asynchronous');
 		assert(true);
-	}, 1000);
+	}, 100);
 
 });
 
@@ -69,11 +69,34 @@ describe('describe', function(assert, console) {
 	setTimeout(() => {
 		console.log('describe.asynchronous');
 		assert(true);
-	}, 1000);
+	}, 100);
 
 	console.info('describe.info');
 	console.warn('describe.warn');
 	console.error('describe.error');
+
+});
+
+describe('Review', function(assert) {
+
+	let review = new Review();
+
+	assert(review.id !== null);
+	assert(review.after,  null);
+	assert(review.before, null);
+	assert(review.flags,  {});
+	assert(review.scope,  {});
+	assert(review.state,  null);
+	assert(review.tests,  []);
+
+});
+
+describe('review.toString', function(assert) {
+
+	let review = new Review();
+
+	assert(review.toString(),                      '[object Review]');
+	assert(Object.prototype.toString.call(review), '[object Review]');
 
 });
 
@@ -85,7 +108,7 @@ after('after', function(assert, console) {
 	setTimeout(() => {
 		console.log('after.asynchronous');
 		assert(true);
-	}, 1000);
+	}, 100);
 
 });
 

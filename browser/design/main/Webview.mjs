@@ -124,6 +124,10 @@ const Webview = function(browser) {
 	});
 
 
+	browser.on('pause', (tab, tabs, refresh) => {
+		// TODO: Cancel iframe's loading requests
+	});
+
 	browser.on('show',    (tab, tabs, refresh) => update.call(this, tab, refresh));
 	browser.on('refresh', (tab, tabs, refresh) => update.call(this, tab, refresh));
 

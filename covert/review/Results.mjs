@@ -58,6 +58,15 @@ describe('Results.from', function(assert) {
 
 });
 
+describe('results.toString', function(assert) {
+
+	let results = Results.from(null);
+
+	assert(results.toString(),                      '[object Results]');
+	assert(Object.prototype.toString.call(results), '[object Results]');
+
+});
+
 describe('results.assert/Array', function(assert) {
 
 	let date1   = new Date('01.02.20 13:37');

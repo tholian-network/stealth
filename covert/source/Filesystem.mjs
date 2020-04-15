@@ -69,6 +69,8 @@ const Filesystem = function(settings) {
 
 Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 
+	[Symbol.toStringTag]: 'Filesystem',
+
 	connect: function() {
 
 		if (this.__state.watch.length > 0) {

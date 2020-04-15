@@ -66,6 +66,15 @@ describe('Timeline.from', function(assert) {
 
 });
 
+describe('timeline.toString', function(assert) {
+
+	let timeline = Timeline.from(null);
+
+	assert(timeline.toString(),                      '[object Timeline]');
+	assert(Object.prototype.toString.call(timeline), '[object Timeline]');
+
+});
+
 describe('timeline.complete', function(assert) {
 
 	let timeline = Timeline.from(4);

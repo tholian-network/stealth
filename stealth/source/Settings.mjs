@@ -9,43 +9,6 @@ import { HOSTS                                                       } from './p
 
 
 
-const get_latest = function(json) {
-
-	json = isObject(json) ? json : {};
-
-
-	let latest = null;
-
-	let type = json.type === 'Request' ? json.type : null;
-	let data = isObject(json.data)     ? json.data : null;
-
-	if (type !== null && data !== null) {
-
-		let timeline = isObject(data.timeline) ? data.timeline : null;
-		if (timeline !== null) {
-
-			Object.values(timeline).forEach((time) => {
-
-				if (time !== null) {
-
-					if (latest !== null && time > latest) {
-						latest = time;
-					} else if (latest === null) {
-						latest = time;
-					}
-
-				}
-
-			});
-
-		}
-
-	}
-
-	return latest;
-
-};
-
 const get_message = (settings) => `
 ${settings.blockers.length} Blocker${settings.blockers.length === 1 ? '' : 's'}, \
 ${settings.filters.length} Filter${settings.filters.length === 1 ? '' : 's'}, \
@@ -273,54 +236,26 @@ const read = function(profile, keepdata, callback) {
 					this.sessions = sessions.map((raw) => {
 
 						let session = Session.from(raw);
-						if (session !== null) {
-
-							if (Object.keys(session.history).length > 0) {
-
-								let count = 0;
-
-								Object.values(session.history).forEach((history) => {
-									count += history.length;
-								});
-
-								if (count > 0) {
-									return session;
-								}
-
-							}
-
+						if (session !== null && session.tabs.length > 0) {
+							return session;
 						}
 
 						return null;
 
-					}).filter((v) => v !== null);
+					}).filter((session) => session !== null);
 
 				} else {
 
 					sessions.map((raw) => {
 
 						let session = Session.from(raw);
-						if (session !== null) {
-
-							if (Object.keys(session.history).length > 0) {
-
-								let count = 0;
-
-								Object.values(session.history).forEach((history) => {
-									count += history.length;
-								});
-
-								if (count > 0) {
-									return session;
-								}
-
-							}
-
+						if (session !== null && session.tabs.length > 0) {
+							return session;
 						}
 
 						return null;
 
-					}).filter((v) => v !== null).forEach((session) => {
+					}).filter((session) => session !== null).forEach((session) => {
 
 						let other = this.sessions.find((s) => s.domain === session.domain) || null;
 						if (other !== null) {
@@ -374,55 +309,15 @@ const save = function(profile, keepdata, callback) {
 
 			if (this.sessions.length > 0) {
 
-				let limit = null;
-				if (this.internet.history === 'stealth') {
-					limit = Date.now();
-				} else if (this.internet.history === 'day') {
-					limit = Date.now() - (1000 * 60 * 60 * 24);
-				} else if (this.internet.history === 'week') {
-					limit = Date.now() - (1000 * 60 * 60 * 24 * 7);
-				} else if (this.internet.history === 'forever') {
-					limit = null;
-				}
-
-				if (limit !== null) {
-
-					let count = 0;
+				if (this.internet.history !== 'forever') {
 
 					this.sessions.forEach((session) => {
 
-						for (let tid in session.history) {
-
-							let history = session.history[tid];
-							if (history.length > 0) {
-
-								for (let h = 0, hl = history.length; h < hl; h++) {
-
-									let request = history[h];
-									let latest  = get_latest(request);
-									if (latest !== null && latest < limit) {
-										history.splice(h, 1);
-										count++;
-										hl--;
-										h--;
-									} else if (latest === null) {
-										history.splice(h, 1);
-										count++;
-										hl--;
-										h--;
-									}
-
-								}
-
-							}
-
-						}
+						session.tabs.forEach((tab) => {
+							tab.forget(this.internet.history);
+						});
 
 					});
-
-					if (count > 0) {
-						console.warn('Settings: ' + count + ' Request' + (count === 1 ? '' : 's') + ' removed from History.');
-					}
 
 				}
 
@@ -648,6 +543,8 @@ const Settings = function(stealth, profile, vendor) {
 
 
 Settings.prototype = {
+
+	[Symbol.toStringTag]: 'Settings',
 
 	toJSON: function() {
 

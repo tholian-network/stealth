@@ -16,13 +16,9 @@ const update = function(tab) {
 
 	if (tab !== null) {
 
-		let can_back  = tab.history.indexOf(tab.url) > 0;
-		let can_next  = tab.history.indexOf(tab.url) < tab.history.length - 1;
-		let can_pause = tab.requests.find((r) => r.loading === true) || null;
-
-		this.back.state(can_back ? 'enabled' : 'disabled');
-		this.next.state(can_next ? 'enabled' : 'disabled');
-		this.action.value(can_pause ? 'pause' : 'refresh');
+		this.back.state(tab.can('back') ? 'enabled' : 'disabled');
+		this.next.state(tab.can('next') ? 'enabled' : 'disabled');
+		this.action.value(tab.can('pause') ? 'pause' : 'refresh');
 		this.action.state('enabled');
 
 	} else {

@@ -42,6 +42,8 @@ const Client = function(stealth) {
 
 Client.prototype = Object.assign({}, Emitter.prototype, {
 
+	[Symbol.toStringTag]: 'Client',
+
 	connect: function(host, callback) {
 
 		host     = isString(host)       ? host     : 'localhost';

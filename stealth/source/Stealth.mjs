@@ -222,6 +222,8 @@ const Stealth = function(settings) {
 
 Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
+	[Symbol.toStringTag]: 'Stealth',
+
 	connect: function() {
 
 		if (this.__state.connected === false) {
@@ -291,18 +293,15 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (session !== null) {
 
-			let sessions = this.settings.sessions;
-			if (sessions.includes(session) === false) {
-				sessions.push(session);
+			if (this.settings.sessions.includes(session) === false) {
+				this.settings.sessions.push(session);
 			}
 
 			return session;
 
 		} else if (headers !== null) {
 
-			let address  = headers['@remote'] || null;
-			let sessions = this.settings.sessions;
-
+			let address = headers['@remote'] || null;
 			if (address !== null) {
 
 				// XXX: This is a Chromium Bug, two parallel connections
@@ -335,26 +334,24 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 				if (sdomain !== null) {
-
-					for (let s = 0; s < sessions.length; s++) {
-
-						let other = sessions[s];
-						if (other.domain === sdomain) {
-							session = other;
-							break;
-						}
-
-					}
-
+					session = this.settings.sessions.find((s) => s.domain === sdomain) || null;
 				}
 
 			}
 
 			if (session !== null) {
-				session.set(headers);
+
+				session.track(headers);
+
 			} else {
-				session = new Session(headers);
-				sessions.push(session);
+
+				session = new Session(this);
+				session.track(headers);
+
+				if (this.settings.sessions.includes(session) === false) {
+					this.settings.sessions.push(session);
+				}
+
 			}
 
 			return session;

@@ -196,9 +196,8 @@ if (action === 'check') {
 	console.log('');
 
 
-	let filesystem      = new Filesystem();
 	let reviews         = [];
-	let implementations = filesystem.scan(root + '/stealth/source', true).filter((path) => {
+	let implementations = new Filesystem().scan(root + '/stealth/source', true).filter((path) => {
 
 		if (
 			path.endsWith('.mjs') === true
@@ -221,7 +220,7 @@ if (action === 'check') {
 
 		implementations.forEach((id) => {
 
-			let review = REVIEWS.find((other) => other.id === id) || null;
+			let review = REVIEWS.find((r) => r.id === id) || null;
 			if (review === null) {
 
 				reviews.push({
@@ -295,7 +294,7 @@ if (action === 'check') {
 		} else {
 
 			console.warn('');
-			console.warn('Covert: Some reviews have no assert() calls.');
+			console.warn('Covert: Some reviews are incomplete.');
 			console.warn('');
 
 		}
@@ -325,7 +324,7 @@ if (action === 'check') {
 				if (review.before !== null) {
 
 					if (review.before.results.length === 0) {
-						console.warn('> ' + review.before.name);
+						console.warn('> ' + review.before.name + ' has no assert() calls.');
 					}
 
 				}
@@ -338,7 +337,7 @@ if (action === 'check') {
 
 					review.tests.forEach((test) => {
 						if (test.results.length === 0) {
-							console.warn('> ' + test.name);
+							console.warn('> ' + test.name + ' has no assert() calls.');
 						}
 					});
 
@@ -347,7 +346,7 @@ if (action === 'check') {
 				if (review.after !== null) {
 
 					if (review.after.results.length === 0) {
-						console.warn('> ' + review.after.name);
+						console.warn('> ' + review.after.name + ' has no assert() calls.');
 					}
 
 				}
@@ -360,7 +359,7 @@ if (action === 'check') {
 
 	} else {
 
-		console.info('Covert: All reviews have assert() calls.');
+		console.info('Covert: Stealth is reviewed correctly.');
 		process.exit(0);
 
 	}

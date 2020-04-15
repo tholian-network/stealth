@@ -211,6 +211,8 @@ Results.from = function(data) {
 
 Results.prototype = {
 
+	[Symbol.toStringTag]: 'Results',
+
 	assert: function(result, expect) {
 
 		result = result !== undefined ? result : undefined;

@@ -54,6 +54,8 @@ const Browser = function(settings) {
 
 Browser.prototype = Object.assign({}, Emitter.prototype, {
 
+	[Symbol.toStringTag]: 'Browser',
+
 	back: function(callback) {
 
 		callback = isFunction(callback) ? callback : null;
@@ -61,30 +63,15 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.tab !== null) {
 
-			let index = this.tab.history.indexOf(this.tab.url);
-			if (index !== -1) {
+			let result = this.tab.back();
+			if (result === true) {
 
-				let url = this.tab.history[index - 1] || null;
-				if (url !== null) {
+				this.emit('refresh', [ this.tab, this.tabs, false ]);
 
-					this.tab.url = url;
-					this.tab.ref = URL.parse(url);
-					this.emit('refresh', [ this.tab, this.tabs, false ]);
-
-					if (callback !== null) {
-						callback(true);
-					} else {
-						return true;
-					}
-
+				if (callback !== null) {
+					callback(true);
 				} else {
-
-					if (callback !== null) {
-						callback(false);
-					} else {
-						return false;
-					}
-
+					return true;
 				}
 
 			} else {
@@ -405,36 +392,25 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.tab !== null) {
 
-			if (url.includes('./') || url.includes('../')) {
-				url = URL.resolve(this.tab.url, url).url;
-			}
+			let result = this.tab.navigate(url);
+			if (result === true) {
 
-			if (this.tab.url !== url) {
+				this.refresh();
 
-				let index1 = this.tab.history.indexOf(this.tab.url);
-				if (index1 < this.tab.history.length - 1) {
-					this.tab.history.splice(index1 + 1);
+				if (callback !== null) {
+					callback(true);
+				} else {
+					return true;
 				}
 
-				this.tab.url = url;
-				this.tab.ref = URL.parse(url);
-
-				let index2 = this.tab.history.indexOf(url);
-				if (index2 !== -1) {
-					this.tab.history.splice(index2, 1);
-				}
-
-				this.tab.history.push(url);
-
-			}
-
-			this.refresh();
-
-
-			if (callback !== null) {
-				callback(true);
 			} else {
-				return true;
+
+				if (callback !== null) {
+					callback(false);
+				} else {
+					return false;
+				}
+
 			}
 
 		} else {
@@ -452,27 +428,25 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				let tab = this.open(url);
 				if (tab !== null) {
 
-					let index1 = tab.history.indexOf(tab.url);
-					if (index1 < tab.history.length - 1) {
-						tab.history.splice(index1 + 1);
-					}
+					let result = tab.navigate(url);
+					if (result === true) {
 
-					tab.url = url;
+						this.show(tab);
 
-					let index2 = tab.history.indexOf(url);
-					if (index2 !== -1) {
-						tab.history.splice(index2, 1);
-					}
+						if (callback !== null) {
+							callback(true);
+						} else {
+							return true;
+						}
 
-					tab.history.push(url);
-
-					this.show(tab);
-
-
-					if (callback !== null) {
-						callback(true);
 					} else {
-						return true;
+
+						if (callback !== null) {
+							callback(false);
+						} else {
+							return false;
+						}
+
 					}
 
 				} else {
@@ -498,30 +472,15 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.tab !== null) {
 
-			let index = this.tab.history.indexOf(this.tab.url);
-			if (index !== -1) {
+			let result = this.tab.next();
+			if (result === true) {
 
-				let url = this.tab.history[index + 1] || null;
-				if (url !== null) {
+				this.emit('refresh', [ this.tab, this.tabs, false ]);
 
-					this.tab.url = url;
-					this.tab.ref = URL.parse(url);
-					this.emit('refresh', [ this.tab, this.tabs, false ]);
-
-					if (callback !== null) {
-						callback(true);
-					} else {
-						return true;
-					}
-
+				if (callback !== null) {
+					callback(true);
 				} else {
-
-					if (callback !== null) {
-						callback(false);
-					} else {
-						return false;
-					}
-
+					return true;
 				}
 
 			} else {
@@ -602,12 +561,25 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.tab !== null) {
 
-			this.emit('pause', [ this.tab, this.tabs, true ]);
+			let result = this.tab.pause();
+			if (result === true) {
 
-			if (callback !== null) {
-				callback(true);
+				this.emit('pause', [ this.tab, this.tabs, true ]);
+
+				if (callback !== null) {
+					callback(true);
+				} else {
+					return true;
+				}
+
 			} else {
-				return true;
+
+				if (callback !== null) {
+					callback(false);
+				} else {
+					return false;
+				}
+
 			}
 
 		} else {

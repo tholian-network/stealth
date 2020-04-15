@@ -1,8 +1,9 @@
 
-import { console, isNumber, isObject, isString } from './BASE.mjs';
-import { IP                                    } from './parser/IP.mjs';
-import { UA                                    } from './parser/UA.mjs';
-import { Request                               } from './Request.mjs';
+import { console, isArray, isNumber, isObject, isString } from './BASE.mjs';
+import { IP                                             } from './parser/IP.mjs';
+import { UA                                             } from './parser/UA.mjs';
+import { Request                                        } from './Request.mjs';
+import { Tab                                            } from './Tab.mjs';
 
 
 
@@ -54,48 +55,11 @@ const randomize_useragent = function(platform) {
 
 const remove_request = function(request) {
 
-	let history = {};
+	this.tabs.forEach((tab) => {
 
-	for (let tid in this.tabs) {
-
-		let tab = this.tabs[tid];
-
-		for (let t = 0; t < tab.length; t++) {
-
-			if (tab[t] === request) {
-
-				if (request.flags.webview === true) {
-
-					let entries = history[tid] || null;
-					if (entries === null) {
-						entries = history[tid] = [];
-					}
-
-					entries.push(request.toJSON());
-
-				}
-
-				tab.splice(t, 1);
-				t--;
-
-			}
-
+		if (tab.includes(request) === true) {
+			tab.remove(request);
 		}
-
-	}
-
-	Object.keys(history).forEach((tab) => {
-
-		history[tab].forEach((request) => {
-
-			let entries = this.history[tab] || null;
-			if (entries === null) {
-				entries = this.history[tab] = [];
-			}
-
-			entries.push(request);
-
-		});
 
 	});
 
@@ -103,23 +67,13 @@ const remove_request = function(request) {
 
 
 
-const Session = function(data, stealth) {
+const Session = function(stealth) {
 
-	let settings = Object.assign({}, data);
-
-
-	this.domain = Date.now() + '.artificial.engineering';
-	this.agent  = {
-		engine:  null,
-		system:  null,
-		version: null
-	};
-	this.history = {};
+	this.agent   = null;
+	this.domain  = Date.now() + '.artificial.engineering';
 	this.stealth = stealth;
-	this.tabs    = {};
+	this.tabs    = [];
 	this.warning = 0;
-
-	this.set(settings);
 
 };
 
@@ -138,16 +92,20 @@ Session.from = function(json) {
 
 			let session = new Session();
 
-			if (isString(data.domain))  session.domain  = data.domain;
-			if (isObject(data.agent))   session.agent   = data.agent;
-			if (isNumber(data.warning)) session.warning = data.warning;
+			if (UA.isUA(data.agent) === true) {
+				session.agent = data.agent;
+			}
 
-			if (isObject(data.history)) {
+			if (isString(data.domain) === true) {
+				session.domain = data.domain;
+			}
 
-				for (let tab in data.history) {
-					session.history[tab] = Array.from(data.history[tab]);
-				}
+			if (isNumber(data.warning) === true) {
+				session.warning = data.warning;
+			}
 
+			if (isArray(data.tabs) === true) {
+				session.tabs = data.tabs.map((data) => Tab.from(data)).filter((tab) => tab !== null);
 			}
 
 			return session;
@@ -170,28 +128,26 @@ Session.merge = function(target, source) {
 
 	if (target !== null && source !== null) {
 
-		if (source.domain !== null) target.domain = source.domain;
-		if (source.agent  !== null) target.agent  = source.agent;
+		if (UA.isUA(source.agent) === true) {
+			target.agent = source.agent;
+		}
 
-		if (isObject(source.history)) {
+		if (isString(source.domain) === true) {
+			target.domain = source.domain;
+		}
 
-			for (let tab in source.history) {
+		if (isArray(source.tabs) === true) {
 
-				let entries = target.history[tab] || null;
-				if (entries === null) {
-					entries = target.history[tab] = [];
+			source.tabs.forEach((tab) => {
+
+				let other = target.tabs.find((t) => t.id === tab.id) || null;
+				if (other !== null) {
+					Tab.merge(other, tab);
+				} else {
+					target.tabs.push(tab);
 				}
 
-				source.history[tab].forEach((request) => {
-
-					let found = target.history[tab].find((other) => other.id === request.id) || null;
-					if (found === null) {
-						target.history[tab].push(request);
-					}
-
-				});
-
-			}
+			});
 
 		}
 
@@ -205,28 +161,16 @@ Session.merge = function(target, source) {
 
 Session.prototype = {
 
+	[Symbol.toStringTag]: 'Session',
+
 	toJSON: function() {
 
 		let data = {
-			domain:  this.domain,
 			agent:   this.agent,
-			history: {},
-			tabs:    {},
+			domain:  this.domain,
+			tabs:    this.tabs.map((tab) => tab.toJSON()),
 			warning: this.warning
 		};
-
-		Object.keys(this.history).forEach((tab) => {
-			data.history[tab] = this.history[tab];
-		});
-
-		Object.keys(this.tabs).forEach((tab) => {
-
-			let requests = this.tabs[tab].filter((req) => req.flags.webview === true);
-			if (requests.length > 0) {
-				data.tabs[tab] = requests.map((req) => req.toJSON());
-			}
-
-		});
 
 		return {
 			type: 'Session',
@@ -244,21 +188,12 @@ Session.prototype = {
 
 			let found = null;
 
-			for (let id in this.tabs) {
+			for (let t = 0, tl = this.tabs.length; t < tl; t++) {
 
-				let requests = this.tabs[id];
-
-				for (let r = 0, rl = requests.length; r < rl; r++) {
-
-					let request = requests[r];
-					if (request.url === url) {
-						found = request;
-						break;
-					}
-
-				}
-
-				if (found !== null) {
+				let tab = this.tabs[t];
+				let req = tab.requests.find((request) => request.url === url) || null;
+				if (req !== null) {
+					found = req;
 					break;
 				}
 
@@ -273,45 +208,47 @@ Session.prototype = {
 
 	},
 
-	init: function(request, tab) {
+	init: function(request, tid) {
 
 		request = request instanceof Request ? request : null;
-		tab     = isString(tab)              ? tab     : '0';
+		tid     = isString(tid)              ? tid     : '0';
 
 
-		if (request !== null && tab !== null) {
+		if (request !== null && tid !== null) {
 
-			let cache = this.tabs[tab] || null;
-			if (cache === null) {
-				cache = this.tabs[tab] = [];
+			let tab = this.tabs.find((t) => t.id === tid) || null;
+			if (tab === null) {
+				tab = new Tab({ id: tid });
+				this.tabs.push(tab);
 			}
 
-			if (cache.includes(request) === false) {
+			if (request.get('webview') === true) {
+				tab.navigate(request.url);
+			}
+
+			if (tab.includes(request) === false) {
 
 				request.on('init', () => {
 
-					let useragent = this.useragents[tab] || null;
-					if (useragent === null) {
-						useragent = this.useragents[tab] = randomize_useragent(this.stealth.settings.useragent);
+					if (request.get('useragent') === null) {
+						request.set('useragent', randomize_useragent(this.stealth.settings.useragent));
 					}
-
-					request.set('useragent', useragent);
 
 				});
 
 				request.on('connect', () => {
-					console.log('Session "' + this.domain + '" tab #' + tab + ' requests "' + request.url + '".');
+					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url + '".');
 				});
 
 				request.on('progress', (response, progress) => {
-					console.log('Session "' + this.domain + '" tab #' + tab + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
+					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
 				});
 
 				request.on('error',    () => remove_request.call(this, request));
 				request.on('redirect', () => remove_request.call(this, request));
 				request.on('response', () => remove_request.call(this, request));
 
-				cache.push(request);
+				tab.track(request);
 
 			}
 
@@ -319,19 +256,33 @@ Session.prototype = {
 
 	},
 
-	set: function(settings) {
+	kill: function() {
 
-		settings = isObject(settings) ? settings : {};
+		this.tabs.forEach((tab) => {
+
+			tab.requests.forEach((request) => {
+				console.log('Session "' + this.domain + '" tab #' + tab.id + ' remains "' + request.url + '".');
+			});
+
+		});
+
+		console.log('Session "' + this.domain + '" disconnected.');
+
+	},
+
+	track: function(headers) {
+
+		headers = isObject(headers) ? headers : {};
 
 
-		let domain = settings['domain'] || null;
+		let domain = headers['domain'] || null;
 		if (domain !== null) {
 			this.domain = domain;
 		}
 
 		if (this.domain.endsWith('.artificial.engineering')) {
 
-			let address = settings['@remote'] || null;
+			let address = headers['@remote'] || null;
 			if (address !== null) {
 
 				let ip = IP.parse(address);
@@ -343,13 +294,9 @@ Session.prototype = {
 
 		}
 
-		if (this.agent.engine === null) {
-
-			let agent = settings['user-agent'] || null;
-			if (agent !== null) {
-				this.agent = UA.parse(agent);
-			}
-
+		let useragent = headers['user-agent'] || null;
+		if (useragent !== null) {
+			this.agent = UA.parse(headers['user-agent']);
 		}
 
 	},
@@ -382,20 +329,6 @@ Session.prototype = {
 		if (this.warning >= 3) {
 			this.kill();
 		}
-
-	},
-
-	kill: function() {
-
-		for (let tab in this.tabs) {
-
-			this.tabs[tab].forEach((request) => {
-				console.log('Session "' + this.domain + '" tab #' + tab + ' remains "' + request.url + '".');
-			});
-
-		}
-
-		console.log('Session "' + this.domain + '" disconnected.');
 
 	}
 

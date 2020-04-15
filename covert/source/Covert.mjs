@@ -1,17 +1,21 @@
 
 import process from 'process';
 
-import { console, isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
-import { Emitter                                } from '../../stealth/source/Emitter.mjs';
-import { root                                   } from './ENVIRONMENT.mjs';
-import { Filesystem                             } from './Filesystem.mjs';
-import { Network                                } from './Network.mjs';
-import { Renderer                               } from './Renderer.mjs';
+import { console, isBoolean, isString } from '../../stealth/source/BASE.mjs';
+import { Emitter                      } from '../../stealth/source/Emitter.mjs';
+import { root                         } from './ENVIRONMENT.mjs';
+import { Filesystem                   } from './Filesystem.mjs';
+import { Network                      } from './Network.mjs';
+import { Renderer                     } from './Renderer.mjs';
 
 
 
 const isModule = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Module]';
+};
+
+const isReview = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Review]';
 };
 
 const assert = function(timeline, results, result, expect) {
@@ -653,6 +657,8 @@ const Covert = function(settings) {
 
 Covert.prototype = Object.assign({}, Emitter.prototype, {
 
+	[Symbol.toStringTag]: 'Covert',
+
 	connect: function() {
 
 		let review = this.reviews[0] || null;
@@ -707,7 +713,7 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 
-		review = isObject(review) ? review : null;
+		review = isReview(review) ? review : null;
 
 
 		if (review !== null) {
@@ -745,7 +751,7 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 
-		review = isObject(review) ? review : null;
+		review = isReview(review) ? review : null;
 
 
 		if (review !== null) {

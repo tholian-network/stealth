@@ -246,6 +246,8 @@ const Network = function(settings) {
 
 Network.prototype = {
 
+	[Symbol.toStringTag]: 'Network',
+
 	connect: function() {
 
 		if (

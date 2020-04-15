@@ -305,6 +305,8 @@ const Server = function(stealth) {
 
 Server.prototype = {
 
+	[Symbol.toStringTag]: 'Server',
+
 	connect: function(host, callback) {
 
 		host     = isString(host)       ? host     : null;
