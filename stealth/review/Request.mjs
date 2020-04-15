@@ -1,8 +1,8 @@
 
 import { create                          } from '../../covert/EXAMPLE.mjs';
 import { after, before, describe, finish } from '../../covert/index.mjs';
-import { connect, disconnect             } from './Server.mjs';
-import { Request                         } from '../source/Request.mjs';
+import { Request                         } from '../../stealth/source/Request.mjs';
+import { connect, disconnect             } from './Stealth.mjs';
 
 
 

@@ -1,7 +1,7 @@
 
-import { PAC              } from '../../source/other/PAC.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
 import { IPV4, IPV6       } from '../../../covert/EXAMPLE.mjs';
+import { PAC              } from '../../../stealth/source/other/PAC.mjs';
 
 
 

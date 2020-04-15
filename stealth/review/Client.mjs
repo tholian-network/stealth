@@ -1,11 +1,11 @@
 
-import { after, before, describe, finish                      } from '../../covert/index.mjs';
-import { connect as srv_connect, disconnect as srv_disconnect } from './Server.mjs';
-import { Client                                               } from '../source/Client.mjs';
+import { after, before, describe, finish                              } from '../../covert/index.mjs';
+import { Client                                                       } from '../../stealth/source/Client.mjs';
+import { connect as connect_stealth, disconnect as disconnect_stealth } from './Stealth.mjs';
 
 
 
-before(srv_connect);
+before(connect_stealth);
 
 export const connect = describe('client.connect', function(assert) {
 
@@ -65,7 +65,7 @@ export const disconnect = describe('client.disconnect', function(assert) {
 
 });
 
-after(srv_disconnect);
+after(disconnect_stealth);
 
 
 export default finish('stealth/Client');

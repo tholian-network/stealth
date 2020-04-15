@@ -1,8 +1,8 @@
 
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { sketch                          } from '../../../covert/EXAMPLE.mjs';
-import { Client                          } from '../../source/Client.mjs';
-import { Stealth                         } from '../../source/Stealth.mjs';
+import { Client                          } from '../../../stealth/source/Client.mjs';
+import { Stealth                         } from '../../../stealth/source/Stealth.mjs';
 
 
 

@@ -1,8 +1,8 @@
 
+import { isArray, isString               } from '../../../base/index.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { sketch, HOSTS as EXAMPLE_HOSTS  } from '../../../covert/EXAMPLE.mjs';
-import { isArray, isString               } from '../../source/BASE.mjs';
-import { HOSTS                           } from '../../source/parser/HOSTS.mjs';
+import { HOSTS                           } from '../../../stealth/source/parser/HOSTS.mjs';
 
 
 

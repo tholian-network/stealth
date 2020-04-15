@@ -1,7 +1,7 @@
 
 import { config, sketch                  } from '../../../covert/EXAMPLE.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
-import { Optimizer                       } from '../../source/optimizer/CSS.mjs';
+import { Optimizer                       } from '../../../stealth/source/optimizer/CSS.mjs';
 
 
 

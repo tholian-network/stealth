@@ -1,6 +1,6 @@
 
 import { describe, finish } from '../../../covert/index.mjs';
-import { URL              } from '../../source/parser/URL.mjs';
+import { URL              } from '../../../stealth/source/parser/URL.mjs';
 
 
 

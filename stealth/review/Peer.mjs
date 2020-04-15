@@ -2,8 +2,9 @@
 import process from 'process';
 
 import { after, before, describe, finish } from '../../covert/index.mjs';
-import { Client                          } from '../source/Client.mjs';
-import { Stealth                         } from '../source/Stealth.mjs';
+import { Client                          } from '../../stealth/source/Client.mjs';
+import { Stealth                         } from '../../stealth/source/Stealth.mjs';
+
 
 
 before('peers[].connect', function(assert) {

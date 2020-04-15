@@ -1,7 +1,7 @@
 
 import { describe, finish } from '../../../covert/index.mjs';
 import { DOMAIN           } from '../../../covert/EXAMPLE.mjs';
-import { DNS              } from '../../source/protocol/DNS.mjs';
+import { DNS              } from '../../../stealth/source/protocol/DNS.mjs';
 
 
 

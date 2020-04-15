@@ -1,7 +1,7 @@
 
-import { REDIRECT         } from '../../source/other/REDIRECT.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
 import { IPV4, IPV6       } from '../../../covert/EXAMPLE.mjs';
+import { REDIRECT         } from '../../../stealth/source/other/REDIRECT.mjs';
 
 
 

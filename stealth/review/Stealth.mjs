@@ -1,9 +1,9 @@
 
 import process from 'process';
 
-import { after, before, finish } from '../../covert/index.mjs';
-import { Service               } from '../../covert/EXAMPLE.mjs';
-import { Stealth               } from '../../stealth/source/Stealth.mjs';
+import { after, before, describe, finish } from '../../covert/index.mjs';
+import { Service                         } from '../../covert/EXAMPLE.mjs';
+import { Stealth                         } from '../../stealth/source/Stealth.mjs';
 
 
 
@@ -38,6 +38,15 @@ export const connect = before('stealth.connect', function(assert) {
 
 });
 
+describe('stealth.init', function(assert) {
+});
+
+describe('stealth.kill', function(assert) {
+});
+
+describe('stealth.open', function(assert) {
+});
+
 export const disconnect = after('stealth.disconnect', function(assert) {
 
 	this.stealth.once('disconnect', () => {
@@ -56,5 +65,5 @@ export const disconnect = after('stealth.disconnect', function(assert) {
 });
 
 
-export default finish('stealth/Server');
+export default finish('stealth/Stealth');
 

@@ -1,7 +1,7 @@
 
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { create, PAYLOAD, REQUEST        } from '../../../covert/EXAMPLE.mjs';
-import { HTTPS                           } from '../../source/protocol/HTTPS.mjs';
+import { HTTPS                           } from '../../../stealth/source/protocol/HTTPS.mjs';
 
 
 

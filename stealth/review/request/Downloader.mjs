@@ -1,6 +1,6 @@
 
 import { describe, finish } from '../../../covert/index.mjs';
-import { Downloader       } from '../../source/request/Downloader.mjs';
+import { Downloader       } from '../../../stealth/source/request/Downloader.mjs';
 
 
 

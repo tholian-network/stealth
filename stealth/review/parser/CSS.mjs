@@ -1,7 +1,7 @@
 
 import { Buffer           } from '../../../base/index.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
-import { CSS              } from '../../source/parser/CSS.mjs';
+import { CSS              } from '../../../stealth/source/parser/CSS.mjs';
 
 
 

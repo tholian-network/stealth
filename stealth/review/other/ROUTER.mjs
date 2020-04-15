@@ -1,7 +1,7 @@
 
-import { ROUTER           } from '../../source/other/ROUTER.mjs';
-import { URL              } from '../../source/parser/URL.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
+import { ROUTER           } from '../../../stealth/source/other/ROUTER.mjs';
+import { URL              } from '../../../stealth/source/parser/URL.mjs';
 
 
 

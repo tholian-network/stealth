@@ -1,7 +1,7 @@
 
 import { Buffer           } from '../../../base/index.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
-import { ERROR            } from '../../source/other/ERROR.mjs';
+import { ERROR            } from '../../../stealth/source/other/ERROR.mjs';
 
 
 

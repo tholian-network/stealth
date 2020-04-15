@@ -1,14 +1,14 @@
 
-import { DOMAIN                                               } from '../../../covert/EXAMPLE.mjs';
-import { after, before, describe, finish                      } from '../../../covert/index.mjs';
-import { connect as srv_connect, disconnect as srv_disconnect } from '../Server.mjs';
-import { connect as cli_connect, disconnect as cli_disconnect } from '../Client.mjs';
-import { IP                                                   } from '../../source/parser/IP.mjs';
+import { DOMAIN                                                       } from '../../../covert/EXAMPLE.mjs';
+import { after, before, describe, finish                              } from '../../../covert/index.mjs';
+import { IP                                                           } from '../../../stealth/source/parser/IP.mjs';
+import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
+import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
 
 
-before(srv_connect);
-describe(cli_connect);
+before(connect_stealth);
+describe(connect_client);
 
 describe('client.services.host.save', function(assert) {
 
@@ -102,8 +102,8 @@ describe('client.services.host.remove', function(assert) {
 
 });
 
-describe(cli_disconnect);
-after(srv_disconnect);
+describe(disconnect_client);
+after(disconnect_stealth);
 
 
 export default finish('stealth/client/Host', {

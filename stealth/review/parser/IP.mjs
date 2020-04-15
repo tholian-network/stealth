@@ -1,6 +1,6 @@
 
 import { describe, finish } from '../../../covert/index.mjs';
-import { IP               } from '../../source/parser/IP.mjs';
+import { IP               } from '../../../stealth/source/parser/IP.mjs';
 
 
 

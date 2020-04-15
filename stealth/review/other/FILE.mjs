@@ -1,8 +1,8 @@
 
-import { FILE             } from '../../source/other/FILE.mjs';
-import { URL              } from '../../source/parser/URL.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
 import { sketch           } from '../../../covert/EXAMPLE.mjs';
+import { FILE             } from '../../../stealth/source/other/FILE.mjs';
+import { URL              } from '../../../stealth/source/parser/URL.mjs';
 
 
 

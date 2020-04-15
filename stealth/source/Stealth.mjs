@@ -283,56 +283,6 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	open: function(url) {
-
-		url = isString(url) ? url : '';
-
-
-		if (url !== null) {
-
-			let ref      = URL.parse(url);
-			let request  = null;
-			let sessions = this.settings.sessions;
-
-			for (let s = 0, sl = sessions.length; s < sl; s++) {
-
-				let cached = sessions[s].get(ref.url);
-				if (cached !== null) {
-					request = cached;
-					break;
-				}
-
-			}
-
-			if (request === null) {
-
-				request = new Request({
-					config: get_config.call(this, ref.url),
-					ref:    ref,
-					url:    ref.url
-				}, this);
-
-				request.on('error',    () => remove_request.call(this, request));
-				request.on('redirect', () => remove_request.call(this, request));
-				request.on('response', () => remove_request.call(this, request));
-
-				// Allow non-scheduled cached requests
-				// Disallow non-scheduled networked requests
-				request.set('connect', false);
-
-				this.requests.push(request);
-
-			}
-
-			return request;
-
-		}
-
-
-		return null;
-
-	},
-
 	init: function(session, headers) {
 
 		session = session instanceof Session ? session : null;
@@ -440,6 +390,56 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		return false;
+
+	},
+
+	open: function(url) {
+
+		url = isString(url) ? url : '';
+
+
+		if (url !== null) {
+
+			let ref      = URL.parse(url);
+			let request  = null;
+			let sessions = this.settings.sessions;
+
+			for (let s = 0, sl = sessions.length; s < sl; s++) {
+
+				let cached = sessions[s].get(ref.url);
+				if (cached !== null) {
+					request = cached;
+					break;
+				}
+
+			}
+
+			if (request === null) {
+
+				request = new Request({
+					config: get_config.call(this, ref.url),
+					ref:    ref,
+					url:    ref.url
+				}, this);
+
+				request.on('error',    () => remove_request.call(this, request));
+				request.on('redirect', () => remove_request.call(this, request));
+				request.on('response', () => remove_request.call(this, request));
+
+				// Allow non-scheduled cached requests
+				// Disallow non-scheduled networked requests
+				request.set('connect', false);
+
+				this.requests.push(request);
+
+			}
+
+			return request;
+
+		}
+
+
+		return null;
 
 	}
 

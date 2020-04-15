@@ -1,12 +1,13 @@
 
 import process from 'process';
 
-import { console                 } from '../../stealth/source/BASE.mjs';
-import { Covert                  } from '../source/Covert.mjs';
-import { action, flags, patterns } from '../source/ENVIRONMENT.mjs';
-import { REVIEWS as BASE         } from '../../base/review/index.mjs';
-import { REVIEWS as COVERT       } from '../../covert/review/index.mjs';
-import { REVIEWS as STEALTH      } from '../../stealth/review/index.mjs';
+import { console                       } from '../../stealth/source/BASE.mjs';
+import { Covert                        } from '../source/Covert.mjs';
+import { Filesystem                    } from '../source/Filesystem.mjs';
+import { action, flags, patterns, root } from '../source/ENVIRONMENT.mjs';
+import { REVIEWS as BASE               } from '../../base/review/index.mjs';
+import { REVIEWS as COVERT             } from '../../covert/review/index.mjs';
+import { REVIEWS as STEALTH            } from '../../stealth/review/index.mjs';
 
 
 
@@ -58,6 +59,7 @@ const show_help = () => {
 	console.log('');
 	console.log('    Action     | Description                                              ');
 	console.log('    -----------|----------------------------------------------------------');
+	console.log('    check      | Checks reviews and lists tests with no assert() calls.   ');
 	console.log('    scan       | Scans reviews and executes their tests.                  ');
 	console.log('    time       | Scans reviews and benchmarks their test timelines.       ');
 	console.log('    watch      | Observes Filesystem changes and scans Reviews on changes.');
@@ -187,7 +189,183 @@ const on_complete = (covert) => {
 
 
 
-if (action === 'watch') {
+if (action === 'check') {
+
+	console.log('');
+	console.info('Covert: Check Mode only validates Reviews and does not execute Covert!');
+	console.log('');
+
+
+	let filesystem      = new Filesystem();
+	let reviews         = [];
+	let implementations = filesystem.scan(root + '/stealth/source', true).filter((path) => {
+
+		if (
+			path.endsWith('.mjs') === true
+			&& path.endsWith('/BASE.mjs') == false
+			&& path.endsWith('/ENVIRONMENT.mjs') === false
+		) {
+
+			return true;
+
+		}
+
+		return false;
+
+	}).map((path) => {
+		let id = 'stealth/' + path.substr((root + '/stealth/source/').length);
+		return id.substr(0, id.length - 4);
+	});
+
+	if (implementations.length > 0) {
+
+		implementations.forEach((id) => {
+
+			let review = REVIEWS.find((other) => other.id === id) || null;
+			if (review === null) {
+
+				reviews.push({
+					id:     id,
+					before: null,
+					tests:  [],
+					after:  null,
+					state:  'none'
+				});
+
+			}
+
+		});
+
+	}
+
+	REVIEWS.forEach((review) => {
+
+		let incomplete = false;
+
+		if (review.before !== null) {
+
+			if (review.after.results.length === 0) {
+				incomplete = true;
+			}
+
+		}
+
+		if (review.tests.length === 0) {
+
+			incomplete = true;
+
+		} else {
+
+			review.tests.forEach((test) => {
+				if (test.results.length === 0) {
+					incomplete = true;
+				}
+			});
+
+		}
+
+		if (review.after !== null) {
+
+			if (review.after.results.length === 0) {
+				incomplete = true;
+			}
+
+		}
+
+		if (incomplete === true) {
+
+			if (reviews.includes(review) === false) {
+				reviews.push(review);
+			}
+
+		}
+
+	});
+
+
+	if (reviews.length > 0) {
+
+		let none = reviews.find((review) => review.state === 'none') || null;
+		if (none !== null) {
+
+			console.error('');
+			console.error('Covert: Some implementations have no reviews.');
+			console.error('');
+
+		} else {
+
+			console.warn('');
+			console.warn('Covert: Some reviews have no assert() calls.');
+			console.warn('');
+
+		}
+
+
+		reviews.sort((a, b) => {
+			if (a.id < b.id) return -1;
+			if (b.id < a.id) return  1;
+			return 0;
+		}).forEach((review) => {
+
+			console.log('');
+
+			if (
+				review.before === null
+				&& review.tests.length === 0
+				&& review.after === null
+			) {
+
+				console.error(review.id);
+				console.error('> No Review found.');
+
+			} else {
+
+				console.warn(review.id);
+
+				if (review.before !== null) {
+
+					if (review.before.results.length === 0) {
+						console.warn('> ' + review.before.name);
+					}
+
+				}
+
+				if (review.tests.length === 0) {
+
+					console.warn('> No describe() calls.');
+
+				} else {
+
+					review.tests.forEach((test) => {
+						if (test.results.length === 0) {
+							console.warn('> ' + test.name);
+						}
+					});
+
+				}
+
+				if (review.after !== null) {
+
+					if (review.after.results.length === 0) {
+						console.warn('> ' + review.after.name);
+					}
+
+				}
+
+			}
+
+		});
+
+		process.exit(1);
+
+	} else {
+
+		console.info('Covert: All reviews have assert() calls.');
+		process.exit(0);
+
+	}
+
+} else if (action === 'watch') {
 
 	console.log('');
 	console.info('Covert: Watch Mode');

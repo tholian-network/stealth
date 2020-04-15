@@ -1,7 +1,7 @@
 
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { create                          } from '../../../covert/EXAMPLE.mjs';
-import { WS                              } from '../../source/protocol/WS.mjs';
+import { WS                              } from '../../../stealth/source/protocol/WS.mjs';
 
 
 

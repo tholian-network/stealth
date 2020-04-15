@@ -1,9 +1,56 @@
 
 import fs from 'fs';
 
-import { isString } from '../../stealth/source/BASE.mjs';
-import { Emitter  } from '../../stealth/source/Emitter.mjs';
+import { isBoolean, isString } from '../../stealth/source/BASE.mjs';
+import { Emitter             } from '../../stealth/source/Emitter.mjs';
 
+
+
+const scan_recursive = (path, results) => {
+
+	let stat = null;
+
+	try {
+		stat = fs.lstatSync(path);
+	} catch (err) {
+		stat = null;
+	}
+
+	if (stat !== null) {
+
+		if (stat.isDirectory() === true) {
+
+			let nodes = [];
+
+			try {
+				nodes = fs.readdirSync(path);
+			} catch (err) {
+				nodes = [];
+			}
+
+			if (nodes.length > 0) {
+
+				nodes.forEach((node) => {
+
+					if (node.startsWith('.') === false) {
+						scan_recursive(path + '/' + node, results);
+					}
+
+				});
+
+			}
+
+		} else if (stat.isFile() === true) {
+
+			if (results.includes(path) === false) {
+				results.push(path);
+			}
+
+		}
+
+	}
+
+};
 
 
 const Filesystem = function(settings) {
@@ -139,6 +186,68 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		return null;
+
+	},
+
+	scan: function(path, recursive) {
+
+		path      = isString(path)       ? path      : null;
+		recursive = isBoolean(recursive) ? recursive : false;
+
+
+		let results = [];
+
+		if (path !== null) {
+
+
+			if (recursive === true) {
+
+				scan_recursive(path, results);
+
+			} else {
+
+				let nodes = [];
+
+				try {
+
+					let stat = fs.lstatSync(path);
+					if (stat.isDirectory() === true) {
+						nodes = fs.readdirSync(path);
+					}
+
+				} catch (err) {
+					nodes = [];
+				}
+
+				if (nodes.length > 0) {
+
+					nodes.forEach((node) => {
+
+						if (node.startsWith('.') === false) {
+
+							let stat = null;
+
+							try {
+								stat = fs.lstatSync(path + '/' + node);
+							} catch (err) {
+								stat = null;
+							}
+
+							if (stat !== null && stat.isFile()) {
+								results.push(path + '/' + node);
+							}
+
+						}
+
+					});
+
+				}
+
+			}
+
+		}
+
+		return results;
 
 	},
 

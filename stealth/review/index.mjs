@@ -1,8 +1,10 @@
 
+import Browser            from './Browser.mjs';
 import Client             from './Client.mjs';
 import Peer               from './Peer.mjs';
 import Request            from './Request.mjs';
-import Server             from './Server.mjs';
+// import Server             from './Server.mjs';
+import Stealth            from './Stealth.mjs';
 import client_Cache       from './client/Cache.mjs';
 import client_Filter      from './client/Filter.mjs';
 import client_Host        from './client/Host.mjs';
@@ -67,10 +69,11 @@ export const REVIEWS = [
 	request_Filter,
 	request_Optimizer,
 
-	// Server/Client
-	Server,
+	// Stealth
+	Stealth,
 	Client,
 	Request,
+	Browser,
 
 	// Network Services
 	client_Cache,

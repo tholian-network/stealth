@@ -6,7 +6,10 @@ import process from 'process';
 export const action = (() => {
 
 	let value = Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === false).shift() || '';
-	if (/^([watch]{5})$/g.test(value)) {
+
+	if (/^([check]{5})$/g.test(value)) {
+		return 'check';
+	} else if (/^([watch]{5})$/g.test(value)) {
 		return 'watch';
 	} else if (/^([scan]{4})$/g.test(value)) {
 		return 'scan';
