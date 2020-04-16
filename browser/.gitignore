@@ -4,6 +4,7 @@
 
 # shared with /stealth
 /source/Browser.mjs
+/source/Emitter.mjs
 /source/Tab.mjs
 /source/client
 /source/parser

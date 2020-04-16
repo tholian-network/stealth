@@ -26,6 +26,7 @@ import other_ROUTER       from './other/ROUTER.mjs';
 import parser_CSS         from './parser/CSS.mjs';
 import parser_HOSTS       from './parser/HOSTS.mjs';
 import parser_IP          from './parser/IP.mjs';
+import parser_UA          from './parser/UA.mjs';
 import parser_URL         from './parser/URL.mjs';
 import peer_Cache         from './peer/Cache.mjs';
 import protocol_DNS       from './protocol/DNS.mjs';
@@ -47,6 +48,7 @@ export const REVIEWS = [
 	parser_CSS,
 	parser_HOSTS,
 	parser_IP,
+	parser_UA,
 	parser_URL,
 
 	// Server Modules

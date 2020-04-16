@@ -49,6 +49,7 @@ describe('CSS.parse/normal', function(assert) {
 	});
 
 	assert(result !== null);
+
 	assert(result['background-color'].val,      [ 255, 204, 0, 1 ]);
 	assert(result['background-size-x'].val,     'contain');
 	assert(result['background-size-y'].val,     'contain');
@@ -66,24 +67,25 @@ describe('CSS.parse/animation', function(assert) {
 	});
 
 	assert(result !== null);
-	assert(result['animation-duration'].length === 2);
+
+	assert(result['animation-duration'].length, 2);
 	assert(result['animation-duration'].map((e) => e.ext), [ 's', 's' ]);
 	assert(result['animation-duration'].map((e) => e.val), [ 0, 1 ]);
-	assert(result['animation-timing-function'].length === 2);
+	assert(result['animation-timing-function'].length, 2);
 	assert(result['animation-timing-function'].map((e) => e.val), [ 'ease-out', 'ease-in' ]);
-	assert(result['animation-delay'].length === 2);
+	assert(result['animation-delay'].length, 2);
 	assert(result['animation-delay'].map((e) => e.ext), [ 's', 'ms' ]);
 	assert(result['animation-delay'].map((e) => e.val), [ 0, 200 ]);
-	assert(result['animation-iteration-count'].length === 2);
+	assert(result['animation-iteration-count'].length, 2);
 	assert(result['animation-iteration-count'].map((e) => e.typ), [ 'number', 'other' ]);
 	assert(result['animation-iteration-count'].map((e) => e.val), [ 1, 'infinite' ]);
-	assert(result['animation-direction'].length === 2);
+	assert(result['animation-direction'].length, 2);
 	assert(result['animation-direction'].map((e) => e.val), [ 'normal', 'alternate' ]);
-	assert(result['animation-fill-mode'].length === 2);
+	assert(result['animation-fill-mode'].length, 2);
 	assert(result['animation-fill-mode'].map((e) => e.val), [ 'none', 'backwards' ]);
-	assert(result['animation-play-state'].length === 2);
+	assert(result['animation-play-state'].length, 2);
 	assert(result['animation-play-state'].map((e) => e.val), [ 'running', 'paused' ]);
-	assert(result['animation-name'].length === 2);
+	assert(result['animation-name'].length, 2);
 	assert(result['animation-name'].map((e) => e.val), [ 'move', 'shake' ]);
 
 });
@@ -797,24 +799,24 @@ describe('CSS.parse/display', function(assert) {
 	});
 
 	assert(result1 !== null);
-	assert(result1['display'].val         === 'block');
-	assert(result1['display-outside'].val === 'block');
-	assert(result1['display-inside'].val  === 'flow');
+	assert(result1['display'].val,         'block');
+	assert(result1['display-outside'].val, 'block');
+	assert(result1['display-inside'].val,  'flow');
 
 	assert(result2 !== null);
-	assert(result2['display'].val         === 'list-item');
-	assert(result2['display-outside'].val === 'block');
-	assert(result2['display-inside'].val  === 'flow-root');
+	assert(result2['display'].val,         'list-item');
+	assert(result2['display-outside'].val, 'block');
+	assert(result2['display-inside'].val,  'flow-root');
 
 	assert(result3 !== null);
-	assert(result3['display'].val         === 'table-row-group');
-	assert(result3['display-outside'].val === 'table-row-group');
-	assert(result3['display-inside'].val  === 'table-row');
+	assert(result3['display'].val,         'table-row-group');
+	assert(result3['display-outside'].val, 'table-row-group');
+	assert(result3['display-inside'].val,  'table-row');
 
 	assert(result4 !== null);
-	assert(result4['display'].val         === 'table-row');
-	assert(result4['display-outside'].val === 'table-row');
-	assert(result4['display-inside'].val  === 'table-cell');
+	assert(result4['display'].val,         'table-row');
+	assert(result4['display-outside'].val, 'table-row');
+	assert(result4['display-inside'].val,  'table-cell');
 
 });
 
@@ -1332,19 +1334,19 @@ describe('CSS.parse/position', function(assert) {
 	});
 
 	assert(result1 !== null);
-	assert(result1['position'].val === 'absolute');
+	assert(result1['position'].val, 'absolute');
 
 	assert(result2 !== null);
-	assert(result2['position'].val === 'fixed');
+	assert(result2['position'].val, 'fixed');
 
 	assert(result3 !== null);
-	assert(result3['position'].val === 'relative');
+	assert(result3['position'].val, 'relative');
 
 	assert(result4 !== null);
-	assert(result4['position'].val === 'static');
+	assert(result4['position'].val, 'static');
 
 	assert(result5 !== null);
-	assert(result5['position'].val === 'sticky');
+	assert(result5['position'].val, 'sticky');
 
 });
 
@@ -1633,14 +1635,14 @@ describe('CSS.parse/transition', function(assert) {
 	});
 
 	assert(result !== null);
-	assert(result['transition-property'].length === 2);
+	assert(result['transition-property'].length, 2);
 	assert(result['transition-property'].map((e) => e.val), [ 'margin-left', 'padding' ]);
-	assert(result['transition-timing-function'].length === 2);
+	assert(result['transition-timing-function'].length, 2);
 	assert(result['transition-timing-function'].map((e) => e.val), [ 'ease-out', 'ease-in' ]);
-	assert(result['transition-duration'].length === 2);
+	assert(result['transition-duration'].length, 2);
 	assert(result['transition-duration'].map((e) => e.ext), [ 's', 's' ]);
 	assert(result['transition-duration'].map((e) => e.val), [ 0, 1 ]);
-	assert(result['transition-delay'].length === 2);
+	assert(result['transition-delay'].length, 2);
 	assert(result['transition-delay'].map((e) => e.ext), [ 's', 'ms' ]);
 	assert(result['transition-delay'].map((e) => e.val), [ 0, 200 ]);
 
@@ -1657,12 +1659,12 @@ describe('CSS.parse/transition-delay', function(assert) {
 	});
 
 	assert(result1 !== null);
-	assert(result1['transition-delay'].length === 2);
+	assert(result1['transition-delay'].length, 2);
 	assert(result1['transition-delay'].map((e) => e.ext), [ 'ms', 's' ]);
 	assert(result1['transition-delay'].map((e) => e.val), [ 13, 37 ]);
 
 	assert(result2 !== null);
-	assert(result2['transition-delay'].length === 1);
+	assert(result2['transition-delay'].length, 1);
 	assert(result2['transition-delay'].map((e) => e.ext), [ 's' ]);
 	assert(result2['transition-delay'].map((e) => e.val), [ 13 ]);
 
@@ -1679,12 +1681,12 @@ describe('CSS.parse/transition-duration', function(assert) {
 	});
 
 	assert(result1 !== null);
-	assert(result1['transition-duration'].length === 2);
+	assert(result1['transition-duration'].length, 2);
 	assert(result1['transition-duration'].map((e) => e.ext), [ 'ms', 's' ]);
 	assert(result1['transition-duration'].map((e) => e.val), [ 13, 37 ]);
 
 	assert(result2 !== null);
-	assert(result2['transition-duration'].length === 1);
+	assert(result2['transition-duration'].length, 1);
 	assert(result2['transition-duration'].map((e) => e.ext), [ 's' ]);
 	assert(result2['transition-duration'].map((e) => e.val), [ 13 ]);
 
@@ -1701,11 +1703,11 @@ describe('CSS.parse/transition-property', function(assert) {
 	});
 
 	assert(result1 !== null);
-	assert(result1['transition-property'].length === 2);
+	assert(result1['transition-property'].length, 2);
 	assert(result1['transition-property'].map((e) => e.val), [ 'margin', 'padding' ]);
 
 	assert(result2 !== null);
-	assert(result2['transition-property'].length === 1);
+	assert(result2['transition-property'].length, 1);
 	assert(result2['transition-property'].map((e) => e.val), [ 'max-width' ]);
 
 });
@@ -1721,11 +1723,11 @@ describe('CSS.parse/transition-timing-function', function(assert) {
 	});
 
 	assert(result1 !== null);
-	assert(result1['transition-timing-function'].length === 2);
+	assert(result1['transition-timing-function'].length, 2);
 	assert(result1['transition-timing-function'].map((e) => e.val), [ 'ease-in', 'ease-out' ]);
 
 	assert(result2 !== null);
-	assert(result2['transition-timing-function'].length === 1);
+	assert(result2['transition-timing-function'].length, 1);
 	assert(result2['transition-timing-function'].map((e) => e.val), [ 'linear' ]);
 
 });

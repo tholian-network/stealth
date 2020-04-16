@@ -1,5 +1,5 @@
 
-import { isObject, isString } from '../BASE.mjs';
+import { isArray, isObject, isString } from '../BASE.mjs';
 
 
 
@@ -16,9 +16,20 @@ const parse_version = function(prefix, agent) {
 		tmp = tmp.split('/').pop();
 		tmp = tmp.split('.').slice(0, 2).join('.');
 
-		let num = parseFloat(tmp);
-		if (Number.isNaN(num) === false) {
-			version = (num).toString();
+		if (tmp.includes('.')) {
+
+			let num = parseFloat(tmp);
+			if (Number.isNaN(num) === false) {
+				version = (num).toFixed(1);
+			}
+
+		} else {
+
+			let num = parseInt(tmp, 10);
+			if (Number.isNaN(num) === false) {
+				version = (num).toString() + '.0';
+			}
+
 		}
 
 	}
@@ -372,7 +383,9 @@ const SPIDER = {
 				system = 'desktop';
 			}
 
-			if (agent.includes('Baiduspider/')) {
+			if (agent.includes('Baiduspider+')) {
+				version = '2.0';
+			} else if (agent.includes('Baiduspider/')) {
 				version = parse_version('Baiduspider', agent);
 			} else if (agent.includes('baiduboxapp/')) {
 				version = parse_version('baiduboxapp', agent);
@@ -413,8 +426,8 @@ const SPIDER = {
 				if (data.system === 'desktop') {
 
 					return randomize([
-						'Mozilla/5.0 (compatible; Baiduspider/' + data.version + '; +http://www.baidu.com/search/spider.html)',
-						'Baiduspider+(+http://www.baidu.com/search/spider.htm)'
+						'Baiduspider+(+http://www.baidu.com/search/spider.htm)',
+						'Mozilla/5.0 (compatible; Baiduspider/' + data.version + '; +http://www.baidu.com/search/spider.html)'
 					]);
 
 				} else if (data.system === 'mobile') {
@@ -761,9 +774,9 @@ const SPIDER = {
 			if (agent.includes('Yahoo! Slurp/')) {
 				version = parse_version('Yahoo! Slurp', agent);
 			} else if (agent.includes('Yahoo! Slurp;')) {
-				version = 3.0;
+				version = '3.0';
 			} else if (agent.includes('YahooMailProxy;')) {
-				version = 3.0;
+				version = '3.0';
 			}
 
 			if (engine !== null && system !== null && version !== null) {
@@ -853,8 +866,8 @@ const SPIDER = {
 				if (data.version === '3.0') {
 
 					return randomize([
-						'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)',
-						'Mozilla/5.0 (compatible; YandexBot/3.0; MirrorDetector; +http://yandex.com/bots)'
+						'Mozilla/5.0 (compatible; YandexBot/' + data.version + '; +http://yandex.com/bots)',
+						'Mozilla/5.0 (compatible; YandexBot/' + data.version + '; MirrorDetector; +http://yandex.com/bots)'
 					]);
 
 				} else if (data.version === '17.1') {
@@ -944,13 +957,13 @@ const UA = {
 
 			if (platform === null) {
 
-				for (let eng in BROWSER) {
+				for (let eng in SPIDER) {
 
-					let browser = BROWSER[eng];
+					let browser = SPIDER[eng];
 					let ref     = browser.parse(agent);
 					if (ref !== null) {
 						engine   = ref.engine;
-						platform = 'browser';
+						platform = 'spider';
 						system   = ref.system;
 						version  = ref.version;
 						break;
@@ -962,13 +975,13 @@ const UA = {
 
 			if (platform === null) {
 
-				for (let eng in SPIDER) {
+				for (let eng in BROWSER) {
 
-					let browser = SPIDER[eng];
+					let browser = BROWSER[eng];
 					let ref     = browser.parse(agent);
 					if (ref !== null) {
 						engine   = ref.engine;
-						platform = 'spider';
+						platform = 'browser';
 						system   = ref.system;
 						version  = ref.version;
 						break;
@@ -1066,6 +1079,45 @@ const UA = {
 
 		return null;
 
+	},
+
+	sort: function(array) {
+
+		array = isArray(array) ? array : null;
+
+
+		if (array !== null) {
+
+			return array.filter((ua) => UA.isUA(ua)).sort((a, b) => {
+
+				if (a.platform === 'browser' && b.platform === 'spider') return -1;
+				if (b.platform === 'browser' && a.platform === 'spider') return  1;
+
+				if (a.system === 'desktop' && b.system === 'mobile') return -1;
+				if (b.system === 'desktop' && a.system === 'mobile') return  1;
+
+				if (a.engine < b.engine) return -1;
+				if (b.engine < a.engine) return  1;
+
+				let a_ver = parseFloat(a.version);
+				let b_ver = parseFloat(b.version);
+
+				if (Number.isNaN(a_ver) === false && Number.isNaN(b_ver) === false) {
+
+					if (a_ver < b_ver) return -1;
+					if (b_ver < a_ver) return  1;
+
+				}
+
+				return 0;
+
+			});
+
+		}
+
+
+		return [];
+
 	}
 
 };
@@ -1074,6 +1126,7 @@ const UA = {
 export const isUA   = UA.isUA;
 export const parse  = UA.parse;
 export const render = UA.render;
+export const sort   = UA.sort;
 
 export { UA };
 
