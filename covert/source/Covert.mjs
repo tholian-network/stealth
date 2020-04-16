@@ -7,15 +7,12 @@ import { root                         } from './ENVIRONMENT.mjs';
 import { Filesystem                   } from './Filesystem.mjs';
 import { Network                      } from './Network.mjs';
 import { Renderer                     } from './Renderer.mjs';
+import { isReview                     } from './Review.mjs';
 
 
 
 const isModule = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Module]';
-};
-
-const isReview = function(obj) {
-	return Object.prototype.toString.call(obj) === '[object Review]';
 };
 
 const assert = function(timeline, results, result, expect) {

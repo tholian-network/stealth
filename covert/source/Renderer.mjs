@@ -1,5 +1,6 @@
 
-import { console, isArray, isBoolean, isObject, isString } from '../../stealth/source/BASE.mjs';
+import { console, isArray, isBoolean, isString } from '../../stealth/source/BASE.mjs';
+import { isReview                              } from './Review.mjs';
 
 
 
@@ -507,7 +508,7 @@ Renderer.prototype = {
 
 			}
 
-		} else if (isObject(data) === true) {
+		} else if (isReview(data) === true) {
 
 			if (mode === 'complete') {
 				render_complete.call(this, data);

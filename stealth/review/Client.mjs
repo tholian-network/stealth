@@ -24,9 +24,9 @@ export const connect = describe('client.connect', function(assert) {
 describe('client.send/event', function(assert) {
 
 	this.client.once('response', (response) => {
-		assert(response.headers.service === 'mockup');
-		assert(response.headers.event === 'event');
-		assert(response.payload === 'payload');
+		assert(response.headers.service, 'mockup');
+		assert(response.headers.event,   'event');
+		assert(response.payload,         'payload');
 	});
 
 	this.client.send({
@@ -42,9 +42,9 @@ describe('client.send/event', function(assert) {
 describe('client.send/method', function(assert) {
 
 	this.client.once('response', (response) => {
-		assert(response.headers.service === 'mockup');
-		assert(response.headers.method === 'method');
-		assert(response.payload === 'payload');
+		assert(response.headers.service, 'mockup');
+		assert(response.headers.method,  'method');
+		assert(response.payload,         'payload');
 	});
 
 	this.client.send({

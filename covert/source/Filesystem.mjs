@@ -6,6 +6,10 @@ import { Emitter             } from '../../stealth/source/Emitter.mjs';
 
 
 
+export const isFilesystem = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Filesystem]';
+};
+
 const scan_recursive = (path, results) => {
 
 	let stat = null;

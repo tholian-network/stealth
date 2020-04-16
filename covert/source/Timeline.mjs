@@ -3,6 +3,10 @@ import { isArray, isFunction, isNumber } from '../../stealth/source/BASE.mjs';
 
 
 
+export const isTimeline = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Timeline]';
+};
+
 const prettify = (milliseconds) => {
 
 	if (milliseconds < 10) {

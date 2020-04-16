@@ -3,6 +3,10 @@ import { isArray, isBoolean, isDate, isFunction, isNumber, isObject, isRegExp, i
 
 
 
+export const isResults = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Results]';
+};
+
 const diff = function(aobject, bobject) {
 
 	aobject = aobject !== undefined ? aobject : undefined;

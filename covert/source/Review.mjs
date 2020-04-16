@@ -8,6 +8,10 @@ import { Timeline                       } from './Timeline.mjs';
 let CURRENT_REVIEW = null;
 let REVIEW_ID      = 0;
 
+export const isReview = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Review]';
+};
+
 export const Review = function() {
 
 	this.id     = ('Review-' + REVIEW_ID++);

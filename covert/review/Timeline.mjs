@@ -28,41 +28,40 @@ describe('Timeline.from', function(assert) {
 	let timeline4 = Timeline.from([ 13, 37, null ]);
 	let timeline5 = Timeline.from([ null, {}, 13 ]);
 
+	assert(timeline1.index, 0);
+	assert(timeline2.index, 0);
+	assert(timeline3.index, 0);
+	assert(timeline4.index, 0);
+	assert(timeline5.index, 0);
 
-	assert(timeline1.index === 0);
-	assert(timeline2.index === 0);
-	assert(timeline3.index === 0);
-	assert(timeline4.index === 0);
-	assert(timeline5.index === 0);
+	assert(timeline1.start, null);
+	assert(timeline2.start, null);
+	assert(timeline3.start, null);
+	assert(timeline4.start, null);
+	assert(timeline5.start, null);
 
-	assert(timeline1.start === null);
-	assert(timeline2.start === null);
-	assert(timeline3.start === null);
-	assert(timeline4.start === null);
-	assert(timeline5.start === null);
+	assert(timeline1.length, 0);
+	assert(timeline2.length, 5);
+	assert(timeline3.length, 2);
+	assert(timeline4.length, 3);
+	assert(timeline5.length, 3);
 
-	assert(timeline1.length === 0);
-	assert(timeline2.length === 5);
-	assert(timeline3.length === 2);
-	assert(timeline4.length === 3);
-	assert(timeline5.length === 3);
+	assert(timeline2.data[0], null);
+	assert(timeline2.data[1], null);
+	assert(timeline2.data[2], null);
+	assert(timeline2.data[3], null);
+	assert(timeline2.data[4], null);
 
-	assert(timeline2.data[0] === null);
-	assert(timeline2.data[1] === null);
-	assert(timeline2.data[2] === null);
-	assert(timeline2.data[3] === null);
-	assert(timeline2.data[4] === null);
+	assert(timeline3.data[0], null);
+	assert(timeline3.data[1], null);
 
-	assert(timeline3.data[0] === null);
-	assert(timeline3.data[1] === null);
+	assert(timeline4.data[0], 13);
+	assert(timeline4.data[1], 37);
+	assert(timeline4.data[2], null);
 
-	assert(timeline4.data[0] === 13);
-	assert(timeline4.data[1] === 37);
-	assert(timeline4.data[2] === null);
-
-	assert(timeline5.data[0] === null);
-	assert(timeline5.data[1] === null);
-	assert(timeline5.data[2] === 13);
+	assert(timeline5.data[0], null);
+	assert(timeline5.data[1], null);
+	assert(timeline5.data[2], 13);
 
 });
 
@@ -79,7 +78,7 @@ describe('timeline.complete', function(assert) {
 
 	let timeline = Timeline.from(4);
 
-	assert(timeline.start === null);
+	assert(timeline.start, null);
 	timeline.time();
 	assert(timeline.start !== null);
 	assert(timeline.complete(), false);
@@ -135,23 +134,28 @@ describe('timeline.progress', function(assert) {
 	assert(timeline.progress(), 0);
 
 	setTimeout(() => {
-		assert(timeline.progress() >= 100 && timeline.progress() <= 100 + TOLERANCE);
+		assert(timeline.progress() >= 100);
+		assert(timeline.progress() <= 100 + TOLERANCE);
 	}, 100);
 
 	setTimeout(() => {
-		assert(timeline.progress() >= 200 && timeline.progress() <= 200 + TOLERANCE);
+		assert(timeline.progress() >= 200);
+		assert(timeline.progress() <= 200 + TOLERANCE);
 	}, 200);
 
 	setTimeout(() => {
-		assert(timeline.progress() >= 300 && timeline.progress() <= 300 + TOLERANCE);
+		assert(timeline.progress() >= 300);
+		assert(timeline.progress() <= 300 + TOLERANCE);
 	}, 300);
 
 	setTimeout(() => {
-		assert(timeline.progress() >= 400 && timeline.progress() <= 400 + TOLERANCE);
+		assert(timeline.progress() >= 400);
+		assert(timeline.progress() <= 400 + TOLERANCE);
 	}, 400);
 
 	setTimeout(() => {
-		assert(timeline.progress() >= 500 && timeline.progress() <= 500 + TOLERANCE);
+		assert(timeline.progress() >= 500);
+		assert(timeline.progress() <= 500 + TOLERANCE);
 	}, 500);
 
 });
@@ -162,7 +166,6 @@ describe('timeline.includes', function(assert) {
 	let timeline2 = Timeline.from([ 13, 12,   37   ]);
 	let timeline3 = Timeline.from([ 13, null, 13   ]);
 	let timeline4 = Timeline.from([ 37, null, 37   ]);
-
 
 	assert(timeline1.includes(13),   true);
 	assert(timeline1.includes(37),   true);
@@ -190,7 +193,6 @@ describe('timeline.render', function(assert) {
 	let timeline4 = Timeline.from([ 37, null, 1337 ]);
 	let timeline5 = Timeline.from([ 13, null, null ]);
 	let timeline6 = Timeline.from(0);
-
 
 	assert(timeline1.render(), '| 13ms| 37ms|  ?  |');
 	assert(timeline2.render(), '| 13ms| 12ms| 37ms|');
@@ -245,7 +247,6 @@ describe('timeline.time', function(assert) {
 
 	let timeline = Timeline.from(3);
 
-
 	assert(timeline.index,   0);
 	assert(timeline.start,   null);
 	assert(timeline.data[0], null);
@@ -261,7 +262,6 @@ describe('timeline.time', function(assert) {
 	assert(timeline.data[1], null);
 	assert(timeline.data[2], null);
 	assert(timeline.length,  3);
-
 
 	setTimeout(() => {
 		timeline.time();
@@ -279,9 +279,12 @@ describe('timeline.time', function(assert) {
 
 		assert(timeline.index,   3);
 		assert(timeline.start !== null);
-		assert(timeline.data[0] >= 100 && timeline.data[0] < 100 + TOLERANCE);
-		assert(timeline.data[1] >= 200 && timeline.data[1] < 200 + TOLERANCE);
-		assert(timeline.data[2] >= 300 && timeline.data[2] < 300 + TOLERANCE);
+		assert(timeline.data[0] >= 100);
+		assert(timeline.data[0] < 100 + TOLERANCE);
+		assert(timeline.data[1] >= 200);
+		assert(timeline.data[1] < 200 + TOLERANCE);
+		assert(timeline.data[2] >= 300);
+		assert(timeline.data[2] < 300 + TOLERANCE);
 		assert(timeline.length,  3);
 
 	}, 500);

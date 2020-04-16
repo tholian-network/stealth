@@ -17,6 +17,85 @@ const REVIEWS = [
 	...STEALTH
 ];
 
+const lint_test = (test) => {
+
+	let errors = [];
+
+	let body = test.callback.toString().split('\n').slice(1, -1);
+	if (body.length > 0) {
+
+		let wrong_compare = body.map((line) => line.trim()).filter((line) => {
+			return line.startsWith('assert(') && line.endsWith(' === undefined);') === false;
+		}).find((line) => {
+			return line.startsWith('assert(') && (line.includes(' === ') || line.includes(' == ') || line.includes(' && '));
+		}) || null;
+
+		if (wrong_compare !== null) {
+			errors.push(test.name + ' should use assert(value, expect).');
+		}
+
+	}
+
+	return errors;
+
+};
+
+const lint = (review) => {
+
+	let errors = [];
+
+	if (review.before !== null) {
+
+		if (review.before.results.length === 0) {
+			errors.push(review.before.name + ' has no assert() calls.');
+		}
+
+		lint_test(review.before).forEach((error) => {
+			errors.push(error);
+		});
+
+	}
+
+	if (review.tests.length === 0) {
+
+		errors.push('no describe() calls.');
+
+	} else {
+
+		review.tests.forEach((test) => {
+
+			if (test.results.length === 0) {
+
+				errors.push(test.name + ' has no assert() calls.');
+
+			} else {
+
+				lint_test(test).forEach((error) => {
+					errors.push(error);
+				});
+
+			}
+
+		});
+
+	}
+
+	if (review.after !== null) {
+
+		if (review.after.results.length === 0) {
+			errors.push(review.after.name + ' has no assert() calls.');
+		}
+
+		lint_test(review.after).forEach((error) => {
+			errors.push(error);
+		});
+
+	}
+
+	return errors;
+
+};
+
 const reset = (review) => {
 
 	review.state = null;
@@ -239,39 +318,8 @@ if (action === 'check') {
 
 	REVIEWS.forEach((review) => {
 
-		let incomplete = false;
-
-		if (review.before !== null) {
-
-			if (review.after.results.length === 0) {
-				incomplete = true;
-			}
-
-		}
-
-		if (review.tests.length === 0) {
-
-			incomplete = true;
-
-		} else {
-
-			review.tests.forEach((test) => {
-				if (test.results.length === 0) {
-					incomplete = true;
-				}
-			});
-
-		}
-
-		if (review.after !== null) {
-
-			if (review.after.results.length === 0) {
-				incomplete = true;
-			}
-
-		}
-
-		if (incomplete === true) {
+		let errors = lint(review);
+		if (errors.length > 0) {
 
 			if (reviews.includes(review) === false) {
 				reviews.push(review);
@@ -319,35 +367,14 @@ if (action === 'check') {
 
 			} else {
 
-				console.warn(review.id);
+				let errors = lint(review);
+				if (errors.length > 0) {
 
-				if (review.before !== null) {
+					console.warn(review.id);
 
-					if (review.before.results.length === 0) {
-						console.warn('> ' + review.before.name + ' has no assert() calls.');
-					}
-
-				}
-
-				if (review.tests.length === 0) {
-
-					console.warn('> No describe() calls.');
-
-				} else {
-
-					review.tests.forEach((test) => {
-						if (test.results.length === 0) {
-							console.warn('> ' + test.name + ' has no assert() calls.');
-						}
+					errors.forEach((error) => {
+						console.warn('> ' + error);
 					});
-
-				}
-
-				if (review.after !== null) {
-
-					if (review.after.results.length === 0) {
-						console.warn('> ' + review.after.name + ' has no assert() calls.');
-					}
 
 				}
 

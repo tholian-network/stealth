@@ -7,6 +7,10 @@ import { IP                } from '../../stealth/source/parser/IP.mjs';
 
 
 
+export const isNetwork = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Network]';
+};
+
 const PROFILES = {
 	'1G': {
 		rx:  64,

@@ -454,11 +454,11 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (payload.payload !== null) {
 
-					result = true;
-
 					mkdir(profile + '/cache/payload/' + folder, () => {
 						fs.writeFile(path.resolve(profile + '/cache/payload/' + file), payload.payload, () => {});
 					});
+
+					result = true;
 
 				}
 

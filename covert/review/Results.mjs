@@ -26,35 +26,34 @@ describe('Results.from', function(assert) {
 	let results4 = Results.from([ true, false, null ]);
 	let results5 = Results.from([ null, {}, true ]);
 
+	assert(results1.index, 0);
+	assert(results2.index, 0);
+	assert(results3.index, 0);
+	assert(results4.index, 0);
+	assert(results5.index, 0);
 
-	assert(results1.index === 0);
-	assert(results2.index === 0);
-	assert(results3.index === 0);
-	assert(results4.index === 0);
-	assert(results5.index === 0);
+	assert(results1.length, 0);
+	assert(results2.length, 5);
+	assert(results3.length, 2);
+	assert(results4.length, 3);
+	assert(results5.length, 3);
 
-	assert(results1.length === 0);
-	assert(results2.length === 5);
-	assert(results3.length === 2);
-	assert(results4.length === 3);
-	assert(results5.length === 3);
+	assert(results2.data[0], null);
+	assert(results2.data[1], null);
+	assert(results2.data[2], null);
+	assert(results2.data[3], null);
+	assert(results2.data[4], null);
 
-	assert(results2.data[0] === null);
-	assert(results2.data[1] === null);
-	assert(results2.data[2] === null);
-	assert(results2.data[3] === null);
-	assert(results2.data[4] === null);
+	assert(results3.data[0], null);
+	assert(results3.data[1], null);
 
-	assert(results3.data[0] === null);
-	assert(results3.data[1] === null);
+	assert(results4.data[0], true);
+	assert(results4.data[1], false);
+	assert(results4.data[2], null);
 
-	assert(results4.data[0] === true);
-	assert(results4.data[1] === false);
-	assert(results4.data[2] === null);
-
-	assert(results5.data[0] === null);
-	assert(results5.data[1] === null);
-	assert(results5.data[2] === true);
+	assert(results5.data[0], null);
+	assert(results5.data[1], null);
+	assert(results5.data[2], true);
 
 });
 
@@ -297,7 +296,6 @@ describe('results.assert/Object', function(assert) {
 	let regexp2 = new RegExp('/bar/foo', 'g');
 	let results = Results.from(21);
 
-
 	results.assert({});
 
 	results.assert({ foo: true  }, { foo: true  });
@@ -324,7 +322,6 @@ describe('results.assert/Object', function(assert) {
 	results.assert({ foo: 'foo' }, { foo: 'bar' });
 	results.assert({ foo: 'bar' }, { foo: 'foo' });
 	results.assert({ foo: 'bar' }, { foo: 'bar' });
-
 
 	assert(results.data[0], null);
 
@@ -366,7 +363,6 @@ describe('results.assert/String', function(assert) {
 	results.assert('bar', 'foo');
 	results.assert('bar', 'bar');
 
-
 	assert(results.data[0], null);
 
 	assert(results.data[1], true);
@@ -394,7 +390,6 @@ describe('results.assert/RegExp', function(assert) {
 	results.assert(regexp2, regexp3);
 	results.assert(regexp3, regexp2);
 	results.assert(regexp3, regexp3);
-
 
 	assert(results.data[0], null);
 
@@ -460,7 +455,6 @@ describe('results.includes', function(assert) {
 	let results3 = Results.from([ true,  null,  true  ]);
 	let results4 = Results.from([ false, null,  false ]);
 
-
 	assert(results1.includes(true),  true);
 	assert(results1.includes(false), true);
 	assert(results1.includes(null),  true);
@@ -487,7 +481,6 @@ describe('results.render', function(assert) {
 	let results4 = Results.from([ false, null,  false ]);
 	let results5 = Results.from([ true,  null,  null  ]);
 	let results6 = Results.from(0);
-
 
 	assert(results1.render(), '|+-?|');
 	assert(results2.render(), '|+-+|');

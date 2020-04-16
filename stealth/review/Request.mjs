@@ -67,7 +67,7 @@ describe('request/kill', function(assert) {
 
 	this.request = null;
 
-	assert(this.request === null);
+	assert(this.request, null);
 
 });
 
@@ -104,15 +104,15 @@ describe('request/cache', function(assert) {
 
 	this.request.once('response', () => {
 
-		assert(events.cache === true);
-		assert(events.stash === false);
-		assert(events.connect === false);
-		assert(events.download === false);
+		assert(events.cache,    true);
+		assert(events.stash,    false);
+		assert(events.connect,  false);
+		assert(events.download, false);
 
 		assert(this.request.timeline.cache !== null);
-		assert(this.request.timeline.stash === null);
-		assert(this.request.timeline.connect === null);
-		assert(this.request.timeline.download === null);
+		assert(this.request.timeline.stash,    null);
+		assert(this.request.timeline.connect,  null);
+		assert(this.request.timeline.download, null);
 
 	});
 
@@ -128,7 +128,7 @@ describe('request/kill', function(assert) {
 
 	this.request = null;
 
-	assert(this.request === null);
+	assert(this.request, null);
 
 });
 
@@ -139,7 +139,10 @@ describe('server.services.redirect.save', function(assert) {
 		path:     '/redirect',
 		location: 'https://example.com/index.html'
 	}, (response) => {
-		assert(response !== null && response.payload === true);
+
+		assert(response !== null);
+		assert(response.payload, true);
+
 	});
 
 });
@@ -154,9 +157,10 @@ describe('request/redirect', function(assert) {
 
 	this.request.once('redirect', (response) => {
 
-		assert(response !== null && response.headers !== null);
-		assert(response !== null && response.headers.location === 'https://example.com/index.html');
-		assert(response !== null && response.payload === null);
+		assert(response !== null);
+		assert(response.headers !== null);
+		assert(response.headers.location, 'https://example.com/index.html');
+		assert(response.payload, null);
 
 	});
 
@@ -172,7 +176,7 @@ describe('request/kill', function(assert) {
 
 	this.request = null;
 
-	assert(this.request === null);
+	assert(this.request, null);
 
 });
 
