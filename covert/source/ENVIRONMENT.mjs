@@ -1,4 +1,6 @@
 
+import os      from 'os';
+import path    from 'path';
 import process from 'process';
 
 
@@ -90,14 +92,112 @@ export const root = (() => {
 
 })();
 
+export const temp = (() => {
+
+	let user     = process.env.SUDO_USER || process.env.USER;
+	let folder   = '/tmp/covert-' + user;
+	let platform = os.platform();
+
+	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
+
+		folder = '/tmp/covert-' + user;
+
+	} else if (platform === 'darwin') {
+
+		folder = process.env.TMPDIR || '/tmp/covert-' + user;
+
+	} else if (platform === 'win32') {
+
+		let tmp = path.resolve(process.env.USERPROFILE || 'C:\\temp').split('\\').join('/');
+		if (tmp.includes(':')) {
+			tmp = tmp.split(':').slice(1).join(':');
+		}
+
+		folder = tmp + '/covert-' + user;
+
+	}
+
+	return folder;
+
+})();
+
+const TEMPORARY = {};
+
+const randomize = (length) => {
+
+	let str = '';
+
+	for (let a = 0; a < length / 2; a++) {
+
+		let val = '' + ((Math.random() * 0xff) | 0).toString(16);
+		if (val.length < 2) {
+			val = '0' + val;
+		}
+
+		str += val;
+
+	}
+
+	return str;
+
+};
+
+export const mktemp = (prefix, seed) => {
+
+	prefix = typeof prefix === 'string' ? prefix                   : randomize(4);
+	seed   = typeof seed === 'number'   ? Math.round(seed / 2) * 2 : null;
+
+
+	if (prefix.startsWith('/')) {
+		prefix = prefix.substr(1);
+	}
+
+	if (prefix.endsWith('/')) {
+		prefix = prefix.substr(0, prefix.length - 1);
+	}
+
+
+
+	if (seed !== null) {
+
+		let path = temp + '/' + prefix + '-' + randomize(seed);
+
+		while (TEMPORARY[path] !== undefined) {
+			path = temp + '/' + prefix + '-' + randomize(seed);
+		}
+
+		TEMPORARY[path] = 0;
+
+		return path;
+
+	} else {
+
+		let path = temp + '/' + prefix;
+
+		if (TEMPORARY[path] !== undefined) {
+			TEMPORARY[path] += 1;
+		} else {
+			TEMPORARY[path] = 0;
+		}
+
+		path += '-' + TEMPORARY[path];
+
+		return path;
+
+	}
+
+};
+
 
 
 const ENVIRONMENT = {
 
 	action:   action,
 	flags:    flags,
+	mktemp:   mktemp,
 	patterns: patterns,
-	root:     root
+	root:     root,
+	temp:     temp
 
 };
 

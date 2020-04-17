@@ -2,7 +2,6 @@
 import Browser            from './Browser.mjs';
 import Client             from './Client.mjs';
 import Emitter            from './Emitter.mjs';
-import Peer               from './Peer.mjs';
 import Request            from './Request.mjs';
 // import Server             from './Server.mjs';
 // import Session            from './Session.mjs';
@@ -99,7 +98,6 @@ export const REVIEWS = [
 	client_Stash,
 
 	// Peer-to-Peer
-	Peer,
 	peer_Cache
 
 ];

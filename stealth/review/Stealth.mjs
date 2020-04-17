@@ -1,28 +1,16 @@
 
-import process from 'process';
+import { after, before, describe, finish, mktemp, root } from '../../covert/index.mjs';
+import { Service                                       } from '../../covert/EXAMPLE.mjs';
+import { Stealth                                       } from '../../stealth/source/Stealth.mjs';
 
-import { after, before, describe, finish } from '../../covert/index.mjs';
-import { Service                         } from '../../covert/EXAMPLE.mjs';
-import { Stealth                         } from '../../stealth/source/Stealth.mjs';
-
-
-
-const random = () => {
-
-	return [
-		((Math.random() * 0xffff) | 0).toString(16),
-		((Math.random() * 0xffff) | 0).toString(16)
-	].map((v) => '0000'.substr(0, 4 - v.length) + v).join('');
-
-};
 
 
 export const connect = before('stealth.connect', function(assert) {
 
 	this.server  = null;
 	this.stealth = new Stealth({
-		profile: '/tmp/covert' + '.' + random(),
-		root:    process.env.PWD
+		profile: mktemp('stealth/Stealth', 8),
+		root:    root
 	});
 
 	this.stealth.once('connect', () => {
