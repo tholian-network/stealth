@@ -1,34 +1,98 @@
 
-import { isBoolean, isObject, isString } from './BASE.mjs';
-import { Emitter                       } from './Emitter.mjs';
-import { URL                           } from './parser/URL.mjs';
-import { Blocker                       } from './request/Blocker.mjs';
-import { Downloader                    } from './request/Downloader.mjs';
-import { Filter                        } from './request/Filter.mjs';
-import { Optimizer                     } from './request/Optimizer.mjs';
+import { isArray, isBoolean, isObject, isString } from './BASE.mjs';
+import { Emitter                                } from './Emitter.mjs';
+import { isServer                               } from './Server.mjs';
+import { URL                                    } from './parser/URL.mjs';
+import { Blocker                                } from './request/Blocker.mjs';
+import { Downloader                             } from './request/Downloader.mjs';
+import { Filter                                 } from './request/Filter.mjs';
+import { Optimizer                              } from './request/Optimizer.mjs';
 
 
 
-const Request = function(data, stealth) {
+const isConfig = function(config) {
 
-	let settings = Object.assign({}, data);
+	if (isObject(config) === true) {
+
+		if (isString(config.domain) === true && isObject(config.mode) === true) {
+
+			if (
+				isBoolean(config.mode.text) === true
+				&& isBoolean(config.mode.image) === true
+				&& isBoolean(config.mode.audio) === true
+				&& isBoolean(config.mode.video) === true
+				&& isBoolean(config.mode.other) === true
+			) {
+
+				return true;
+
+			}
+
+		}
+
+	}
 
 
-	Emitter.call(this);
+	return false;
+
+};
+
+
+
+const Request = function(data, server) {
+
+	server = isServer(server) ? server : null;
+
+
+	this._settings = {
+		blockers: [],
+		config:   {
+			domain: null,
+			mode:   {
+				text:  false,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		filters: []
+	};
+
+	if (isArray(data.blockers) === true) {
+		this._settings.blockers = data.blockers;
+	}
+
+	if (isConfig(data.config) === true) {
+		this._settings.config = data.config;
+	}
+
+	if (isArray(data.filters) === true) {
+		this._settings.filters = data.filters;
+	}
+
+
+	if (URL.isURL(data.ref) === true) {
+		this.ref = data.ref;
+		this.url = this.ref.url;
+	} else if (isString(data.url) === true) {
+		this.ref = URL.parse(data.url);
+		this.url = this.ref.url;
+	} else {
+		this.ref = null;
+		this.url = null;
+	}
+
+
+	if (isServer(server) === true) {
+		this.server = server;
+	} else {
+		this.server = null;
+	}
+
 
 
 	this.id       = 'request-' + Date.now();
-	this.url      = null;
-	this.config   = settings.config || {
-		domain: null,
-		mode:   {
-			text:  false,
-			image: false,
-			audio: false,
-			video: false,
-			other: false
-		}
-	};
 	this.download = null;
 	this.flags    = {
 		connect:   true,
@@ -36,10 +100,8 @@ const Request = function(data, stealth) {
 		useragent: null,
 		webview:   false
 	};
-	this.ref      = null;
 	this.response = null;
 	this.retries  = 0;
-	this.stealth  = stealth;
 	this.timeline = {
 
 		// error workflow
@@ -62,48 +124,35 @@ const Request = function(data, stealth) {
 	};
 
 
-	let ref = settings.ref || null;
-	let url = settings.url || null;
-
-	if (ref !== null) {
-
-		this.ref = ref;
-		this.url = this.ref.url;
-
-	} else if (url !== null) {
-
-		this.ref = URL.parse(url);
-		this.url = this.ref.url;
-
-	}
-
-
-	if (this.stealth.settings.internet.connection === 'i2p') {
-		this.ref.proxy = { host: '127.0.0.1', port: 4444 };
-	} else if (this.stealth.settings.internet.connection === 'tor') {
-		this.ref.proxy = { host: '127.0.0.1', port: 9050 };
-	}
-
+	Emitter.call(this);
 
 	this.on('init', () => {
 
 		this.timeline.init = Date.now();
 
-		this.stealth.server.services.redirect.read(this.ref, (redirect) => {
+		if (this.server !== null) {
 
-			let payload = redirect.payload || null;
-			if (payload !== null) {
+			this.server.services.redirect.read(this.ref, (redirect) => {
 
-				this.emit('redirect', [{
-					headers: { location: payload.location },
-					payload: null
-				}, true ]);
+				let payload = redirect.payload || null;
+				if (payload !== null) {
 
-			} else {
-				this.emit('cache');
-			}
+					this.emit('redirect', [{
+						headers: { location: payload.location },
+						payload: null
+					}, true ]);
 
-		});
+				} else {
+					this.emit('cache');
+				}
+
+			});
+
+		} else {
+
+			this.emit('cache');
+
+		}
 
 	});
 
@@ -115,18 +164,27 @@ const Request = function(data, stealth) {
 
 		} else {
 
-			this.stealth.server.services.cache.read(this.ref, (response) => {
+			if (this.server !== null) {
+
+				this.server.services.cache.read(this.ref, (response) => {
+
+					this.timeline.cache = Date.now();
+
+					if (response.payload !== null) {
+						this.response = response.payload;
+						this.emit('response', [ this.response ]);
+					} else {
+						this.emit('stash');
+					}
+
+				});
+
+			} else {
 
 				this.timeline.cache = Date.now();
+				this.emit('stash');
 
-				if (response.payload !== null) {
-					this.response = response.payload;
-					this.emit('response', [ this.response ]);
-				} else {
-					this.emit('stash');
-				}
-
-			});
+			}
 
 		}
 
@@ -140,33 +198,42 @@ const Request = function(data, stealth) {
 
 		} else {
 
-			this.stealth.server.services.stash.read(this.ref, (response) => {
+			if (this.server !== null) {
 
-				this.timeline.stash = Date.now();
+				this.server.services.stash.read(this.ref, (response) => {
 
-				if (response.payload !== null) {
+					this.timeline.stash = Date.now();
 
-					if (response.payload.headers !== null) {
+					if (response.payload !== null) {
 
-						delete response.payload.headers['service'];
-						delete response.payload.headers['event'];
-						delete response.payload.headers['method'];
+						if (response.payload.headers !== null) {
 
-						if (Object.keys(response.payload.headers).length > 0) {
-							this.ref.headers = response.payload.headers;
+							delete response.payload.headers['service'];
+							delete response.payload.headers['event'];
+							delete response.payload.headers['method'];
+
+							if (Object.keys(response.payload.headers).length > 0) {
+								this.ref.headers = response.payload.headers;
+							}
+
+						}
+
+						if (response.payload.payload !== null) {
+							this.ref.payload = response.payload.payload;
 						}
 
 					}
 
-					if (response.payload.payload !== null) {
-						this.ref.payload = response.payload.payload;
-					}
+					this.emit('block');
 
-				}
+				});
 
+			} else {
+
+				this.timeline.stash = Date.now();
 				this.emit('block');
 
-			});
+			}
 
 		}
 
@@ -174,18 +241,18 @@ const Request = function(data, stealth) {
 
 	this.on('block', () => {
 
-		Blocker.check(this.stealth.settings.blockers, this.ref, (blocked) => {
+		Blocker.check(this._settings.blockers, this.ref, (blocked) => {
 
 			this.timeline.block = Date.now();
 
 			if (blocked === true) {
 
 				// Always Block, no matter the User's Config
-				this.config.mode.text  = false;
-				this.config.mode.image = false;
-				this.config.mode.audio = false;
-				this.config.mode.video = false;
-				this.config.mode.other = false;
+				this._settings.config.mode.text  = false;
+				this._settings.config.mode.image = false;
+				this._settings.config.mode.audio = false;
+				this._settings.config.mode.video = false;
+				this._settings.config.mode.other = false;
 
 				this.emit('error', [{ code: 403 }]);
 
@@ -200,7 +267,7 @@ const Request = function(data, stealth) {
 	this.on('mode', () => {
 
 		let mime    = this.ref.mime;
-		let allowed = this.config.mode[mime.type] === true;
+		let allowed = this._settings.config.mode[mime.type] === true;
 
 		this.timeline.mode = Date.now();
 
@@ -216,7 +283,7 @@ const Request = function(data, stealth) {
 
 	this.on('filter', () => {
 
-		Filter.check(this.stealth.settings.filters, this.ref, (allowed) => {
+		Filter.check(this._settings.filters, this.ref, (allowed) => {
 
 			this.timeline.filter = Date.now();
 
@@ -249,23 +316,35 @@ const Request = function(data, stealth) {
 
 			this.timeline.connect = Date.now();
 
-			this.stealth.server.services.host.read({
-				domain:    this.ref.domain,
-				subdomain: this.ref.subdomain
-			}, (response) => {
+			if (this.server !== null) {
 
-				if (response.payload !== null) {
+				this.server.services.host.read({
+					domain:    this.ref.domain,
+					subdomain: this.ref.subdomain
+				}, (response) => {
 
-					response.payload.hosts.forEach((host) => {
+					if (response.payload !== null) {
 
-						let check = this.ref.hosts.find((h) => h.ip === host.ip) || null;
-						if (check === null) {
-							this.ref.hosts.push(host);
-						}
+						response.payload.hosts.forEach((host) => {
 
-					});
+							let check = this.ref.hosts.find((h) => h.ip === host.ip) || null;
+							if (check === null) {
+								this.ref.hosts.push(host);
+							}
 
-				}
+						});
+
+					}
+
+					if (this.ref.hosts.length > 0) {
+						this.emit('download');
+					} else {
+						this.emit('error', [{ type: 'host' }]);
+					}
+
+				});
+
+			} else {
 
 				if (this.ref.hosts.length > 0) {
 					this.emit('download');
@@ -273,7 +352,7 @@ const Request = function(data, stealth) {
 					this.emit('error', [{ type: 'host' }]);
 				}
 
-			});
+			}
 
 		}
 
@@ -313,11 +392,11 @@ const Request = function(data, stealth) {
 		}
 
 
-		Downloader.check(this.ref, this.config, (result) => {
+		Downloader.check(this.ref, this._settings.config, (result) => {
 
 			if (result === true) {
 
-				Downloader.download(this.ref, this.config, (download) => {
+				Downloader.download(this.ref, this._settings.config, (download) => {
 
 					this.timeline.download = Date.now();
 
@@ -327,9 +406,11 @@ const Request = function(data, stealth) {
 
 						download.on('progress', (partial, progress) => {
 
-							this.stealth.server.services.stash.save(Object.assign({}, this.ref, partial), () => {
-								this.emit('progress', [ partial, progress ]);
-							});
+							if (this.server !== null) {
+								this.server.services.stash.save(Object.assign({}, this.ref, partial), () => {
+									this.emit('progress', [ partial, progress ]);
+								});
+							}
 
 						});
 
@@ -341,17 +422,22 @@ const Request = function(data, stealth) {
 
 								if (this.retries < 10) {
 
-									this.stealth.server.services.stash.save(Object.assign({}, this.ref, partial), (result) => {
+									if (this.server !== null) {
 
-										if (result === true) {
+										this.server.services.stash.save(Object.assign({}, this.ref, partial), (result) => {
 
-											this.ref.headers = partial.headers;
-											this.ref.payload = partial.payload;
+											if (result === true) {
+												this.ref.headers = partial.headers;
+												this.ref.payload = partial.payload;
+											}
+
 											this.emit('download');
 
-										}
+										});
 
-									});
+									} else {
+										this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
+									}
 
 								} else {
 									this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
@@ -369,13 +455,20 @@ const Request = function(data, stealth) {
 
 							if (error.type === 'stash') {
 
-								this.stealth.server.services.stash.remove(this.ref, () => {
+								if (this.server !== null) {
 
-									this.ref.headers = null;
-									this.ref.payload = null;
-									this.emit('download');
+									this.server.services.stash.remove(this.ref, () => {
 
-								});
+										this.ref.headers = null;
+										this.ref.payload = null;
+
+										this.emit('download');
+
+									});
+
+								} else {
+									this.emit('error', [ error ]);
+								}
 
 							} else {
 								this.emit('error', [ error ]);
@@ -387,16 +480,22 @@ const Request = function(data, stealth) {
 
 							this.download = null;
 
-							this.stealth.server.services.stash.remove(this.ref, () => {
+							if (this.server !== null) {
 
-								let location = response.headers['location'] || null;
-								if (location !== null) {
-									this.emit('redirect', [ response, false ]);
-								} else {
-									this.emit('error', [{ type: 'request', cause: 'headers-location' }]);
-								}
+								this.server.services.stash.remove(this.ref, () => {
 
-							});
+									let location = response.headers['location'] || null;
+									if (location !== null) {
+										this.emit('redirect', [ response, false ]);
+									} else {
+										this.emit('error', [{ type: 'request', cause: 'headers-location' }]);
+									}
+
+								});
+
+							} else {
+								this.emit('redirect', [ response, false ]);
+							}
 
 						});
 
@@ -404,10 +503,14 @@ const Request = function(data, stealth) {
 
 							this.download = null;
 
-							this.stealth.server.services.stash.remove(this.ref, () => {
-								this.ref.headers = null;
-								this.ref.payload = null;
-							});
+							if (this.server !== null) {
+
+								this.server.services.stash.remove(this.ref, () => {
+									this.ref.headers = null;
+									this.ref.payload = null;
+								});
+
+							}
 
 							this.response = response;
 							this.emit('optimize');
@@ -443,13 +546,13 @@ const Request = function(data, stealth) {
 		// ref.payload = this.response.payload;
 
 
-		// Optimizer.check(ref, this.config, (result) => {
+		// Optimizer.check(ref, this._settings.config, (result) => {
 
 		// 	this.timeline.optimize = Date.now();
 
 		// 	if (result === true) {
 
-		// 		Optimizer.optimize(ref, this.config, (response) => {
+		// 		Optimizer.optimize(ref, this._settings.config, (response) => {
 
 		// 			if (response !== null) {
 		// 				this.emit('response', [ response ]);
@@ -483,9 +586,11 @@ const Request = function(data, stealth) {
 			let location = response.headers['location'] || null;
 			if (location !== null) {
 
-				this.stealth.server.services.redirect.save(Object.assign({}, this.ref, {
-					location: location
-				}), () => {});
+				if (this.server !== null) {
+					this.server.services.redirect.save(Object.assign({}, this.ref, {
+						location: location
+					}), () => {});
+				}
 
 			}
 
@@ -503,22 +608,26 @@ const Request = function(data, stealth) {
 				this.response = response;
 			}
 
-			this.stealth.server.services.cache.save(Object.assign({}, this.ref, response), (result) => {
+			if (this.server !== null) {
 
-				if (result === true) {
+				this.server.services.cache.save(Object.assign({}, this.ref, response), (result) => {
 
-					this.stealth.server.services.stash.remove(this.ref, (result) => {
+					if (result === true) {
 
-						if (result === true) {
-							this.ref.headers = null;
-							this.ref.payload = null;
-						}
+						this.server.services.stash.remove(this.ref, (result) => {
 
-					});
+							if (result === true) {
+								this.ref.headers = null;
+								this.ref.payload = null;
+							}
 
-				}
+						});
 
-			});
+					}
+
+				});
+
+			}
 
 		}
 
@@ -539,46 +648,32 @@ Request.from = function(json) {
 
 		if (type !== null && data !== null) {
 
-			let request = new Request();
+			if (isString(data.url) === true) {
 
-			if (isString(data.id))  request.id  = data.id;
-			if (isString(data.url)) request.url = data.url;
+				let request = new Request({
+					id:       isString(data.id)      ? data.id       : null,
+					url:      isString(data.url)     ? data.url      : null,
+					blockers: isArray(data.blockers) ? data.blockers : null,
+					config:   isConfig(data.config)  ? data.config   : null,
+					filters:  isArray(data.filters)  ? data.filters  : null
+				});
 
-			if (isObject(data.config)) {
+				if (isObject(data.flags) === true) {
 
-				if (isString(data.config.domain)) {
-					request.config.domain = data.config.domain;
-				}
+					Object.keys(data.flags).forEach((key) => {
 
-				if (isObject(data.config.mode)) {
-
-					Object.keys(request.config.mode).forEach((key) => {
-
-						let mode = data.config.mode[key] || null;
-						if (isBoolean(mode)) {
-							request.config.mode[key] = mode;
+						let val = data.flags[key];
+						if (isBoolean(val) === true) {
+							request.set(key, val);
 						}
 
 					});
 
 				}
 
-			}
-
-			if (isObject(data.flags)) {
-
-				Object.keys(data.flags).forEach((key) => {
-
-					let flag = data.flags[key];
-					if (isBoolean(flag)) {
-						request.flags[key] = flag;
-					}
-
-				});
+				return request;
 
 			}
-
-			return request;
 
 		}
 
@@ -599,14 +694,19 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 		let data = {
 			id:       this.id,
 			url:      this.url,
-			config:   {
-				domain: this.config.domain,
-				mode:   Object.assign({}, this.config.mode)
-			},
+			config:   this._settings.config,
 			download: null,
 			flags:    Object.assign({}, this.flags),
 			timeline: Object.assign({}, this.timeline)
 		};
+
+		if (this._settings.blockers.length > 0) {
+			data.blockers = this._settings.blockers;
+		}
+
+		if (this._settings.filters.length > 0) {
+			data.filters = this._settings.filters;
+		}
 
 		if (this.download !== null) {
 			data.download = this.download.toJSON();

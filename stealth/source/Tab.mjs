@@ -4,7 +4,7 @@ import { URL                                              } from './parser/URL.m
 
 
 
-const isConfig = (config) => {
+const isConfig = function(config) {
 
 	if (isObject(config) === true) {
 

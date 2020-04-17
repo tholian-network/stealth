@@ -1,4 +1,5 @@
 
+import { isFunction, isObject            } from '../../../base/index.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { create                          } from '../../../covert/EXAMPLE.mjs';
 import { WS                              } from '../../../stealth/source/protocol/WS.mjs';
@@ -12,8 +13,7 @@ before('WS.connect', function(assert) {
 	this.ref        = create('ws://echo.websocket.org:80').ref;
 	this.socket     = null;
 
-
-	assert(typeof WS.connect === 'function');
+	assert(isFunction(WS.connect), true);
 
 	this.connection = WS.connect(this.ref, this.buffer);
 
@@ -30,16 +30,19 @@ before('WS.connect', function(assert) {
 
 describe('WS.send', function(assert) {
 
-	assert(typeof WS.send === 'function');
+	assert(isFunction(WS.send), true);
 	assert(this.connection !== null);
 	assert(this.socket !== null);
 
-
 	this.connection.on('response', (response) => {
 
-		assert(response.headers.service === 'mockup');
-		assert(response.headers.method === 'method');
-		assert(response.payload === 'payload');
+		assert(response !== null);
+		assert(response.headers !== null);
+
+		assert(isObject(response.headers), true);
+		assert(response.headers.service,   'mockup');
+		assert(response.headers.method,    'method');
+		assert(response.payload,           'payload');
 
 	});
 
@@ -53,6 +56,9 @@ describe('WS.send', function(assert) {
 
 });
 
+describe('WS.receive', function(assert) {
+});
+
 after('WS.disconnect', function(assert) {
 
 	if (this.socket !== null) {
@@ -64,10 +70,10 @@ after('WS.disconnect', function(assert) {
 	this.ref        = null;
 	this.socket     = null;
 
-	assert(this.buffer === null);
-	assert(this.connection === null);
-	assert(this.ref === null);
-	assert(this.socket === null);
+	assert(this.buffer,     null);
+	assert(this.connection, null);
+	assert(this.ref,        null);
+	assert(this.socket,     null);
 
 });
 

@@ -2,9 +2,9 @@
 import crypto from 'crypto';
 import net    from 'net';
 
-import { Buffer, isBuffer, isFunction, isNumber, isObject } from '../BASE.mjs';
-import { Emitter                                          } from '../Emitter.mjs';
-import { HTTP                                             } from './HTTP.mjs';
+import { Buffer, isBoolean, isBuffer, isFunction, isNumber, isObject } from '../BASE.mjs';
+import { Emitter                                                     } from '../Emitter.mjs';
+import { HTTP                                                        } from './HTTP.mjs';
 
 
 
@@ -181,8 +181,17 @@ const decode = function(socket, buffer) {
 
 			let tmp = decode_json(fragment.payload);
 			if (tmp !== null) {
-				chunk.headers = tmp.headers || {};
-				chunk.payload = tmp.payload || null;
+
+				if (isObject(tmp.headers)) {
+					chunk.headers = tmp.headers;
+				}
+
+				if (isBoolean(tmp.payload)) {
+					chunk.payload = tmp.payload;
+				} else {
+					chunk.payload = tmp.payload || null;
+				}
+
 			}
 
 			fragment.operator = 0x00;
@@ -198,8 +207,17 @@ const decode = function(socket, buffer) {
 
 			let tmp = decode_json(payload_data);
 			if (tmp !== null) {
-				chunk.headers = tmp.headers || {};
-				chunk.payload = tmp.payload || null;
+
+				if (isObject(tmp.headers)) {
+					chunk.headers = tmp.headers;
+				}
+
+				if (isBoolean(tmp.payload)) {
+					chunk.payload = tmp.payload;
+				} else {
+					chunk.payload = tmp.payload || null;
+				}
+
 			}
 
 		} else if (payload_data !== null) {
@@ -832,8 +850,18 @@ const WS = {
 		data = isObject(data) ? data : {};
 
 
-		let headers = data.headers || {};
-		let payload = data.payload || null;
+		let headers = null;
+		let payload = null;
+
+		if (isObject(data.headers) === true) {
+			headers = data.headers;
+		}
+
+		if (isBoolean(data.payload) === true) {
+			payload = data.payload;
+		} else {
+			payload = data.payload || null;
+		}
 
 
 		if (isNumber(headers['@status'])) {

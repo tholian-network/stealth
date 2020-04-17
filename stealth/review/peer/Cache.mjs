@@ -1,4 +1,5 @@
 
+import { isFunction                                    } from '../../../base/index.mjs';
 import { after, before, describe, finish, mktemp, root } from '../../../covert/index.mjs';
 import { Client                                        } from '../../../stealth/source/Client.mjs';
 import { Stealth                                       } from '../../../stealth/source/Stealth.mjs';
@@ -77,7 +78,7 @@ before('peers[].connect', function(assert) {
 describe('peers[0].client.services.peer.save', function(assert) {
 
 	assert(this.peers[0].client !== null);
-	assert(typeof this.peers[0].client.services.peer.save, 'function');
+	assert(isFunction(this.peers[0].client.services.peer.save), true);
 
 	this.peers[0].client.services.peer.save({
 		host:       '127.0.0.2',
@@ -91,7 +92,7 @@ describe('peers[0].client.services.peer.save', function(assert) {
 describe('peers[1].client.services.peer.save', function(assert) {
 
 	assert(this.peers[1].client !== null);
-	assert(typeof this.peers[1].client.services.peer.save, 'function');
+	assert(isFunction(this.peers[1].client.services.peer.save), true);
 
 	this.peers[1].client.services.peer.save({
 		host:       '127.0.0.1',
@@ -105,7 +106,7 @@ describe('peers[1].client.services.peer.save', function(assert) {
 describe('peers[0].server.services.cache.save', function(assert) {
 
 	assert(this.peers[0].server !== null);
-	assert(typeof this.peers[0].server.services.cache.save, 'function');
+	assert(isFunction(this.peers[0].client.services.cache.save), true);
 
 	this.peers[0].server.services.cache.save({
 		domain: 'example.com',
@@ -128,7 +129,7 @@ describe('peers[0].server.services.cache.save', function(assert) {
 describe('peers[0].client.services.cache.read', function(assert) {
 
 	assert(this.peers[0].client !== null);
-	assert(typeof this.peers[0].client.services.cache.read, 'function');
+	assert(isFunction(this.peers[0].client.services.cache.read), true);
 
 	this.peers[0].client.services.cache.read({
 		domain: 'example.com',
@@ -162,7 +163,7 @@ describe('peers[0].client.services.cache.read', function(assert) {
 describe('peers[1].client.services.peer.proxy/server', function(assert) {
 
 	assert(this.peers[1].client !== null);
-	assert(typeof this.peers[1].client.services.peer.proxy, 'function');
+	assert(isFunction(this.peers[1].client.services.peer.proxy), true);
 
 	this.peers[1].client.services.peer.proxy({
 		host: '127.0.0.1',
@@ -215,7 +216,7 @@ describe('peers[1].client.services.peer.proxy/server', function(assert) {
 describe('peers[1].client.services.cache.read', function(assert) {
 
 	assert(this.peers[1].client !== null);
-	assert(typeof this.peers[1].client.services.cache.read, 'function');
+	assert(isFunction(this.peers[1].client.services.cache.read), true);
 
 	this.peers[1].client.services.cache.read({
 		domain: 'example.com',
@@ -249,7 +250,7 @@ describe('peers[1].client.services.cache.read', function(assert) {
 describe('peers[0].server.services.cache.remove', function(assert) {
 
 	assert(this.peers[0].server !== null);
-	assert(typeof this.peers[0].server.services.cache.remove, 'function');
+	assert(isFunction(this.peers[0].server.services.cache.remove), true);
 
 	this.peers[0].server.services.cache.remove({
 		domain: 'example.com',
@@ -266,7 +267,7 @@ describe('peers[0].server.services.cache.remove', function(assert) {
 describe('peers[1].server.services.cache.remove', function(assert) {
 
 	assert(this.peers[1].server !== null);
-	assert(typeof this.peers[1].server.services.cache.remove, 'function');
+	assert(isFunction(this.peers[1].server.services.cache.remove), true);
 
 	this.peers[1].server.services.cache.remove({
 		domain: 'example.com',
@@ -283,7 +284,7 @@ describe('peers[1].server.services.cache.remove', function(assert) {
 describe('peers[0].client.services.cache.read', function(assert) {
 
 	assert(this.peers[0].client !== null);
-	assert(typeof this.peers[0].client.services.cache.read, 'function');
+	assert(isFunction(this.peers[0].client.services.cache.read), true);
 
 	this.peers[0].client.services.cache.read({
 		domain: 'example.com',
@@ -297,7 +298,7 @@ describe('peers[0].client.services.cache.read', function(assert) {
 describe('peers[1].client.services.cache.read', function(assert) {
 
 	assert(this.peers[1].client !== null);
-	assert(typeof this.peers[1].client.services.cache.read, 'function');
+	assert(isFunction(this.peers[1].client.services.cache.read), true);
 
 	this.peers[1].client.services.cache.read({
 		domain: 'example.com',

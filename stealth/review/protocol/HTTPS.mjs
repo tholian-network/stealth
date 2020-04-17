@@ -1,4 +1,5 @@
 
+import { isBuffer, isFunction, isObject  } from '../../../base/index.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { create, PAYLOAD, REQUEST        } from '../../../covert/EXAMPLE.mjs';
 import { HTTPS                           } from '../../../stealth/source/protocol/HTTPS.mjs';
@@ -12,9 +13,7 @@ before('HTTPS.connect', function(assert) {
 	this.ref        = create('https://example.com:443/index.html').ref;
 	this.socket     = null;
 
-
-	assert(typeof HTTPS.connect === 'function');
-
+	assert(isFunction(HTTPS.connect), true);
 
 	this.connection = HTTPS.connect(this.ref, this.buffer);
 
@@ -31,19 +30,22 @@ before('HTTPS.connect', function(assert) {
 
 describe('HTTPS.send', function(assert) {
 
-	assert(typeof HTTPS.send === 'function');
+	assert(isFunction(HTTPS.send), true);
 	assert(this.connection !== null);
 	assert(this.socket !== null);
 
-
 	this.connection.on('response', (response) => {
 
-		let html = (response.payload || '').toString('utf8');
+		assert(response !== null);
+		assert(response.headers !== null);
+		assert(response.payload !== null);
 
-		assert(response.payload !== null && html.includes('Example Domain'));
+		assert(isBuffer(response.payload), true);
+		assert(response.payload.toString('utf8').includes('<html>'));
+		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
+		assert(response.payload.toString('utf8').includes('</html>'));
 
 	});
-
 
 	HTTPS.send(this.socket, REQUEST);
 
@@ -51,19 +53,23 @@ describe('HTTPS.send', function(assert) {
 
 describe('HTTPS.receive', function(assert) {
 
-	assert(typeof HTTPS.receive === 'function');
+	assert(isFunction(HTTPS.receive), true);
 	assert(this.buffer !== null);
-
 
 	HTTPS.receive(this.socket, PAYLOAD, (response) => {
 
 		assert(response !== null);
-		assert(response.headers['@status'] === '200 OK');
-		assert(response.headers['content-length'] === '' + response.payload.length);
+		assert(response.headers !== null);
+		assert(response.payload !== null);
 
-		let html = (response.payload || '').toString('utf8');
+		assert(isObject(response.headers),         true);
+		assert(response.headers['@status'],        '200 OK');
+		assert(response.headers['content-length'], '' + response.payload.length);
 
-		assert(response.payload !== null && html.includes('Example Domain'));
+		assert(isBuffer(response.payload), true);
+		assert(response.payload.toString('utf8').includes('<html>'));
+		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
+		assert(response.payload.toString('utf8').includes('</html>'));
 
 	});
 
@@ -80,10 +86,10 @@ after('HTTPS.disconnect', function(assert) {
 	this.ref        = null;
 	this.socket     = null;
 
-	assert(this.buffer === null);
-	assert(this.connection === null);
-	assert(this.ref === null);
-	assert(this.socket === null);
+	assert(this.buffer,     null);
+	assert(this.connection, null);
+	assert(this.ref,        null);
+	assert(this.socket,     null);
 
 });
 

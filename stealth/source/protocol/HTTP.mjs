@@ -2,8 +2,8 @@
 import net  from 'net';
 import zlib from 'zlib';
 
-import { Buffer, isBuffer, isFunction, isObject, isString } from '../BASE.mjs';
-import { Emitter                                          } from '../Emitter.mjs';
+import { Buffer, isBoolean, isBuffer, isFunction, isObject, isString } from '../BASE.mjs';
+import { Emitter                                                     } from '../Emitter.mjs';
 
 
 
@@ -638,8 +638,18 @@ const HTTP = {
 
 
 		let blob    = [];
-		let headers = data.headers || {};
-		let payload = data.payload || null;
+		let headers = {};
+		let payload = null;
+
+		if (isObject(data.headers) === true) {
+			headers = data.headers;
+		}
+
+		if (isBoolean(data.payload) === true) {
+			payload = data.payload;
+		} else {
+			payload = data.payload || null;
+		}
 
 
 		if (payload !== null) {

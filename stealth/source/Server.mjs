@@ -2,6 +2,8 @@
 import net from 'net';
 
 import { console, isFunction, isString } from './BASE.mjs';
+import { isStealth                     } from './Stealth.mjs';
+import { Request                       } from './Request.mjs';
 import { HTTP                          } from './protocol/HTTP.mjs';
 import { WS                            } from './protocol/WS.mjs';
 import { REDIRECT                      } from './other/REDIRECT.mjs';
@@ -17,6 +19,10 @@ import { Settings                      } from './server/Settings.mjs';
 import { Stash                         } from './server/Stash.mjs';
 
 
+
+export const isServer = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Server]';
+};
 
 export const handle_request = function(socket, ref) {
 
@@ -64,8 +70,32 @@ export const handle_request = function(socket, ref) {
 	}
 
 
-	let session = this.stealth.init(null, ref.headers);
-	let request = this.stealth.open(url);
+	let session = null;
+	let request = null;
+
+	if (this.stealth !== null) {
+
+		session = this.stealth.track(null, ref.headers);
+		request = this.stealth.open(url);
+
+	} else {
+
+		request = new Request({
+			url:    url,
+			config: {
+				mode: {
+					text:  true,
+					image: true,
+					audio: true,
+					video: true,
+					other: true
+				}
+			}
+		}, this);
+
+	}
+
+
 	if (request !== null) {
 
 		request.on('error', (err) => {
@@ -200,17 +230,29 @@ export const handle_websocket = function(socket, ref) {
 	if (connection !== null) {
 
 		connection.on('@connect', () => {
-			connection.session = this.stealth.init(null, ref.headers);
+
+			if (this.stealth !== null) {
+				connection.session = this.stealth.track(null, ref.headers);
+			}
+
 		});
 
 		connection.on('error', () => {
-			this.stealth.kill(connection.session);
-			connection.session = null;
+
+			if (this.stealth !== null) {
+				this.stealth.kill(connection.session);
+				connection.session = null;
+			}
+
 		});
 
 		connection.on('timeout', () => {
-			this.stealth.kill(connection.session);
-			connection.session = null;
+
+			if (this.stealth !== null) {
+				this.stealth.kill(connection.session);
+				connection.session = null;
+			}
+
 		});
 
 		connection.on('request', (request) => {
@@ -269,8 +311,12 @@ export const handle_websocket = function(socket, ref) {
 		});
 
 		connection.on('@disconnect', () => {
-			this.stealth.kill(connection.session);
-			connection.session = null;
+
+			if (this.stealth !== null) {
+				this.stealth.kill(connection.session);
+				connection.session = null;
+			}
+
 		});
 
 	} else {
@@ -285,20 +331,28 @@ export const handle_websocket = function(socket, ref) {
 
 const Server = function(stealth) {
 
+	stealth = isStealth(stealth) ? stealth : null;
+
+
+	this.services = {};
 	this.stealth  = stealth;
-	this.services = {
-		cache:    new Cache(stealth),
-		filter:   new Filter(stealth),
-		host:     new Host(stealth),
-		mode:     new Mode(stealth),
-		peer:     new Peer(stealth),
-		redirect: new Redirect(stealth),
-		session:  new Session(stealth),
-		settings: new Settings(stealth),
-		stash:    new Stash(stealth)
-	};
 
 	this.__server = null;
+
+
+	if (this.stealth !== null) {
+
+		this.services['cache']    = new Cache(this.stealth);
+		this.services['filter']   = new Filter(this.stealth);
+		this.services['host']     = new Host(this.stealth);
+		this.services['mode']     = new Mode(this.stealth);
+		this.services['peer']     = new Peer(this.stealth);
+		this.services['redirect'] = new Redirect(this.stealth);
+		this.services['session']  = new Session(this.stealth);
+		this.services['settings'] = new Settings(this.stealth);
+		this.services['stash']    = new Stash(this.stealth);
+
+	}
 
 };
 
@@ -335,7 +389,10 @@ Server.prototype = {
 
 				HTTP.receive(socket, data, (request) => {
 
-					request.headers['@debug']  = this.stealth.__debug === true;
+					if (this.stealth !== null) {
+						request.headers['@debug'] = this.stealth._settings.debug;
+					}
+
 					request.headers['@local']  = socket.localAddress  || null;
 					request.headers['@remote'] = socket.remoteAddress || null;
 

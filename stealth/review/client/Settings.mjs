@@ -1,4 +1,5 @@
 
+import { isArray, isFunction, isObject                                } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
@@ -11,19 +12,20 @@ describe(connect_client);
 describe('client.services.settings.read/all', function(assert) {
 
 	assert(this.client !== null);
-	assert(typeof this.client.services.settings.read === 'function');
+	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read(null, (response) => {
 
-		assert(response !== null && response instanceof Object);
-		assert(response !== null && response.internet instanceof Object);
-		assert(response !== null && response.blockers === null);
-		assert(response !== null && response.filters instanceof Array);
-		assert(response !== null && response.hosts instanceof Array);
-		assert(response !== null && response.modes instanceof Array);
-		assert(response !== null && response.peers instanceof Array);
-		assert(response !== null && response.redirects === null);
-		assert(response !== null && response.sessions instanceof Array);
+		assert(response !== null);
+		assert(isObject(response),          true);
+		assert(isObject(response.internet), true);
+		assert(response.blockers,           null);
+		assert(isArray(response.filters),   true);
+		assert(isArray(response.hosts),     true);
+		assert(isArray(response.modes),     true);
+		assert(isArray(response.peers),     true);
+		assert(response.redirects,          null);
+		assert(isArray(response.sessions),  true);
 
 	});
 
@@ -32,21 +34,22 @@ describe('client.services.settings.read/all', function(assert) {
 describe('client.services.settings.read/internet', function(assert) {
 
 	assert(this.client !== null);
-	assert(typeof this.client.services.settings.read === 'function');
+	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
 		internet: true
 	}, (response) => {
 
-		assert(response !== null && response instanceof Object);
-		assert(response !== null && response.internet instanceof Object);
-		assert(response !== null && response.blockers === null);
-		assert(response !== null && response.filters === null);
-		assert(response !== null && response.hosts === null);
-		assert(response !== null && response.modes === null);
-		assert(response !== null && response.peers === null);
-		assert(response !== null && response.redirects === null);
-		assert(response !== null && response.sessions === null);
+		assert(response !== null);
+		assert(isObject(response),          true);
+		assert(isObject(response.internet), true);
+		assert(response.blockers,           null);
+		assert(response.filters,            null);
+		assert(response.hosts,              null);
+		assert(response.modes,              null);
+		assert(response.peers,              null);
+		assert(response.redirects,          null);
+		assert(response.sessions,           null);
 
 	});
 
@@ -55,7 +58,7 @@ describe('client.services.settings.read/internet', function(assert) {
 describe('client.services.settings.save/all', function(assert) {
 
 	assert(this.client !== null);
-	assert(typeof this.client.services.settings.save === 'function');
+	assert(isFunction(this.client.services.settings.save), true);
 
 	this.client.services.settings.save({
 		internet: {
@@ -100,7 +103,7 @@ describe('client.services.settings.save/all', function(assert) {
 			location: 'https://covert.localdomain/location.html'
 		}]
 	}, (response) => {
-		assert(response === true);
+		assert(response, true);
 	});
 
 });
@@ -108,37 +111,68 @@ describe('client.services.settings.save/all', function(assert) {
 describe('client.services.settings.read/all', function(assert) {
 
 	assert(this.client !== null);
-	assert(typeof this.client.services.settings.read === 'function');
+	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
 		internet:  true,
-		blockers:  true, // XXX: private
+		blockers:  true, // private
 		filters:   true,
 		hosts:     true,
 		modes:     true,
 		peers:     true,
-		redirects: true, // XXX: private
-		sessions:  true  // XXX: private
+		redirects: true, // private
+		sessions:  true  // private
 	}, (response) => {
 
-		assert(response !== null && response instanceof Object);
-		assert(response !== null && response.internet instanceof Object);
-		assert(response !== null && response.internet.connection === 'mobile');
-		assert(response !== null && response.internet.history === 'week');
-		assert(response !== null && response.internet.useragent === 'stealth');
+		assert(response !== null);
+		assert(isObject(response),           true);
+		assert(isObject(response.internet),  true);
+		assert(response.internet.connection, 'mobile');
+		assert(response.internet.history,    'week');
+		assert(response.internet.useragent,  'stealth');
 
-		let filter   = response.filters.find((f) => f.domain === 'covert.localdomain') || null;
-		let host     = response.hosts.find((h) => h.domain === 'covert.localdomain') || null;
-		let mode     = response.modes.find((m) => m.domain === 'covert.localdomain') || null;
-		let peer     = response.peers.find((p) => p.domain === 'covert.localdomain') || null;
+		assert(response.blockers, null);
 
-		assert(response !== null && response.blockers === null);
-		assert(response !== null && filter !== null);
-		assert(response !== null && host !== null);
-		assert(response !== null && mode !== null);
-		assert(response !== null && peer !== null);
-		assert(response !== null && response.redirects === null);
-		assert(response !== null && response.sessions instanceof Array);
+		assert(response.filters, [{
+			id:     'covert.localdomain|/prefix|null|.html',
+			domain: 'covert.localdomain',
+			filter: {
+				prefix: '/prefix',
+				midfix: null,
+				suffix: '.html'
+			}
+		}]);
+
+		let host = response.hosts.find((h) => h.domain === 'covert.localdomain') || null;
+
+		assert(host, {
+			domain: 'covert.localdomain',
+			hosts: [{
+				ip:    '127.0.0.1',
+				scope: 'private',
+				type:  'v4'
+			}]
+		});
+
+		assert(response.modes, [{
+			domain: 'covert.localdomain',
+			mode: {
+				text:  true,
+				image: true,
+				audio: true,
+				video: true,
+				other: true
+			}
+		}]);
+
+		assert(response.peers, [{
+			domain:     'covert.localdomain',
+			connection: 'mobile'
+		}]);
+
+		assert(response.redirects, null);
+
+		assert(response.sessions,  []);
 
 	});
 
@@ -147,10 +181,10 @@ describe('client.services.settings.read/all', function(assert) {
 describe('client.services.settings.save/internet', function(assert) {
 
 	assert(this.client !== null);
-	assert(typeof this.client.services.settings.save === 'function');
+	assert(isFunction(this.client.services.settings.save), true);
 
 	this.client.services.settings.save(null, (response) => {
-		assert(response === false);
+		assert(response, false);
 	});
 
 	this.client.services.settings.save({
@@ -160,7 +194,7 @@ describe('client.services.settings.save/internet', function(assert) {
 			useragent:  'stealth'
 		}
 	}, (response) => {
-		assert(response === true);
+		assert(response, true);
 	});
 
 });
@@ -168,17 +202,18 @@ describe('client.services.settings.save/internet', function(assert) {
 describe('client.services.settings.read/internet', function(assert) {
 
 	assert(this.client !== null);
-	assert(typeof this.client.services.settings.read === 'function');
+	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
 		internet: true
 	}, (response) => {
 
-		assert(response !== null && response instanceof Object);
-		assert(response !== null && response.internet instanceof Object);
-		assert(response !== null && response.internet.connection === 'broadband');
-		assert(response !== null && response.internet.history === 'stealth');
-		assert(response !== null && response.internet.useragent === 'stealth');
+		assert(response !== null);
+		assert(isObject(response),           true);
+		assert(isObject(response.internet),  true);
+		assert(response.internet.connection, 'broadband');
+		assert(response.internet.history,    'stealth');
+		assert(response.internet.useragent,  'stealth');
 
 	});
 

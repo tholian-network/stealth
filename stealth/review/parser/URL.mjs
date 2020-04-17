@@ -29,22 +29,22 @@ describe('URL.isURL', function(assert) {
 	let url15 = URL.parse('unknown://domain.tld/what/ever.html');
 	let url16 = URL.parse('unknown://sub.domain.tld:1337/what/ever.html?q=u&e=r&y#and-a-hash');
 
-	assert(URL.isURL(url1)  === true);
-	assert(URL.isURL(url2)  === true);
-	assert(URL.isURL(url3)  === true);
-	assert(URL.isURL(url4)  === true);
-	assert(URL.isURL(url5)  === true);
-	assert(URL.isURL(url6)  === true);
-	assert(URL.isURL(url7)  === true);
-	assert(URL.isURL(url8)  === true);
-	assert(URL.isURL(url9)  === true);
-	assert(URL.isURL(url10) === true);
-	assert(URL.isURL(url11) === true);
-	assert(URL.isURL(url12) === true);
-	assert(URL.isURL(url13) === true);
-	assert(URL.isURL(url14) === true);
-	assert(URL.isURL(url15) === false);
-	assert(URL.isURL(url16) === false);
+	assert(URL.isURL(url1),  true);
+	assert(URL.isURL(url2),  true);
+	assert(URL.isURL(url3),  true);
+	assert(URL.isURL(url4),  true);
+	assert(URL.isURL(url5),  true);
+	assert(URL.isURL(url6),  true);
+	assert(URL.isURL(url7),  true);
+	assert(URL.isURL(url8),  true);
+	assert(URL.isURL(url9),  true);
+	assert(URL.isURL(url10), true);
+	assert(URL.isURL(url11), true);
+	assert(URL.isURL(url12), true);
+	assert(URL.isURL(url13), true);
+	assert(URL.isURL(url14), true);
+	assert(URL.isURL(url15), false);
+	assert(URL.isURL(url16), false);
 
 });
 
@@ -331,7 +331,6 @@ describe('URL.resolve/protocol', function(assert) {
 	let url15 = URL.resolve('unknown://domain.tld/what/ever.html',            '//some/thing.html');
 	let url16 = URL.resolve('unknown://sub.domain.tld:1337/what/ever.html',   '//some.thing.tld:13337/else.html?q=u&e=r&y#and-a-hash');
 
-
 	assert(url1.url,  'http://some/thing.html');
 	assert(url2.url,  'http://some.thing.tld:13337/else.html?q=u&e=r&y');
 	assert(url3.url,  'https://some/thing.html');
@@ -409,7 +408,6 @@ describe('URL.sort', function(assert) {
 		URL.parse('unknown://domain.tld/what/ever.html'),
 		URL.parse('unknown://sub.domain.tld:1337/what/ever.html?q=u&e=r&y')
 	]);
-
 
 	assert(sorted.length > 0);
 	assert(sorted.length, 14);

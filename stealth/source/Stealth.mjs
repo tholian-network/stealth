@@ -13,6 +13,10 @@ import { URL                         } from './parser/URL.mjs';
 
 
 
+export const isStealth = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Stealth]';
+};
+
 const get_config = function(url) {
 
 	url = isString(url) ? url : null;
@@ -285,7 +289,91 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	init: function(session, headers) {
+	kill: function(session) {
+
+		session = session instanceof Session ? session : null;
+
+
+		if (session !== null) {
+
+			let sessions = this.settings.sessions;
+			if (sessions.includes(session) === true) {
+
+				let index = sessions.indexOf(session);
+				if (index !== -1) {
+					sessions.splice(index, 1);
+					session.kill();
+				}
+
+			}
+
+			return true;
+
+		}
+
+
+		return false;
+
+	},
+
+	open: function(url) {
+
+		url = isString(url) ? url : '';
+
+
+		if (url !== null) {
+
+			let ref      = URL.parse(url);
+			let request  = null;
+			let sessions = this.settings.sessions;
+
+			for (let s = 0, sl = sessions.length; s < sl; s++) {
+
+				let cached = sessions[s].get(ref.url);
+				if (cached !== null) {
+					request = cached;
+					break;
+				}
+
+			}
+
+			if (request === null) {
+
+				if (this.settings.internet.connection === 'i2p') {
+					ref.proxy = { host: '127.0.0.1', port: 4444 };
+				} else if (this.settings.internet.connection === 'tor') {
+					ref.proxy = { host: '127.0.0.1', port: 9050 };
+				}
+
+				request = new Request({
+					config:   get_config.call(this, ref.url),
+					ref:      ref,
+					blockers: this.settings.blockers,
+					filters:  this.settings.filters
+				}, this.server);
+
+				request.on('error',    () => remove_request.call(this, request));
+				request.on('redirect', () => remove_request.call(this, request));
+				request.on('response', () => remove_request.call(this, request));
+
+				// Allow non-scheduled cached requests
+				// Disallow non-scheduled networked requests
+				request.set('connect', false);
+
+				this.requests.push(request);
+
+			}
+
+			return request;
+
+		}
+
+
+		return null;
+
+	},
+
+	track: function(session, headers) {
 
 		session = session instanceof Session ? session : null;
 		headers = isObject(headers)          ? headers : null;
@@ -355,83 +443,6 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			return session;
-
-		}
-
-
-		return null;
-
-	},
-
-	kill: function(session) {
-
-		session = session instanceof Session ? session : null;
-
-
-		if (session !== null) {
-
-			let sessions = this.settings.sessions;
-			if (sessions.includes(session) === true) {
-
-				let index = sessions.indexOf(session);
-				if (index !== -1) {
-					sessions.splice(index, 1);
-					session.kill();
-				}
-
-			}
-
-			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	open: function(url) {
-
-		url = isString(url) ? url : '';
-
-
-		if (url !== null) {
-
-			let ref      = URL.parse(url);
-			let request  = null;
-			let sessions = this.settings.sessions;
-
-			for (let s = 0, sl = sessions.length; s < sl; s++) {
-
-				let cached = sessions[s].get(ref.url);
-				if (cached !== null) {
-					request = cached;
-					break;
-				}
-
-			}
-
-			if (request === null) {
-
-				request = new Request({
-					config: get_config.call(this, ref.url),
-					ref:    ref,
-					url:    ref.url
-				}, this);
-
-				request.on('error',    () => remove_request.call(this, request));
-				request.on('redirect', () => remove_request.call(this, request));
-				request.on('response', () => remove_request.call(this, request));
-
-				// Allow non-scheduled cached requests
-				// Disallow non-scheduled networked requests
-				request.set('connect', false);
-
-				this.requests.push(request);
-
-			}
-
-			return request;
 
 		}
 
