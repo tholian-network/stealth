@@ -11,8 +11,6 @@ if [ -d "$base_dir/build" ]; then
 fi;
 
 mkdir "$base_dir/build";
-mkdir "$base_dir/build/browser";
-mkdir "$base_dir/build/node";
 
 
 BASE_FILES=(
@@ -24,6 +22,7 @@ BASE_FILES=(
 	"$base_dir/source/Object.mjs"
 	"$base_dir/source/RegExp.mjs"
 	"$base_dir/source/String.mjs"
+	"$base_dir/source/Emitter.mjs"
 );
 
 BROWSER_FILES=(
@@ -36,8 +35,8 @@ NODE_FILES=(
 	"$base_dir/source/node/console.mjs"
 );
 
-cat "${BASE_FILES[@]}" "${BROWSER_FILES[@]}" "$base_dir/source/MODULE.mjs" > $base_dir/build/browser/BASE.mjs;
-cat "${BASE_FILES[@]}" "${NODE_FILES[@]}"    "$base_dir/source/MODULE.mjs" > $base_dir/build/node/BASE.mjs;
+cat "${BASE_FILES[@]}" "${BROWSER_FILES[@]}" "$base_dir/source/MODULE.mjs" > $base_dir/build/browser.mjs;
+cat "${BASE_FILES[@]}" "${NODE_FILES[@]}"    "$base_dir/source/MODULE.mjs" > $base_dir/build/node.mjs;
 
 exit 0;
 

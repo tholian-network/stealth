@@ -1,5 +1,5 @@
 
-import { isObject, isString } from '../../source/BASE.mjs';
+import { isObject, isString } from '../../extern/base.mjs';
 import { Element            } from '../Element.mjs';
 
 

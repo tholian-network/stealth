@@ -1,18 +1,21 @@
 
-import { Buffer, isArray, isFunction, isObject, isString } from './BASE.mjs';
-import { Emitter                                         } from './Emitter.mjs';
-import { hostname                                        } from './ENVIRONMENT.mjs';
-import { Cache                                           } from './client/Cache.mjs';
-import { Filter                                          } from './client/Filter.mjs';
-import { Host                                            } from './client/Host.mjs';
-import { Mode                                            } from './client/Mode.mjs';
-import { Peer                                            } from './client/Peer.mjs';
-import { Redirect                                        } from './client/Redirect.mjs';
-import { Session                                         } from './client/Session.mjs';
-import { Settings                                        } from './client/Settings.mjs';
-import { URL                                             } from './parser/URL.mjs';
+import { Buffer, Emitter, isArray, isFunction, isObject, isString } from '../extern/base.mjs';
+import { hostname                                                 } from './ENVIRONMENT.mjs';
+import { Cache                                                    } from './client/Cache.mjs';
+import { Filter                                                   } from './client/Filter.mjs';
+import { Host                                                     } from './client/Host.mjs';
+import { Mode                                                     } from './client/Mode.mjs';
+import { Peer                                                     } from './client/Peer.mjs';
+import { Redirect                                                 } from './client/Redirect.mjs';
+import { Session                                                  } from './client/Session.mjs';
+import { Settings                                                 } from './client/Settings.mjs';
+import { URL                                                      } from './parser/URL.mjs';
 
 
+
+const isBrowser = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Browser]';
+};
 
 const receive = function(data) {
 
@@ -43,14 +46,28 @@ const send = function(socket, request) {
 	}
 
 	if (data !== null) {
-		socket.send(data);
+
+		let result = false;
+
+		try {
+			socket.send(data);
+			result = true;
+		} catch (err) {
+			result = false;
+		}
+
+		return result;
+
 	}
+
+
+	return false;
 
 };
 
 const settingsify = function(payload) {
 
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload.internet = isObject(payload.internet) ? payload.internet : null;
 		payload.filters  = isArray(payload.filters)   ? payload.filters  : null;
@@ -68,12 +85,19 @@ const settingsify = function(payload) {
 
 
 
-const Client = function(browser) {
+const Client = function(settings, browser) {
 
-	this.browser = browser;
-	Emitter.call(this);
+	browser = isBrowser(browser) ? browser : null;
 
 
+	this._settings = Object.freeze(Object.assign({
+		host: null
+	}));
+
+
+	this.address  = null;
+	this.ref      = null;
+	this.browser  = browser;
 	this.services = {
 		cache:    new Cache(this),
 		filter:   new Filter(this),
@@ -85,42 +109,52 @@ const Client = function(browser) {
 		settings: new Settings(this)
 	};
 
-	this.__socket = null;
+	this.__state = {
+		connected: false,
+		socket:    null
+	};
 
 
 	this.services.settings.on('read', (response) => {
 
-		let data = settingsify(response);
-		if (data !== null) {
+		if (this.browser !== null) {
 
-			let internet = data.internet || null;
-			if (internet !== null) {
-				browser.settings.internet = internet;
-			}
+			let data = settingsify(response);
+			if (data !== null) {
 
-			let filters = data.filters || null;
-			if (filters !== null) {
-				browser.settings.filters = filters;
-			}
+				let internet = data.internet || null;
+				if (internet !== null) {
+					this.browser.settings.internet = internet;
+				}
 
-			let hosts = data.hosts || null;
-			if (hosts !== null) {
-				browser.settings.hosts = hosts;
-			}
+				let filters = data.filters || null;
+				if (filters !== null) {
+					this.browser.settings.filters = filters;
+				}
 
-			let modes = data.modes || null;
-			if (modes !== null) {
-				browser.settings.modes = modes;
-			}
+				let hosts = data.hosts || null;
+				if (hosts !== null) {
+					this.browser.settings.hosts = hosts;
+				}
 
-			let peers = data.peers || null;
-			if (peers !== null) {
-				browser.settings.peers = peers;
+				let modes = data.modes || null;
+				if (modes !== null) {
+					this.browser.settings.modes = modes;
+				}
+
+				let peers = data.peers || null;
+				if (peers !== null) {
+					this.browser.settings.peers = peers;
+				}
+
 			}
 
 		}
 
 	});
+
+
+	Emitter.call(this);
 
 };
 
@@ -129,25 +163,11 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Client',
 
-	connect: function(host, callback) {
+	connect: function() {
 
-		host     = isString(host)       ? host     : hostname;
-		callback = isFunction(callback) ? callback : null;
+		if (this.__state.connected === false) {
 
-
-		if (this.__socket !== null) {
-
-			if (callback !== null) {
-				callback(true);
-			}
-
-			return true;
-
-		}
-
-
-		if (host !== null) {
-
+			let host  = isString(this._settings.host) ? this._settings.host : hostname;
 			let ref   = URL.parse('ws://' + host + ':65432');
 			let hosts = ref.hosts.sort((a, b) => {
 
@@ -170,7 +190,6 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-
 			if (ref.domain === hostname || hosts.length > 0) {
 
 				let server = ref.domain;
@@ -192,10 +211,14 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				}
 
+				this.ref = ref;
 
-				this.__socket = new WebSocket(ref.protocol + '://' + server + ':' + ref.port, [ 'stealth' ]);
 
-				this.__socket.onmessage = (e) => {
+				let socket = null;
+
+				socket = new WebSocket(ref.protocol + '://' + server + ':' + ref.port, [ 'stealth' ]);
+
+				socket.onmessage = (e) => {
 
 					let response = receive(e.data);
 					if (response !== null) {
@@ -228,14 +251,14 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 								let request = instance.emit(event, [ response.payload ]);
 								if (request !== null) {
-									send(this.__socket, request);
+									send(socket, request);
 								}
 
 							} else {
 
 								let request = this.emit('response', [ response ]);
 								if (request !== null) {
-									send(this.__socket, request);
+									send(socket, request);
 								}
 
 							}
@@ -248,7 +271,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 								instance[method](response.payload, (request) => {
 
 									if (request !== null) {
-										send(this.__socket, request);
+										send(socket, request);
 									}
 
 								});
@@ -257,7 +280,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 								let request = this.emit('response', [ response ]);
 								if (request !== null) {
-									send(this.__socket, request);
+									send(socket, request);
 								}
 
 							}
@@ -268,84 +291,59 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				};
 
-				this.__socket.ontimeout = () => {
+				socket.onclose = () => {
+					this.disconnect();
+				};
 
-					if (this.__socket !== null) {
-						this.__socket.close();
-						this.__socket = null;
-					}
+				socket.ontimeout = () => {
+					this.disconnect();
+				};
+
+				socket.onerror = () => {
+					this.disconnect();
+				};
+
+				socket.onopen = () => {
+
+					this.__state.connected = true;
+					this.__state.socket    = socket;
+
+					this.emit('connect');
 
 				};
 
-				this.__socket.onerror = () => {
-
-					if (this.__socket !== null) {
-						this.__socket.close();
-						this.__socket = null;
-					}
-
-				};
-
-				this.__socket.onopen = () => {
-
-					if (callback !== null) {
-						callback(true);
-					}
-
-				};
-
-				this.__socket.onclose = () => {
-					this.__socket = null;
-				};
 
 				return true;
 
-			} else {
-
-				if (callback !== null) {
-					callback(false);
-				} else {
-					return false;
-				}
-
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
 			}
 
 		}
+
+
+		return false;
 
 	},
 
-	disconnect: function(callback) {
+	disconnect: function() {
 
-		callback = isFunction(callback) ? callback : null;
+		if (this.__state.connected === true) {
 
-
-		if (this.__socket !== null) {
-
-			this.__socket.close();
-
-			if (callback !== null) {
-				callback(true);
+			let socket = this.__state.socket || null;
+			if (socket !== null) {
+				socket.close();
 			}
+
+			this.__state.connected = false;
+			this.__state.socket    = null;
+
+			this.emit('disconnect');
 
 			return true;
 
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			}
-
-			return false;
-
 		}
+
+
+		return false;
 
 	},
 
@@ -356,12 +354,9 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (data !== null) {
 
-			if (this.__socket !== null) {
-
-				send(this.__socket, data);
-
-				return true;
-
+			let socket = this.__state.socket;
+			if (socket !== null) {
+				return send(socket, data);
 			}
 
 		}

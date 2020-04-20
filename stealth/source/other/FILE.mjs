@@ -2,7 +2,7 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { Buffer, isFunction, isObject } from '../BASE.mjs';
+import { Buffer, isFunction, isObject } from '../../extern/base.mjs';
 import { root                         } from '../ENVIRONMENT.mjs';
 
 

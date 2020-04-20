@@ -1,15 +1,14 @@
 
 import process from 'process';
 
-import { console, isObject, isString } from './BASE.mjs';
-import { Emitter                     } from './Emitter.mjs';
-import { hostname, root              } from './ENVIRONMENT.mjs';
-import { Request                     } from './Request.mjs';
-import { Server                      } from './Server.mjs';
-import { Session                     } from './Session.mjs';
-import { Settings                    } from './Settings.mjs';
-import { IP                          } from './parser/IP.mjs';
-import { URL                         } from './parser/URL.mjs';
+import { console, Emitter, isObject, isString } from '../extern/base.mjs';
+import { hostname, root                       } from './ENVIRONMENT.mjs';
+import { Request                              } from './Request.mjs';
+import { Server                               } from './Server.mjs';
+import { Session                              } from './Session.mjs';
+import { Settings                             } from './Settings.mjs';
+import { IP                                   } from './parser/IP.mjs';
+import { URL                                  } from './parser/URL.mjs';
 
 
 
@@ -108,7 +107,9 @@ const Stealth = function(settings) {
 	);
 	this.peers    = [];
 	this.requests = [];
-	this.server   = new Server(this);
+	this.server   = new Server({
+		host: this._settings.host
+	}, this);
 
 	this.__state = {
 		connected: false
@@ -189,13 +190,31 @@ const Stealth = function(settings) {
 		}
 
 		if (this.peers.length > 0) {
-			this.peers.forEach((peer) => {
-				peer.disconnect();
-			});
+
+			for (let p = 0, pl = this.peers.length; p < pl; p++) {
+
+				this.peers[p].disconnect();
+
+				this.peers.splice(p, 1);
+				pl--;
+				p--;
+
+			}
+
 		}
 
 		if (this.requests.length > 0) {
-			this.requests.forEach((request) => request.kill());
+
+			for (let r = 0, rl = this.requests.length; r < rl; r++) {
+
+				this.requests[r].stop();
+
+				this.requests.splice(r, 1);
+				rl--;
+				r--;
+
+			}
+
 		}
 
 	});
@@ -232,26 +251,36 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.__state.connected === false) {
 
-			let host = isString(this._settings.host) ? this._settings.host : 'localhost';
+			this.server.once('connect', () => {
 
-			this.server.connect(host, (result) => {
-
-				if (result === true) {
-
-					this.__state.connected = true;
-					this.emit('connect');
-
-				} else {
-
-					this.__state.connected = false;
-					this.emit('disconnect');
-
-				}
+				this.__state.connected = true;
+				this.emit('connect');
 
 			});
 
-			return true;
+			this.server.once('disconnect', () => {
 
+				this.__state.connected = false;
+				this.emit('disconnect');
+
+			});
+
+			let result = this.server.connect();
+			if (result === true) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	destroy: function() {
+
+		if (this.__state.connected === true) {
+			return this.disconnect();
 		}
 
 
@@ -261,49 +290,17 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function() {
 
-		if (this._settings.debug === true) {
+		if (this.__state.connected === true) {
 
-			this.server.disconnect(() => {
+			if (this._settings.debug === true) {
 
-				this.__state.connected = false;
-				this.emit('disconnect');
+				this.server.disconnect();
 
-			});
+			} else {
 
-		} else {
-
-			this.settings.save(true, () => {
-
-				this.server.disconnect(() => {
-
-					this.__state.connected = false;
-					this.emit('disconnect');
-
+				this.settings.save(true, () => {
+					this.server.disconnect();
 				});
-
-			});
-
-		}
-
-		return true;
-
-	},
-
-	kill: function(session) {
-
-		session = session instanceof Session ? session : null;
-
-
-		if (session !== null) {
-
-			let sessions = this.settings.sessions;
-			if (sessions.includes(session) === true) {
-
-				let index = sessions.indexOf(session);
-				if (index !== -1) {
-					sessions.splice(index, 1);
-					session.kill();
-				}
 
 			}
 
@@ -429,12 +426,12 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (session !== null) {
 
-				session.track(headers);
+				session.dispatch(headers);
 
 			} else {
 
 				session = new Session(this);
-				session.track(headers);
+				session.dispatch(headers);
 
 				if (this.settings.sessions.includes(session) === false) {
 					this.settings.sessions.push(session);
@@ -448,6 +445,33 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		return null;
+
+	},
+
+	untrack: function(session) {
+
+		session = session instanceof Session ? session : null;
+
+
+		if (session !== null) {
+
+			let sessions = this.settings.sessions;
+			if (sessions.includes(session) === true) {
+
+				let index = sessions.indexOf(session);
+				if (index !== -1) {
+					sessions.splice(index, 1);
+					session.destroy();
+				}
+
+			}
+
+			return true;
+
+		}
+
+
+		return false;
 
 	}
 

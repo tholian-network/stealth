@@ -1,29 +1,38 @@
 
-import { isFunction, isObject, isString } from './BASE.mjs';
-import { Emitter                        } from './Emitter.mjs';
-import { Cache                          } from './client/Cache.mjs';
-import { Filter                         } from './client/Filter.mjs';
-import { Host                           } from './client/Host.mjs';
-import { Mode                           } from './client/Mode.mjs';
-import { Peer                           } from './client/Peer.mjs';
-import { Redirect                       } from './client/Redirect.mjs';
-import { Session                        } from './client/Session.mjs';
-import { Settings                       } from './client/Settings.mjs';
-import { Stash                          } from './client/Stash.mjs';
-import { URL                            } from './parser/URL.mjs';
-import { WS                             } from './protocol/WS.mjs';
-import { WSS                            } from './protocol/WSS.mjs';
+import { Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
+import { isStealth                               } from './Stealth.mjs';
+import { Cache                                   } from './client/Cache.mjs';
+import { Filter                                  } from './client/Filter.mjs';
+import { Host                                    } from './client/Host.mjs';
+import { Mode                                    } from './client/Mode.mjs';
+import { Peer                                    } from './client/Peer.mjs';
+import { Redirect                                } from './client/Redirect.mjs';
+import { Session                                 } from './client/Session.mjs';
+import { Settings                                } from './client/Settings.mjs';
+import { Stash                                   } from './client/Stash.mjs';
+import { URL                                     } from './parser/URL.mjs';
+import { WS                                      } from './protocol/WS.mjs';
+import { WSS                                     } from './protocol/WSS.mjs';
 
 
 
-const Client = function(stealth) {
+export const isClient = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Client]';
+};
 
-	this.stealth = stealth;
-	Emitter.call(this);
+
+
+const Client = function(settings, stealth) {
+
+	stealth = isStealth(stealth) ? stealth : null;
+
+
+	this._settings = Object.freeze(Object.assign({
+		host: null
+	}));
 
 
 	this.address    = null;
-	this.connection = null;
 	this.ref        = null;
 	this.services   = {
 		cache:    new Cache(this),
@@ -36,6 +45,15 @@ const Client = function(stealth) {
 		settings: new Settings(this),
 		stash:    new Stash(this)
 	};
+	this.stealth    = stealth;
+
+	this.__state = {
+		connected:  false,
+		connection: null
+	};
+
+
+	Emitter.call(this);
 
 };
 
@@ -44,25 +62,11 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Client',
 
-	connect: function(host, callback) {
+	connect: function() {
 
-		host     = isString(host)       ? host     : 'localhost';
-		callback = isFunction(callback) ? callback : null;
+		if (this.__state.connected === false) {
 
-
-		if (this.connection !== null) {
-
-			if (callback !== null) {
-				callback(true);
-			}
-
-			return true;
-
-		}
-
-
-		if (host !== null) {
-
+			let host  = isString(this._settings.host) ? this._settings.host : 'localhost';
 			let ref   = URL.parse('ws://' + host + ':65432');
 			let hosts = ref.hosts.sort((a, b) => {
 
@@ -94,99 +98,101 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.ref = ref;
 
+
+				let connection = null;
 				if (ref.protocol === 'wss') {
-					this.connection = WSS.connect(this.ref, null);
+					connection = WSS.connect(this.ref, null);
 				} else if (ref.protocol === 'ws') {
-					this.connection = WS.connect(this.ref, null);
+					connection = WS.connect(this.ref, null);
 				}
 
 
-				this.connection.on('@connect', (socket) => {
+				if (connection !== null) {
 
-					this.address = socket.remoteAddress || null;
+					connection.on('@connect', () => {
 
-					if (callback !== null) {
-						callback(true);
-						callback = null;
-					}
+						if (connection.socket !== null) {
+							this.address = connection.socket.remoteAddress || null;
+						}
 
-				});
+						this.__state.connected  = true;
+						this.__state.connection = connection;
 
-				this.connection.on('response', (response) => {
+						this.emit('connect');
 
-					if (response !== null) {
+					});
 
-						let event   = response.headers.event   || null;
-						let method  = response.headers.method  || null;
-						let service = response.headers.service || null;
+					connection.on('response', (response) => {
 
-						if (service !== null && event !== null) {
+						if (response !== null) {
 
-							let instance = this.services[service] || null;
-							if (instance !== null) {
+							let event   = response.headers.event   || null;
+							let method  = response.headers.method  || null;
+							let service = response.headers.service || null;
 
-								let socket  = this.connection.socket || null;
-								let request = instance.emit(event, [ response.payload ]);
+							if (service !== null && event !== null) {
 
-								if (socket !== null && request !== null) {
+								let instance = this.services[service] || null;
+								if (instance !== null) {
 
-									if (ref.protocol === 'wss') {
-										WSS.send(socket, request);
-									} else if (ref.protocol === 'ws') {
-										WS.send(socket, request);
-									}
-
-								}
-
-							} else {
-
-								let socket  = this.connection.socket || null;
-								let request = this.emit('response', [ response ]);
-
-								if (socket !== null && request !== null) {
-
-									if (ref.protocol === 'wss') {
-										WSS.send(socket, request);
-									} else if (ref.protocol === 'ws') {
-										WS.send(socket, request);
-									}
-
-								}
-
-							}
-
-						} else if (service !== null && method !== null) {
-
-							let instance = this.services[service] || null;
-							if (instance !== null && isFunction(instance[method])) {
-
-								instance[method](response.payload, (request) => {
-
-									let socket = this.connection.socket || null;
-									if (socket !== null && request !== null) {
+									let request = instance.emit(event, [ response.payload ]);
+									if (request !== null) {
 
 										if (ref.protocol === 'wss') {
-											WSS.send(socket, request);
+											WSS.send(connection, request);
 										} else if (ref.protocol === 'ws') {
-											WS.send(socket, request);
+											WS.send(connection, request);
 										}
 
 									}
 
-								});
+								} else {
 
-							} else {
-
-								let request = this.emit('response', [ response ]);
-								if (request !== null) {
-
-									let socket = this.connection.socket || null;
-									if (socket !== null && request !== null) {
+									let request = this.emit('response', [ response ]);
+									if (request !== null) {
 
 										if (ref.protocol === 'wss') {
-											WSS.send(socket, request);
+											WSS.send(connection, request);
 										} else if (ref.protocol === 'ws') {
-											WS.send(socket, request);
+											WS.send(connection, request);
+										}
+
+									}
+
+								}
+
+							} else if (service !== null && method !== null) {
+
+								let instance = this.services[service] || null;
+								if (instance !== null && isFunction(instance[method])) {
+
+									instance[method](response.payload, (request) => {
+
+										if (request !== null) {
+
+											if (ref.protocol === 'wss') {
+												WSS.send(connection, request);
+											} else if (ref.protocol === 'ws') {
+												WS.send(connection, request);
+											}
+
+										}
+
+									});
+
+								} else {
+
+									let request = this.emit('response', [ response ]);
+									if (request !== null) {
+
+										if (request !== null) {
+
+											if (ref.protocol === 'wss') {
+												WSS.send(connection, request);
+											} else if (ref.protocol === 'ws') {
+												WS.send(connection, request);
+											}
+
 										}
 
 									}
@@ -197,81 +203,49 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 						}
 
-					}
+					});
 
-				});
+					connection.on('timeout', () => {
+						this.disconnect();
+					});
 
-				this.connection.on('timeout', () => {
+					connection.on('@disconnect', () => {
+						this.disconnect();
+					});
 
-					this.disconnect();
+					return true;
 
-					if (callback !== null) {
-						callback(false);
-						callback = null;
-					}
-
-				});
-
-				this.connection.on('@disconnect', () => {
-					this.disconnect();
-				});
-
-				return true;
-
-			} else {
-
-				if (callback !== null) {
-					callback(false);
-				} else {
-					return false;
 				}
 
 			}
 
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
-			}
-
 		}
+
+
+		return false;
 
 	},
 
-	disconnect: function(callback) {
+	disconnect: function() {
 
-		callback = isFunction(callback) ? callback : null;
+		if (this.__state.connected === true) {
 
-
-		let connection = this.connection;
-		if (connection !== null) {
-
-			this.connection = null;
-
-
-			let socket = connection.socket || null;
-			if (socket !== null) {
-				socket.end();
+			let connection = this.__state.connection || null;
+			if (connection !== null) {
+				connection.disconnect();
 			}
 
+			this.__state.connected  = false;
+			this.__state.connection = null;
 
-			if (callback !== null) {
-				callback(true);
-			} else {
-				return true;
-			}
+			this.emit('disconnect');
 
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
-			}
+			return true;
 
 		}
+
+
+		return false;
 
 	},
 
@@ -282,17 +256,13 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (data !== null) {
 
-			if (this.connection !== null && this.ref !== null) {
+			let connection = this.__state.connection || null;
+			if (connection !== null && this.ref !== null) {
 
-				let socket = this.connection.socket || null;
-				if (socket !== null) {
-
-					if (this.ref.protocol === 'wss') {
-						WSS.send(socket, data);
-					} else if (this.ref.protocol === 'ws') {
-						WS.send(socket, data);
-					}
-
+				if (this.ref.protocol === 'wss') {
+					WSS.send(connection, data);
+				} else if (this.ref.protocol === 'ws') {
+					WS.send(connection, data);
 				}
 
 				return true;

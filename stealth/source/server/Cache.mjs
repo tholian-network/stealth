@@ -2,9 +2,8 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { Buffer, isBuffer, isFunction, isObject } from '../BASE.mjs';
-import { Emitter                                } from '../Emitter.mjs';
-import { URL                                    } from '../parser/URL.mjs';
+import { Buffer, Emitter, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { URL                                                       } from '../parser/URL.mjs';
 
 
 
@@ -82,31 +81,36 @@ const mkdir = function(url, callback) {
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 
-		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
-		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
-		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
-		payload.path      = typeof payload.path === 'string'      ? payload.path      : '/';
-		payload.mime      = URL.parse('https://' + payload.domain + payload.path).mime;
+		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
+		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
+		payload.host      = isString(payload.host)      ? payload.host      : null;
+		payload.path      = isString(payload.path)      ? payload.path      : '/';
+
+		if (payload.domain !== null && payload.path !== null) {
+			payload.mime = URL.parse('https://' + payload.domain + payload.path).mime;
+		} else {
+			payload.mime = null;
+		}
 
 		if (payload.path.endsWith('/')) {
 			payload.path += 'index' + (payload.mime.ext !== null ? ('.' + payload.mime.ext) : '');
 		}
 
-		if (isBuffer(payload.headers)) {
+		if (isBuffer(payload.headers) === true) {
 			// Do nothing
-		} else if (isObject(payload.headers)) {
+		} else if (isObject(payload.headers) === true) {
 			payload.headers = Buffer.from(JSON.stringify(payload.headers, null, '\t'), 'utf8');
 		} else {
 			payload.headers = null;
 		}
 
-		if (isBuffer(payload.payload)) {
+		if (isBuffer(payload.payload) === true) {
 			// Do nothing
-		} else if (isObject(payload.payload)) {
+		} else if (isObject(payload.payload) === true) {
 			payload.payload = Buffer.from(JSON.stringify(payload.payload, null, '\t'), 'utf8');
 		} else {
 			payload.payload = null;

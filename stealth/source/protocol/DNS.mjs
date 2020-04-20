@@ -1,5 +1,5 @@
 
-import { Buffer, isArray, isBuffer, isFunction, isObject } from '../BASE.mjs';
+import { Buffer, isArray, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
 import { IP                                              } from '../parser/IP.mjs';
 import { HTTPS                                           } from './HTTPS.mjs';
 
@@ -67,9 +67,9 @@ const query = function(ref, name, type, callback) {
 	let connection = HTTPS.connect(ref, buffer);
 	if (connection !== null) {
 
-		connection.on('@connect', (socket) => {
+		connection.on('@connect', () => {
 
-			HTTPS.send(socket, {
+			HTTPS.send(connection, {
 				headers: {
 					'@method': 'GET',
 					'@path':   ref.path + '?name=' + name + '&type=' + type,

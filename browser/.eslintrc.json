@@ -36,10 +36,8 @@
 			"no-console": "off"
 		}
 	}, {
-		"files": [ "source/BASE.mjs" ],
-		"globals": {
-			"global": true
-		}
+		"files": [ "extern/base.mjs" ],
+		"rules": { "no-global-assign": "off", "no-undef": "off" }
 	}],
 	"rules": {
 		"arrow-parens": [

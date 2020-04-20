@@ -1,5 +1,5 @@
 
-import { console, isArray, isBoolean, isString } from '../../stealth/source/BASE.mjs';
+import { console, isArray, isBoolean, isString } from '../extern/base.mjs';
 import { isReview                              } from './Review.mjs';
 
 

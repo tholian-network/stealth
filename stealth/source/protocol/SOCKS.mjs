@@ -1,22 +1,51 @@
 
 import net from 'net';
 
-import { isObject } from '../BASE.mjs';
-import { Emitter  } from '../Emitter.mjs';
-import { HTTP     } from './HTTP.mjs';
-import { HTTPS    } from './HTTPS.mjs';
-import { WS       } from './WS.mjs';
-import { WSS      } from './WSS.mjs';
+import { Emitter, isObject } from '../../extern/base.mjs';
+import { HTTP              } from './HTTP.mjs';
+import { HTTPS             } from './HTTPS.mjs';
+import { WS                } from './WS.mjs';
+import { WSS               } from './WSS.mjs';
+
+
+
+const isConnection = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Connection]';
+};
+
+const Connection = function(socket) {
+
+	this.socket = socket || null;
+
+	Emitter.call(this);
+
+};
+
+Connection.prototype = Object.assign({}, Emitter.prototype, {
+
+	[Symbol.toStringTag]: 'Connection',
+
+	disconnect: function() {
+
+		if (this.socket !== null) {
+			this.socket.destroy();
+		}
+
+		this.emit('@disconnect');
+
+	}
+
+});
 
 
 
 const SOCKS = {
 
-	connect: function(ref, buffer, emitter) {
+	connect: function(ref, buffer, connection) {
 
-		ref     = isObject(ref)     ? ref     : null;
-		buffer  = isObject(buffer)  ? buffer  : {};
-		emitter = isObject(emitter) ? emitter : new Emitter();
+		ref        = isObject(ref)            ? ref        : null;
+		buffer     = isObject(buffer)         ? buffer     : {};
+		connection = isConnection(connection) ? connection : new Connection();
 
 
 		if (ref !== null) {
@@ -67,7 +96,7 @@ const SOCKS = {
 					port: proxy.port || 1080
 				}, () => {
 
-					emitter.socket = socket;
+					connection.socket = socket;
 
 					socket.once('data', (response) => {
 
@@ -156,23 +185,23 @@ const SOCKS = {
 											let reserve = response[2];
 
 											if (version === 0x05 && message === 0x00 && reserve === 0x00) {
-												emitter.emit('@tunnel', [ socket ]);
+												connection.emit('@tunnel');
 											} else if (version === 0x05) {
 
 												if (message === 0x03 || message === 0x04) {
-													emitter.emit('timeout', [ null ]);
+													connection.emit('timeout', [ null ]);
 												} else if (message === 0x02 || message === 0x05) {
-													emitter.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
+													connection.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
 												} else {
-													emitter.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+													connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
 												}
 
 											} else {
-												emitter.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+												connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
 											}
 
 										} else {
-											emitter.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+											connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
 										}
 
 									});
@@ -180,15 +209,15 @@ const SOCKS = {
 									socket.write(Buffer.from(blob));
 
 								} else {
-									emitter.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+									connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
 								}
 
 							} else {
-								emitter.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+								connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
 							}
 
 						} else {
-							emitter.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+							connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
 						}
 
 					});
@@ -201,36 +230,36 @@ const SOCKS = {
 
 				});
 
-				emitter.on('@tunnel', () => {
+				connection.on('@tunnel', () => {
 
 					if (ref.protocol === 'https') {
-						HTTPS.connect(ref, buffer, emitter);
+						HTTPS.connect(ref, buffer, connection);
 					} else if (ref.protocol === 'http') {
-						HTTP.connect(ref, buffer, emitter);
+						HTTP.connect(ref, buffer, connection);
 					} else if (ref.protocol === 'wss') {
-						WSS.connect(ref, buffer, emitter);
+						WSS.connect(ref, buffer, connection);
 					} else if (ref.protocol === 'ws') {
-						WS.connect(ref, buffer, emitter);
+						WS.connect(ref, buffer, connection);
 					}
 
 				});
 
-				return emitter;
+				return connection;
 
 			} else if (hosts.length > 0 && hosts[0].scope === 'private') {
 
 				if (ref.protocol === 'https') {
-					return HTTPS.connect(ref, buffer, emitter);
+					return HTTPS.connect(ref, buffer, connection);
 				} else if (ref.protocol === 'http') {
-					return HTTP.connect(ref, buffer, emitter);
+					return HTTP.connect(ref, buffer, connection);
 				} else if (ref.protocol === 'wss') {
-					return WSS.connect(ref, buffer, emitter);
+					return WSS.connect(ref, buffer, connection);
 				} else if (ref.protocol === 'ws') {
-					return WS.connect(ref, buffer, emitter);
+					return WS.connect(ref, buffer, connection);
 				} else {
 
-					emitter.socket = null;
-					emitter.emit('error', [{ type: 'request' }]);
+					connection.socket = null;
+					connection.emit('error', [{ type: 'request' }]);
 
 					return null;
 
@@ -238,8 +267,8 @@ const SOCKS = {
 
 			} else {
 
-				emitter.socket = null;
-				emitter.emit('error', [{ type: 'host' }]);
+				connection.socket = null;
+				connection.emit('error', [{ type: 'host' }]);
 
 				return null;
 
@@ -247,8 +276,8 @@ const SOCKS = {
 
 		} else {
 
-			emitter.socket = null;
-			emitter.emit('error', [{ type: 'request' }]);
+			connection.socket = null;
+			connection.emit('error', [{ type: 'request' }]);
 
 			return null;
 
@@ -256,9 +285,22 @@ const SOCKS = {
 
 	},
 
-	receive: HTTP.receive,
+	disconnect: function(connection) {
 
-	send:    HTTP.send
+		connection = isConnection(connection) ? connection : null;
+
+
+		if (connection !== null) {
+			return connection.disconnect();
+		}
+
+
+		return false;
+
+	},
+
+	receive:    HTTP.receive,
+	send:       HTTP.send
 
 };
 

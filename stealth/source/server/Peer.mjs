@@ -1,9 +1,8 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { hostname             } from '../ENVIRONMENT.mjs';
-import { Emitter              } from '../Emitter.mjs';
-import { IP                   } from '../parser/IP.mjs';
-import { Client               } from '../Client.mjs';
+import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { hostname                                } from '../ENVIRONMENT.mjs';
+import { IP                                      } from '../parser/IP.mjs';
+import { Client                                  } from '../Client.mjs';
 
 
 
@@ -51,6 +50,7 @@ const connect = function(host, peer, callback) {
 
 		}
 
+		// TODO: client.connection has been deprecated
 		if (client !== null && client.connection === null) {
 
 			let index = this.stealth.peers.indexOf(client);
@@ -94,13 +94,13 @@ const CONNECTION = [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 
-		payload.domain     = typeof payload.domain === 'string'      ? payload.domain     : null;
-		payload.subdomain  = typeof payload.subdomain === 'string'   ? payload.subdomain  : null;
-		payload.host       = typeof payload.host === 'string'        ? payload.host       : null;
+		payload.domain     = isString(payload.domain)                ? payload.domain     : null;
+		payload.subdomain  = isString(payload.subdomain)             ? payload.subdomain  : null;
+		payload.host       = isString(payload.host)                  ? payload.host       : null;
 		payload.connection = CONNECTION.includes(payload.connection) ? payload.connection : 'offline';
 
 		return payload;
@@ -114,23 +114,23 @@ const payloadify = function(raw) {
 const proxify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 
-		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
-		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
-		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
-		payload.payload   = payload.payload !== undefined         ? payload.payload   : null;
+		payload.domain    = isString(payload.domain)      ? payload.domain    : null;
+		payload.subdomain = isString(payload.subdomain)   ? payload.subdomain : null;
+		payload.host      = isString(payload.host)        ? payload.host      : null;
+		payload.payload   = payload.payload !== undefined ? payload.payload   : null;
 
 
-		if (isObject(payload.headers)) {
+		if (isObject(payload.headers) === true) {
 
 			payload.headers = Object.assign({}, raw.headers);
 
-			payload.headers.service = typeof payload.headers.service === 'string' ? payload.headers.service : null;
-			payload.headers.method  = typeof payload.headers.method === 'string'  ? payload.headers.method  : null;
-			payload.headers.event   = typeof payload.headers.event === 'string'   ? payload.headers.event   : null;
+			payload.headers.service = isString(payload.headers.service) ? payload.headers.service : null;
+			payload.headers.method  = isString(payload.headers.method)  ? payload.headers.method  : null;
+			payload.headers.event   = isString(payload.headers.event)   ? payload.headers.event   : null;
 
 
 			if (payload.headers.service !== null) {

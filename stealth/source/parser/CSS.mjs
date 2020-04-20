@@ -1,8 +1,8 @@
 
-import { isArray, isBuffer, isNumber, isObject, isString } from '../BASE.mjs';
-import { COLORS                                          } from './CSS/COLORS.mjs';
-import { NORMAL                                          } from './CSS/NORMAL.mjs';
-import { SHORTHAND                                       } from './CSS/SHORTHAND.mjs';
+import { isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { COLORS                                                      } from './CSS/COLORS.mjs';
+import { NORMAL                                                      } from './CSS/NORMAL.mjs';
+import { SHORTHAND                                                   } from './CSS/SHORTHAND.mjs';
 
 
 
@@ -261,9 +261,9 @@ const parse_declaration = function(str) {
 	let val    = str.split(':').slice(1).join(':').trim();
 	let result = {};
 
-	if (typeof NORMAL[key] === 'function') {
+	if (isFunction(NORMAL[key]) === true) {
 		NORMAL[key](parse_values(val), result);
-	} else if (typeof SHORTHAND[key] === 'function') {
+	} else if (isFunction(SHORTHAND[key]) === true) {
 		SHORTHAND[key](parse_values(val), result);
 	} else {
 		result[key] = parse_value(val);

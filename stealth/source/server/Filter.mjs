@@ -1,6 +1,5 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { Emitter              } from '../Emitter.mjs';
+import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
 
 
 
@@ -9,9 +8,9 @@ const get_id = function(payload) {
 	let id = '';
 
 	id += payload.domain;
-	id += '|' + (typeof payload.filter.prefix === 'string' ? payload.filter.prefix : null);
-	id += '|' + (typeof payload.filter.midfix === 'string' ? payload.filter.midfix : null);
-	id += '|' + (typeof payload.filter.suffix === 'string' ? payload.filter.suffix : null);
+	id += '|' + (isString(payload.filter.prefix) ? payload.filter.prefix : null);
+	id += '|' + (isString(payload.filter.midfix) ? payload.filter.midfix : null);
+	id += '|' + (isString(payload.filter.suffix) ? payload.filter.suffix : null);
 
 	return id;
 
@@ -24,18 +23,18 @@ const payloadify = function(raw) {
 
 		payload = Object.assign({}, raw);
 
-		payload.id        = typeof payload.id === 'string'        ? payload.id        : null;
-		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
-		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
-		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
+		payload.id        = isString(payload.id)        ? payload.id        : null;
+		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
+		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
+		payload.host      = isString(payload.host)      ? payload.host      : null;
 
 		if (isObject(payload.filter)) {
 
 			payload.filter = Object.assign({}, raw.filter);
 
-			payload.filter.prefix = typeof payload.filter.prefix === 'string' ? payload.filter.prefix : null;
-			payload.filter.midfix = typeof payload.filter.midfix === 'string' ? payload.filter.midfix : null;
-			payload.filter.suffix = typeof payload.filter.suffix === 'string' ? payload.filter.suffix : null;
+			payload.filter.prefix = isString(payload.filter.prefix) ? payload.filter.prefix : null;
+			payload.filter.midfix = isString(payload.filter.midfix) ? payload.filter.midfix : null;
+			payload.filter.suffix = isString(payload.filter.suffix) ? payload.filter.suffix : null;
 
 		} else {
 
@@ -62,7 +61,7 @@ const readify = function(raw) {
 
 		payload = Object.assign({}, raw);
 
-		payload.id = typeof payload.id === 'string' ? payload.id : null;
+		payload.id = isString(payload.id) ? payload.id : null;
 
 		return payload;
 

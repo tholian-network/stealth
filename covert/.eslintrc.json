@@ -10,7 +10,7 @@
 		"sourceType": "module"
 	},
 	"overrides": [{
-		"files": [ "source/POLYFILLS.mjs" ],
+		"files": [ "extern/base.mjs" ],
 		"rules": { "no-global-assign": "off", "no-undef": "off" }
 	}],
 	"rules": {

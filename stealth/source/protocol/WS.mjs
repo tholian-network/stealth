@@ -2,9 +2,8 @@
 import crypto from 'crypto';
 import net    from 'net';
 
-import { Buffer, isBoolean, isBuffer, isFunction, isNumber, isObject } from '../BASE.mjs';
-import { Emitter                                                     } from '../Emitter.mjs';
-import { HTTP                                                        } from './HTTP.mjs';
+import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { HTTP                                                                 } from './HTTP.mjs';
 
 
 
@@ -73,15 +72,7 @@ const encode_json = function(data) {
 
 };
 
-const decode = function(socket, buffer) {
-
-	let fragment = socket.__fragment || null;
-	if (fragment === null) {
-		fragment = socket.__fragment = {
-			operator: 0x00,
-			payload:  Buffer.alloc(0)
-		};
-	}
+const decode = function(connection, buffer) {
 
 	if (buffer.length <= 2) {
 		return null;
@@ -97,6 +88,7 @@ const decode = function(socket, buffer) {
 	};
 
 
+	let fragment       = connection.__fragment;
 	let fin            = (buffer[0] & 128) === 128;
 	let operator       = (buffer[0] &  15);
 	let mask           = (buffer[1] & 128) === 128;
@@ -302,7 +294,7 @@ const decode = function(socket, buffer) {
 
 };
 
-const encode = function(socket, data) {
+const encode = function(connection, data) {
 
 	let buffer         = null;
 	let mask           = false;
@@ -311,7 +303,7 @@ const encode = function(socket, data) {
 	let payload_length = data.length;
 
 
-	let is_server = socket._ws_server === true;
+	let is_server = connection.type === 'server';
 	if (is_server === true) {
 
 		mask         = false;
@@ -406,7 +398,7 @@ const encode = function(socket, data) {
 
 
 
-export const onconnect = function(socket, ref, buffer, emitter) {
+export const onconnect = function(connection, ref, buffer) {
 
 	let hosts = ref.hosts.sort((a, b) => {
 
@@ -450,9 +442,9 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 	buffer.nonce = nonce;
 
 
-	socket.once('data', (data) => {
+	connection.socket.once('data', (data) => {
 
-		HTTP.receive(socket, data, (response) => {
+		HTTP.receive(connection, data, (response) => {
 
 			let tmp1 = (response.headers['connection'] || '').toLowerCase();
 			let tmp2 = (response.headers['upgrade'] || '').toLowerCase();
@@ -465,10 +457,9 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 
 				if (accept === expect) {
 
-					socket._ws_client = true;
-					buffer._interval  = setInterval(() => {
+					buffer._interval = setInterval(() => {
 
-						let result = WS.ping(socket);
+						let result = WS.ping(connection);
 						if (result === false) {
 							clearInterval(buffer._interval);
 							delete buffer._interval;
@@ -476,14 +467,15 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 
 					}, 60000);
 
-					emitter.emit('@connect', [ socket ]);
+					connection.type = 'client';
+					connection.emit('@connect');
 
 				} else {
-					emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+					connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 				}
 
 			} else {
-				emitter.emit('error', [{ type: 'request' }]);
+				connection.emit('error', [{ type: 'request' }]);
 			}
 
 		});
@@ -491,7 +483,7 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 	});
 
 
-	socket.write(upgrade_request(
+	connection.socket.write(upgrade_request(
 		hostname,
 		ref.port || 80,
 		nonce
@@ -499,7 +491,7 @@ export const onconnect = function(socket, ref, buffer, emitter) {
 
 };
 
-export const ondata = function(socket, ref, buffer, emitter, fragment) {
+export const ondata = function(connection, ref, buffer, fragment) {
 
 	if (buffer.fragment === undefined) {
 		buffer.fragment = null;
@@ -510,16 +502,16 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 		buffer.fragment = null;
 	}
 
-	if (socket._ws_client === true) {
+	if (connection.type === 'client') {
 
-		WS.receive(socket, fragment, (frame) => {
+		WS.receive(connection, fragment, (frame) => {
 
 			if (frame !== null) {
 
 				// TODO: buffer.fragment should be buffer.fragment.length - frame.length but don't know for sure
 
 				buffer.fragment = null;
-				emitter.emit('response', [ frame ]);
+				connection.emit('response', [ frame ]);
 
 			} else {
 
@@ -529,16 +521,16 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
 		});
 
-	} else if (socket._ws_server === true) {
+	} else if (connection.type === 'server') {
 
-		WS.receive(socket, fragment, (frame) => {
+		WS.receive(connection, fragment, (frame) => {
 
 			if (frame !== null) {
 
 				// TODO: buffer.fragment should be buffer.fragment.length - frame.length but don't know for sure
 
 				buffer.fragment = null;
-				emitter.emit('request', [ frame ]);
+				connection.emit('request', [ frame ]);
 
 			} else {
 
@@ -552,36 +544,72 @@ export const ondata = function(socket, ref, buffer, emitter, fragment) {
 
 };
 
-export const onend = function(socket, ref, buffer, emitter) {
-	emitter.emit('@disconnect', [ socket ]);
+export const onend = function(connection) {
+	connection.emit('@disconnect');
 };
 
-export const onerror = function(socket, ref, buffer, emitter) {
-	emitter.emit('error', [{ code: '1002' }]);
+export const onerror = function(connection) {
+	connection.emit('error', [{ code: '1002' }]);
 };
 
-export const onupgrade = function(socket, ref, buffer, emitter) {
+export const onupgrade = function(connection, ref) {
 
 	let nonce = ref.headers['sec-websocket-key'] || '';
 
-	socket._ws_server = true;
-	socket.write(upgrade_response(nonce));
+	connection.type = 'server';
+	connection.socket.write(upgrade_response(nonce));
 
 	setTimeout(() => {
-		emitter.emit('@connect', [ socket ]);
+		connection.emit('@connect');
 	}, 0);
 
 };
 
 
 
+const isConnection = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Connection]';
+};
+
+const Connection = function(socket) {
+
+	this.socket = socket || null;
+	this.type   = null;
+
+	this.__fragment = {
+		operator: 0x00,
+		payload:  Buffer.alloc(0)
+	};
+
+	Emitter.call(this);
+
+};
+
+Connection.prototype = Object.assign({}, Emitter.prototype, {
+
+	[Symbol.toStringTag]: 'Connection',
+
+	disconnect: function() {
+
+		if (this.socket !== null) {
+			this.socket.destroy();
+		}
+
+		this.emit('@disconnect');
+
+	}
+
+});
+
+
+
 const WS = {
 
-	connect: function(ref, buffer, emitter) {
+	connect: function(ref, buffer, connection) {
 
-		ref     = isObject(ref)     ? ref     : null;
-		buffer  = isObject(buffer)  ? buffer  : {};
-		emitter = isObject(emitter) ? emitter : new Emitter();
+		ref        = isObject(ref)            ? ref        : null;
+		buffer     = isObject(buffer)         ? buffer     : {};
+		connection = isConnection(connection) ? connection : new Connection();
 
 
 		if (ref !== null) {
@@ -609,7 +637,7 @@ const WS = {
 
 			if (hosts.length > 0) {
 
-				let socket = emitter.socket || null;
+				let socket = connection.socket || null;
 				if (socket === null) {
 
 					socket = net.connect({
@@ -623,23 +651,23 @@ const WS = {
 						socket.setKeepAlive(true, 0);
 						socket.allowHalfOpen = true;
 
-						onconnect(socket, ref, buffer, emitter);
-						emitter.socket = socket;
+						onconnect(connection, ref, buffer);
+						connection.socket = socket;
 
 					});
 
 				}
 
 				socket.on('data', (fragment) => {
-					ondata(socket, ref, buffer, emitter, fragment);
+					ondata(connection, ref, buffer, fragment);
 				});
 
 				socket.on('timeout', () => {
 
-					if (emitter.socket !== null) {
+					if (connection.socket !== null) {
 
-						emitter.socket = null;
-						emitter.emit('timeout', [ null ]);
+						connection.socket = null;
+						connection.emit('timeout', [ null ]);
 
 					}
 
@@ -647,10 +675,10 @@ const WS = {
 
 				socket.on('error', () => {
 
-					if (emitter.socket !== null) {
+					if (connection.socket !== null) {
 
-						onerror(socket, ref, buffer, emitter);
-						emitter.socket = null;
+						onerror(connection, ref, buffer);
+						connection.socket = null;
 
 					}
 
@@ -658,21 +686,21 @@ const WS = {
 
 				socket.on('end', () => {
 
-					if (emitter.socket !== null) {
+					if (connection.socket !== null) {
 
-						onend(socket, ref, buffer, emitter);
-						emitter.socket = null;
+						onend(connection, ref, buffer);
+						connection.socket = null;
 
 					}
 
 				});
 
-				return emitter;
+				return connection;
 
 			} else {
 
-				emitter.socket = null;
-				emitter.emit('error', [{ type: 'host' }]);
+				connection.socket = null;
+				connection.emit('error', [{ type: 'host' }]);
 
 				return null;
 
@@ -680,8 +708,8 @@ const WS = {
 
 		} else {
 
-			emitter.socket = null;
-			emitter.emit('error', [{ type: 'request' }]);
+			connection.socket = null;
+			connection.emit('error', [{ type: 'request' }]);
 
 			return null;
 
@@ -689,101 +717,69 @@ const WS = {
 
 	},
 
-	upgrade: function(socket, ref) {
+	disconnect: function(connection) {
 
-		ref = isObject(ref) ? ref : { headers: {} };
-
-
-		let tmp1 = (ref.headers['connection']             || '').toLowerCase();
-		let tmp2 = (ref.headers['upgrade']                || '').toLowerCase();
-		let tmp3 = (ref.headers['sec-websocket-protocol'] || '').toLowerCase();
-
-		if (tmp1.includes('upgrade') && tmp2.includes('websocket') && tmp3.includes('stealth')) {
-
-			let nonce = ref.headers['sec-websocket-key'] || null;
-			if (nonce !== null) {
-
-				let buffer  = {};
-				let emitter = new Emitter();
+		connection = isConnection(connection) ? connection : null;
 
 
-				socket.setTimeout(0);
-				socket.setNoDelay(true);
-				socket.setKeepAlive(true, 0);
-				socket.allowHalfOpen = true;
-
-				socket.removeAllListeners('data');
-				socket.removeAllListeners('timeout');
-				socket.removeAllListeners('error');
-				socket.removeAllListeners('end');
-
-				socket.on('data', (fragment) => {
-					ondata(socket, ref, buffer, emitter, fragment);
-				});
-
-				socket.on('timeout', () => {
-
-					if (emitter.socket !== null) {
-
-						emitter.socket = null;
-						emitter.emit('timeout', [ null ]);
-
-					}
-
-				});
-
-				socket.on('error', () => {
-
-					if (emitter.socket !== null) {
-
-						onerror(socket, ref, buffer, emitter);
-						emitter.socket = null;
-
-					}
-
-				});
-
-				socket.on('end', () => {
-
-					if (emitter.socket !== null) {
-
-						onend(socket, ref, buffer, emitter);
-						emitter.socket = null;
-
-					}
-
-				});
+		if (connection !== null) {
+			return connection.disconnect();
+		}
 
 
-				onupgrade(socket, ref, buffer, emitter);
-				emitter.socket = socket;
+		return false;
+
+	},
+
+	ping: function(connection) {
+
+		connection = isConnection(connection) ? connection : null;
 
 
-				return emitter;
+		if (connection !== null) {
+
+			if (connection.socket !== null) {
+
+				let buffer = Buffer.alloc(6);
+
+				buffer[0] = 128 + 0x09; // ping
+				buffer[1] = 128 + 0x00; // masked (client)
+
+				buffer[2] = (Math.random() * 0xff) | 0;
+				buffer[3] = (Math.random() * 0xff) | 0;
+				buffer[4] = (Math.random() * 0xff) | 0;
+				buffer[5] = (Math.random() * 0xff) | 0;
+
+				if (connection.socket.writable === true) {
+					return connection.socket.write(buffer);
+				}
 
 			}
 
 		}
 
 
-		return null;
+		return false;
 
 	},
 
-	receive: function(socket, buffer, callback) {
+	receive: function(connection, buffer, callback) {
 
-		buffer   = isBuffer(buffer)     ? buffer   : null;
-		callback = isFunction(callback) ? callback : null;
+		connection = isConnection(connection) ? connection : null;
+		buffer     = isBuffer(buffer)         ? buffer     : null;
+		callback   = isFunction(callback)     ? callback   : null;
 
 
 		if (buffer !== null) {
 
-			let data = decode(socket, buffer);
+			let data = decode(connection, buffer);
 			if (data !== null) {
 
 				if (data.response !== null) {
 
-					socket.write(data.response);
+					if (connection.socket !== null) {
+						connection.socket.write(data.response);
+					}
 
 				} else if (data.fragment === true) {
 
@@ -828,7 +824,7 @@ const WS = {
 
 
 				if (data.close === true) {
-					socket.end();
+					connection.socket.end();
 				}
 
 			}
@@ -845,79 +841,154 @@ const WS = {
 
 	},
 
-	send: function(socket, data) {
+	send: function(connection, data) {
 
-		data = isObject(data) ? data : {};
-
-
-		let headers = null;
-		let payload = null;
-
-		if (isObject(data.headers) === true) {
-			headers = data.headers;
-		}
-
-		if (isBoolean(data.payload) === true) {
-			payload = data.payload;
-		} else {
-			payload = data.payload || null;
-		}
+		connection = isConnection(connection) ? connection : null;
+		data       = isObject(data)           ? data       : {};
 
 
-		if (isNumber(headers['@status'])) {
+		if (connection !== null) {
 
-			let buffer = Buffer.alloc(4);
-			let code   = headers['@status'];
+			if (connection.socket !== null) {
 
-			buffer[0] = 128 + 0x08; // close
-			buffer[1] =   0 + 0x02; // unmasked (client and server)
+				let headers = null;
+				let payload = null;
 
-			buffer[1] = (code >> 8) & 0xff;
-			buffer[2] = (code >> 0) & 0xff;
+				if (isObject(data.headers) === true) {
+					headers = data.headers;
+				}
 
-			socket.write(buffer);
+				if (isBoolean(data.payload) === true) {
+					payload = data.payload;
+				} else {
+					payload = data.payload || null;
+				}
 
-		} else {
 
-			let headers_keys = Object.keys(headers).filter((h) => h.startsWith('@') === false);
-			if (headers_keys.length > 0 || payload !== null) {
+				if (isNumber(headers['@status'])) {
 
-				let tmp = { headers: {}, payload: payload };
-				headers_keys.forEach((key) => tmp.headers[key] = headers[key]);
+					let buffer = Buffer.alloc(4);
+					let code   = headers['@status'];
 
-				let data = encode_json(tmp);
-				if (data !== null) {
+					buffer[0] = 128 + 0x08; // close
+					buffer[1] =   0 + 0x02; // unmasked (client and server)
 
-					let buffer = encode(socket, data);
-					if (buffer !== null) {
-						socket.write(buffer);
+					buffer[1] = (code >> 8) & 0xff;
+					buffer[2] = (code >> 0) & 0xff;
+
+					connection.socket.write(buffer);
+
+				} else {
+
+					let headers_keys = Object.keys(headers).filter((h) => h.startsWith('@') === false);
+					if (headers_keys.length > 0 || payload !== null) {
+
+						let tmp = { headers: {}, payload: payload };
+						headers_keys.forEach((key) => tmp.headers[key] = headers[key]);
+
+						let data = encode_json(tmp);
+						if (data !== null) {
+
+							let buffer = encode(connection, data);
+							if (buffer !== null) {
+								connection.socket.write(buffer);
+							}
+
+						}
+
 					}
 
 				}
+
+				return true;
 
 			}
 
 		}
 
-	},
-
-	ping: function(socket) {
-
-		let buffer = Buffer.alloc(6);
-
-		buffer[0] = 128 + 0x09; // ping
-		buffer[1] = 128 + 0x00; // masked (client)
-
-		buffer[2] = (Math.random() * 0xff) | 0;
-		buffer[3] = (Math.random() * 0xff) | 0;
-		buffer[4] = (Math.random() * 0xff) | 0;
-		buffer[5] = (Math.random() * 0xff) | 0;
-
-		if (socket.writable === true) {
-			return socket.write(buffer);
-		}
 
 		return false;
+
+	},
+
+	upgrade: function(socket, ref) {
+
+		ref = isObject(ref) ? ref : { headers: {} };
+
+
+		let tmp1 = (ref.headers['connection']             || '').toLowerCase();
+		let tmp2 = (ref.headers['upgrade']                || '').toLowerCase();
+		let tmp3 = (ref.headers['sec-websocket-protocol'] || '').toLowerCase();
+
+		if (tmp1.includes('upgrade') && tmp2.includes('websocket') && tmp3.includes('stealth')) {
+
+			let nonce = ref.headers['sec-websocket-key'] || null;
+			if (nonce !== null) {
+
+				let buffer     = {};
+				let connection = new Connection();
+
+
+				socket.setTimeout(0);
+				socket.setNoDelay(true);
+				socket.setKeepAlive(true, 0);
+				socket.allowHalfOpen = true;
+
+				socket.removeAllListeners('data');
+				socket.removeAllListeners('timeout');
+				socket.removeAllListeners('error');
+				socket.removeAllListeners('end');
+
+				socket.on('data', (fragment) => {
+					ondata(connection, ref, buffer, fragment);
+				});
+
+				socket.on('timeout', () => {
+
+					if (connection.socket !== null) {
+
+						connection.socket = null;
+						connection.emit('timeout', [ null ]);
+
+					}
+
+				});
+
+				socket.on('error', () => {
+
+					if (connection.socket !== null) {
+
+						onerror(connection, ref, buffer);
+						connection.socket = null;
+
+					}
+
+				});
+
+				socket.on('end', () => {
+
+					if (connection.socket !== null) {
+
+						onend(connection, ref, buffer);
+						connection.socket = null;
+
+					}
+
+				});
+
+
+				connection.socket = socket;
+				onupgrade(connection, ref, buffer);
+
+
+				return connection;
+
+			}
+
+		}
+
+
+		return null;
 
 	}
 

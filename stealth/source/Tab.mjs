@@ -1,5 +1,5 @@
 
-import { isArray, isBoolean, isNumber, isObject, isString } from './BASE.mjs';
+import { isArray, isBoolean, isNumber, isObject, isString } from '../extern/base.mjs';
 import { URL                                              } from './parser/URL.mjs';
 
 
@@ -31,8 +31,13 @@ const isConfig = function(config) {
 
 };
 
-const isRequest = function(request) {
-	return Object.prototype.toString.call(request) === '[object Request]';
+// Embedded for Cross-Platform Compatibility
+const isRequest = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Request]';
+};
+
+export const isTab = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Tab]';
 };
 
 const search = function(url) {
@@ -391,10 +396,10 @@ Tab.prototype = {
 
 	},
 
-	kill: function() {
+	destroy: function() {
 
 		this.requests.forEach((request) => {
-			request.kill();
+			request.stop();
 		});
 
 
@@ -518,34 +523,8 @@ Tab.prototype = {
 		if (requests.length > 0) {
 
 			requests.forEach((request) => {
-				request.kill();
+				request.stop();
 			});
-
-			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	remove: function(request) {
-
-		request = isRequest(request) ? request : null;
-
-
-		if (request !== null) {
-
-			for (let r = 0, rl = this.requests.length; r < rl; r++) {
-
-				if (this.requests[r] === request) {
-					this.requests.splice(r, 1);
-					rl--;
-					r--;
-				}
-
-			}
 
 			return true;
 
@@ -565,6 +544,32 @@ Tab.prototype = {
 
 			if (this.requests.includes(request) === false) {
 				this.requests.push(request);
+			}
+
+			return true;
+
+		}
+
+
+		return false;
+
+	},
+
+	untrack: function(request) {
+
+		request = isRequest(request) ? request : null;
+
+
+		if (request !== null) {
+
+			for (let r = 0, rl = this.requests.length; r < rl; r++) {
+
+				if (this.requests[r] === request) {
+					this.requests.splice(r, 1);
+					rl--;
+					r--;
+				}
+
 			}
 
 			return true;

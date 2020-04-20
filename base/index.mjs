@@ -1,3 +1,3 @@
 
-export * from './build/node/BASE.mjs';
+export * from './build/node.mjs';
 

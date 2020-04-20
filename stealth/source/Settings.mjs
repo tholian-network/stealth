@@ -2,7 +2,7 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { console, isArray, isBoolean, isFunction, isObject, isString } from './BASE.mjs';
+import { console, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
 import { hosts as default_hosts, profile as default_profile, temp    } from './ENVIRONMENT.mjs';
 import { Session                                                     } from './Session.mjs';
 import { HOSTS                                                       } from './parser/HOSTS.mjs';

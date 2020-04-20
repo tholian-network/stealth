@@ -1,5 +1,5 @@
 
-import { isArray, isBoolean, isDate, isFunction, isNumber, isObject, isRegExp, isString } from '../../stealth/source/BASE.mjs';
+import { isArray, isBoolean, isDate, isFunction, isNumber, isObject, isRegExp, isString } from '../extern/base.mjs';
 
 
 

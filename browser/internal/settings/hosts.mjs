@@ -1,5 +1,5 @@
 
-import { isArray, isObject } from '../../source/BASE.mjs';
+import { isArray, isObject } from '../../extern/base.mjs';
 import { Element           } from '../../design/Element.mjs';
 
 

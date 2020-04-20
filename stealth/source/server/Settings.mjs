@@ -1,26 +1,25 @@
 
-import { isArray, isFunction, isObject } from '../BASE.mjs';
-import { Emitter                       } from '../Emitter.mjs';
+import { Emitter, isArray, isBoolean, isFunction, isObject } from '../../extern/base.mjs';
 
 
 
 const readify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		if (Object.keys(payload).length > 0) {
 
 			payload = Object.assign({}, raw);
 
-			payload.internet  = typeof payload.internet === 'boolean'  ? payload.internet  : false;
+			payload.internet  = isBoolean(payload.internet)  ? payload.internet  : false;
 			payload.blockers  = false; // cannot be read
-			payload.filters   = typeof payload.filters === 'boolean'   ? payload.filters   : false;
-			payload.hosts     = typeof payload.hosts === 'boolean'     ? payload.hosts     : false;
-			payload.modes     = typeof payload.modes === 'boolean'     ? payload.modes     : false;
-			payload.peers     = typeof payload.peers === 'boolean'     ? payload.peers     : false;
-			payload.redirects = typeof payload.redirects === 'boolean' ? payload.redirects : false;
-			payload.sessions  = typeof payload.sessions === 'boolean'  ? payload.sessions  : false;
+			payload.filters   = isBoolean(payload.filters)   ? payload.filters   : false;
+			payload.hosts     = isBoolean(payload.hosts)     ? payload.hosts     : false;
+			payload.modes     = isBoolean(payload.modes)     ? payload.modes     : false;
+			payload.peers     = isBoolean(payload.peers)     ? payload.peers     : false;
+			payload.redirects = isBoolean(payload.redirects) ? payload.redirects : false;
+			payload.sessions  = isBoolean(payload.sessions)  ? payload.sessions  : false;
 
 			return payload;
 
@@ -35,7 +34,7 @@ const readify = function(raw) {
 const saveify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 

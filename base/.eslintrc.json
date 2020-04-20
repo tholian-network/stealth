@@ -1,6 +1,6 @@
 {
 	"env": {
-		"browser": false,
+		"browser": true,
 		"es6": true,
 		"node": true
 	},
@@ -12,6 +12,24 @@
 	"overrides": [{
 		"files": [ "extern/base.mjs" ],
 		"rules": { "no-global-assign": "off", "no-undef": "off" }
+	}, {
+		"files": [ "source/node/console.mjs" ],
+		"globals": {
+			"isArray": true,
+			"isBuffer": true,
+			"isDate": true,
+			"isFunction": true,
+			"isNumber": true,
+			"isObject": true,
+			"isString": true
+		}
+	}, {
+		"files": [ "source/MODULE.mjs" ],
+		"globals": {
+			"console": true,
+			"Buffer":  true,
+			"Emitter": true
+		}
 	}],
 	"rules": {
 		"arrow-parens": [
@@ -25,6 +43,11 @@
 		"linebreak-style": [
 			"error",
 			"unix"
+		],
+		"no-unused-vars": [
+			"error", {
+				"argsIgnorePattern": "^(assert)$"
+			}
 		],
 		"quotes": [
 			"error",

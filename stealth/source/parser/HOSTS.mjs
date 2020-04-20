@@ -1,5 +1,5 @@
 
-import { isArray, isObject, isString } from '../BASE.mjs';
+import { isArray, isObject, isString } from '../../extern/base.mjs';
 import { IP                          } from './IP.mjs';
 import { URL                         } from './URL.mjs';
 

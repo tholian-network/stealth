@@ -1,5 +1,5 @@
 
-import { isFunction, isObject, isString } from '../../stealth/source/BASE.mjs';
+import { isFunction, isObject, isString } from '../extern/base.mjs';
 import { Results                        } from './Results.mjs';
 import { Timeline                       } from './Timeline.mjs';
 

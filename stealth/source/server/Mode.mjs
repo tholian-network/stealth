@@ -1,29 +1,28 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { Emitter              } from '../Emitter.mjs';
+import { Emitter, isBoolean, isFunction, isObject, isString } from '../../extern/base.mjs';
 
 
 
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 
-		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
-		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
-		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
+		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
+		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
+		payload.host      = isString(payload.host)      ? payload.host      : null;
 
-		if (isObject(payload.mode)) {
+		if (isObject(payload.mode) === true) {
 
 			payload.mode = Object.assign({}, raw.mode);
 
-			payload.mode.text  = typeof payload.mode.text === 'boolean'  ? payload.mode.text  : false;
-			payload.mode.image = typeof payload.mode.image === 'boolean' ? payload.mode.image : false;
-			payload.mode.audio = typeof payload.mode.audio === 'boolean' ? payload.mode.audio : false;
-			payload.mode.video = typeof payload.mode.video === 'boolean' ? payload.mode.video : false;
-			payload.mode.other = typeof payload.mode.other === 'boolean' ? payload.mode.other : false;
+			payload.mode.text  = isBoolean(payload.mode.text)  ? payload.mode.text  : false;
+			payload.mode.image = isBoolean(payload.mode.image) ? payload.mode.image : false;
+			payload.mode.audio = isBoolean(payload.mode.audio) ? payload.mode.audio : false;
+			payload.mode.video = isBoolean(payload.mode.video) ? payload.mode.video : false;
+			payload.mode.other = isBoolean(payload.mode.other) ? payload.mode.other : false;
 
 		}
 

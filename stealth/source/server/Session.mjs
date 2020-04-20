@@ -1,14 +1,13 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { Emitter              } from '../Emitter.mjs';
-import { URL                  } from '../parser/URL.mjs';
+import { Emitter, isFunction, isObject } from '../../extern/base.mjs';
+import { URL                           } from '../parser/URL.mjs';
 
 
 
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 
@@ -141,7 +140,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	request: function(payload, callback) {
+	download: function(payload, callback) {
 
 		payload  = URL.isURL(payload)   ? payload  : null;
 		callback = isFunction(callback) ? callback : null;
@@ -157,7 +156,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 					callback({
 						headers: {
 							service: 'session',
-							event:   'request'
+							event:   'download'
 						},
 						payload: null
 					});
@@ -169,7 +168,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 					callback({
 						headers: {
 							service: 'session',
-							event:   'request'
+							event:   'download'
 						},
 						payload: response
 					});
@@ -181,7 +180,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 					callback({
 						headers: {
 							service: 'session',
-							event:   'request'
+							event:   'download'
 						},
 						payload: response
 					});
@@ -193,7 +192,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 				callback({
 					headers: {
 						service: 'session',
-						event:   'request'
+						event:   'download'
 					},
 					payload: null
 				});
@@ -205,7 +204,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 			callback({
 				headers: {
 					service: 'session',
-					event:   'request'
+					event:   'download'
 				},
 				payload: null
 			});

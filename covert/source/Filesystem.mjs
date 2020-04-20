@@ -1,8 +1,7 @@
 
 import fs from 'fs';
 
-import { isBoolean, isString } from '../../stealth/source/BASE.mjs';
-import { Emitter             } from '../../stealth/source/Emitter.mjs';
+import { Emitter, isBoolean, isString } from '../extern/base.mjs';
 
 
 

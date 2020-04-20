@@ -43,23 +43,25 @@ Everything in the [Browser UI](/browser/design) is nothing more than a remote
 control for the Stealth Service, whereas the `Browser.mjs` file is isomorphic
 and allows to create `node.js` based scrapers out of the box, too.
 
-- `->` at `Browser` means that the [browser.sh](/browser/bin/browser.sh) imports the file from [Base](/base/source).
-- `<-` at `Browser` means that the [browser.sh](/browser/bin/browser.sh) imports the file from [Stealth](/stealth/source).
+- `Browser`, `Covert` and `Stealth` have the `extern/base.mjs` file that is imported from the [Base](/base/source) Library.
+- `Browser` only has a `Client.mjs` and `ENVIRONMENT.mjs`, everything else in [/browser/source](/browser/source) is imported from [/stealth/source](/stealth/source).
+- `/browser/extern/base.mjs` is imported via [browser.sh](/browser/bin/browser.sh) from `/base/build/browser.mjs`.
+- `/covert/extern/base.mjs` is imported via [covert.sh](/covert/bin/covert.sh) from `/base/build/node.mjs`.
+- `/stealth/extern/base.mjs` is imported via [stealth.sh](/stealth/bin/stealth.sh) from `/base/build/node.mjs`.
 
 
-| Path                     | Base  | Browser | Stealth |
-|:-------------------------|:-----:|:-------:|:-------:|
-| `source/client/*.mjs`    |       |       <-|    x    |
-| `source/parser/*.mjs`    |       |       <-|    x    |
-| `source/Browser.mjs`     |       |       <-|    x    |
-| `source/BASE.mjs`        |   x   |->       |    x    |
-| `source/Tab.mjs`         |       |       <-|    x    |
-|:-------------------------|:-----:|:-------:|:-------:|
-| `design/*.mjs`           |       |    x    |         |
-| `internal/*.mjs`         |       |    x    |         |
-| `source/Client.mjs`      |       |    x    |    x    |
-| `source/Emitter.mjs`     |       |    x    |    x    |
-| `source/ENVIRONMENT.mjs` |       |    x    |    x    |
+| Path                     | Browser | Stealth | Notes                                  |
+|:-------------------------|:-------:|:-------:|:---------------------------------------|
+| `extern/base.mjs`        |->       |->       | built via [base.sh](/base/bin/base.sh) |
+| `source/client/*.mjs`    |       <-|    x    |                                        |
+| `source/parser/*.mjs`    |       <-|    x    |                                        |
+| `source/Browser.mjs`     |       <-|    x    |                                        |
+| `source/Tab.mjs`         |       <-|    x    |                                        |
+| ------------------------ | ------- | ------- | -------------------------------------- |
+| `design/*.mjs`           |    x    |         | requires Browser or Webview            |
+| `internal/*.mjs`         |    x    |         | requires Browser or Webview            |
+| `source/Client.mjs`      |    x    |    x    | always Platform-specific               |
+| `source/ENVIRONMENT.mjs` |    x    |    x    | always Platform-specific               |
 
 
 ## Execution Process

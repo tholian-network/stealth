@@ -1,9 +1,8 @@
 
 import Browser            from './Browser.mjs';
 import Client             from './Client.mjs';
-import Emitter            from './Emitter.mjs';
 import Request            from './Request.mjs';
-// import Server             from './Server.mjs';
+import Server             from './Server.mjs';
 // import Session            from './Session.mjs';
 // import Settings           from './Settings.mjs';
 import Stealth            from './Stealth.mjs';
@@ -58,7 +57,6 @@ export const REVIEWS = [
 	other_ROUTER,
 
 	// Core Modules
-	Emitter,
 	// Session,
 	// Settings,
 	// Tab,
@@ -83,7 +81,7 @@ export const REVIEWS = [
 	// Stealth
 	Stealth,
 	Client,
-	// Server,
+	Server,
 	Request,
 	Browser,
 

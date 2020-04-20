@@ -18,19 +18,21 @@ build_browser() {
 
 	bash "./base/bin/base.sh";
 
-	rm "./browser/source/BASE.mjs"    2> /dev/null;
+	if [[ ! -d "./browser/extern" ]]; then
+		mkdir "./browser/extern";
+	fi;
+
+	rm "./browser/extern/base.mjs"    2> /dev/null;
 	rm "./browser/source/Browser.mjs" 2> /dev/null;
-	rm "./browser/source/Emitter.mjs" 2> /dev/null;
 	rm "./browser/source/Tab.mjs"     2> /dev/null;
 	rm -rf "./browser/source/client"  2> /dev/null;
 	rm -rf "./browser/source/parser"  2> /dev/null;
 
-	cp "./base/build/browser/BASE.mjs" "./browser/source/BASE.mjs";
-	cp "./stealth/source/Browser.mjs"  "./browser/source/Browser.mjs";
-	cp "./stealth/source/Emitter.mjs"  "./browser/source/Emitter.mjs";
-	cp "./stealth/source/Tab.mjs"      "./browser/source/Tab.mjs";
-	cp -R "./stealth/source/client"    "./browser/source/client";
-	cp -R "./stealth/source/parser"    "./browser/source/parser";
+	cp "./base/build/browser.mjs"     "./browser/extern/base.mjs";
+	cp "./stealth/source/Browser.mjs" "./browser/source/Browser.mjs";
+	cp "./stealth/source/Tab.mjs"     "./browser/source/Tab.mjs";
+	cp -R "./stealth/source/client"   "./browser/source/client";
+	cp -R "./stealth/source/parser"   "./browser/source/parser";
 
 }
 
@@ -38,13 +40,14 @@ build_stealth() {
 
 	cd "$root_dir";
 
-	# bash "./base/bin/base.sh";
+	bash "./base/bin/base.sh";
 
-	if [ -f "./stealth/source/BASE.mjs" ]; then
-		rm "./stealth/source/BASE.mjs";
+	if [[ ! -d "./stealth/extern" ]]; then
+		mkdir "./stealth/extern";
 	fi;
 
-	cp "./base/build/node/BASE.mjs" "./stealth/source/BASE.mjs";
+	rm "./stealth/extern/base.mjs" 2> /dev/null;
+	cp "./base/build/node.mjs"     "./stealth/extern/base.mjs";
 
 }
 

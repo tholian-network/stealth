@@ -1,5 +1,5 @@
 
-import { Buffer, isBuffer, isFunction, isObject } from '../BASE.mjs';
+import { Buffer, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
 
 
 

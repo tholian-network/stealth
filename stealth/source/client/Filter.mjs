@@ -1,6 +1,5 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { Emitter              } from '../Emitter.mjs';
+import { Emitter, isFunction, isObject } from '../../extern/base.mjs';
 
 
 

@@ -3,7 +3,7 @@ import fs      from 'fs';
 import path    from 'path';
 import process from 'process';
 
-import { console } from '../stealth/source/console.mjs';
+import { console } from '../base/index.mjs';
 import { HOSTS   } from '../stealth/source/parser/HOSTS.mjs';
 import { URL     } from '../stealth/source/parser/URL.mjs';
 

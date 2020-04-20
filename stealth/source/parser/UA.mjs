@@ -1,5 +1,5 @@
 
-import { isArray, isObject, isString } from '../BASE.mjs';
+import { isArray, isNumber, isObject, isString } from '../../extern/base.mjs';
 
 
 
@@ -40,8 +40,7 @@ const parse_version = function(prefix, agent) {
 
 const randomize = function(values) {
 
-	let type = typeof values[0];
-	if (type === 'number') {
+	if (isNumber(values[0]) === true && Number.isNaN(values[0]) === false) {
 
 		values = values.map((v) => {
 
@@ -58,8 +57,10 @@ const randomize = function(values) {
 		return values[index];
 
 	} else {
+
 		let index = (Math.random() * values.length) | 0;
 		return values[index];
+
 	}
 
 };

@@ -39,6 +39,37 @@ if [[ "$system" == "Darwin" ]]; then
 fi;
 
 
+
+build_covert() {
+
+	cd "$root_dir";
+
+	bash "./base/bin/base.sh";
+
+	if [[ ! -d "./covert/extern" ]]; then
+		mkdir "./covert/extern";
+	fi;
+
+	rm "./covert/extern/base.mjs" 2> /dev/null;
+	cp "./base/build/node.mjs"    "./covert/extern/base.mjs";
+
+}
+
+build_stealth() {
+
+	cd "$root_dir";
+
+	bash "./base/bin/base.sh";
+
+	if [[ ! -d "./stealth/extern" ]]; then
+		mkdir "./stealth/extern";
+	fi;
+
+	rm "./stealth/extern/base.mjs" 2> /dev/null;
+	cp "./base/build/node.mjs"    "./stealth/extern/base.mjs";
+
+}
+
 start_socks_proxy() {
 
 	cd "$root_dir/covert/sketch/socks-proxy";
@@ -55,6 +86,8 @@ start_socks_proxy() {
 
 }
 
+build_covert;
+build_stealth;
 start_socks_proxy;
 
 

@@ -1,22 +1,21 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { Emitter              } from '../Emitter.mjs';
-import { URL                  } from '../parser/URL.mjs';
+import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { URL                                     } from '../parser/URL.mjs';
 
 
 
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 
-		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
-		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
-		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
-		payload.path      = typeof payload.path === 'string'      ? payload.path      : '/';
-		payload.location  = typeof payload.location === 'string'  ? payload.location  : null;
+		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
+		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
+		payload.host      = isString(payload.host)      ? payload.host      : null;
+		payload.path      = isString(payload.path)      ? payload.path      : '/';
+		payload.location  = isString(payload.location)  ? payload.location  : null;
 
 
 		if (payload.location !== null) {

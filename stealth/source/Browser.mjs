@@ -1,9 +1,37 @@
 
-import { console, isFunction, isObject, isString } from './BASE.mjs';
-import { Emitter                                 } from './Emitter.mjs';
-import { Client                                  } from './Client.mjs';
-import { Tab                                     } from './Tab.mjs';
-import { URL                                     } from './parser/URL.mjs';
+import { console, Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
+import { Client                                          } from './Client.mjs';
+import { isTab, Tab                                      } from './Tab.mjs';
+import { URL                                             } from './parser/URL.mjs';
+
+
+
+const isConfig = function(config) {
+
+	if (isObject(config) === true) {
+
+		if (isString(config.domain) === true && isObject(config.mode) === true) {
+
+			if (
+				isBoolean(config.mode.text) === true
+				&& isBoolean(config.mode.image) === true
+				&& isBoolean(config.mode.audio) === true
+				&& isBoolean(config.mode.video) === true
+				&& isBoolean(config.mode.other) === true
+			) {
+
+				return true;
+
+			}
+
+		}
+
+	}
+
+
+	return false;
+
+};
 
 
 
@@ -56,10 +84,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Browser',
 
-	back: function(callback) {
-
-		callback = isFunction(callback) ? callback : null;
-
+	back: function() {
 
 		if (this.tab !== null) {
 
@@ -68,38 +93,18 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.emit('refresh', [ this.tab, this.tabs, false ]);
 
-				if (callback !== null) {
-					callback(true);
-				} else {
-					return true;
-				}
+				return true;
 
-			} else {
-
-				if (callback !== null) {
-					callback(false);
-				} else {
-					return false;
-				}
-
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
 			}
 
 		}
 
+
+		return false;
+
 	},
 
-	connect: function(callback) {
-
-		callback = isFunction(callback) ? callback : null;
-
+	connect: function() {
 
 		if (this.__state.connected === false) {
 
@@ -119,34 +124,18 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				}
 
-				if (callback !== null) {
-					callback(result);
-				}
-
 			});
 
-			if (callback !== null) {
-				// Do nothing
-			} else {
-				return true;
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
-			}
+			return true;
 
 		}
 
+
+		return false;
+
 	},
 
-	disconnect: function(callback) {
-
-		callback = isFunction(callback) ? callback : null;
-
+	disconnect: function() {
 
 		if (this.__state.connected === true) {
 
@@ -155,114 +144,45 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				this.__state.connected = false;
 				this.emit('disconnect');
 
-				if (callback !== null) {
-					callback(true);
-				}
 
 			});
 
-			if (callback !== null) {
-				// Do nothing
-			} else {
-				return true;
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
-			}
+			return true;
 
 		}
 
+
+		return false;
+
 	},
 
-	download: function(url, callback) {
+	download: function(url) {
 
-		url      = URL.isURL(URL.parse(url)) ? url      : null;
-		callback = isFunction(callback)      ? callback : null;
+		url = URL.isURL(URL.parse(url)) ? url : null;
 
 
 		if (url !== null) {
 
 			if (this.__state.connected === true) {
 
-				this.client.services.session.request(URL.parse(url), (response) => {
-
-					if (callback !== null) {
-						callback(response);
-					}
-
+				this.client.services.session.download(URL.parse(url), (response) => {
+					this.emit('download', [ response ]);
 				});
 
-				if (callback !== null) {
-					// Do nothing
-				} else {
-					return true;
-				}
-
-			} else {
-
-				if (callback !== null) {
-					callback(null);
-				} else {
-					return false;
-				}
-
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(null);
-			} else {
-				return false;
-			}
-
-		}
-
-	},
-
-	execute: function(code, callback) {
-
-		code     = isFunction(code)     ? code     : null;
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (code !== null) {
-
-			this.emit('execute', [ code, (result) => {
-
-				if (callback !== null) {
-					callback(result);
-				}
-
-			}]);
-
-			if (callback !== null) {
-				// Do nothing
-			} else {
 				return true;
-			}
 
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
 			}
 
 		}
 
+
+		return false;
+
 	},
 
-	get: function(url, callback) {
+	get: function(url) {
 
-		url      = isString(url)        ? url      : null;
-		callback = isFunction(callback) ? callback : null;
+		url = isString(url) ? url : null;
 
 
 		let config = {
@@ -319,19 +239,13 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
-
-		if (callback !== null) {
-			callback(config);
-		} else {
-			return config;
-		}
+		return config;
 
 	},
 
-	kill: function(tab, callback) {
+	close: function(tab) {
 
-		tab      = tab instanceof Tab   ? tab      : null;
-		callback = isFunction(callback) ? callback : null;
+		tab = isTab(tab) ? tab : null;
 
 
 		if (tab !== null) {
@@ -340,9 +254,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.tabs.splice(this.tabs.indexOf(tab), 1);
 
-				if (isFunction(tab.kill) === true) {
-					tab.kill();
-				}
+				tab.destroy();
 
 			}
 
@@ -366,95 +278,41 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 
-			if (callback !== null) {
-				callback(true);
-			} else {
-				return true;
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
-			}
+			return true;
 
 		}
 
+
+		return false;
+
 	},
 
-	navigate: function(url, callback) {
+	navigate: function(url) {
 
-		url      = isString(url)        ? url      : null;
-		callback = isFunction(callback) ? callback : null;
+		url = isString(url) ? url : null;
 
 
-		if (this.tab !== null) {
+		if (url !== null) {
 
-			let result = this.tab.navigate(url);
-			if (result === true) {
+			if (this.tab !== null) {
 
-				this.refresh();
+				let result = this.tab.navigate(url);
+				if (result === true) {
 
-				if (callback !== null) {
-					callback(true);
-				} else {
+					this.refresh();
+
 					return true;
+
 				}
 
-			} else {
-
-				if (callback !== null) {
-					callback(false);
-				} else {
-					return false;
-				}
-
-			}
-
-		} else {
-
-			if (url.startsWith('./') || url.startsWith('../')) {
-
-				if (callback !== null) {
-					callback(false);
-				} else {
-					return false;
-				}
-
-			} else {
+			} else if (url.startsWith('./') === false && url.startsWith('../') === false) {
 
 				let tab = this.open(url);
 				if (tab !== null) {
 
 					let result = tab.navigate(url);
 					if (result === true) {
-
-						this.show(tab);
-
-						if (callback !== null) {
-							callback(true);
-						} else {
-							return true;
-						}
-
-					} else {
-
-						if (callback !== null) {
-							callback(false);
-						} else {
-							return false;
-						}
-
-					}
-
-				} else {
-
-					if (callback !== null) {
-						callback(false);
-					} else {
-						return false;
+						return this.show(tab);
 					}
 
 				}
@@ -463,12 +321,12 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
+
+		return false;
+
 	},
 
-	next: function(callback) {
-
-		callback = isFunction(callback) ? callback : null;
-
+	next: function() {
 
 		if (this.tab !== null) {
 
@@ -477,52 +335,27 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.emit('refresh', [ this.tab, this.tabs, false ]);
 
-				if (callback !== null) {
-					callback(true);
-				} else {
-					return true;
-				}
-
-			} else {
-
-				if (callback !== null) {
-					callback(false);
-				} else {
-					return false;
-				}
+				return true;
 
 			}
 
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
-			}
 		}
+
+
+		return false;
 
 	},
 
-	open: function(url, callback) {
+	open: function(url) {
 
-		url      = isString(url)        ? url      : null;
-		callback = isFunction(callback) ? callback : null;
+		url = isString(url) ? url : null;
 
 
 		if (url !== null) {
 
 			let ref = URL.parse(url);
 			let tab = this.tabs.find((t) => t.url === ref.url) || null;
-			if (tab !== null) {
-
-				if (callback !== null) {
-					callback(tab);
-				} else {
-					return tab;
-				}
-
-			} else {
+			if (tab === null) {
 
 				tab = new Tab({
 					config: this.get(ref.url),
@@ -533,31 +366,18 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				this.tabs.push(tab);
 				this.emit('open', [ tab, this.tabs ]);
 
-
-				if (callback !== null) {
-					callback(tab);
-				} else {
-					return tab;
-				}
-
 			}
 
-		} else {
-
-			if (callback !== null) {
-				callback(null);
-			} else {
-				return null;
-			}
+			return tab;
 
 		}
 
+
+		return null;
+
 	},
 
-	pause: function(callback) {
-
-		callback = isFunction(callback) ? callback : null;
-
+	pause: function() {
 
 		if (this.tab !== null) {
 
@@ -566,68 +386,38 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.emit('pause', [ this.tab, this.tabs, true ]);
 
-				if (callback !== null) {
-					callback(true);
-				} else {
-					return true;
-				}
+				return true;
 
-			} else {
-
-				if (callback !== null) {
-					callback(false);
-				} else {
-					return false;
-				}
-
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
 			}
 
 		}
 
+
+		return false;
+
 	},
 
-	refresh: function(callback) {
-
-		callback = isFunction(callback) ? callback : null;
-
+	refresh: function() {
 
 		if (this.tab !== null) {
 
 			this.emit('refresh', [ this.tab, this.tabs, true ]);
 
-			if (callback !== null) {
-				callback(true);
-			} else {
-				return true;
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
-			}
+			return true;
 
 		}
 
+
+		return false;
+
 	},
 
-	set: function(config, callback) {
+	set: function(config) {
 
-		config   = isObject(config)     ? config   : null;
-		callback = isFunction(callback) ? callback : null;
+		config = isConfig(config) ? config : null;
 
 
-		if (config !== null && isObject(config.mode) === true) {
+		if (config !== null) {
 
 			let domain = config.domain || null;
 			if (domain !== null) {
@@ -723,39 +513,20 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				}
 
+				return true;
 
-				if (callback !== null) {
-					callback(true);
-				} else {
-					return true;
-				}
-
-			} else {
-
-				if (callback !== null) {
-					callback(false);
-				} else {
-					return false;
-				}
-
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			} else {
-				return false;
 			}
 
 		}
 
+
+		return false;
+
 	},
 
-	show: function(tab, callback) {
+	show: function(tab) {
 
-		tab      = tab instanceof Tab   ? tab      : null;
-		callback = isFunction(callback) ? callback : null;
+		tab = isTab(tab) ? tab : null;
 
 
 		if (tab !== null) {
@@ -773,12 +544,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				this.emit('show', [ this.tab, this.tabs ]);
 			}
 
-
-			if (callback !== null) {
-				callback(tab);
-			} else {
-				return tab;
-			}
+			return tab;
 
 		} else if (tab === null) {
 
@@ -793,22 +559,12 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				this.tab = null;
 			}
 
-
-			if (callback !== null) {
-				callback(this.tab);
-			} else {
-				return this.tab;
-			}
-
-		} else {
-
-			if (callback !== null) {
-				callback(null);
-			} else {
-				return null;
-			}
+			return this.tab;
 
 		}
+
+
+		return null;
 
 	}
 

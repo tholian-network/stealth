@@ -1,6 +1,5 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { Emitter              } from '../Emitter.mjs';
+import { Emitter, isFunction, isObject } from '../../extern/base.mjs';
 
 
 
@@ -62,7 +61,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	request: function(payload, callback) {
+	download: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;
 		callback = isFunction(callback) ? callback : null;
@@ -70,12 +69,12 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			this.once('request', (result) => callback(result));
+			this.once('download', (response) => callback(response));
 
 			this.client.send({
 				headers: {
 					service: 'session',
-					method:  'request'
+					method:  'download'
 				},
 				payload: payload
 			});

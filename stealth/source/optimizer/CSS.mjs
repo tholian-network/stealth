@@ -1,5 +1,5 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
+import { isFunction, isObject } from '../../extern/base.mjs';
 
 
 

@@ -26,13 +26,16 @@ export const connect = before('stealth.connect', function(assert) {
 
 });
 
-describe('stealth.init', function(assert) {
-});
-
-describe('stealth.kill', function(assert) {
+describe('stealth.destroy', function(assert) {
 });
 
 describe('stealth.open', function(assert) {
+});
+
+describe('stealth.track', function(assert) {
+});
+
+describe('stealth.untrack', function(assert) {
 });
 
 export const disconnect = after('stealth.disconnect', function(assert) {

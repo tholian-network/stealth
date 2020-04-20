@@ -1,5 +1,5 @@
 
-import { isFunction, isNumber, isObject, isString } from '../BASE.mjs';
+import { isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
 import { ERROR                                    } from './ERROR.mjs';
 import { FILE                                     } from './FILE.mjs';
 import { PAC                                      } from './PAC.mjs';

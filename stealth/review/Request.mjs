@@ -15,7 +15,7 @@ describe('request', function(assert) {
 		config: create('https://example.com/index.html').config
 	}, this.stealth);
 
-	this.request.once('init', () => {
+	this.request.once('start', () => {
 		assert(true);
 	});
 
@@ -55,14 +55,14 @@ describe('request', function(assert) {
 		assert(true);
 	});
 
-	this.request.init();
+	this.request.start();
 
 });
 
-describe('request/kill', function(assert) {
+describe('request/stop', function(assert) {
 
 	if (this.request !== null && this.request !== undefined) {
-		this.request.kill();
+		this.request.stop();
 	}
 
 	this.request = null;
@@ -116,14 +116,14 @@ describe('request/cache', function(assert) {
 
 	});
 
-	this.request.init();
+	this.request.start();
 
 });
 
-describe('request/kill', function(assert) {
+describe('request/stop', function(assert) {
 
 	if (this.request !== null && this.request !== undefined) {
-		this.request.kill();
+		this.request.stop();
 	}
 
 	this.request = null;
@@ -164,14 +164,14 @@ describe('request/redirect', function(assert) {
 
 	});
 
-	this.request.init();
+	this.request.start();
 
 });
 
-describe('request/kill', function(assert) {
+describe('request/stop', function(assert) {
 
 	if (this.request !== null && this.request !== undefined) {
-		this.request.kill();
+		this.request.stop();
 	}
 
 	this.request = null;

@@ -1,8 +1,9 @@
 
-import { console, isArray, isNumber, isObject, isString } from './BASE.mjs';
+import { console, isArray, isNumber, isObject, isString } from '../extern/base.mjs';
 import { IP                                             } from './parser/IP.mjs';
 import { UA                                             } from './parser/UA.mjs';
-import { Request                                        } from './Request.mjs';
+import { isRequest                                      } from './Request.mjs';
+import { isStealth                                      } from './Stealth.mjs';
 import { Tab                                            } from './Tab.mjs';
 
 
@@ -58,7 +59,7 @@ const remove_request = function(request) {
 	this.tabs.forEach((tab) => {
 
 		if (tab.includes(request) === true) {
-			tab.remove(request);
+			tab.untrack(request);
 		}
 
 	});
@@ -68,6 +69,9 @@ const remove_request = function(request) {
 
 
 const Session = function(stealth) {
+
+	stealth = isStealth(stealth) ? stealth : null;
+
 
 	this.agent   = null;
 	this.domain  = Date.now() + '.artificial.engineering';
@@ -179,98 +183,31 @@ Session.prototype = {
 
 	},
 
-	get: function(url) {
-
-		url = isString(url) ? url : null;
-
-
-		if (url !== null) {
-
-			let found = null;
-
-			for (let t = 0, tl = this.tabs.length; t < tl; t++) {
-
-				let tab = this.tabs[t];
-				let req = tab.requests.find((request) => request.url === url) || null;
-				if (req !== null) {
-					found = req;
-					break;
-				}
-
-			}
-
-			return found;
-
-		}
-
-
-		return null;
-
-	},
-
-	init: function(request, tid) {
-
-		request = request instanceof Request ? request : null;
-		tid     = isString(tid)              ? tid     : '0';
-
-
-		if (request !== null && tid !== null) {
-
-			let tab = this.tabs.find((t) => t.id === tid) || null;
-			if (tab === null) {
-				tab = new Tab({ id: tid });
-				this.tabs.push(tab);
-			}
-
-			if (request.get('webview') === true) {
-				tab.navigate(request.url);
-			}
-
-			if (tab.includes(request) === false) {
-
-				request.on('init', () => {
-
-					if (request.get('useragent') === null) {
-						request.set('useragent', randomize_useragent(this.stealth.settings.useragent));
-					}
-
-				});
-
-				request.on('connect', () => {
-					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url + '".');
-				});
-
-				request.on('progress', (response, progress) => {
-					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
-				});
-
-				request.on('error',    () => remove_request.call(this, request));
-				request.on('redirect', () => remove_request.call(this, request));
-				request.on('response', () => remove_request.call(this, request));
-
-				tab.track(request);
-
-			}
-
-		}
-
-	},
-
-	kill: function() {
+	destroy: function() {
 
 		this.tabs.forEach((tab) => {
 
 			tab.requests.forEach((request) => {
+
 				console.log('Session "' + this.domain + '" tab #' + tab.id + ' remains "' + request.url + '".');
+				request.off('progress');
+
 			});
+
+			tab.destroy();
 
 		});
 
-		console.log('Session "' + this.domain + '" disconnected.');
+
+		this.agent   = null;
+		this.domain  = null;
+		this.stealth = null;
+		this.tabs    = [];
+		this.warning = 0;
 
 	},
 
-	track: function(headers) {
+	dispatch: function(headers) {
 
 		headers = isObject(headers) ? headers : {};
 
@@ -301,6 +238,139 @@ Session.prototype = {
 
 	},
 
+	get: function(url) {
+
+		url = isString(url) ? url : null;
+
+
+		if (url !== null) {
+
+			let found = null;
+
+			for (let t = 0, tl = this.tabs.length; t < tl; t++) {
+
+				let tab = this.tabs[t];
+				let req = tab.requests.find((request) => request.url === url) || null;
+				if (req !== null) {
+					found = req;
+					break;
+				}
+
+			}
+
+			return found;
+
+		}
+
+
+		return null;
+
+	},
+
+	track: function(request, tid) {
+
+		request = isRequest(request) ? request : null;
+		tid     = isString(tid)      ? tid     : '0';
+
+
+		if (request !== null && tid !== null) {
+
+			let tab = this.tabs.find((t) => t.id === tid) || null;
+			if (tab === null) {
+				tab = new Tab({ id: tid });
+				this.tabs.push(tab);
+			}
+
+			if (request.get('webview') === true) {
+				tab.navigate(request.url);
+			}
+
+			if (tab.includes(request) === false) {
+
+				request.once('start', () => {
+
+					if (request.get('useragent') === null) {
+
+						let useragent = 'stealth';
+						if (this.stealth !== null) {
+							useragent = this.stealth.settings.useragent || 'stealth';
+						}
+
+						request.set('useragent', randomize_useragent(useragent));
+
+					}
+
+				});
+
+				request.once('connect', () => {
+					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url + '".');
+				});
+
+				request.on('progress', (response, progress) => {
+					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
+				});
+
+				request.once('error',    () => remove_request.call(this, request));
+				request.once('redirect', () => remove_request.call(this, request));
+				request.once('response', () => remove_request.call(this, request));
+
+				tab.track(request);
+
+
+				return true;
+
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	untrack: function(request, tid) {
+
+		request = isRequest(request) ? request : null;
+		tid     = isString(tid)      ? tid     : null;
+
+
+		if (request !== null) {
+
+			if (tid !== null) {
+
+				let tab = this.tabs.find((t) => t.id === tid) || null;
+				if (tab !== null) {
+
+					if (tab.includes(request) === true) {
+						request.off('progress');
+						tab.untrack(request);
+					}
+
+				}
+
+			} else {
+
+				request.off('progress');
+
+				this.tabs.forEach((tab) => {
+
+					if (tab.includes(request) === true) {
+						tab.untrack(request);
+					}
+
+				});
+
+			}
+
+			return true;
+
+		}
+
+
+		return false;
+
+	},
+
 	warn: function(service, method, event) {
 
 		service = isString(service) ? service : null;
@@ -327,7 +397,7 @@ Session.prototype = {
 
 
 		if (this.warning >= 3) {
-			this.kill();
+			this.destroy();
 		}
 
 	}

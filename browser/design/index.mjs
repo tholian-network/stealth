@@ -5,7 +5,7 @@ const header = doc.querySelector('header');
 const main   = doc.querySelector('main');
 const footer = doc.querySelector('footer');
 
-import { console  } from '../source/BASE.mjs';
+import { console  } from '../extern/base.mjs';
 import { hostname } from '../source/ENVIRONMENT.mjs';
 import { dispatch } from './control.mjs';
 import { Address  } from './header/Address.mjs';

@@ -1,5 +1,5 @@
 
-import { isBoolean, isString } from '../source/BASE.mjs';
+import { isBoolean, isString } from '../extern/base.mjs';
 import { Element             } from './Element.mjs';
 import { URL                 } from '../source/parser/URL.mjs';
 

@@ -1,7 +1,7 @@
 
 import process from 'process';
 
-import { console                       } from '../../stealth/source/BASE.mjs';
+import { console                       } from '../extern/base.mjs';
 import { Covert                        } from '../source/Covert.mjs';
 import { Filesystem                    } from '../source/Filesystem.mjs';
 import { action, flags, patterns, root } from '../source/ENVIRONMENT.mjs';

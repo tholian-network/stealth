@@ -1,12 +1,11 @@
 
-import { isArray, isBoolean, isObject, isString } from './BASE.mjs';
-import { Emitter                                } from './Emitter.mjs';
-import { isServer                               } from './Server.mjs';
-import { URL                                    } from './parser/URL.mjs';
-import { Blocker                                } from './request/Blocker.mjs';
-import { Downloader                             } from './request/Downloader.mjs';
-import { Filter                                 } from './request/Filter.mjs';
-import { Optimizer                              } from './request/Optimizer.mjs';
+import { Emitter, isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
+import { isServer                                        } from './Server.mjs';
+import { URL                                             } from './parser/URL.mjs';
+import { Blocker                                         } from './request/Blocker.mjs';
+import { Downloader                                      } from './request/Downloader.mjs';
+import { Filter                                          } from './request/Filter.mjs';
+import { Optimizer                                       } from './request/Optimizer.mjs';
 
 
 
@@ -35,6 +34,10 @@ const isConfig = function(config) {
 
 	return false;
 
+};
+
+export const isRequest = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Request]';
 };
 
 
@@ -106,11 +109,11 @@ const Request = function(data, server) {
 
 		// error workflow
 		error:    null,
-		kill:     null,
+		stop:     null,
 		redirect: null,
 
 		// response workflow
-		init:     null,
+		start:    null,
 		cache:    null,
 		stash:    null,
 		block:    null,
@@ -126,9 +129,9 @@ const Request = function(data, server) {
 
 	Emitter.call(this);
 
-	this.on('init', () => {
+	this.on('start', () => {
 
-		this.timeline.init = Date.now();
+		this.timeline.start = Date.now();
 
 		if (this.server !== null) {
 
@@ -517,7 +520,7 @@ const Request = function(data, server) {
 
 						});
 
-						download.init();
+						download.start();
 
 					} else {
 						this.emit('error', [{ code: 403 }]);
@@ -572,7 +575,7 @@ const Request = function(data, server) {
 
 	this.on('redirect', (response, ignore) => {
 
-		ignore = typeof ignore === 'boolean' ? ignore : false;
+		ignore = isBoolean(ignore) ? ignore : false;
 
 
 		if (ignore === true) {
@@ -738,11 +741,18 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	init: function() {
+	start: function() {
 
-		if (this.timeline.init === null) {
-			this.emit('init');
+		if (this.timeline.start === null) {
+
+			this.emit('start');
+
+			return true;
+
 		}
+
+
+		return false;
 
 	},
 
@@ -770,10 +780,10 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	kill: function() {
+	stop: function() {
 
-		if (this.timeline.kill === null) {
-			this.timeline.kill = Date.now();
+		if (this.timeline.stop === null) {
+			this.timeline.stop = Date.now();
 		}
 
 
@@ -781,8 +791,10 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 			let download = this.download || null;
 			if (download !== null) {
-				download.kill();
+
+				download.stop();
 				this.download = null;
+
 			}
 
 		}

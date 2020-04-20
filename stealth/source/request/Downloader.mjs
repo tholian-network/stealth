@@ -1,9 +1,8 @@
 
-import { Buffer, isFunction, isObject } from '../BASE.mjs';
-import { Emitter                      } from '../Emitter.mjs';
-import { HTTP                         } from '../protocol/HTTP.mjs';
-import { HTTPS                        } from '../protocol/HTTPS.mjs';
-import { SOCKS                        } from '../protocol/SOCKS.mjs';
+import { Buffer, Emitter, isBoolean, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { HTTP                                                       } from '../protocol/HTTP.mjs';
+import { HTTPS                                                      } from '../protocol/HTTPS.mjs';
+import { SOCKS                                                      } from '../protocol/SOCKS.mjs';
 
 
 
@@ -38,12 +37,7 @@ const measure = function() {
 	if (bandwidth !== null && bandwidth < 0.01) {
 
 		if (this.connection !== null) {
-
-			let socket = this.connection.socket || null;
-			if (socket !== null) {
-				socket.end();
-			}
-
+			this.connection.disconnect();
 		}
 
 	}
@@ -52,9 +46,9 @@ const measure = function() {
 
 
 
-const Download = function(ref) {
+export const Download = function(ref) {
 
-	Emitter.call(this);
+	ref = URL.isURL(ref) ? ref : null;
 
 
 	this.buffer = {
@@ -74,10 +68,72 @@ const Download = function(ref) {
 	};
 	this.__interval  = null;
 
+
+	Emitter.call(this);
+
+};
+
+
+Download.from = function(json) {
+
+	json = isObject(json) ? json : null;
+
+
+	if (json !== null) {
+
+		let type = json.type === 'Download' ? json.type : null;
+		let data = isObject(json.data)      ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			if (URL.isURL(data.ref) === true) {
+
+				let download = new Download(data.ref);
+
+				if (
+					isObject(data.buffer) === true
+					&& isNumber(data.buffer.start) === true
+					&& isNumber(data.buffer.length) === true
+					&& isBoolean(data.buffer.partial) === true
+				) {
+
+					if (isObject(data.buffer.payload) === true) {
+
+						let tmp_payload = data.buffer.payload || null;
+						if (tmp_payload.type === 'Buffer') {
+
+							data.buffer.payload = Buffer.from(tmp_payload.data);
+
+							download.buffer.start   = data.buffer.start;
+							download.buffer.length  = data.buffer.length;
+							download.buffer.partial = data.buffer.partial;
+							download.buffer.payload = data.buffer.payload;
+
+						}
+
+					}
+
+				}
+
+				return download;
+
+			}
+
+
+		}
+
+
+	}
+
+
+	return null;
+
 };
 
 
 Download.prototype = Object.assign({}, Emitter.prototype, {
+
+	[Symbol.toStringTag]: 'Download',
 
 	toJSON: function() {
 
@@ -87,8 +143,9 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 				start:   this.buffer.start,
 				length:  this.buffer.length,
 				partial: this.buffer.partial,
-				payload: null
-			}
+				payload: this.buffer.payload.toJSON()
+			},
+			ref: this.ref
 		};
 
 		return {
@@ -108,7 +165,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	init: function() {
+	start: function() {
 
 		if (this.ref.headers !== null && this.ref.payload !== null) {
 
@@ -169,7 +226,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 				this.connection.on('response', (...args) => this.emit('response', args));
 				this.connection.on('timeout',  (...args) => this.emit('timeout',  args));
 
-				this.connection.on('@connect', (socket) => {
+				this.connection.on('@connect', () => {
 
 					let hostname = null;
 
@@ -212,13 +269,13 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					if (this.ref.protocol === 'https') {
 
-						HTTPS.send(socket, {
+						HTTPS.send(this.connection, {
 							headers: headers
 						});
 
 					} else if (this.ref.protocol === 'http') {
 
-						HTTP.send(socket, {
+						HTTP.send(this.connection, {
 							headers: headers
 						});
 
@@ -246,21 +303,10 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	kill: function() {
+	stop: function() {
 
 		if (this.connection !== null) {
-
-			let socket = this.connection.socket || null;
-			if (socket !== null) {
-
-				try {
-					socket.destroy();
-				} catch (err) {
-					// Do nothing
-				}
-
-			}
-
+			this.connection.disconnect();
 		}
 
 	}
@@ -273,7 +319,7 @@ const Downloader = {
 
 	check: function(ref, config, callback) {
 
-		ref      = isObject(ref)        ? ref      : null;
+		ref      = URL.isURL(ref)       ? ref      : null;
 		config   = isObject(config)     ? config   : null;
 		callback = isFunction(callback) ? callback : null;
 
@@ -297,7 +343,7 @@ const Downloader = {
 
 	download: function(ref, config, callback) {
 
-		ref      = isObject(ref)        ? ref      : null;
+		ref      = URL.isURL(ref)       ? ref      : null;
 		config   = isObject(config)     ? config   : null;
 		callback = isFunction(callback) ? callback : null;
 

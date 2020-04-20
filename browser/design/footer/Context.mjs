@@ -1,5 +1,5 @@
 
-import { isArray, isFunction, isNumber, isObject, isString } from '../../source/BASE.mjs';
+import { isArray, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
 import { Element                                           } from '../Element.mjs';
 import { URL                                               } from '../../source/parser/URL.mjs';
 

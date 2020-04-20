@@ -1,6 +1,6 @@
 
-import { Emitter          } from '../../stealth/source/Emitter.mjs';
 import { describe, finish } from '../../covert/index.mjs';
+import { Emitter          } from '../source/Emitter.mjs';
 
 
 
@@ -111,5 +111,5 @@ describe('emitter.once', function(assert) {
 });
 
 
-export default finish('stealth/Emitter');
+export default finish('base/Emitter');
 

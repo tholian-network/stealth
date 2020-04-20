@@ -1,8 +1,7 @@
 
 import tls from 'tls';
 
-import { isFunction, isObject              } from '../BASE.mjs';
-import { Emitter                           } from '../Emitter.mjs';
+import { Emitter, isFunction, isObject     } from '../../extern/base.mjs';
 import { WS                                } from './WS.mjs';
 import { onconnect, ondata, onend, onerror } from './WS.mjs';
 
@@ -67,13 +66,49 @@ const lookup = function(host, options, callback) {
 
 
 
+const isConnection = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Connection]';
+};
+
+const Connection = function(socket) {
+
+	this.socket = socket || null;
+	this.type   = null;
+
+	this.__fragment = {
+		operator: 0x00,
+		payload:  Buffer.alloc(0)
+	};
+
+	Emitter.call(this);
+
+};
+
+Connection.prototype = Object.assign({}, Emitter.prototype, {
+
+	[Symbol.toStringTag]: 'Connection',
+
+	disconnect: function() {
+
+		if (this.socket !== null) {
+			this.socket.destroy();
+		}
+
+		this.emit('@disconnect');
+
+	}
+
+});
+
+
+
 const WSS = {
 
-	connect: function(ref, buffer, emitter) {
+	connect: function(ref, buffer, connection) {
 
-		ref     = isObject(ref)     ? ref     : null;
-		buffer  = isObject(buffer)  ? buffer  : {};
-		emitter = isObject(emitter) ? emitter : new Emitter();
+		ref        = isObject(ref)            ? ref        : null;
+		buffer     = isObject(buffer)         ? buffer     : {};
+		connection = isConnection(connection) ? connection : new Connection();
 
 
 		if (ref !== null) {
@@ -130,40 +165,42 @@ const WSS = {
 					secureProtocol: 'TLS_method',
 					servername:     hostname,
 					lookup:         lookup.bind(ref),
-					socket:         emitter.socket || null
+					socket:         connection.socket || null
 				}, () => {
 
 					if (socket.authorized === true) {
 
-						onconnect(socket, ref, buffer, emitter);
-						emitter.socket = socket;
+						onconnect(connection, ref, buffer);
+						connection.socket = socket;
 
 					} else {
 
-						emitter.socket = null;
-						emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+						connection.socket = null;
+						connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 
 					}
 
 				});
 
 				socket.on('data', (fragment) => {
-					ondata(socket, ref, buffer, emitter, fragment);
+					ondata(connection, ref, buffer, fragment);
 				});
 
 				socket.on('timeout', () => {
 
-					if (emitter.socket !== null) {
+					if (connection.socket !== null) {
 
-						emitter.socket = null;
+						connection.socket = null;
 
 						if (buffer !== null && buffer.partial === true) {
-							emitter.emit('timeout', [{
+
+							connection.emit('timeout', [{
 								headers: ref.headers,
 								payload: buffer.payload
 							}]);
+
 						} else {
-							emitter.emit('timeout', [ null ]);
+							connection.emit('timeout', [ null ]);
 						}
 
 					}
@@ -172,19 +209,19 @@ const WSS = {
 
 				socket.on('error', (err) => {
 
-					if (emitter.socket !== null) {
+					if (connection.socket !== null) {
 
-						emitter.socket = null;
+						connection.socket = null;
 
 						let code = (err.code || '');
 						if (code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
-							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+							connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 						} else if (code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
-							emitter.emit('timeout', [ null ]);
+							connection.emit('timeout', [ null ]);
 						} else if (code.startsWith('ERR_TLS')) {
-							emitter.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+							connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 						} else {
-							onerror(socket, ref, buffer, emitter);
+							onerror(connection, ref, buffer);
 						}
 
 					}
@@ -193,21 +230,21 @@ const WSS = {
 
 				socket.on('end', () => {
 
-					if (emitter.socket !== null) {
+					if (connection.socket !== null) {
 
-						onend(socket, ref, buffer, emitter);
-						emitter.socket = null;
+						onend(connection, ref, buffer);
+						connection.socket = null;
 
 					}
 
 				});
 
-				return emitter;
+				return connection;
 
 			} else {
 
-				emitter.socket = null;
-				emitter.emit('error', [{ type: 'host' }]);
+				connection.socket = null;
+				connection.emit('error', [{ type: 'host' }]);
 
 				return null;
 
@@ -215,8 +252,8 @@ const WSS = {
 
 		} else {
 
-			emitter.socket = null;
-			emitter.emit('error', [{ type: 'request' }]);
+			connection.socket = null;
+			connection.emit('error', [{ type: 'request' }]);
 
 			return null;
 
@@ -224,9 +261,23 @@ const WSS = {
 
 	},
 
-	receive: WS.receive,
+	disconnect: function(connection) {
 
-	send:    WS.send
+		connection = isConnection(connection) ? connection : null;
+
+
+		if (connection !== null) {
+			return connection.disconnect();
+		}
+
+
+		return false;
+
+	},
+
+	receive: WS.receive,
+	send:    WS.send,
+	upgrade: WS.upgrade
 
 };
 

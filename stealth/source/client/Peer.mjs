@@ -1,6 +1,5 @@
 
-import { isFunction, isObject } from '../BASE.mjs';
-import { Emitter              } from '../Emitter.mjs';
+import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
 
 
 
@@ -11,19 +10,19 @@ const proxify = function(raw) {
 
 		payload = Object.assign({}, raw);
 
-		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
-		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
-		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
-		payload.payload   = payload.payload !== undefined         ? payload.payload   : null;
+		payload.domain    = isString(payload.domain)      ? payload.domain    : null;
+		payload.subdomain = isString(payload.subdomain)   ? payload.subdomain : null;
+		payload.host      = isString(payload.host)        ? payload.host      : null;
+		payload.payload   = payload.payload !== undefined ? payload.payload   : null;
 
 
 		if (isObject(payload.headers) === true) {
 
 			payload.headers = Object.assign({}, raw.headers);
 
-			payload.headers.service = typeof payload.headers.service === 'string' ? payload.headers.service : null;
-			payload.headers.method  = typeof payload.headers.method === 'string'  ? payload.headers.method  : null;
-			payload.headers.event   = typeof payload.headers.event === 'string'   ? payload.headers.event   : null;
+			payload.headers.service = isString(payload.headers.service) ? payload.headers.service : null;
+			payload.headers.method  = isString(payload.headers.method)  ? payload.headers.method  : null;
+			payload.headers.event   = isString(payload.headers.event)   ? payload.headers.event   : null;
 
 
 			if (payload.headers.service !== null) {

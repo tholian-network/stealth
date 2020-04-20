@@ -2,7 +2,7 @@
 import { execSync          } from 'child_process';
 import { networkInterfaces } from 'os';
 
-import { console, isString } from '../../stealth/source/BASE.mjs';
+import { console, isString } from '../extern/base.mjs';
 import { IP                } from '../../stealth/source/parser/IP.mjs';
 
 

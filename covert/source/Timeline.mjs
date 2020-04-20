@@ -1,5 +1,5 @@
 
-import { isArray, isFunction, isNumber } from '../../stealth/source/BASE.mjs';
+import { isArray, isFunction, isNumber } from '../extern/base.mjs';
 
 
 

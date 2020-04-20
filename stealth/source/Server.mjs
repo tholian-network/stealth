@@ -1,22 +1,22 @@
 
 import net from 'net';
 
-import { console, isFunction, isString } from './BASE.mjs';
-import { isStealth                     } from './Stealth.mjs';
-import { Request                       } from './Request.mjs';
-import { HTTP                          } from './protocol/HTTP.mjs';
-import { WS                            } from './protocol/WS.mjs';
-import { REDIRECT                      } from './other/REDIRECT.mjs';
-import { ROUTER                        } from './other/ROUTER.mjs';
-import { Cache                         } from './server/Cache.mjs';
-import { Filter                        } from './server/Filter.mjs';
-import { Host                          } from './server/Host.mjs';
-import { Mode                          } from './server/Mode.mjs';
-import { Peer                          } from './server/Peer.mjs';
-import { Redirect                      } from './server/Redirect.mjs';
-import { Session                       } from './server/Session.mjs';
-import { Settings                      } from './server/Settings.mjs';
-import { Stash                         } from './server/Stash.mjs';
+import { console, Emitter, isFunction, isString } from '../extern/base.mjs';
+import { isStealth                              } from './Stealth.mjs';
+import { Request                                } from './Request.mjs';
+import { HTTP                                   } from './protocol/HTTP.mjs';
+import { WS                                     } from './protocol/WS.mjs';
+import { REDIRECT                               } from './other/REDIRECT.mjs';
+import { ROUTER                                 } from './other/ROUTER.mjs';
+import { Cache                                  } from './server/Cache.mjs';
+import { Filter                                 } from './server/Filter.mjs';
+import { Host                                   } from './server/Host.mjs';
+import { Mode                                   } from './server/Mode.mjs';
+import { Peer                                   } from './server/Peer.mjs';
+import { Redirect                               } from './server/Redirect.mjs';
+import { Session                                } from './server/Session.mjs';
+import { Settings                               } from './server/Settings.mjs';
+import { Stash                                  } from './server/Stash.mjs';
 
 
 
@@ -26,198 +26,209 @@ export const isServer = function(obj) {
 
 export const handle_request = function(socket, ref) {
 
-	let url   = (ref.headers['@url'] || '');
-	let flags = [];
-	let tab   = null;
+	let connection = HTTP.upgrade(socket, ref);
+	if (connection !== null) {
 
+		let url   = (ref.headers['@url'] || '');
+		let flags = [];
+		let tab   = null;
 
-	if (url.startsWith('https://') || url.startsWith('http://')) {
+		if (url.startsWith('https://') || url.startsWith('http://')) {
 
-		flags.push('proxy');
-
-	} else if (url.startsWith('/stealth/')) {
-
-		if (url.startsWith('/stealth/:')) {
-
-			let tmp = url.substr(9).split('/').shift();
-			if (tmp.startsWith(':') && tmp.endsWith(':')) {
-
-				tmp = tmp.substr(1, tmp.length - 2);
-
-				if (tmp.includes(',')) {
-					tab   = tmp.split(',').shift();
-					flags = tmp.split(',').slice(1);
-					url   = url.substr(9).split('/').slice(1).join('/');
-				} else {
-
-					let num = parseInt(tmp, 10);
-					if (Number.isNaN(num) === false) {
-						tab = tmp;
-						url = url.substr(9).split('/').slice(1).join('/');
-					} else {
-						flags.push(tmp);
-						url = url.substr(9).split('/').slice(1).join('/');
-					}
-
-				}
-
-			}
+			flags.push('proxy');
 
 		} else if (url.startsWith('/stealth/')) {
-			url = url.substr(9);
-		}
 
-	}
+			if (url.startsWith('/stealth/:')) {
 
+				let tmp = url.substr(9).split('/').shift();
+				if (tmp.startsWith(':') && tmp.endsWith(':')) {
 
-	let session = null;
-	let request = null;
+					tmp = tmp.substr(1, tmp.length - 2);
 
-	if (this.stealth !== null) {
+					if (tmp.includes(',')) {
+						tab   = tmp.split(',').shift();
+						flags = tmp.split(',').slice(1);
+						url   = url.substr(9).split('/').slice(1).join('/');
+					} else {
 
-		session = this.stealth.track(null, ref.headers);
-		request = this.stealth.open(url);
+						let num = parseInt(tmp, 10);
+						if (Number.isNaN(num) === false) {
+							tab = tmp;
+							url = url.substr(9).split('/').slice(1).join('/');
+						} else {
+							flags.push(tmp);
+							url = url.substr(9).split('/').slice(1).join('/');
+						}
 
-	} else {
-
-		request = new Request({
-			url:    url,
-			config: {
-				mode: {
-					text:  true,
-					image: true,
-					audio: true,
-					video: true,
-					other: true
-				}
-			}
-		}, this);
-
-	}
-
-
-	if (request !== null) {
-
-		request.on('error', (err) => {
-
-			let type = err.type || null;
-			if (type !== null) {
-
-				ROUTER.error({
-					headers: ref.headers   || {},
-					url:     url           || null,
-					err:     err           || null,
-					flags:   request.flags || {}
-				}, (response) => HTTP.send(socket, response));
-
-			} else {
-
-				ROUTER.error({
-					err: err
-				}, (response) => {
-					HTTP.send(socket, response);
-				});
-
-			}
-
-			request.kill();
-
-		});
-
-		request.on('redirect', (response) => {
-
-			let url = response.headers['location'] || '';
-
-			if (request.flags.webview === true) {
-
-				let path = '/stealth/' + url;
-				if (tab !== null) {
-					path = '/stealth/:' + tab + ',webview:/' + url;
-				}
-
-				REDIRECT.send({
-					code: 301,
-					path: path
-				}, (response) => {
-					HTTP.send(socket, response);
-				});
-
-			} else {
-
-				let path = '/stealth/' + url;
-				if (tab !== null) {
-					path = '/stealth/:' + tab + ':/' + url;
-				}
-
-				REDIRECT.send({
-					code: 301,
-					path: path
-				}, (response) => {
-					HTTP.send(socket, response);
-				});
-
-			}
-
-			request.kill();
-
-		});
-
-		request.on('response', (response) => {
-
-			// TODO: Replace URLs inside HTML and CSS with "/stealth/tab:" prefix
-
-			if (response !== null && response.payload !== null) {
-
-				// Strip out all unnecessary HTTP headers
-				response.headers = {
-					'content-length': response.headers['content-length'],
-					'content-type':   response.headers['content-type']
-				};
-
-				HTTP.send(socket, response);
-
-			} else {
-
-				ROUTER.error({
-					err: {
-						code: 404
 					}
-				}, (response) => HTTP.send(socket, response));
 
+				}
+
+			} else if (url.startsWith('/stealth/')) {
+				url = url.substr(9);
 			}
 
-			request.kill();
-
-		});
-
-		if (flags.includes('proxy')) {
-			request.set('proxy', true);
-		}
-
-		if (flags.includes('refresh')) {
-			request.set('refresh', true);
-		}
-
-		if (flags.includes('webview')) {
-			request.set('webview', true);
 		}
 
 
-		if (session !== null) {
-			session.init(request, tab);
+		let session = null;
+		let request = null;
+
+		if (this.stealth !== null) {
+
+			session = this.stealth.track(null, ref.headers);
+			request = this.stealth.open(url);
+
+		} else {
+
+			request = new Request({
+				url:    url,
+				config: {
+					mode: {
+						text:  true,
+						image: true,
+						audio: true,
+						video: true,
+						other: true
+					}
+				}
+			}, this);
+
 		}
 
-		request.init();
+
+		if (request !== null) {
+
+			request.on('error', (err) => {
+
+				let type = err.type || null;
+				if (type !== null) {
+
+					ROUTER.error({
+						headers: ref.headers   || {},
+						url:     url           || null,
+						err:     err           || null,
+						flags:   request.flags || {}
+					}, (response) => {
+						HTTP.send(connection, response);
+					});
+
+				} else {
+
+					ROUTER.error({
+						err: err
+					}, (response) => {
+						HTTP.send(connection, response);
+					});
+
+				}
+
+				request.stop();
+
+			});
+
+			request.on('redirect', (response) => {
+
+				let url = response.headers['location'] || '';
+
+				if (request.flags.webview === true) {
+
+					let path = '/stealth/' + url;
+					if (tab !== null) {
+						path = '/stealth/:' + tab + ',webview:/' + url;
+					}
+
+					REDIRECT.send({
+						code: 301,
+						path: path
+					}, (response) => {
+						HTTP.send(connection, response);
+					});
+
+				} else {
+
+					let path = '/stealth/' + url;
+					if (tab !== null) {
+						path = '/stealth/:' + tab + ':/' + url;
+					}
+
+					REDIRECT.send({
+						code: 301,
+						path: path
+					}, (response) => {
+						HTTP.send(connection, response);
+					});
+
+				}
+
+				request.stop();
+
+			});
+
+			request.on('response', (response) => {
+
+				// TODO: Replace URLs inside HTML and CSS with "/stealth/tab:" prefix
+
+				if (response !== null && response.payload !== null) {
+
+					// Strip out all unnecessary HTTP headers
+					response.headers = {
+						'content-length': response.headers['content-length'],
+						'content-type':   response.headers['content-type']
+					};
+
+					HTTP.send(connection, response);
+
+				} else {
+
+					ROUTER.error({
+						err: {
+							code: 404
+						}
+					}, (response) => {
+						HTTP.send(connection, response);
+					});
+
+				}
+
+				request.stop();
+
+			});
+
+			if (flags.includes('proxy')) {
+				request.set('proxy', true);
+			}
+
+			if (flags.includes('refresh')) {
+				request.set('refresh', true);
+			}
+
+			if (flags.includes('webview')) {
+				request.set('webview', true);
+			}
+
+			if (session !== null) {
+				session.track(request, tab);
+			}
+
+			request.start();
+
+		} else {
+
+			ROUTER.error({
+				err: {
+					code: 404
+				}
+			}, (response) => {
+				HTTP.send(connection, response);
+			});
+
+		}
 
 	} else {
 
-		ROUTER.error({
-			err: {
-				code: 404
-			}
-		}, (response) => {
-			HTTP.send(socket, response);
-		});
+		socket.end();
 
 	}
 
@@ -240,7 +251,7 @@ export const handle_websocket = function(socket, ref) {
 		connection.on('error', () => {
 
 			if (this.stealth !== null) {
-				this.stealth.kill(connection.session);
+				this.stealth.untrack(connection.session);
 				connection.session = null;
 			}
 
@@ -249,7 +260,7 @@ export const handle_websocket = function(socket, ref) {
 		connection.on('timeout', () => {
 
 			if (this.stealth !== null) {
-				this.stealth.kill(connection.session);
+				this.stealth.untrack(connection.session);
 				connection.session = null;
 			}
 
@@ -268,7 +279,7 @@ export const handle_websocket = function(socket, ref) {
 
 					let response = instance.emit(event, [ request.payload, connection.session ]);
 					if (response !== null) {
-						WS.send(socket, response);
+						WS.send(connection, response);
 					}
 
 					if (response !== null && response._warn_ === true) {
@@ -290,7 +301,7 @@ export const handle_websocket = function(socket, ref) {
 					instance[method](request.payload, (response) => {
 
 						if (response !== null) {
-							WS.send(socket, response);
+							WS.send(connection, response);
 						}
 
 						if (response !== null && response._warn_ === true) {
@@ -313,11 +324,13 @@ export const handle_websocket = function(socket, ref) {
 		connection.on('@disconnect', () => {
 
 			if (this.stealth !== null) {
-				this.stealth.kill(connection.session);
+				this.stealth.untrack(connection.session);
 				connection.session = null;
 			}
 
 		});
+
+		this.connections.push(connection);
 
 	} else {
 
@@ -329,15 +342,24 @@ export const handle_websocket = function(socket, ref) {
 
 
 
-const Server = function(stealth) {
+const Server = function(settings, stealth) {
 
 	stealth = isStealth(stealth) ? stealth : null;
 
 
-	this.services = {};
-	this.stealth  = stealth;
+	this._settings = Object.freeze(Object.assign({
+		host: null
+	}, settings));
 
-	this.__server = null;
+
+	this.connections = [];
+	this.services    = {};
+	this.stealth     = stealth;
+
+	this.__state  = {
+		connected: false,
+		server:    null
+	};
 
 
 	if (this.stealth !== null) {
@@ -354,139 +376,153 @@ const Server = function(stealth) {
 
 	}
 
+
+	Emitter.call(this);
+
 };
 
 
-Server.prototype = {
+Server.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Server',
 
-	connect: function(host, callback) {
+	connect: function() {
 
-		host     = isString(host)       ? host     : null;
-		callback = isFunction(callback) ? callback : null;
+		if (this.__state.connected === false) {
 
+			this.__state.server = new net.Server({
+				allowHalfOpen:  true,
+				pauseOnConnect: true
+			});
 
-		if (this.__server !== null) {
+			this.__state.server.on('connection', (socket) => {
 
-			if (callback !== null) {
-				callback(true);
-			}
+				socket.once('data', (data) => {
 
-			return true;
+					HTTP.receive(null, data, (request) => {
 
-		}
+						if (this.stealth !== null) {
+							request.headers['@debug'] = this.stealth._settings.debug;
+						}
 
-
-		this.__server = new net.Server({
-			allowHalfOpen:  true,
-			pauseOnConnect: true
-		});
-
-		this.__server.on('connection', (socket) => {
-
-			socket.once('data', (data) => {
-
-				HTTP.receive(socket, data, (request) => {
-
-					if (this.stealth !== null) {
-						request.headers['@debug'] = this.stealth._settings.debug;
-					}
-
-					request.headers['@local']  = socket.localAddress  || null;
-					request.headers['@remote'] = socket.remoteAddress || null;
+						request.headers['@local']  = socket.localAddress  || null;
+						request.headers['@remote'] = socket.remoteAddress || null;
 
 
-					let url  = (request.headers['@url'] || '');
-					let tmp1 = (request.headers['connection'] || '').toLowerCase();
-					let tmp2 = (request.headers['upgrade'] || '').toLowerCase();
+						let url  = (request.headers['@url'] || '');
+						let tmp1 = (request.headers['connection'] || '').toLowerCase();
+						let tmp2 = (request.headers['upgrade'] || '').toLowerCase();
 
-					if (tmp1.includes('upgrade') && tmp2.includes('websocket')) {
-						handle_websocket.call(this, socket, request);
-					} else if (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('/stealth')) {
-						handle_request.call(this, socket, request);
-					} else {
-						ROUTER.send(request, (response) => HTTP.send(socket, response));
-					}
+						if (tmp1.includes('upgrade') && tmp2.includes('websocket')) {
+							handle_websocket.call(this, socket, request);
+						} else if (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('/stealth')) {
+							handle_request.call(this, socket, request);
+						} else {
+
+							ROUTER.send(request, (response) => {
+
+								let connection = HTTP.upgrade(socket);
+								if (connection !== null) {
+									HTTP.send(connection, response);
+								} else {
+									socket.end();
+								}
+
+							});
+
+						}
+
+					});
 
 				});
+
+				socket.on('error',   () => {});
+				socket.on('close',   () => {});
+				socket.on('timeout', () => socket.close());
+
+				socket.resume();
+
+			});
+
+			this.__state.server.on('error', (err) => {
+
+				this.__state.connected = false;
+
+				if (err.code === 'EADDRINUSE') {
+					console.error('Server: Another Server is already running!');
+				}
+
+				this.__state.server.close();
+
+			});
+
+			this.__state.server.on('close', () => {
+
+				console.warn('Server: Service stopped.');
+
+				this.__state.connected = false;
+				this.__state.server    = null;
+
+				this.emit('disconnect');
 
 			});
 
 
-			socket.on('error',   () => {});
-			socket.on('close',   () => {});
-			socket.on('timeout', () => socket.close());
+			let host = isString(this._settings.host) ? this._settings.host : 'localhost';
+			if (host !== 'localhost') {
 
-			socket.resume();
+				console.info('Server: Service started on http+ws://' + host + ':65432' + '.');
 
-		});
+				this.__state.connected = true;
+				this.emit('connect');
 
-		this.__server.on('error', (err) => {
+				this.__state.server.listen(65432, host);
 
-			if (err.code === 'EADDRINUSE') {
-				console.warn('Server: Service stopped because it is already running.');
 			} else {
-				console.warn('Server: Service stopped.');
+
+				console.info('Server: Service started on http+ws://localhost:65432' + '.');
+
+				this.__state.connected = true;
+				this.emit('connect');
+
+				this.__state.server.listen(65432, null);
+
 			}
 
-			this.__server.close();
 
-		});
+			return true;
 
-		this.__server.on('close', () => {
-			this.__server = null;
-		});
-
-
-		if (host !== null && host !== 'localhost') {
-			console.info('Server: Service started on http+ws://' + host + ':65432' + '.');
-			this.__server.listen(65432, host);
-		} else {
-			console.info('Server: Service started on http+ws://localhost:65432' + '.');
-			this.__server.listen(65432, null);
 		}
 
 
-		if (callback !== null) {
-			callback(true);
-		}
-
-		return true;
+		return false;
 
 	},
 
-	disconnect: function(callback) {
+	disconnect: function() {
 
-		callback = isFunction(callback) ? callback : null;
+		if (this.connections.length > 0) {
+			this.connections.forEach((connection) => {
+				connection.disconnect();
+			});
+		}
 
+		if (this.__state.connected === true) {
 
-		if (this.__server !== null) {
-
-			console.warn('Server: Service stopped.');
-
-			this.__server.close();
-			this.__server = null;
-
-			if (callback !== null) {
-				callback(true);
+			if (this.__state.server !== null) {
+				this.__state.server.close();
 			}
 
 			return true;
 
-		} else {
-
-			if (callback !== null) {
-				callback(false);
-			}
-
-			return false;
-
 		}
+
+
+		return false;
 
 	}
 
-};
+});
 
 
 export { Server };

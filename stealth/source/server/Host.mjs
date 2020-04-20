@@ -1,23 +1,22 @@
 
-import { isArray, isFunction, isObject } from '../BASE.mjs';
-import { DNS                           } from '../protocol/DNS.mjs';
-import { Emitter                       } from '../Emitter.mjs';
-import { IP                            } from '../parser/IP.mjs';
+import { Emitter, isArray, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { DNS                                              } from '../protocol/DNS.mjs';
+import { IP                                               } from '../parser/IP.mjs';
 
 
 
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 
-		payload.domain    = typeof payload.domain === 'string'    ? payload.domain    : null;
-		payload.subdomain = typeof payload.subdomain === 'string' ? payload.subdomain : null;
-		payload.host      = typeof payload.host === 'string'      ? payload.host      : null;
+		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
+		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
+		payload.host      = isString(payload.host)      ? payload.host      : null;
 
-		if (isArray(payload.hosts)) {
+		if (isArray(payload.hosts) === true) {
 			payload.hosts = payload.hosts.filter((ip) => IP.isIP(ip));
 		} else {
 			payload.hosts = [];

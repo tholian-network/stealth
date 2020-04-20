@@ -1,13 +1,12 @@
 
 import process from 'process';
 
-import { console, isBoolean, isString } from '../../stealth/source/BASE.mjs';
-import { Emitter                      } from '../../stealth/source/Emitter.mjs';
-import { root                         } from './ENVIRONMENT.mjs';
-import { Filesystem                   } from './Filesystem.mjs';
-import { Network                      } from './Network.mjs';
-import { Renderer                     } from './Renderer.mjs';
-import { isReview                     } from './Review.mjs';
+import { console, Emitter, isBoolean, isString } from '../extern/base.mjs';
+import { root                                  } from './ENVIRONMENT.mjs';
+import { Filesystem                            } from './Filesystem.mjs';
+import { Network                               } from './Network.mjs';
+import { Renderer                              } from './Renderer.mjs';
+import { isReview                              } from './Review.mjs';
 
 
 

@@ -10,6 +10,9 @@ if [[ -z "$eslint_bin" ]]; then
 fi;
 
 
+cd "$root_dir/base";
+eslint --ext js,mjs .;
+
 cd "$root_dir/browser";
 eslint --ext js,mjs .;
 

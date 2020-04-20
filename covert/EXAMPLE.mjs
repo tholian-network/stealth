@@ -1,10 +1,9 @@
 
 import fs from 'fs';
 
-import { Buffer, isString } from '../stealth/source/BASE.mjs';
-import { Emitter          } from '../stealth/source/Emitter.mjs';
-import { IP               } from '../stealth/source/parser/IP.mjs';
-import { MIME, URL        } from '../stealth/source/parser/URL.mjs';
+import { Buffer, Emitter, isString } from './extern/base.mjs';
+import { IP                        } from '../stealth/source/parser/IP.mjs';
+import { MIME, URL                 } from '../stealth/source/parser/URL.mjs';
 
 
 

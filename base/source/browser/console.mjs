@@ -1,7 +1,7 @@
 
 export const console = (function(global) {
 
-	const _console = window.console;
+	const _console = global.console;
 	const clear    = _console.clear;
 	const debug    = _console.debug;
 	const error    = _console.error;
@@ -90,6 +90,9 @@ export const console = (function(global) {
 		warn:  warn
 	};
 
+	if (typeof global.console === 'undefined') {
+		global.console = console;
+	}
 
 	return console;
 
