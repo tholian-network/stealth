@@ -2,13 +2,20 @@
 import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
 import { hostname                                } from '../ENVIRONMENT.mjs';
 import { IP                                      } from '../parser/IP.mjs';
-import { Client                                  } from '../Client.mjs';
+import { Client, isClient                        } from '../Client.mjs';
 
 
 
-const on_connect = function(callback, client, ips, result) {
+const connect_client = function(hosts, callback) {
 
-	if (result === true) {
+	let success = false;
+	let client  = new Client({
+		host: hosts.shift().ip
+	});
+
+	client.once('connect', () => {
+
+		success = true;
 
 		if (this.stealth.peers.includes(client) === false) {
 			this.stealth.peers.push(client);
@@ -16,78 +23,79 @@ const on_connect = function(callback, client, ips, result) {
 
 		callback(client);
 
-	} else {
+	});
 
-		let ip = ips.shift() || null;
-		if (ip !== null) {
-			client.connect(ip, (result) => on_connect.call(this, callback, client, ips, result));
-		} else {
-			callback(null);
+	client.once('disconnect', () => {
+
+		let index = this.stealth.peers.indexOf(client);
+		if (index !== -1) {
+			this.stealth.peers.splice(index, 1);
 		}
 
-	}
+
+		if (success === false) {
+
+			if (hosts.length > 0) {
+				connect_client.call(this, hosts, callback);
+			} else {
+				callback(null);
+			}
+
+		}
+
+	});
+
+	client.connect();
 
 };
 
-const connect = function(host, peer, callback) {
+const connect_peer = function(hosts, callback) {
 
-	callback = isFunction(callback) ? callback : null;
-
-
-	let hosts = IP.sort(host.hosts);
 	if (hosts.length > 0) {
 
 		let client = null;
-		let ips    = hosts.map((ip) => ip.ip);
 
-		for (let i = 0, il = ips.length; i < il; i++) {
+		hosts.forEach((host) => {
 
-			let instance = this.stealth.peers.find((p) => p.address === ips[i]) || null;
-			if (instance !== null) {
-				client = instance;
-				break;
+			if (client === null) {
+
+				let peer = this.stealth.peers.find((p) => p.address === host.ip) || null;
+				if (isClient(peer) === true) {
+
+					if (peer.is('connected') === true) {
+
+						client = peer;
+
+					} else {
+
+						let index = this.stealth.peers.indexOf(peer);
+						if (index !== -1) {
+							this.stealth.peers.splice(index, 1);
+						}
+
+					}
+
+				}
+
 			}
 
-		}
+		});
 
-		// TODO: client.connection has been deprecated
-		if (client !== null && client.connection === null) {
-
-			let index = this.stealth.peers.indexOf(client);
-			if (index !== -1) {
-				this.stealth.peers.splice(index, 1);
-			}
-
-			client = null;
-
-		}
-
-		if (client === null) {
-
-			client = new Client();
-			client.connect(ips.shift(), (result) => on_connect.call(this, callback, client, ips, result));
-
+		if (isClient(client) === true && client.is('connected') === true) {
+			callback(client);
 		} else {
-
-			if (callback !== null) {
-				callback(client);
-			} else {
-				return client;
-			}
-
+			connect_client.call(this, hosts, callback);
 		}
 
 	} else {
 
-		if (callback !== null) {
-			callback(null);
-		} else {
-			return null;
-		}
+		callback(null);
 
 	}
 
 };
+
+
 
 const CONNECTION = [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
 
@@ -238,7 +246,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (host !== null && peer !== null) {
 
-				connect.call(this, host, peer, (client) => {
+				connect_peer.call(this, IP.sort(host.hosts), (client) => {
 
 					if (client !== null) {
 

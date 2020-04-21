@@ -106,6 +106,50 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	close: function(tab) {
+
+		tab = isTab(tab) ? tab : null;
+
+
+		if (tab !== null) {
+
+			if (this.tabs.includes(tab) === true) {
+
+				this.tabs.splice(this.tabs.indexOf(tab), 1);
+
+				tab.destroy();
+
+			}
+
+			this.emit('close', [ tab, this.tabs ]);
+
+
+			if (this.tabs.length > 0) {
+
+				this.tab = null;
+				this.show(this.tabs[this.tabs.length - 1]);
+
+			} else if (this.tabs.length === 0) {
+
+				this.tab = null;
+
+				let welcome = this.open('stealth:welcome');
+				if (welcome !== null) {
+					this.show(welcome);
+				}
+
+			}
+
+
+			return true;
+
+		}
+
+
+		return false;
+
+	},
+
 	connect: function() {
 
 		if (this.__state.connected === false) {
@@ -249,42 +293,16 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	close: function(tab) {
+	is: function(state) {
 
-		tab = isTab(tab) ? tab : null;
+		state = isString(state) ? state : null;
 
 
-		if (tab !== null) {
+		if (state === 'connected') {
 
-			if (this.tabs.includes(tab) === true) {
-
-				this.tabs.splice(this.tabs.indexOf(tab), 1);
-
-				tab.destroy();
-
+			if (this.__state.connected === true) {
+				return true;
 			}
-
-			this.emit('kill', [ tab, this.tabs ]);
-
-
-			if (this.tabs.length > 0) {
-
-				this.tab = null;
-				this.show(this.tabs[this.tabs.length - 1]);
-
-			} else if (this.tabs.length === 0) {
-
-				this.tab = null;
-
-				let welcome = this.open('stealth:welcome');
-				if (welcome !== null) {
-					this.show(welcome);
-				}
-
-			}
-
-
-			return true;
 
 		}
 

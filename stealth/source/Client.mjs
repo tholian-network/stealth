@@ -249,6 +249,24 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	is: function(state) {
+
+		state = isString(state) ? state : null;
+
+
+		if (state === 'connected') {
+
+			if (this.__state.connected === true) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	},
+
 	send: function(data) {
 
 		data = isObject(data) ? data : null;

@@ -787,9 +787,21 @@ const HTTP = {
 		ref = isObject(ref) ? ref : { headers: {} };
 
 
-		socket.resume();
+		let connection = new Connection(socket);
+		if (connection.socket !== null) {
 
-		return new Connection(socket);
+			connection.socket.resume();
+
+			setTimeout(() => {
+				connection.emit('@connect');
+			}, 0);
+
+			return connection;
+
+		}
+
+
+		return null;
 
 	}
 

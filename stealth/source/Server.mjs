@@ -29,6 +29,24 @@ export const handle_request = function(socket, ref) {
 	let connection = HTTP.upgrade(socket, ref);
 	if (connection !== null) {
 
+		connection.once('@connect', () => {
+
+			if (this.connections.includes(connection) === false) {
+				this.connections.push(connection);
+			}
+
+		});
+
+		connection.once('@disconnect', () => {
+
+			let index = this.connections.indexOf(connection);
+			if (index !== -1) {
+				this.connections.splice(index, 1);
+			}
+
+		});
+
+
 		let url   = (ref.headers['@url'] || '');
 		let flags = [];
 		let tab   = null;
@@ -240,10 +258,28 @@ export const handle_websocket = function(socket, ref) {
 	let connection = WS.upgrade(socket, ref);
 	if (connection !== null) {
 
-		connection.on('@connect', () => {
+		connection.once('@connect', () => {
 
 			if (this.stealth !== null) {
 				connection.session = this.stealth.track(null, ref.headers);
+			}
+
+			if (this.connections.includes(connection) === false) {
+				this.connections.push(connection);
+			}
+
+		});
+
+		connection.once('@disconnect', () => {
+
+			let index = this.connections.indexOf(connection);
+			if (index !== -1) {
+				this.connections.splice(index, 1);
+			}
+
+			if (this.stealth !== null) {
+				this.stealth.untrack(connection.session);
+				connection.session = null;
 			}
 
 		});
@@ -320,17 +356,6 @@ export const handle_websocket = function(socket, ref) {
 			}
 
 		});
-
-		connection.on('@disconnect', () => {
-
-			if (this.stealth !== null) {
-				this.stealth.untrack(connection.session);
-				connection.session = null;
-			}
-
-		});
-
-		this.connections.push(connection);
 
 	} else {
 
@@ -502,9 +527,20 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 	disconnect: function() {
 
 		if (this.connections.length > 0) {
-			this.connections.forEach((connection) => {
-				connection.disconnect();
-			});
+
+			for (let c = 0, cl = this.connections.length; c < cl; c++) {
+
+				let connection = this.connections[c] || null;
+				if (connection !== null) {
+					connection.disconnect();
+				}
+
+				this.connections.splice(c, 1);
+				cl--;
+				c--;
+
+			}
+
 		}
 
 		if (this.__state.connected === true) {
