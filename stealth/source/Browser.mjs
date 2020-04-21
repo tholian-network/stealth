@@ -42,7 +42,9 @@ const Browser = function(settings) {
 		host:  'localhost'
 	}, settings));
 
-	this.client   = new Client(this);
+	this.client   = new Client({
+		host: this._settings.host
+	}, this);
 	this.settings = {
 		internet: { connection: 'mobile' },
 		filters:  [],
@@ -66,7 +68,7 @@ const Browser = function(settings) {
 		this.client.services.settings.read(null, () => {
 
 			if (this._settings.debug === true) {
-				console.info('Browser Settings loaded from "' + this._settings.host + '".');
+				console.info('Browser: Settings loaded from "' + this._settings.host + '".');
 			}
 
 		});
@@ -108,26 +110,36 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.__state.connected === false) {
 
-			let host = isString(this._settings.host) ? this._settings.host : 'localhost';
+			this.client.once('connect', () => {
 
-			this.client.connect(host, (result) => {
-
-				if (result === true) {
-
-					this.__state.connected = true;
-					this.emit('connect');
-
-				} else {
-
-					this.__state.connected = false;
-					this.emit('disconnect');
-
-				}
+				this.__state.connected = true;
+				this.emit('connect');
 
 			});
 
-			return true;
+			this.client.once('disconnect', () => {
 
+				this.__state.connected = false;
+				this.emit('disconnect');
+
+			});
+
+			let result = this.client.connect();
+			if (result === true) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	destroy: function() {
+
+		if (this.__state.connected === true) {
+			return this.disconnect();
 		}
 
 
@@ -139,13 +151,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.__state.connected === true) {
 
-			this.client.disconnect(() => {
-
-				this.__state.connected = false;
-				this.emit('disconnect');
-
-
-			});
+			this.client.disconnect();
 
 			return true;
 

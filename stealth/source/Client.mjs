@@ -29,7 +29,7 @@ const Client = function(settings, stealth) {
 
 	this._settings = Object.freeze(Object.assign({
 		host: null
-	}));
+	}, settings));
 
 
 	this.address    = null;

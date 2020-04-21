@@ -405,10 +405,10 @@ const render_summary = function(review, is_current) {
 
 const Renderer = function(settings) {
 
-	this._settings = Object.assign({
+	this._settings = Object.freeze(Object.assign({
 		action: null,  // 'scan', 'time' or 'watch'
 		debug:  false
-	}, settings);
+	}, settings));
 
 	this.__state = {
 		review: null,

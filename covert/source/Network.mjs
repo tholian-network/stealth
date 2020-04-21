@@ -241,9 +241,9 @@ const sudo = (cmd, cwd) => {
 
 const Network = function(settings) {
 
-	this._settings = Object.assign({
+	this._settings = Object.freeze(Object.assign({
 		network: null
-	}, settings);
+	}, settings));
 
 };
 

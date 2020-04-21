@@ -62,6 +62,7 @@ setTimeout(() => {
 
 	dispatch(window, BROWSER);
 
+
 	BROWSER.once('connect', () => {
 
 		console.info('Browser: Design connected to ws://' + hostname + ':65432.');
@@ -75,7 +76,7 @@ setTimeout(() => {
 			'https://cookie.engineer/index.html'
 		].map((url) => {
 			return BROWSER.open(url);
-		}).slice(-1).forEach((tab) => {
+		}).forEach((tab) => {
 			BROWSER.show(tab);
 		});
 
@@ -87,6 +88,7 @@ setTimeout(() => {
 
 	BROWSER.connect();
 
+
 	if (typeof global.onbeforeunload !== 'undefined') {
 
 		global.onbeforeunload = () => {
@@ -95,7 +97,7 @@ setTimeout(() => {
 
 	}
 
-}, 500);
+}, 100);
 
 
 setTimeout(() => {

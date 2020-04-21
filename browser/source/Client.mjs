@@ -17,11 +17,15 @@ const isBrowser = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Browser]';
 };
 
+export const isClient = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Client]';
+};
+
 const receive = function(data) {
 
 	let response = null;
 
-	if (isString(data)) {
+	if (isString(data) === true) {
 
 		try {
 			response = JSON.parse(data);
@@ -92,7 +96,7 @@ const Client = function(settings, browser) {
 
 	this._settings = Object.freeze(Object.assign({
 		host: null
-	}));
+	}, settings));
 
 
 	this.address  = null;

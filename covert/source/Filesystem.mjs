@@ -58,7 +58,8 @@ const scan_recursive = (path, results) => {
 
 const Filesystem = function(settings) {
 
-	this._settings = Object.assign({}, settings);
+	this._settings = Object.freeze(Object.assign({
+	}, settings));
 
 	this.__state = {
 		watch: []
