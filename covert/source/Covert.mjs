@@ -91,8 +91,12 @@ const init = function(settings) {
 
 	let action   = isString(settings.action)    ? settings.action   : null;
 	let internet = isBoolean(settings.internet) ? settings.internet : false;
-	let include  = settings.reviews.map(() => false);
+	let include  = {};
 	let filtered = false;
+
+	settings.reviews.map((review) => {
+		include[review.id] = false;
+	});
 
 	settings.patterns.forEach((pattern) => {
 
@@ -101,20 +105,20 @@ const init = function(settings) {
 
 		if (pattern.startsWith('*')) {
 
-			settings.reviews.forEach((review, r) => {
+			settings.reviews.forEach((review) => {
 
 				if (review.id.endsWith(pattern.substr(1))) {
-					include[r] = true;
+					include[review.id] = true;
 				}
 
 			});
 
 		} else if (pattern.endsWith('*')) {
 
-			settings.reviews.forEach((review, r) => {
+			settings.reviews.forEach((review) => {
 
 				if (review.id.startsWith(pattern.substr(0, pattern.length - 1))) {
-					include[r] = true;
+					include[review.id] = true;
 				}
 
 			});
@@ -124,20 +128,20 @@ const init = function(settings) {
 			let prefix = pattern.split('*').shift();
 			let suffix = pattern.split('*').pop();
 
-			settings.reviews.forEach((review, r) => {
+			settings.reviews.forEach((review) => {
 
 				if (review.id.startsWith(prefix) && review.id.endsWith(suffix)) {
-					include[r] = true;
+					include[review.id] = true;
 				}
 
 			});
 
 		} else {
 
-			settings.reviews.forEach((review, r) => {
+			settings.reviews.forEach((review) => {
 
 				if (review.id === pattern) {
-					include[r] = true;
+					include[review.id] = true;
 				}
 
 			});
@@ -150,10 +154,10 @@ const init = function(settings) {
 	// --internet defaulted with true
 	if (internet === false) {
 
-		settings.reviews.forEach((review, r) => {
+		settings.reviews.forEach((review) => {
 
 			if (review.flags.internet === true) {
-				include[r] = false;
+				include[review.id] = false;
 			}
 
 		});
@@ -163,7 +167,44 @@ const init = function(settings) {
 
 	if (filtered === true) {
 
-		let reviews = include.map((inc, i) => (inc === true ? settings.reviews[i] : null)).filter((r) => r !== null);
+		let reviews = [];
+
+		settings.reviews.forEach((review) => {
+
+			if (include[review.id] === true) {
+				reviews.push(review);
+			}
+
+		});
+
+		if (reviews.length > 0) {
+
+			if (action === 'scan') {
+
+				reviews.forEach((review) => {
+					this.scan(review);
+				});
+
+			} else if (action === 'time') {
+
+				reviews.forEach((review) => {
+					this.scan(review);
+				});
+
+			} else if (action === 'watch') {
+
+				reviews.forEach((review) => {
+					this.scan(review);
+					this.watch(review);
+				});
+
+			}
+
+		}
+
+	} else {
+
+		let reviews = settings.reviews;
 		if (reviews.length > 0) {
 
 			if (action === 'scan') {
@@ -466,6 +507,7 @@ const prettify = (object) => {
 };
 
 
+
 const Covert = function(settings) {
 
 	this._settings = Object.freeze(Object.assign({
@@ -697,6 +739,24 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	is: function(state) {
+
+		state = isString(state) ? state : null;
+
+
+		if (state === 'connected') {
+
+			if (this.__state.connected === true) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	},
+
 	scan: function(review) {
 
 		// Allow import * syntax
@@ -714,19 +774,11 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (review !== null) {
 
-			if (
-				review.before !== null
-				|| review.tests.length > 0
-				|| review.after !== null
-			) {
-
-				if (this.reviews.includes(review) === false) {
-					this.reviews.push(review);
-				}
-
-				return true;
-
+			if (this.reviews.includes(review) === false) {
+				this.reviews.push(review);
 			}
+
+			return true;
 
 		}
 

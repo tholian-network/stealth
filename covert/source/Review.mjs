@@ -17,6 +17,7 @@ export const Review = function() {
 	this.id     = ('Review-' + REVIEW_ID++);
 	this.after  = null;
 	this.before = null;
+	this.errors = [];
 	this.flags  = {};
 	this.scope  = {};
 	this.state  = null;
@@ -172,18 +173,4 @@ export const finish = function(id, flags) {
 	return null;
 
 };
-
-
-
-const REVIEW = {
-
-	after:    after,
-	before:   before,
-	describe: describe,
-	finish:   finish
-
-};
-
-
-export { REVIEW };
 

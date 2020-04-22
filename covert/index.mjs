@@ -2,6 +2,7 @@
 export * from './source/Covert.mjs';
 export * from './source/ENVIRONMENT.mjs';
 export * from './source/Filesystem.mjs';
+export * from './source/Linter.mjs';
 export * from './source/Network.mjs';
 export * from './source/Renderer.mjs';
 export * from './source/Results.mjs';

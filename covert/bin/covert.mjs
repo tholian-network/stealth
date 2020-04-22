@@ -1,99 +1,26 @@
 
 import process from 'process';
 
-import { console                       } from '../extern/base.mjs';
-import { Covert                        } from '../source/Covert.mjs';
-import { Filesystem                    } from '../source/Filesystem.mjs';
-import { action, flags, patterns, root } from '../source/ENVIRONMENT.mjs';
-import { REVIEWS as BASE               } from '../../base/review/index.mjs';
-import { REVIEWS as COVERT             } from '../../covert/review/index.mjs';
-import { REVIEWS as STEALTH            } from '../../stealth/review/index.mjs';
+import { console                 } from '../extern/base.mjs';
+import { Covert                  } from '../source/Covert.mjs';
+import { Linter                  } from '../source/Linter.mjs';
+import { action, flags, patterns } from '../source/ENVIRONMENT.mjs';
 
+import BASE    from '../../base/review/index.mjs';
+import COVERT  from '../../covert/review/index.mjs';
+import STEALTH from '../../stealth/review/index.mjs';
 
 
 const REVIEWS = [
-	...BASE,
-	...COVERT,
-	...STEALTH
+	...BASE.reviews,
+	...COVERT.reviews,
+	...STEALTH.reviews
 ];
 
-const lint_test = (test) => {
-
-	let errors = [];
-
-	let body = test.callback.toString().split('\n').slice(1, -1);
-	if (body.length > 0) {
-
-		let wrong_compare = body.map((line) => line.trim()).filter((line) => {
-			return line.startsWith('assert(') && line.endsWith(' === undefined);') === false;
-		}).find((line) => {
-			return line.startsWith('assert(') && (line.includes(' === ') || line.includes(' == ') || line.includes(' && '));
-		}) || null;
-
-		if (wrong_compare !== null) {
-			errors.push(test.name + ' should use assert(value, expect).');
-		}
-
-	}
-
-	return errors;
-
-};
-
-const lint = (review) => {
-
-	let errors = [];
-
-	if (review.before !== null) {
-
-		if (review.before.results.length === 0) {
-			errors.push(review.before.name + ' has no assert() calls.');
-		}
-
-		lint_test(review.before).forEach((error) => {
-			errors.push(error);
-		});
-
-	}
-
-	if (review.tests.length === 0) {
-
-		errors.push('no describe() calls.');
-
-	} else {
-
-		review.tests.forEach((test) => {
-
-			if (test.results.length === 0) {
-
-				errors.push(test.name + ' has no assert() calls.');
-
-			} else {
-
-				lint_test(test).forEach((error) => {
-					errors.push(error);
-				});
-
-			}
-
-		});
-
-	}
-
-	if (review.after !== null) {
-
-		if (review.after.results.length === 0) {
-			errors.push(review.after.name + ' has no assert() calls.');
-		}
-
-		lint_test(review.after).forEach((error) => {
-			errors.push(error);
-		});
-
-	}
-
-	return errors;
-
+const SOURCES = {
+	base:    BASE.sources,
+	covert:  COVERT.sources,
+	stealth: STEALTH.sources
 };
 
 const reset = (review) => {
@@ -160,7 +87,64 @@ const show_help = () => {
 
 };
 
-const on_complete = (covert) => {
+const render_errors = (linter) => {
+
+	let nones = linter.reviews.filter((r) => r.state === 'none');
+	let fails = linter.reviews.filter((r) => r.errors.length > 0);
+
+	if (nones.length > 0 || fails.length > 0) {
+
+		if (linter._settings.debug === true) {
+			console.log('');
+		} else {
+			console.clear();
+		}
+
+		console.warn('');
+		console.warn('Linter: Some reviews aren\'t complete.');
+		console.warn('');
+
+		nones.forEach((review, r) => {
+
+			if (r > 0) console.log('');
+
+			linter.renderer.render(review, 'errors');
+
+		});
+
+		if (fails.length > 0) {
+			console.log('');
+		}
+
+		fails.forEach((review, r) => {
+
+			if (r > 0) console.log('');
+
+			linter.renderer.render(review, 'errors');
+
+		});
+
+		process.exit(2);
+
+	} else {
+
+		if (linter._settings.debug === true) {
+			console.log('');
+		} else {
+			console.clear();
+		}
+
+		console.info('');
+		console.info('Linter: All reviews are complete.');
+		console.info('');
+
+		process.exit(0);
+
+	}
+
+};
+
+const render_summary = (covert) => {
 
 	let fails = covert.reviews.filter((r) => r.state === 'fail');
 	let skips = covert.reviews.filter((r) => r.state === null);
@@ -275,120 +259,26 @@ if (action === 'check') {
 	console.log('');
 
 
-	let reviews         = [];
-	let implementations = new Filesystem().scan(root + '/stealth/source', true).filter((path) => {
-
-		if (
-			path.endsWith('.mjs') === true
-			&& path.endsWith('/BASE.mjs') == false
-			&& path.endsWith('/ENVIRONMENT.mjs') === false
-		) {
-
-			return true;
-
-		}
-
-		return false;
-
-	}).map((path) => {
-		let id = 'stealth/' + path.substr((root + '/stealth/source/').length);
-		return id.substr(0, id.length - 4);
+	let linter = new Linter({
+		action:   action         || null,
+		debug:    flags.debug    || false,
+		internet: flags.internet || null,
+		patterns: patterns       || [],
+		reviews:  REVIEWS,
+		sources:  SOURCES
 	});
 
-	if (implementations.length > 0) {
-
-		implementations.forEach((id) => {
-
-			let review = REVIEWS.find((r) => r.id === id) || null;
-			if (review === null) {
-
-				reviews.push({
-					id:     id,
-					before: null,
-					tests:  [],
-					after:  null,
-					state:  'none'
-				});
-
-			}
-
-		});
-
-	}
-
-	REVIEWS.forEach((review) => {
-
-		let errors = lint(review);
-		if (errors.length > 0) {
-
-			if (reviews.includes(review) === false) {
-				reviews.push(review);
-			}
-
-		}
-
+	linter.on('disconnect', () => {
+		render_errors(linter);
 	});
 
+	if (patterns.length > 0 && linter.reviews.length === 0) {
 
-	if (reviews.length > 0) {
-
-		let none = reviews.find((review) => review.state === 'none') || null;
-		if (none !== null) {
-
-			console.error('');
-			console.error('Covert: Some implementations have no reviews.');
-			console.error('');
-
-		} else {
-
-			console.warn('');
-			console.warn('Covert: Some reviews are incomplete.');
-			console.warn('');
-
-		}
-
-
-		reviews.sort((a, b) => {
-			if (a.id < b.id) return -1;
-			if (b.id < a.id) return  1;
-			return 0;
-		}).forEach((review) => {
-
-			console.log('');
-
-			if (
-				review.before === null
-				&& review.tests.length === 0
-				&& review.after === null
-			) {
-
-				console.error(review.id);
-				console.error('> No Review found.');
-
-			} else {
-
-				let errors = lint(review);
-				if (errors.length > 0) {
-
-					console.warn(review.id);
-
-					errors.forEach((error) => {
-						console.warn('> ' + error);
-					});
-
-				}
-
-			}
-
-		});
-
-		process.exit(1);
+		console.warn('Linter: No Review(s) matching the patterns "' + patterns.join('" or "') + '" found.');
+		process.exit(2);
 
 	} else {
-
-		console.info('Covert: Stealth is reviewed correctly.');
-		process.exit(0);
-
+		linter.connect();
 	}
 
 } else if (action === 'watch') {
@@ -404,39 +294,24 @@ if (action === 'check') {
 		internet: flags.internet || null,
 		network:  flags.network  || null,
 		patterns: patterns       || [],
-		reviews:  REVIEWS
+		reviews:  REVIEWS,
+		sources:  SOURCES
 	});
 
 	process.on('SIGINT', () => {
-
-		setTimeout(() => {
-			on_complete(covert);
-		}, 1000);
-
+		setTimeout(() => render_summary(covert), 1000);
 	});
 
 	process.on('SIGQUIT', () => {
-
-		setTimeout(() => {
-			on_complete(covert);
-		}, 1000);
-
+		setTimeout(() => render_summary(covert), 1000);
 	});
 
 	process.on('SIGABRT', () => {
-
-		setTimeout(() => {
-			on_complete(covert);
-		}, 1000);
-
+		setTimeout(() => render_summary(covert), 1000);
 	});
 
 	process.on('SIGTERM', () => {
-
-		setTimeout(() => {
-			on_complete(covert);
-		}, 1000);
-
+		setTimeout(() => render_summary(covert), 1000);
 	});
 
 	covert.on('disconnect', () => {
@@ -489,11 +364,12 @@ if (action === 'check') {
 		internet: flags.internet || null,
 		network:  flags.network  || null,
 		patterns: patterns       || [],
-		reviews:  REVIEWS
+		reviews:  REVIEWS,
+		sources:  SOURCES
 	});
 
 	covert.on('disconnect', () => {
-		on_complete(covert);
+		render_summary(covert);
 	});
 
 	if (patterns.length > 0 && covert.reviews.length === 0) {

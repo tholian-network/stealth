@@ -12,18 +12,40 @@ import _String   from './String.mjs';
 
 
 
-export const REVIEWS = [
+export default {
 
-	_Array,
-	_Boolean,
-	_Buffer,
-	_Date,
-	Emitter,
-	_Function,
-	_Number,
-	_Object,
-	_RegExp,
-	_String
+	reviews: [
 
-];
+		_Array,
+		_Boolean,
+		_Buffer,
+		_Date,
+		Emitter,
+		_Function,
+		_Number,
+		_Object,
+		_RegExp,
+		_String
+
+	],
+
+	sources: {
+
+		// Map sources to review.id
+		'browser/Buffer':  'Buffer',
+		'browser/console': 'console',
+
+		'node/Buffer':     'Buffer',
+		'node/console':    'console',
+
+		// Map review.id to sources
+		'Buffer':          'browser/Buffer',
+		'console':         'node/console',
+
+		// Ignore below sources
+		'MODULE':          null
+
+	}
+
+};
 

@@ -40,63 +40,73 @@ import request_Optimizer  from './request/Optimizer.mjs';
 
 
 
-export const REVIEWS = [
+export default {
 
-	// Parsers
-	parser_CSS,
-	parser_HOSTS,
-	parser_IP,
-	parser_UA,
-	parser_URL,
+	reviews: [
 
-	// Server Modules
-	other_ERROR,
-	other_FILE,
-	other_PAC,
-	other_REDIRECT,
-	other_ROUTER,
+		// Parsers
+		parser_CSS,
+		parser_HOSTS,
+		parser_IP,
+		parser_UA,
+		parser_URL,
 
-	// Core Modules
-	// Session,
-	// Settings,
-	// Tab,
+		// Server Modules
+		other_ERROR,
+		other_FILE,
+		other_PAC,
+		other_REDIRECT,
+		other_ROUTER,
 
-	// Optimizers
-	optimizer_CSS,
+		// Core Modules
+		// Session,
+		// Settings,
+		// Tab,
 
-	// Network Protocols
-	protocol_DNS,
-	protocol_HTTP,
-	protocol_HTTPS,
-	protocol_SOCKS,
-	protocol_WS,
-	protocol_WSS,
+		// Optimizers
+		optimizer_CSS,
 
-	// Requests
-	request_Blocker,
-	request_Downloader,
-	request_Filter,
-	request_Optimizer,
+		// Network Protocols
+		protocol_DNS,
+		protocol_HTTP,
+		protocol_HTTPS,
+		protocol_SOCKS,
+		protocol_WS,
+		protocol_WSS,
 
-	// Stealth
-	Stealth,
-	Client,
-	Server,
-	Request,
-	Browser,
+		// Requests
+		request_Blocker,
+		request_Downloader,
+		request_Filter,
+		request_Optimizer,
 
-	// Network Services
-	client_Cache,
-	client_Filter,
-	client_Host,
-	client_Mode,
-	client_Peer,
-	client_Redirect,
-	client_Settings,
-	client_Stash,
+		// Stealth
+		Stealth,
+		Client,
+		Server,
+		Request,
+		Browser,
 
-	// Peer-to-Peer
-	peer_Cache
+		// Network Services
+		client_Cache,
+		client_Filter,
+		client_Host,
+		client_Mode,
+		client_Peer,
+		client_Redirect,
+		client_Settings,
+		client_Stash,
 
-];
+		// Peer-to-Peer
+		peer_Cache
+
+	],
+
+	sources: {
+
+		'ENVIRONMENT': null
+
+	}
+
+};
 

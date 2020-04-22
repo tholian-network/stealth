@@ -1,9 +1,4 @@
 
-
-export const isEmitter = function(obj) {
-	return Object.prototype.toString.call(obj) === '[object Emitter]';
-};
-
 export const Emitter = (function(global) {
 
 	if (typeof global.Emitter !== 'function') {
@@ -25,6 +20,11 @@ export const Emitter = (function(global) {
 
 			this.__events = {};
 
+		};
+
+
+		Emitter.isEmitter = function(obj) {
+			return Object.prototype.toString.call(obj) === '[object Emitter]';
 		};
 
 
@@ -186,4 +186,6 @@ export const Emitter = (function(global) {
 	return global.Emitter;
 
 })(typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this));
+
+export const isEmitter = Emitter.isEmitter;
 

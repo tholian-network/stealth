@@ -144,6 +144,53 @@ const render_complete = function(review, is_current) {
 
 };
 
+const render_errors = function(review, is_current) {
+
+	is_current = isBoolean(is_current) ? is_current : false;
+
+
+	if (review.state === null) {
+
+		if (is_current === true) {
+			console.blink(review.id);
+		} else {
+			console.log(review.id);
+		}
+
+	} else if (review.state === 'okay') {
+		console.info(review.id);
+	} else if (review.state === 'wait') {
+		console.warn(review.id);
+	} else if (review.state === 'fail') {
+		console.error(review.id);
+	}
+
+	review.errors.forEach((error) => {
+
+		let message = '>';
+
+		message += ' ' + error;
+
+		if (review.state === null) {
+
+			if (is_current === true) {
+				console.blink(message);
+			} else {
+				console.log(message);
+			}
+
+		} else if (review.state === 'okay') {
+			console.info(message);
+		} else if (review.state === 'wait') {
+			console.warn(message);
+		} else if (review.state === 'fail') {
+			console.error(message);
+		}
+
+	});
+
+};
+
 const render_partial = function(reviews, prev_state, curr_state) {
 
 	let candidates         = [];
@@ -494,6 +541,10 @@ Renderer.prototype = {
 								render_summary.call(this, review);
 							}
 
+						} else if (mode === 'errors') {
+
+							render_errors.call(this, review);
+
 						} else if (mode === 'summary') {
 
 							render_summary.call(this, review);
@@ -512,6 +563,8 @@ Renderer.prototype = {
 
 			if (mode === 'complete') {
 				render_complete.call(this, data);
+			} else if (mode === 'errors') {
+				render_errors.call(this, data);
 			} else if (mode === 'summary') {
 				render_summary.call(this, data);
 			}

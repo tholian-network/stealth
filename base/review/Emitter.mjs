@@ -1,10 +1,39 @@
 
-import { describe, finish } from '../../covert/index.mjs';
-import { Emitter          } from '../source/Emitter.mjs';
+import { describe, finish   } from '../../covert/index.mjs';
+import { Emitter, isEmitter } from '../source/Emitter.mjs';
 
 
 
-describe('emitter.emit', function(assert) {
+describe('new Emitter()', function(assert) {
+
+	let emitter = new Emitter();
+
+	assert(emitter instanceof Emitter);
+	assert(Object.prototype.toString.call(emitter), '[object Emitter]');
+
+});
+
+describe('Emitter.isEmitter()', function(assert) {
+
+	let emitter = new Emitter();
+
+	assert(typeof Emitter.isEmitter, 'function');
+
+	assert(Emitter.isEmitter(emitter), true);
+
+});
+
+describe('isEmitter()', function(assert) {
+
+	let emitter = new Emitter();
+
+	assert(typeof isEmitter, 'function');
+
+	assert(isEmitter(emitter), true);
+
+});
+
+describe('Emitter.prototype.emit()', function(assert) {
 
 	let emitter = new Emitter();
 
@@ -20,7 +49,7 @@ describe('emitter.emit', function(assert) {
 
 });
 
-describe('emitter.emit/Error', function(assert) {
+describe('Emitter.prototype.emit()/Error', function(assert) {
 
 	let emitter = new Emitter();
 
@@ -40,30 +69,7 @@ describe('emitter.emit/Error', function(assert) {
 
 });
 
-describe('emitter.on', function(assert) {
-
-	let emitter = new Emitter();
-
-	emitter.on('foo', () => {
-
-		assert(this !== emitter);
-		assert(true);
-
-	});
-
-	emitter.on('bar', function() {
-
-		assert(this !== emitter);
-		assert(true);
-
-	});
-
-	emitter.emit('foo');
-	emitter.emit('bar');
-
-});
-
-describe('emitter.off', function(assert) {
+describe('Emitter.prototype.off()', function(assert) {
 
 	let emitter = new Emitter();
 	let fired   = { foo: false, bar: false };
@@ -86,7 +92,30 @@ describe('emitter.off', function(assert) {
 
 });
 
-describe('emitter.once', function(assert) {
+describe('Emitter.prototype.on()', function(assert) {
+
+	let emitter = new Emitter();
+
+	emitter.on('foo', () => {
+
+		assert(this !== emitter);
+		assert(true);
+
+	});
+
+	emitter.on('bar', function() {
+
+		assert(this !== emitter);
+		assert(true);
+
+	});
+
+	emitter.emit('foo');
+	emitter.emit('bar');
+
+});
+
+describe('Emitter.prototype.once()', function(assert) {
 
 	let emitter = new Emitter();
 	let fired   = { foo: 0, bar: 0 };
