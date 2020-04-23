@@ -60,19 +60,78 @@ Multiple Example Reviews are available in these folders:
 
 Codestyle Rules (Assumptions) of a Review:
 
+- All Reviews (in `/review/*`) have to use `ES Modules` syntax.
+- All Source codes (in `/source/*`) have to use `ES Modules` syntax.
 - Reviews can have a single `before()` entry for preparation.
 - Reviews can have a single `after()` entry for cleanup.
 - Reviews can have multiple stateless `describe()` entries.
-- Reviews need to `export default` via `finish('library/namespace/Identifier')` to ensure `ESM` compatibility.
+- Reviews need to `export default` via `finish('library/namespace/Identifier')` to ensure ES Modules compatibility.
 - `assert()` calls have to be in a separate line.
 - `assert()` calls have to be branch-less, surrounding `if/elseif/else` conditions are not allowed.
+
+
+Exports of the Review Folder (`/review/index.mjs`):
+
+The `index.mjs` of any review folder has to export the following properties as a `default` export:
+
+- `(Array) reviews[]` that contains all imported reviews.
+- `(Object) sources{}` that contains a source-to-review map that allows overriding
+   which review have to reflect what implementation.
+
+```javascript
+// Example index.mjs file
+
+// imports of /review/*.mjs
+import Foo from './Foo.mjs';
+import Bar from './Bar.mjs';
+import Doo from './network/Doo.mjs';
+
+
+// Review ids are consistent with paths.
+// Foo.id = 'my-project/Foo'
+// Bar.id = 'my-project/Bar'
+// Doo.id = 'my-project/network/Doo'
+
+
+export default {
+
+	reviews: [
+
+		Foo,
+		Bar,
+		Doo
+
+	],
+
+	sources: {
+
+		// The Bar review has two implementations,
+		// one for node and one for the browser
+
+		'browser/Bar': 'Bar',
+		'node/Bar':    'Bar',
+
+		// The Bar review should test the following ES Module
+		// that is located at my-project/source/node/Bar.mjs
+		// (Note that polyfills can be tested this way)
+
+		'Bar':         'node/Bar',
+
+		// Qux does not need to be tested
+
+		'Qux': null
+
+	}
+
+};
+```
 
 
 **Example Review**:
 
 ```javascript
-import { before, after, describe, finish } from '../path/to/covert/index.mjs';
-import { Example                         } from '../path/to/project/source/namespace/Example.mjs';
+import { before, after, describe, finish } from '../../../covert/index.mjs';
+import { Example                         } from '../../source/namespace/Example.mjs';
 
 
 
@@ -124,9 +183,9 @@ after('cleanup stuff', function(assert) {
 });
 
 
-// /project/source/namespace/Example.mjs is implementation
-// /project/review/namespace/Example.mjs is this review
+// /project/source/namespace/Example.mjs is the Source Code (ES Module) implementation
+// /project/review/namespace/Example.mjs is this Review
 
-export default finish('project/namespace/Example');
+export default finish('my-project/namespace/Example');
 ```
 

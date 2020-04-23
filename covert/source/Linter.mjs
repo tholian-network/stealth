@@ -441,7 +441,7 @@ const update_review = async function(review) {
 
 			expected.forEach((name) => {
 
-				let check = tests.find((t) => t.name === name) || null;
+				let check = tests.find((t) => t.name.startsWith(name)) || null;
 				if (check === null) {
 					review.errors.push(name + ' is not tested via describe().');
 				}

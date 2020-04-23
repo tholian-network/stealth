@@ -5,7 +5,7 @@ import { Buffer, isBuffer } from '../source/browser/Buffer.mjs';
 // Uncomment to compare with node.js Buffer
 // import { Buffer } from 'buffer'; const isBuffer = Buffer.isBuffer;
 
-describe('Buffer', function(assert) {
+describe('new Buffer()', function(assert) {
 
 	let buffer1 = new Buffer('foo bar', 'utf8');
 	let buffer2 = new Buffer('6578616d706c65', 'hex');
@@ -24,7 +24,7 @@ describe('Buffer', function(assert) {
 
 });
 
-describe('Buffer.alloc', function(assert) {
+describe('Buffer.alloc()', function(assert) {
 
 	let buffer1 = Buffer.alloc(21, 'example', 'utf8');
 	let buffer2 = Buffer.alloc(14, Buffer.from('example', 'utf8'));
@@ -46,7 +46,7 @@ describe('Buffer.alloc', function(assert) {
 
 });
 
-describe('Buffer.byteLength', function(assert) {
+describe('Buffer.byteLength()', function(assert) {
 
 	let buffer1 = Buffer.from('example', 'utf8');
 
@@ -58,7 +58,7 @@ describe('Buffer.byteLength', function(assert) {
 
 });
 
-describe('Buffer.compare', function(assert) {
+describe('Buffer.compare()', function(assert) {
 
 	let buffer1 = Buffer.from('foo bar qux', 'utf8');
 	let buffer2 = Buffer.from('foo bar foo', 'utf8');
@@ -68,7 +68,7 @@ describe('Buffer.compare', function(assert) {
 
 });
 
-describe('Buffer.concat', function(assert) {
+describe('Buffer.concat()', function(assert) {
 
 	let buffer1 = null;
 	try {
@@ -90,7 +90,7 @@ describe('Buffer.concat', function(assert) {
 
 });
 
-describe('Buffer.from', function(assert) {
+describe('Buffer.from()', function(assert) {
 
 	let buffer1 = Buffer.from(new Uint8Array([ 1, 3, 3, 7 ]));
 	let buffer2 = Buffer.from(Buffer.from('example.com'));
@@ -116,7 +116,7 @@ describe('Buffer.from', function(assert) {
 
 });
 
-describe('Buffer.isBuffer', function(assert) {
+describe('Buffer.isBuffer()', function(assert) {
 
 	let buffer1 = Buffer.from(new Uint8Array(1,3,3,7));
 	let buffer2 = Buffer.from(Buffer.from('example.com'));
@@ -130,6 +130,30 @@ describe('Buffer.isBuffer', function(assert) {
 	assert(typeof Buffer.isBuffer, 'function');
 	assert(Buffer.isBuffer, isBuffer);
 
+	assert(Buffer.isBuffer(buffer1), true);
+	assert(Buffer.isBuffer(buffer2), true);
+	assert(Buffer.isBuffer(buffer3), true);
+	assert(Buffer.isBuffer(buffer4), true);
+	assert(Buffer.isBuffer(buffer5), true);
+	assert(Buffer.isBuffer(buffer6), false);
+	assert(Buffer.isBuffer(buffer7), false);
+	assert(Buffer.isBuffer(buffer8), false);
+
+});
+
+describe('isBuffer()', function(assert) {
+
+	let buffer1 = Buffer.from(new Uint8Array(1,3,3,7));
+	let buffer2 = Buffer.from(Buffer.from('example.com'));
+	let buffer3 = Buffer.from(new Array(1,3,3,7));
+	let buffer4 = Buffer.from('example.com', 'utf8');
+	let buffer5 = Buffer.from('6578616d706c652e636f6d', 'hex');
+	let buffer6 = null;
+	let buffer7 = [];
+	let buffer8 = {};
+
+	assert(typeof isBuffer, 'function');
+
 	assert(isBuffer(buffer1), true);
 	assert(isBuffer(buffer2), true);
 	assert(isBuffer(buffer3), true);
@@ -141,7 +165,8 @@ describe('Buffer.isBuffer', function(assert) {
 
 });
 
-describe('buffer.toJSON', function(assert) {
+
+describe('Buffer.prototype.toJSON()', function(assert) {
 
 	let buffer1 = Buffer.from('foo', 'utf8');
 	let buffer2 = Buffer.from('foo bar', 'utf8');
@@ -154,7 +179,7 @@ describe('buffer.toJSON', function(assert) {
 
 });
 
-describe('buffer.copy', function(assert) {
+describe('Buffer.prototype.copy()', function(assert) {
 
 	let buffer1 = Buffer.from('foo', 'utf8');
 	let buffer2 = Buffer.from('bar', 'utf8');
@@ -178,7 +203,7 @@ describe('buffer.copy', function(assert) {
 
 });
 
-describe('buffer.fill', function(assert) {
+describe('Buffer.prototype.fill()', function(assert) {
 
 	let buffer1 = Buffer.alloc(13).fill(null);
 	let buffer2 = Buffer.alloc(13).fill('f');
@@ -192,7 +217,7 @@ describe('buffer.fill', function(assert) {
 
 });
 
-describe('buffer.indexOf', function(assert) {
+describe('Buffer.prototype.indexOf()', function(assert) {
 
 	let buffer1 = Buffer.from('foo bar qux bar foo', 'utf8');
 	let search2 = Buffer.from('bar', 'utf8');
@@ -219,7 +244,7 @@ describe('buffer.indexOf', function(assert) {
 
 });
 
-describe('buffer.includes', function(assert) {
+describe('Buffer.prototype.includes()', function(assert) {
 
 	let buffer1 = Buffer.from('foo bar qux bar foo', 'utf8');
 	let search2 = Buffer.from('bar', 'utf8');
@@ -237,7 +262,7 @@ describe('buffer.includes', function(assert) {
 
 });
 
-describe('buffer.lastIndexOf', function(assert) {
+describe('Buffer.prototype.lastIndexOf()', function(assert) {
 
 	let buffer1 = Buffer.from('foo bar qux bar foo', 'utf8');
 	let search2 = Buffer.from('bar', 'utf8');
@@ -264,7 +289,7 @@ describe('buffer.lastIndexOf', function(assert) {
 
 });
 
-describe('buffer.map', function(assert) {
+describe('Buffer.prototype.map()', function(assert) {
 
 	let buffer1 = null;
 	try {
@@ -284,7 +309,7 @@ describe('buffer.map', function(assert) {
 
 });
 
-describe('buffer.slice', function(assert) {
+describe('Buffer.prototype.slice()', function(assert) {
 
 	let buffer1 = Buffer.from('foo bar qux bar foo', 'utf8');
 	let buffer2 = buffer1.slice();
@@ -306,7 +331,7 @@ describe('buffer.slice', function(assert) {
 
 });
 
-describe('buffer.write', function(assert) {
+describe('Buffer.prototype.write()', function(assert) {
 
 	let buffer1 = Buffer.from('foo foo', 'utf8');
 	let buffer2 = Buffer.from('bar bar', 'utf8');
@@ -335,7 +360,7 @@ describe('buffer.write', function(assert) {
 
 });
 
-describe('buffer.toString', function(assert) {
+describe('Buffer.prototype.toString()', function(assert) {
 
 	let buffer1 = Buffer.from('foo foo', 'utf8');
 	let buffer2 = Buffer.from('foo bar', 'utf8');
