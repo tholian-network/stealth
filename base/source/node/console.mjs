@@ -5,18 +5,84 @@ import process from 'process';
 
 export const console = (function() {
 
-	const isMatrix = function(value) {
+	const PALETTE = {
+		'Boolean':  38,
+		'Keyword':  204,
+		'Literal':  174,
+		'Number':   197,
+		'String':   77,
+		'Type':     174
+	};
 
-		if (isArray(value)) {
+	const highlight = function(str, type) {
 
-			return value.find((v) => {
-				return (isArray(v) || isFunction(v) || isObject(v));
-			}) === undefined;
+		let color = PALETTE[type] || null;
+		if (color !== null) {
+			return '\u001b[38;5;' + color + 'm' + str + '\u001b[39m';
+		} else {
+			return str;
+		}
+
+	};
+
+
+	const isArray = function(arr) {
+		return Object.prototype.toString.call(arr) === '[object Array]';
+	};
+
+	const isBuffer = function(buffer) {
+
+		if (buffer instanceof Buffer) {
+			return true;
+		} else if (Object.prototype.toString.call(buffer) === '[object Buffer]') {
+			return true;
+		} else if (Object.prototype.toString.call(buffer) === '[object Uint8Array]') {
+			return true;
+		}
+
+
+		return false;
+
+	};
+
+	const isDate = function(dat) {
+		return Object.prototype.toString.call(dat) === '[object Date]';
+	};
+
+	const isFunction = function(fun) {
+		return Object.prototype.toString.call(fun) === '[object Function]';
+	};
+
+	const isMatrix = function(obj) {
+
+		if (isArray(obj) === true && obj.length > 4) {
+
+			let check = obj.filter((v) => isNumber(v));
+			if (check.length === obj.length) {
+
+				let dim = Math.floor(Math.sqrt(obj.length));
+				if (dim * dim === obj.length) {
+					return true;
+				}
+
+			}
 
 		}
 
 		return false;
 
+	};
+
+	const isNumber = function(num) {
+		return Object.prototype.toString.call(num) === '[object Number]';
+	};
+
+	const isObject = function(obj) {
+		return Object.prototype.toString.call(obj) === '[object Object]';
+	};
+
+	const isString = function(str) {
+		return Object.prototype.toString.call(str) === '[object String]';
 	};
 
 	const INDENT      = '    ';
@@ -58,98 +124,112 @@ export const console = (function() {
 				&& (
 					data === Infinity
 					|| data === -Infinity
-					|| isNaN(data) === true
+					|| Number.isNaN(data) === true
 				)
 			)
 		) {
 
 			if (data === null) {
-				str = indent + 'null';
+				str = indent + highlight('null', 'Keyword');
 			} else if (data === undefined) {
-				str = indent + 'undefined';
+				str = indent + highlight('undefined', 'Keyword');
 			} else if (data === false) {
-				str = indent + 'false';
+				str = indent + highlight('false', 'Boolean');
 			} else if (data === true) {
-				str = indent + 'true';
+				str = indent + highlight('true', 'Boolean');
 			} else if (data === Infinity) {
-				str = indent + 'Infinity';
+				str = indent + highlight('Infinity', 'Keyword');
 			} else if (data === -Infinity) {
-				str = indent + '-Infinity';
-			} else if (isNaN(data) === true) {
-				str = indent + 'NaN';
+				str = indent + highlight('-Infinity', 'Keyword');
+			} else if (Number.isNaN(data) === true) {
+				str = indent + highlight('NaN', 'Number');
 			}
 
-		} else if (isNumber(data)) {
+		} else if (isNumber(data) === true) {
 
-			str = indent + data.toString();
+			str = indent + highlight(data.toString(), 'Number');
 
-		} else if (isString(data)) {
+		} else if (isString(data) === true) {
 
-			str = indent + '"' + data + '"';
+			str = indent + highlight('"' + cleanify(data) + '"', 'String');
 
-		} else if (isFunction(data)) {
+		} else if (isFunction(data) === true) {
 
-			let body   = data.toString().split('\n');
-			let offset = 0;
+			str = '';
 
-			let first = body.find((ch) => ch.startsWith('\t')) || null;
-			if (first !== null) {
+			let lines = data.toString().split('\n');
 
-				let check = /(^\t+)/g.exec(first);
-				if (check !== null) {
-					offset = Math.max(0, check[0].length - indent.length);
-				}
+			for (let l = 0, ll = lines.length; l < ll; l++) {
 
-			}
+				let line = lines[l];
+
+				if (l > 0 && l < ll - 1) {
 
 
-			for (let b = 0, bl = body.length; b < bl; b++) {
+					// TODO: Replace trim() with correctly indented \t before
 
-				let line = body[b];
-				if (line.startsWith('\t')) {
-					str += indent + line.substr(offset);
+
+					str += indent + '\t' + line.trim();
+
 				} else {
-					str += indent + line;
+					str += indent + line.trim();
 				}
 
-				str += '\n';
+				if (l < ll - 1) {
+					str += '\n';
+				}
 
 			}
 
-		} else if (isArray(data)) {
+			str += '\n';
 
+		} else if (isArray(data) === true) {
 
 			if (data.length === 0) {
 
-				str = indent + '[]';
+				str = indent + highlight('[]', 'Literal');
 
-			} else if (isMatrix(data)) {
+			} else if (isMatrix(data) === true) {
 
 				str  = indent;
-				str += '[';
+				str += highlight('[', 'Literal') + '\n';
+
+				let line = Math.floor(Math.sqrt(data.length));
+				let max  = data.reduce((a, b) => Math.max((' ' + a).length, ('' + b).length), '');
 
 				for (let d = 0, dl = data.length; d < dl; d++) {
 
-					if (d === 0) {
-						str += ' ';
-					}
+					let margin = (max - ('' + data[d]).length);
 
-					str += stringify(data[d]);
+					if (d % line === 0) {
+
+						if (d > 0) {
+							str += '\n';
+						}
+
+						str += stringify(data[d], '\t' + indent + WHITESPACE.substr(0, margin));
+
+					} else {
+
+						str += WHITESPACE.substr(0, margin);
+						str += stringify(data[d]);
+
+					}
 
 					if (d < dl - 1) {
 						str += ', ';
 					} else {
-						str += ' ';
+						str += '  ';
 					}
 
 				}
 
-				str += ']';
+				str += '\n' + indent + highlight(']', 'Literal');
 
 			} else {
 
 				str  = indent;
-				str += '[\n';
+				str += highlight('[', 'Literal') + '\n';
 
 				for (let d = 0, dl = data.length; d < dl; d++) {
 
@@ -163,23 +243,23 @@ export const console = (function() {
 
 				}
 
-				str += indent + ']';
+				str += indent + highlight(']', 'Literal');
 
 			}
 
-		} else if (isBuffer(data)) {
+		} else if (isBuffer(data) === true) {
 
 			str  = indent;
-			str += 'Buffer.from(\'';
+			str += highlight('Buffer', 'Type') + '.from(';
 
 			let tmp = cleanify(data.toString('utf8'));
 			if (tmp.length > 0) {
-				str += tmp;
+				str += highlight('"' + tmp + '"', 'String');
 			}
 
-			str += '\', \'utf8\')';
+			str += ', ' + highlight('"utf8"', 'String') + ')';
 
-		} else if (isDate(data)) {
+		} else if (isDate(data) === true) {
 
 			str  = indent;
 
@@ -190,23 +270,91 @@ export const console = (function() {
 			str += format_date(data.getUTCMinutes())   + ':';
 			str += format_date(data.getUTCSeconds())   + 'Z';
 
-		} else if (isObject(data)) {
+		} else if (data[Symbol.toStringTag] !== undefined && typeof data.toJSON === 'function') {
+
+			let json = data.toJSON();
+			if (
+				isObject(json) === true
+				&& isString(json.type) === true
+				&& isObject(json.data) === true
+			) {
+
+				str  = indent;
+				str += highlight(json.type, 'Type') + '.from(' + highlight('{', 'Literal') + '\n';
+
+				let keys = Object.keys(json);
+				for (let k = 0, kl = keys.length; k < kl; k++) {
+
+					let key = keys[k];
+
+					str += '\t' + indent + highlight('"' + key + '"', 'String') + ': ';
+					str += stringify(json[key], '\t' + indent).trim();
+
+					if (k < kl - 1) {
+						str += ',';
+					}
+
+					str += '\n';
+
+				}
+
+				str += indent + highlight('}', 'Literal') + ')';
+
+			} else {
+
+				let keys = Object.keys(data);
+				if (keys.length === 0) {
+
+					str = indent + highlight('{}', 'Literal');
+
+				} else {
+
+					str  = indent;
+					str += highlight('{', 'Literal') + '\n';
+
+					for (let k = 0, kl = keys.length; k < kl; k++) {
+
+						let key = keys[k];
+
+						str += '\t' + indent + highlight('"' + key + '"', 'String') + ': ';
+						str += stringify(data[key], '\t' + indent).trim();
+
+						if (k < kl - 1) {
+							str += ',';
+						}
+
+						str += '\n';
+
+					}
+
+					str += indent + highlight('}', 'Literal');
+
+				}
+
+			}
+
+		} else if (isObject(data) || data[Symbol.toStringTag] !== undefined) {
 
 			let keys = Object.keys(data);
 			if (keys.length === 0) {
 
-				str = indent + '{}';
+				str = indent + highlight('{}', 'Literal');
 
 			} else {
 
 				str  = indent;
-				str += '{\n';
+
+				if (data[Symbol.toStringTag] !== undefined) {
+					str += '(' + highlight(data[Symbol.toStringTag] + 'Type') + ') ';
+				}
+
+				str += highlight('{', 'Literal') + '\n';
 
 				for (let k = 0, kl = keys.length; k < kl; k++) {
 
 					let key = keys[k];
 
-					str += '\t' + indent + '"' + key + '": ';
+					str += '\t' + indent + highlight('"' + key + '"', 'String') + ': ';
 					str += stringify(data[key], '\t' + indent).trim();
 
 					if (k < kl - 1) {
@@ -217,7 +365,7 @@ export const console = (function() {
 
 				}
 
-				str += indent + '}';
+				str += indent + highlight('}', 'Literal');
 
 			}
 
@@ -228,100 +376,61 @@ export const console = (function() {
 
 	};
 
-	const stringify_arguments = function(args) {
+	const stringify_arguments = function(args, color) {
 
-		let output  = [];
-		let columns = process.stdout.columns;
+		color = isString(color) ? color : ('' + color).trim();
 
-		for (let a = 0, al = args.length; a < al; a++) {
+		if (args.length === 2 && isString(args[1]) === true) {
 
-			let value = args[a];
-			let o     = 0;
-
-			if (isFunction(value) === true) {
-
-				let tmp = (value).toString().split('\n');
-
-				for (let t = 0, tl = tmp.length; t < tl; t++) {
-					output.push(tmp[t].replace(/\t/g, INDENT));
-				}
-
-				o = output.length - 1;
-
-			} else if (isArray(value) === true || isObject(value) === true) {
-
-				let tmp = stringify(value).split('\n');
-				if (tmp.length > 1) {
-
-					for (let t = 0, tl = tmp.length; t < tl; t++) {
-						output.push(tmp[t].replace(/\t/g, INDENT));
-					}
-
-					o = output.length - 1;
-
-				} else {
-
-					let chunk = output[o];
-					if (chunk === undefined) {
-						output[o] = tmp[0].trim();
-					} else {
-						output[o] = (chunk + ' ' + tmp[0]).trim();
-					}
-
-				}
-
-			} else if (isString(value) === true && value.includes('\n')) {
-
-				let tmp = value.split('\r\n').join('\\r\\n').split('\n');
-
-				for (let t = 0, tl = tmp.length; t < tl; t++) {
-					output.push(tmp[t].replace(/\t/g, INDENT));
-				}
-
-				o = output.length - 1;
-
-			} else {
-
-				let chunk = output[o];
-				if (chunk === undefined) {
-					output[o] = ('' + value).replace(/\t/g, INDENT).trim();
-				} else {
-					output[o] = (chunk + (' ' + value).replace(/\t/g, INDENT)).trim();
-				}
-
-			}
-
-		}
-
-
-		let ol = output.length;
-		if (ol > 1) {
-
-			for (let o = 0; o < ol; o++) {
-
-				let line = output[o];
-				let maxl = (o === 0 || o === ol - 1) ? (columns - 1) : columns;
-				if (line.length > maxl) {
-					output[o] = line.substr(0, maxl);
-				} else {
-					output[o] = line + WHITESPACE.substr(0, maxl - line.length);
-				}
-
-			}
-
-			return output.join('\n');
+			return '\u001b[' + color + 'm' + args[0] + ' ' + args[1] + '\u001b[K\u001b[0m\n';
 
 		} else {
 
-			let line = output[0];
-			let maxl = columns - 2;
-			if (line.length > maxl) {
-				line = line.substr(0, maxl);
-			} else {
-				line = line + WHITESPACE.substr(0, maxl - line.length);
-			}
+			let chunks    = args.slice(1).map((value) => stringify(value));
+			let multiline = chunks.find((value) => value.includes('\n')) !== undefined;
+			if (multiline === true) {
 
-			return line;
+				let lines = [];
+
+				if (color !== '') {
+					lines.push('\u001b[' + color + 'm' + args[0] + '\u001b[K');
+				} else {
+					lines.push(args[0]);
+				}
+
+				chunks.forEach((raw) => {
+
+					raw.split('\n').forEach((line) => {
+
+						if (line.includes('\t')) {
+							line = line.split('\t').join(INDENT);
+						}
+
+						if (line.includes('\r')) {
+							line = line.split('\r').join('\\r');
+						}
+
+						if (color !== '') {
+							lines.push('\u001b[' + color + 'm' + line + '\u001b[K');
+						} else {
+							lines.push(line);
+						}
+
+					});
+
+				});
+
+				return lines.join('\n') + '\u001b[0m\n';
+
+			} else {
+
+				if (color !== '') {
+					return '\u001b[' + color + 'm' + args[0] + ' ' + chunks.join(', ') + '\u001b[K\u001b[0m\n';
+				} else {
+					return args[0] + ' ' + chunks.join(', ') + '\u001b[0m\n';
+				}
+
+			}
 
 		}
 
@@ -359,7 +468,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stderr.write('\u001b[41m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+		process.stdout.write(stringify_arguments(args, 41));
 
 	};
 
@@ -371,7 +480,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stderr.write('\u001b[41m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+		process.stdout.write(stringify_arguments(args, 41));
 
 	};
 
@@ -383,7 +492,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stdout.write('\u001b[42m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+		process.stdout.write(stringify_arguments(args, 42));
 
 	};
 
@@ -395,7 +504,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stdout.write('\u001b[49m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+		process.stdout.write(stringify_arguments(args, 40));
 
 	};
 
@@ -407,7 +516,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stdout.write('\u001b[43m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+		process.stdout.write(stringify_arguments(args, 43));
 
 	};
 
@@ -441,9 +550,9 @@ export const console = (function() {
 
 		let color = BLINK.colors[BLINK.index % BLINK.colors.length] || null;
 		if (color !== null) {
-			process.stdout.write('\u001b[48;5;' + color + 'm\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+			process.stdout.write(stringify_arguments(args, '48;5;' + color));
 		} else {
-			process.stdout.write('\u001b[49m\u001b[97m ' + stringify_arguments(args) + ' \u001b[39m\u001b[49m\u001b[0m\n');
+			process.stdout.write(stringify_arguments(args, 40));
 		}
 
 	};

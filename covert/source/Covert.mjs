@@ -24,12 +24,12 @@ const assert = function(timeline, results, result, expect) {
 
 };
 
-const rebind_console_method = function(method, prefix) {
+const rebind_console_method = function(method) {
 
 	return function() {
 
 		let al   = arguments.length;
-		let args = [ prefix ];
+		let args = [];
 		for (let a = 0; a < al; a++) {
 			args.push(arguments[a]);
 		}
@@ -46,20 +46,18 @@ const rebind_console_method = function(method, prefix) {
 
 };
 
-const console_sandbox = function(id) {
-
-	let prefix = '  ' + (new Array(id.length)).fill(' ').join('') + ' |>';
+const console_sandbox = function() {
 
 	return {
 
 		clear: () => {}, // No clear() allowed
 
-		blink: rebind_console_method('blink', prefix),
-		debug: rebind_console_method('debug', prefix),
-		error: rebind_console_method('error', prefix),
-		info:  rebind_console_method('info',  prefix),
-		log:   rebind_console_method('log',   prefix),
-		warn:  rebind_console_method('warn',  prefix),
+		blink: rebind_console_method('blink'),
+		debug: rebind_console_method('debug'),
+		error: rebind_console_method('error'),
+		info:  rebind_console_method('info'),
+		log:   rebind_console_method('log'),
+		warn:  rebind_console_method('warn')
 
 	};
 
@@ -398,7 +396,7 @@ const update = function() {
 				test.callback.call(
 					review.scope,
 					assert.bind(review.scope, test.timeline, test.results),
-					console_sandbox(test.name)
+					console_sandbox()
 				);
 
 			} catch (err) {
@@ -616,7 +614,7 @@ const Covert = function(settings) {
 					test.callback.call(
 						review.scope,
 						assert.bind(review.scope, test.timeline, test.results),
-						console_sandbox(test.name)
+						console_sandbox()
 					);
 
 				} catch (err) {

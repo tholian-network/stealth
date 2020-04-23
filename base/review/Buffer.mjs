@@ -5,6 +5,8 @@ import { Buffer, isBuffer } from '../source/browser/Buffer.mjs';
 // Uncomment to compare with node.js Buffer
 // import { Buffer } from 'buffer'; const isBuffer = Buffer.isBuffer;
 
+
+
 describe('new Buffer()', function(assert) {
 
 	let buffer1 = new Buffer('foo bar', 'utf8');

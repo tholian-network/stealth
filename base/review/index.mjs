@@ -1,4 +1,5 @@
 
+import _console  from './console.mjs';
 import _Array    from './Array.mjs';
 import _Boolean  from './Boolean.mjs';
 import _Buffer   from './Buffer.mjs';
@@ -15,6 +16,8 @@ import _String   from './String.mjs';
 export default {
 
 	reviews: [
+
+		_console,
 
 		_Array,
 		_Boolean,
