@@ -1,9 +1,9 @@
 
-import { after, before, describe, finish, Review } from '../source/Review.mjs';
+import { after, before, describe, finish, Review, isReview } from '../source/Review.mjs';
 
 
 
-before('before', function(assert, console) {
+before('before()', function(assert, console) {
 
 	console.log('before.synchronous');
 	assert(true);
@@ -15,13 +15,13 @@ before('before', function(assert, console) {
 
 });
 
-describe('assert', function(assert) {
+describe('assert()', function(assert) {
 
 	assert(true);
 
 });
 
-describe('assert/expect', function(assert) {
+describe('assert()/expect', function(assert) {
 
 	let callback1 = function() {
 		console.log('This is a test!');
@@ -61,7 +61,7 @@ describe('console', function(assert, console) {
 
 });
 
-describe('describe', function(assert, console) {
+describe('describe()', function(assert, console) {
 
 	console.log('describe.synchronous');
 	assert(true);
@@ -77,13 +77,14 @@ describe('describe', function(assert, console) {
 
 });
 
-describe('Review', function(assert) {
+describe('new Review()', function(assert) {
 
 	let review = new Review();
 
 	assert(review.id !== null);
 	assert(review.after,  null);
 	assert(review.before, null);
+	assert(review.errors, []);
 	assert(review.flags,  {});
 	assert(review.scope,  {});
 	assert(review.state,  null);
@@ -91,7 +92,29 @@ describe('Review', function(assert) {
 
 });
 
-describe('review.toString', function(assert) {
+describe('Review.isReview()', function(assert) {
+
+	let review = new Review();
+
+	assert(typeof Review.isReview, 'function');
+
+	assert(Review.isReview(review), true);
+	assert(Review.isReview(null),   false);
+
+});
+
+describe('isReview()', function(assert) {
+
+	let review = new Review();
+
+	assert(typeof isReview, 'function');
+
+	assert(isReview(review), true);
+	assert(isReview(null),   false);
+
+});
+
+describe('Review.prototype.toString()', function(assert) {
 
 	let review = new Review();
 
@@ -100,7 +123,7 @@ describe('review.toString', function(assert) {
 
 });
 
-after('after', function(assert, console) {
+after('after()', function(assert, console) {
 
 	console.log('after.synchronous');
 	assert(true);

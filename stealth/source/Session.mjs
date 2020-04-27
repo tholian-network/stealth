@@ -8,6 +8,10 @@ import { Tab                                            } from './Tab.mjs';
 
 
 
+export const isSession = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Session]';
+};
+
 const randomize_useragent = function(platform) {
 
 	let useragent = null;
@@ -74,7 +78,7 @@ const Session = function(stealth) {
 
 
 	this.agent   = null;
-	this.domain  = Date.now() + '.artificial.engineering';
+	this.domain  = Date.now() + '.tholian.network';
 	this.stealth = stealth;
 	this.tabs    = [];
 	this.warning = 0;
@@ -163,6 +167,9 @@ Session.merge = function(target, source) {
 };
 
 
+Session.isSession = isSession;
+
+
 Session.prototype = {
 
 	[Symbol.toStringTag]: 'Session',
@@ -217,7 +224,7 @@ Session.prototype = {
 			this.domain = domain;
 		}
 
-		if (this.domain.endsWith('.artificial.engineering')) {
+		if (this.domain.endsWith('.tholian.network')) {
 
 			let address = headers['@remote'] || null;
 			if (address !== null) {

@@ -49,6 +49,32 @@ const Redirect = function(stealth) {
 };
 
 
+Redirect.isRedirect = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isString(payload.path) === true
+		&& isString(payload.location) === true
+	) {
+
+		let ref = URL.parse(payload.location);
+		if (ref.protocol === 'https' || ref.protocol === 'http') {
+
+			if (ref.domain !== null || ref.host !== null) {
+				return true;
+			}
+
+		}
+
+	}
+
+
+	return false;
+
+};
+
+
 Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {

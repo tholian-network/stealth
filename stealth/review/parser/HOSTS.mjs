@@ -33,7 +33,7 @@ before('prepare', function(assert) {
 
 });
 
-describe('HOSTS.isHost/block', function(assert) {
+describe('HOSTS.isHost()/block', function(assert) {
 
 	let domain1 = find_domain(this.block, 'malicious.example.com');
 	let domain2 = find_domain(this.block, 'ad.example.com');
@@ -57,7 +57,7 @@ describe('HOSTS.isHost/block', function(assert) {
 
 });
 
-describe('HOSTS.isHosts/block', function(assert) {
+describe('HOSTS.isHosts()/block', function(assert) {
 
 	let domain1 = find_domain(this.block, 'malicious.example.com');
 	let domain2 = find_domain(this.block, 'ad.example.com');
@@ -81,7 +81,7 @@ describe('HOSTS.isHosts/block', function(assert) {
 
 });
 
-describe('HOSTS.parse/block', function(assert) {
+describe('HOSTS.parse()/block', function(assert) {
 
 	let domain1 = find_domain(this.block, 'malicious.example.com');
 	let domain2 = find_domain(this.block, 'ad.example.com');
@@ -101,7 +101,7 @@ describe('HOSTS.parse/block', function(assert) {
 
 });
 
-describe('HOSTS.render/block', function(assert) {
+describe('HOSTS.render()/block', function(assert) {
 
 	let hosts1 = HOSTS.render(this.block);
 
@@ -114,7 +114,7 @@ describe('HOSTS.render/block', function(assert) {
 
 });
 
-describe('HOSTS.sort/block', function(assert) {
+describe('HOSTS.sort()/block', function(assert) {
 
 	let sorted = HOSTS.sort([
 		HOSTS.parse('malicious.example.com')[0],
@@ -132,7 +132,7 @@ describe('HOSTS.sort/block', function(assert) {
 
 });
 
-describe('HOSTS.isHost/posix', function(assert) {
+describe('HOSTS.isHost()/posix', function(assert) {
 
 	let domain1 = find_domain(this.posix, 'router');
 	let domain2 = find_domain(this.posix, 'router.localdomain');
@@ -156,7 +156,7 @@ describe('HOSTS.isHost/posix', function(assert) {
 
 });
 
-describe('HOSTS.isHosts/posix', function(assert) {
+describe('HOSTS.isHosts()/posix', function(assert) {
 
 	let domain1 = find_domain(this.posix, 'router');
 	let domain2 = find_domain(this.posix, 'router.localdomain');
@@ -180,7 +180,7 @@ describe('HOSTS.isHosts/posix', function(assert) {
 
 });
 
-describe('HOSTS.parse/posix', function(assert) {
+describe('HOSTS.parse()/posix', function(assert) {
 
 	let domain1 = find_domain(this.posix, 'router');
 	let domain2 = find_domain(this.posix, 'router.localdomain');
@@ -204,7 +204,7 @@ describe('HOSTS.parse/posix', function(assert) {
 
 });
 
-describe('HOSTS.render/posix', function(assert) {
+describe('HOSTS.render()/posix', function(assert) {
 
 	let hosts1 = HOSTS.render(this.posix);
 
@@ -222,7 +222,7 @@ describe('HOSTS.render/posix', function(assert) {
 
 });
 
-describe('HOSTS.sort/posix', function(assert) {
+describe('HOSTS.sort()/posix', function(assert) {
 
 	let sorted = HOSTS.sort([
 		HOSTS.parse('192.168.1.1\trouter')[0],
@@ -252,7 +252,7 @@ describe('HOSTS.sort/posix', function(assert) {
 
 });
 
-describe('HOSTS.parse/remote', function(assert) {
+describe('HOSTS.parse()/remote', function(assert) {
 
 	let domain1 = find_domain(this.posix, 'example.com');
 	let domain2 = find_domain(this.posix, 'www.example.com');

@@ -417,6 +417,27 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Connection',
 
+	toJSON: function() {
+
+		let data = {
+			local:  null,
+			remote: null
+		};
+
+		let socket = this.socket;
+		if (socket !== null) {
+			data.local  = socket.localAddress  + ':' + socket.localPort;
+			data.remote = socket.remoteAddress + ':' + socket.remotePort;
+		}
+
+
+		return {
+			'type': 'Connection',
+			'data': data
+		};
+
+	},
+
 	disconnect: function() {
 
 		if (this.socket !== null) {
@@ -475,8 +496,8 @@ const HTTP = {
 							port: ref.port || 80,
 						}, () => {
 
-							onconnect(connection, ref, buffer);
 							connection.socket = socket;
+							onconnect(connection, ref, buffer);
 
 						});
 

@@ -1,0 +1,99 @@
+
+body {
+
+	--layout-default-color: #ffffff;
+	--layout-default-background: #121212;
+
+	--layout-focus-color: #ffffff;
+	--layout-focus-background: rgba(255,255,255,0.20);
+
+	--link-default-color: #3399ff;
+	--link-default-background: transparent;
+
+	--link-focus-color: #3399ff;
+	--link-focus-background: rgba(255,255,255,0.20);
+
+	--element-default-color: #999999;
+	--element-default-background: transparent;
+
+	--element-focus-color: #ffffff;
+	--element-focus-background: rgba(255,255,255,0.20);
+
+	--element-active-color: #ffffff;
+	--element-active-background: rgba(255,255,255,0.10);
+
+	--element-select-color: #3399ff;
+	--element-select-background: rgba(51,153,255,0.20);
+
+}
+
+
+
+
+@media (prefers-color-scheme: light) {
+
+	body {
+
+		--layout-default-color: #222222;
+		--layout-default-background: #ededed;
+
+		--layout-focus-color: #222222;
+		--layout-focus-background: rgba(0,0,0,0.20);
+
+		--link-default-color: #3399ff;
+		--link-default-background: transparent;
+
+		--link-focus-color: #3399ff;
+		--link-focus-background: rgba(51,153,255,0.20);
+
+		--element-default-color: #222222;
+		--element-default-background: transparent;
+
+		--element-focus-color: #3399ff;
+		--element-focus-background: rgba(51,153,255,0.20);
+
+		--element-active-color: #3399ff;
+		--element-active-background: rgba(51,153,255,0.10);
+
+		--element-select-color: #3399ff;
+		--element-select-background: rgba(51,153,255,0.20);
+
+	}
+
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+
+	body {
+
+		--layout-default-color: #ffffff;
+		--layout-default-background: #121212;
+
+		--layout-focus-color: #ffffff;
+		--layout-focus-background: rgba(255,255,255,0.20);
+
+
+		--link-default-color: #3399ff;
+		--link-default-background: transparent;
+
+		--link-focus-color: #3399ff;
+		--link-focus-background: rgba(255,255,255,0.20);
+
+		--element-default-color: #999999;
+		--element-default-background: transparent;
+
+		--element-focus-color: #ffffff;
+		--element-focus-background: rgba(255,255,255,0.20);
+
+		--element-active-color: #ffffff;
+		--element-active-background: rgba(255,255,255,0.10);
+
+		--element-select-color: #3399ff;
+		--element-select-background: rgba(51,153,255,0.20);
+
+	}
+
+}
+

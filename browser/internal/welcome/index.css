@@ -1,6 +1,7 @@
 
 @import url('../../design/content.css');
 @import url('../../design/control.css');
+@import url('../../design/default.css');
 @import url('../../design/other/index.css');
 
 
@@ -9,17 +10,19 @@ footer {
 	display: block;
 	margin: 0px 0px 64px 0px;
 	padding: 0px;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'museo';
 	font-weight: normal;
 	text-align: center;
+	background: var(--layout-default-background);
 }
 
 footer a {
 	padding: 0px 2px;
-	color: #99ccff;
+	color: var(--link-default-color);
 	border: 1px solid transparent;
 	border-radius: 2px;
+	background: var(--link-default-background);
 	box-sizing: border-box;
 	text-decoration: underline;
 	transition: 200ms all ease-out;
@@ -27,15 +30,11 @@ footer a {
 	cursor: pointer;
 }
 
-footer a:focus {
-	border: 1px solid #99ccff;
-	background: rgba(255,255,255,0.12);
-	outline: none;
-}
-
+footer a:focus,
 footer a:hover {
-	border: 1px solid transparent;
-	background: rgba(255,255,255,0.04);
+	color: var(--link-focus-color);
+	border: 1px solid var(--link-focus-color);
+	background: var(--link-focus-background);
 	outline: none;
 }
 
@@ -43,7 +42,7 @@ footer a:hover {
 
 #welcome-modes button[disabled],
 #welcome-modes button[disabled]:hover {
-	color: #ffffff;
+	color: var(--element-default-color);
 }
 
 #welcome-modes table {

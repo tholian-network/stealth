@@ -40,6 +40,27 @@ const Host = function(stealth) {
 };
 
 
+Host.isHost = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isArray(payload.hosts) === true
+	) {
+
+		let check = payload.hosts.filter((ip) => IP.isIP(ip));
+		if (check.length === payload.hosts.length) {
+			return true;
+		}
+
+	}
+
+
+	return false;
+
+};
+
+
 Host.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {

@@ -1,5 +1,9 @@
 
 import { Emitter, isArray, isBoolean, isFunction, isObject } from '../../extern/base.mjs';
+import { Filter                                            } from './Filter.mjs';
+import { Host                                              } from './Host.mjs';
+import { Mode                                              } from './Mode.mjs';
+import { Peer                                              } from './Peer.mjs';
 
 
 
@@ -39,13 +43,29 @@ const saveify = function(raw) {
 		payload = Object.assign({}, raw);
 
 		payload.internet  = isObject(payload.internet) ? payload.internet : {};
-		payload.blockers  = []; // blockers cannot be saved
+		payload.blockers  = []; // cannot be saved
 		payload.filters   = isArray(payload.filters)   ? payload.filters  : [];
 		payload.hosts     = isArray(payload.hosts)     ? payload.hosts    : [];
 		payload.modes     = isArray(payload.modes)     ? payload.modes    : [];
 		payload.peers     = isArray(payload.peers)     ? payload.peers    : [];
 		payload.redirects = []; // cannot be saved
 		payload.sessions  = []; // cannot be saved
+
+		if (isArray(payload.filters) === true) {
+			payload.filters = payload.filters.filter((f) => Filter.isFilter(f));
+		}
+
+		if (isArray(payload.hosts) === true) {
+			payload.hosts = payload.hosts.filter((h) => Host.isHost(h));
+		}
+
+		if (isArray(payload.modes) === true) {
+			payload.modes = payload.modes.filter((m) => Mode.isMode(m));
+		}
+
+		if (isArray(payload.peers) === true) {
+			payload.peers = payload.peers.filter((p) => Peer.isPeer(p));
+		}
 
 		return payload;
 
@@ -184,20 +204,20 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
+
 			payload.filters.forEach((filter) => {
 
-				let other = settings.filters.find((f) => f.name === filter.name) || null;
+				let other = settings.filters.find((f) => f.domain === filter.domain) || null;
 				if (other !== null) {
 
-					for (let key in filter) {
-						if (other[key] !== undefined) {
-							other[key] = filter[key];
-						}
+					let index = settings.filters.indexOf(other);
+					if (index !== -1) {
+						settings.filters.splice(index, 1);
 					}
 
-				} else {
-					settings.filters.push(filter);
 				}
+
+				settings.filters.push(filter);
 
 			});
 
@@ -206,15 +226,14 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 				let other = settings.hosts.find((h) => h.domain === host.domain) || null;
 				if (other !== null) {
 
-					for (let key in host) {
-						if (other[key] !== undefined) {
-							other[key] = host[key];
-						}
+					let index = settings.hosts.indexOf(other);
+					if (index !== -1) {
+						settings.hosts.splice(index, 1);
 					}
 
-				} else {
-					settings.hosts.push(host);
 				}
+
+				settings.hosts.push(host);
 
 			});
 
@@ -223,15 +242,14 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 				let other = settings.modes.find((m) => m.domain === mode.domain) || null;
 				if (other !== null) {
 
-					for (let key in mode) {
-						if (other[key] !== undefined) {
-							other[key] = mode[key];
-						}
+					let index = settings.modes.indexOf(other);
+					if (index !== -1) {
+						settings.modes.splice(index, 1);
 					}
 
-				} else {
-					settings.modes.push(mode);
 				}
+
+				settings.modes.push(mode);
 
 			});
 
@@ -240,15 +258,14 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 				let other = settings.peers.find((p) => p.domain === peer.domain) || null;
 				if (other !== null) {
 
-					for (let key in peer) {
-						if (other[key] !== undefined) {
-							other[key] = peer[key];
-						}
+					let index = settings.peers.indexOf(other);
+					if (index !== -1) {
+						settings.peers.splice(index, 1);
 					}
 
-				} else {
-					settings.peers.push(peer);
 				}
+
+				settings.peers.push(peer);
 
 			});
 

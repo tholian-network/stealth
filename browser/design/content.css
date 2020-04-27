@@ -1,15 +1,15 @@
 
 ::selection {
-	color: #99ccff;
+	color: var(--element-select-color);
 	border-radius: 4px;
-	background: rgba(255,255,255,0.12);
+	background: var(--element-select-background);
 	cursor: text;
 }
 
 ::-moz-selection {
-	color: #99ccff;
+	color: var(--element-select-color);
 	border-radius: 4px;
-	background: rgba(255,255,255,0.12);
+	background: var(--element-select-background);
 	cursor: text;
 }
 
@@ -31,8 +31,8 @@ body {
 	margin: 0px;
 	padding: 0px;
 	overflow: auto;
-	color: #ffffff;
-	background: #121212;
+	color: var(--layout-default-color);
+	background: var(--layout-default-background);
 }
 
 article {
@@ -41,10 +41,11 @@ article {
 	max-width: 800px;
 	margin: 64px auto;
 	padding: 32px;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'museo';
 	font-weight: normal;
 	background: rgba(255,255,255,0.04);
+	background: var(--layout-default-background);
 	border: 1px solid #666666;
 	border-radius: 8px;
 }
@@ -58,7 +59,7 @@ article h2 {
 	display: block;
 	margin: 1em 0px 1em 0px;
 	padding: 0px;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'museo';
 	font-size: 32px;
 	font-weight: normal;
@@ -69,12 +70,12 @@ article h3 {
 	display: block;
 	margin: 48px 0px 1em 0px;
 	padding: 0px 0px 0.5em 0px;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'museo';
 	font-size: 24px;
 	font-weight: normal;
 	text-align: center;
-	border-bottom: 2px solid #ffffff;
+	border-bottom: 2px solid var(--layout-default-color);
 }
 
 article code {
@@ -106,15 +107,16 @@ article hr {
 	margin: 24px 0px 24px 0px;
 	border: 0px none transparent;
 	border-style: none;
-	border-top: 2px solid #ffffff;
+	border-top: 2px solid var(--layout-default-color);
 	appearance: none;
 }
 
 article a {
 	padding: 0px 2px;
-	color: #99ccff;
+	color: var(--link-default-color);
 	border: 1px solid transparent;
 	border-radius: 2px;
+	background: var(--link-default-background);
 	box-sizing: border-box;
 	text-decoration: underline;
 	transition: 200ms all ease-out;
@@ -122,15 +124,11 @@ article a {
 	cursor: pointer;
 }
 
-article a:focus {
-	border: 1px solid #99ccff;
-	background: rgba(255,255,255,0.12);
-	outline: none;
-}
-
+article a:focus,
 article a:hover {
-	border: 1px solid transparent;
-	background: rgba(255,255,255,0.04);
+	color: var(--link-focus-color);
+	border: 1px solid var(--link-focus-color);
+	background: var(--link-focus-background);
 	outline: none;
 }
 
@@ -151,7 +149,7 @@ article p {
 
 article table {
 	width: 100%;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'museo';
 	font-size: 16px;
 	font-weight: normal;
@@ -190,11 +188,12 @@ article table tr td input[type="text"] {
 }
 
 article table tbody tr:hover td {
-	background: rgba(255,255,255,0.04);
+	color: var(--layout-focus-color);
+	background: var(--layout-focus-background);
 }
 
 article table tfoot tr td {
-	border-top: 2px solid #ffffff;
+	border-top: 2px solid var(--layout-default-color);
 	background: transparent;
 }
 

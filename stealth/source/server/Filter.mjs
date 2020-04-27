@@ -19,7 +19,7 @@ const get_id = function(payload) {
 const payloadify = function(raw) {
 
 	let payload = raw;
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
 
@@ -28,7 +28,7 @@ const payloadify = function(raw) {
 		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
 		payload.host      = isString(payload.host)      ? payload.host      : null;
 
-		if (isObject(payload.filter)) {
+		if (isObject(payload.filter) === true) {
 
 			payload.filter = Object.assign({}, raw.filter);
 
@@ -77,6 +77,26 @@ const Filter = function(stealth) {
 
 	this.stealth = stealth;
 	Emitter.call(this);
+
+};
+
+
+Filter.isFilter = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& payload.id === get_id(payload)
+		&& isString(payload.domain) === true
+		&& isObject(payload.filter) === true
+		&& (isString(payload.filter.prefix) || payload.filter.prefix === null)
+		&& (isString(payload.filter.midfix) || payload.filter.midfix === null)
+		&& (isString(payload.filter.suffix) || payload.filter.suffix === null)
+	) {
+		return true;
+	}
+
+
+	return false;
 
 };
 

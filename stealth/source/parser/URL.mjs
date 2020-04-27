@@ -1,6 +1,6 @@
 
-import { isArray, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                    } from './IP.mjs';
+import { isArray, isBoolean, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                               } from './IP.mjs';
 
 
 
@@ -189,7 +189,7 @@ const DEFAULT = {
 	format: 'application/octet-stream'
 };
 
-export const MIME = [
+const MIME = [
 
 	// Media-Types are compliant with IANA assignments
 	// https://www.iana.org/assignments/media-types
@@ -289,6 +289,35 @@ export const MIME = [
 
 ];
 
+const isMIME = function(mime) {
+
+	if (
+		isObject(mime) === true
+		&& isString(mime.ext) === true
+		&& isString(mime.type) === true
+		&& isBoolean(mime.binary) === true
+		&& isString(mime.format) === true
+	) {
+
+		let other = MIME.find((m) => m.ext === mime.ext) || null;
+		if (other !== null) {
+
+			if (
+				other.type === mime.type
+				&& other.binary === mime.binary
+				&& other.format === mime.format
+			) {
+				return true;
+			}
+
+		}
+
+	}
+
+	return false;
+
+};
+
 const resolve_path = function(raw) {
 
 	let tmp = raw.split('/');
@@ -350,7 +379,7 @@ const URL = {
 			if (protocol === 'file') {
 
 				if (
-					(MIME.includes(mime) || mime === null)
+					(isMIME(mime) === true || mime === null)
 					&& isString(path) === true
 				) {
 					return true;
@@ -374,7 +403,7 @@ const URL = {
 					if (
 						(isString(hash) === true || hash === null)
 						&& host === null
-						&& (MIME.includes(mime) || mime === null)
+						&& (isMIME(mime) === true || mime === null)
 						&& isString(path) === true
 						&& isNumber(port) === true
 						&& (isString(query) === true || query === null)
@@ -388,7 +417,7 @@ const URL = {
 						domain === null
 						&& subdomain === null
 						&& (isString(hash) === true || hash === null)
-						&& (MIME.includes(mime) || mime === null)
+						&& (isMIME(mime) === true || mime === null)
 						&& isString(path) === true
 						&& isNumber(port) === true
 						&& (isString(query) === true || query === null)
@@ -403,7 +432,7 @@ const URL = {
 				if (
 					isString(domain) === true
 					&& (isString(hash) === true || hash === null)
-					&& (MIME.includes(mime) || mime === null)
+					&& (isMIME(mime) === true || mime === null)
 					&& (isString(query) === true || query === null)
 				) {
 					return true;
@@ -663,18 +692,24 @@ const URL = {
 		if (path !== null && path.includes('.')) {
 
 			let ext  = path.split('.').pop();
-			let type = MIME.find((t) => t.ext === ext) || null;
+			let type = MIME.find((m) => m.ext === ext) || null;
 
 			if (type !== null) {
-				mime = type;
+				mime = Object.assign({}, type);
 			} else {
-				mime = DEFAULT;
+				mime = Object.assign({}, DEFAULT);
 			}
 
 		} else {
 
 			// assume text/html by default
-			mime = MIME.find((t) => t.ext === 'html') || null;
+			let type = MIME.find((m) => m.ext === 'html') || null;
+
+			if (type !== null) {
+				mime = Object.assign({}, type);
+			} else {
+				mime = Object.assign({}, DEFAULT);
+			}
 
 		}
 
@@ -1173,12 +1208,6 @@ const URL = {
 
 };
 
-
-export const isURL   = URL.isURL;
-export const parse   = URL.parse;
-export const render  = URL.render;
-export const resolve = URL.resolve;
-export const sort    = URL.sort;
 
 export { URL };
 

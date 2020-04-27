@@ -1,5 +1,6 @@
 
-import { isArray, isFunction, isObject } from '../../extern/base.mjs';
+import { isArray, isFunction } from '../../extern/base.mjs';
+import { URL                 } from '../parser/URL.mjs';
 
 
 
@@ -8,7 +9,7 @@ const Blocker = {
 	check: function(blockers, ref, callback) {
 
 		blockers = isArray(blockers)    ? blockers : null;
-		ref      = isObject(ref)        ? ref      : null;
+		ref      = URL.isURL(ref)       ? ref      : null;
 		callback = isFunction(callback) ? callback : null;
 
 

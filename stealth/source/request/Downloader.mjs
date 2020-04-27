@@ -3,6 +3,7 @@ import { Buffer, Emitter, isBoolean, isFunction, isNumber, isObject } from '../.
 import { HTTP                                                       } from '../protocol/HTTP.mjs';
 import { HTTPS                                                      } from '../protocol/HTTPS.mjs';
 import { SOCKS                                                      } from '../protocol/SOCKS.mjs';
+import { URL                                                        } from '../parser/URL.mjs';
 
 
 

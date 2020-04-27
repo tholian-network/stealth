@@ -4,7 +4,7 @@ import { IP               } from '../../../stealth/source/parser/IP.mjs';
 
 
 
-describe('IP.isIP/v4', function(assert) {
+describe('IP.isIP()/v4', function(assert) {
 
 	let ip1 = IP.parse('127.0.0.1');
 	let ip2 = IP.parse('10.1.2.3');
@@ -26,7 +26,7 @@ describe('IP.isIP/v4', function(assert) {
 
 });
 
-describe('IP.parse/v4/private', function(assert) {
+describe('IP.parse()/v4/private', function(assert) {
 
 	let ip1 = IP.parse('127.0.0.1');
 	let ip2 = IP.parse('10.1.2.3');
@@ -71,7 +71,7 @@ describe('IP.parse/v4/private', function(assert) {
 
 });
 
-describe('IP.parse/v4/public', function(assert) {
+describe('IP.parse()/v4/public', function(assert) {
 
 	let ip1 = IP.parse('128.1.2.3');
 	let ip2 = IP.parse('11.1.2.3');
@@ -116,7 +116,7 @@ describe('IP.parse/v4/public', function(assert) {
 
 });
 
-describe('IP.render/v4', function(assert) {
+describe('IP.render()/v4', function(assert) {
 
 	let ip1 = IP.parse('127.0.0.1');
 	let ip2 = IP.parse('10.1.2.3');
@@ -138,7 +138,7 @@ describe('IP.render/v4', function(assert) {
 
 });
 
-describe('IP.sort/v4', function(assert) {
+describe('IP.sort()/v4', function(assert) {
 
 	let sorted = IP.sort([
 		IP.parse('127.0.0.1'),
@@ -171,7 +171,7 @@ describe('IP.sort/v4', function(assert) {
 
 });
 
-describe('IP.isIP/v6', function(assert) {
+describe('IP.isIP()/v6', function(assert) {
 
 	let ip1 = IP.parse('::1');
 	let ip2 = IP.parse('fe80::1234');
@@ -193,7 +193,7 @@ describe('IP.isIP/v6', function(assert) {
 
 });
 
-describe('IP.parse/v6/private', function(assert) {
+describe('IP.parse()/v6/private', function(assert) {
 
 	let ip1 = IP.parse('::1');
 	let ip2 = IP.parse('fe80::1234');
@@ -218,7 +218,7 @@ describe('IP.parse/v6/private', function(assert) {
 
 });
 
-describe('IP.parse/v6/public', function(assert) {
+describe('IP.parse()/v6/public', function(assert) {
 
 	let ip1 = IP.parse('13::37');
 	let ip2 = IP.parse('1:3::3:7');
@@ -243,7 +243,7 @@ describe('IP.parse/v6/public', function(assert) {
 
 });
 
-describe('IP.render/v6', function(assert) {
+describe('IP.render()/v6', function(assert) {
 
 	let ip1 = IP.parse('::1');
 	let ip2 = IP.parse('fe80::1234');
@@ -265,7 +265,7 @@ describe('IP.render/v6', function(assert) {
 
 });
 
-describe('IP.sort/v6', function(assert) {
+describe('IP.sort()/v6', function(assert) {
 
 	let sorted = IP.sort([
 		IP.parse('::1'),

@@ -88,10 +88,37 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Connection',
 
+	toJSON: function() {
+
+		let data = {
+			local:  null,
+			remote: null
+		};
+
+		let socket = this.socket;
+		if (socket !== null) {
+			data.local  = socket.localAddress  + ':' + socket.localPort;
+			data.remote = socket.remoteAddress + ':' + socket.remotePort;
+		}
+
+
+		return {
+			'type': 'Connection',
+			'data': data
+		};
+
+	},
+
 	disconnect: function() {
 
 		if (this.socket !== null) {
-			this.socket.destroy();
+
+			if (this.type === 'server') {
+				this.socket.destroy();
+			} else {
+				this.socket.end();
+			}
+
 		}
 
 		this.emit('@disconnect');
@@ -170,8 +197,8 @@ const WSS = {
 
 					if (socket.authorized === true) {
 
-						onconnect(connection, ref, buffer);
 						connection.socket = socket;
+						onconnect(connection, ref, buffer);
 
 					} else {
 

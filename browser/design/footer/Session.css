@@ -10,9 +10,9 @@ browser-session {
 	left: 0px;
 	margin: 0px;
 	padding: 0px;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'museo';
-	background: #121212;
+	background: var(--layout-default-background);
 	border: 0px solid transparent;
 	transform: translate(100%, 0%);
 	transition: 200ms transform ease-out;
@@ -41,7 +41,7 @@ browser-session article > div div {
 	vertical-align: middle;
 }
 
-browser-session button[data-key="state"]:before                      { color: #ffffff; content: '\e86a'; }
+browser-session button[data-key="state"]:before                      { content: '\e86a'; }
 browser-session button[data-key="state"][data-val="error"]:before    { content: '\e001'; }
 browser-session button[data-key="state"][data-val="kill"]:before     { content: '\e033'; }
 browser-session button[data-key="state"][data-val="redirect"]:before { content: '\e8ba'; }

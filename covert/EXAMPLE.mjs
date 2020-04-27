@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import { Buffer, Emitter, isString } from './extern/base.mjs';
 import { IP                        } from '../stealth/source/parser/IP.mjs';
-import { MIME, URL                 } from '../stealth/source/parser/URL.mjs';
+import { URL                       } from '../stealth/source/parser/URL.mjs';
 
 
 
@@ -188,8 +188,6 @@ export const create = function(url) {
 	url = isString(url) ? url : 'https://example.com/index.html';
 
 
-	let ext    = url.split('.').pop();
-	let mime   = MIME.find((t) => t.ext === ext) || null;
 	let ref    = URL.parse(url);
 	let config = {
 		domain: null,
@@ -245,9 +243,9 @@ export const create = function(url) {
 	}
 
 
-	if (mime !== null) {
+	if (ref.mime !== null) {
 
-		config.mode[mime.type] = true;
+		config.mode[ref.mime.type] = true;
 
 	} else {
 
@@ -262,7 +260,6 @@ export const create = function(url) {
 
 	return {
 		config: config,
-		mime:   mime,
 		ref:    ref
 	};
 
@@ -286,19 +283,9 @@ export const config = function(path) {
 
 	if (path !== null) {
 
-		let ref  = URL.parse(path);
-		let mime = MIME.find((m) => {
-
-			if (ref.path.endsWith('.' + m.ext)) {
-				return true;
-			}
-
-			return false;
-
-		}) || null;
-
-		if (mime !== null) {
-			cfg.mode[mime.type] = true;
+		let ref = URL.parse(path);
+		if (ref.mime !== null) {
+			cfg.mode[ref.mime.type] = true;
 		}
 
 	}

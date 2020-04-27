@@ -1,15 +1,22 @@
 
 import { isFunction                                                   } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
+import { Filter                                                       } from '../../../stealth/source/client/Filter.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
 
 
 before(connect_stealth);
-describe(connect_client);
+before(connect_client);
 
-describe('client.services.filter.save', function(assert) {
+describe('new Filter()', function(assert) {
+
+	assert(this.client.services.filter instanceof Filter, true);
+
+});
+
+describe('Filter.prototype.save()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.filter.save), true);
@@ -27,7 +34,7 @@ describe('client.services.filter.save', function(assert) {
 
 });
 
-describe('client.services.filter.query', function(assert) {
+describe('Filter.prototype.query()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.filter.query), true);
@@ -51,7 +58,7 @@ describe('client.services.filter.query', function(assert) {
 
 });
 
-describe('client.services.filter.remove', function(assert) {
+describe('Filter.prototype.remove()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.filter.remove), true);
@@ -69,7 +76,7 @@ describe('client.services.filter.remove', function(assert) {
 
 });
 
-describe('client.services.filter.query', function(assert) {
+describe('Filter.prototype.query()/failure', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.filter.query), true);
@@ -85,7 +92,7 @@ describe('client.services.filter.query', function(assert) {
 
 });
 
-describe(disconnect_client);
+after(disconnect_client);
 after(disconnect_stealth);
 
 

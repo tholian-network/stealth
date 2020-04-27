@@ -171,6 +171,23 @@ const Peer = function(stealth) {
 };
 
 
+Peer.isPeer = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isString(payload.connection) === true
+		&& CONNECTION.includes(payload.connection)
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
+
+
 Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	info: function(payload, callback) {
@@ -446,7 +463,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (host !== null && peer !== null) {
 
-				connect.call(this, host, peer, (client) => {
+				connect_peer.call(this, IP.sort(host.hosts), (client) => {
 
 					if (client !== null) {
 
@@ -544,6 +561,8 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
 				}
 
+			} else if (payload.host !== null) {
+				peer = settings.peers.find((p) => p.domain === payload.host) || null;
 			}
 
 

@@ -461,9 +461,9 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 				});
 
-				socket.on('error',   () => {});
+				socket.on('error',   () => socket.end());
 				socket.on('close',   () => {});
-				socket.on('timeout', () => socket.close());
+				socket.on('timeout', () => socket.end());
 
 				socket.resume();
 
@@ -471,13 +471,11 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.__state.server.on('error', (err) => {
 
-				this.__state.connected = false;
-
 				if (err.code === 'EADDRINUSE') {
 					console.error('Server: Another Server is already running!');
 				}
 
-				this.__state.server.close();
+				this.disconnect();
 
 			});
 
@@ -485,10 +483,7 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 				console.warn('Server: Service stopped.');
 
-				this.__state.connected = false;
-				this.__state.server    = null;
-
-				this.emit('disconnect');
+				this.disconnect();
 
 			});
 
@@ -545,9 +540,13 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.__state.connected === true) {
 
+			this.__state.connected = false;
+
 			if (this.__state.server !== null) {
 				this.__state.server.close();
 			}
+
+			this.emit('disconnect');
 
 			return true;
 

@@ -1,6 +1,7 @@
 
 @import url("./content.css");
 @import url("./control.css");
+@import url("./default.css");
 @import url("./other/index.css");
 @import url("./header/History.css");
 @import url("./header/Address.css");
@@ -49,7 +50,8 @@ body {
 	display: block;
 	margin: 0px;
 	padding: 0px;
-	background: #121212;
+	color: var(--layout-default-color);
+	background: var(--layout-default-background);
 }
 
 header {
@@ -80,5 +82,12 @@ main {
 footer {
 	display: block;
 	position: relative;
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+
+
 }
 

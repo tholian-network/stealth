@@ -49,6 +49,10 @@ export const console = (function() {
 		return Object.prototype.toString.call(dat) === '[object Date]';
 	};
 
+	const isError = function(obj) {
+		return Object.prototype.toString.call(obj).includes('Error');
+	};
+
 	const isFunction = function(fun) {
 		return Object.prototype.toString.call(fun) === '[object Function]';
 	};
@@ -143,6 +147,47 @@ export const console = (function() {
 				str = indent + highlight('-Infinity', 'Keyword');
 			} else if (Number.isNaN(data) === true) {
 				str = indent + highlight('NaN', 'Number');
+			}
+
+		} else if (isError(data) === true) {
+
+			let type = Object.prototype.toString.call(data);
+			if (type.startsWith('[object') && type.endsWith(']')) {
+				type = type.substr(7, type.length - 8).trim();
+			}
+
+			let msg   = (data.message || '').trim();
+			let stack = (data.stack   || '').trim().split('\n');
+
+			if (msg.length > 0 && stack.length > 0) {
+
+				let origin = null;
+
+				for (let s = 0, sl = stack.length; s < sl; s++) {
+
+					let line = stack[s].trim();
+					if (line.includes('(file://') && line.includes(')')) {
+
+						let tmp = line.split('(file://')[1].split(')').shift().trim();
+						if (tmp.includes('.mjs')) {
+							origin = tmp;
+							break;
+						}
+
+					}
+
+				}
+
+				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String')   + '\n';
+
+				if (origin !== null) {
+					str += origin;
+				}
+
+			} else if (msg.length > 0) {
+
+				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String')   + '\n';
+
 			}
 
 		} else if (isNumber(data) === true) {

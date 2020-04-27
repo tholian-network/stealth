@@ -45,6 +45,9 @@ const Timeline = function(length) {
 };
 
 
+Timeline.isTimeline = isTimeline;
+
+
 Timeline.from = function(data) {
 
 	if (isFunction(data) === true) {

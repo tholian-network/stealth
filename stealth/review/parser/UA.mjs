@@ -4,7 +4,7 @@ import { UA               } from '../../../stealth/source/parser/UA.mjs';
 
 
 
-describe('UA.isUA', function(assert) {
+describe('UA.isUA()', function(assert) {
 
 	let ua1 = UA.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.1 Safari/605.1.15');
 	let ua2 = UA.parse('Mozilla/5.0 (iPhone; CPU iPhone OS 12_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1');
@@ -26,7 +26,7 @@ describe('UA.isUA', function(assert) {
 
 });
 
-describe('UA.parse', function(assert) {
+describe('UA.parse()', function(assert) {
 
 	let ua1 = UA.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.1 Safari/605.1.15');
 	let ua2 = UA.parse('Mozilla/5.0 (iPhone; CPU iPhone OS 12_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1');
@@ -87,7 +87,7 @@ describe('UA.parse', function(assert) {
 
 });
 
-describe('UA.render', function(assert) {
+describe('UA.render()', function(assert) {
 
 	let ua1 = UA.render({ engine: 'safari',  platform: 'browser', system: 'desktop', version: '12.0' });
 	let ua2 = UA.render({ engine: 'safari',  platform: 'browser', system: 'mobile',  version: '12.0' });
@@ -157,7 +157,7 @@ describe('UA.render', function(assert) {
 
 });
 
-describe('UA.sort', function(assert) {
+describe('UA.sort()', function(assert) {
 
 	let sorted = UA.sort([
 		UA.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.1 Safari/605.1.15'),

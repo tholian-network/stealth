@@ -1,15 +1,23 @@
 
 import { isFunction                                                   } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
+import { hostname                                                     } from '../../../stealth/source/ENVIRONMENT.mjs';
+import { Peer                                                         } from '../../../stealth/source/client/Peer.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
 
 
 before(connect_stealth);
-describe(connect_client);
+before(connect_client);
 
-describe('client.services.peer.save', function(assert) {
+describe('new Peer()', function(assert) {
+
+	assert(this.client.services.peer instanceof Peer, true);
+
+});
+
+describe('Peer.prototype.save()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.peer.save), true);
@@ -23,7 +31,24 @@ describe('client.services.peer.save', function(assert) {
 
 });
 
-describe('client.services.peer.read', function(assert) {
+describe('Peer.prototype.info()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.peer.info), true);
+
+	this.client.services.peer.info({
+		host: '127.0.0.3'
+	}, (response) => {
+
+		assert(response !== null);
+		assert(response.domain,     hostname);
+		assert(response.connection, 'mobile');
+
+	});
+
+});
+
+describe('Peer.prototype.read()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.peer.read), true);
@@ -42,7 +67,7 @@ describe('client.services.peer.read', function(assert) {
 
 });
 
-describe('client.services.peer.proxy', function(assert) {
+describe('Peer.prototype.proxy()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.peer.proxy), true);
@@ -69,7 +94,7 @@ describe('client.services.peer.proxy', function(assert) {
 
 });
 
-describe('client.services.peer.refresh', function(assert) {
+describe('Peer.prototype.refresh()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.peer.refresh), true);
@@ -88,7 +113,7 @@ describe('client.services.peer.refresh', function(assert) {
 
 });
 
-describe('client.services.peer.remove', function(assert) {
+describe('Peer.prototype.remove()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.peer.remove), true);
@@ -101,7 +126,41 @@ describe('client.services.peer.remove', function(assert) {
 
 });
 
-describe(disconnect_client);
+describe('Peer.prototype.proxy()/failure', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.peer.proxy), true);
+
+	this.client.services.peer.proxy({
+		host: '127.0.0.3',
+		headers: {
+			service: 'settings',
+			method:  'read'
+		},
+		payload: {
+			internet: true
+		}
+	}, (response) => {
+		assert(response, null);
+	});
+
+});
+
+describe('Peer.prototype.remove()/success', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.peer.remove), true);
+
+	this.client.services.peer.remove({
+		host: '127.0.0.3'
+	}, (response) => {
+		assert(response, true);
+	});
+
+});
+
+
+after(disconnect_client);
 after(disconnect_stealth);
 
 

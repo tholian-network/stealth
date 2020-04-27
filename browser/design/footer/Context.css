@@ -11,9 +11,9 @@ browser-context {
 	left: auto;
 	margin: 0px;
 	padding: 0px;
-	color: #ffffff;
+	color: var(--element-default-color);
 	text-align: left;
-	background: #121212;
+	background: var(--layout-default-background);
 	border: 1px solid #666666;
 	border-radius: 4px;
 	box-sizing: border-box;
@@ -38,11 +38,11 @@ browser-context button {
 	padding: 0px 8px;
 	line-height: 30px;
 	height: 32px;
-	color: #666666;
+	color: var(--element-default-color);
 	font-family: 'vera-mono';
 	font-size: 16px;
 	text-align: left;
-	background: transparent;
+	background: var(--element-default-background);
 	border: 1px solid transparent;
 	border-radius: 4px;
 	box-sizing: border-box;
@@ -70,24 +70,18 @@ browser-context button:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-browser-context button:focus {
-	color: #ffffff;
-	border: 1px solid #ffffff;
-	background: rgba(255,255,255,0.12);
-	outline: none;
-}
-
+browser-context button:focus,
 browser-context button:hover {
-	color: #ffffff;
-	border: 1px solid transparent;
-	background: rgba(255,255,255,0.04);
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: var(--element-focus-background);
 	outline: none;
 }
 
 browser-context button.active {
-	color: #ffffff;
-	border: 1px solid #ffffff;
-	background: rgba(255,255,255,0.12);
+	color: var(--element-active-color);
+	border: 1px solid var(--element-active-color);
+	background: var(--element-active-background);
 	outline: none;
 }
 

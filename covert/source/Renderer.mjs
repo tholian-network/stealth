@@ -4,28 +4,6 @@ import { isReview                              } from './Review.mjs';
 
 
 
-const flatten_tests = (review) => {
-
-	let array = [];
-
-	if (review.before !== null) {
-		array.push(review.before);
-	}
-
-	if (review.tests.length > 0) {
-		review.tests.forEach((test) => {
-			array.push(test);
-		});
-	}
-
-	if (review.after !== null) {
-		array.push(review.after);
-	}
-
-	return array;
-
-};
-
 const indent = (data) => {
 
 	let dummy = '';
@@ -77,7 +55,7 @@ const render_complete = function(review, is_current) {
 
 
 	let action  = this._settings.action || null;
-	let tests   = flatten_tests(review);
+	let tests   = review.flatten();
 	let current = tests.find((test) => test.state === null) || null;
 	let div1    = indent(tests.map((test) => test.name));
 	let div2    = indent(tests.map((test) => test.results.render()));
@@ -221,7 +199,7 @@ const render_partial = function(reviews, prev_state, curr_state) {
 
 		candidates.forEach((review) => {
 
-			let tests  = flatten_tests(review);
+			let tests  = review.flatten();
 			let index1 = -1;
 			let index2 = -1;
 
@@ -384,7 +362,7 @@ const render_summary = function(review, is_current) {
 
 
 		let action  = this._settings.action || null;
-		let tests   = flatten_tests(review).filter((test) => test.state !== 'okay');
+		let tests   = review.flatten().filter((test) => test.state !== 'okay');
 		let current = tests.find((test) => test.state === null) || null;
 		let div1    = indent(tests.map((test) => test.name));
 		let div2    = indent(tests.map((test) => test.results.render()));
@@ -495,7 +473,7 @@ Renderer.prototype = {
 
 			if (state.review !== null) {
 
-				let tmp = flatten_tests(state.review).find((test) => test.state === null) || null;
+				let tmp = state.review.flatten().find((test) => test.state === null) || null;
 				if (tmp !== null) {
 					state.test = tmp;
 				}

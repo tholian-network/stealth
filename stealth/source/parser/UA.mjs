@@ -1124,10 +1124,5 @@ const UA = {
 };
 
 
-export const isUA   = UA.isUA;
-export const parse  = UA.parse;
-export const render = UA.render;
-export const sort   = UA.sort;
-
 export { UA };
 

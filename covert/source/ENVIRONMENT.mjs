@@ -28,7 +28,8 @@ export const flags = (() => {
 	let flags = {
 		debug:    false,
 		internet: true,
-		network:  null
+		network:  null,
+		timeout:  null
 	};
 
 	Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === true).forEach((flag) => {
@@ -40,7 +41,7 @@ export const flags = (() => {
 			let val = tmp[1];
 
 			let num = parseInt(val, 10);
-			if (!isNaN(num) && (num).toString() === val) {
+			if (Number.isNaN(num) && (num).toString() === val) {
 				val = num;
 			} else if (val === 'true') {
 				val = true;
@@ -48,6 +49,13 @@ export const flags = (() => {
 				val = false;
 			} else if (val === 'null') {
 				val = null;
+			} else if (val.endsWith('s')) {
+
+				let num = parseInt(val.substr(0, val.length - 1), 10);
+				if (Number.isNaN(num) === false) {
+					val = num + 's';
+				}
+
 			}
 
 			flags[key] = val;

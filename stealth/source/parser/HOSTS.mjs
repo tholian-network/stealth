@@ -387,11 +387,5 @@ const HOSTS = {
 };
 
 
-export const isHosts = HOSTS.isHosts;
-export const isHost  = HOSTS.isHost;
-export const parse   = HOSTS.parse;
-export const render  = HOSTS.render;
-export const sort    = HOSTS.sort;
-
 export { HOSTS };
 

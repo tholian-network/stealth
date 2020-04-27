@@ -58,6 +58,9 @@ const Client = function(settings, stealth) {
 };
 
 
+Client.isClient = isClient;
+
+
 Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Client',
@@ -230,13 +233,15 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.__state.connected === true) {
 
+			this.__state.connected = false;
+
+
 			let connection = this.__state.connection || null;
 			if (connection !== null) {
+				this.__state.connection = null;
 				connection.disconnect();
 			}
 
-			this.__state.connected  = false;
-			this.__state.connection = null;
 
 			this.emit('disconnect');
 

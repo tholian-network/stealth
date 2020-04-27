@@ -1,5 +1,6 @@
 
-import { isArray, isFunction, isObject } from '../../extern/base.mjs';
+import { isArray, isFunction } from '../../extern/base.mjs';
+import { URL                 } from '../parser/URL.mjs';
 
 
 
@@ -8,7 +9,7 @@ const Filter = {
 	check: function(all_filters, ref, callback) {
 
 		all_filters = isArray(all_filters) ? all_filters : [];
-		ref         = isObject(ref)        ? ref         : null;
+		ref         = URL.isURL(ref)       ? ref         : null;
 		callback    = isFunction(callback) ? callback    : null;
 
 

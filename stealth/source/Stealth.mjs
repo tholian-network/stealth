@@ -243,6 +243,9 @@ const Stealth = function(settings) {
 };
 
 
+Stealth.isStealth = isStealth;
+
+
 Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Stealth',
@@ -333,21 +336,34 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 	open: function(url) {
 
-		url = isString(url) ? url : '';
+		url = isString(url) ? url : null;
 
 
-		if (url !== null) {
+		let ref = URL.parse(url);
+		if (URL.isURL(ref) === true) {
 
-			let ref      = URL.parse(url);
-			let request  = null;
-			let sessions = this.settings.sessions;
+			let request = null;
 
-			for (let s = 0, sl = sessions.length; s < sl; s++) {
+			for (let s = 0, sl = this.settings.sessions.length; s < sl; s++) {
 
-				let cached = sessions[s].get(ref.url);
+				let cached = this.settings.sessions[s].get(ref.url);
 				if (cached !== null) {
 					request = cached;
 					break;
+				}
+
+			}
+
+			if (request === null) {
+
+				for (let r = 0, rl = this.requests.length; r < rl; r++) {
+
+					let cached = this.requests[r];
+					if (cached.url === ref.url) {
+						request = cached;
+						break;
+					}
+
 				}
 
 			}
@@ -436,6 +452,7 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 					headers['domain'] = sdomain = host.domain;
 				}
 
+
 				if (sdomain !== null) {
 					session = this.settings.sessions.find((s) => s.domain === sdomain) || null;
 				}
@@ -482,9 +499,9 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 					session.destroy();
 				}
 
-			}
+				return true;
 
-			return true;
+			}
 
 		}
 

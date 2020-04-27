@@ -22,7 +22,8 @@ browser-address ul {
 	line-height: 32px;
 	margin: 0px 32px;
 	padding: 0px;
-	color: #ffffff;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	overflow: hidden;
 	z-index: 1;
 }
@@ -42,23 +43,23 @@ browser-address ul li {
 }
 
 browser-address ul li:hover {
-	color: #99ccff;
+	color: var(--element-focus-color);
 	border-radius: 4px 4px 0px 0px;
-	border-bottom: 2px solid #99ccff;
-	background: rgba(255,255,255,0.04);
+	border-bottom: 2px solid var(--element-focus-color);
+	background: var(--element-focus-background);
 	cursor: text;
 }
 
 browser-address ul li[data-key="protocol"] {
 	width: 32px;
 	height: 32px;
-	color: #666666;
+	color: var(--element-default-color);
 	font-size: 24px;
 	line-height: 32px;
 }
 
 browser-address ul li[data-key="protocol"]:hover {
-	color: #666666;
+	color: var(--element-default-color);
 	border-bottom: 2px solid transparent;
 	background: transparent;
 	cursor: default;
@@ -96,11 +97,11 @@ browser-address input {
 	margin: 0px;
 	padding: 0px;
 	padding-top: 1px; /* WTF, Blink, WTF */
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'vera-mono';
 	font-size: 16px;
 	text-align: center;
-	background: #121212;
+	background: var(--layout-default-background);
 	border: 1px solid transparent;
 	border-radius: 4px;
 	transition: 200ms all ease-out;
@@ -122,9 +123,9 @@ browser-address input.active {
 }
 
 browser-address input::selection {
-	color: #99ccff;
+	color: var(--element-select-color);
 	border-radius: 4px;
-	background: rgba(255,255,255,0.12);
+	background: var(--element-select-background);
 	cursor: text;
 }
 

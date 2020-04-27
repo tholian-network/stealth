@@ -161,6 +161,9 @@ const Results = function(length) {
 };
 
 
+Results.isResults = isResults;
+
+
 Results.from = function(data) {
 
 	if (isFunction(data) === true) {

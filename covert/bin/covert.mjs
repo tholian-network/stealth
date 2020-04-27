@@ -26,26 +26,11 @@ const SOURCES = {
 const reset = (review) => {
 
 	review.state = null;
-
-	if (review.before !== null) {
-		review.before.state = null;
-		review.before.results.reset();
-		review.before.timeline.reset();
-	}
-
-	if (review.tests.length > 0) {
-		review.tests.forEach((test) => {
-			test.state = null;
-			test.results.reset();
-			test.timeline.reset();
-		});
-	}
-
-	if (review.after !== null) {
-		review.after.state = null;
-		review.after.results.reset();
-		review.after.timeline.reset();
-	}
+	review.flatten().forEach((test) => {
+		test.results.reset();
+		test.timeline.reset();
+		test.state = null;
+	});
 
 };
 
@@ -72,11 +57,12 @@ const show_help = () => {
 	console.log('');
 	console.log('Available Flags:');
 	console.log('');
-	console.log('    Flag       | Default | Values      | Description                                         ');
-	console.log('    -----------|---------|-------------|-----------------------------------------------------');
-	console.log('    --debug    | true    | true, false | Enable/Disable debug messages. Defaulted with false.');
-	console.log('    --internet | false   | true, false | Enable/Disable internet usage. Defaulted with true. ');
-	console.log('    --network  | null    | 2G, 3G, 4G  | Simulate network behaviour. Defaulted with null.    ');
+	console.log('    Flag       | Default | Values      | Description                                          ');
+	console.log('    -----------|---------|-------------|------------------------------------------------------');
+	console.log('    --debug    | true    | true, false | Enable/Disable debug messages. Defaulted with false. ');
+	console.log('    --internet | false   | true, false | Enable/Disable internet usage. Defaulted with true.  ');
+	console.log('    --timeout  | 10s     | (Number)s   | Override test completion timeout. Defaulted with 10s.');
+	console.log('    --network  | null    | 2G, 3G, 4G  | Simulate network behaviour. Defaulted with null.     ');
 	console.log('');
 	console.log('Examples:');
 	console.log('');
@@ -295,7 +281,8 @@ if (action === 'check') {
 		network:  flags.network  || null,
 		patterns: patterns       || [],
 		reviews:  REVIEWS,
-		sources:  SOURCES
+		sources:  SOURCES,
+		timeout:  flags.timeout  || null
 	});
 
 	process.on('SIGINT', () => {
@@ -365,7 +352,8 @@ if (action === 'check') {
 		network:  flags.network  || null,
 		patterns: patterns       || [],
 		reviews:  REVIEWS,
-		sources:  SOURCES
+		sources:  SOURCES,
+		timeout:  flags.timeout  || null
 	});
 
 	covert.on('disconnect', () => {

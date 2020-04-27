@@ -1,15 +1,22 @@
 
 import { isFunction, isObject                                         } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
+import { Mode                                                         } from '../../../stealth/source/client/Mode.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
 
 
 before(connect_stealth);
-describe(connect_client);
+before(connect_client);
 
-describe('client.services.mode.save', function(assert) {
+describe('new Mode()', function(assert) {
+
+	assert(this.client.services.mode instanceof Mode, true);
+
+});
+
+describe('Mode.prototype.save()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.mode.save), true);
@@ -29,7 +36,7 @@ describe('client.services.mode.save', function(assert) {
 
 });
 
-describe('client.services.mode.read', function(assert) {
+describe('Mode.prototype.read()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.mode.read), true);
@@ -51,7 +58,7 @@ describe('client.services.mode.read', function(assert) {
 
 });
 
-describe('client.services.mode.remove', function(assert) {
+describe('Mode.prototype.remove()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.mode.remove), true);
@@ -64,7 +71,7 @@ describe('client.services.mode.remove', function(assert) {
 
 });
 
-describe('client.services.mode.read', function(assert) {
+describe('Mode.prototype.read()/failure', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.mode.read), true);
@@ -77,7 +84,20 @@ describe('client.services.mode.read', function(assert) {
 
 });
 
-describe(disconnect_client);
+describe('Mode.prototype.remove()/failure', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.mode.remove), true);
+
+	this.client.services.mode.remove({
+		domain: 'example.com'
+	}, (response) => {
+		assert(response, true);
+	});
+
+});
+
+after(disconnect_client);
 after(disconnect_stealth);
 
 

@@ -39,7 +39,7 @@ const create = (declarations) => {
 
 
 
-describe('CSS.parse/normal', function(assert) {
+describe('CSS.parse()/normal', function(assert) {
 
 	let result = create({
 		'background-color':      '#ffcc00',
@@ -60,7 +60,7 @@ describe('CSS.parse/normal', function(assert) {
 
 });
 
-describe('CSS.parse/animation', function(assert) {
+describe('CSS.parse()/animation', function(assert) {
 
 	let result = create({
 		'animation': 'ease-out move, 1s ease-in 200ms infinite alternate backwards paused shake'
@@ -90,7 +90,7 @@ describe('CSS.parse/animation', function(assert) {
 
 });
 
-describe('CSS.parse/animation-delay', function(assert) {
+describe('CSS.parse()/animation-delay', function(assert) {
 
 	let result1 = create({
 		'animation-delay': '13ms'
@@ -112,7 +112,7 @@ describe('CSS.parse/animation-delay', function(assert) {
 
 });
 
-describe('CSS.parse/animation-direction', function(assert) {
+describe('CSS.parse()/animation-direction', function(assert) {
 
 	let result1 = create({
 		'animation-direction': 'normal'
@@ -131,7 +131,7 @@ describe('CSS.parse/animation-direction', function(assert) {
 
 });
 
-describe('CSS.parse/animation-duration', function(assert) {
+describe('CSS.parse()/animation-duration', function(assert) {
 
 	let result1 = create({
 		'animation-duration': '13ms'
@@ -153,7 +153,7 @@ describe('CSS.parse/animation-duration', function(assert) {
 
 });
 
-describe('CSS.parse/animation-fill-mode', function(assert) {
+describe('CSS.parse()/animation-fill-mode', function(assert) {
 
 	let result1 = create({
 		'animation-fill-mode': 'both'
@@ -172,7 +172,7 @@ describe('CSS.parse/animation-fill-mode', function(assert) {
 
 });
 
-describe('CSS.parse/animation-iteration-count', function(assert) {
+describe('CSS.parse()/animation-iteration-count', function(assert) {
 
 	let result1 = create({
 		'animation-iteration-count': 'infinite'
@@ -193,7 +193,7 @@ describe('CSS.parse/animation-iteration-count', function(assert) {
 
 });
 
-describe('CSS.parse/animation-name', function(assert) {
+describe('CSS.parse()/animation-name', function(assert) {
 
 	let result1 = create({
 		'animation-name': 'move-vertically'
@@ -215,7 +215,7 @@ describe('CSS.parse/animation-name', function(assert) {
 
 });
 
-describe('CSS.parse/animation-play-state', function(assert) {
+describe('CSS.parse()/animation-play-state', function(assert) {
 
 	let result1 = create({
 		'animation-play-state': 'paused'
@@ -234,7 +234,7 @@ describe('CSS.parse/animation-play-state', function(assert) {
 
 });
 
-describe('CSS.parse/animation-timing-function', function(assert) {
+describe('CSS.parse()/animation-timing-function', function(assert) {
 
 	let result1 = create({
 		'animation-timing-function': 'ease'
@@ -253,7 +253,7 @@ describe('CSS.parse/animation-timing-function', function(assert) {
 
 });
 
-describe('CSS.parse/background', function(assert) {
+describe('CSS.parse()/background', function(assert) {
 
 	let result = create({
 		'background': 'url(\'/path/to/image.jpg\') top 13px repeat no-repeat fixed border-box content-box #ff0000'
@@ -275,7 +275,7 @@ describe('CSS.parse/background', function(assert) {
 
 });
 
-describe('CSS.parse/background-position', function(assert) {
+describe('CSS.parse()/background-position', function(assert) {
 
 	let result1 = create({
 		'background-position': 'center'
@@ -313,7 +313,7 @@ describe('CSS.parse/background-position', function(assert) {
 
 });
 
-describe('CSS.parse/background-repeat', function(assert) {
+describe('CSS.parse()/background-repeat', function(assert) {
 
 	let result1 = create({
 		'background-repeat': 'repeat-x repeat-y'
@@ -349,7 +349,7 @@ describe('CSS.parse/background-repeat', function(assert) {
 
 });
 
-describe('CSS.parse/background-size', function(assert) {
+describe('CSS.parse()/background-size', function(assert) {
 
 	let result1 = create({
 		'background-size': 'cover'
@@ -387,7 +387,7 @@ describe('CSS.parse/background-size', function(assert) {
 
 });
 
-describe('CSS.parse/border', function(assert) {
+describe('CSS.parse()/border', function(assert) {
 
 	let result = create({
 		'border': 'medium dotted #ff00cc'
@@ -409,7 +409,7 @@ describe('CSS.parse/border', function(assert) {
 
 });
 
-describe('CSS.parse/border-bottom', function(assert) {
+describe('CSS.parse()/border-bottom', function(assert) {
 
 	let result = create({
 		'border-bottom': 'medium dotted #ff00cc'
@@ -422,7 +422,7 @@ describe('CSS.parse/border-bottom', function(assert) {
 
 });
 
-describe('CSS.parse/border-bottom-left-radius', function(assert) {
+describe('CSS.parse()/border-bottom-left-radius', function(assert) {
 
 	let result = create({
 		'border-bottom-left-radius': '13em 37px'
@@ -436,7 +436,7 @@ describe('CSS.parse/border-bottom-left-radius', function(assert) {
 
 });
 
-describe('CSS.parse/border-bottom-right-radius', function(assert) {
+describe('CSS.parse()/border-bottom-right-radius', function(assert) {
 
 	let result = create({
 		'border-bottom-right-radius': '13em 37px'
@@ -450,7 +450,7 @@ describe('CSS.parse/border-bottom-right-radius', function(assert) {
 
 });
 
-describe('CSS.parse/border-color', function(assert) {
+describe('CSS.parse()/border-color', function(assert) {
 
 	let result1 = create({
 		'border-color': '#ffcc00 #ff00cc #00ffcc #00ccff'
@@ -495,7 +495,7 @@ describe('CSS.parse/border-color', function(assert) {
 
 });
 
-describe('CSS.parse/border-left', function(assert) {
+describe('CSS.parse()/border-left', function(assert) {
 
 	let result = create({
 		'border-left': 'medium dotted #ff00cc'
@@ -508,7 +508,7 @@ describe('CSS.parse/border-left', function(assert) {
 
 });
 
-describe('CSS.parse/border-radius', function(assert) {
+describe('CSS.parse()/border-radius', function(assert) {
 
 	let result = create({
 		'border-radius': '1em 2px 3% / 4px 5px 6px 7px'
@@ -534,7 +534,7 @@ describe('CSS.parse/border-radius', function(assert) {
 
 });
 
-describe('CSS.parse/border-right', function(assert) {
+describe('CSS.parse()/border-right', function(assert) {
 
 	let result = create({
 		'border-right': 'medium dotted #ff00cc'
@@ -547,7 +547,7 @@ describe('CSS.parse/border-right', function(assert) {
 
 });
 
-describe('CSS.parse/border-spacing', function(assert) {
+describe('CSS.parse()/border-spacing', function(assert) {
 
 	let result1 = create({
 		'border-spacing': '13em'
@@ -571,7 +571,7 @@ describe('CSS.parse/border-spacing', function(assert) {
 
 });
 
-describe('CSS.parse/border-style', function(assert) {
+describe('CSS.parse()/border-style', function(assert) {
 
 	let result1 = create({
 		'border-style': 'dotted dashed solid double'
@@ -615,7 +615,7 @@ describe('CSS.parse/border-style', function(assert) {
 
 });
 
-describe('CSS.parse/border-top', function(assert) {
+describe('CSS.parse()/border-top', function(assert) {
 
 	let result = create({
 		'border-top': 'medium dotted #ff00cc'
@@ -628,7 +628,7 @@ describe('CSS.parse/border-top', function(assert) {
 
 });
 
-describe('CSS.parse/border-top-left-radius', function(assert) {
+describe('CSS.parse()/border-top-left-radius', function(assert) {
 
 	let result = create({
 		'border-top-left-radius': '13em 37px'
@@ -642,7 +642,7 @@ describe('CSS.parse/border-top-left-radius', function(assert) {
 
 });
 
-describe('CSS.parse/border-top-right-radius', function(assert) {
+describe('CSS.parse()/border-top-right-radius', function(assert) {
 
 	let result = create({
 		'border-top-right-radius': '13em 37px'
@@ -656,7 +656,7 @@ describe('CSS.parse/border-top-right-radius', function(assert) {
 
 });
 
-describe('CSS.parse/border-width', function(assert) {
+describe('CSS.parse()/border-width', function(assert) {
 
 	let result1 = create({
 		'border-width': 'thin medium thick 13em'
@@ -716,7 +716,7 @@ describe('CSS.parse/border-width', function(assert) {
 
 });
 
-describe('CSS.parse/color', function(assert) {
+describe('CSS.parse()/color', function(assert) {
 
 	let result1 = create({
 		'color': 'rgba(255, 204, 0, 0.5)'
@@ -744,7 +744,7 @@ describe('CSS.parse/color', function(assert) {
 
 });
 
-describe('CSS.parse/column-rule', function(assert) {
+describe('CSS.parse()/column-rule', function(assert) {
 
 	let result = create({
 		'column-rule': '13px dashed #ffcc00'
@@ -760,7 +760,7 @@ describe('CSS.parse/column-rule', function(assert) {
 
 });
 
-describe('CSS.parse/columns', function(assert) {
+describe('CSS.parse()/columns', function(assert) {
 
 	let result = create({
 		'columns':     'auto 13',
@@ -780,7 +780,7 @@ describe('CSS.parse/columns', function(assert) {
 
 });
 
-describe('CSS.parse/display', function(assert) {
+describe('CSS.parse()/display', function(assert) {
 
 	let result1 = create({
 		'display': 'block'
@@ -820,7 +820,7 @@ describe('CSS.parse/display', function(assert) {
 
 });
 
-describe('CSS.parse/flex', function(assert) {
+describe('CSS.parse()/flex', function(assert) {
 
 	let result1 = create({
 		'flex': 'initial'
@@ -842,7 +842,7 @@ describe('CSS.parse/flex', function(assert) {
 
 });
 
-describe('CSS.parse/flex-flow', function(assert) {
+describe('CSS.parse()/flex-flow', function(assert) {
 
 	let result1 = create({
 		'flex-flow': 'column-reverse wrap-reverse'
@@ -862,7 +862,7 @@ describe('CSS.parse/flex-flow', function(assert) {
 
 });
 
-describe('CSS.parse/font', function(assert) {
+describe('CSS.parse()/font', function(assert) {
 
 	let result = create({
 		'font': 'italic bold condensed 13px/37px "Times New Roman", "Arial", Sedana, sans-serif'
@@ -884,7 +884,7 @@ describe('CSS.parse/font', function(assert) {
 
 });
 
-describe('CSS.parse/font-family', function(assert) {
+describe('CSS.parse()/font-family', function(assert) {
 
 	let result = create({
 		'font-family': '"Times New Roman", "Arial", Sedana, sans-serif'
@@ -899,7 +899,7 @@ describe('CSS.parse/font-family', function(assert) {
 
 });
 
-describe('CSS.parse/inset', function(assert) {
+describe('CSS.parse()/inset', function(assert) {
 
 	let result1 = create({
 		'inset': '1em 2px 3% 4pt'
@@ -959,7 +959,7 @@ describe('CSS.parse/inset', function(assert) {
 
 });
 
-describe('CSS.parse/list-style', function(assert) {
+describe('CSS.parse()/list-style', function(assert) {
 
 	let result = create({
 		'list-style': 'circle url("/path/to/image.png") outside'
@@ -972,7 +972,7 @@ describe('CSS.parse/list-style', function(assert) {
 
 });
 
-describe('CSS.parse/margin', function(assert) {
+describe('CSS.parse()/margin', function(assert) {
 
 	let result1 = create({
 		'margin': '1em 2px 3% 4pt'
@@ -1032,7 +1032,7 @@ describe('CSS.parse/margin', function(assert) {
 
 });
 
-describe('CSS.parse/object-position', function(assert) {
+describe('CSS.parse()/object-position', function(assert) {
 
 	let result1 = create({
 		'object-position': 'center'
@@ -1070,7 +1070,7 @@ describe('CSS.parse/object-position', function(assert) {
 
 });
 
-describe('CSS.parse/opacity', function(assert) {
+describe('CSS.parse()/opacity', function(assert) {
 
 	let result1 = create({
 		'opacity': '0.13'
@@ -1090,7 +1090,7 @@ describe('CSS.parse/opacity', function(assert) {
 
 });
 
-describe('CSS.parse/outline', function(assert) {
+describe('CSS.parse()/outline', function(assert) {
 
 	let result = create({
 		'outline': '#ff00cc dotted medium'
@@ -1103,7 +1103,7 @@ describe('CSS.parse/outline', function(assert) {
 
 });
 
-describe('CSS.parse/overflow', function(assert) {
+describe('CSS.parse()/overflow', function(assert) {
 
 	let result1 = create({
 		'overflow': 'visible'
@@ -1123,7 +1123,7 @@ describe('CSS.parse/overflow', function(assert) {
 
 });
 
-describe('CSS.parse/padding', function(assert) {
+describe('CSS.parse()/padding', function(assert) {
 
 	let result1 = create({
 		'padding': '1em 2px 3% 4pt'
@@ -1183,7 +1183,7 @@ describe('CSS.parse/padding', function(assert) {
 
 });
 
-describe('CSS.parse/perspective-origin', function(assert) {
+describe('CSS.parse()/perspective-origin', function(assert) {
 
 	let result1 = create({
 		'perspective-origin': 'center top'
@@ -1227,7 +1227,7 @@ describe('CSS.parse/perspective-origin', function(assert) {
 
 });
 
-describe('CSS.parse/place-content', function(assert) {
+describe('CSS.parse()/place-content', function(assert) {
 
 	let result1 = create({
 		'place-content': 'flex-start'
@@ -1255,7 +1255,7 @@ describe('CSS.parse/place-content', function(assert) {
 
 });
 
-describe('CSS.parse/place-items', function(assert) {
+describe('CSS.parse()/place-items', function(assert) {
 
 	let result1 = create({
 		'place-items': 'flex-start'
@@ -1283,7 +1283,7 @@ describe('CSS.parse/place-items', function(assert) {
 
 });
 
-describe('CSS.parse/place-self', function(assert) {
+describe('CSS.parse()/place-self', function(assert) {
 
 	let result1 = create({
 		'place-self': 'flex-start'
@@ -1311,7 +1311,7 @@ describe('CSS.parse/place-self', function(assert) {
 
 });
 
-describe('CSS.parse/position', function(assert) {
+describe('CSS.parse()/position', function(assert) {
 
 	let result1 = create({
 		'position': 'absolute'
@@ -1350,12 +1350,12 @@ describe('CSS.parse/position', function(assert) {
 
 });
 
-// describe('CSS.parse/quotes', function(assert) {
+// describe('CSS.parse()/quotes', function(assert) {
 // TODO: Implement a quotes test... no idea how to
 // verify that UTF-8 is working!?
 // });
 
-describe('CSS.parse/scroll-margin', function(assert) {
+describe('CSS.parse()/scroll-margin', function(assert) {
 
 	let result1 = create({
 		'scroll-margin': '1em 2px 3% 4pt'
@@ -1415,7 +1415,7 @@ describe('CSS.parse/scroll-margin', function(assert) {
 
 });
 
-describe('CSS.parse/scroll-padding', function(assert) {
+describe('CSS.parse()/scroll-padding', function(assert) {
 
 	let result1 = create({
 		'scroll-padding': '1em 2px 3% 4pt'
@@ -1475,7 +1475,7 @@ describe('CSS.parse/scroll-padding', function(assert) {
 
 });
 
-describe('CSS.parse/scroll-snap-align', function(assert) {
+describe('CSS.parse()/scroll-snap-align', function(assert) {
 
 	let result1 = create({
 		'scroll-snap-align': 'center'
@@ -1493,7 +1493,7 @@ describe('CSS.parse/scroll-snap-align', function(assert) {
 
 });
 
-describe('CSS.parse/scroll-snap-stop', function(assert) {
+describe('CSS.parse()/scroll-snap-stop', function(assert) {
 
 	let result1 = create({
 		'scroll-snap-stop': 'always'
@@ -1511,7 +1511,7 @@ describe('CSS.parse/scroll-snap-stop', function(assert) {
 
 });
 
-describe('CSS.parse/scroll-snap-type', function(assert) {
+describe('CSS.parse()/scroll-snap-type', function(assert) {
 
 	let result1 = create({
 		'scroll-snap-type': 'block'
@@ -1531,7 +1531,7 @@ describe('CSS.parse/scroll-snap-type', function(assert) {
 
 });
 
-describe('CSS.parse/scrollbar-color', function(assert) {
+describe('CSS.parse()/scrollbar-color', function(assert) {
 
 	let result1 = create({
 		'scrollbar-color': '#ffcc00 #00ffcc'
@@ -1555,7 +1555,7 @@ describe('CSS.parse/scrollbar-color', function(assert) {
 
 });
 
-describe('CSS.parse/text-decoration', function(assert) {
+describe('CSS.parse()/text-decoration', function(assert) {
 
 	let result = create({
 		'text-decoration': 'underline dashed #ffcc00'
@@ -1568,7 +1568,7 @@ describe('CSS.parse/text-decoration', function(assert) {
 
 });
 
-describe('CSS.parse/text-emphasis', function(assert) {
+describe('CSS.parse()/text-emphasis', function(assert) {
 
 	let result1 = create({
 		'text-emphasis': 'circle #ff0000'
@@ -1588,7 +1588,7 @@ describe('CSS.parse/text-emphasis', function(assert) {
 
 });
 
-describe('CSS.parse/text-emphasis-color', function(assert) {
+describe('CSS.parse()/text-emphasis-color', function(assert) {
 
 	let result1 = create({
 		'text-emphasis-color': '#ffcc00'
@@ -1608,7 +1608,7 @@ describe('CSS.parse/text-emphasis-color', function(assert) {
 
 });
 
-describe('CSS.parse/text-emphasis-style', function(assert) {
+describe('CSS.parse()/text-emphasis-style', function(assert) {
 
 	let result1 = create({
 		'text-emphasis-style': '"foo"'
@@ -1628,7 +1628,7 @@ describe('CSS.parse/text-emphasis-style', function(assert) {
 
 });
 
-describe('CSS.parse/transition', function(assert) {
+describe('CSS.parse()/transition', function(assert) {
 
 	let result = create({
 		'transition': 'margin-left ease-out, padding 1s ease-in 200ms'
@@ -1648,7 +1648,7 @@ describe('CSS.parse/transition', function(assert) {
 
 });
 
-describe('CSS.parse/transition-delay', function(assert) {
+describe('CSS.parse()/transition-delay', function(assert) {
 
 	let result1 = create({
 		'transition-delay': '13ms, 37s'
@@ -1670,7 +1670,7 @@ describe('CSS.parse/transition-delay', function(assert) {
 
 });
 
-describe('CSS.parse/transition-duration', function(assert) {
+describe('CSS.parse()/transition-duration', function(assert) {
 
 	let result1 = create({
 		'transition-duration': '13ms, 37s'
@@ -1692,7 +1692,7 @@ describe('CSS.parse/transition-duration', function(assert) {
 
 });
 
-describe('CSS.parse/transition-property', function(assert) {
+describe('CSS.parse()/transition-property', function(assert) {
 
 	let result1 = create({
 		'transition-property': 'margin, padding'
@@ -1712,7 +1712,7 @@ describe('CSS.parse/transition-property', function(assert) {
 
 });
 
-describe('CSS.parse/transition-timing-function', function(assert) {
+describe('CSS.parse()/transition-timing-function', function(assert) {
 
 	let result1 = create({
 		'transition-timing-function': 'ease-in, ease-out'
@@ -1732,32 +1732,32 @@ describe('CSS.parse/transition-timing-function', function(assert) {
 
 });
 
-// describe('CSS.parse/selectors', function(assert) {
+// describe('CSS.parse()/selectors', function(assert) {
 // 	// TODO: Multiple selectors test
 // 	assert(false);
 // });
 //
-// describe('CSS.parse/font-face', function(assert) {
+// describe('CSS.parse()/font-face', function(assert) {
 // 	// TODO: @font-face test
 // 	assert(false);
 // });
 //
-// describe('CSS.parse/import', function(assert) {
+// describe('CSS.parse()/import', function(assert) {
 // 	// TODO: @import test
 // 	assert(false);
 // });
 //
-// describe('CSS.parse/media', function(assert) {
+// describe('CSS.parse()/media', function(assert) {
 // 	// TODO: @media test
 // 	assert(false);
 // });
 //
-// describe('CSS.parse/page', function(assert) {
+// describe('CSS.parse()/page', function(assert) {
 // 	// TODO: @page test
 // 	assert(false);
 // });
 //
-// describe('CSS.parse/supports', function(assert) {
+// describe('CSS.parse()/supports', function(assert) {
 // 	// TODO: @supports test
 // 	assert(false);
 // });

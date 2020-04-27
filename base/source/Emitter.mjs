@@ -18,7 +18,8 @@ export const Emitter = (function(global) {
 
 		const Emitter = function() {
 
-			this.__events = {};
+			this.__events  = {};
+			this.__journal = [];
 
 		};
 
@@ -32,6 +33,43 @@ export const Emitter = (function(global) {
 
 			[Symbol.toStringTag]: 'Emitter',
 
+			toJSON: function() {
+
+				let data = {
+					events:  Object.keys(this.__events),
+					journal: []
+				};
+
+				if (this.__journal.length > 0) {
+
+					this.__journal.sort((a, b) => {
+
+						if (a.time < b.time) return -1;
+						if (b.time < a.time) return  1;
+
+						if (a.event < b.event) return -1;
+						if (b.event < a.event) return  1;
+
+						return 0;
+
+					}).forEach((entry) => {
+
+						data.journal.push({
+							event: entry.event,
+							time:  entry.time
+						});
+
+					});
+
+				}
+
+				return {
+					'type': 'Emitter',
+					'data': data
+				};
+
+			},
+
 			emit: function(event, args) {
 
 				event = isString(event) ? event : null;
@@ -42,6 +80,12 @@ export const Emitter = (function(global) {
 
 					let events = this.__events[event] || null;
 					if (events !== null) {
+
+						this.__journal.push({
+							event: event,
+							time:  Date.now()
+						});
+
 
 						let data = null;
 

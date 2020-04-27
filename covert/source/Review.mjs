@@ -15,8 +15,8 @@ export const isReview = function(obj) {
 export const Review = function() {
 
 	this.id     = ('Review-' + REVIEW_ID++);
-	this.after  = null;
-	this.before = null;
+	this.after  = [];
+	this.before = [];
 	this.errors = [];
 	this.flags  = {};
 	this.scope  = {};
@@ -25,8 +25,40 @@ export const Review = function() {
 
 };
 
+
+Review.isReview = isReview;
+
+
 Review.prototype = {
-	[Symbol.toStringTag]: 'Review'
+
+	[Symbol.toStringTag]: 'Review',
+
+	flatten: function() {
+
+		let array = [];
+
+		if (this.before.length > 0) {
+			this.before.forEach((test) => {
+				array.push(test);
+			});
+		}
+
+		if (this.tests.length > 0) {
+			this.tests.forEach((test) => {
+				array.push(test);
+			});
+		}
+
+		if (this.after !== null) {
+			this.after.forEach((test) => {
+				array.push(test);
+			});
+		}
+
+		return array;
+
+	}
+
 };
 
 
@@ -54,12 +86,12 @@ export const after = function(name, callback) {
 
 		if (CURRENT_REVIEW !== null) {
 
-			CURRENT_REVIEW.after = test;
+			CURRENT_REVIEW.after.push(test);
 
 		} else {
 
-			CURRENT_REVIEW       = new Review();
-			CURRENT_REVIEW.after = test;
+			CURRENT_REVIEW = new Review();
+			CURRENT_REVIEW.after.push(test);
 
 		}
 
@@ -93,8 +125,25 @@ export const before = function(name, callback) {
 			timeline: Timeline.from(callback)
 		};
 
-		CURRENT_REVIEW        = new Review();
-		CURRENT_REVIEW.before = test;
+		if (CURRENT_REVIEW !== null) {
+
+			if (CURRENT_REVIEW.tests.length > 0 || CURRENT_REVIEW.after.length > 0) {
+
+				CURRENT_REVIEW = new Review();
+				CURRENT_REVIEW.before.push(test);
+
+			} else {
+
+				CURRENT_REVIEW.before.push(test);
+
+			}
+
+		} else {
+
+			CURRENT_REVIEW = new Review();
+			CURRENT_REVIEW.before.push(test);
+
+		}
 
 		return test;
 

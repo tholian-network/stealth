@@ -2,6 +2,7 @@
 import { isFunction, isObject } from '../../extern/base.mjs';
 import { Optimizer as CSS     } from '../optimizer/CSS.mjs';
 import { Optimizer as HTML    } from '../optimizer/HTML.mjs';
+import { URL                  } from '../parser/URL.mjs';
 
 
 
@@ -16,7 +17,7 @@ const Optimizer = {
 
 	check: function(ref, config, callback) {
 
-		ref      = isObject(ref)        ? ref      : null;
+		ref      = URL.isURL(ref)       ? ref      : null;
 		config   = isObject(config)     ? config   : null;
 		callback = isFunction(callback) ? callback : null;
 
@@ -45,7 +46,7 @@ const Optimizer = {
 
 	optimize: function(ref, config, callback) {
 
-		ref      = isObject(ref)        ? ref      : null;
+		ref      = URL.isURL(ref)       ? ref      : null;
 		config   = isObject(config)     ? config   : null;
 		callback = isFunction(callback) ? callback : null;
 

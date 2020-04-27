@@ -6,10 +6,10 @@ article button {
 	padding: 0px;
 	height: 32px;
 	line-height: 32px;
-	color: #666666;
+	color: var(--element-default-color);
 	font-size: 24px;
 	text-align: center;
-	background: transparent;
+	background: var(--element-default-background);
 	border: 1px solid transparent;
 	border-radius: 4px;
 	box-sizing: border-box;
@@ -24,22 +24,16 @@ article button {
 
 article button[disabled],
 article button[disabled]:hover {
-	color: #666666;
-	background: transparent;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	cursor: default;
 }
 
-article button:focus {
-	color: #ffffff;
-	border: 1px solid #ffffff;
-	background: rgba(255,255,255,0.12);
-	outline: none;
-}
-
+article button:focus,
 article button:hover {
-	color: #ffffff;
-	border: 1px solid transparent;
-	background: rgba(255,255,255,0.04);
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: var(--element-focus-background);
 	outline: none;
 }
 
@@ -75,7 +69,7 @@ article button[data-key="mode.image"]:before      { content: '\e432'; }
 article button[data-key="mode.audio"]:before      { content: '\e049'; }
 article button[data-key="mode.video"]:before      { content: '\e404'; }
 article button[data-key="mode.other"]:before      { content: '\e048'; }
-article button[data-key^="mode"][data-val="true"] { color: #ffffff;   }
+article button[data-key^="mode"][data-val="true"] { color: var(--element-active-color); }
 
 article button[data-key="timeline.init"]:before       { content: '\e037'; }
 article button[data-key="timeline.cache"]:before      { content: '\e84f'; }
@@ -87,11 +81,11 @@ article button[data-key="timeline.connect"]:before    { content: '\e8be'; }
 article button[data-key="timeline.download"]:before   { content: '\e2c4'; }
 article button[data-key="timeline.optimize"]:before   { content: '\e428'; }
 article button[data-key="timeline.response"]:before   { content: '\e7e9'; }
-article button[data-key^="timeline"][data-val="true"] { color: #ffffff;   }
+article button[data-key^="timeline"][data-val="true"] { color: var(--element-active-color); }
 
 article button[data-action].busy:before {
-	color: #666666;
-	background: transparent;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	content: '\e86a';
 	animation: infinite linear 1s rotate_icon;
 	cursor: wait;
@@ -110,11 +104,10 @@ article input[type="radio"] {
 	line-height: 32px;
 	margin: 0px;
 	padding: 0px;
-	color: #ffffff;
 	font-size: 24px;
 	text-align: center;
-	color: #666666;
-	background: transparent;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	border: 1px solid transparent;
 	border-radius: 4px;
 	box-sizing: border-box;
@@ -160,8 +153,8 @@ article input[type="radio"][name="internet-useragent"][value="spider-desktop"]:b
 article input[type="radio"][name="internet-connection"].busy:before,
 article input[type="radio"][name="internet-history"].busy:before,
 article input[type="radio"][name="internet-useragent"].busy:before {
-	color: #666666;
-	background: transparent;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	content: '\e86a';
 	animation: infinite linear 1s rotate_icon;
 	cursor: wait;
@@ -169,27 +162,21 @@ article input[type="radio"][name="internet-useragent"].busy:before {
 
 article input[type="radio"][disabled],
 article input[type="radio"][disabled]:hover {
-	color: #666666;
-	background: transparent;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	cursor: default;
 }
 
-article input[type="radio"]:focus {
-	color: #ffffff;
-	border: 1px solid #ffffff;
-	background: rgba(255,255,255,0.12);
-	outline: none;
-}
-
+article input[type="radio"]:focus,
 article input[type="radio"]:hover {
-	color: #ffffff;
-	border: 1px solid transparent;
-	background: rgba(255,255,255,0.04);
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: var(--element-focus-background);
 	outline: none;
 }
 
 article input[type="radio"]:checked {
-	color: #ffffff;
+	color: var(--element-active-color);
 }
 
 article input[type="text"] {
@@ -198,11 +185,11 @@ article input[type="text"] {
 	padding: 0px;
 	height: 32px;
 	line-height: 32px;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'vera-mono';
 	font-size: 16px;
 	text-align: left;
-	background: transparent;
+	background: var(--element-default-background);
 	border: 1px solid #666666;
 	border-radius: 4px;
 	vertical-align: top;
@@ -212,18 +199,18 @@ article input[type="text"] {
 	cursor: text;
 }
 
-article input[type="text"]:focus {
-	color: #ffffff;
-	border: 1px solid #ffffff;
-	background: rgba(255,255,255,0.12);
+article input[type="text"]:focus,
+article input[type="text"]:hover {
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: 1px solid var(--element-focus-background);
 	outline: none;
 }
 
-article input[type="text"]:hover {
-	color: #ffffff;
-	border: 1px solid transparent;
-	background: rgba(255,255,255,0.04);
-	outline: none;
+article input[type="text"]::selection {
+	color: var(--element-select-color);
+	background: var(--element-select-background);
+	cursor: text;
 }
 
 article textarea {
@@ -231,12 +218,12 @@ article textarea {
 	min-height: 5em;
 	margin: 0px;
 	padding: 0px;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'vera-mono';
 	font-size: 16px;
 	line-height: 16px;
 	text-align: left;
-	background: transparent;
+	background: var(--element-default-background);
 	border: 1px solid #666666;
 	border-radius: 4px;
 	vertical-align: top;
@@ -247,17 +234,11 @@ article textarea {
 	cursor: text;
 }
 
-article textarea:focus {
-	color: #ffffff;
-	border: 1px solid #ffffff;
-	background: rgba(255,255,255,0.12);
-	outline: none;
-}
-
+article textarea:focus,
 article textarea:hover {
-	color: #ffffff;
-	border: 1px solid transparent;
-	background: rgba(255,255,255,0.04);
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: var(--element-focus-background);
 	outline: none;
 }
 

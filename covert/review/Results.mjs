@@ -1,6 +1,6 @@
 
-import { describe, finish } from '../index.mjs';
-import { Results          } from '../source/Results.mjs';
+import { describe, finish   } from '../index.mjs';
+import { Results, isResults } from '../source/Results.mjs';
 
 
 
@@ -18,7 +18,58 @@ const TEMPLATE = function(assert) {
 
 
 
-describe('Results.from', function(assert) {
+describe('new Results()', function(assert) {
+
+	let results = new Results(5);
+
+	assert(results.index,  0);
+	assert(results.length, 5);
+
+	assert(results.data[0], null);
+	assert(results.data[1], null);
+	assert(results.data[2], null);
+	assert(results.data[3], null);
+	assert(results.data[4], null);
+
+});
+
+describe('Results.isResults()', function(assert) {
+
+	let results1 = Results.from(null);
+	let results2 = Results.from(5);
+	let results3 = Results.from(TEMPLATE);
+	let results4 = Results.from([ true, false, null ]);
+	let results5 = Results.from([ null, {}, true ]);
+
+	assert(typeof Results.isResults, 'function');
+
+	assert(Results.isResults(results1), true);
+	assert(Results.isResults(results2), true);
+	assert(Results.isResults(results3), true);
+	assert(Results.isResults(results4), true);
+	assert(Results.isResults(results5), true);
+
+});
+
+describe('isResults()', function(assert) {
+
+	let results1 = Results.from(null);
+	let results2 = Results.from(5);
+	let results3 = Results.from(TEMPLATE);
+	let results4 = Results.from([ true, false, null ]);
+	let results5 = Results.from([ null, {}, true ]);
+
+	assert(typeof isResults, 'function');
+
+	assert(isResults(results1), true);
+	assert(isResults(results2), true);
+	assert(isResults(results3), true);
+	assert(isResults(results4), true);
+	assert(isResults(results5), true);
+
+});
+
+describe('Results.from()', function(assert) {
 
 	let results1 = Results.from(null);
 	let results2 = Results.from(5);
@@ -57,7 +108,7 @@ describe('Results.from', function(assert) {
 
 });
 
-describe('results.toString', function(assert) {
+describe('Results.prototype.toString()', function(assert) {
 
 	let results = Results.from(null);
 
@@ -66,7 +117,7 @@ describe('results.toString', function(assert) {
 
 });
 
-describe('results.assert/Array', function(assert) {
+describe('Results.prototype.assert()/Array', function(assert) {
 
 	let date1   = new Date('01.02.20 13:37');
 	let date2   = new Date('13.01.37 20:02');
@@ -155,7 +206,7 @@ describe('results.assert/Array', function(assert) {
 
 });
 
-describe('results.assert/Boolean', function(assert) {
+describe('Results.prototype.assert()/Boolean', function(assert) {
 
 	let results = Results.from(6);
 
@@ -178,7 +229,7 @@ describe('results.assert/Boolean', function(assert) {
 
 });
 
-describe('results.assert/Date', function(assert) {
+describe('Results.prototype.assert()/Date', function(assert) {
 
 	let date1   = new Date('01.02.20 13:37');
 	let date2   = new Date('01.02.20 13:37');
@@ -212,7 +263,7 @@ describe('results.assert/Date', function(assert) {
 
 });
 
-describe('results.assert/Function', function(assert) {
+describe('Results.prototype.assert()/Function', function(assert) {
 
 	let callback1 = function() {
 		console.log('foo');
@@ -255,7 +306,7 @@ describe('results.assert/Function', function(assert) {
 
 });
 
-describe('results.assert/Number', function(assert) {
+describe('Results.prototype.assert()/Number', function(assert) {
 
 	let results = Results.from(10);
 
@@ -288,7 +339,7 @@ describe('results.assert/Number', function(assert) {
 
 });
 
-describe('results.assert/Object', function(assert) {
+describe('Results.prototype.assert()/Object', function(assert) {
 
 	let date1   = new Date('01.02.20 13:37');
 	let date2   = new Date('13.01.37 20:02');
@@ -352,27 +403,7 @@ describe('results.assert/Object', function(assert) {
 
 });
 
-describe('results.assert/String', function(assert) {
-
-	let results = Results.from(5);
-
-	results.assert('example');
-
-	results.assert('foo', 'foo');
-	results.assert('foo', 'bar');
-	results.assert('bar', 'foo');
-	results.assert('bar', 'bar');
-
-	assert(results.data[0], null);
-
-	assert(results.data[1], true);
-	assert(results.data[2], false);
-	assert(results.data[3], false);
-	assert(results.data[4], true);
-
-});
-
-describe('results.assert/RegExp', function(assert) {
+describe('Results.prototype.assert()/RegExp', function(assert) {
 
 	let regexp1 = new RegExp('/foo/bar', 'g');
 	let regexp2 = new RegExp('/foo/bar', 'g');
@@ -405,7 +436,27 @@ describe('results.assert/RegExp', function(assert) {
 
 });
 
-describe('results.complete', function(assert) {
+describe('Results.prototype.assert()/String', function(assert) {
+
+	let results = Results.from(5);
+
+	results.assert('example');
+
+	results.assert('foo', 'foo');
+	results.assert('foo', 'bar');
+	results.assert('bar', 'foo');
+	results.assert('bar', 'bar');
+
+	assert(results.data[0], null);
+
+	assert(results.data[1], true);
+	assert(results.data[2], false);
+	assert(results.data[3], false);
+	assert(results.data[4], true);
+
+});
+
+describe('Results.prototype.complete()', function(assert) {
 
 	let results = Results.from(4);
 
@@ -423,7 +474,7 @@ describe('results.complete', function(assert) {
 
 });
 
-describe('results.current', function(assert) {
+describe('Results.prototype.current()', function(assert) {
 
 	let results = Results.from(4);
 
@@ -448,7 +499,7 @@ describe('results.current', function(assert) {
 
 });
 
-describe('results.includes', function(assert) {
+describe('Results.prototype.includes()', function(assert) {
 
 	let results1 = Results.from([ true,  false, null  ]);
 	let results2 = Results.from([ true,  false, true  ]);
@@ -473,7 +524,7 @@ describe('results.includes', function(assert) {
 
 });
 
-describe('results.render', function(assert) {
+describe('Results.prototype.render()', function(assert) {
 
 	let results1 = Results.from([ true,  false, null  ]);
 	let results2 = Results.from([ true,  false, true  ]);
@@ -491,7 +542,7 @@ describe('results.render', function(assert) {
 
 });
 
-describe('results.reset', function(assert) {
+describe('Results.prototype.reset()', function(assert) {
 
 	let results = Results.from(3);
 

@@ -45,6 +45,27 @@ const Mode = function(stealth) {
 };
 
 
+Mode.isMode = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isObject(payload.mode) === true
+		&& isBoolean(payload.mode.text) === true
+		&& isBoolean(payload.mode.image) === true
+		&& isBoolean(payload.mode.audio) === true
+		&& isBoolean(payload.mode.video) === true
+		&& isBoolean(payload.mode.other) === true
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
+
+
 Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {

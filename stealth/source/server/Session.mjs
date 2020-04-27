@@ -1,6 +1,7 @@
 
-import { Emitter, isFunction, isObject } from '../../extern/base.mjs';
-import { URL                           } from '../parser/URL.mjs';
+import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { isSession                               } from '../Session.mjs';
+import { URL                                     } from '../parser/URL.mjs';
 
 
 
@@ -10,6 +11,11 @@ const payloadify = function(raw) {
 	if (isObject(payload) === true) {
 
 		payload = Object.assign({}, raw);
+
+		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
+		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
+
+		return payload;
 
 	}
 
@@ -29,116 +35,6 @@ const Session = function(stealth) {
 
 
 Session.prototype = Object.assign({}, Emitter.prototype, {
-
-	query: function(payload, callback, session) {
-
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
-		session  = isObject(session)    ? session             : null;
-
-
-		if (payload !== null && callback !== null && session !== null) {
-
-			let sessions = [];
-			let settings = this.stealth.settings;
-
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					sessions = settings.sessions.filter((s) => s.domain === payload.subdomain + '.' + payload.domain);
-				} else if (payload.domain === '*') {
-					sessions = settings.sessions;
-				} else {
-					sessions = settings.sessions.filter((s) => s.domain === payload.domain);
-				}
-
-			}
-
-
-			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
-			if (check === null) {
-				settings.sessions.push(session);
-			}
-
-
-			callback({
-				headers: {
-					service: 'session',
-					event:   'query'
-				},
-				payload: sessions.map((s) => s.toJSON().data)
-			});
-
-		} else if (callback !== null && session !== null) {
-
-			let settings = this.stealth.settings;
-
-			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
-			if (check === null) {
-				settings.sessions.push(session);
-			}
-
-
-			callback({
-				headers: {
-					service: 'session',
-					event:   'query'
-				},
-				payload: settings.sessions.map((s) => s.toJSON().data)
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'session',
-					event:   'query'
-				},
-				payload: this.stealth.settings.sessions.map((s) => s.toJSON().data)
-			});
-
-		}
-
-	},
-
-	read: function(payload, callback, session) {
-
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
-		session  = isObject(session)    ? session             : null;
-
-
-		if (callback !== null && session !== null) {
-
-			let settings = this.stealth.settings;
-
-			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
-			if (check === null) {
-				settings.sessions.push(session);
-			}
-
-
-			callback({
-				headers: {
-					service: 'session',
-					event:   'read'
-				},
-				payload: session.toJSON().data
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'session',
-					event:   'read'
-				},
-				payload: null
-			});
-
-		}
-
-	},
 
 	download: function(payload, callback) {
 
@@ -205,6 +101,118 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 				headers: {
 					service: 'session',
 					event:   'download'
+				},
+				payload: null
+			});
+
+		}
+
+	},
+
+	query: function(payload, callback, session) {
+
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
+		session  = isSession(session)   ? session             : null;
+
+
+		if (payload !== null && callback !== null && session !== null) {
+
+			let sessions = [];
+			let settings = this.stealth.settings;
+
+			if (payload.domain !== null) {
+
+				if (payload.subdomain !== null) {
+					sessions = settings.sessions.filter((s) => s.domain === payload.subdomain + '.' + payload.domain);
+				} else if (payload.domain === '*') {
+					sessions = settings.sessions;
+				} else {
+					sessions = settings.sessions.filter((s) => s.domain === payload.domain);
+				}
+
+			}
+
+
+			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
+			if (check === null) {
+				settings.sessions.push(session);
+			}
+
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'query'
+				},
+				payload: sessions.map((s) => s.toJSON())
+			});
+
+		} else if (callback !== null && session !== null) {
+
+			let settings = this.stealth.settings;
+
+			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
+			if (check === null) {
+				settings.sessions.push(session);
+			}
+
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'query'
+				},
+				payload: settings.sessions.map((s) => s.toJSON())
+			});
+
+		} else if (callback !== null) {
+
+			let settings = this.stealth.settings;
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'query'
+				},
+				payload: settings.sessions.map((s) => s.toJSON())
+			});
+
+		}
+
+	},
+
+	read: function(payload, callback, session) {
+
+		payload  = isObject(payload)    ? payloadify(payload) : null;
+		callback = isFunction(callback) ? callback            : null;
+		session  = isSession(session)   ? session             : null;
+
+
+		if (callback !== null && session !== null) {
+
+			let settings = this.stealth.settings;
+
+			let check = settings.sessions.find((s) => s.domain === session.domain) || null;
+			if (check === null) {
+				settings.sessions.push(session);
+			}
+
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'read'
+				},
+				payload: session.toJSON()
+			});
+
+		} else if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'read'
 				},
 				payload: null
 			});

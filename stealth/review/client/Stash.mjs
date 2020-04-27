@@ -1,15 +1,22 @@
 
 import { isFunction                                                   } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
+import { Stash                                                        } from '../../../stealth/source/client/Stash.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
 
 
 before(connect_stealth);
-describe(connect_client);
+before(connect_client);
 
-describe('client.services.stash.save', function(assert) {
+describe('new Stash()', function(assert) {
+
+	assert(this.client.services.stash instanceof Stash, true);
+
+});
+
+describe('Stash.prototype.save()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.stash.save), true);
@@ -29,7 +36,7 @@ describe('client.services.stash.save', function(assert) {
 
 });
 
-describe('client.services.stash.info', function(assert) {
+describe('Stash.prototype.info()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.stash.info), true);
@@ -53,7 +60,7 @@ describe('client.services.stash.info', function(assert) {
 
 });
 
-describe('client.services.stash.read', function(assert) {
+describe('Stash.prototype.read()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.stash.read), true);
@@ -87,7 +94,7 @@ describe('client.services.stash.read', function(assert) {
 
 });
 
-describe('client.services.stash.remove', function(assert) {
+describe('Stash.prototype.remove()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.stash.remove), true);
@@ -101,7 +108,7 @@ describe('client.services.stash.remove', function(assert) {
 
 });
 
-describe('client.services.stash.read', function(assert) {
+describe('Stash.prototype.read()/failure', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.stash.read), true);
@@ -115,7 +122,7 @@ describe('client.services.stash.read', function(assert) {
 
 });
 
-describe('client.services.stash.remove', function(assert) {
+describe('Stash.prototype.remove()/failure', function(assert) {
 
 	assert(this.client!== null);
 	assert(isFunction(this.client.services.stash.remove), true);
@@ -129,24 +136,7 @@ describe('client.services.stash.remove', function(assert) {
 
 });
 
-describe('server.services.stash.remove', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.stash.remove), true);
-
-	this.server.services.stash.remove({
-		domain: 'example.com',
-		path:   '/review/client/stash.json'
-	}, (response) => {
-
-		assert(response !== null);
-		assert(response.payload, false);
-
-	});
-
-});
-
-describe(disconnect_client);
+after(disconnect_client);
 after(disconnect_stealth);
 
 

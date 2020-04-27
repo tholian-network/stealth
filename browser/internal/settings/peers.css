@@ -36,12 +36,12 @@
 
 #peers button[data-action="info"]:before { content: '\e157'; }
 
-#peers button[data-key="connection"][data-val="offline"]:before   { color: #666666; }
-#peers button[data-key="connection"][data-val="mobile"]:before    { color: #ffffff; }
-#peers button[data-key="connection"][data-val="broadband"]:before { color: #ffffff; }
-#peers button[data-key="connection"][data-val="peer"]:before      { color: #ffffff; }
-#peers button[data-key="connection"][data-val="i2p"]:before       { color: #ffffff; }
-#peers button[data-key="connection"][data-val="tor"]:before       { color: #ffffff; }
+#peers button[data-key="connection"][data-val="offline"]:before   { color: var(--element-default-color); }
+#peers button[data-key="connection"][data-val="mobile"]:before    { color: var(--element-active-color); }
+#peers button[data-key="connection"][data-val="broadband"]:before { color: var(--element-active-color); }
+#peers button[data-key="connection"][data-val="peer"]:before      { color: var(--element-active-color); }
+#peers button[data-key="connection"][data-val="i2p"]:before       { color: var(--element-active-color); }
+#peers button[data-key="connection"][data-val="tor"]:before       { color: var(--element-active-color); }
 
 
 

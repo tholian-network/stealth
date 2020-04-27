@@ -13,6 +13,30 @@ const Session = function(client) {
 
 Session.prototype = Object.assign({}, Emitter.prototype, {
 
+	download: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			this.once('download', (response) => callback(response));
+
+			this.client.send({
+				headers: {
+					service: 'session',
+					method:  'download'
+				},
+				payload: payload
+			});
+
+		} else if (callback !== null) {
+			callback(false);
+		}
+
+	},
+
 	query: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;
@@ -57,30 +81,6 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 		} else if (callback !== null) {
 			callback(null);
-		}
-
-	},
-
-	download: function(payload, callback) {
-
-		payload  = isObject(payload)    ? payload  : null;
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (payload !== null && callback !== null) {
-
-			this.once('download', (response) => callback(response));
-
-			this.client.send({
-				headers: {
-					service: 'session',
-					method:  'download'
-				},
-				payload: payload
-			});
-
-		} else if (callback !== null) {
-			callback(false);
 		}
 
 	}

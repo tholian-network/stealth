@@ -1,14 +1,18 @@
 
 import process from 'process';
 
-import { console, Emitter, isBoolean, isString } from '../extern/base.mjs';
-import { root                                  } from './ENVIRONMENT.mjs';
-import { Filesystem                            } from './Filesystem.mjs';
-import { Network                               } from './Network.mjs';
-import { Renderer                              } from './Renderer.mjs';
-import { isReview                              } from './Review.mjs';
+import { console, Emitter, isBoolean, isNumber, isString } from '../extern/base.mjs';
+import { root                                            } from './ENVIRONMENT.mjs';
+import { Filesystem                                      } from './Filesystem.mjs';
+import { Network                                         } from './Network.mjs';
+import { Renderer                                        } from './Renderer.mjs';
+import { isReview                                        } from './Review.mjs';
 
 
+
+export const isCovert = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Covert]';
+};
 
 const isModule = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Module]';
@@ -63,32 +67,11 @@ const console_sandbox = function() {
 
 };
 
-const flatten_tests = (review) => {
-
-	let array = [];
-
-	if (review.before !== null) {
-		array.push(review.before);
-	}
-
-	if (review.tests.length > 0) {
-		review.tests.forEach((test) => {
-			array.push(test);
-		});
-	}
-
-	if (review.after !== null) {
-		array.push(review.after);
-	}
-
-	return array;
-
-};
-
 const init = function(settings) {
 
 	let action   = isString(settings.action)    ? settings.action   : null;
 	let internet = isBoolean(settings.internet) ? settings.internet : false;
+	let timeout  = isString(settings.timeout)   ? settings.timeout  : null;
 	let include  = {};
 	let filtered = false;
 
@@ -230,6 +213,16 @@ const init = function(settings) {
 
 	}
 
+
+	if (timeout !== null && timeout.endsWith('s')) {
+
+		let num = parseInt(timeout.substr(0, timeout.length - 1), 10);
+		if (isNumber(num) === true && Number.isNaN(num) === false) {
+			this.__state.timeout = num * 1000;
+		}
+
+	}
+
 };
 
 const next_review = function(reviews, review) {
@@ -267,12 +260,17 @@ const next_test = function(review, test) {
 
 	if (test !== null) {
 
-		if (review.before === test) {
+		if (review.before.includes(test)) {
 
-			if (review.tests.length > 0) {
+			let temp = review.before[review.before.indexOf(test) + 1] || null;
+			if (temp !== null) {
+				next = temp;
+			} else if (review.tests.length > 0) {
 				next = review.tests[0];
+			} else if (review.after.length > 0) {
+				next = review.after[0];
 			} else {
-				next = review.after || null;
+				next = null;
 			}
 
 		} else if (review.tests.includes(test)) {
@@ -280,28 +278,35 @@ const next_test = function(review, test) {
 			let temp = review.tests[review.tests.indexOf(test) + 1] || null;
 			if (temp !== null) {
 				next = temp;
+			} else if (review.after.length > 0) {
+				next = review.after[0];
 			} else {
-				next = review.after || null;
+				next = null;
 			}
 
-		} else if (review.after === test) {
+		} else if (review.after.includes(test)) {
 
-			next = null;
+			let temp = review.after[review.after.indexOf(test) + 1] || null;
+			if (temp !== null) {
+				next = temp;
+			} else {
+				next = null;
+			}
 
 		}
 
 	} else {
 
-		if (next === null && review.before !== null) {
-			next = review.before;
+		if (next === null && review.before.length > 0) {
+			next = review.before[0];
 		}
 
 		if (next === null && review.tests.length > 0) {
 			next = review.tests[0];
 		}
 
-		if (next === null && review.after !== null) {
-			next = review.after;
+		if (next === null && review.after.length > 0) {
+			next = review.after[0];
 		}
 
 	}
@@ -415,8 +420,10 @@ const update = function() {
 			let progress = test.timeline.progress();
 
 			if (complete === true) {
+
 				next.call(this);
-			} else if (progress > this._settings.timeout) {
+
+			} else if (progress > this.__state.timeout) {
 
 				test.state = 'wait';
 				next.call(this);
@@ -443,7 +450,7 @@ const update = function() {
 
 const update_review = function(review) {
 
-	let tests = flatten_tests(review);
+	let tests = review.flatten();
 	if (tests.length > 0) {
 
 		let check = tests.filter((test) => test.state !== null);
@@ -492,7 +499,7 @@ const update_test = function(test) {
 
 };
 
-const prettify = (object) => {
+const prettify_settings = (object) => {
 
 	let result = {};
 
@@ -514,12 +521,12 @@ const Covert = function(settings) {
 		patterns: [],
 		reviews:  [],
 		root:     root,
-		timeout:  10 * 1000
+		timeout:  null
 	}, settings));
 
 
 	console.log('Covert: Command-Line Arguments:');
-	console.log(prettify(this._settings));
+	console.log(prettify_settings(this._settings));
 
 
 	this.interval   = null;
@@ -532,6 +539,7 @@ const Covert = function(settings) {
 		connected: false,
 		review:    null,
 		test:      null,
+		timeout:   10 * 1000,
 		watch:     {}
 	};
 
@@ -691,6 +699,9 @@ const Covert = function(settings) {
 };
 
 
+Covert.isCovert = isCovert;
+
+
 Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Covert',
@@ -702,12 +713,12 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (review !== null) {
 
-			if (review.before !== null) {
-				test = review.before;
+			if (review.before.length > 0) {
+				test = review.before[0];
 			} else if (review.tests.length > 0) {
 				test = review.tests[0];
-			} else if (review.after !== null) {
-				test = review.after;
+			} else if (review.after.length > 0) {
+				test = review.after[0];
 			}
 
 		}

@@ -1,15 +1,22 @@
 
 import { isFunction                                                   } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
+import { Cache                                                        } from '../../../stealth/source/client/Cache.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
 
 
 before(connect_stealth);
-describe(connect_client);
+before(connect_client);
 
-describe('client.services.cache.save', function(assert) {
+describe('new Cache()', function(assert) {
+
+	assert(this.client.services.cache instanceof Cache, true);
+
+});
+
+describe('Cache.prototype.save()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.cache.save), true);
@@ -29,7 +36,7 @@ describe('client.services.cache.save', function(assert) {
 
 });
 
-describe('client.services.cache.info', function(assert) {
+describe('Cache.prototype.info()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.cache.info), true);
@@ -53,7 +60,7 @@ describe('client.services.cache.info', function(assert) {
 
 });
 
-describe('client.services.cache.read', function(assert) {
+describe('Cache.prototype.read()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.cache.read), true);
@@ -87,7 +94,7 @@ describe('client.services.cache.read', function(assert) {
 
 });
 
-describe('client.services.cache.remove', function(assert) {
+describe('Cache.prototype.remove()/success', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.cache.remove), true);
@@ -101,7 +108,7 @@ describe('client.services.cache.remove', function(assert) {
 
 });
 
-describe('client.services.cache.read', function(assert) {
+describe('Cache.prototype.read()/failure', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.cache.read), true);
@@ -115,7 +122,7 @@ describe('client.services.cache.read', function(assert) {
 
 });
 
-describe('client.services.cache.remove', function(assert) {
+describe('Cache.prototype.remove()/failure', function(assert) {
 
 	assert(this.client!== null);
 	assert(isFunction(this.client.services.cache.remove), true);
@@ -129,24 +136,7 @@ describe('client.services.cache.remove', function(assert) {
 
 });
 
-describe('server.services.cache.remove', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.cache.remove), true);
-
-	this.server.services.cache.remove({
-		domain: 'example.com',
-		path:   '/review/client/cache.json'
-	}, (response) => {
-
-		assert(response !== null);
-		assert(response.payload, false);
-
-	});
-
-});
-
-describe(disconnect_client);
+after(disconnect_client);
 after(disconnect_stealth);
 
 

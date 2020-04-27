@@ -22,6 +22,6 @@
 }
 
 #peers button[data-key="connection"] {
-	color: #ffffff;
+	color: var(--element-active-color);
 }
 

@@ -45,7 +45,7 @@ export default {
 		'Buffer':          'browser/Buffer',
 		'console':         'node/console',
 
-		// Ignore below sources
+		// Ignore
 		'MODULE':          null
 
 	}

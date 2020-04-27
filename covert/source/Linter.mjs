@@ -14,28 +14,6 @@ const isModule = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Module]';
 };
 
-const flatten_tests = (review) => {
-
-	let array = [];
-
-	if (review.before !== null) {
-		array.push(review.before);
-	}
-
-	if (review.tests.length > 0) {
-		review.tests.forEach((test) => {
-			array.push(test);
-		});
-	}
-
-	if (review.after !== null) {
-		array.push(review.after);
-	}
-
-	return array;
-
-};
-
 const init = function(settings) {
 
 	let action   = isString(settings.action)    ? settings.action   : null;
@@ -315,15 +293,8 @@ const update_review = async function(review) {
 
 					if (name !== 'Emitter') {
 
-						if (
-							key !== 'emit'
-							&& key !== 'off'
-							&& key !== 'on'
-							&& key !== 'once'
-						) {
-
+						if (exported.prototype[key] !== Emitter.prototype[key]) {
 							return isFunction(exported.prototype[key]);
-
 						}
 
 					} else {
@@ -409,7 +380,7 @@ const update_review = async function(review) {
 		}
 
 
-		let tests = flatten_tests(review);
+		let tests = review.flatten();
 		if (tests.length > 0) {
 
 			tests.forEach((test) => {
@@ -459,7 +430,11 @@ const update_review = async function(review) {
 
 	} else {
 
-		if (review.before !== null || review.tests.length > 0 || review.after !== null) {
+		if (
+			review.before.length > 0
+			|| review.tests.length > 0
+			|| review.after.length > 0
+		) {
 			review.state = 'okay';
 		} else {
 			review.state = 'wait';

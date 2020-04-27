@@ -10,7 +10,7 @@ const build_file   = (protocol, path, query, hash)                          => (
 
 
 
-describe('URL.isURL', function(assert) {
+describe('URL.isURL()', function(assert) {
 
 	let url1  = URL.parse('http://localhost/what/ever.html');
 	let url2  = URL.parse('http://thinkpad:1337/what/ever.html?q=u&e=r&y#and-a-hash');
@@ -48,7 +48,7 @@ describe('URL.isURL', function(assert) {
 
 });
 
-describe('URL.parse/protocol', function(assert) {
+describe('URL.parse()/protocol', function(assert) {
 
 	let url1  = URL.parse('http://localhost/what/ever.html');
 	let url2  = URL.parse('http://thinkpad:1337/what/ever.html?q=u&e=r&y#and-a-hash');
@@ -86,7 +86,7 @@ describe('URL.parse/protocol', function(assert) {
 
 });
 
-describe('URL.parse/hostname', function(assert) {
+describe('URL.parse()/hostname', function(assert) {
 
 	let url1 = URL.parse('http://localhost/what/ever.html');
 	let url2 = URL.parse('http://thinkpad:1337/what/ever.html?q=u&e=r&y#and-a-hash');
@@ -111,7 +111,7 @@ describe('URL.parse/hostname', function(assert) {
 
 });
 
-describe('URL.parse/domain', function(assert) {
+describe('URL.parse()/domain', function(assert) {
 
 	let url1 = URL.parse('https://domain.tld/what/ever.html');
 	let url2 = URL.parse('https://sub.domain.tld:1337/what/ever.html?q=u&e=r&y#and-a-hash');
@@ -136,7 +136,7 @@ describe('URL.parse/domain', function(assert) {
 
 });
 
-describe('URL.parse/ipv4', function(assert) {
+describe('URL.parse()/ipv4', function(assert) {
 
 	let url1 = URL.parse('http://127.0.0.1/what/ever.html');
 	let url2 = URL.parse('http://127.0.0.1:1337/what/ever.html?q=u&e=r&y#and-a-hash');
@@ -161,7 +161,7 @@ describe('URL.parse/ipv4', function(assert) {
 
 });
 
-describe('URL.parse/ipv6', function(assert) {
+describe('URL.parse()/ipv6', function(assert) {
 
 	let url1 = URL.parse('https://[::1]/what/ever.html');
 	let url2 = URL.parse('https://[::1]:1337/what/ever.html?q=u&e=r&y#and-a-hash');
@@ -186,7 +186,7 @@ describe('URL.parse/ipv6', function(assert) {
 
 });
 
-describe('URL.parse/stealth', function(assert) {
+describe('URL.parse()/stealth', function(assert) {
 
 	let url1 = URL.parse('stealth:settings');
 	let url2 = URL.parse('stealth:search?query=This+is+a+test#and-a-hash');
@@ -211,7 +211,7 @@ describe('URL.parse/stealth', function(assert) {
 
 });
 
-describe('URL.parse/file', function(assert) {
+describe('URL.parse()/file', function(assert) {
 
 	let url1 = URL.parse('/what/ever.html');
 	let url2 = URL.parse('file:///what/ever.html?q=u&e=r&y#and-a-hash');
@@ -236,7 +236,7 @@ describe('URL.parse/file', function(assert) {
 
 });
 
-describe('URL.resolve/absolute', function(assert) {
+describe('URL.resolve()/absolute', function(assert) {
 
 	let url1  = URL.resolve('http://localhost/what/ever',            '/some/thing.html');
 	let url2  = URL.resolve('http://thinkpad:1337/what/ever.html',   '/some/thing.html?q=u&e=r&y#and-a-hash');
@@ -274,7 +274,7 @@ describe('URL.resolve/absolute', function(assert) {
 
 });
 
-describe('URL.resolve/relative', function(assert) {
+describe('URL.resolve()/relative', function(assert) {
 
 	let url1  = URL.resolve('http://localhost/what/ever',            './some/thing.html');
 	let url2  = URL.resolve('http://thinkpad:1337/what/ever.html',   './some/thing.html?q=u&e=r&y#and-a-hash');
@@ -312,7 +312,7 @@ describe('URL.resolve/relative', function(assert) {
 
 });
 
-describe('URL.resolve/protocol', function(assert) {
+describe('URL.resolve()/protocol', function(assert) {
 
 	let url1  = URL.resolve('http://localhost/what/ever',                     '//some/thing.html');
 	let url2  = URL.resolve('http://thinkpad:1337/what/ever.html',            '//some.thing.tld:13337/else.html?q=u&e=r&y#and-a-hash');
@@ -350,7 +350,7 @@ describe('URL.resolve/protocol', function(assert) {
 
 });
 
-describe('URL.render', function(assert) {
+describe('URL.render()', function(assert) {
 
 	let url1  = URL.render(build_domain('http',  null,  'localhost',    80, '/what/ever.html', null, null));
 	let url2  = URL.render(build_domain('http',  null,  'thinkpad',   1337, '/what/ever.html', 'q=u&e=r&y', 'and-a-hash'));
@@ -388,7 +388,7 @@ describe('URL.render', function(assert) {
 
 });
 
-describe('URL.sort', function(assert) {
+describe('URL.sort()', function(assert) {
 
 	let sorted = URL.sort([
 		URL.parse('http://localhost/what/ever.html'),

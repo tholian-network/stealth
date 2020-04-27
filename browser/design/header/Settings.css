@@ -19,10 +19,10 @@ browser-settings button {
 	padding: 0px;
 	line-height: 32px;
 	height: 32px;
-	color: #666666;
+	color: var(--element-default-color);
 	font-size: 24px;
 	text-align: center;
-	background: transparent;
+	background: var(--element-default-background);
 	border: 1px solid transparent;
 	border-radius: 4px;
 	box-sizing: border-box;
@@ -44,31 +44,25 @@ browser-settings button:before {
 }
 
 browser-settings button.active {
-	color: #ffffff;
+	color: var(--element-active-color);
 }
 
 browser-settings button[disabled],
 browser-settings button[disabled]:hover {
-	color: #666666;
-	background: transparent;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	cursor: default;
 }
 
 browser-settings button[disabled].active {
-	color: #ffffff;
+	color: var(--element-active-color);
 }
 
-browser-settings button:focus {
-	color: #ffffff;
-	border: 1px solid #ffffff;
-	background: rgba(255,255,255,0.12);
-	outline: none;
-}
-
+browser-settings button:focus,
 browser-settings button:hover {
-	color: #ffffff;
-	border: 1px solid transparent;
-	background: rgba(255,255,255,0.04);
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: var(--element-focus-background);
 	outline: none;
 }
 

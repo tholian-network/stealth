@@ -10,9 +10,9 @@ browser-site {
 	left: 0px;
 	margin: 0px;
 	padding: 0px;
-	color: #ffffff;
+	color: var(--layout-default-color);
 	font-family: 'museo';
-	background: #121212;
+	background: var(--layout-default-background);
 	border: 0px solid transparent;
 	transform: translate(100%, 0%);
 	transition: 200ms transform ease-out;

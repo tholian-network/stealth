@@ -1,6 +1,7 @@
 
 @import url("../../design/content.css");
 @import url("../../design/control.css");
+@import url("../../design/default.css");
 @import url("../../design/other/index.css");
 @import url("../settings/sites.css");
 
@@ -14,7 +15,8 @@
 
 #help button[data-key],
 #help button[data-key][disabled] {
-	color: #ffffff;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	vertical-align: middle;
 }
 

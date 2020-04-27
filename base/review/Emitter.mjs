@@ -1,6 +1,8 @@
 
 import { describe, finish   } from '../../covert/index.mjs';
+import { isArray            } from '../source/Array.mjs';
 import { Emitter, isEmitter } from '../source/Emitter.mjs';
+import { isObject           } from '../source/Object.mjs';
 
 
 
@@ -30,6 +32,48 @@ describe('isEmitter()', function(assert) {
 	assert(typeof isEmitter, 'function');
 
 	assert(isEmitter(emitter), true);
+
+});
+
+describe('Emitter.prototype.toJSON()', function(assert) {
+
+	let emitter = new Emitter();
+
+	emitter.on('foo', () => {
+		assert(true);
+	});
+
+	emitter.on('foo', () => {
+		assert(true);
+	});
+
+	emitter.on('bar', () => {
+		assert(true);
+	});
+
+	setTimeout(() => {
+		emitter.emit('foo');
+	}, 100);
+
+	setTimeout(() => {
+		emitter.emit('bar');
+	}, 200);
+
+	setTimeout(() => {
+
+		let json = emitter.toJSON();
+
+		assert(isObject(json), true);
+		assert(json.type,      'Emitter');
+
+		assert(isObject(json.data),        true);
+		assert(isArray(json.data.events),  true);
+		assert(json.data.events,           [ 'foo', 'bar' ]);
+		assert(isArray(json.data.journal), true);
+		assert(json.data.journal[0].event, 'foo');
+		assert(json.data.journal[1].event, 'bar');
+
+	}, 300);
 
 });
 

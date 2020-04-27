@@ -14,7 +14,8 @@
 
 #help button[data-key],
 #help button[data-key][disabled] {
-	color: #ffffff;
+	color: var(--element-default-color);
+	background: var(--element-default-background);
 	vertical-align: middle;
 }
 

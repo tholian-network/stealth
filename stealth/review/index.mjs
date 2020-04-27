@@ -13,6 +13,7 @@ import client_Host        from './client/Host.mjs';
 import client_Mode        from './client/Mode.mjs';
 import client_Peer        from './client/Peer.mjs';
 import client_Redirect    from './client/Redirect.mjs';
+import client_Session     from './client/Session.mjs';
 import client_Settings    from './client/Settings.mjs';
 import client_Stash       from './client/Stash.mjs';
 import optimizer_CSS      from './optimizer/CSS.mjs';
@@ -94,6 +95,7 @@ export default {
 		client_Mode,
 		client_Peer,
 		client_Redirect,
+		client_Session,
 		client_Settings,
 		client_Stash,
 
@@ -104,7 +106,10 @@ export default {
 
 	sources: {
 
-		'ENVIRONMENT': null
+		// Ignore
+		'ENVIRONMENT':          null,
+		'parser/CSS/NORMAL':    null,
+		'parser/CSS/SHORTHAND': null
 
 	}
 

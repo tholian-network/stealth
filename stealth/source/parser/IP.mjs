@@ -392,10 +392,5 @@ const IP = {
 };
 
 
-export const isIP   = IP.isIP;
-export const parse  = IP.parse;
-export const render = IP.render;
-export const sort   = IP.sort;
-
 export { IP };
 

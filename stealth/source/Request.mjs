@@ -694,22 +694,25 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	toJSON: function() {
 
+		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
 			id:       this.id,
 			url:      this.url,
 			config:   this._settings.config,
 			download: null,
 			flags:    Object.assign({}, this.flags),
-			timeline: Object.assign({}, this.timeline)
+			timeline: Object.assign({}, this.timeline),
+			events:   blob.data.events,
+			journal:  blob.data.journal
 		};
 
-		if (this._settings.blockers.length > 0) {
-			data.blockers = this._settings.blockers;
-		}
+		// if (this._settings.blockers.length > 0) {
+		// 	data.blockers = this._settings.blockers;
+		// }
 
-		if (this._settings.filters.length > 0) {
-			data.filters = this._settings.filters;
-		}
+		// if (this._settings.filters.length > 0) {
+		// 	data.filters = this._settings.filters;
+		// }
 
 		if (this.download !== null) {
 			data.download = this.download.toJSON();

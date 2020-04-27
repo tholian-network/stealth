@@ -226,7 +226,9 @@ const DNS = {
 	}].filter((dns) => {
 
 		// XXX: These DNS are broken at the moment :-/
-		if (dns.domain.includes('blahdns.com')) return false;
+		if (dns.domain === 'doh-jp.blahdns.com') return false;
+		if (dns.domain === 'cloudflare-dns.com') return false;
+		if (dns.domain === 'dns.quad9.net')      return false;
 
 		return true;
 

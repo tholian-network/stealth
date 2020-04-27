@@ -1,6 +1,6 @@
 
-import { describe, finish } from '../index.mjs';
-import { Timeline         } from '../source/Timeline.mjs';
+import { describe, finish     } from '../index.mjs';
+import { Timeline, isTimeline } from '../source/Timeline.mjs';
 
 
 
@@ -20,7 +20,42 @@ const TOLERANCE = 16; // node.js/libuv uses 16ms callstack
 
 
 
-describe('Timeline.from', function(assert) {
+describe('new Timeline()', function(assert) {
+
+	let timeline = new Timeline(5);
+
+	assert(timeline.index,  0);
+	assert(timeline.length, 5);
+
+	assert(timeline.data[0], null);
+	assert(timeline.data[1], null);
+	assert(timeline.data[2], null);
+	assert(timeline.data[3], null);
+	assert(timeline.data[4], null);
+
+});
+
+describe('Timeline.isTimeline()', function(assert) {
+
+	let timeline = Timeline.from(5);
+
+	assert(typeof Timeline.isTimeline, 'function');
+
+	assert(Timeline.isTimeline(timeline), true);
+
+});
+
+describe('isTimeline()', function(assert) {
+
+	let timeline = Timeline.from(5);
+
+	assert(typeof isTimeline, 'function');
+
+	assert(isTimeline(timeline), true);
+
+});
+
+describe('Timeline.from()', function(assert) {
 
 	let timeline1 = Timeline.from(null);
 	let timeline2 = Timeline.from(5);
@@ -65,7 +100,7 @@ describe('Timeline.from', function(assert) {
 
 });
 
-describe('timeline.toString', function(assert) {
+describe('Timeline.prototype.toString()', function(assert) {
 
 	let timeline = Timeline.from(null);
 
@@ -74,7 +109,7 @@ describe('timeline.toString', function(assert) {
 
 });
 
-describe('timeline.complete', function(assert) {
+describe('Timeline.prototype.complete()', function(assert) {
 
 	let timeline = Timeline.from(4);
 
@@ -97,7 +132,7 @@ describe('timeline.complete', function(assert) {
 
 });
 
-describe('timeline.current', function(assert) {
+describe('Timeline.prototype.current()', function(assert) {
 
 	let timeline = Timeline.from(4);
 
@@ -125,7 +160,7 @@ describe('timeline.current', function(assert) {
 
 });
 
-describe('timeline.progress', function(assert) {
+describe('Timeline.prototype.progress()', function(assert) {
 
 	let timeline = Timeline.from(2);
 
@@ -160,7 +195,7 @@ describe('timeline.progress', function(assert) {
 
 });
 
-describe('timeline.includes', function(assert) {
+describe('Timeline.prototype.includes()', function(assert) {
 
 	let timeline1 = Timeline.from([ 13, 37,   null ]);
 	let timeline2 = Timeline.from([ 13, 12,   37   ]);
@@ -185,7 +220,7 @@ describe('timeline.includes', function(assert) {
 
 });
 
-describe('timeline.render', function(assert) {
+describe('Timeline.prototype.render()', function(assert) {
 
 	let timeline1 = Timeline.from([ 13, 37,   null ]);
 	let timeline2 = Timeline.from([ 13, 12,   37   ]);
@@ -203,7 +238,7 @@ describe('timeline.render', function(assert) {
 
 });
 
-describe('timeline.reset', function(assert) {
+describe('Timeline.prototype.reset()', function(assert) {
 
 	let timeline = Timeline.from(3);
 
@@ -243,7 +278,7 @@ describe('timeline.reset', function(assert) {
 
 });
 
-describe('timeline.time', function(assert) {
+describe('Timeline.prototype.time()', function(assert) {
 
 	let timeline = Timeline.from(3);
 

@@ -1,27 +1,65 @@
 
 import { after, before, describe, finish                              } from '../../covert/index.mjs';
-import { Client                                                       } from '../../stealth/source/Client.mjs';
+import { Client, isClient                                             } from '../../stealth/source/Client.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from './Stealth.mjs';
 
 
 
 before(connect_stealth);
 
-export const connect = describe('client.connect', function(assert) {
+export const connect = before('Client.prototype.connect()', function(assert) {
 
-	this.client = new Client();
+	this.client = new Client({
+		host: '127.0.0.1'
+	});
 
-	this.client.connect('127.0.0.1', (result) => {
+	this.client.once('connect', () => {
 
 		this.client.services['mockup'] = null;
-
-		assert(result);
+		assert(true);
 
 	});
 
+	assert(this.client.connect());
+
 });
 
-describe('client.send/event', function(assert) {
+describe('new Client()', function(assert) {
+
+	let client = new Client({
+		host: '127.0.0.3'
+	});
+
+	assert(client._settings.host,   '127.0.0.3');
+
+	assert(Client.isClient(client), true);
+	assert(isClient(client),        true);
+
+});
+
+describe('Client.isClient()', function(assert) {
+
+	assert(typeof Client.isClient, 'function');
+
+	assert(Client.isClient(this.client), true);
+
+});
+
+describe('isClient()', function(assert) {
+
+	assert(typeof isClient, 'function');
+
+	assert(isClient(this.client), true);
+
+});
+
+describe('Client.prototype.is()', function(assert) {
+
+	assert(this.client.is('connected'), true);
+
+});
+
+describe('Client.prototype.send()/event', function(assert) {
 
 	this.client.once('response', (response) => {
 		assert(response.headers.service, 'mockup');
@@ -39,7 +77,7 @@ describe('client.send/event', function(assert) {
 
 });
 
-describe('client.send/method', function(assert) {
+describe('Client.prototype.send()/method', function(assert) {
 
 	this.client.once('response', (response) => {
 		assert(response.headers.service, 'mockup');
@@ -57,11 +95,17 @@ describe('client.send/method', function(assert) {
 
 });
 
-export const disconnect = describe('client.disconnect', function(assert) {
+export const disconnect = after('Client.prototype.disconnect()', function(assert) {
 
-	assert(this.client.disconnect());
+	this.client.once('disconnect', () => {
 
-	this.client = null;
+		this.client = null;
+
+		assert(true);
+
+	});
+
+	assert(this.client.disconnect(), true);
 
 });
 

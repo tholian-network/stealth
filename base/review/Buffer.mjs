@@ -130,7 +130,6 @@ describe('Buffer.isBuffer()', function(assert) {
 	let buffer8 = {};
 
 	assert(typeof Buffer.isBuffer, 'function');
-	assert(Buffer.isBuffer, isBuffer);
 
 	assert(Buffer.isBuffer(buffer1), true);
 	assert(Buffer.isBuffer(buffer2), true);
