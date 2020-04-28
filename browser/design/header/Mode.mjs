@@ -35,7 +35,7 @@ const get_config = function(tab) {
 
 				let key = button.element.getAttribute('data-key') || null;
 				if (key !== null) {
-					config.mode[key] = button.value() === 'true';
+					config.mode[key] = button.value() === true;
 				}
 
 			});
@@ -70,7 +70,7 @@ const update = function(tab) {
 
 			this.buttons.forEach((button) => {
 				button.state('disabled');
-				button.value('true');
+				button.value(true);
 			});
 
 		} else {
@@ -88,7 +88,7 @@ const update = function(tab) {
 			}) || null;
 
 			if (button !== null) {
-				button.value(tab.config.mode[key] === true ? 'true' : 'false');
+				button.value(tab.config.mode[key]);
 			}
 
 		});
@@ -97,7 +97,7 @@ const update = function(tab) {
 
 		this.buttons.forEach((button) => {
 			button.state('disabled');
-			button.value('false');
+			button.value(false);
 		});
 
 	}
@@ -122,10 +122,10 @@ const Mode = function(browser) {
 		button.on('click', () => {
 
 			let val = button.value();
-			if (val === 'true') {
-				button.value('false');
-			} else if (val === 'false') {
-				button.value('true');
+			if (val === true) {
+				button.value(false);
+			} else if (val === false) {
+				button.value(true);
 			}
 
 			let config = get_config.call(this, browser.tab);

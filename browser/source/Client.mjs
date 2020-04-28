@@ -1,14 +1,14 @@
 
-import { Buffer, Emitter, isArray, isFunction, isObject, isString } from '../extern/base.mjs';
-import { hostname                                                 } from './ENVIRONMENT.mjs';
-import { Cache                                                    } from './client/Cache.mjs';
-import { Host                                                     } from './client/Host.mjs';
-import { Mode                                                     } from './client/Mode.mjs';
-import { Peer                                                     } from './client/Peer.mjs';
-import { Redirect                                                 } from './client/Redirect.mjs';
-import { Session                                                  } from './client/Session.mjs';
-import { Settings                                                 } from './client/Settings.mjs';
-import { URL                                                      } from './parser/URL.mjs';
+import { Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
+import { hostname                                        } from './ENVIRONMENT.mjs';
+import { Cache                                           } from './client/Cache.mjs';
+import { Host                                            } from './client/Host.mjs';
+import { Mode                                            } from './client/Mode.mjs';
+import { Peer                                            } from './client/Peer.mjs';
+import { Redirect                                        } from './client/Redirect.mjs';
+import { Session                                         } from './client/Session.mjs';
+import { Settings                                        } from './client/Settings.mjs';
+import { URL                                             } from './parser/URL.mjs';
 
 
 
@@ -68,24 +68,6 @@ const send = function(socket, request) {
 
 };
 
-const settingsify = function(payload) {
-
-	if (isObject(payload) === true) {
-
-		payload.internet = isObject(payload.internet) ? payload.internet : null;
-		payload.filters  = isArray(payload.filters)   ? payload.filters  : null;
-		payload.hosts    = isArray(payload.hosts)     ? payload.hosts    : null;
-		payload.modes    = isArray(payload.modes)     ? payload.modes    : null;
-		payload.peers    = isArray(payload.peers)     ? payload.peers    : null;
-
-		return payload;
-
-	}
-
-	return null;
-
-};
-
 
 
 const Client = function(settings, browser) {
@@ -115,45 +97,6 @@ const Client = function(settings, browser) {
 		connected: false,
 		socket:    null
 	};
-
-
-	this.services.settings.on('read', (response) => {
-
-		if (this.browser !== null) {
-
-			let data = settingsify(response);
-			if (data !== null) {
-
-				let internet = data.internet || null;
-				if (internet !== null) {
-					this.browser.settings.internet = internet;
-				}
-
-				let filters = data.filters || null;
-				if (filters !== null) {
-					this.browser.settings.filters = filters;
-				}
-
-				let hosts = data.hosts || null;
-				if (hosts !== null) {
-					this.browser.settings.hosts = hosts;
-				}
-
-				let modes = data.modes || null;
-				if (modes !== null) {
-					this.browser.settings.modes = modes;
-				}
-
-				let peers = data.peers || null;
-				if (peers !== null) {
-					this.browser.settings.peers = peers;
-				}
-
-			}
-
-		}
-
-	});
 
 
 	Emitter.call(this);

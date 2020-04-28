@@ -1,8 +1,8 @@
 
-import { console, Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { Client                                          } from './Client.mjs';
-import { isTab, Tab                                      } from './Tab.mjs';
-import { URL                                             } from './parser/URL.mjs';
+import { console, Emitter, isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
+import { Client                                                   } from './Client.mjs';
+import { isTab, Tab                                               } from './Tab.mjs';
+import { URL                                                      } from './parser/URL.mjs';
 
 
 
@@ -10,7 +10,10 @@ const isConfig = function(config) {
 
 	if (isObject(config) === true) {
 
-		if (isString(config.domain) === true && isObject(config.mode) === true) {
+		if (
+			(isString(config.domain) === true || config.domain === null)
+			&& isObject(config.mode) === true
+		) {
 
 			if (
 				isBoolean(config.mode.text) === true
@@ -19,9 +22,7 @@ const isConfig = function(config) {
 				&& isBoolean(config.mode.video) === true
 				&& isBoolean(config.mode.other) === true
 			) {
-
 				return true;
-
 			}
 
 		}
@@ -49,7 +50,8 @@ const Browser = function(settings) {
 		internet: { connection: 'mobile' },
 		hosts:    [],
 		modes:    [],
-		peers:    []
+		peers:    [],
+		sessions: []
 	};
 	this.tab      = null;
 	this.tabs     = [];
@@ -62,6 +64,47 @@ const Browser = function(settings) {
 	Emitter.call(this);
 
 
+	this.client.services.settings.on('read', (response) => {
+
+		if (isObject(response.internet) === true) {
+			this.settings.internet = response.internet;
+		}
+
+		if (isArray(response.hosts) === true) {
+			this.settings.hosts = response.hosts;
+		}
+
+		if (isArray(response.modes) === true) {
+
+			this.settings.modes = response.modes;
+
+			this.settings.modes.forEach((mode) => {
+
+				let tab = this.tabs.find((t) => t.ref.domain === mode.domain) || null;
+				if (tab !== null) {
+
+					tab.config = mode;
+
+					if (this.tab === tab) {
+						this.emit('change', [ this.tab ]);
+					}
+
+				}
+
+			});
+
+		}
+
+		if (isArray(response.peers) === true) {
+			this.settings.peers = response.peers;
+		}
+
+		if (isArray(response.sessions) === true) {
+			this.settings.sessions = response.sessions;
+		}
+
+	});
+
 	this.on('connect', () => {
 
 		this.client.services.settings.read(null, () => {
@@ -71,10 +114,6 @@ const Browser = function(settings) {
 			}
 
 		});
-
-	});
-
-	this.on('disconnect', () => {
 
 	});
 
@@ -449,20 +488,13 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				let tmp2 = {
 					domain: config.domain,
 					mode:   {
-						text:  false,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
+						text:  config.mode.text,
+						image: config.mode.image,
+						audio: config.mode.audio,
+						video: config.mode.video,
+						other: config.mode.other
 					}
 				};
-
-				Object.keys(config.mode).forEach((type) => {
-					tmp2.mode[type] = config.mode[type] === true;
-				});
-
-
-				config = null;
 
 				if (tmp1.domain === null) {
 
@@ -493,8 +525,11 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 					this.settings.modes.push(config);
 					this.client.services.mode.save(config, () => {});
 
-				}
+				} else {
 
+					config = null;
+
+				}
 
 				if (config !== null) {
 
