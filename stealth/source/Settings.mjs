@@ -11,7 +11,6 @@ import { HOSTS                                                       } from './p
 
 const get_message = (settings) => `
 ${settings.blockers.length} Blocker${settings.blockers.length === 1 ? '' : 's'}, \
-${settings.filters.length} Filter${settings.filters.length === 1 ? '' : 's'}, \
 ${settings.hosts.length} Host${settings.hosts.length === 1 ? '' : 's'}, \
 ${settings.modes.length} Mode${settings.modes.length === 1 ? '' : 's'}, \
 ${settings.peers.length} Peer${settings.peers.length === 1 ? '' : 's'}, \
@@ -221,7 +220,6 @@ const read = function(profile, keepdata, callback) {
 			let check = [
 				read_file.call(this, profile + '/internet.json',  this.internet,  keepdata),
 				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata),
-				read_file.call(this, profile + '/filters.json',   this.filters,   keepdata),
 				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata),
 				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata),
 				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata),
@@ -327,7 +325,6 @@ const save = function(profile, keepdata, callback) {
 			let check = [
 				save_file.call(this, profile + '/internet.json',  this.internet),
 				true, // blockers cannot be saved
-				save_file.call(this, profile + '/filters.json',   this.filters),
 				save_file.call(this, profile + '/hosts.json',     this.hosts),
 				save_file.call(this, profile + '/modes.json',     this.modes),
 				save_file.call(this, profile + '/peers.json',     this.peers),
@@ -467,7 +464,6 @@ const Settings = function(stealth, profile, vendor) {
 		useragent:  'stealth'
 	};
 	this.blockers  = [];
-	this.filters   = [];
 	this.hosts     = [];
 	this.modes     = [];
 	this.peers     = [];
@@ -551,7 +547,6 @@ Settings.prototype = {
 		let data = {
 			internet:  {},
 			blockers:  null, // XXX: private
-			filters:   [],
 			hosts:     [],
 			modes:     [],
 			peers:     [],
@@ -561,10 +556,6 @@ Settings.prototype = {
 
 		Object.keys(this.internet).forEach((key) => {
 			data.internet[key] = this.internet[key];
-		});
-
-		this.filters.forEach((filter) => {
-			data.filters.push(filter);
 		});
 
 		this.hosts.forEach((host) => {

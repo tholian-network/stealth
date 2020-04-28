@@ -4,7 +4,6 @@ import { isServer                                        } from './Server.mjs';
 import { URL                                             } from './parser/URL.mjs';
 import { Blocker                                         } from './request/Blocker.mjs';
 import { Downloader                                      } from './request/Downloader.mjs';
-import { Filter                                          } from './request/Filter.mjs';
 import { Optimizer                                       } from './request/Optimizer.mjs';
 
 
@@ -58,8 +57,7 @@ const Request = function(data, server) {
 				video: false,
 				other: false
 			}
-		},
-		filters: []
+		}
 	};
 
 	if (isArray(data.blockers) === true) {
@@ -69,11 +67,6 @@ const Request = function(data, server) {
 	if (isConfig(data.config) === true) {
 		this._settings.config = data.config;
 	}
-
-	if (isArray(data.filters) === true) {
-		this._settings.filters = data.filters;
-	}
-
 
 	if (URL.isURL(data.ref) === true) {
 		this.ref = data.ref;
@@ -118,7 +111,6 @@ const Request = function(data, server) {
 		stash:    null,
 		block:    null,
 		mode:     null,
-		filter:   null,
 		connect:  null,
 		download: null,
 		optimize: null,
@@ -275,36 +267,18 @@ const Request = function(data, server) {
 		this.timeline.mode = Date.now();
 
 		if (allowed === true) {
-			this.emit('filter');
+
+			if (this.flags.connect === true) {
+				this.emit('connect');
+			} else {
+				// External Scheduler calls emit('connect')
+			}
+
 		} else if (this.flags.webview === true) {
 			this.emit('error', [{ type: 'mode' }]);
 		} else {
 			this.emit('error', [{ code: 403 }]);
 		}
-
-	});
-
-	this.on('filter', () => {
-
-		Filter.check(this._settings.filters, this.ref, (allowed) => {
-
-			this.timeline.filter = Date.now();
-
-			if (allowed === true) {
-
-				if (this.flags.connect === true) {
-					this.emit('connect');
-				} else {
-					// External Scheduler calls emit('connect')
-				}
-
-			} else if (this.ref.mime.ext === 'html') {
-				this.emit('error', [{ type: 'filter' }]);
-			} else {
-				this.emit('error', [{ code: 403 }]);
-			}
-
-		});
 
 	});
 
@@ -657,8 +631,7 @@ Request.from = function(json) {
 					id:       isString(data.id)      ? data.id       : null,
 					url:      isString(data.url)     ? data.url      : null,
 					blockers: isArray(data.blockers) ? data.blockers : null,
-					config:   isConfig(data.config)  ? data.config   : null,
-					filters:  isArray(data.filters)  ? data.filters  : null
+					config:   isConfig(data.config)  ? data.config   : null
 				});
 
 				if (isObject(data.flags) === true) {
@@ -708,10 +681,6 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 		// if (this._settings.blockers.length > 0) {
 		// 	data.blockers = this._settings.blockers;
-		// }
-
-		// if (this._settings.filters.length > 0) {
-		// 	data.filters = this._settings.filters;
 		// }
 
 		if (this.download !== null) {

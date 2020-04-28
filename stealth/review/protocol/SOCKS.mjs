@@ -6,7 +6,7 @@ import { SOCKS                           } from '../../../stealth/source/protoco
 
 
 
-before('SOCKS.connect', function(assert) {
+before('SOCKS.connect()', function(assert) {
 
 	this.buffer     = {};
 	this.connection = null;
@@ -29,7 +29,7 @@ before('SOCKS.connect', function(assert) {
 
 });
 
-describe('SOCKS.send', function(assert) {
+describe('SOCKS.send()', function(assert) {
 
 	assert(isFunction(SOCKS.send), true);
 	assert(this.connection !== null);
@@ -52,7 +52,7 @@ describe('SOCKS.send', function(assert) {
 
 });
 
-describe('SOCKS.receive', function(assert) {
+describe('SOCKS.receive()', function(assert) {
 
 	assert(isFunction(SOCKS.receive), true);
 	assert(this.buffer !== null);
@@ -77,7 +77,7 @@ describe('SOCKS.receive', function(assert) {
 
 });
 
-after('SOCKS.disconnect', function(assert) {
+after('SOCKS.disconnect()', function(assert) {
 
 	if (this.socket !== null) {
 		this.socket.end();

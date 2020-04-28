@@ -6,7 +6,7 @@ import { URL                } from '../../../stealth/source/parser/URL.mjs';
 
 
 
-describe('ROUTER.error/callback', function(assert) {
+describe('ROUTER.error()/callback', function(assert) {
 
 	ROUTER.error(null, (response) => {
 
@@ -83,7 +83,7 @@ describe('ROUTER.error/callback', function(assert) {
 
 });
 
-describe('ROUTER.error/return', function(assert) {
+describe('ROUTER.error()/return', function(assert) {
 
 	let response1 = ROUTER.error(null);
 	let response2 = ROUTER.error({});
@@ -146,7 +146,7 @@ describe('ROUTER.error/return', function(assert) {
 
 });
 
-describe('ROUTER.send/callback', function(assert) {
+describe('ROUTER.send()/callback', function(assert) {
 
 	let ref1 = null;
 	let ref2 = {};
@@ -244,7 +244,7 @@ describe('ROUTER.send/callback', function(assert) {
 
 });
 
-describe('ROUTER.send/return', function(assert) {
+describe('ROUTER.send()/return', function(assert) {
 
 	let ref1 = null;
 	let ref2 = {};

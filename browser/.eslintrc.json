@@ -40,6 +40,13 @@
 		"rules": { "no-global-assign": "off", "no-undef": "off" }
 	}],
 	"rules": {
+		"no-restricted-globals": [
+			"error",
+			{ "name": "console"         },
+			{ "name": "location"        },
+			{ "name": "URL"             },
+			{ "name": "URLSearchParams" }
+		],
 		"arrow-parens": [
 			"error",
 			"always"

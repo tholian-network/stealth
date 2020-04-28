@@ -14,6 +14,21 @@
 		"rules": { "no-global-assign": "off", "no-undef": "off" }
 	}],
 	"rules": {
+		"no-restricted-globals": [
+			"error",
+			{ "name": "__dirname"       },
+			{ "name": "__filename"      },
+			{ "name": "Buffer"          },
+			{ "name": "console"         },
+			{ "name": "exports"         },
+			{ "name": "module"          },
+			{ "name": "process"         },
+			{ "name": "require"         },
+			{ "name": "TextDecoder"     },
+			{ "name": "TextEncoder"     },
+			{ "name": "URL"             },
+			{ "name": "URLSearchParams" }
+		],
 		"arrow-parens": [
 			"error",
 			"always"

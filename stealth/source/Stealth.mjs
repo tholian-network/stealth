@@ -379,8 +379,7 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 				request = new Request({
 					config:   get_config.call(this, ref.url),
 					ref:      ref,
-					blockers: this.settings.blockers,
-					filters:  this.settings.filters
+					blockers: this.settings.blockers
 				}, this.server);
 
 				request.on('error',    () => remove_request.call(this, request));

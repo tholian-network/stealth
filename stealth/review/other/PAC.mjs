@@ -6,7 +6,7 @@ import { PAC                } from '../../../stealth/source/other/PAC.mjs';
 
 
 
-describe('PAC.send/callback', function(assert) {
+describe('PAC.send()/callback', function(assert) {
 
 	let url1 = 'https://example.com/proxy.pac';
 	let url2 = 'http://proxy.example.com:65432/proxy.pac';
@@ -109,7 +109,7 @@ describe('PAC.send/callback', function(assert) {
 
 });
 
-describe('PAC.send/return', function(assert) {
+describe('PAC.send()/return', function(assert) {
 
 	let response1 = PAC.send(null);
 	let response2 = PAC.send({});

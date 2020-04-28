@@ -9,7 +9,6 @@ import { WS                                     } from './protocol/WS.mjs';
 import { REDIRECT                               } from './other/REDIRECT.mjs';
 import { ROUTER                                 } from './other/ROUTER.mjs';
 import { Cache                                  } from './server/Cache.mjs';
-import { Filter                                 } from './server/Filter.mjs';
 import { Host                                   } from './server/Host.mjs';
 import { Mode                                   } from './server/Mode.mjs';
 import { Peer                                   } from './server/Peer.mjs';
@@ -24,7 +23,7 @@ export const isServer = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Server]';
 };
 
-export const handle_request = function(socket, ref) {
+const handle_request = function(socket, ref) {
 
 	let connection = HTTP.upgrade(socket, ref);
 	if (connection !== null) {
@@ -252,8 +251,7 @@ export const handle_request = function(socket, ref) {
 
 };
 
-
-export const handle_websocket = function(socket, ref) {
+const handle_websocket = function(socket, ref) {
 
 	let connection = WS.upgrade(socket, ref);
 	if (connection !== null) {
@@ -381,7 +379,7 @@ const Server = function(settings, stealth) {
 	this.services    = {};
 	this.stealth     = stealth;
 
-	this.__state  = {
+	this.__state = {
 		connected: false,
 		server:    null
 	};
@@ -390,7 +388,6 @@ const Server = function(settings, stealth) {
 	if (this.stealth !== null) {
 
 		this.services['cache']    = new Cache(this.stealth);
-		this.services['filter']   = new Filter(this.stealth);
 		this.services['host']     = new Host(this.stealth);
 		this.services['mode']     = new Mode(this.stealth);
 		this.services['peer']     = new Peer(this.stealth);

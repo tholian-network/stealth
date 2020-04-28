@@ -1,11 +1,11 @@
 
 import net from 'net';
 
-import { Emitter, isObject } from '../../extern/base.mjs';
-import { HTTP              } from './HTTP.mjs';
-import { HTTPS             } from './HTTPS.mjs';
-import { WS                } from './WS.mjs';
-import { WSS               } from './WSS.mjs';
+import { Buffer, Emitter, isObject } from '../../extern/base.mjs';
+import { HTTP                      } from './HTTP.mjs';
+import { HTTPS                     } from './HTTPS.mjs';
+import { WS                        } from './WS.mjs';
+import { WSS                       } from './WSS.mjs';
 
 
 

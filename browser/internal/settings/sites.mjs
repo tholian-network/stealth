@@ -13,19 +13,6 @@ const ELEMENTS = {
 		output: Element.query('#sites-beacons tbody')
 	},
 
-	filters: {
-		input: {
-			domain: Element.query('#sites-filters tfoot *[data-key="domain"]'),
-			filter: {
-				prefix: Element.query('#sites-filters tfoot *[data-key="filter.prefix"]'),
-				midfix: Element.query('#sites-filters tfoot *[data-key="filter.midfix"]'),
-				suffix: Element.query('#sites-filters tfoot *[data-key="filter.suffix"]')
-			},
-			button: Element.query('#sites-filters tfoot *[data-action]')
-		},
-		output: Element.query('#sites-filters tbody')
-	},
-
 	modes: {
 		input: {
 			domain: Element.query('#sites-modes tfoot *[data-key="domain"]'),
@@ -43,79 +30,6 @@ const ELEMENTS = {
 
 	label:  Element.query('#sites-filter label'),
 	search: Element.query('#sites-filter input')
-
-};
-
-export const listen_filters = (browser, callback) => {
-
-	let button = ELEMENTS.filters.input.button || null;
-	if (button !== null) {
-
-		button.on('click', () => {
-
-			button.state('disabled');
-			button.state('busy');
-
-			callback('save', {
-				'domain': ELEMENTS.filters.input.domain.value() || null,
-				'filter': {
-					'prefix': ELEMENTS.filters.input.filter.prefix.value() || null,
-					'midfix': ELEMENTS.filters.input.filter.midfix.value() || null,
-					'suffix': ELEMENTS.filters.input.filter.suffix.value() || null
-				}
-			}, (result) => {
-
-				button.state('enabled');
-				button.state(result === true ? '' : 'error');
-
-				reset_filters();
-
-			});
-
-		});
-
-	}
-
-	let output = ELEMENTS.filters.output || null;
-	if (output !== null) {
-
-		output.on('click', (e) => {
-
-			let target = e.target;
-			let type   = target.tagName.toLowerCase();
-
-			if (type === 'button') {
-
-				let button  = Element.from(target, null, false);
-				let action  = button.attr('data-action');
-				let dataset = button.parent('tr');
-
-				if (action !== null) {
-
-					button.state('disabled');
-					button.state('busy');
-
-					callback(action, {
-						'domain': dataset.query('*[data-key="domain"]').value() || null,
-						'filter': {
-							'prefix': dataset.query('*[data-key="filter.prefix"]').value() || null,
-							'midfix': dataset.query('*[data-key="filter.midfix"]').value() || null,
-							'suffix': dataset.query('*[data-key="filter.suffix"]').value() || null
-						}
-					}, (result) => {
-
-						button.state('enabled');
-						button.state(result === true ? '' : 'error');
-
-					});
-
-				}
-
-			}
-
-		});
-
-	}
 
 };
 
@@ -219,16 +133,6 @@ TODO: Render Beacon correctly...
       ${beacon} ${actions} ${visible}
 `;
 
-const render_filter = (filter, actions, visible) => `
-<tr data-visible="${visible}">
-	<td data-key="domain">${filter.domain}</td>
-	<td data-key="filter.prefix">${filter.filter.prefix !== null ? filter.filter.prefix : '(none)'}</td>
-	<td data-key="filter.midfix">${filter.filter.midfix !== null ? filter.filter.midfix : '(none)'}</td>
-	<td data-key="filter.suffix">${filter.filter.suffix !== null ? filter.filter.suffix : '(none)'}</td>
-	<td>${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}</td>
-</tr>
-`;
-
 const render_mode = (mode, actions, visible) => `
 <tr data-visible="${visible}">
 	<td data-key="domain">${mode.domain}</td>
@@ -246,7 +150,6 @@ const render_mode = (mode, actions, visible) => `
 export const reset = () => {
 
 	reset_beacons();
-	reset_filters();
 	reset_modes();
 
 };
@@ -254,30 +157,6 @@ export const reset = () => {
 export const reset_beacons = () => {
 
 	// TODO: Reset Beacon input elements
-
-};
-
-export const reset_filters = () => {
-
-	let domain = ELEMENTS.filters.input.domain || null;
-	if (domain !== null) {
-		domain.value(null);
-	}
-
-	let prefix = ELEMENTS.filters.input.filter.prefix || null;
-	if (prefix !== null) {
-		prefix.value(null);
-	}
-
-	let midfix = ELEMENTS.filters.input.filter.midfix || null;
-	if (midfix !== null) {
-		midfix.value(null);
-	}
-
-	let suffix = ELEMENTS.filters.input.filter.suffix || null;
-	if (suffix !== null) {
-		suffix.value(null);
-	}
 
 };
 
@@ -326,19 +205,6 @@ const search = () => {
 
 };
 
-export const sort = (a, b) => {
-
-	let a_filter = a.filter || null;
-	let b_filter = b.filter || null;
-
-	if (a_filter !== null && b_filter !== null) {
-		return sort_filter(a, b);
-	} else {
-		return sort_mode(a, b);
-	}
-
-};
-
 const sort_mode = (a, b) => {
 
 	let a_domains = a.domain.split('.').reverse();
@@ -376,55 +242,6 @@ const sort_beacon = (a, b) => {
 
 	// TODO: Sort Beacon datasets correctly
 	return sort_mode(a, b);
-
-};
-
-const sort_filter = (a, b) => {
-
-	let a_domains = a.domain.split('.').reverse();
-	let b_domains = b.domain.split('.').reverse();
-
-	let max = Math.max(a_domains.length, b_domains.length);
-
-	for (let d = 0; d < max; d++) {
-
-		let a_domain = a_domains[d] || null;
-		let b_domain = b_domains[d] || null;
-
-		if (a_domain === null) {
-
-			if (b_domain === null) {
-				return 0;
-			} else {
-				return -1;
-			}
-
-		} else if (b_domain === null) {
-			return 1;
-		}
-
-		if (a_domain > b_domain) return  1;
-		if (b_domain > a_domain) return -1;
-
-	}
-
-
-	let a_prefix = a.filter.prefix || '';
-	let b_prefix = b.filter.prefix || '';
-	if (a_prefix > b_prefix) return  1;
-	if (b_prefix > a_prefix) return -1;
-
-	let a_midfix = a.filter.midfix || '';
-	let b_midfix = b.filter.midfix || '';
-	if (a_midfix > b_midfix) return  1;
-	if (b_midfix > a_midfix) return -1;
-
-	let a_suffix = a.filter.suffix || '';
-	let b_suffix = b.filter.suffix || '';
-	if (a_suffix > b_suffix) return  1;
-	if (b_suffix > a_suffix) return -1;
-
-	return 0;
 
 };
 
@@ -472,48 +289,6 @@ export const update = (settings, actions) => {
 					return render_beacon(beacon, actions, true);
 				} else {
 					return render_beacon(beacon, actions, false);
-				}
-
-			}));
-
-		}
-
-	}
-
-	let filters = settings.filters || null;
-	if (filters !== null) {
-
-		total += filters.length;
-
-		if (value === null) {
-
-			ELEMENTS.filters.output.value(filters.sort(sort_filter).map((filter) => {
-				visible++;
-				return render_filter(filter, actions.includes('remove') ? [ 'remove' ] : [], true);
-			}));
-
-		} else if (value !== '') {
-
-			ELEMENTS.filters.output.value(filters.sort(sort_filter).map((filter) => {
-
-				if (filter.domain.includes(value)) {
-					visible++;
-					return render_filter(filter, actions.includes('remove') ? [ 'remove' ] : [], true);
-				} else {
-					return render_filter(filter, actions.includes('remove') ? [ 'remove' ] : [], false);
-				}
-
-			}));
-
-		} else {
-
-			ELEMENTS.filters.output.value(filters.sort(sort_filter).map((filter) => {
-
-				if (filter.domain.includes('.') === false) {
-					visible++;
-					return render_filter(filter, actions.includes('remove') ? [ 'remove' ] : [], true);
-				} else {
-					return render_filter(filter, actions.includes('remove') ? [ 'remove' ] : [], false);
 				}
 
 			}));
@@ -579,90 +354,6 @@ export const init = (browser, settings, actions) => {
 	actions  = isArray(actions)   ? actions  : [ 'remove', 'save' ];
 
 	// TODO: listen_beacons()
-
-	listen_filters(browser, (action, data, done) => {
-
-		let service = browser.client.services.filter || null;
-		if (service !== null) {
-
-			if (action === 'remove') {
-
-				service.remove(data, (result) => {
-
-					if (result === true) {
-
-						let cache = settings.filters.find((f) => {
-							return (
-								f.domain === data.domain
-								&& f.filter.prefix === data.filter.prefix
-								&& f.filter.midfix === data.filter.midfix
-								&& f.filter.suffix === data.filter.suffix
-							);
-						}) || null;
-
-						if (cache !== null) {
-
-							let index = settings.filters.indexOf(cache);
-							if (index !== -1) {
-								settings.filters.splice(index, 1);
-							}
-
-							update({
-								filters: settings.filters
-							}, actions);
-
-						}
-
-					}
-
-					done(result);
-
-				});
-
-			} else if (action === 'save') {
-
-				let cache = settings.filters.find((f) => {
-					return (
-						f.domain === data.domain
-						&& f.filter.prefix === data.filter.prefix
-						&& f.filter.midfix === data.filter.midfix
-						&& f.filter.suffix === data.filter.suffix
-					);
-				}) || null;
-
-				if (cache === null) {
-
-					service.save(data, (result) => {
-
-						if (result === true) {
-
-							settings.filters.push(data);
-
-							update({
-								filters: settings.filters
-							}, actions);
-
-							reset_filters();
-
-						}
-
-						done(result);
-
-					});
-
-				} else {
-					done(false);
-				}
-
-			} else {
-				done(false);
-			}
-
-		} else {
-			done(false);
-		}
-
-	});
 
 	listen_modes(browser, (action, data, done) => {
 

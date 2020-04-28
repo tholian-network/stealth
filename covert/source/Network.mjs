@@ -1,6 +1,7 @@
 
 import { execSync          } from 'child_process';
 import { networkInterfaces } from 'os';
+import process               from 'process';
 
 import { console, isString } from '../extern/base.mjs';
 import { IP                } from '../../stealth/source/parser/IP.mjs';

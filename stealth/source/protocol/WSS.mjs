@@ -1,9 +1,9 @@
 
 import tls from 'tls';
 
-import { Emitter, isFunction, isObject     } from '../../extern/base.mjs';
-import { WS                                } from './WS.mjs';
-import { onconnect, ondata, onend, onerror } from './WS.mjs';
+import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
+import { WS                                    } from './WS.mjs';
+import { onconnect, ondata, onend, onerror     } from './WS.mjs';
 
 
 

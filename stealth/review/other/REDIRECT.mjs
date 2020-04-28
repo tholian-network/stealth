@@ -6,7 +6,7 @@ import { REDIRECT           } from '../../../stealth/source/other/REDIRECT.mjs';
 
 
 
-describe('REDIRECT.error/callback', function(assert) {
+describe('REDIRECT.error()/callback', function(assert) {
 
 	REDIRECT.error(null, (response) => {
 
@@ -105,7 +105,7 @@ describe('REDIRECT.error/callback', function(assert) {
 
 });
 
-describe('REDIRECT.error/return', function(assert) {
+describe('REDIRECT.error()/return', function(assert) {
 
 	let response1 = REDIRECT.error(null);
 	let response2 = REDIRECT.error({});
@@ -188,7 +188,7 @@ describe('REDIRECT.error/return', function(assert) {
 
 });
 
-describe('REDIRECT.send/callback', function(assert) {
+describe('REDIRECT.send()/callback', function(assert) {
 
 	REDIRECT.send(null, (response) => {
 		assert(response, null);
@@ -248,7 +248,7 @@ describe('REDIRECT.send/callback', function(assert) {
 
 });
 
-describe('REDIRECT.send/return', function(assert) {
+describe('REDIRECT.send()/return', function(assert) {
 
 	let response1 = REDIRECT.send(null);
 	let response2 = REDIRECT.send({});

@@ -6,7 +6,7 @@ import { DNS              } from '../../../stealth/source/protocol/DNS.mjs';
 
 
 
-describe('DNS.resolve/google', function(assert) {
+describe('DNS.resolve()/google', function(assert) {
 
 	DNS.SERVER = DNS.SERVERS.find((server) => server.domain === 'dns.google') || null;
 
@@ -33,7 +33,7 @@ describe('DNS.resolve/google', function(assert) {
 
 });
 
-describe('DNS.resolve/securedns', function(assert) {
+describe('DNS.resolve()/securedns', function(assert) {
 
 	DNS.SERVER = DNS.SERVERS.find((server) => server.domain === 'doh.securedns.eu') || null;
 

@@ -14,7 +14,6 @@ const CODES = {
 const PAGES = {
 	'host':    '/browser/internal/fix-host.html',
 	'mode':    '/browser/internal/fix-mode.html',
-	'filter':  '/browser/internal/fix-filter.html',
 	'request': '/browser/internal/fix-request.html'
 };
 

@@ -6,7 +6,7 @@ import { HTTP                            } from '../../../stealth/source/protoco
 
 
 
-before('HTTP.connect', function(assert) {
+before('HTTP.connect()', function(assert) {
 
 	this.buffer     = {};
 	this.connection = null;
@@ -28,7 +28,7 @@ before('HTTP.connect', function(assert) {
 
 });
 
-describe('HTTP.send', function(assert) {
+describe('HTTP.send()', function(assert) {
 
 	assert(isFunction(HTTP.send), true);
 	assert(this.connection !== null);
@@ -51,7 +51,7 @@ describe('HTTP.send', function(assert) {
 
 });
 
-describe('HTTP.receive', function(assert) {
+describe('HTTP.receive()', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 	assert(this.buffer !== null);
@@ -75,7 +75,7 @@ describe('HTTP.receive', function(assert) {
 
 });
 
-after('HTTP.disconnect', function(assert) {
+after('HTTP.disconnect()', function(assert) {
 
 	if (this.socket !== null) {
 		this.socket.end();

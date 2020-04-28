@@ -2,7 +2,6 @@
 import { Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
 import { isStealth                               } from './Stealth.mjs';
 import { Cache                                   } from './client/Cache.mjs';
-import { Filter                                  } from './client/Filter.mjs';
 import { Host                                    } from './client/Host.mjs';
 import { Mode                                    } from './client/Mode.mjs';
 import { Peer                                    } from './client/Peer.mjs';
@@ -36,7 +35,6 @@ const Client = function(settings, stealth) {
 	this.ref        = null;
 	this.services   = {
 		cache:    new Cache(this),
-		filter:   new Filter(this),
 		host:     new Host(this),
 		mode:     new Mode(this),
 		peer:     new Peer(this),

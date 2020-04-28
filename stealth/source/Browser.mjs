@@ -47,7 +47,6 @@ const Browser = function(settings) {
 	}, this);
 	this.settings = {
 		internet: { connection: 'mobile' },
-		filters:  [],
 		hosts:    [],
 		modes:    [],
 		peers:    []

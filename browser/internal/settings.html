@@ -166,14 +166,12 @@
 				Sites in Stealth are therefore configured in three ways:
 			</p>
 			<ul>
-				<li><a href="#sites-modes">Modes</a> - reflect the allowed Media Types</li>
-				<li><a href="#sites-filters">Filters</a> - if present, reflect the allowed URL Patterns</li>
-				<li><a href="#sites-beacons">Beacons</a> - if present, reflect the extracted Knowledge Content</li>
+				<li><a href="#sites-modes">Modes</a> - allow URLs by media type</li>
+				<li><a href="#sites-beacons">Beacons</a> - extract Knowledge by queries</li>
 			</ul>
 			<p>
-				If you do not trust a specific Site anymore, remove its Modes and Filters.
-				If Modes, Filters and Beacons are removed the Cache persists and continues
-				to work for this Stealth Service instance and all connected <a href="#peers">Peers</a>.
+				If you do not trust a Site anymore, remove its Modes. The Cache continues to
+				persist and to work for this Stealth Service instance and all connected <a href="#peers">Peers</a>.
 			</p>
 			<div id="sites-filter">
 				<input id="sites-filter-search" type="text" placeholder="Search for Domain ...">
@@ -199,28 +197,6 @@
 							<button data-key="mode.video" data-val="false" title="Allow/Disallow Video"></button>
 							<button data-key="mode.other" data-val="false" title="Allow/Disallow Other"></button>
 						</td>
-						<td><button data-action="confirm"></button></td>
-					</tr>
-				</tfoot>
-			</table>
-			<h3>Filters</h3>
-			<table id="sites-filters">
-				<thead>
-					<tr>
-						<th>Domain</th>
-						<th>Prefix</th>
-						<th>Midfix</th>
-						<th>Suffix</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-				<tfoot>
-					<tr>
-						<td><input data-key="domain" type="text" placeholder="Domain"></td>
-						<td><input data-key="filter.prefix" type="text" placeholder="Prefix"></td>
-						<td><input data-key="filter.midfix" type="text" placeholder="Midfix"></td>
-						<td><input data-key="filter.suffix" type="text" placeholder="Suffix"></td>
 						<td><button data-action="confirm"></button></td>
 					</tr>
 				</tfoot>

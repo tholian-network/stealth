@@ -5,7 +5,7 @@ import { ERROR            } from '../../../stealth/source/other/ERROR.mjs';
 
 
 
-describe('ERROR.send/callback', function(assert) {
+describe('ERROR.send()/callback', function(assert) {
 
 	let payload = Buffer.from('Example', 'utf8');
 
@@ -45,7 +45,7 @@ describe('ERROR.send/callback', function(assert) {
 
 });
 
-describe('ERROR.send/return', function(assert) {
+describe('ERROR.send()/return', function(assert) {
 
 	let payload   = Buffer.from('Example', 'utf8');
 	let response1 = ERROR.send(null);

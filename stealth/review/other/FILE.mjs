@@ -11,7 +11,7 @@ const REF  = sketch('cache/payload/example.com/file.html');
 
 
 
-describe('FILE.send/callback', function(assert) {
+describe('FILE.send()/callback', function(assert) {
 
 	FILE.send(null, (response) => {
 		assert(response, null);
@@ -34,7 +34,7 @@ describe('FILE.send/callback', function(assert) {
 
 });
 
-describe('FILE.send/return', function(assert) {
+describe('FILE.send()/return', function(assert) {
 
 	let response1 = FILE.send(null);
 	let response2 = FILE.send({});

@@ -27,7 +27,6 @@ describe('Settings.prototype.read()/all', function(assert) {
 		assert(isObject(response),          true);
 		assert(isObject(response.internet), true);
 		assert(response.blockers,           null);
-		assert(isArray(response.filters),   true);
 		assert(isArray(response.hosts),     true);
 		assert(isArray(response.modes),     true);
 		assert(isArray(response.peers),     true);
@@ -51,7 +50,6 @@ describe('Settings.prototype.read()/internet', function(assert) {
 		assert(isObject(response),          true);
 		assert(isObject(response.internet), true);
 		assert(response.blockers,           null);
-		assert(response.filters,            null);
 		assert(response.hosts,              null);
 		assert(response.modes,              null);
 		assert(response.peers,              null);
@@ -75,36 +73,11 @@ describe('Settings.prototype.read()/blockers', function(assert) {
 		assert(isObject(response), true);
 		assert(response.internet,  null);
 		assert(response.blockers,  null);
-		assert(response.filters,   null);
 		assert(response.hosts,     null);
 		assert(response.modes,     null);
 		assert(response.peers,     null);
 		assert(response.redirects, null);
 		assert(response.sessions,  null);
-
-	});
-
-});
-
-describe('Settings.prototype.read()/filters', function(assert) {
-
-	assert(this.client !== null);
-	assert(isFunction(this.client.services.settings.read), true);
-
-	this.client.services.settings.read({
-		filters: true
-	}, (response) => {
-
-		assert(response !== null);
-		assert(isObject(response),        true);
-		assert(response.internet,         null);
-		assert(response.blockers,         null);
-		assert(isArray(response.filters), true);
-		assert(response.hosts,            null);
-		assert(response.modes,            null);
-		assert(response.peers,            null);
-		assert(response.redirects,        null);
-		assert(response.sessions,         null);
 
 	});
 
@@ -123,7 +96,6 @@ describe('Settings.prototype.read()/hosts', function(assert) {
 		assert(isObject(response),      true);
 		assert(response.internet,       null);
 		assert(response.blockers,       null);
-		assert(response.filters,        null);
 		assert(isArray(response.hosts), true);
 		assert(response.modes,          null);
 		assert(response.peers,          null);
@@ -147,7 +119,6 @@ describe('Settings.prototype.read()/modes', function(assert) {
 		assert(isObject(response),      true);
 		assert(response.internet,       null);
 		assert(response.blockers,       null);
-		assert(response.filters,        null);
 		assert(response.hosts,          null);
 		assert(isArray(response.modes), true);
 		assert(response.peers,          null);
@@ -171,7 +142,6 @@ describe('Settings.prototype.read()/peers', function(assert) {
 		assert(isObject(response),      true);
 		assert(response.internet,       null);
 		assert(response.blockers,       null);
-		assert(response.filters,        null);
 		assert(response.hosts,          null);
 		assert(response.modes,          null);
 		assert(isArray(response.peers), true);
@@ -195,7 +165,6 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 		assert(isObject(response), true);
 		assert(response.internet,  null);
 		assert(response.blockers,  null);
-		assert(response.filters,   null);
 		assert(response.hosts,     null);
 		assert(response.modes,     null);
 		assert(response.peers,     null);
@@ -219,7 +188,6 @@ describe('Settings.prototype.read()/sessions', function(assert) {
 		assert(isObject(response),         true);
 		assert(response.internet,          null);
 		assert(response.blockers,          null);
-		assert(response.filters,           null);
 		assert(response.hosts,             null);
 		assert(response.modes,             null);
 		assert(response.peers,             null);
@@ -241,15 +209,6 @@ describe('Settings.prototype.save()/all', function(assert) {
 			history:    'week',
 			useragent:  'stealth'
 		},
-		filters: [{
-			id:     'covert.localdomain|/prefix|null|.html',
-			domain: 'covert.localdomain',
-			filter: {
-				prefix: '/prefix',
-				midfix: null,
-				suffix: '.html'
-			}
-		}],
 		hosts: [{
 			domain: 'covert.localdomain',
 			hosts: [{
@@ -291,7 +250,6 @@ describe('Settings.prototype.read()/all', function(assert) {
 	this.client.services.settings.read({
 		internet:  true,
 		blockers:  true, // private
-		filters:   true,
 		hosts:     true,
 		modes:     true,
 		peers:     true,
@@ -307,16 +265,6 @@ describe('Settings.prototype.read()/all', function(assert) {
 		assert(response.internet.useragent,  'stealth');
 
 		assert(response.blockers, null);
-
-		assert(response.filters, [{
-			id:     'covert.localdomain|/prefix|null|.html',
-			domain: 'covert.localdomain',
-			filter: {
-				prefix: '/prefix',
-				midfix: null,
-				suffix: '.html'
-			}
-		}]);
 
 		let host = response.hosts.find((h) => h.domain === 'covert.localdomain') || null;
 
@@ -389,67 +337,6 @@ describe('Settings.prototype.read()/internet', function(assert) {
 		assert(response.internet.connection, 'broadband');
 		assert(response.internet.history,    'stealth');
 		assert(response.internet.useragent,  'stealth');
-
-	});
-
-});
-
-describe('Settings.prototype.save()/filters', function(assert) {
-
-	assert(this.client !== null);
-	assert(isFunction(this.client.services.settings.save), true);
-
-	this.client.services.settings.save({
-		filters: [{
-			id:     'covert-two.localdomain|/prefix|null|.html',
-			domain: 'covert-two.localdomain',
-			filter: {
-				prefix: '/prefix',
-				midfix: null,
-				suffix: '.html'
-			}
-		}]
-	}, (response) => {
-		assert(response, true);
-	});
-
-});
-
-describe('Settings.prototype.read()/filters', function(assert) {
-
-	assert(this.client !== null);
-	assert(isFunction(this.client.services.settings.read), true);
-
-	this.client.services.settings.read({
-		filters: true,
-	}, (response) => {
-
-		assert(response !== null);
-		assert(isObject(response),        true);
-		assert(isArray(response.filters), true);
-
-		let filter1 = response.filters.find((f) => f.domain === 'covert.localdomain') || null;
-		let filter2 = response.filters.find((f) => f.domain === 'covert-two.localdomain') || null;
-
-		assert(filter1, {
-			id:     'covert.localdomain|/prefix|null|.html',
-			domain: 'covert.localdomain',
-			filter: {
-				prefix: '/prefix',
-				midfix: null,
-				suffix: '.html'
-			}
-		});
-
-		assert(filter2, {
-			id:     'covert-two.localdomain|/prefix|null|.html',
-			domain: 'covert-two.localdomain',
-			filter: {
-				prefix: '/prefix',
-				midfix: null,
-				suffix: '.html'
-			}
-		});
 
 	});
 

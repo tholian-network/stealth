@@ -34,16 +34,6 @@
 	line-height: 32px;
 }
 
-#sites-filters tr td:nth-of-type(2),
-#sites-filters tr td:nth-of-type(2) input {
-	text-align: left;
-}
-
-#sites-filters tr td:nth-of-type(4),
-#sites-filters tr td:nth-of-type(4) input {
-	text-align: right;
-}
-
 #sites-modes tbody tr td:nth-of-type(2),
 #sites-modes tfoot tr td:nth-of-type(2) {
 	font-size: 0px;

@@ -6,7 +6,7 @@ import { WSS                             } from '../../../stealth/source/protoco
 
 
 
-before('WSS.connect', function(assert) {
+before('WSS.connect()', function(assert) {
 
 	this.buffer     = {};
 	this.connection = null;
@@ -28,7 +28,7 @@ before('WSS.connect', function(assert) {
 
 });
 
-describe('WSS.send', function(assert) {
+describe('WSS.send()', function(assert) {
 
 	assert(isFunction(WSS.send), true);
 	assert(this.connection !== null);
@@ -56,10 +56,10 @@ describe('WSS.send', function(assert) {
 
 });
 
-describe('WSS.receive', function(assert) {
+describe('WSS.receive()', function(assert) {
 });
 
-after('WSS.disconnect', function(assert) {
+after('WSS.disconnect()', function(assert) {
 
 	if (this.socket !== null) {
 		this.socket.end();

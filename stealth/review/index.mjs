@@ -8,7 +8,6 @@ import Server             from './Server.mjs';
 import Stealth            from './Stealth.mjs';
 // import Tab                from './Tab.mjs';
 import client_Cache       from './client/Cache.mjs';
-import client_Filter      from './client/Filter.mjs';
 import client_Host        from './client/Host.mjs';
 import client_Mode        from './client/Mode.mjs';
 import client_Peer        from './client/Peer.mjs';
@@ -36,7 +35,6 @@ import protocol_WS        from './protocol/WS.mjs';
 import protocol_WSS       from './protocol/WSS.mjs';
 import request_Blocker    from './request/Blocker.mjs';
 import request_Downloader from './request/Downloader.mjs';
-import request_Filter     from './request/Filter.mjs';
 import request_Optimizer  from './request/Optimizer.mjs';
 
 
@@ -78,7 +76,6 @@ export default {
 		// Requests
 		request_Blocker,
 		request_Downloader,
-		request_Filter,
 		request_Optimizer,
 
 		// Stealth
@@ -90,7 +87,6 @@ export default {
 
 		// Network Services
 		client_Cache,
-		client_Filter,
 		client_Host,
 		client_Mode,
 		client_Peer,

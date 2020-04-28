@@ -1,6 +1,5 @@
 
 import { Emitter, isArray, isBoolean, isFunction, isObject } from '../../extern/base.mjs';
-import { Filter                                            } from './Filter.mjs';
 import { Host                                              } from './Host.mjs';
 import { Mode                                              } from './Mode.mjs';
 import { Peer                                              } from './Peer.mjs';
@@ -18,7 +17,6 @@ const readify = function(raw) {
 
 			payload.internet  = isBoolean(payload.internet)  ? payload.internet  : false;
 			payload.blockers  = false; // cannot be read
-			payload.filters   = isBoolean(payload.filters)   ? payload.filters   : false;
 			payload.hosts     = isBoolean(payload.hosts)     ? payload.hosts     : false;
 			payload.modes     = isBoolean(payload.modes)     ? payload.modes     : false;
 			payload.peers     = isBoolean(payload.peers)     ? payload.peers     : false;
@@ -44,16 +42,11 @@ const saveify = function(raw) {
 
 		payload.internet  = isObject(payload.internet) ? payload.internet : {};
 		payload.blockers  = []; // cannot be saved
-		payload.filters   = isArray(payload.filters)   ? payload.filters  : [];
 		payload.hosts     = isArray(payload.hosts)     ? payload.hosts    : [];
 		payload.modes     = isArray(payload.modes)     ? payload.modes    : [];
 		payload.peers     = isArray(payload.peers)     ? payload.peers    : [];
 		payload.redirects = []; // cannot be saved
 		payload.sessions  = []; // cannot be saved
-
-		if (isArray(payload.filters) === true) {
-			payload.filters = payload.filters.filter((f) => Filter.isFilter(f));
-		}
 
 		if (isArray(payload.hosts) === true) {
 			payload.hosts = payload.hosts.filter((h) => Host.isHost(h));
@@ -105,7 +98,6 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						let data = {
 							internet:  null,
 							blockers:  null,
-							filters:   null,
 							hosts:     null,
 							modes:     null,
 							peers:     null,
@@ -201,23 +193,6 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 				if (settings.internet[key] !== undefined) {
 					settings.internet[key] = payload.internet[key];
 				}
-
-			});
-
-
-			payload.filters.forEach((filter) => {
-
-				let other = settings.filters.find((f) => f.domain === filter.domain) || null;
-				if (other !== null) {
-
-					let index = settings.filters.indexOf(other);
-					if (index !== -1) {
-						settings.filters.splice(index, 1);
-					}
-
-				}
-
-				settings.filters.push(filter);
 
 			});
 
