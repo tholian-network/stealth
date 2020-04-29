@@ -240,12 +240,7 @@ const Address = function(browser, widgets) {
 
 
 		if (url !== '') {
-
-			let tab = browser.open(url);
-			if (tab !== null) {
-				browser.show(tab);
-			}
-
+			browser.navigate(url);
 		}
 
 	});

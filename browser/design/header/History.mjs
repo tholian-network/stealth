@@ -63,12 +63,7 @@ const History = function(browser) {
 
 	this.open.state('enabled');
 	this.open.on('click', () => {
-
-		let tab = browser.open('stealth:welcome');
-		if (tab !== null) {
-			browser.show(tab);
-		}
-
+		browser.navigate('stealth:welcome');
 	});
 
 

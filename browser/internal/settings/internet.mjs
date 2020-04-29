@@ -1,6 +1,6 @@
 
 import { isObject } from '../../extern/base.mjs';
-import { Element  } from '../../design/Element.mjs';
+import { Element  } from '../common/Element.mjs';
 
 
 

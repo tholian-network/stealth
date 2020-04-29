@@ -114,12 +114,7 @@ const ACTIONS = [{
 
 			let ref = URL.parse(value.trim());
 			if (ref.protocol !== null) {
-
-				let tab = browser.open(ref.url);
-				if (tab !== null) {
-					browser.show(tab);
-				}
-
+				browser.navigate(ref.url);
 			}
 
 		}

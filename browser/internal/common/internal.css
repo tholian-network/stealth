@@ -1,3 +1,224 @@
+@import url('./other/index.css');
+
+
+::selection {
+	color: var(--element-select-color);
+	border-radius: 4px;
+	background: var(--element-select-background);
+	cursor: text;
+}
+
+::-moz-selection {
+	color: var(--element-select-color);
+	border-radius: 4px;
+	background: var(--element-select-background);
+	cursor: text;
+}
+
+::-webkit-scrollbar {
+	width: 16px;
+	border: 0px solid transparent;
+	background: var(--scrollbar-default-background);
+}
+
+::-webkit-scrollbar-thumb {
+	width: 16px;
+	border: 0px solid transparent;
+	border-radius: 2px;
+	background: var(--scrollbar-default-color);
+}
+
+body {
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	overflow: auto;
+	color: var(--layout-default-color);
+	background: var(--layout-default-background);
+}
+
+body * {
+	scrollbar-color: var(--scrollbar-default-color) var(--scrollbar-default-background);
+	scrollbar-width: auto;
+}
+
+article {
+	display: block;
+	min-width: 640px;
+	max-width: 800px;
+	margin: 64px auto;
+	padding: 32px;
+	color: var(--layout-default-color);
+	font-family: 'museo';
+	font-weight: normal;
+	background: rgba(255,255,255,0.04);
+	background: var(--layout-default-background);
+	border: 1px solid #666666;
+	border-radius: 8px;
+}
+
+article > *:first-child {
+	margin-top: 0px;
+}
+
+article h1,
+article h2 {
+	display: block;
+	margin: 1em 0px 1em 0px;
+	padding: 0px;
+	color: var(--layout-default-color);
+	font-family: 'museo';
+	font-size: 32px;
+	font-weight: normal;
+	text-align: center;
+}
+
+article h3 {
+	display: block;
+	margin: 48px 0px 1em 0px;
+	padding: 0px 0px 0.5em 0px;
+	color: var(--layout-default-color);
+	font-family: 'museo';
+	font-size: 24px;
+	font-weight: normal;
+	text-align: center;
+	border-bottom: 2px solid var(--layout-default-color);
+}
+
+article code {
+	display: inline;
+	margin: 0px;
+	padding: 0px 0.25em;
+	font-family: 'vera-mono';
+	font-size: inherit;
+	font-weight: normal;
+	font-style: normal;
+	background: #202020;
+	border: 1px solid #666666;
+	border-radius: 4px;
+	overflow-x: auto;
+	overflow-y: auto;
+}
+
+article h3 + code {
+	display: block;
+	margin: 1em 0px;
+	padding: 0.5em;
+	font-size: 20px;
+	border-radius: 8px;
+}
+
+article hr {
+	display: block;
+	height: 0px;
+	margin: 24px 0px 24px 0px;
+	border: 0px none transparent;
+	border-style: none;
+	border-top: 2px solid var(--layout-default-color);
+	appearance: none;
+}
+
+article a {
+	padding: 0px 2px;
+	color: var(--link-default-color);
+	border: 1px solid transparent;
+	border-radius: 2px;
+	background: var(--link-default-background);
+	box-sizing: border-box;
+	text-decoration: underline;
+	transition: 200ms all ease-out;
+	outline: none;
+	cursor: pointer;
+}
+
+article a:focus,
+article a:hover {
+	color: var(--link-focus-color);
+	border: 1px solid var(--link-focus-color);
+	background: var(--link-focus-background);
+	outline: none;
+}
+
+article abbr {
+	border: 0px solid transparent;
+	text-decoration: none;
+	cursor: help;
+}
+
+article b {
+	font-weight: bold;
+}
+
+article p {
+	margin: 1em 0px;
+	text-align: justify;
+}
+
+article table {
+	width: 100%;
+	color: var(--layout-default-color);
+	font-family: 'museo';
+	font-size: 16px;
+	font-weight: normal;
+	text-align: center;
+}
+
+article table tr[data-visible="false"] { display: none;      }
+article table tr[data-visible="true"]  { display: table-row; }
+
+article table tr th {
+	font-size: 20px;
+	padding: 0px 0px 0.5em 0px;
+}
+
+article table tr td {
+	margin: 0px;
+	padding: 0px;
+	line-height: 32px;
+	font-size: 16px;
+	border-top: 1px solid #666666;
+	transition: 200ms all ease-out;
+}
+
+article table tr td textarea {
+	display: block;
+	width: 100%;
+	border: 1px solid transparent;
+	vertical-align: middle;
+}
+
+article table tr td input[type="text"] {
+	display: block;
+	width: 100%;
+	text-align: center;
+	border: 1px solid transparent;
+}
+
+article table tbody tr:hover td {
+	color: var(--layout-focus-color);
+	background: var(--layout-focus-background);
+}
+
+article table tfoot tr td {
+	border-top: 2px solid var(--layout-default-color);
+	background: transparent;
+}
+
+article table tr td:last-child button {
+	display: block;
+	margin: 0px auto;
+}
+
+article p + table {
+	margin-top: 48px;
+}
+
+article ul {
+	margin: 0px;
+	padding: 0px;
+}
+
+
 
 article button {
 	display: inline-block;
@@ -250,5 +471,20 @@ article textarea::-moz-placeholder {
 article textarea::-webkit-input-placeholder {
 	text-align: center;
 	line-height: 5em;
+}
+
+
+
+@media screen and (max-width: 706px) {
+
+	article {
+		width: auto;
+		min-width: unset;
+		max-width: unset;
+		margin: 32px auto;
+		padding: 8px;
+		border-radius: 0px;
+	}
+
 }
 

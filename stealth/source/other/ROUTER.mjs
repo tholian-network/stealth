@@ -117,14 +117,14 @@ const ROUTER = {
 
 					REDIRECT.send({
 						code: 301,
-						path: '/browser/index.html' + (headers['@debug'] ? '?debug' : '')
+						path: '/browser/index.html' + (headers['@debug'] ? '?debug=true' : '')
 					}, callback);
 
 				} else {
 
 					return REDIRECT.send({
 						code: 301,
-						path: '/browser/index.html' + (headers['@debug'] ? '?debug' : '')
+						path: '/browser/index.html' + (headers['@debug'] ? '?debug=true' : '')
 					});
 
 				}

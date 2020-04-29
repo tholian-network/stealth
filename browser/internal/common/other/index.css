@@ -1,0 +1,33 @@
+
+@font-face {
+	font-family: 'icon';
+	src: url('icon.woff') format('woff');
+	font-variant: normal;
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'museo';
+	src: url('museo.woff') format('woff');
+	font-variant: normal;
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'museo';
+	src: url('museo-bold.woff') format('woff');
+	font-variant: normal;
+	font-weight: bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'vera-mono';
+	src: url('vera-mono.woff') format('woff');
+	font-variant: normal;
+	font-weight: normal;
+	font-style: normal;
+}
+

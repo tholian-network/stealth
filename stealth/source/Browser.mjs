@@ -6,7 +6,11 @@ import { URL                                                      } from './pars
 
 
 
-const isConfig = function(config) {
+export const isBrowser = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Browser]';
+};
+
+export const isConfig = function(config) {
 
 	if (isObject(config) === true) {
 
@@ -31,6 +35,57 @@ const isConfig = function(config) {
 
 
 	return false;
+
+};
+
+const on_mode_change = function(config) {
+
+	let changed   = false;
+	let identical = this.tabs.filter((t) => t.config.domain === config.domain);
+	let similar   = this.tabs.filter((t) => URL.isDomain(config.domain, t.ref));
+
+	if (similar.length > 0) {
+
+		similar.forEach((tab) => {
+
+			if (identical.includes(tab) === false) {
+
+				if (tab.config.domain.length < config.domain.length) {
+
+					tab.set(config);
+
+					if (tab === this.tab) {
+						changed = true;
+					}
+
+				}
+
+			}
+
+		});
+
+	}
+
+	if (identical.length > 0) {
+
+		identical.forEach((tab) => {
+
+			if (tab.config !== config) {
+
+				tab.set(config);
+
+				if (tab === this.tab) {
+					changed = true;
+				}
+			}
+
+		});
+
+	}
+
+	if (changed === true) {
+		this.emit('change', [ this.tab ]);
+	}
 
 };
 
@@ -78,19 +133,8 @@ const Browser = function(settings) {
 
 			this.settings.modes = response.modes;
 
-			this.settings.modes.forEach((mode) => {
-
-				let tab = this.tabs.find((t) => t.ref.domain === mode.domain) || null;
-				if (tab !== null) {
-
-					tab.config = mode;
-
-					if (this.tab === tab) {
-						this.emit('change', [ this.tab ]);
-					}
-
-				}
-
+			this.settings.modes.forEach((config) => {
+				on_mode_change.call(this, config);
 			});
 
 		}
@@ -120,6 +164,10 @@ const Browser = function(settings) {
 };
 
 
+Browser.isBrowser = isBrowser;
+Browser.isConfig  = isConfig;
+
+
 Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Browser',
@@ -130,6 +178,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			let result = this.tab.back();
 			if (result === true) {
+
+				this.tab.set(this.get(this.tab.url));
 
 				this.emit('refresh', [ this.tab, this.tabs, false ]);
 
@@ -160,7 +210,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			this.emit('close', [ tab, this.tabs ]);
-
 
 			if (this.tabs.length > 0) {
 
@@ -286,19 +335,22 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (url !== null) {
 
-			let ref    = URL.parse(url);
-			let domain = ref.domain || null;
-			if (domain !== null) {
+			let domain = null;
 
-				let subdomain = ref.subdomain || null;
-				if (subdomain !== null) {
-					domain = subdomain + '.' + domain;
+			let ref = URL.parse(url);
+			if (ref.domain !== null) {
+
+				if (ref.subdomain !== null) {
+					domain = ref.subdomain + '.' + ref.domain;
+				} else {
+					domain = ref.domain;
 				}
 
+			} else if (ref.host !== null) {
+				domain = ref.host;
 			}
 
-			let rprotocol = ref.protocol || null;
-			if (rprotocol === 'stealth') {
+			if (ref.protocol === 'stealth') {
 
 				config.mode.text  = true;
 				config.mode.image = true;
@@ -308,7 +360,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			} else if (domain !== null) {
 
-				let modes = this.settings.modes.filter((m) => domain.endsWith(m.domain));
+				let modes = this.settings.modes.filter((m) => URL.isDomain(m.domain, domain));
 				if (modes.length > 1) {
 
 					return modes.sort((a, b) => {
@@ -320,6 +372,10 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				} else if (modes.length === 1) {
 
 					return modes[0];
+
+				} else {
+
+					config.domain = domain;
 
 				}
 
@@ -361,9 +417,25 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				let result = this.tab.navigate(url);
 				if (result === true) {
 
+					this.tab.set(this.get(url));
 					this.refresh();
 
 					return true;
+
+				} else {
+
+					let tab = this.open(url);
+					if (tab !== null) {
+
+						tab.set(this.get(url));
+
+						if (this.tab !== tab) {
+							this.show(tab);
+						}
+
+						return true;
+
+					}
 
 				}
 
@@ -372,10 +444,13 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				let tab = this.open(url);
 				if (tab !== null) {
 
-					let result = tab.navigate(url);
-					if (result === true) {
-						return this.show(tab);
+					tab.set(this.get(url));
+
+					if (this.tab !== tab) {
+						this.show(tab);
 					}
+
+					return true;
 
 				}
 
@@ -394,6 +469,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			let result = this.tab.next();
 			if (result === true) {
+
+				this.tab.set(this.get(this.tab.url));
 
 				this.emit('refresh', [ this.tab, this.tabs, false ]);
 
@@ -481,10 +558,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (config !== null) {
 
-			let domain = config.domain || null;
-			if (domain !== null) {
+			if (config.domain !== null) {
 
-				let tmp1 = this.get(domain);
+				let tmp1 = this.get(config.domain);
 				let tmp2 = {
 					domain: config.domain,
 					mode:   {
@@ -496,15 +572,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 					}
 				};
 
-				if (tmp1.domain === null) {
-
-					config = tmp2;
-					this.settings.modes.push(config);
-					this.client.services.mode.save(config, () => {});
-
-				} else if (tmp1.domain === tmp2.domain) {
-
-					config = tmp1;
+				if (tmp1.domain === tmp2.domain) {
 
 					let diff = false;
 
@@ -516,14 +584,12 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 					});
 
 					if (diff === true) {
-						this.client.services.mode.save(tmp1, () => {});
+						config = tmp1;
 					}
 
-				} else if (tmp1.domain !== tmp2.domain) {
+				} else if (tmp2.domain.length > tmp1.domain.length) {
 
 					config = tmp2;
-					this.settings.modes.push(config);
-					this.client.services.mode.save(config, () => {});
 
 				} else {
 
@@ -533,41 +599,12 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (config !== null) {
 
-					this.tabs.forEach((tab) => {
-
-						let tconfig = tab.config;
-						if (tconfig.domain !== null && config.domain !== null) {
-
-							if (
-								tconfig.domain === config.domain
-								&& tconfig !== config
-							) {
-								tab.config = config;
-							}
-
-						} else if (tconfig.domain === null && config.domain !== null) {
-
-							let tdomain = tab.ref.domain || null;
-							if (tdomain !== null) {
-
-								let tsubdomain = tab.ref.subdomain || null;
-								if (tsubdomain !== null) {
-									tdomain = tsubdomain + '.' + tdomain;
-								}
-
-								if (tdomain === config.domain && tconfig !== config) {
-									tab.config = config;
-								}
-
-							}
-
-						}
-
-					});
-
-					if (this.tab !== null && this.tab.config === config) {
-						this.emit('change', [ this.tab ]);
+					if (this.settings.modes.includes(config) === false) {
+						this.settings.modes.push(config);
+						this.client.services.mode.save(config, () => {});
 					}
+
+					on_mode_change.call(this, config);
 
 				}
 

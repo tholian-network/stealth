@@ -95,12 +95,6 @@ const Tab = function(data) {
 	this.url      = null;
 
 
-	let cfg = isConfig(settings.config) ? settings.config : null;
-	if (cfg !== null) {
-		this.config = cfg;
-	}
-
-
 	let ref = URL.isURL(settings.ref) ? settings.ref : null;
 	let url = isString(settings.url)  ? settings.url : null;
 
@@ -108,6 +102,11 @@ const Tab = function(data) {
 		this.navigate(ref.url);
 	} else if (url !== null) {
 		this.navigate(url);
+	}
+
+	let config = isConfig(settings.config) ? settings.config : null;
+	if (config !== null) {
+		this.set(config);
 	}
 
 };
@@ -370,6 +369,13 @@ Tab.prototype = {
 
 			}
 
+			if (this.history.length === 0 && this.url !== null) {
+				this.history.push({
+					time: Date.now(),
+					url:  this.url
+				});
+			}
+
 			return true;
 
 		}
@@ -435,35 +441,40 @@ Tab.prototype = {
 
 			if (this.url !== url) {
 
-				let event1 = search.call(this, this.url);
-				if (event1 !== null) {
+				let ref = URL.parse(url);
+				if (this.config.domain === null || URL.isDomain(this.config.domain, ref) === true) {
 
-					let index1 = this.history.indexOf(event1);
-					if (index1 < this.history.length - 1) {
-						this.history.splice(index1 + 1);
+					let event1 = search.call(this, this.url);
+					if (event1 !== null) {
+
+						let index1 = this.history.indexOf(event1);
+						if (index1 < this.history.length - 1) {
+							this.history.splice(index1 + 1);
+						}
+
 					}
 
-				}
+					this.url = url;
+					this.ref = ref;
 
-				this.url = url;
-				this.ref = URL.parse(url);
+					let event2 = search.call(this, url);
+					if (event2 !== null) {
 
-				let event2 = search.call(this, url);
-				if (event2 !== null) {
+						let index2 = this.history.indexOf(event2);
+						if (index2 !== -1) {
+							this.history.splice(index2, 1);
+						}
 
-					let index2 = this.history.indexOf(event2);
-					if (index2 !== -1) {
-						this.history.splice(index2, 1);
 					}
 
+					this.history.push({
+						time: Date.now(),
+						url:  url
+					});
+
+					return true;
+
 				}
-
-				this.history.push({
-					time: Date.now(),
-					url:  url
-				});
-
-				return true;
 
 			}
 
@@ -526,6 +537,53 @@ Tab.prototype = {
 			requests.forEach((request) => {
 				request.stop();
 			});
+
+			return true;
+
+		}
+
+
+		return false;
+
+	},
+
+	set: function(config) {
+
+		config = isConfig(config) ? config : null;
+
+
+		if (config !== null) {
+
+			if (URL.isDomain(this.ref, config.domain)) {
+
+				this.config = config;
+
+			} else {
+
+				this.config = {
+					domain: null,
+					mode: {
+						text:  false,
+						image: false,
+						audio: false,
+						video: false,
+						other: false
+					}
+				};
+
+				if (this.ref.domain !== null) {
+
+					if (this.ref.subdomain !== null) {
+						config.domain = this.ref.subdomain + '.' + this.ref.domain;
+					} else {
+						config.domain = this.ref.domain;
+					}
+
+				} else if (this.ref.host !== null) {
+					config.domain = this.ref.host;
+				}
+
+			}
 
 			return true;
 

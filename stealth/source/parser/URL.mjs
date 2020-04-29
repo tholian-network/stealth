@@ -359,6 +359,88 @@ const resolve_path = function(raw) {
 
 const URL = {
 
+	isDomain: function(abs, rel) {
+
+		let ref_abs = null;
+		if (isString(abs)) {
+			ref_abs = URL.parse(abs);
+		} else if (isObject(abs)) {
+			ref_abs = abs;
+		}
+
+		let ref_rel = null;
+		if (isString(rel)) {
+			ref_rel = URL.parse(rel);
+		} else if (isObject(rel)) {
+			ref_rel = rel;
+		}
+
+
+		if (ref_abs !== null && ref_rel !== null) {
+
+			if (ref_abs.protocol === 'stealth' && ref_rel.protocol === 'stealth') {
+
+				if (ref_abs.domain !== null && ref_rel.domain !== null) {
+					return true;
+				}
+
+			} else {
+
+				if (ref_abs.domain !== null && ref_rel.domain !== null) {
+
+					if (ref_abs.domain === ref_rel.domain) {
+
+						if (ref_abs.subdomain !== null && ref_rel.subdomain !== null) {
+
+							let tmp_abs = ref_abs.subdomain.split('.').reverse();
+							let tmp_rel = ref_rel.subdomain.split('.').reverse();
+
+							if (tmp_rel.length > tmp_abs.length) {
+
+								let check = true;
+
+								for (let t = 0, tl = Math.min(tmp_rel.length, tmp_abs.length); t < tl; t++) {
+
+									if (tmp_rel[t] !== tmp_abs[t]) {
+										check = false;
+										break;
+									}
+
+								}
+
+								return check;
+
+							}
+
+						} else if (ref_abs.subdomain === null && ref_rel.subdomain !== null) {
+
+							return true;
+
+						} else if (ref_abs.subdomain === null && ref_rel.subdomain === null) {
+
+							return true;
+
+						}
+
+					}
+
+				} else if (ref_abs.host !== null && ref_rel.host !== null) {
+
+					if (ref_abs.host === ref_rel.host) {
+						return true;
+					}
+
+				}
+
+			}
+
+		}
+
+
+		return false;
+
+	},
+
 	isURL: function(ref) {
 
 		ref = isObject(ref) ? ref : null;
@@ -894,12 +976,9 @@ const URL = {
 			abs     = abs.url;
 		}
 
-
 		let ref_rel = null;
 		if (isString(rel)) {
-
 			ref_rel = URL.parse(rel);
-
 		} else if (isObject(rel)) {
 
 			ref_rel = rel;

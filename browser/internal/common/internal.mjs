@@ -1,7 +1,7 @@
 
-import { isBoolean, isString } from '../extern/base.mjs';
 import { Element             } from './Element.mjs';
-import { URL                 } from '../source/parser/URL.mjs';
+import { isBoolean, isString } from '../../extern/base.mjs';
+import { URL                 } from '../../source/parser/URL.mjs';
 
 
 

@@ -1,8 +1,6 @@
 
-@import url('../../design/content.css');
-@import url('../../design/control.css');
-@import url('../../design/default.css');
-@import url('../../design/other/index.css');
+@import url('../common/default.css');
+@import url('../common/internal.css');
 
 
 

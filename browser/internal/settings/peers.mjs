@@ -1,6 +1,6 @@
 
 import { isArray, isObject      } from '../../extern/base.mjs';
-import { Element                } from '../../design/Element.mjs';
+import { Element                } from '../common/Element.mjs';
 import { IP                     } from '../../source/parser/IP.mjs';
 import { update as update_hosts } from './hosts.mjs';
 

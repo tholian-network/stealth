@@ -1,6 +1,6 @@
 
 import { sort    } from '../settings/peers.mjs';
-import { Element } from '../../design/Element.mjs';
+import { Element } from '../common/Element.mjs';
 import { flags   } from '../../source/ENVIRONMENT.mjs';
 import { URL     } from '../../source/parser/URL.mjs';
 

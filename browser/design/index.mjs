@@ -5,26 +5,27 @@ const header = doc.querySelector('header');
 const main   = doc.querySelector('main');
 const footer = doc.querySelector('footer');
 
-import { console  } from '../extern/base.mjs';
-import { hostname } from '../source/ENVIRONMENT.mjs';
-import { dispatch } from './control.mjs';
-import { Address  } from './header/Address.mjs';
-import { Beacon   } from './footer/Beacon.mjs';
-import { Browser  } from '../source/Browser.mjs';
-import { Context  } from './footer/Context.mjs';
-import { Help     } from './footer/Help.mjs';
-import { History  } from './header/History.mjs';
-import { Mode     } from './header/Mode.mjs';
-import { Session  } from './footer/Session.mjs';
-import { Settings } from './header/Settings.mjs';
-import { Site     } from './footer/Site.mjs';
-import { Tabs     } from './footer/Tabs.mjs';
-import { Webview  } from './main/Webview.mjs';
+import { console         } from '../extern/base.mjs';
+import { flags, hostname } from '../source/ENVIRONMENT.mjs';
+import { dispatch        } from '../internal/common/internal.mjs';
+import { Address         } from './header/Address.mjs';
+import { Beacon          } from './footer/Beacon.mjs';
+import { Browser         } from '../source/Browser.mjs';
+import { Context         } from './footer/Context.mjs';
+import { Help            } from './footer/Help.mjs';
+import { History         } from './header/History.mjs';
+import { Mode            } from './header/Mode.mjs';
+import { Session         } from './footer/Session.mjs';
+import { Settings        } from './header/Settings.mjs';
+import { Site            } from './footer/Site.mjs';
+import { Tabs            } from './footer/Tabs.mjs';
+import { Webview         } from './main/Webview.mjs';
 
 
 
 const BROWSER = global.BROWSER = new Browser({
-	host: hostname
+	host:  hostname,
+	debug: flags.debug
 });
 
 const WIDGETS = global.WIDGETS = {};
@@ -60,7 +61,7 @@ WIDGETS.help.render(footer);
 
 setTimeout(() => {
 
-	dispatch(window, BROWSER);
+	dispatch(global, BROWSER);
 
 
 	BROWSER.once('connect', () => {

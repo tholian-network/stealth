@@ -28,6 +28,10 @@ so no external libraries and no external programs are necessary.
   connection. It can be set to either of `1G`, `2G`, `3G` or `4G`.
   The default value is `null`.
 
+- `--timeout` is a string flag to override the timeout in seconds after
+  which a waiting test is being skipped automatically.
+  The default value is `10s`.
+
 If a non-flag parameter is given, it is assumed to be a Query to filter
 the Reviews. This allows to debug a single Review or a Suite of related
 Reviews.

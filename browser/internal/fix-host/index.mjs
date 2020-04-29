@@ -1,6 +1,6 @@
 
 import { init    } from '../settings/hosts.mjs';
-import { Element } from '../../design/Element.mjs';
+import { Element } from '../common/Element.mjs';
 import { flags   } from '../../source/ENVIRONMENT.mjs';
 
 const code = Element.query('code[data-key="domain"]');

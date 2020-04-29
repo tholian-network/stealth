@@ -1,7 +1,5 @@
 
-@import url("./content.css");
-@import url("./control.css");
-@import url("./default.css");
+@import url("../internal/common/default.css");
 @import url("./other/index.css");
 @import url("./header/History.css");
 @import url("./header/Address.css");
@@ -82,12 +80,5 @@ main {
 footer {
 	display: block;
 	position: relative;
-}
-
-
-
-@media (prefers-color-scheme: dark) {
-
-
 }
 

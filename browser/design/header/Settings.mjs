@@ -106,10 +106,7 @@ const Settings = function(browser, widgets) {
 
 		toggle.call(this, null, widgets);
 
-		let tab = browser.open('stealth:settings');
-		if (tab !== null) {
-			browser.show(tab);
-		}
+		browser.navigate('stealth:settings');
 
 	});
 

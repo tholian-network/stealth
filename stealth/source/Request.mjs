@@ -12,7 +12,10 @@ const isConfig = function(config) {
 
 	if (isObject(config) === true) {
 
-		if (isString(config.domain) === true && isObject(config.mode) === true) {
+		if (
+			(isString(config.domain) === true || config.domain === null)
+			&& isObject(config.mode) === true
+		) {
 
 			if (
 				isBoolean(config.mode.text) === true

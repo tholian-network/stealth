@@ -1,7 +1,8 @@
 
-import { isBoolean } from '../../extern/base.mjs';
-import { dispatch  } from '../control.mjs';
-import { Element   } from '../Element.mjs';
+import { isBoolean, isString } from '../../extern/base.mjs';
+import { Element             } from '../Element.mjs';
+import { URL                 } from '../../source/parser/URL.mjs';
+import { dispatch            } from '../../internal/common/internal.mjs';
 
 
 
@@ -9,67 +10,78 @@ const TEMPLATE = `
 <iframe sandbox="allow-scripts allow-same-origin" src="/browser/internal/welcome.html"></iframe>
 `;
 
-const get_url = function(tab, refresh) {
+const get_src = function(id, ref, refresh) {
 
+	id      = isString(id)       ? id      : null;
+	ref     = URL.isURL(ref)     ? ref     : null;
 	refresh = isBoolean(refresh) ? refresh : false;
 
 
-	let url = null;
+	let src = null;
 
-	if (tab !== null) {
+	if (ref !== null) {
 
-		let mime = tab.ref.mime || null;
+		let mime = ref.mime || null;
 		if (mime !== null) {
 
 			if (mime.type === 'audio' || mime.type === 'video') {
 
-				url = '/browser/internal/media.html?url=' + encodeURIComponent(tab.ref.url);
+				src = '/browser/internal/media.html?url=' + encodeURIComponent(ref.url);
 
-			} else if (tab.ref.protocol === 'stealth') {
+			} else if (ref.protocol === 'stealth') {
 
-				url = '/browser/internal/' + tab.ref.domain + '.html';
+				src = '/browser/internal/' + ref.domain + '.html';
 
-				if (tab.ref.query !== null) {
-					url += '?' + tab.ref.query;
+				if (ref.query !== null) {
+					src += '?' + ref.query;
 				}
 
-			} else if (tab.ref.protocol === 'https' || tab.ref.protocol === 'http') {
+			} else if (ref.protocol === 'https' || ref.protocol === 'http') {
 
-				if (refresh === true) {
-					url = '/stealth/:' + tab.id + ',refresh,webview:/' + tab.ref.url;
-				} else {
-					url = '/stealth/:' + tab.id + ',webview:/' + tab.ref.url;
+				if (id !== null) {
+
+					if (refresh === true) {
+						src = '/stealth/:' + id + ',refresh,webview:/' + ref.url;
+					} else {
+						src = '/stealth/:' + id + ',webview:/' + ref.url;
+					}
+
 				}
 
 			} else {
-				url = '/browser/internal/fix-request.html?url=' + encodeURIComponent(tab.ref.url);
+				src = '/browser/internal/fix-request.html?url=' + encodeURIComponent(ref.url);
 			}
 
 		} else {
-			url = '/browser/internal/fix-request.html?url=' + encodeURIComponent(tab.ref.url);
+			src = '/browser/internal/fix-request.html?url=' + encodeURIComponent(ref.url);
 		}
 
 	}
 
-	return url;
+	return src;
 
 };
 
-
-
 const update = function(tab, refresh) {
 
-	let url = get_url(tab, refresh);
-	if (url !== null) {
+	let ref = tab.ref;
+	let id  = tab.id;
+	let src = get_src(id, ref, refresh);
+
+	if (src !== null) {
 
 		if (refresh === true) {
 
-			this.webview.element.src = url;
+			this.ref                 = ref;
+			this.webview.element.src = src;
 
 		} else {
 
-			if (this.webview.element.src !== url) {
-				this.webview.element.src = url;
+			if (this.webview.element.src !== src) {
+
+				this.ref                 = ref;
+				this.webview.element.src = src;
+
 			}
 
 		}
@@ -83,6 +95,7 @@ const update = function(tab, refresh) {
 const Webview = function(browser) {
 
 	this.element = Element.from('browser-webview', TEMPLATE);
+	this.ref     = URL.parse('stealth:welcome');
 	this.webview = this.element.query('iframe');
 	this.window  = this.webview.element.contentWindow || null;
 
@@ -91,18 +104,17 @@ const Webview = function(browser) {
 
 		let window = this.webview.element.contentWindow || null;
 		if (window !== null) {
-			dispatch(window, browser);
-			this.window = window;
+
+			if (this.ref.protocol === 'stealth') {
+				dispatch(window, browser);
+			}
+
 		}
 
-		// TODO: Modify links (a[href])
+		this.window = window;
 
 	});
 
-
-	browser.on('pause', (tab, tabs, refresh) => {
-		// TODO: Cancel iframe's loading requests
-	});
 
 	browser.on('show',    (tab, tabs, refresh) => update.call(this, tab, refresh));
 	browser.on('refresh', (tab, tabs, refresh) => update.call(this, tab, refresh));
