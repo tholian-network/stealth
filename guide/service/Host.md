@@ -61,13 +61,13 @@ If there's already a configured host with the same domain, it will be changed.
 	// cookie.engineer
 	domain: 'cookie.engineer',
 	hosts:  [{
-		"ip": "185.199.108.153",
-		"scope": "public",
-		"type": "v4"
+		ip: '185.199.108.153',
+		scope: 'public',
+		type: 'v4'
 	}, {
-		"ip": "185.199.109.153",
-		"scope": "public",
-		"type": "v4"
+		ip: '185.199.109.153',
+		scope: 'public',
+		type: 'v4'
 	}]
 }
 ```

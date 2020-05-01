@@ -37,7 +37,7 @@ denial-of-service attack surface.
 ```javascript
 // proxy(payload) example
 {
-	domain:  'laptop',
+	domain: 'laptop',
 	headers: {
 		service: 'cache',
 		method:  'info'

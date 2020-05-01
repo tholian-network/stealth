@@ -15,6 +15,19 @@ via other Peers inside the same domain, Sessions can also be merged together
 and reused at a later point in time and/or recombined with other `Session`
 instances of matching `subdomain`s.
 
+## download()
+
+`download(URL, callback)`
+
+requests a given `URL` object and returns the result on both `redirect` and `response`.
+
+Returns `null` if an error happened.
+
+```javascript
+// request(payload) example
+URL.parse('https://example.com/index.html')
+```
+
 ## query()
 
 `query({ domain: String, subdomain: String }, callback)`
@@ -26,8 +39,8 @@ It always responds with an Array of session Objects.
 ```javascript
 // read(payload) example
 {
-	domain:    'artificial.engineering',
-	subdomain: 'intel'
+	domain:    'tholian.network',
+	subdomain: 'pool-1'
 }
 ```
 
@@ -44,15 +57,3 @@ reads the matching `session` setting for the currently connected (or requesting)
 }
 ```
 
-## request()
-
-`request(URL, callback)`
-
-requests a given `URL` object and returns the result on both `redirect` and `response`.
-
-Returns `null` if an error happened.
-
-```javascript
-// request(payload) example
-URL.parse('https://example.com/index.html')
-```

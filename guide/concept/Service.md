@@ -9,18 +9,15 @@ Stealth's API can be accessed via `WS/13` Sockets.
 Both the requests and responses have the same `headers` format:
 
 - `service (String)` is the identifier of the equivalent Service.
-- `method (optional String)` is the name of the method on the Service's interface.
-- `event (optional String)` is the name of the event that is `emit()`ed on the Service's interface.
+- `method (optional String)` is the name of the method on the Service's instance.
+- `event (optional String)` is the name of the event that is `emit()`ed on the Service's instance.
 
-The request `payload` can be either of the following:
+The request `payload` varies from Service to Service, but the API
+always aims to be compatible with the `URL.parse()` syntax, and reuses
+the otherwise empty `headers` and `payload` property on the reference.
 
-- `Object` when there's a `query()`, `read()`, `refresh()`, `remove()` or `save()` operation.
-
-The response `payload` can be either of the following:
-
-- `Array` or `null` when there's a `query()` operation.
-- `Object` or `null` when there's a `read()` or `refresh()` operation.
-- `true` or `false` when there's a `remove()` or `save()` operation.
+For detailed usage, take a look at the [stealth/client](/stealth/review/client)
+Reviews that explain all typical API usage scenarios.
 
 
 ## WebSocket API (WS/13)

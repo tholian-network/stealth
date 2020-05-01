@@ -41,7 +41,7 @@ If there's already a configured redirect with the same domain and path, it will 
 ```javascript
 // save(payload) example
 {
-	// projects.cookie.engineer/github
+	// https://projects.cookie.engineer/github
 	domain:    'cookie.engineer',
 	subdomain: 'projects',
 	path:      '/github',

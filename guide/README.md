@@ -21,7 +21,16 @@ Currently, the Repository consists of these important folders:
 - [concept/Browser.md](./concept/Browser.md) explains the Browser and Browser UI.
 - [concept/Covert.md](./concept/Covert.md) explains the Covert Testrunner.
 - [concept/Stealth.md](./concept/Stealth.md) explains the Stealth Service.
-- [services/README.md](./services/README.md) explains all Peer-to-Peer Network Services.
+- [concept/Service.md](./concept/Service.md) explains the Stealth Service API.
+
+- [service/Cache.md](./service/Cache.md) explains the `cache` Service API.
+- [service/Host.md](./service/Host.md) explains the `host` Service API.
+- [service/Mode.md](./service/Mode.md) explains the `mode` Service API.
+- [service/Peer.md](./service/Peer.md) explains the `peer` Service API.
+- [service/Redirect.md](./service/Redirect.md) explains the `redirect` Service API.
+- [service/Session.md](./service/Session.md) explains the `session` Service API.
+- [service/Settings.md](./service/Settings.md) explains the `settings` Service API.
+- [service/Stash.md](./service/Stash.md) explains the `stash` Service API.
 
 
 # Implementation Examples
