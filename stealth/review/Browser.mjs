@@ -1,7 +1,9 @@
 
-import { Browser, isBrowser, isConfig                                 } from '../../stealth/source/Browser.mjs';
-import { isTab                                                        } from '../../stealth/source/Tab.mjs';
+import { isBuffer                                                     } from '../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../covert/index.mjs';
+import { Browser, isBrowser, isConfig                                 } from '../../stealth/source/Browser.mjs';
+import { Request                                                      } from '../../stealth/source/Request.mjs';
+import { isTab                                                        } from '../../stealth/source/Tab.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from './Stealth.mjs';
 
 
@@ -43,7 +45,9 @@ export const connect = describe('Browser.prototype.connect()', function(assert) 
 
 		this.tab = this.browser.open('https://example.com');
 
-		assert(isTab(this.tab), true);
+		assert(isTab(this.tab),             true);
+		assert(this.browser.show(this.tab), this.tab);
+		assert(isTab(this.browser.tab),     true);
 
 	});
 
@@ -172,26 +176,48 @@ describe('isConfig()', function(assert) {
 describe('Browser.prototype.back()', function(assert) {
 
 	assert(this.browser !== null);
-	assert(this.browser.tab, null);
+	assert(this.browser.tab,            this.tab);
+	assert(this.browser.show(this.tab), this.tab);
 
-	assert(this.browser.show(this.tab),                       this.tab);
-	assert(this.browser.navigate('https://two.example.com/'), true);
-	assert(this.browser.tab,                                  this.tab);
+	this.browser.set({
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	});
 
-	assert(this.browser.show(this.tab),                         this.tab);
+	assert(this.browser.get('example.com'), {
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	});
+
+	assert(this.browser.navigate('https://two.example.com/'),   true);
 	assert(this.browser.navigate('https://three.example.com/'), true);
-	assert(this.browser.tab,                                    this.tab);
 
-	assert(this.browser.back(),  true);
-	assert(this.browser.tab.url, 'https://two.example.com/');
+	assert(this.browser.back(),            true);
+	assert(this.browser.tab.url,           'https://two.example.com/');
+	assert(this.browser.tab.config.domain, 'example.com');
 
-	assert(this.browser.back(),  true);
-	assert(this.browser.tab.url, 'https://example.com/');
+	assert(this.browser.back(),            true);
+	assert(this.browser.tab.url,           'https://example.com/');
+	assert(this.browser.tab.config.domain, 'example.com');
 
-	assert(this.browser.back(),  false);
-	assert(this.browser.tab.url, 'https://example.com/');
+	assert(this.browser.back(),            false);
+	assert(this.browser.tab.url,           'https://example.com/');
+	assert(this.browser.tab.config.domain, 'example.com');
 
-	assert(this.browser.tab.forget('stealth'), true);
+	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.forget('stealth'),               true);
 
 });
 
@@ -223,6 +249,9 @@ describe('Browser.prototype.close()', function(assert) {
 	assert(this.browser.close(tab2),    true);
 	assert(this.browser.tab,            this.tab);
 	assert(this.browser.tabs.length,    1);
+
+	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.forget('stealth'),               true);
 
 });
 
@@ -270,6 +299,35 @@ describe('Browser.prototype.disconnect()', function(assert) {
 
 });
 
+describe('Browser.prototype.download()', function(assert) {
+
+	let browser = new Browser({
+		host: '127.0.0.1'
+	});
+
+	browser.once('download', (response) => {
+
+		assert(response !== null);
+		assert(response.headers !== null);
+		assert(response.payload !== null);
+
+		assert(isBuffer(response.payload), true);
+		assert(response.payload.toString('utf8').includes('<html>'));
+		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
+		assert(response.payload.toString('utf8').includes('</html>'));
+
+		assert(browser.disconnect(), true);
+
+	});
+
+	browser.once('connect', () => {
+		assert(browser.download('https://example.com/index.html'), true);
+	});
+
+	assert(browser.connect(), true);
+
+});
+
 describe('Browser.prototype.get()', function(assert) {
 
 	this.browser.settings.modes = [{
@@ -312,12 +370,281 @@ describe('Browser.prototype.get()', function(assert) {
 
 });
 
-describe('Browser.prototype.navigate()', function(assert, console) {
+describe('Browser.prototype.is()', function(assert) {
+
+	assert(this.browser.is('connected'), true);
+
+});
+
+describe('Browser.prototype.navigate()', function(assert) {
 
 	assert(this.browser.tab,         this.tab);
 	assert(this.browser.tabs.length, 1);
 
-	console.log(this.browser.tabs);
+	assert(this.browser.navigate('https://example.com/'), true);
+
+	this.browser.set({
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: true,
+			audio: false,
+			video: false,
+			other: false
+		}
+	});
+
+	assert(this.browser.navigate('https://two.example.com/second.html'), true);
+
+	assert(this.browser.tab.config, {
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: true,
+			audio: false,
+			video: false,
+			other: false
+		}
+	});
+
+	this.browser.set({
+		domain: 'two.example.com',
+		mode: {
+			text:  true,
+			image: true,
+			audio: true,
+			video: false,
+			other: false
+		}
+	});
+
+	assert(this.browser.get('two.example.com'), {
+		domain: 'two.example.com',
+		mode: {
+			text:  true,
+			image: true,
+			audio: true,
+			video: false,
+			other: false
+		}
+	});
+
+	assert(this.browser.navigate('https://two.example.com/third.html'), true);
+
+	assert(this.browser.tab.config, {
+		domain: 'two.example.com',
+		mode: {
+			text:  true,
+			image: true,
+			audio: true,
+			video: false,
+			other: false
+		}
+	});
+
+	this.browser.settings.modes = [{
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	}];
+
+	assert(this.browser.navigate('https://example.com/'), true);
+	assert(this.browser.tab.forget('stealth'),            true);
+
+});
+
+describe('Browser.prototype.next()', function(assert) {
+
+	assert(this.browser !== null);
+	assert(this.browser.tab,            this.tab);
+	assert(this.browser.show(this.tab), this.tab);
+
+	this.browser.settings.modes = [];
+
+	this.browser.set({
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	});
+
+	assert(this.browser.get('example.com'), {
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	});
+
+	assert(this.browser.navigate('https://two.example.com/second.html'),  true);
+	assert(this.browser.navigate('https://three.example.com/third.html'), true);
+
+	assert(this.browser.back(),            true);
+	assert(this.browser.tab.url,           'https://two.example.com/second.html');
+	assert(this.browser.tab.config.domain, 'example.com');
+
+	assert(this.browser.back(),            true);
+	assert(this.browser.tab.url,           'https://example.com/');
+	assert(this.browser.tab.config.domain, 'example.com');
+
+	assert(this.browser.back(),            false);
+	assert(this.browser.tab.url,           'https://example.com/');
+	assert(this.browser.tab.config.domain, 'example.com');
+
+	assert(this.browser.next(),            true);
+	assert(this.browser.tab.url,           'https://two.example.com/second.html');
+	assert(this.browser.tab.config.domain, 'example.com');
+
+	assert(this.browser.next(),            true);
+	assert(this.browser.tab.url,           'https://three.example.com/third.html');
+	assert(this.browser.tab.config.domain, 'example.com');
+
+	assert(this.browser.next(),            false);
+	assert(this.browser.tab.url,           'https://three.example.com/third.html');
+	assert(this.browser.tab.config.domain, 'example.com');
+
+	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.forget('stealth'),               true);
+
+});
+
+describe('Browser.prototype.open()', function(assert) {
+
+	assert(this.browser.tab,         this.tab);
+	assert(this.browser.tabs.length, 1);
+
+	assert(this.browser.navigate('https://example.com/'), true);
+
+	let tab1 = this.browser.open(null);
+
+	assert(isTab(tab1), false);
+	assert(this.browser.tabs.length, 1);
+
+	let tab2 = this.browser.open('ftps://covert.localdomain');
+
+	assert(isTab(tab2), true);
+	assert(this.browser.tabs.length, 2);
+
+	let tab3 = this.browser.open('http://covert.localdomain');
+
+	assert(isTab(tab3), true);
+	assert(this.browser.tabs.length, 3);
+
+	let tab4 = this.browser.open('stealth:settings');
+
+	assert(isTab(tab4), true);
+	assert(this.browser.tabs.length, 4);
+
+	assert(this.browser.close(tab1), false);
+	assert(this.browser.close(tab2), true);
+	assert(this.browser.close(tab3), true);
+	assert(this.browser.close(tab4), true);
+
+	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.forget('stealth'),               true);
+
+});
+
+describe('Browser.prototype.pause()', function(assert) {
+
+	assert(this.browser.tab,         this.tab);
+	assert(this.browser.tabs.length, 1);
+
+	assert(this.browser.show(null),  this.tab);
+	assert(this.browser.tab,         this.tab);
+	assert(this.browser.pause(),     false);
+
+	assert(this.browser.show(this.tab), this.tab);
+	assert(this.browser.tab,            this.tab);
+
+	let request = new Request({
+		blockers: [],
+		config:   {
+			domain: 'example.com',
+			mode: {
+				text:  true,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		url: 'https://example.com/index.html'
+	});
+
+	assert(this.browser.tab.track(request), true);
+	assert(request.start(),                 true);
+
+	setTimeout(() => {
+
+		this.browser.once('pause', (tab) => {
+			assert(request.stop(), true);
+			assert(tab, this.tab);
+		});
+
+		assert(this.browser.pause(), true);
+
+	}, 100);
+
+	setTimeout(() => {
+
+		assert(this.browser.tab,         this.tab);
+		assert(this.browser.tabs.length, 1);
+
+		assert(this.browser.tab.navigate('https://example.com'), true);
+		assert(this.browser.tab.forget('stealth'),               true);
+
+	}, 200);
+
+});
+
+describe('Browser.prototype.refresh()', function(assert) {
+
+	assert(this.browser.tab,         this.tab);
+	assert(this.browser.tabs.length, 1);
+
+	assert(this.browser.show(null),  this.tab);
+	assert(this.browser.tab,         this.tab);
+	assert(this.browser.refresh(),   true);
+
+	assert(this.browser.show(this.tab), this.tab);
+	assert(this.browser.tab,            this.tab);
+
+	this.browser.once('refresh', (tab) => {
+		assert(tab, this.tab);
+	});
+
+	assert(this.browser.refresh(), true);
+
+	let tab = this.browser.open('stealth:settings');
+
+	assert(this.browser.show(tab), tab);
+	assert(this.browser.tab,       tab);
+
+	this.browser.once('refresh', (other) => {
+		assert(other, tab);
+	});
+
+	assert(this.browser.refresh(),  true);
+	assert(this.browser.close(tab), true);
+
+	assert(this.browser.tab,         this.tab);
+	assert(this.browser.tabs.length, 1);
+
+	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.forget('stealth'),               true);
 
 });
 
@@ -373,14 +700,47 @@ describe('Browser.prototype.set()', function(assert) {
 
 });
 
-describe('Browser.prototype.is()', function(assert) {
+describe('Browser.prototype.show()', function(assert) {
 
-	assert(this.browser.is('connected'), true);
+	assert(this.browser.tab,         this.tab);
+	assert(this.browser.tabs.length, 1);
+
+	assert(this.browser.navigate('https://example.com/'), true);
+
+	let tab1 = this.browser.open(null);
+	let tab2 = this.browser.open('ftps://covert.localdomain');
+	let tab3 = this.browser.open('http://covert.localdomain');
+	let tab4 = this.browser.open('stealth:settings');
+
+	assert(this.browser.show(tab1), tab4);
+	assert(this.browser.tab,        tab4);
+
+	assert(this.browser.show(tab2), tab2);
+	assert(this.browser.tab,        tab2);
+
+	assert(this.browser.show(tab3), tab3);
+	assert(this.browser.tab,        tab3);
+
+	assert(this.browser.show(tab4), tab4);
+	assert(this.browser.tab,        tab4);
+
+	assert(this.browser.tabs.length, 4);
+	assert(this.browser.close(tab4), true);
+	assert(this.browser.tabs.length, 3);
+	assert(this.browser.close(tab3), true);
+	assert(this.browser.tabs.length, 2);
+	assert(this.browser.close(tab2), true);
+	assert(this.browser.tabs.length, 1);
+
+	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.forget('stealth'),               true);
 
 });
 
 after(disconnect_stealth);
 
 
-export default finish('stealth/Browser');
+export default finish('stealth/Browser', {
+	internet: true
+});
 

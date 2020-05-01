@@ -40,52 +40,29 @@ export const isConfig = function(config) {
 
 const on_mode_change = function(config) {
 
-	let changed   = false;
-	let identical = this.tabs.filter((t) => t.config.domain === config.domain);
-	let similar   = this.tabs.filter((t) => URL.isDomain(config.domain, t.ref));
+	this.tabs.forEach((tab) => {
 
-	if (similar.length > 0) {
+		let changed = false;
 
-		similar.forEach((tab) => {
+		tab.history.forEach((entry) => {
 
-			if (identical.includes(tab) === false) {
-
-				if (tab.config.domain.length < config.domain.length) {
-
-					tab.set(config);
-
-					if (tab === this.tab) {
-						changed = true;
-					}
-
-				}
-
+			if (entry.config.domain === config.domain) {
+				entry.config = config;
+				changed = true;
 			}
 
 		});
 
-	}
+		if (tab.config.domain === config.domain) {
+			tab.config = config;
+			changed = true;
+		}
 
-	if (identical.length > 0) {
+		if (changed === true && this.tab === tab) {
+			this.emit('change', [ this.tab ]);
+		}
 
-		identical.forEach((tab) => {
-
-			if (tab.config !== config) {
-
-				tab.set(config);
-
-				if (tab === this.tab) {
-					changed = true;
-				}
-			}
-
-		});
-
-	}
-
-	if (changed === true) {
-		this.emit('change', [ this.tab ]);
-	}
+	});
 
 };
 
@@ -178,8 +155,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			let result = this.tab.back();
 			if (result === true) {
-
-				this.tab.set(this.get(this.tab.url));
 
 				this.emit('refresh', [ this.tab, this.tabs, false ]);
 
@@ -295,18 +270,27 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	download: function(url) {
 
-		url = URL.isURL(URL.parse(url)) ? url : null;
+		url = isString(url) ? url : null;
 
 
 		if (url !== null) {
 
-			if (this.__state.connected === true) {
+			let ref = URL.parse(url);
+			if (ref.domain !== null || ref.host !== null) {
 
-				this.client.services.session.download(URL.parse(url), (response) => {
-					this.emit('download', [ response ]);
-				});
+				if (this.__state.connected === true) {
 
-				return true;
+					setTimeout(() => {
+
+						this.client.services.session.download(ref, (response) => {
+							this.emit('download', [ response ]);
+						});
+
+					}, 0);
+
+					return true;
+
+				}
 
 			}
 
@@ -352,6 +336,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (ref.protocol === 'stealth') {
 
+				config.domain     = domain;
 				config.mode.text  = true;
 				config.mode.image = true;
 				config.mode.audio = true;
@@ -414,10 +399,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (this.tab !== null) {
 
-				let result = this.tab.navigate(url);
+				let result = this.tab.navigate(url, this.get(url));
 				if (result === true) {
 
-					this.tab.set(this.get(url));
 					this.refresh();
 
 					return true;
@@ -426,8 +410,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 					let tab = this.open(url);
 					if (tab !== null) {
-
-						tab.set(this.get(url));
 
 						if (this.tab !== tab) {
 							this.show(tab);
@@ -441,10 +423,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			} else if (url.startsWith('./') === false && url.startsWith('../') === false) {
 
-				let tab = this.open(url);
+				let tab = this.open(url, this.get(url));
 				if (tab !== null) {
-
-					tab.set(this.get(url));
 
 					if (this.tab !== tab) {
 						this.show(tab);
@@ -469,8 +449,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			let result = this.tab.next();
 			if (result === true) {
-
-				this.tab.set(this.get(this.tab.url));
 
 				this.emit('refresh', [ this.tab, this.tabs, false ]);
 
@@ -587,7 +565,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 						config = tmp1;
 					}
 
-				} else if (tmp2.domain.length > tmp1.domain.length) {
+				} else if (URL.isDomain(tmp1.domain, tmp2.domain)) {
 
 					config = tmp2;
 

@@ -90,23 +90,35 @@ const Tab = function(data) {
 			other: false
 		}
 	};
-	this.ref      = null;
+	this.ref      = URL.parse('stealth:welcome');
 	this.requests = [];
-	this.url      = null;
+	this.url      = 'stealth:welcome';
 
 
-	let ref = URL.isURL(settings.ref) ? settings.ref : null;
-	let url = isString(settings.url)  ? settings.url : null;
-
-	if (ref !== null) {
-		this.navigate(ref.url);
-	} else if (url !== null) {
-		this.navigate(url);
+	let cfg = isConfig(settings.config) ? settings.config : null;
+	let ref = URL.isURL(settings.ref)   ? settings.ref    : null;
+	if (ref === null && isString(settings.url) === true) {
+		ref = URL.parse(settings.url);
 	}
 
-	let config = isConfig(settings.config) ? settings.config : null;
-	if (config !== null) {
-		this.set(config);
+	if (URL.isURL(ref) === true) {
+		this.navigate(ref.url, cfg);
+	}
+
+	if (this.config.domain === null) {
+
+		if (this.ref.domain !== null) {
+
+			if (this.ref.subdomain !== null) {
+				this.config.domain = this.ref.subdomain + '.' + this.ref.domain;
+			} else {
+				this.config.domain = this.ref.domain;
+			}
+
+		} else if (this.ref.host !== null) {
+			this.config.domain = this.ref.host;
+		}
+
 	}
 
 };
@@ -130,16 +142,13 @@ Tab.from = function(json) {
 				tab.id = data.id;
 			}
 
-			if (isConfig(data.config) === true) {
-				tab.config = data.config;
-			}
-
 			if (isArray(data.history) === true) {
 
 				data.history.forEach((event) => {
 
 					if (
-						isNumber(event.time) === true
+						isConfig(event.config) === true
+						&& isNumber(event.time) === true
 						&& isString(event.url) === true
 					) {
 						tab.history.push(event);
@@ -153,8 +162,8 @@ Tab.from = function(json) {
 				// Do nothing
 			}
 
-			if (isString(data.url) === true) {
-				tab.navigate(data.url);
+			if (isString(data.url) === true && isConfig(data.config) === true) {
+				tab.navigate(data.url, data.config);
 			}
 
 		}
@@ -179,16 +188,13 @@ Tab.merge = function(target, source) {
 			target.id = source.id;
 		}
 
-		if (isConfig(source.config) === true) {
-			target.config = source.config;
-		}
-
 		if (isArray(source.history) === true) {
 
 			source.history.forEach((event) => {
 
 				if (
-					isNumber(event.time) === true
+					isConfig(event.config) === true
+					&& isNumber(event.time) === true
 					&& isString(event.url) === true
 				) {
 					target.history.push(event);
@@ -210,8 +216,8 @@ Tab.merge = function(target, source) {
 
 		}
 
-		if (isString(source.url) === true) {
-			target.navigate(source.url);
+		if (isString(source.url) === true && isConfig(source.config) === true) {
+			target.navigate(source.url, source.config);
 		}
 
 	}
@@ -241,8 +247,9 @@ Tab.prototype = {
 				}
 			},
 			history:  this.history.map((event) => ({
-				time: event.time,
-				url:  event.url
+				config: event.config,
+				time:   event.time,
+				url:    event.url
 			})),
 			requests: this.requests.map((request) => request.toJSON()),
 			url:      this.url
@@ -267,8 +274,9 @@ Tab.prototype = {
 				let tmp = this.history[index - 1] || null;
 				if (tmp !== null) {
 
-					this.url = tmp.url;
-					this.ref = URL.parse(tmp.url);
+					this.config = tmp.config;
+					this.ref    = URL.parse(tmp.url);
+					this.url    = this.ref.url;
 
 					return true;
 
@@ -361,7 +369,7 @@ Tab.prototype = {
 			for (let h = 0, hl = this.history.length; h < hl; h++) {
 
 				let event = this.history[h];
-				if (event.time < limit) {
+				if (event.time <= limit) {
 					this.history.splice(h, 1);
 					hl--;
 					h--;
@@ -371,8 +379,9 @@ Tab.prototype = {
 
 			if (this.history.length === 0 && this.url !== null) {
 				this.history.push({
-					time: Date.now(),
-					url:  this.url
+					config: this.config,
+					time:   Date.now(),
+					url:    this.url
 				});
 			}
 
@@ -409,28 +418,34 @@ Tab.prototype = {
 			request.stop();
 		});
 
-
 		this.config = {
-			domain: null,
+			domain: 'welcome',
 			mode: {
-				text:  false,
-				image: false,
-				audio: false,
-				video: false,
-				other: false
+				text:  true,
+				image: true,
+				audio: true,
+				video: true,
+				other: true
 			}
 		};
 
 		this.history  = [];
-		this.ref      = null;
+		this.ref      = URL.parse('stealth:welcome');
 		this.requests = [];
-		this.url      = null;
+		this.url      = 'stealth:welcome';
+
+		this.history.push({
+			config: this.config,
+			time:   Date.now(),
+			url:    this.url
+		});
 
 	},
 
-	navigate: function(url) {
+	navigate: function(url, config) {
 
-		url = isString(url) ? url : null;
+		url    = isString(url)    ? url    : null;
+		config = isConfig(config) ? config : null;
 
 
 		if (url !== null) {
@@ -439,10 +454,14 @@ Tab.prototype = {
 				url = URL.resolve(this.url, url).url;
 			}
 
+
 			if (this.url !== url) {
 
 				let ref = URL.parse(url);
-				if (this.config.domain === null || URL.isDomain(this.config.domain, ref) === true) {
+				if (
+					ref.domain === this.ref.domain
+					|| this.url === 'stealth:welcome'
+				) {
 
 					let event1 = search.call(this, this.url);
 					if (event1 !== null) {
@@ -454,9 +473,6 @@ Tab.prototype = {
 
 					}
 
-					this.url = url;
-					this.ref = ref;
-
 					let event2 = search.call(this, url);
 					if (event2 !== null) {
 
@@ -467,9 +483,64 @@ Tab.prototype = {
 
 					}
 
+
+					if (config !== null) {
+
+						this.config = config;
+
+					} else {
+
+						let domain = null;
+
+						if (ref.domain !== null) {
+
+							if (ref.subdomain !== null) {
+								domain = ref.subdomain + '.' + ref.domain;
+							} else {
+								domain = ref.domain;
+							}
+
+						} else if (ref.host !== null) {
+							domain = ref.host;
+						}
+
+						if (domain !== null) {
+
+							this.config = {
+								domain: domain,
+								mode: {
+									text:  this.config.mode.text,
+									image: this.config.mode.image,
+									audio: this.config.mode.audio,
+									video: this.config.mode.video,
+									other: this.config.mode.other
+								}
+							};
+
+						} else {
+
+							this.config = {
+								domain: null,
+								mode: {
+									text:  false,
+									image: false,
+									audio: false,
+									video: false,
+									other: false
+								}
+							};
+
+						}
+
+					}
+
+					this.ref = ref;
+					this.url = this.ref.url;
+
 					this.history.push({
-						time: Date.now(),
-						url:  url
+						config: this.config,
+						time:   Date.now(),
+						url:    this.ref.url
 					});
 
 					return true;
@@ -496,8 +567,9 @@ Tab.prototype = {
 				let tmp = this.history[index + 1] || null;
 				if (tmp !== null) {
 
-					this.url = tmp.url;
-					this.ref = URL.parse(tmp.url);
+					this.config = tmp.config;
+					this.ref    = URL.parse(tmp.url);
+					this.url    = this.ref.url;
 
 					return true;
 
@@ -537,53 +609,6 @@ Tab.prototype = {
 			requests.forEach((request) => {
 				request.stop();
 			});
-
-			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	set: function(config) {
-
-		config = isConfig(config) ? config : null;
-
-
-		if (config !== null) {
-
-			if (URL.isDomain(this.ref, config.domain)) {
-
-				this.config = config;
-
-			} else {
-
-				this.config = {
-					domain: null,
-					mode: {
-						text:  false,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				};
-
-				if (this.ref.domain !== null) {
-
-					if (this.ref.subdomain !== null) {
-						config.domain = this.ref.subdomain + '.' + this.ref.domain;
-					} else {
-						config.domain = this.ref.domain;
-					}
-
-				} else if (this.ref.host !== null) {
-					config.domain = this.ref.host;
-				}
-
-			}
 
 			return true;
 

@@ -154,6 +154,19 @@ const Request = function(data, server) {
 
 	});
 
+	this.on('stop', () => {
+
+		this.timeline.stop = Date.now();
+
+		if (this.download !== null) {
+
+			this.download.stop();
+			this.download = null;
+
+		}
+
+	});
+
 	this.on('cache', () => {
 
 		if (this.flags.refresh === true) {
@@ -758,21 +771,15 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 	stop: function() {
 
 		if (this.timeline.stop === null) {
-			this.timeline.stop = Date.now();
-		}
 
+			this.emit('stop');
 
-		if (this.timeline.download !== null) {
-
-			let download = this.download || null;
-			if (download !== null) {
-
-				download.stop();
-				this.download = null;
-
-			}
+			return true;
 
 		}
+
+
+		return false;
 
 	}
 
