@@ -395,7 +395,7 @@ const URL = {
 							let tmp_abs = ref_abs.subdomain.split('.').reverse();
 							let tmp_rel = ref_rel.subdomain.split('.').reverse();
 
-							if (tmp_rel.length > tmp_abs.length) {
+							if (tmp_rel.length >= tmp_abs.length) {
 
 								let check = true;
 

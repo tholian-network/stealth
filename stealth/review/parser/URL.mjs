@@ -10,6 +10,29 @@ const build_file   = (protocol, path, query, hash)                          => (
 
 
 
+describe('URL.isDomain()', function(assert) {
+
+	assert(URL.isDomain('example.com',     'example.com'),     true);
+	assert(URL.isDomain('example.com',     'two.example.com'), true);
+	assert(URL.isDomain('two.example.com', 'example.com'),     false);
+	assert(URL.isDomain('two.example.com', 'two.example.com'), true);
+
+	assert(URL.isDomain('three.two.example.com',      'three.two.example.com'),      true);
+	assert(URL.isDomain('three.two.example.com',      'four.three.two.example.com'), true);
+	assert(URL.isDomain('four.three.two.example.com', 'three.two.example.com'),      false);
+	assert(URL.isDomain('four.three.two.example.com', 'four.three.two.example.com'), true);
+
+	assert(URL.isDomain('example.com', '1.3.3.7'),     false);
+	assert(URL.isDomain('1.3.3.7',     '3.3.7'),       false);
+	assert(URL.isDomain('3.3.7',       '1.3.3.7'),     false);
+	assert(URL.isDomain('1.3.3.7',     '1.3.3.7'),     true);
+	assert(URL.isDomain('10.0.0.1',    '1.3.3.7'),     false);
+	assert(URL.isDomain('1.3.3.7',     '10.0.0.1'),    false);
+	assert(URL.isDomain('10.0.0.1',    '10.0.0.1'),    true);
+	assert(URL.isDomain('1.3.3.7',     'example.com'), false);
+
+});
+
 describe('URL.isURL()', function(assert) {
 
 	let url1  = URL.parse('http://localhost/what/ever.html');
