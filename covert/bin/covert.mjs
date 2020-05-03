@@ -74,177 +74,9 @@ const show_help = () => {
 
 };
 
-const render_errors = (linter) => {
-
-	let nones = linter.reviews.filter((r) => r.state === 'none');
-	let fails = linter.reviews.filter((r) => r.errors.length > 0);
-
-	if (nones.length > 0 || fails.length > 0) {
-
-		if (linter._settings.debug === true) {
-			console.log('');
-		} else {
-			console.clear();
-		}
-
-		console.warn('');
-		console.warn('Linter: Some reviews aren\'t complete.');
-		console.warn('');
-
-		nones.forEach((review, r) => {
-
-			if (r > 0) console.log('');
-
-			linter.renderer.render(review, 'errors');
-
-		});
-
-		if (fails.length > 0) {
-			console.log('');
-		}
-
-		fails.forEach((review, r) => {
-
-			if (r > 0) console.log('');
-
-			linter.renderer.render(review, 'errors');
-
-		});
-
-		process.exit(2);
-
-	} else {
-
-		if (linter._settings.debug === true) {
-			console.log('');
-		} else {
-			console.clear();
-		}
-
-		console.info('');
-		console.info('Linter: All reviews are complete.');
-		console.info('');
-
-		process.exit(0);
-
-	}
-
-};
-
-const render_summary = (covert) => {
-
-	let fails = covert.reviews.filter((r) => r.state === 'fail');
-	let skips = covert.reviews.filter((r) => r.state === null);
-	let waits = covert.reviews.filter((r) => r.state === 'wait');
-
-	if (skips.length > 0 || waits.length > 0) {
-
-		if (covert._settings.debug === true) {
-			console.log('');
-		} else {
-			console.clear();
-		}
-
-		console.warn('');
-		console.warn('Covert: Some reviews didn\'t complete.');
-		console.warn('');
-
-		skips.forEach((review, r) => {
-
-			if (r > 0) console.log('');
-
-			covert.renderer.render(review, 'complete');
-
-		});
-
-		if (waits.length > 0) {
-			console.log('');
-		}
-
-		waits.forEach((review, r) => {
-
-			if (r > 0) console.log('');
-
-			covert.renderer.render(review, 'summary');
-
-		});
-
-
-		if (fails.length > 0) {
-			console.log('');
-		}
-
-		fails.forEach((review, r) => {
-
-			if (r > 0) console.log('');
-
-			covert.renderer.render(review, 'summary');
-
-		});
-
-
-		process.exit(2);
-
-	} else if (fails.length > 0) {
-
-		if (covert._settings.debug === true) {
-			console.log('');
-		} else {
-			console.clear();
-		}
-
-		console.error('');
-		console.error('Covert: Some reviews didn\'t succeed.');
-		console.error('');
-
-		fails.forEach((review) => {
-			covert.renderer.render(review, 'summary');
-		});
-
-		process.exit(1);
-
-	} else {
-
-		if (covert._settings.debug === true) {
-			console.log('');
-		} else {
-			console.clear();
-		}
-
-
-		console.info('');
-		console.info('Covert: All reviews did succeed.');
-		console.info('');
-
-		let action = covert._settings.action || null;
-		if (action === 'time' || action === 'watch') {
-
-			console.log('');
-
-			covert.reviews.forEach((review, r) => {
-
-				if (r > 0) console.log('');
-
-				covert.renderer.render(review, 'complete');
-
-			});
-
-		}
-
-		process.exit(0);
-
-	}
-
-};
-
 
 
 if (action === 'check') {
-
-	console.log('');
-	console.info('Covert: Check Mode only validates Reviews and does not execute Covert!');
-	console.log('');
-
 
 	let linter = new Linter({
 		action:   action         || null,
@@ -256,7 +88,7 @@ if (action === 'check') {
 	});
 
 	linter.on('disconnect', () => {
-		render_errors(linter);
+		process.exit(linter.destroy() || 0);
 	});
 
 	if (patterns.length > 0 && linter.reviews.length === 0) {
@@ -270,11 +102,6 @@ if (action === 'check') {
 
 } else if (action === 'watch') {
 
-	console.log('');
-	console.info('Covert: Watch Mode');
-	console.log('');
-
-
 	let covert = new Covert({
 		action:   action         || null,
 		debug:    flags.debug    || false,
@@ -287,19 +114,19 @@ if (action === 'check') {
 	});
 
 	process.on('SIGINT', () => {
-		setTimeout(() => render_summary(covert), 1000);
+		setTimeout(() => covert.destroy(), 1000);
 	});
 
 	process.on('SIGQUIT', () => {
-		setTimeout(() => render_summary(covert), 1000);
+		setTimeout(() => covert.destroy(), 1000);
 	});
 
 	process.on('SIGABRT', () => {
-		setTimeout(() => render_summary(covert), 1000);
+		setTimeout(() => covert.destroy(), 1000);
 	});
 
 	process.on('SIGTERM', () => {
-		setTimeout(() => render_summary(covert), 1000);
+		setTimeout(() => covert.destroy(), 1000);
 	});
 
 	covert.on('disconnect', () => {
@@ -341,11 +168,6 @@ if (action === 'check') {
 
 } else if (action === 'scan' || action === 'time') {
 
-	console.log('');
-	console.info('Covert: ' + action[0].toUpperCase() + action.substr(1) + ' Mode');
-	console.log('');
-
-
 	let covert = new Covert({
 		action:   action         || null,
 		debug:    flags.debug    || false,
@@ -358,7 +180,7 @@ if (action === 'check') {
 	});
 
 	covert.on('disconnect', () => {
-		render_summary(covert);
+		process.exit(covert.destroy() || 0);
 	});
 
 	if (patterns.length > 0 && covert.reviews.length === 0) {

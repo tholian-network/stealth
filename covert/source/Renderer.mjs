@@ -141,6 +141,8 @@ const render_errors = function(review, is_current) {
 		console.warn(review.id);
 	} else if (review.state === 'fail') {
 		console.error(review.id);
+	} else if (review.state === 'none') {
+		console.warn(review.id);
 	}
 
 	review.errors.forEach((error) => {
@@ -163,6 +165,8 @@ const render_errors = function(review, is_current) {
 			console.warn(message);
 		} else if (review.state === 'fail') {
 			console.error(message);
+		} else if (review.state === 'none') {
+			console.warn(message);
 		}
 
 	});

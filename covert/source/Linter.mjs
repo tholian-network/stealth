@@ -266,11 +266,9 @@ const update_review = async function(review) {
 	}
 
 
+	let expect = [];
 	let module = this.modules[review.id] || null;
 	if (module !== null) {
-
-		let reviewed = [];
-		let expected = [];
 
 		for (let name in module) {
 
@@ -315,8 +313,8 @@ const update_review = async function(review) {
 
 					if (custom !== null) {
 
-						if (expected.includes('new ' + name + '()') === false) {
-							expected.push('new ' + name + '()');
+						if (expect.includes('new ' + name + '()') === false) {
+							expect.push('new ' + name + '()');
 						}
 
 					} else if (review.id.startsWith('base/') === false) {
@@ -327,30 +325,30 @@ const update_review = async function(review) {
 
 					statics.forEach((method) => {
 
-						if (expected.includes(method) === false) {
-							expected.push(method);
+						if (expect.includes(method) === false) {
+							expect.push(method);
 						}
 
 					});
 
 					methods.forEach((method) => {
 
-						if (expected.includes(method) === false) {
-							expected.push(method);
+						if (expect.includes(method) === false) {
+							expect.push(method);
 						}
 
 					});
 
 				} else if (custom !== null) {
 
-					if (expected.includes('new ' + name + '()') === false) {
-						expected.push('new ' + name + '()');
+					if (expect.includes('new ' + name + '()') === false) {
+						expect.push('new ' + name + '()');
 					}
 
 				} else {
 
-					if (expected.includes(name + '()') === false) {
-						expected.push(name + '()');
+					if (expect.includes(name + '()') === false) {
+						expect.push(name + '()');
 					}
 
 				}
@@ -367,8 +365,8 @@ const update_review = async function(review) {
 
 					statics.forEach((method) => {
 
-						if (expected.includes(method) === false) {
-							expected.push(method);
+						if (expect.includes(method) === false) {
+							expect.push(method);
 						}
 
 					});
@@ -379,68 +377,50 @@ const update_review = async function(review) {
 
 		}
 
-
-		let tests = review.flatten();
-		if (tests.length > 0) {
-
-			tests.forEach((test) => {
-
-				if (test.results.length === 0) {
-					review.errors.push(test.name + ' has no assert() calls.');
-				}
-
-				let body = test.callback.toString().split('\n').slice(1, -1);
-				if (body.length > 0) {
-
-					let wrong_compare = body.map((line) => line.trim()).filter((line) => {
-						return line.startsWith('assert(') && line.endsWith(' === undefined);') === false;
-					}).find((line) => {
-						return line.startsWith('assert(') && (line.includes(' === ') || line.includes(' == ') || line.includes(' && '));
-					}) || null;
-
-					if (wrong_compare !== null) {
-						review.errors.push(test.name + ' should use assert(value, expect).');
-					}
-
-				}
-
-			});
-
-		}
-
-		if (expected.length > 0) {
-
-			expected.forEach((name) => {
-
-				let check = tests.find((t) => t.name.startsWith(name)) || null;
-				if (check === null) {
-					review.errors.push(name + ' is not tested via describe().');
-				}
-
-			});
-
-		}
-
 	}
 
 
-	if (review.errors.length > 0) {
+	let state = 'okay';
+	let tests = review.flatten();
 
-		review.state = 'fail';
+	expect.forEach((name) => {
 
-	} else {
-
-		if (
-			review.before.length > 0
-			|| review.tests.length > 0
-			|| review.after.length > 0
-		) {
-			review.state = 'okay';
-		} else {
-			review.state = 'wait';
+		let check = tests.find((t) => t.name.startsWith(name)) || null;
+		if (check === null) {
+			review.errors.push(name + ' is not tested via describe().');
+			state = 'none';
 		}
 
-	}
+	});
+
+	tests.forEach((test) => {
+
+		if (test.results.length === 0) {
+			review.errors.push(test.name + ' has no assert() calls.');
+			state = 'fail';
+		}
+
+		let body = test.callback.toString().split('\n').slice(1, -1);
+		if (body.length > 0) {
+
+			let wrong_compare = body.map((line) => line.trim()).filter((line) => {
+				return line.startsWith('assert(') && line.endsWith(' === undefined);') === false;
+			}).find((line) => {
+				return line.startsWith('assert(') && (line.includes(' === ') || line.includes(' == ') || line.includes(' && '));
+			}) || null;
+
+			if (wrong_compare !== null) {
+				review.errors.push(test.name + ' should use assert(value, expect).');
+				state = 'fail';
+			}
+
+		}
+
+	});
+
+	review.state = state;
+
+	return true;
 
 };
 
@@ -583,6 +563,11 @@ Linter.prototype = Object.assign({}, Emitter.prototype, {
 		let review = this.reviews[0] || null;
 		if (review !== null) {
 
+			console.info('');
+			console.info('Linter: ' + this._settings.action + ' mode');
+			console.warn('Linter: This mode only validates Reviews and does not execute them!');
+			console.info('');
+
 			this.emit('connect', [ this.reviews ]);
 
 			return true;
@@ -591,6 +576,62 @@ Linter.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		return false;
+
+	},
+
+	destroy: function() {
+
+		let nones = this.reviews.filter((r) => r.state === 'none');
+		let fails = this.reviews.filter((r) => r.state === 'fail');
+
+
+		if (this._settings.debug === true) {
+			console.log('');
+		} else {
+			console.clear();
+		}
+
+
+		if (fails.length > 0) {
+
+			console.error('');
+			console.error('Linter: Some Reviews refuted.');
+			console.error('');
+
+			nones.forEach((review) => {
+				console.log('');
+				this.renderer.render(review, 'errors');
+			});
+
+			fails.forEach((review) => {
+				console.log('');
+				this.renderer.render(review, 'errors');
+			});
+
+			return 1;
+
+		} else if (nones.length > 0) {
+
+			console.warn('');
+			console.warn('Linter: Some Reviews missing.');
+			console.warn('');
+
+			nones.forEach((review) => {
+				console.log('');
+				this.renderer.render(review, 'errors');
+			});
+
+			return 2;
+
+		} else {
+
+			console.info('');
+			console.info('Linter: All Reviews verified.');
+			console.info('');
+
+			return 0;
+
+		}
 
 	},
 

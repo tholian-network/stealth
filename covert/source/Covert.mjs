@@ -14,8 +14,66 @@ export const isCovert = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Covert]';
 };
 
+const isError = function(obj) {
+	return Object.prototype.toString.call(obj).includes('Error');
+};
+
 const isModule = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Module]';
+};
+
+const toMessage = function(data) {
+
+	if (isError(data) === true) {
+
+		let type = Object.prototype.toString.call(data);
+		if (type.startsWith('[object') && type.endsWith(']')) {
+			type = type.substr(7, type.length - 8).trim();
+		}
+
+		let msg    = (data.message || '').trim();
+		let result = '';
+		let stack  = (data.stack   || '').trim().split('\n');
+
+		if (msg.length > 0 && stack.length > 0) {
+
+			let origin = null;
+
+			for (let s = 0, sl = stack.length; s < sl; s++) {
+
+				let line = stack[s].trim();
+				if (line.includes('(file://') && line.includes(')')) {
+
+					let tmp = line.split('(file://')[1].split(')').shift().trim();
+					if (tmp.includes('.mjs')) {
+						origin = tmp;
+						break;
+					}
+
+				}
+
+			}
+
+			result += type + ': "' + msg + '"';
+
+			if (origin !== null) {
+				result += '\n';
+				result += origin;
+			}
+
+		} else if (msg.length > 0) {
+
+			result += type + ': "' + msg + '"';
+
+		}
+
+		return result;
+
+	}
+
+
+	return null;
+
 };
 
 const assert = function(timeline, results, result, expect) {
@@ -410,6 +468,15 @@ const update = function() {
 					console.error(err);
 				}
 
+				if (isError(err) === true) {
+
+					let message = toMessage(err);
+					if (message !== null) {
+						review.errors.push(test.name + ' throws ' + message);
+					}
+
+				}
+
 				next.call(this);
 
 			}
@@ -450,8 +517,16 @@ const update = function() {
 
 const update_review = function(review) {
 
-	let tests = review.flatten();
-	if (tests.length > 0) {
+	let errors = review.errors;
+	let tests  = review.flatten();
+
+	if (errors.length > 0) {
+
+		review.state = 'fail';
+
+		return true;
+
+	} else if (tests.length > 0) {
 
 		let check = tests.filter((test) => test.state !== null);
 		if (check.length === tests.length) {
@@ -469,7 +544,6 @@ const update_review = function(review) {
 			});
 
 			review.state = state;
-
 
 			return true;
 
@@ -495,7 +569,12 @@ const update_test = function(test) {
 			test.state = 'okay';
 		}
 
+		return true;
+
 	}
+
+
+	return false;
 
 };
 
@@ -631,6 +710,15 @@ const Covert = function(settings) {
 						console.error(err);
 					}
 
+					if (isError(err) === true) {
+
+						let message = toMessage(err);
+						if (message !== null) {
+							review.errors.push(test.name + ' throws ' + message);
+						}
+
+					}
+
 					review.after.state = 'wait';
 
 				}
@@ -726,6 +814,10 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (review !== null && test !== null) {
 
+			console.info('');
+			console.info('Covert: ' + this._settings.action + ' mode');
+			console.info('');
+
 			this.__state.review = review;
 			this.__state.test   = test;
 
@@ -737,6 +829,82 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		return false;
+
+	},
+
+	destroy: function() {
+
+		let fails = this.reviews.filter((r) => r.state === 'fail');
+		let skips = this.reviews.filter((r) => r.state === null);
+		let waits = this.reviews.filter((r) => r.state === 'wait');
+
+
+		if (this._settings.debug === true) {
+			console.log('');
+		} else {
+			console.clear();
+		}
+
+
+		if (fails.length > 0) {
+
+			console.error('');
+			console.error('Covert: Some Reviews failed.');
+			console.error('');
+
+			skips.forEach((review) => {
+				console.log('');
+				this.renderer.render(review, 'complete');
+			});
+
+			waits.forEach((review) => {
+				console.log('');
+				this.renderer.render(review, 'summary');
+			});
+
+			fails.forEach((review) => {
+				console.log('');
+				this.renderer.render(review, 'summary');
+			});
+
+			return 1;
+
+		} else if (skips.length > 0 || waits.length > 0) {
+
+			console.warn('');
+			console.warn('Covert: Some Reviews failed.');
+			console.warn('');
+
+			skips.forEach((review) => {
+				console.log('');
+				this.renderer.render(review, 'complete');
+			});
+
+			waits.forEach((review) => {
+				console.log('');
+				this.renderer.render(review, 'summary');
+			});
+
+			return 2;
+
+		} else {
+
+			console.info('');
+			console.info('Covert: All Reviews succeeded.');
+			console.info('');
+
+			if (this._settings.action === 'time' || this._settings.action === 'watch') {
+
+				this.reviews.forEach((review) => {
+					console.log('');
+					this.renderer.render(review, 'complete');
+				});
+
+			}
+
+			return 0;
+
+		}
 
 	},
 

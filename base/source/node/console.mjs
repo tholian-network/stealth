@@ -7,11 +7,11 @@ export const console = (function() {
 
 	const PALETTE = {
 		'Boolean':  38,
-		'Keyword':  204,
-		'Literal':  174,
-		'Number':   197,
+		'Keyword': 204,
+		'Literal': 174,
+		'Number':  197,
 		'String':   77,
-		'Type':     174
+		'Type':    174
 	};
 
 	const highlight = function(str, type) {
@@ -178,7 +178,7 @@ export const console = (function() {
 
 				}
 
-				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String')   + '\n';
+				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String') + '\n';
 
 				if (origin !== null) {
 					str += origin;
@@ -186,7 +186,7 @@ export const console = (function() {
 
 			} else if (msg.length > 0) {
 
-				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String')   + '\n';
+				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String') + '\n';
 
 			}
 
