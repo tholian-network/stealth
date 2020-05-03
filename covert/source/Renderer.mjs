@@ -101,6 +101,15 @@ const render_complete = function(review, is_current) {
 			console.error(message);
 		}
 
+		let errors = review.errors.filter((msg) => msg.startsWith(test.name));
+		if (errors.length > 0) {
+			errors.forEach((error) => {
+				error.split('\n').forEach((line) => {
+					console.error('> ' + line);
+				});
+			});
+		}
+
 	});
 
 
@@ -408,6 +417,15 @@ const render_summary = function(review, is_current) {
 				console.warn(message);
 			} else if (test.state === 'fail') {
 				console.error(message);
+			}
+
+			let errors = review.errors.filter((msg) => msg.startsWith(test.name));
+			if (errors.length > 0) {
+				errors.forEach((error) => {
+					error.split('\n').forEach((line) => {
+						console.error('> ' + line);
+					});
+				});
 			}
 
 		});

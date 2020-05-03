@@ -128,6 +128,9 @@ Session.from = function(json) {
 };
 
 
+Session.isSession = isSession;
+
+
 Session.merge = function(target, source) {
 
 	target = target instanceof Session ? target : null;
@@ -165,9 +168,6 @@ Session.merge = function(target, source) {
 	return target;
 
 };
-
-
-Session.isSession = isSession;
 
 
 Session.prototype = {

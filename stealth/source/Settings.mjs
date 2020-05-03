@@ -9,6 +9,10 @@ import { HOSTS                                                       } from './p
 
 
 
+export const isSettings = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Settings]';
+};
+
 const get_message = (settings) => `
 ${settings.blockers.length} Blocker${settings.blockers.length === 1 ? '' : 's'}, \
 ${settings.hosts.length} Host${settings.hosts.length === 1 ? '' : 's'}, \
@@ -538,6 +542,61 @@ const Settings = function(stealth, profile, vendor) {
 };
 
 
+Settings.from = function(json) {
+
+	json = isObject(json) ? json : null;
+
+
+	if (json !== null) {
+
+		let type = json.type === 'Settings' ? json.type : null;
+		let data = isObject(json.data)      ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			let profile  = isString(data.profile) ? data.profile : null;
+			let vendor   = isString(data.vendor)  ? data.vendor  : null;
+			let settings = new Settings(null, profile, vendor);
+
+			if (isObject(data.internet) === true) {
+
+				Object.keys(data.internet).forEach((key) => {
+					settings.internet[key] = data.internet[key];
+				});
+
+			}
+
+			if (isArray(data.hosts) === true) {
+				settings.hosts = data.hosts;
+			}
+
+			if (isArray(data.modes) === true) {
+				settings.modes = data.modes;
+			}
+
+			if (isArray(data.peers) === true) {
+				settings.peers = data.peers;
+			}
+
+			if (isArray(data.sessions) === true) {
+				settings.sessions = data.sessions.map((data) => Session.from(data)).filter((session) => session !== null);
+			}
+
+			return settings;
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
+Settings.isSettings = isSettings;
+
+
 Settings.prototype = {
 
 	[Symbol.toStringTag]: 'Settings',
@@ -550,8 +609,10 @@ Settings.prototype = {
 			hosts:     [],
 			modes:     [],
 			peers:     [],
+			profile:   null,
 			redirects: null, // XXX: private
-			sessions:  []
+			sessions:  [],
+			vendor:    null
 		};
 
 		Object.keys(this.internet).forEach((key) => {
@@ -570,9 +631,17 @@ Settings.prototype = {
 			data.peers.push(peer);
 		});
 
+		if (this.profile !== default_profile) {
+			data.profile = this.profile;
+		}
+
 		this.sessions.forEach((session) => {
 			data.sessions.push(session.toJSON());
 		});
+
+		if (this.vendor !== null) {
+			data.vendor = this.vendor;
+		}
 
 
 		return {
