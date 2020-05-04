@@ -216,10 +216,21 @@ export const finish = function(id, flags) {
 
 		return review;
 
+	} else {
+
+		review = new Review();
+
+		if (id !== null) {
+			review.id = id;
+		}
+
+		if (flags !== null) {
+			review.flags = flags;
+		}
+
+		return review;
+
 	}
-
-
-	return null;
 
 };
 

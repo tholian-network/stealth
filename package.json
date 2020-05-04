@@ -1,6 +1,6 @@
 {
 	"name":    "stealth",
-	"version": "2019-X0",
+	"version": "2020-X0",
 	"module":  "./stealth/index.mjs",
 	"scripts": {
 		"start":   "bash ./stealth/bin/stealth.sh",

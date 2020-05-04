@@ -2,11 +2,11 @@
 import util from 'util';
 import process from 'process';
 
-import { console, Emitter, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
-import { root                                                        } from './ENVIRONMENT.mjs';
-import { Filesystem                                                  } from './Filesystem.mjs';
-import { Renderer                                                    } from './Renderer.mjs';
-import { Review, isReview                                            } from './Review.mjs';
+import { console, Emitter, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
+import { root                                                                 } from './ENVIRONMENT.mjs';
+import { Filesystem                                                           } from './Filesystem.mjs';
+import { Renderer                                                             } from './Renderer.mjs';
+import { Review, isReview                                                     } from './Review.mjs';
 
 
 
@@ -16,14 +16,16 @@ const isModule = function(obj) {
 
 const init = function(settings) {
 
-	let action   = isString(settings.action)    ? settings.action   : null;
-	let internet = isBoolean(settings.internet) ? settings.internet : false;
-	let sources  = isObject(settings.sources)   ? settings.sources  : {};
+	let action   = isString(settings.action)    ? settings.action                             : null;
+	let internet = isBoolean(settings.internet) ? settings.internet                           : false;
+	let reviews  = isArray(settings.reviews)    ? settings.reviews.filter((r) => isReview(r)) : [];
+	let sources  = isObject(settings.sources)   ? settings.sources                            : {};
 	let filtered = false;
 	let include  = {};
 	let projects = [];
 
-	settings.reviews.map((review) => {
+
+	reviews.forEach((review) => {
 
 		include[review.id] = false;
 
@@ -90,7 +92,7 @@ const init = function(settings) {
 					review.state = 'none';
 
 					include[review.id] = false;
-					settings.reviews.push(review);
+					reviews.push(review);
 
 				}
 
@@ -107,7 +109,7 @@ const init = function(settings) {
 
 		if (pattern.startsWith('*')) {
 
-			settings.reviews.forEach((review) => {
+			reviews.forEach((review) => {
 
 				if (review.id.endsWith(pattern.substr(1))) {
 					include[review.id] = true;
@@ -117,7 +119,7 @@ const init = function(settings) {
 
 		} else if (pattern.endsWith('*')) {
 
-			settings.reviews.forEach((review) => {
+			reviews.forEach((review) => {
 
 				if (review.id.startsWith(pattern.substr(0, pattern.length - 1))) {
 					include[review.id] = true;
@@ -130,7 +132,7 @@ const init = function(settings) {
 			let prefix = pattern.split('*').shift();
 			let suffix = pattern.split('*').pop();
 
-			settings.reviews.forEach((review) => {
+			reviews.forEach((review) => {
 
 				if (review.id.startsWith(prefix) && review.id.endsWith(suffix)) {
 					include[review.id] = true;
@@ -140,7 +142,7 @@ const init = function(settings) {
 
 		} else {
 
-			settings.reviews.forEach((review) => {
+			reviews.forEach((review) => {
 
 				if (review.id === pattern) {
 					include[review.id] = true;
@@ -156,7 +158,7 @@ const init = function(settings) {
 	// --internet defaulted with true
 	if (internet === false) {
 
-		settings.reviews.forEach((review) => {
+		reviews.forEach((review) => {
 
 			if (review.flags.internet === true) {
 				include[review.id] = false;
@@ -169,49 +171,31 @@ const init = function(settings) {
 
 	if (filtered === true) {
 
-		let reviews = [];
+		if (action === 'check') {
 
-		settings.reviews.sort((a, b) => {
-			if (a.id < b.id) return -1;
-			if (b.id < a.id) return  1;
-			return 0;
-		}).forEach((review) => {
-
-			if (include[review.id] === true) {
-				reviews.push(review);
-			}
-
-		});
-
-		if (reviews.length > 0) {
-
-			if (action === 'check') {
-
-				reviews.forEach((review) => {
-					this.check(review);
-				});
-
-			}
+			reviews.sort((a, b) => {
+				if (a.id < b.id) return -1;
+				if (b.id < a.id) return  1;
+				return 0;
+			}).filter((review) => {
+				return include[review.id] === true;
+			}).forEach((review) => {
+				this.check(review);
+			});
 
 		}
 
 	} else {
 
-		let reviews = settings.reviews.sort((a, b) => {
-			if (a.id < b.id) return -1;
-			if (b.id < a.id) return  1;
-			return 0;
-		});
+		if (action === 'check') {
 
-		if (reviews.length > 0) {
-
-			if (action === 'check') {
-
-				reviews.forEach((review) => {
-					this.check(review);
-				});
-
-			}
+			reviews.sort((a, b) => {
+				if (a.id < b.id) return -1;
+				if (b.id < a.id) return  1;
+				return 0;
+			}).forEach((review) => {
+				this.check(review);
+			});
 
 		}
 

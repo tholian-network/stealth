@@ -1,5 +1,6 @@
 
-import fs from 'fs';
+import fs      from 'fs';
+import process from 'process';
 
 import { Buffer, Emitter, isString } from './extern/base.mjs';
 import { IP                        } from '../stealth/source/parser/IP.mjs';

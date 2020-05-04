@@ -6,7 +6,7 @@ import Server             from './Server.mjs';
 // import Session            from './Session.mjs';
 // import Settings           from './Settings.mjs';
 import Stealth            from './Stealth.mjs';
-// import Tab                from './Tab.mjs';
+import Tab                from './Tab.mjs';
 import client_Cache       from './client/Cache.mjs';
 import client_Host        from './client/Host.mjs';
 import client_Mode        from './client/Mode.mjs';
@@ -57,11 +57,6 @@ export default {
 		other_REDIRECT,
 		other_ROUTER,
 
-		// Core Modules
-		// Session,
-		// Settings,
-		// Tab,
-
 		// Optimizers
 		optimizer_CSS,
 
@@ -74,15 +69,18 @@ export default {
 		protocol_WSS,
 
 		// Requests
+		Request,
 		request_Blocker,
 		request_Downloader,
 		request_Optimizer,
 
 		// Stealth
+		// Session,
+		// Settings,
 		Stealth,
 		Client,
 		Server,
-		Request,
+		Tab,
 		Browser,
 
 		// Network Services

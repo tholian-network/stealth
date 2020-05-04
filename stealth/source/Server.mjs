@@ -404,6 +404,9 @@ const Server = function(settings, stealth) {
 };
 
 
+Server.isServer = isServer;
+
+
 Server.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Server',

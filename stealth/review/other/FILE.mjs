@@ -6,8 +6,8 @@ import { URL              } from '../../../stealth/source/parser/URL.mjs';
 
 
 
-const PATH = '/covert/sketch/cache/payload/example.com/file.html';
-const REF  = sketch('cache/payload/example.com/file.html');
+const PATH = '/covert/sketch/hosts/block.txt';
+const REF  = sketch('hosts/block.txt');
 
 
 
@@ -25,7 +25,7 @@ describe('FILE.send()/callback', function(assert) {
 
 		assert(response !== null);
 		assert(response.headers !== null);
-		assert(response.headers['content-type'],   'text/html');
+		assert(response.headers['content-type'],   'text/plain');
 		assert(response.headers['content-length'], REF.payload.length);
 		assert(response.payload !== null);
 		assert(response.payload.length, REF.payload.length);
@@ -46,7 +46,7 @@ describe('FILE.send()/return', function(assert) {
 
 	assert(response3 !== null);
 	assert(response3.headers !== null);
-	assert(response3.headers['content-type'],   'text/html');
+	assert(response3.headers['content-type'],   'text/plain');
 	assert(response3.headers['content-length'], REF.payload.length);
 	assert(response3.payload !== null);
 	assert(response3.payload.length, REF.payload.length);
