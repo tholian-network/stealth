@@ -7,6 +7,20 @@ export const isResults = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Results]';
 };
 
+const clone = function(obj) {
+
+	let data = null;
+
+	try {
+		data = JSON.parse(JSON.stringify(obj));
+	} catch (err) {
+		data = null;
+	}
+
+	return data;
+
+};
+
 const diff = function(aobject, bobject) {
 
 	aobject = aobject !== undefined ? aobject : undefined;
@@ -155,6 +169,7 @@ const Results = function(length) {
 
 
 	this.data   = new Array(length).fill(null);
+	this.diff   = new Array(length).fill(null);
 	this.index  = 0;
 	this.length = length;
 
@@ -229,22 +244,44 @@ Results.prototype = {
 		if (result !== undefined && expect !== undefined) {
 
 			if (this.index < this.data.length) {
-				this.data[this.index] = diff(result, expect) === false;
+
+				if (diff(result, expect) === true) {
+					this.data[this.index] = false;
+					this.diff[this.index] = [ clone(result), clone(expect) ];
+				} else {
+					this.data[this.index] = true;
+					this.diff[this.index] = null;
+				}
+
 				this.index++;
+
 			}
 
 		} else if (result === true || result === false) {
 
 			if (this.index < this.data.length) {
-				this.data[this.index] = result;
+
+				if (result === false) {
+					this.data[this.index] = false;
+					this.diff[this.index] = [ false, true ];
+				} else {
+					this.data[this.index] = true;
+					this.diff[this.index] = null;
+				}
+
 				this.index++;
+
 			}
 
 		} else {
 
 			if (this.index < this.data.length) {
+
 				this.data[this.index] = null;
+				this.diff[this.index] = null;
+
 				this.index++;
+
 			}
 
 		}

@@ -112,7 +112,6 @@ const render_complete = function(review, is_current) {
 
 	});
 
-
 	if (review.state === null) {
 
 		if (is_current === true) {
@@ -427,6 +426,15 @@ const render_summary = function(review, is_current) {
 					});
 				});
 			}
+
+			test.results.diff.forEach((values, a) => {
+
+				if (values !== null) {
+					console.error('> ' + test.name + div1(test.name) + '\'s assert(value, expect) call #' + a + ' differs ...');
+					console.diff(values[0], values[1]);
+				}
+
+			});
 
 		});
 

@@ -1,16 +1,16 @@
 {
-	"name":    "stealth",
+	"name": "stealth",
 	"version": "2020-X0",
-	"module":  "./stealth/index.mjs",
+	"module": "./stealth/index.mjs",
 	"scripts": {
-		"start":   "bash ./stealth/bin/stealth.sh",
+		"start": "bash ./stealth/bin/stealth.sh",
 		"browser": "bash ./browser/bin/browser.sh",
 		"stealth": "bash ./stealth/bin/stealth.sh"
 	},
 	"exports": {
-		".":         "./stealth/index.mjs",
-		"./base":    "./base/index.mjs",
-		"./covert":  "./covert/index.mjs",
+		".": "./stealth/index.mjs",
+		"./base": "./base/index.mjs",
+		"./covert": "./covert/index.mjs",
 		"./stealth": "./stealth/index.mjs"
 	}
 }

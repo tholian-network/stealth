@@ -25,7 +25,6 @@ export const console = (function() {
 
 	};
 
-
 	const isArray = function(arr) {
 		return Object.prototype.toString.call(arr) === '[object Array]';
 	};
@@ -99,7 +98,25 @@ export const console = (function() {
 
 		for (let r = 0, rl = raw.length; r < rl; r++) {
 
-			if (raw.charCodeAt(r) <= 127) {
+			let code = raw.charCodeAt(r);
+			if (code === 9) {
+				str += '\\t';
+			} else if (code === 10) {
+				str += '\\n';
+			} else if (code === 13) {
+				str += '\\r';
+			} else if (code === 27) {
+
+				if (raw[r + 1] === '[') {
+
+					let index = raw.indexOf('m', r + 2);
+					if (index !== -1) {
+						r = index;
+					}
+
+				}
+				// TODO: Clean until "m"
+			} else if (code >= 32 && code <= 127) {
 				str += raw.charAt(r);
 			}
 
@@ -481,7 +498,42 @@ export const console = (function() {
 
 	};
 
+	const BLINK = {
+		colors:   [
+			16, 17, 18, 19, 20,
+			21, 27, 33, 39, 45,
+			45, 39, 33, 27, 21,
+			20, 19, 18, 17, 16
+		],
+		index:    0,
+		interval: null
+	};
 
+	const blink = function() {
+
+		let al   = arguments.length;
+		let args = [ '(!)' ];
+		for (let a = 0; a < al; a++) {
+			args.push(arguments[a]);
+		}
+
+		if (BLINK.interval === null) {
+
+			BLINK.interval = setInterval(() => {
+				BLINK.index++;
+			}, (1000 / BLINK.colors.length) * 2);
+
+		}
+
+
+		let color = BLINK.colors[BLINK.index % BLINK.colors.length] || null;
+		if (color !== null) {
+			process.stdout.write(stringify_arguments(args, '48;5;' + color));
+		} else {
+			process.stdout.write(stringify_arguments(args, 40));
+		}
+
+	};
 
 	const clear = function(partial) {
 
@@ -514,6 +566,161 @@ export const console = (function() {
 		}
 
 		process.stdout.write(stringify_arguments(args, 41));
+
+	};
+
+	const compare = function(str1, str2) {
+
+		let result = {
+			start: '',
+			end:   ''
+		};
+
+		for (let s = 0, sl = Math.max(str1.length, str2.length); s < sl; s++) {
+
+			if (str1[s] === str2[s]) {
+				result.start = result.start + str1[s];
+			} else {
+				break;
+			}
+
+		}
+
+		for (let s = 0; s < Math.min(str2.length, str1.length); s++) {
+
+			if (str1[str1.length - 1 - s] === str2[str2.length - 1 - s]) {
+				result.end = str1[str1.length - 1 - s] + result.end;
+			} else {
+				break;
+			}
+
+		}
+
+		return result;
+
+	};
+
+	const diff = function() {
+
+		if (arguments.length === 2) {
+
+			let obj_a  = JSON.stringify(arguments[0], null, '\t').split('\t').join(INDENT).split('\n');
+			let obj_b  = JSON.stringify(arguments[1], null, '\t').split('\t').join(INDENT).split('\n');
+			let result = [];
+
+			if (obj_a.length > obj_b.length) {
+
+				let new_b = new Array(obj_a.length).fill(null);
+				let tmp_a = obj_a.slice();
+				let div_a = 0;
+
+				for (let a = 0; a < tmp_a.length; a++) {
+
+					let line_a = tmp_a[tmp_a.length - 1 - a];
+					let line_b = obj_b[obj_b.length - 1 - a];
+
+					if (line_a === line_b) {
+						new_b[new_b.length - 1 - a] = line_a;
+					} else {
+						div_a = obj_b.length - 1 - a;
+						break;
+					}
+
+				}
+
+				for (let a = 0; a <= div_a; a++) {
+					new_b[a] = obj_b[a];
+				}
+
+				obj_b = new_b;
+
+			} else if (obj_b.length > obj_a.length) {
+
+				let new_a = new Array(obj_b.length).fill(null);
+				let tmp_b = obj_b.slice();
+				let div_b = 0;
+
+				for (let b = 0; b < tmp_b.length; b++) {
+
+					let line_a = obj_a[obj_a.length - 1 - b];
+					let line_b = tmp_b[tmp_b.length - 1 - b];
+
+					if (line_a === line_b) {
+						new_a[new_a.length - 1 - b] = line_b;
+					} else {
+						div_b = obj_a.length - 1 - b;
+						break;
+					}
+
+				}
+
+				for (let b = 0; b <= div_b; b++) {
+					new_a[b] = obj_a[b];
+				}
+
+				obj_a = new_a;
+
+			}
+
+			for (let l = 0, ll = Math.max(obj_a.length, obj_b.length); l < ll; l++) {
+
+				let line_a = obj_a[l];
+				let line_b = obj_b[l];
+
+				if (line_a === null) {
+					result.push([ '+', '', line_b ]);
+				} else if (line_b === null) {
+					result.push([ '-', line_a, '' ]);
+				} else if (line_a === line_b) {
+					result.push([ '', line_a, line_b ]);
+				} else {
+					result.push([ '-+', line_a, line_b ]);
+				}
+
+			}
+
+			let max = 0;
+
+			result.forEach((values) => {
+				max = Math.max(max, values[1].length, values[2].length);
+			});
+
+			result.forEach((values) => {
+
+				let op     = values[0];
+				let l_line = values[1];
+				let r_line = values[2];
+				let l_div  = WHITESPACE.substr(0, max - l_line.length);
+				let r_div  = WHITESPACE.substr(0, max - r_line.length);
+
+				if (op === '') {
+					process.stdout.write('\u001b[40m' + l_line + l_div + '\u001b[40m' + r_line + r_div + ' \u001b[K\u001b[0m\n');
+				} else if (op === '+') {
+					process.stdout.write('\u001b[40m' + l_div + '\u001b[42m' + r_line + '\u001b[40m' + r_div + '\u001b[0m\n');
+				} else if (op === '-') {
+					process.stdout.write('\u001b[41m' + l_line + '\u001b[40m' + l_div + r_div + '\u001b[0m\n');
+				} else if (op === '-+') {
+
+					let same = compare(l_line, r_line);
+					let temp = '';
+
+					temp += '\u001b[40m' + l_line.substr(0, same.start.length);
+					temp += '\u001b[41m' + l_line.substr(same.start.length, l_line.length - same.start.length - same.end.length);
+					temp += '\u001b[40m' + l_line.substr(l_line.length - same.end.length);
+					temp += l_div;
+					temp += r_line.substr(0, same.start.length);
+					temp += '\u001b[42m' + r_line.substr(same.start.length, r_line.length - same.start.length - same.end.length);
+					temp += '\u001b[40m' + r_line.substr(r_line.length - same.end.length);
+					temp += r_div;
+					temp += '\u001b[0m\n';
+
+					process.stdout.write(temp);
+
+				}
+
+			});
+
+		}
 
 	};
 
@@ -565,48 +772,13 @@ export const console = (function() {
 
 	};
 
-	const BLINK = {
-		colors:   [
-			16, 17, 18, 19, 20,
-			21, 27, 33, 39, 45,
-			45, 39, 33, 27, 21,
-			20, 19, 18, 17, 16
-		],
-		index:    0,
-		interval: null
-	};
-
-	const blink = function() {
-
-		let al   = arguments.length;
-		let args = [ '(!)' ];
-		for (let a = 0; a < al; a++) {
-			args.push(arguments[a]);
-		}
-
-		if (BLINK.interval === null) {
-
-			BLINK.interval = setInterval(() => {
-				BLINK.index++;
-			}, (1000 / BLINK.colors.length) * 2);
-
-		}
-
-
-		let color = BLINK.colors[BLINK.index % BLINK.colors.length] || null;
-		if (color !== null) {
-			process.stdout.write(stringify_arguments(args, '48;5;' + color));
-		} else {
-			process.stdout.write(stringify_arguments(args, 40));
-		}
-
-	};
 
 
 	const console = {
 		blink: blink,
 		clear: clear,
 		debug: debug,
+		diff:  diff,
 		error: error,
 		info:  info,
 		log:   log,
