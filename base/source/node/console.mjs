@@ -115,7 +115,7 @@ export const console = (function() {
 					}
 
 				}
-				// TODO: Clean until "m"
+
 			} else if (code >= 32 && code <= 127) {
 				str += raw.charAt(r);
 			}
