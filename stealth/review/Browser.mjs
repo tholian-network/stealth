@@ -581,7 +581,7 @@ describe('Browser.prototype.pause()', function(assert) {
 				other: false
 			}
 		},
-		url: 'https://example.com/index.html'
+		url: 'https://example.com/not-yet-downloaded.html'
 	});
 
 	assert(this.browser.tab.track(request), true);
@@ -590,13 +590,13 @@ describe('Browser.prototype.pause()', function(assert) {
 	setTimeout(() => {
 
 		this.browser.once('pause', (tab) => {
-			assert(request.stop(), true);
+			assert(request.stop(), false);
 			assert(tab, this.tab);
 		});
 
 		assert(this.browser.pause(), true);
 
-	}, 100);
+	}, 0);
 
 	setTimeout(() => {
 

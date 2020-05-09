@@ -427,11 +427,20 @@ const render_summary = function(review, is_current) {
 				});
 			}
 
-			test.results.diff.forEach((values, a) => {
+			test.results.stack.forEach((entry, e) => {
 
-				if (values !== null) {
-					console.error('> ' + test.name + div1(test.name) + '\'s assert(value, expect) call #' + a + ' differs ...');
-					console.diff(values[0], values[1]);
+				if (entry.diff !== null) {
+
+					console.log('');
+
+					if (entry.assert !== null) {
+						console.error('> ' + test.name + div1(test.name) + ' ' + entry.assert + ' differs ...');
+						console.diff(entry.diff[0], entry.diff[1]);
+					} else {
+						console.error('> ' + test.name + div1(test.name) + ' assert() #' + e + ' differs ...');
+						console.diff(entry.diff[0], entry.diff[1]);
+					}
+
 				}
 
 			});

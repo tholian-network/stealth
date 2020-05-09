@@ -133,8 +133,8 @@ Session.isSession = isSession;
 
 Session.merge = function(target, source) {
 
-	target = target instanceof Session ? target : null;
-	source = source instanceof Session ? source : null;
+	target = isSession(target) ? target : null;
+	source = isSession(source) ? source : null;
 
 
 	if (target !== null && source !== null) {

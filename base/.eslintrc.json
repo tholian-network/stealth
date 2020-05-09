@@ -13,6 +13,9 @@
 		"files": [ "extern/base.mjs" ],
 		"rules": { "no-global-assign": "off", "no-undef": "off" }
 	}, {
+		"files": [ "source/node/console.mjs" ],
+		"rules": { "no-control-regex": "off" }
+	}, {
 		"files": [ "source/MODULE.mjs" ],
 		"globals": {
 			"console": true,

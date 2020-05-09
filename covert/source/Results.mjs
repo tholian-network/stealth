@@ -1,7 +1,10 @@
 
 import { isArray, isBoolean, isDate, isFunction, isNumber, isObject, isRegExp, isString } from '../extern/base.mjs';
+import { Filesystem                                                                     } from './Filesystem.mjs';
 
 
+
+const FILESYSTEM = new Filesystem();
 
 export const isResults = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Results]';
@@ -161,6 +164,69 @@ const diff = function(aobject, bobject) {
 
 };
 
+const trace_assert = function() {
+
+	let stack = [];
+
+	try {
+		throw new Error();
+	} catch (err) {
+		stack = err.stack.trim().split('\n');
+		// Remove unnecessary function calls
+		stack = stack.slice(4);
+	}
+
+	if (stack.length > 0) {
+
+		let origin = null;
+
+		for (let s = 0, sl = stack.length; s < sl; s++) {
+
+			let line = stack[s].trim();
+			if (line.includes('(file://') && line.includes(')')) {
+
+				let tmp = line.split('(file://')[1].split(')').shift().trim();
+				if (tmp.includes('.mjs')) {
+					origin = tmp;
+					break;
+				}
+
+			}
+
+		}
+
+		if (origin !== null) {
+
+			let file = origin.split(':')[0] || null;
+			let line = origin.split(':')[1] || null;
+
+			if (file !== null && file.endsWith('.mjs') && line !== null) {
+
+				let code = FILESYSTEM.read(file, 'utf8');
+				if (code !== null) {
+
+					let lines = code.split('\n');
+					let check = lines[line - 1].trim();
+
+					if (check.startsWith('assert(') && check.endsWith(');')) {
+						return check;
+					} else if (check.startsWith('assert(')) {
+						return 'assert() in line #' + line;
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
 
 
 const Results = function(length) {
@@ -169,9 +235,9 @@ const Results = function(length) {
 
 
 	this.data   = new Array(length).fill(null);
-	this.diff   = new Array(length).fill(null);
 	this.index  = 0;
 	this.length = length;
+	this.stack  = new Array(length).fill(null);
 
 };
 
@@ -246,11 +312,21 @@ Results.prototype = {
 			if (this.index < this.data.length) {
 
 				if (diff(result, expect) === true) {
-					this.data[this.index] = false;
-					this.diff[this.index] = [ clone(result), clone(expect) ];
+
+					this.data[this.index]  = false;
+					this.stack[this.index] = {
+						assert: trace_assert(),
+						diff:   [ clone(result), clone(expect) ]
+					};
+
 				} else {
-					this.data[this.index] = true;
-					this.diff[this.index] = null;
+
+					this.data[this.index]  = true;
+					this.stack[this.index] = {
+						assert: null,
+						diff:   null
+					};
+
 				}
 
 				this.index++;
@@ -262,11 +338,21 @@ Results.prototype = {
 			if (this.index < this.data.length) {
 
 				if (result === false) {
-					this.data[this.index] = false;
-					this.diff[this.index] = [ false, true ];
+
+					this.data[this.index]  = false;
+					this.stack[this.index] = {
+						assert: trace_assert(),
+						diff:   [ false, true ]
+					};
+
 				} else {
-					this.data[this.index] = true;
-					this.diff[this.index] = null;
+
+					this.data[this.index]  = true;
+					this.stack[this.index] = {
+						assert: null,
+						diff:   null
+					};
+
 				}
 
 				this.index++;

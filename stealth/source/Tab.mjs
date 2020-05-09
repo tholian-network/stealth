@@ -81,13 +81,13 @@ const Tab = function(data) {
 	this.id       = settings.id || ('' + CURRENT_ID++);
 	this.history  = [];
 	this.config   = {
-		domain: null,
+		domain: 'welcome',
 		mode: {
-			text:  false,
-			image: false,
-			audio: false,
-			video: false,
-			other: false
+			text:  true,
+			image: true,
+			audio: true,
+			video: true,
+			other: true
 		}
 	};
 	this.ref      = URL.parse('stealth:welcome');
@@ -166,6 +166,8 @@ Tab.from = function(json) {
 				tab.navigate(data.url, data.config);
 			}
 
+			return tab;
+
 		}
 
 	}
@@ -176,10 +178,13 @@ Tab.from = function(json) {
 };
 
 
+Tab.isTab = isTab;
+
+
 Tab.merge = function(target, source) {
 
-	target = target instanceof Tab ? target : null;
-	source = source instanceof Tab ? source : null;
+	target = isTab(target) ? target : null;
+	source = isTab(source) ? source : null;
 
 
 	if (target !== null && source !== null) {
@@ -325,7 +330,7 @@ Tab.prototype = {
 			let loading = this.requests.find((request) => {
 
 				if (
-					request.timeline.init !== null
+					request.timeline.start !== null
 					&& request.timeline.error === null
 					&& request.timeline.redirect === null
 					&& request.timeline.response === null
@@ -506,29 +511,50 @@ Tab.prototype = {
 
 						if (domain !== null) {
 
-							this.config = {
-								domain: domain,
-								mode: {
-									text:  this.config.mode.text,
-									image: this.config.mode.image,
-									audio: this.config.mode.audio,
-									video: this.config.mode.video,
-									other: this.config.mode.other
-								}
-							};
+							if (ref.protocol === 'stealth') {
+
+								this.config = {
+									domain: domain,
+									mode: {
+										text:  true,
+										image: true,
+										audio: true,
+										video: true,
+										other: true
+									}
+								};
+
+							} else if (this.url !== 'stealth:welcome') {
+
+								this.config = {
+									domain: domain,
+									mode: {
+										text:  this.config.mode.text,
+										image: this.config.mode.image,
+										audio: this.config.mode.audio,
+										video: this.config.mode.video,
+										other: this.config.mode.other
+									}
+								};
+
+							} else {
+
+								this.config = {
+									domain: domain,
+									mode: {
+										text:  false,
+										image: false,
+										audio: false,
+										video: false,
+										other: false
+									}
+								};
+
+							}
 
 						} else {
 
-							this.config = {
-								domain: null,
-								mode: {
-									text:  false,
-									image: false,
-									audio: false,
-									video: false,
-									other: false
-								}
-							};
+							return false;
 
 						}
 
@@ -589,7 +615,7 @@ Tab.prototype = {
 		let requests = this.requests.filter((request) => {
 
 			if (
-				request.timeline.init !== null
+				request.timeline.start !== null
 				&& request.timeline.error === null
 				&& request.timeline.redirect === null
 				&& request.timeline.response === null

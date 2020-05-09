@@ -45,6 +45,50 @@ export const console = (function(global) {
 	const INDENT     = '    ';
 	const WHITESPACE = new Array(512).fill(' ').join('');
 
+	const isPrimitive = function(data) {
+
+		if (
+			data === null
+			|| data === undefined
+			|| typeof data === 'boolean'
+			|| typeof data === 'number'
+		) {
+			return true;
+		}
+
+
+		return false;
+
+	};
+
+	const align = function(array, other) {
+
+		let result = new Array(other.length).fill(null);
+		let temp   = other.slice();
+		let split  = 0;
+
+		for (let t = 0; t < temp.length; t++) {
+
+			let line_a = temp[temp.length - 1 - t];
+			let line_b = array[array.length - 1 - t];
+
+			if (line_a === line_b) {
+				result[result.length - 1 - t] = line_a;
+			} else {
+				split = array.length - 1 - t;
+				break;
+			}
+
+		}
+
+		for (let s = 0; s <= split; s++) {
+			result[s] = array[s];
+		}
+
+		return result;
+
+	};
+
 	const blink = function() {
 
 		let al   = arguments.length;
@@ -88,32 +132,77 @@ export const console = (function(global) {
 
 	const compare = function(str1, str2) {
 
-		let result = {
-			start: '',
-			end:   ''
-		};
+		let offset = [ -1, -1, -1 ];
 
 		for (let s = 0, sl = Math.max(str1.length, str2.length); s < sl; s++) {
 
 			if (str1[s] === str2[s]) {
-				result.start = result.start + str1[s];
+				offset[0] = s;
 			} else {
+				offset[0] = s;
 				break;
 			}
 
 		}
 
-		for (let s = 0; s < Math.min(str2.length, str1.length); s++) {
+		if (offset[0] > 0) {
 
-			if (str1[str1.length - 1 - s] === str2[str2.length - 1 - s]) {
-				result.end = str1[str1.length - 1 - s] + result.end;
-			} else {
-				break;
+			let search = -1;
+
+			for (let s = offset[0] + 1, sl = Math.max(str1.length, str2.length); s < sl; s++) {
+
+				if (str1[s] !== str2[s]) {
+					search = s;
+				} else {
+					search = s;
+					break;
+				}
+
+			}
+
+			if (search !== -1) {
+				offset[1] = search;
+				offset[2] = search;
 			}
 
 		}
 
-		return result;
+		if (str1 === str2) {
+
+			if (offset[0] === -1) {
+				offset[0] = 0;
+			}
+
+			if (offset[1] === -1) {
+				offset[1] = 0;
+			}
+
+			if (offset[2] === -1) {
+				offset[2] = 0;
+			}
+
+		} else {
+
+			if (offset[0] === -1) {
+				offset[0] = 0;
+			}
+
+			if (offset[1] === -1) {
+				offset[1] = str1.length;
+			}
+
+			if (offset[2] === -1) {
+				offset[2] = str2.length;
+			}
+
+			if (str1.length !== str2.length) {
+				offset[1] = str1.length;
+				offset[2] = str2.length;
+			}
+
+		}
+
+		return offset;
 
 	};
 
@@ -121,127 +210,246 @@ export const console = (function(global) {
 
 		if (arguments.length === 2) {
 
-			let obj_a  = JSON.stringify(arguments[0], null, '\t').split('\t').join(INDENT).split('\n');
-			let obj_b  = JSON.stringify(arguments[1], null, '\t').split('\t').join(INDENT).split('\n');
-			let result = [];
+			let value_a = JSON.stringify(arguments[0], null, '\t');
+			let value_b = JSON.stringify(arguments[1], null, '\t');
 
-			if (obj_a.length > obj_b.length) {
+			if (isPrimitive(arguments[0]) === true && isPrimitive(arguments[1]) === true) {
 
-				let new_b = new Array(obj_a.length).fill(null);
-				let tmp_a = obj_a.slice();
-				let div_a = 0;
+				if (arguments[0] === arguments[1]) {
 
-				for (let a = 0; a < tmp_a.length; a++) {
+					let msg = '';
 
-					let line_a = tmp_a[tmp_a.length - 1 - a];
-					let line_b = obj_b[obj_b.length - 1 - a];
+					msg += value_a;
+					msg += ' ';
+					msg += value_b;
 
-					if (line_a === line_b) {
-						new_b[new_b.length - 1 - a] = line_a;
-					} else {
-						div_a = obj_b.length - 1 - a;
-						break;
-					}
+					log(msg);
 
-				}
-
-				for (let a = 0; a <= div_a; a++) {
-					new_b[a] = obj_b[a];
-				}
-
-				obj_b = new_b;
-
-			} else if (obj_b.length > obj_a.length) {
-
-				let new_a = new Array(obj_b.length).fill(null);
-				let tmp_b = obj_b.slice();
-				let div_b = 0;
-
-				for (let b = 0; b < tmp_b.length; b++) {
-
-					let line_a = obj_a[obj_a.length - 1 - b];
-					let line_b = tmp_b[tmp_b.length - 1 - b];
-
-					if (line_a === line_b) {
-						new_a[new_a.length - 1 - b] = line_b;
-					} else {
-						div_b = obj_a.length - 1 - b;
-						break;
-					}
-
-				}
-
-				for (let b = 0; b <= div_b; b++) {
-					new_a[b] = obj_a[b];
-				}
-
-				obj_a = new_a;
-
-			}
-
-			for (let l = 0, ll = Math.max(obj_a.length, obj_b.length); l < ll; l++) {
-
-				let line_a = obj_a[l];
-				let line_b = obj_b[l];
-
-				if (line_a === null) {
-					result.push([ '+', '', line_b ]);
-				} else if (line_b === null) {
-					result.push([ '-', line_a, '' ]);
-				} else if (line_a === line_b) {
-					result.push([ '', line_a, line_b ]);
 				} else {
-					result.push([ '-+', line_a, line_b ]);
-				}
 
-			}
+					let msg = '';
 
-			let max = 0;
+					msg += '%c';
+					msg += value_a;
 
-			result.forEach((values) => {
-				max = Math.max(max, values[1].length, values[2].length);
-			});
+					msg += '%c';
+					msg += ' ';
 
-			result.forEach((values) => {
-
-				let op     = values[0];
-				let l_line = values[1];
-				let r_line = values[2];
-				let l_div  = WHITESPACE.substr(0, max - l_line.length);
-				let r_div  = WHITESPACE.substr(0, max - r_line.length);
-
-				if (op === '') {
-					log('%c' + l_line + l_div + r_line + r_div, DIFF.normal);
-				} else if (op === '+') {
-					log(l_div + '%c' + r_line + '%c' + r_div, DIFF.insert, DIFF.normal);
-				} else if (op === '-') {
-					log('%c' + l_line + '%c' + l_div + r_div, DIFF.remove, DIFF.normal);
-				} else if (op === '-+') {
-
-					let same = compare(l_line, r_line);
-					let temp = '';
-
-					temp += '%c' + l_line.substr(0, same.start.length);
-					temp += '%c' + l_line.substr(same.start.length, l_line.length - same.start.length - same.end.length);
-					temp += '%c' + l_line.substr(l_line.length - same.end.length);
-					temp += l_div;
-					temp += r_line.substr(0, same.start.length);
-					temp += '%c' + r_line.substr(same.start.length, r_line.length - same.start.length - same.end.length);
-					temp += '%c' + r_line.substr(r_line.length - same.end.length);
-					temp += r_div;
+					msg += '%c';
+					msg += value_b;
 
 					log(
-						temp,
-						DIFF.normal,
+						msg,
 						DIFF.remove,
 						DIFF.normal,
-						DIFF.insert,
-						DIFF.normal
+						DIFF.insert
 					);
 
 				}
 
-			});
+			} else {
+
+				let lines_a = value_a.split('\t').join(INDENT).split('\n');
+				let lines_b = value_b.split('\t').join(INDENT).split('\n');
+				let result  = [];
+
+				if (lines_a.length > lines_b.length) {
+					lines_b = align(lines_b, lines_a);
+				} else if (lines_b.length > lines_a.length) {
+					lines_a = align(lines_a, lines_b);
+				}
+
+				for (let l = 0, ll = Math.max(lines_a.length, lines_b.length); l < ll; l++) {
+
+					let line_a = lines_a[l];
+					let line_b = lines_b[l];
+
+					if (line_a === null) {
+						result.push([ '+', '', line_b ]);
+					} else if (line_b === null) {
+						result.push([ '-', line_a, '' ]);
+					} else if (line_a === line_b) {
+						result.push([ '', line_a, line_b ]);
+					} else {
+						result.push([ '-+', line_a, line_b ]);
+					}
+
+				}
+
+				let max = 0;
+
+				result.forEach((values) => {
+					max = Math.max(max, values[1].length, values[2].length);
+				});
+
+				result.forEach((values) => {
+
+					let op     = values[0];
+					let line_a = values[1];
+					let line_b = values[2];
+					let div_a  = WHITESPACE.substr(0, max - line_a.length);
+					let div_b  = WHITESPACE.substr(0, max - line_b.length);
+
+					if (op === '') {
+
+						let msg = '';
+
+						msg += '%c';
+						msg += line_a;
+
+						msg += '%c';
+						msg += div_a;
+
+						msg += '%c';
+						msg += ' ';
+
+						msg += '%c';
+						msg += line_b;
+
+						msg += '%c';
+						msg += div_b;
+
+						log(
+							msg,
+							DIFF.normal,
+							DIFF.normal,
+							DIFF.normal,
+							DIFF.normal,
+							DIFF.normal
+						);
+
+					} else if (op === '+') {
+
+						let msg = '';
+
+						msg += '%c';
+						msg += line_a;
+
+						msg += '%c';
+						msg += div_a;
+
+						msg += '%c';
+						msg += ' ';
+
+						msg += '%c';
+						msg += line_b;
+
+						msg += '%c';
+						msg += div_b;
+
+						log(
+							msg,
+							DIFF.normal,
+							DIFF.normal,
+							DIFF.normal,
+							DIFF.insert,
+							DIFF.normal
+						);
+
+					} else if (op === '-') {
+
+						let msg = '';
+
+						msg += '%c';
+						msg += line_a;
+
+						msg += '%c';
+						msg += div_a;
+
+						msg += '%c';
+						msg += ' ';
+
+						msg += '%c';
+						msg += line_b;
+
+						msg += '%c';
+						msg += div_b;
+
+						log(
+							msg,
+							DIFF.remove,
+							DIFF.normal,
+							DIFF.normal,
+							DIFF.normal,
+							DIFF.normal
+						);
+
+					} else if (op === '-+') {
+
+						let msg    = '';
+						let offset = compare(line_a, line_b);
+
+						if (offset[0] !== -1 && offset[1] !== -1 && offset[2] !== -1) {
+
+							msg += '%c';
+							msg += line_a.substr(0, offset[0]);
+							msg += '%c';
+							msg += line_a.substr(offset[0], offset[1] - offset[0]);
+							msg += '%c';
+							msg += line_a.substr(offset[1]);
+
+							msg += '%c';
+							msg += div_a;
+
+							msg += '%c';
+							msg += ' ';
+
+							msg += '%c';
+							msg += line_b.substr(0, offset[0]);
+							msg += '%c';
+							msg += line_b.substr(offset[0], offset[2] - offset[0]);
+							msg += '%c';
+							msg += line_b.substr(offset[2]);
+
+							msg += '%c';
+							msg += div_b;
+
+							log(
+								msg,
+								DIFF.normal,
+								DIFF.remove,
+								DIFF.normal,
+								DIFF.normal,
+								DIFF.normal,
+								DIFF.normal,
+								DIFF.insert,
+								DIFF.normal,
+								DIFF.normal
+							);
+
+						} else {
+
+							msg += '%c';
+							msg += line_a;
+
+							msg += '%c';
+							msg += div_a;
+
+							msg += '%c';
+							msg += ' ';
+
+							msg += '%c';
+							msg += line_b;
+
+							msg += '%c';
+							msg += div_b;
+
+							log(
+								msg,
+								DIFF.remove,
+								DIFF.normal,
+								DIFF.normal,
+								DIFF.insert,
+								DIFF.normal
+							);
+
+						}
+
+					}
+
+				});
+
+			}
 
 		}
 
