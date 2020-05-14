@@ -116,6 +116,7 @@ const console_sandbox = function() {
 
 		blink: rebind_console_method('blink'),
 		debug: rebind_console_method('debug'),
+		diff:  rebind_console_method('diff'),
 		error: rebind_console_method('error'),
 		info:  rebind_console_method('info'),
 		log:   rebind_console_method('log'),

@@ -465,6 +465,7 @@ Tab.prototype = {
 				let ref = URL.parse(url);
 				if (
 					ref.domain === this.ref.domain
+					|| (ref.protocol === 'stealth' && this.ref.protocol === 'stealth')
 					|| this.url === 'stealth:welcome'
 				) {
 

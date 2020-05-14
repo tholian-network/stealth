@@ -9,12 +9,12 @@ It is built by a former contributor to both Chromium and Firefox, and is built o
 opinion on how Web Browsers should try to understand the Semantic Web.
 
 Stealth empowers its Users, not Website Developers that could (,will ,and did) abuse technologies
-to compromise the freedom or rights of Web Browser End-Users.
+to compromise the freedom and rights of Web Browser End-Users.
 
 Stealth also focusses on Privacy in the sense of "Real Privacy" that does not trust any website
-or any URL by default. Everything has to be whitelisted by either `Site Modes` or `Site Filters`
-and `Site Optimizers` whereas the latter two allow auditing the design, content and media of
-regularly visited websites in an automated manner.
+or any URL by default. Everything has to be whitelisted by `Site Modes` that decide what content
+is loaded. Regularly visited Sites can be audited and their Semantic Knowledge extracted via
+`Site Optimizers` that allow automated usage.
 
 
 ## Downloads / Releases
@@ -40,16 +40,15 @@ Detailed Screenshots are in the [/guide/screenshots](./guide/screenshots) folder
 ## Features
 
 Stealth is both a Web Scraper, Web Service and Web Proxy that can serve its own
-User Interface ("Browser UI") which is implemented using Web Technologies.
+User Interface ("Browser UI") that is implemented using Web Technologies.
 
 - It is secure by default, without compromise. It only supports `DNS via HTTPS`,
   and uses explicitely `https://` first, and fallsback to `http://` only when
   necessary and only when the website was not MITM-ed.
 
-- It offers intelligent wizards on errors that help fix it. A DNS host cache
-  wizard, a web archive download assistant, or a web site mode configuration
-  assistant will help the user to automate everything based on rules, not based
-  on situations.
+- It offers intelligent Error Page wizards that guide the user through scenarios
+  when things are broken, from no domain resolved to download snapshot via web
+  archive.
 
 - It is peer-to-peer and always uses the most efficient way to share resources
   and to reduce bandwidth, which means downloaded websites are readable even
@@ -68,15 +67,11 @@ User Interface ("Browser UI") which is implemented using Web Technologies.
   allowed features (or media types). By default, Stealth will load nothing. The Site
   Mode next to the address bar decides what is loaded.
 
-- It uses whitelist-based `Site Filters` that decide based on `prefix`, `midfix` or
-  `suffix` rules what specific URL is allowed to load. This allows customization of
-  regularly visited websites that are not trustworthy (e.g. allows to disable a chat
-  feature, or to disable unnecessary CSS and media content).
-
-- It uses whitelist-based `Site Optimizers` that allow DOM/HTML elements on a website
-  using selectors and queries. This allows to view and download a news website article,
-  modifying it automatically in a "Reader Mode" similar presentation, and delivering
-  the same to all connected Clients or Peers (including Smartphones and Tablets).
+- It uses whitelist-based `Site Optimizers` that allow specific elements on a Site
+  to be extracted as Knowledge - which in return help to train the Browser to understand
+  future similar Sites on the web more easily. This can be seen as a learning mechanism
+  that is similar to the "Reader Mode" in other Browsers, but whilst delivering the
+  cleaned content to all connected Clients and Peers (including Smartphones and Tablets).
 
 - It never requests anything unnecessary. The cache is persistent until the user tells
   it to refresh the Site manually (or a scheduled Download task runs for that URL).
@@ -84,7 +79,7 @@ User Interface ("Browser UI") which is implemented using Web Technologies.
 - It uses trust-based `Peers` to share the local cache. Peers can receive, interchange,
   and synchronize their downloaded media. This is especially helpful in rural areas,
   where internet bandwidth is sparse; and redundant downloads can be saved. Just bookmark
-  Stealh as a Web App on your Android and you have direct access to your downloaded
+  Stealh as a Web App on your Android phone and you have direct access to your downloaded
   wikis, yay!
 
 - It can double-function as a Content-Auditing and Content-Filtering Web Proxy inside
