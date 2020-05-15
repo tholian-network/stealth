@@ -1,8 +1,9 @@
 
-import { isFunction                                    } from '../../../base/index.mjs';
-import { after, before, describe, finish, mktemp, root } from '../../../covert/index.mjs';
-import { Client                                        } from '../../../stealth/source/Client.mjs';
-import { Stealth                                       } from '../../../stealth/source/Stealth.mjs';
+import { isFunction                      } from '../../../base/index.mjs';
+import { after, before, describe, finish } from '../../../covert/index.mjs';
+import { ENVIRONMENT as SANDBOX          } from '../../../covert/index.mjs';
+import { Client                          } from '../../../stealth/source/Client.mjs';
+import { Stealth                         } from '../../../stealth/source/Stealth.mjs';
 
 
 
@@ -14,15 +15,15 @@ before('peers[].connect', function(assert) {
 	let client1  = new Client();
 	let stealth1 = new Stealth({
 		host:    '127.0.0.1',
-		profile: mktemp('stealth/peer/Cache'),
-		root:    root
+		profile: SANDBOX.mktemp('stealth/peer/Cache'),
+		root:    SANDBOX.root
 	});
 
 	let client2  = new Client();
 	let stealth2 = new Stealth({
 		host:    '127.0.0.2',
-		profile: mktemp('stealth/peer/Cache'),
-		root:    root
+		profile: SANDBOX.mktemp('stealth/peer/Cache'),
+		root:    SANDBOX.root
 	});
 
 

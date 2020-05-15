@@ -429,7 +429,7 @@ const render_summary = function(review, is_current) {
 
 			test.results.stack.forEach((entry, e) => {
 
-				if (entry.diff !== null) {
+				if (entry !== null && entry.diff !== null) {
 
 					console.log('');
 

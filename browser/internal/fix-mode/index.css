@@ -1,6 +1,6 @@
 
-@import url("../common/default.css");
-@import url("../common/internal.css");
+@import url("../theme.css");
+@import url("../index.css");
 @import url("../settings/sites.css");
 
 

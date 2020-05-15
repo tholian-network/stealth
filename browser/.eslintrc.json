@@ -10,20 +10,15 @@
 		"sourceType": "module"
 	},
 	"globals": {
-		"browser": true,
-		"Buffer": true,
-		"BROWSER": true,
-		"WIDGETS": true
+		"Buffer": true
 	},
 	"overrides": [{
+		"files": [ "*.mjs" ],
+		"rules": {}
+	}, {
 		"files": [ "bin/electron/application.js" ],
 		"env": {
 			"node": true
-		}
-	}, {
-		"files": [ "bin/firefox/defaults/preferences/prefs.js" ],
-		"globals": {
-			"pref": true
 		}
 	}, {
 		"files": [ "bin/gjs/application.js" ],
@@ -31,13 +26,16 @@
 			"imports": true
 		}
 	}, {
-		"files": [ "browser.mjs", "service.js" ],
+		"files": [ "service.js" ],
 		"rules": {
+			"no-control-regex": "off",
 			"no-console": "off"
 		}
 	}, {
 		"files": [ "extern/base.mjs" ],
-		"rules": { "no-global-assign": "off", "no-undef": "off" }
+		"rules": {
+			"no-undef": "off"
+		}
 	}],
 	"rules": {
 		"no-restricted-globals": [

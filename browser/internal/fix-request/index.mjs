@@ -1,8 +1,8 @@
 
-import { sort    } from '../settings/peers.mjs';
-import { Element } from '../common/Element.mjs';
-import { flags   } from '../../source/ENVIRONMENT.mjs';
-import { URL     } from '../../source/parser/URL.mjs';
+import { sort            } from '../settings/peers.mjs';
+import { Element, access } from '../../internal/index.mjs';
+import { ENVIRONMENT     } from '../../source/ENVIRONMENT.mjs';
+import { URL             } from '../../source/parser/URL.mjs';
 
 
 
@@ -121,170 +121,166 @@ const update = () => {
 
 
 
-(function(global) {
+let browser = access('browser');
+if (browser !== null) {
 
-	let browser = global.parent.BROWSER || global.BROWSER || null;
-	if (browser !== null) {
+	let service = browser.client.services.peer || null;
+	if (service !== null && browser.settings.peers.length > 0) {
 
-		let service = browser.client.services.peer || null;
-		if (service !== null && browser.settings.peers.length > 0) {
+		browser.settings.peers.forEach((peer) => {
 
-			browser.settings.peers.forEach((peer) => {
+			service.proxy({
+				domain:  peer.domain,
+				headers: {
+					service: 'cache',
+					method:  'info'
+				},
+				payload: ENVIRONMENT.flags.url
+			}, (info) => {
 
-				service.proxy({
-					domain:  peer.domain,
-					headers: {
-						service: 'cache',
-						method:  'info'
-					},
-					payload: flags.url
-				}, (info) => {
+				if (info === null) {
+					info = {
+						headers: {
+							size: null,
+							time: null
+						},
+						payload: {
+							size: null,
+							time: null
+						}
+					};
+				}
 
-					if (info === null) {
-						info = {
-							headers: {
-								size: null,
-								time: null
-							},
-							payload: {
-								size: null,
-								time: null
-							}
-						};
-					}
-
-					CACHES.push({
-						domain:     peer.domain,
-						connection: peer.connection,
-						cache:      info
-					});
-
-					update();
-
+				CACHES.push({
+					domain:     peer.domain,
+					connection: peer.connection,
+					cache:      info
 				});
+
+				update();
+
+			});
+
+		});
+
+	} else {
+		Element.query('#peers').erase();
+	}
+
+
+	let url = ELEMENTS.status.url || null;
+	if (url !== null) {
+		url.value(URL.render(ENVIRONMENT.flags.url));
+	}
+
+	let cause = ELEMENTS.status.cause || null;
+	if (cause !== null) {
+
+		if (ENVIRONMENT.flags.cause !== null) {
+
+			cause.forEach((block) => {
+
+				let value = block.value();
+				if (value !== ENVIRONMENT.flags.cause) {
+					block.erase();
+				}
 
 			});
 
 		} else {
-			Element.query('#peers').erase();
+			cause.forEach((block) => block.erase());
 		}
 
+	}
 
-		let url = ELEMENTS.status.url || null;
-		if (url !== null) {
-			url.value(URL.render(flags.url));
-		}
+	listen(browser, (action, data, done) => {
 
-		let cause = ELEMENTS.status.cause || null;
-		if (cause !== null) {
+		let service = browser.client.services.peer || null;
+		if (service !== null) {
 
-			if (flags.cause !== null) {
+			if (action === 'request') {
 
-				cause.forEach((block) => {
+				service.proxy({
+					domain:  data.domain,
+					headers: {
+						service: 'session',
+						method:  'request'
+					},
+					payload: ENVIRONMENT.flags.url
+				}, (response) => {
 
-					let value = block.value();
-					if (value !== flags.cause) {
-						block.erase();
+					if (response !== null) {
+
+						let service = browser.client.services.cache || null;
+						if (service !== null) {
+
+							service.save({
+								domain:    ENVIRONMENT.flags.url.domain    || null,
+								host:      ENVIRONMENT.flags.url.host      || null,
+								subdomain: ENVIRONMENT.flags.url.subdomain || null,
+								path:      ENVIRONMENT.flags.url.path      || null,
+								headers:   response.headers || null,
+								payload:   response.payload || null
+							}, (result) => {
+								done(result);
+							});
+
+						} else {
+							done(false);
+						}
+
+					} else {
+						done(false);
 					}
 
 				});
 
-			} else {
-				cause.forEach((block) => block.erase());
-			}
+			} else if (action === 'download') {
 
-		}
+				service.proxy({
+					domain:  data.domain,
+					headers: {
+						service: 'cache',
+						method:  'read'
+					},
+					payload: ENVIRONMENT.flags.url
+				}, (response) => {
 
-		listen(browser, (action, data, done) => {
+					if (response !== null) {
 
-			let service = browser.client.services.peer || null;
-			if (service !== null) {
+						let service = browser.client.services.cache || null;
+						if (service !== null) {
 
-				if (action === 'request') {
-
-					service.proxy({
-						domain:  data.domain,
-						headers: {
-							service: 'session',
-							method:  'request'
-						},
-						payload: flags.url
-					}, (response) => {
-
-						if (response !== null) {
-
-							let service = browser.client.services.cache || null;
-							if (service !== null) {
-
-								service.save({
-									domain:    flags.url.domain    || null,
-									host:      flags.url.host      || null,
-									subdomain: flags.url.subdomain || null,
-									path:      flags.url.path      || null,
-									headers:   response.headers    || null,
-									payload:   response.payload    || null
-								}, (result) => {
-									done(result);
-								});
-
-							} else {
-								done(false);
-							}
+							service.save({
+								domain:    ENVIRONMENT.flags.url.domain    || null,
+								host:      ENVIRONMENT.flags.url.host      || null,
+								subdomain: ENVIRONMENT.flags.url.subdomain || null,
+								path:      ENVIRONMENT.flags.url.path      || null,
+								headers:   response.headers || null,
+								payload:   response.payload || null
+							}, (result) => {
+								done(result);
+							});
 
 						} else {
 							done(false);
 						}
 
-					});
+					} else {
+						done(false);
+					}
 
-				} else if (action === 'download') {
-
-					service.proxy({
-						domain:  data.domain,
-						headers: {
-							service: 'cache',
-							method:  'read'
-						},
-						payload: flags.url
-					}, (response) => {
-
-						if (response !== null) {
-
-							let service = browser.client.services.cache || null;
-							if (service !== null) {
-
-								service.save({
-									domain:    flags.url.domain    || null,
-									host:      flags.url.host      || null,
-									subdomain: flags.url.subdomain || null,
-									path:      flags.url.path      || null,
-									headers:   response.headers    || null,
-									payload:   response.payload    || null
-								}, (result) => {
-									done(result);
-								});
-
-							} else {
-								done(false);
-							}
-
-						} else {
-							done(false);
-						}
-
-					});
-
-				} else {
-					done(false);
-				}
+				});
 
 			} else {
 				done(false);
 			}
 
-		});
+		} else {
+			done(false);
+		}
 
-	}
+	});
 
-})(typeof window !== 'undefined' ? window : this);
+}
 

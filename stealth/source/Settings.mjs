@@ -3,7 +3,7 @@ import fs   from 'fs';
 import path from 'path';
 
 import { console, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
-import { hosts as default_hosts, profile as default_profile, temp    } from './ENVIRONMENT.mjs';
+import { ENVIRONMENT                                                 } from './ENVIRONMENT.mjs';
 import { Session                                                     } from './Session.mjs';
 import { HOSTS                                                       } from './parser/HOSTS.mjs';
 
@@ -29,12 +29,12 @@ const init = function(callback) {
 
 	let result = false;
 
-	if (default_hosts !== null) {
+	if (ENVIRONMENT.hosts !== null) {
 
 		let stat = null;
 
 		try {
-			stat = fs.lstatSync(path.resolve(default_hosts));
+			stat = fs.lstatSync(path.resolve(ENVIRONMENT.hosts));
 		} catch (err) {
 			stat = null;
 		}
@@ -44,7 +44,7 @@ const init = function(callback) {
 			let tmp = null;
 
 			try {
-				tmp = fs.readFileSync(path.resolve(default_hosts), 'utf8');
+				tmp = fs.readFileSync(path.resolve(ENVIRONMENT.hosts), 'utf8');
 			} catch (err) {
 				tmp = null;
 			}
@@ -458,7 +458,7 @@ const setup = function(profile, callback) {
 
 const Settings = function(stealth, profile, vendor) {
 
-	profile = isString(profile) ? profile : default_profile;
+	profile = isString(profile) ? profile : ENVIRONMENT.profile;
 	vendor  = isString(vendor)  ? vendor  : null;
 
 
@@ -481,7 +481,7 @@ const Settings = function(stealth, profile, vendor) {
 	init.call(this, (result) => {
 
 		if (result === true) {
-			console.info('Settings: Native Hosts imported from "' + default_hosts + '".');
+			console.info('Settings: Native Hosts imported from "' + ENVIRONMENT.hosts + '".');
 			console.log('> ' + this.hosts.length + ' Host' + (this.hosts.length === 1 ? '' : 's') + '.');
 		}
 
@@ -523,7 +523,7 @@ const Settings = function(stealth, profile, vendor) {
 
 			} else {
 
-				this.profile = temp;
+				this.profile = ENVIRONMENT.temp;
 
 				read.call(this, this.profile, true, (result) => {
 
@@ -631,7 +631,7 @@ Settings.prototype = {
 			data.peers.push(peer);
 		});
 
-		if (this.profile !== default_profile) {
+		if (this.profile !== ENVIRONMENT.profile) {
 			data.profile = this.profile;
 		}
 

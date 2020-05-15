@@ -1,6 +1,6 @@
 
+import { Element  } from '../../design/index.mjs';
 import { isString } from '../../extern/base.mjs';
-import { Element  } from '../Element.mjs';
 import { URL      } from '../../source/parser/URL.mjs';
 
 

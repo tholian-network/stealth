@@ -3,7 +3,7 @@ import fs   from 'fs';
 import path from 'path';
 
 import { Buffer, isFunction, isObject } from '../../extern/base.mjs';
-import { root                         } from '../ENVIRONMENT.mjs';
+import { ENVIRONMENT                  } from '../ENVIRONMENT.mjs';
 
 
 
@@ -22,7 +22,7 @@ const FILE = {
 
 				if (callback !== null) {
 
-					fs.readFile(path.resolve(root + url), (err, buffer) => {
+					fs.readFile(path.resolve(ENVIRONMENT.root + url), (err, buffer) => {
 
 						if (!err) {
 
@@ -46,7 +46,7 @@ const FILE = {
 
 					let buffer = null;
 					try {
-						buffer = fs.readFileSync(path.resolve(root + url));
+						buffer = fs.readFileSync(path.resolve(ENVIRONMENT.root + url));
 					} catch (err) {
 						buffer = null;
 					}

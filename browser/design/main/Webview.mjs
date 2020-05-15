@@ -1,8 +1,8 @@
 
+import { Element             } from '../../design/index.mjs';
 import { isBoolean, isString } from '../../extern/base.mjs';
-import { Element             } from '../Element.mjs';
+import { dispatch            } from '../../internal/index.mjs';
 import { URL                 } from '../../source/parser/URL.mjs';
-import { dispatch            } from '../../internal/common/internal.mjs';
 
 
 

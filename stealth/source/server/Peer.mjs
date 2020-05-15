@@ -1,6 +1,6 @@
 
 import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { hostname                                } from '../ENVIRONMENT.mjs';
+import { ENVIRONMENT                             } from '../ENVIRONMENT.mjs';
 import { IP                                      } from '../parser/IP.mjs';
 import { Client, isClient                        } from '../Client.mjs';
 
@@ -206,7 +206,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 					event:   'info'
 				},
 				payload: {
-					domain:     hostname,
+					domain:     ENVIRONMENT.hostname,
 					connection: settings.internet.connection
 				}
 			});

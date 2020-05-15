@@ -1,7 +1,7 @@
 
 import { isFunction                                                   } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
-import { hostname                                                     } from '../../../stealth/source/ENVIRONMENT.mjs';
+import { ENVIRONMENT                                                  } from '../../../stealth/source/ENVIRONMENT.mjs';
 import { Peer                                                         } from '../../../stealth/source/client/Peer.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
@@ -41,7 +41,7 @@ describe('Peer.prototype.info()', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.domain,     hostname);
+		assert(response.domain,     ENVIRONMENT.hostname);
 		assert(response.connection, 'mobile');
 
 	});

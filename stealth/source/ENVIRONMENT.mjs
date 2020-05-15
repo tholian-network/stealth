@@ -5,7 +5,7 @@ import process from 'process';
 
 
 
-export const flags = (() => {
+const flags = (() => {
 
 	let flags = {
 		debug:   false,
@@ -40,9 +40,9 @@ export const flags = (() => {
 
 })();
 
-export const hostname = os.hostname();
+const hostname = os.hostname();
 
-export const hosts = (() => {
+const hosts = (() => {
 
 	let hosts    = null;
 	let platform = os.platform();
@@ -60,7 +60,7 @@ export const hosts = (() => {
 
 })();
 
-export const profile = (() => {
+const profile = (() => {
 
 	let folder   = '/tmp/stealth';
 	let user     = process.env.SUDO_USER || process.env.USER;
@@ -89,7 +89,7 @@ export const profile = (() => {
 
 })();
 
-export const root = (() => {
+const root = (() => {
 
 	let pwd = process.env.PWD || null;
 	if (pwd !== null) {
@@ -109,7 +109,7 @@ export const root = (() => {
 
 })();
 
-export const temp = (() => {
+const temp = (() => {
 
 	let user     = process.env.SUDO_USER || process.env.USER;
 	let folder   = '/tmp/stealth-' + user;

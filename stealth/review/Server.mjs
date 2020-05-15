@@ -1,7 +1,8 @@
 
-import { after, before, describe, finish, mktemp, root } from '../../covert/index.mjs';
-import { Server, isServer                              } from '../../stealth/source/Server.mjs';
-import { Stealth                                       } from '../../stealth/source/Stealth.mjs';
+import { after, before, describe, finish } from '../../covert/index.mjs';
+import { ENVIRONMENT as SANDBOX          } from '../../covert/index.mjs';
+import { Server, isServer                } from '../../stealth/source/Server.mjs';
+import { Stealth                         } from '../../stealth/source/Stealth.mjs';
 
 
 
@@ -9,8 +10,8 @@ export const connect = before('Server.prototype.connect()', function(assert) {
 
 	this.server  = null;
 	this.stealth = new Stealth({
-		profile: mktemp('stealth/Server', 8),
-		root:    root
+		profile: SANDBOX.mktemp('stealth/Server', 8),
+		root:    SANDBOX.root
 	});
 
 	this.stealth.once('connect', () => {

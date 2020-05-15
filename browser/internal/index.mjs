@@ -1,19 +1,27 @@
 
-import { Element             } from './Element.mjs';
-import { isBoolean, isString } from '../../extern/base.mjs';
-import { URL                 } from '../../source/parser/URL.mjs';
+const global = (typeof window !== 'undefined' ? window : this);
+
+import { isBoolean, isObject, isString } from '../extern/base.mjs';
+import { isBrowser                     } from '../source/Browser.mjs';
+import { URL                           } from '../source/parser/URL.mjs';
+import { Element                       } from './common/Element.mjs';
 
 
 
-const global  = (typeof window !== 'undefined' ? window : this);
-const WIDGETS = global.WIDGETS || {};
+const STATE = {
+	escapes: 0
+};
+
+
+export * from './common/Element.mjs';
+
 
 const oncontext = function(window, browser, element, autofocus) {
 
 	autofocus = isBoolean(autofocus) ? autofocus : false;
 
 
-	let context = WIDGETS.context || null;
+	let context = access('widgets.context');
 	let ref     = null;
 	let type    = element.type();
 
@@ -158,7 +166,7 @@ const oncontext = function(window, browser, element, autofocus) {
 				offset_y += header.area().h;
 			}
 
-			let tabs = WIDGETS.tabs || null;
+			let tabs = access('widgets.tabs');
 			if (tabs !== null && tabs.element.state() === 'active') {
 				offset_x += tabs.element.area().w;
 			}
@@ -184,7 +192,7 @@ const oncontext = function(window, browser, element, autofocus) {
 
 const uncontext = function() {
 
-	let context = WIDGETS.context || null;
+	let context = access('widgets.context');
 	if (context !== null) {
 		context.emit('hide');
 	}
@@ -322,22 +330,44 @@ const wait_for = function(window, property, callback) {
 
 
 
-export const dispatch = function(window, browser) {
+export const access = function(query) {
 
-	let escapes = 0;
-	let widgets = window.WIDGETS || null;
-	if (widgets !== null) {
+	query = isString(query) ? query : '';
 
-		if (Object.keys(WIDGETS).length === 0) {
 
-			for (let id in widgets) {
-				WIDGETS[id] = widgets[id];
+	let tmp = query.split('.');
+	if (tmp.length > 0) {
+
+		let pointer = null;
+
+		if (tmp[0] === 'browser') {
+			pointer = isBrowser(global.parent['BROWSER']) ? global.parent['BROWSER'] : null;
+		} else if (tmp[0] === 'widgets') {
+			pointer = isObject(global.parent['WIDGETS']) ? global.parent['WIDGETS'] : null;
+		}
+
+		for (let t = 1; t < tmp.length; t++) {
+
+			if (typeof pointer[tmp[t]] !== 'undefined') {
+				pointer = pointer[tmp[t]];
+			} else {
+				pointer = null;
+				break;
 			}
 
 		}
 
+
+		return pointer;
+
 	}
 
+
+	return null;
+
+};
+
+export const dispatch = function(window, browser) {
 
 	window.document.onclick = (e) => {
 
@@ -408,13 +438,13 @@ export const dispatch = function(window, browser) {
 
 
 		// Show Help on three (tries to) Escape in a row
-		let help = WIDGETS.help || null;
+		let help = access('widgets.help');
 		if (help !== null && help.element.state() === 'active') {
 
 			if (key === 'enter') {
 
 				help.emit('hide');
-				escapes = 0;
+				STATE.escapes = 0;
 
 				e.preventDefault();
 				e.stopPropagation();
@@ -438,15 +468,15 @@ export const dispatch = function(window, browser) {
 
 				let focus = window.document.activeElement || null;
 				if (focus === null || focus === window.document.body) {
-					escapes++;
+					STATE.escapes++;
 				} else {
-					escapes = 0;
+					STATE.escapes = 0;
 				}
 
-				if (escapes >= 3) {
+				if (STATE.escapes >= 3) {
 
 					help.emit('show');
-					escapes = 0;
+					STATE.escapes = 0;
 
 					e.preventDefault();
 					e.stopPropagation();
@@ -462,7 +492,7 @@ export const dispatch = function(window, browser) {
 
 		// Show Context Menu with tabable (but not focusable) elements
 		// XXX: There's no API to reset the selected tabindex focus
-		let context = WIDGETS.context || null;
+		let context = access('widgets.context');
 		if (context !== null && context.element.state() === 'active') {
 
 			if (key === 'tab') {
@@ -507,17 +537,17 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, true);
 
-			let beacon = WIDGETS.beacon || null;
+			let beacon = access('widgets.beacon');
 			if (beacon !== null) {
 				beacon.emit('hide');
 			}
 
-			let session = WIDGETS.session || null;
+			let session = access('widgets.session');
 			if (session !== null) {
 				session.emit('hide');
 			}
 
-			let site = WIDGETS.site || null;
+			let site = access('widgets.site');
 			if (site !== null) {
 				site.emit('hide');
 			}
@@ -530,7 +560,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let history = WIDGETS.history || null;
+			let history = access('widgets.history');
 			if (history !== null && history.back.state() !== 'disabled') {
 				history.back.emit('click');
 			}
@@ -543,7 +573,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let history = WIDGETS.history || null;
+			let history = access('widgets.history');
 			if (history !== null && history.next.state() !== 'disabled') {
 				history.next.emit('click');
 			}
@@ -556,7 +586,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let history = WIDGETS.history || null;
+			let history = access('widgets.history');
 			if (history !== null && history.action.state() !== 'disabled') {
 				history.action.emit('click');
 			}
@@ -569,7 +599,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let history = WIDGETS.history || null;
+			let history = access('widgets.history');
 			if (history !== null && history.open.state() !== 'disabled') {
 				history.open.emit('click');
 			}
@@ -582,7 +612,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let address = WIDGETS.address || null;
+			let address = access('widgets.address');
 			if (address !== null) {
 				address.input.emit('focus');
 			}
@@ -595,7 +625,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let tabs = WIDGETS.tabs || null;
+			let tabs = access('widgets.tabs');
 			if (tabs !== null) {
 
 				if (tabs.curr !== null) {
@@ -614,7 +644,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let tabs = WIDGETS.tabs || null;
+			let tabs = access('widgets.tabs');
 			if (tabs !== null) {
 
 				if (tabs.prev !== null) {
@@ -633,7 +663,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let tabs = WIDGETS.tabs || null;
+			let tabs = access('widgets.tabs');
 			if (tabs !== null) {
 
 				if (tabs.next !== null) {
@@ -652,9 +682,9 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let mode = WIDGETS.mode || null;
+			let mode = access('widgets.mode');
 			if (mode !== null) {
-				rotate_through_modes(browser, WIDGETS.mode.buttons);
+				rotate_through_modes(browser, mode.buttons);
 			}
 
 			e.preventDefault();
@@ -675,13 +705,13 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let settings = WIDGETS.settings || null;
+			let settings = access('widgets.settings');
 			if (settings !== null) {
 
 				rotate_through_settings(browser, [
-					WIDGETS.settings.beacon  || null,
-					WIDGETS.settings.session || null,
-					WIDGETS.settings.site    || null
+					settings.beacon  || null,
+					settings.session || null,
+					settings.site    || null
 				].filter((b) => b !== null));
 
 			}
@@ -694,7 +724,7 @@ export const dispatch = function(window, browser) {
 			uncontext(window, browser, false);
 			unfocus(window, browser, false);
 
-			let settings = WIDGETS.settings || null;
+			let settings = access('widgets.settings');
 			if (settings !== null && settings.browser.state() !== 'disabled') {
 				settings.browser.emit('click');
 			}
@@ -704,7 +734,7 @@ export const dispatch = function(window, browser) {
 
 		} else if (ctrl === true && key === ' ') {
 
-			let context = WIDGETS.context || null;
+			let context = access('widgets.context');
 			if (context !== null && context.element.state() === 'active') {
 
 				uncontext(window, browser, false);

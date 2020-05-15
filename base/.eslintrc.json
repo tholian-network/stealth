@@ -10,8 +10,23 @@
 		"sourceType": "module"
 	},
 	"overrides": [{
-		"files": [ "extern/base.mjs" ],
-		"rules": { "no-global-assign": "off", "no-undef": "off" }
+		"files": [ "*.mjs" ],
+		"rules": {}
+	}, {
+		"files": [ "build/browser.mjs" ],
+		"rules": {
+			"no-undef": "off"
+		}
+	}, {
+		"files": [ "build/node.mjs" ],
+		"globals": {
+			"global": true,
+			"window": true
+		},
+		"rules": {
+			"no-control-regex": "off",
+			"no-undef": "off"
+		}
 	}, {
 		"files": [ "source/node/console.mjs" ],
 		"rules": { "no-control-regex": "off" }

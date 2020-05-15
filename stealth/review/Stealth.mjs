@@ -1,10 +1,11 @@
 
-import { after, before, describe, finish, mktemp, root } from '../../covert/index.mjs';
-import { Service                                       } from '../../covert/EXAMPLE.mjs';
-import { hostname                                      } from '../../stealth/source/ENVIRONMENT.mjs';
-import { Stealth, isStealth                            } from '../../stealth/source/Stealth.mjs';
-import { isRequest                                     } from '../../stealth/source/Request.mjs';
-import { Session, isSession                            } from '../../stealth/source/Session.mjs';
+import { after, before, describe, finish } from '../../covert/index.mjs';
+import { ENVIRONMENT as SANDBOX          } from '../../covert/index.mjs';
+import { Service                         } from '../../covert/EXAMPLE.mjs';
+import { ENVIRONMENT                     } from '../../stealth/source/ENVIRONMENT.mjs';
+import { Stealth, isStealth              } from '../../stealth/source/Stealth.mjs';
+import { isRequest                       } from '../../stealth/source/Request.mjs';
+import { Session, isSession              } from '../../stealth/source/Session.mjs';
 
 
 
@@ -12,13 +13,13 @@ export const connect = before('Stealth.prototype.connect()', function(assert) {
 
 	this.server  = null;
 	this.stealth = new Stealth({
-		profile: mktemp('stealth/Stealth', 8),
-		root:    root
+		profile: SANDBOX.mktemp('stealth/Stealth', 8),
+		root:    SANDBOX.root
 	});
 
-	assert(this.stealth._settings.debug,   false);
-	assert(this.stealth._settings.host,    null);
-	assert(this.stealth._settings.root,    root);
+	assert(this.stealth._settings.debug, false);
+	assert(this.stealth._settings.host,  null);
+	assert(this.stealth._settings.root,  SANDBOX.root);
 
 	this.stealth.once('connect', () => {
 
@@ -39,10 +40,10 @@ describe('new Stealth()', function(assert) {
 		host: '127.0.0.3'
 	});
 
-	assert(stealth._settings.debug,    false);
-	assert(stealth._settings.host,     '127.0.0.3');
-	assert(stealth._settings.profile,  null);
-	assert(stealth._settings.root,     root);
+	assert(stealth._settings.debug,   false);
+	assert(stealth._settings.host,    '127.0.0.3');
+	assert(stealth._settings.profile, null);
+	assert(stealth._settings.root,    SANDBOX.root);
 
 	assert(Stealth.isStealth(stealth), true);
 	assert(isStealth(stealth),         true);
@@ -118,8 +119,8 @@ describe('Stealth.prototype.track()', function(assert) {
 	assert(session2, session3);
 
 	assert(session1.domain.endsWith('.tholian.network'), true);
-	assert(session2.domain, hostname);
-	assert(session3.domain, hostname);
+	assert(session2.domain, ENVIRONMENT.hostname);
+	assert(session3.domain, ENVIRONMENT.hostname);
 
 });
 

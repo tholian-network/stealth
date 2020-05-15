@@ -1,5 +1,5 @@
 
-import { Element } from '../Element.mjs';
+import { Element } from '../../design/index.mjs';
 
 
 

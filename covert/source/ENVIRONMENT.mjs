@@ -5,7 +5,7 @@ import process from 'process';
 
 
 
-export const action = (() => {
+const action = (() => {
 
 	let value = Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === false).shift() || '';
 
@@ -23,7 +23,7 @@ export const action = (() => {
 
 })();
 
-export const flags = (() => {
+const flags = (() => {
 
 	let flags = {
 		debug:    false,
@@ -68,7 +68,7 @@ export const flags = (() => {
 
 })();
 
-export const patterns = (() => {
+const patterns = (() => {
 
 	let patterns = [];
 
@@ -80,7 +80,7 @@ export const patterns = (() => {
 
 })();
 
-export const root = (() => {
+const root = (() => {
 
 	let pwd = process.env.PWD || null;
 	if (pwd !== null) {
@@ -100,7 +100,7 @@ export const root = (() => {
 
 })();
 
-export const temp = (() => {
+const temp = (() => {
 
 	let user     = process.env.SUDO_USER || process.env.USER;
 	let folder   = '/tmp/covert-' + user;
@@ -150,7 +150,7 @@ const randomize = (length) => {
 
 };
 
-export const mktemp = (prefix, seed) => {
+const mktemp = (prefix, seed) => {
 
 	prefix = typeof prefix === 'string' ? prefix                   : randomize(4);
 	seed   = typeof seed === 'number'   ? Math.round(seed / 2) * 2 : null;

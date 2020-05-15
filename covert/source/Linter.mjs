@@ -3,7 +3,7 @@ import util from 'util';
 import process from 'process';
 
 import { console, Emitter, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
-import { root                                                                 } from './ENVIRONMENT.mjs';
+import { ENVIRONMENT                                                          } from './ENVIRONMENT.mjs';
 import { Filesystem                                                           } from './Filesystem.mjs';
 import { Renderer                                                             } from './Renderer.mjs';
 import { Review, isReview                                                     } from './Review.mjs';
@@ -38,9 +38,9 @@ const init = function(settings) {
 
 	projects.forEach((project) => {
 
-		let implementations = this.filesystem.scan(root + '/' + project + '/source', true).map((path) => {
+		let implementations = this.filesystem.scan(ENVIRONMENT.root + '/' + project + '/source', true).map((path) => {
 
-			let raw = path.substr(root.length + 1);
+			let raw = path.substr(ENVIRONMENT.root.length + 1);
 			if (raw.endsWith('.mjs')) {
 
 				let tmp = raw.substr(0, raw.length - 4).split('/');
@@ -237,7 +237,7 @@ const update_review = async function(review) {
 
 
 		let path   = tmp.join('/');
-		let module = await import(root + '/' + path).then((obj) => {
+		let module = await import(ENVIRONMENT.root + '/' + path).then((obj) => {
 			return obj;
 		}).catch((err) => {
 			// Do nothing
@@ -430,7 +430,7 @@ const Linter = function(settings) {
 		patterns: [],
 		reviews:  [],
 		sources:  {},
-		root:     root
+		root:     ENVIRONMENT.root
 	}, settings));
 
 

@@ -1,6 +1,6 @@
 
 import { Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
-import { hostname                                        } from './ENVIRONMENT.mjs';
+import { ENVIRONMENT                                     } from './ENVIRONMENT.mjs';
 import { Cache                                           } from './client/Cache.mjs';
 import { Host                                            } from './client/Host.mjs';
 import { Mode                                            } from './client/Mode.mjs';
@@ -112,7 +112,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.__state.connected === false) {
 
-			let host  = isString(this._settings.host) ? this._settings.host : hostname;
+			let host  = isString(this._settings.host) ? this._settings.host : ENVIRONMENT.hostname;
 			let ref   = URL.parse('ws://' + host + ':65432');
 			let hosts = ref.hosts.sort((a, b) => {
 
@@ -135,12 +135,12 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-			if (ref.domain === hostname || hosts.length > 0) {
+			if (ref.domain === ENVIRONMENT.hostname || hosts.length > 0) {
 
 				let server = ref.domain;
 
 				// Ensure same websocket remote address as the iframe requests
-				if (ref.domain !== hostname && hosts.length > 0) {
+				if (ref.domain !== ENVIRONMENT.hostname && hosts.length > 0) {
 
 					let check = hosts.find((ip) => ip.scope === 'private') || null;
 					if (check === null) {

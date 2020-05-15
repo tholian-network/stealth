@@ -3,7 +3,7 @@ import { URL } from './parser/URL.mjs';
 
 
 
-export const flags = ((global) => {
+const flags = ((global) => {
 
 	let flags = {
 		cause: null,
@@ -56,7 +56,7 @@ export const flags = ((global) => {
 
 })(typeof window !== 'undefined' ? window : this);
 
-export const hostname = ((global) => {
+const hostname = ((global) => {
 
 	let host = 'localhost';
 

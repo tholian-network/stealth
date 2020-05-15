@@ -1,16 +1,28 @@
 {
 	"name": "stealth",
-	"version": "2020-X0",
+	"description": "Stealth 2020-X0",
+	"private": true,
+	"version": "2020.0.0",
 	"module": "./stealth/index.mjs",
 	"scripts": {
-		"start": "bash ./stealth/bin/stealth.sh",
+
+		"lint": "npx eslint ./base ./browser ./covert ./stealth",
+		"postinstall": "node ./base/bin/base.mjs",
+		"test": "node ./covert/bin/covert.mjs scan",
+
+		"base": "node ./base/bin/base.mjs",
 		"browser": "bash ./browser/bin/browser.sh",
-		"stealth": "bash ./stealth/bin/stealth.sh"
+		"covert": "node ./covert/bin/covert.mjs",
+		"stealth": "node ./stealth/bin/stealth.mjs"
+
 	},
 	"exports": {
 		".": "./stealth/index.mjs",
 		"./base": "./base/index.mjs",
 		"./covert": "./covert/index.mjs",
 		"./stealth": "./stealth/index.mjs"
+	},
+	"devDependencies": {
+		"eslint": "^7.0.0"
 	}
 }

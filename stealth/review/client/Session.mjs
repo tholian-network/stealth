@@ -3,7 +3,7 @@ import { isArray, isBuffer, isFunction, isObject                      } from '..
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
 import { Session                                                      } from '../../../stealth/source/client/Session.mjs';
 import { URL                                                          } from '../../../stealth/source/parser/URL.mjs';
-import { hostname                                                     } from '../../../stealth/source/ENVIRONMENT.mjs';
+import { ENVIRONMENT                                                  } from '../../../stealth/source/ENVIRONMENT.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
@@ -85,7 +85,7 @@ describe('Session.prototype.query()/all', function(assert) {
 			type: 'Session',
 			data: {
 				agent:   null,
-				domain:  hostname,
+				domain:  ENVIRONMENT.hostname,
 				tabs:    [],
 				warning: 0
 			}
@@ -101,7 +101,7 @@ describe('Session.prototype.query()/domain/success', function(assert) {
 	assert(isFunction(this.client.services.session.query), true);
 
 	this.client.services.session.query({
-		domain: hostname
+		domain: ENVIRONMENT.hostname
 	}, (response) => {
 
 		assert(isArray(response), true);
@@ -111,7 +111,7 @@ describe('Session.prototype.query()/domain/success', function(assert) {
 			type: 'Session',
 			data: {
 				agent:   null,
-				domain:  hostname,
+				domain:  ENVIRONMENT.hostname,
 				tabs:    [],
 				warning: 0
 			}
@@ -151,7 +151,7 @@ describe('Session.prototype.read()', function(assert) {
 		assert(response.type, 'Session');
 		assert(response.data, {
 			agent:   null,
-			domain:  hostname,
+			domain:  ENVIRONMENT.hostname,
 			tabs:    [],
 			warning: 0
 		});

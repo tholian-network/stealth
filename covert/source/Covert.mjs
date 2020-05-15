@@ -2,7 +2,7 @@
 import process from 'process';
 
 import { console, Emitter, isBoolean, isNumber, isString } from '../extern/base.mjs';
-import { root                                            } from './ENVIRONMENT.mjs';
+import { ENVIRONMENT                                     } from './ENVIRONMENT.mjs';
 import { Filesystem                                      } from './Filesystem.mjs';
 import { Network                                         } from './Network.mjs';
 import { Renderer                                        } from './Renderer.mjs';
@@ -600,7 +600,7 @@ const Covert = function(settings) {
 		internet: true,
 		patterns: [],
 		reviews:  [],
-		root:     root,
+		root:     ENVIRONMENT.root,
 		timeout:  null
 	}, settings));
 

@@ -2,7 +2,7 @@
 import process from 'process';
 
 import { console, Emitter, isObject, isString } from '../extern/base.mjs';
-import { hostname, root                       } from './ENVIRONMENT.mjs';
+import { ENVIRONMENT                          } from './ENVIRONMENT.mjs';
 import { Request                              } from './Request.mjs';
 import { Server                               } from './Server.mjs';
 import { Session                              } from './Session.mjs';
@@ -92,7 +92,7 @@ const Stealth = function(settings) {
 		debug:   false,
 		host:    null,
 		profile: null,
-		root:    root
+		root:    ENVIRONMENT.root
 	}, settings));
 
 
@@ -444,9 +444,9 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 				let sdomain = ip.ip || null;
 				if (sdomain === '::1') {
-					headers['domain'] = sdomain = hostname;
+					headers['domain'] = sdomain = ENVIRONMENT.hostname;
 				} else if (sdomain === '127.0.0.1') {
-					headers['domain'] = sdomain = hostname;
+					headers['domain'] = sdomain = ENVIRONMENT.hostname;
 				} else if (host !== null) {
 					headers['domain'] = sdomain = host.domain;
 				}

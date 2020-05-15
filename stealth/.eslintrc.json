@@ -10,8 +10,14 @@
 		"sourceType": "module"
 	},
 	"overrides": [{
+		"files": [ "*.mjs" ],
+		"rules": {}
+	}, {
 		"files": [ "extern/base.mjs" ],
-		"rules": { "no-global-assign": "off", "no-undef": "off" }
+		"rules": {
+			"no-control-regex": "off",
+			"no-undef": "off"
+		}
 	}],
 	"rules": {
 		"no-restricted-globals": [

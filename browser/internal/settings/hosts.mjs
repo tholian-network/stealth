@@ -1,6 +1,6 @@
 
 import { isArray, isObject } from '../../extern/base.mjs';
-import { Element           } from '../common/Element.mjs';
+import { Element           } from '../../internal/index.mjs';
 
 
 

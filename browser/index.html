@@ -22,38 +22,93 @@
 		<meta name="viewport" content="user-scalable=no">
 		<!-- Browser UI -->
 		<link rel="stylesheet" href="design/index.css">
+		<link rel="stylesheet" href="internal/theme.css">
 	</head>
 	<body>
 
 		<header></header>
 		<main></main>
 		<footer></footer>
-		<!-- Browser UI -->
-		<script type="module" src="design/index.mjs"></script>
 		<!-- Browser PWA -->
 		<script type="module">
-			import { flags } from './source/ENVIRONMENT.mjs';
+			import { console                       } from './extern/base.mjs';
+			import { ENVIRONMENT                   } from './source/ENVIRONMENT.mjs';
+			import { Browser                       } from './source/Browser.mjs';
+			import { dispatch as dispatch_design   } from './design/index.mjs';
+			import { dispatch as dispatch_internal } from './internal/index.mjs';
 
 
-			if (flags.debug === true) {
 
-				console.info('Browser: Debug Mode active');
+			// BROWSER has to be global for internal pages
+			const browser = window.BROWSER = new Browser({
+				host:  ENVIRONMENT.hostname,
+				debug: ENVIRONMENT.flags.debug
+			});
 
-			} else {
+			setTimeout(() => {
+				dispatch_design(window, browser);
+				dispatch_internal(window, browser);
+			}, 100);
 
-				let worker = (window.navigator || {}).serviceWorker || null;
-				if (worker !== null && typeof worker.register === 'function') {
+			setTimeout(() => {
 
-					worker.register('service.js').then((service) => {
-						console.info('Browser: Service connected to http://localhost:65432.');
-					}).catch((err) => {
-						console.error('Browser: Service could not connect to http://localhost:65432.');
-					});
+				if (ENVIRONMENT.flags.debug === true) {
+
+					console.info('Browser: Debug Mode active');
+
+				} else {
+
+					let worker = (window.navigator || {}).serviceWorker || null;
+					if (worker !== null && typeof worker.register === 'function') {
+
+						worker.register('service.js').then((service) => {
+							console.info('Browser: Service connected to http://localhost:65432.');
+						}).catch((err) => {
+							console.error('Browser: Service could not connect to http://localhost:65432.');
+						});
+
+					}
 
 				}
 
-			}
+			}, 200);
 
+			setTimeout(() => {
+
+				browser.once('connect', () => {
+
+					console.info('Browser: Design connected to ws://' + ENVIRONMENT.hostname + ':65432.');
+
+					[
+						// 'stealth:settings'
+						// 'stealth:fix-host?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+						// 'stealth:fix-mode?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+						// 'stealth:fix-filter?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+						// 'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=socket-stability&code=403'
+						'https://cookie.engineer/index.html'
+					].map((url) => {
+						return browser.open(url);
+					}).forEach((tab) => {
+						browser.show(tab);
+					});
+
+				});
+
+				browser.once('disconnect', () => {
+					console.error('Browser: Design disconnected from ws://' + ENVIRONMENT.hostname + ':65432.');
+				});
+
+				browser.connect();
+
+				if (typeof window.onbeforeunload !== 'undefined') {
+
+					window.onbeforeunload = () => {
+						browser.disconnect();
+					};
+
+				}
+
+			}, 200);
 		</script>
 	</body>
 </html>

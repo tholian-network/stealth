@@ -1,14 +1,15 @@
 
 import process from 'process';
 
-import { console                 } from '../extern/base.mjs';
-import { Covert                  } from '../source/Covert.mjs';
-import { Linter                  } from '../source/Linter.mjs';
-import { action, flags, patterns } from '../source/ENVIRONMENT.mjs';
+import { console     } from '../extern/base.mjs';
+import { Covert      } from '../source/Covert.mjs';
+import { Linter      } from '../source/Linter.mjs';
+import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
 
 import BASE    from '../../base/review/index.mjs';
 import COVERT  from '../../covert/review/index.mjs';
 import STEALTH from '../../stealth/review/index.mjs';
+
 
 
 const REVIEWS = [
@@ -76,13 +77,13 @@ const show_help = () => {
 
 
 
-if (action === 'check') {
+if (ENVIRONMENT.action === 'check') {
 
 	let linter = new Linter({
-		action:   action         || null,
-		debug:    flags.debug    || false,
-		internet: flags.internet || null,
-		patterns: patterns       || [],
+		action:   ENVIRONMENT.action         || null,
+		debug:    ENVIRONMENT.flags.debug    || false,
+		internet: ENVIRONMENT.flags.internet || null,
+		patterns: ENVIRONMENT.patterns       || [],
 		reviews:  REVIEWS,
 		sources:  SOURCES
 	});
@@ -91,26 +92,26 @@ if (action === 'check') {
 		process.exit(linter.destroy() || 0);
 	});
 
-	if (patterns.length > 0 && linter.reviews.length === 0) {
+	if (ENVIRONMENT.patterns.length > 0 && linter.reviews.length === 0) {
 
-		console.warn('Linter: No Review(s) matching the patterns "' + patterns.join('" or "') + '" found.');
+		console.warn('Linter: No Review(s) matching the patterns "' + ENVIRONMENT.patterns.join('" or "') + '" found.');
 		process.exit(2);
 
 	} else {
 		linter.connect();
 	}
 
-} else if (action === 'watch') {
+} else if (ENVIRONMENT.action === 'watch') {
 
 	let covert = new Covert({
-		action:   action         || null,
-		debug:    flags.debug    || false,
-		internet: flags.internet || null,
-		network:  flags.network  || null,
-		patterns: patterns       || [],
+		action:   ENVIRONMENT.action         || null,
+		debug:    ENVIRONMENT.flags.debug    || false,
+		internet: ENVIRONMENT.flags.internet || null,
+		network:  ENVIRONMENT.flags.network  || null,
+		patterns: ENVIRONMENT.patterns       || [],
 		reviews:  REVIEWS,
 		sources:  SOURCES,
-		timeout:  flags.timeout  || null
+		timeout:  ENVIRONMENT.flags.timeout  || null
 	});
 
 	process.on('SIGINT', () => {
@@ -157,35 +158,35 @@ if (action === 'check') {
 
 	});
 
-	if (patterns.length > 0 && covert.reviews.length === 0) {
+	if (ENVIRONMENT.patterns.length > 0 && covert.reviews.length === 0) {
 
-		console.warn('Covert: No Review(s) matching the patterns "' + patterns.join('" or "') + '" found.');
+		console.warn('Covert: No Review(s) matching the patterns "' + ENVIRONMENT.patterns.join('" or "') + '" found.');
 		process.exit(2);
 
 	} else {
 		covert.connect();
 	}
 
-} else if (action === 'scan' || action === 'time') {
+} else if (ENVIRONMENT.action === 'scan' || ENVIRONMENT.action === 'time') {
 
 	let covert = new Covert({
-		action:   action         || null,
-		debug:    flags.debug    || false,
-		internet: flags.internet || null,
-		network:  flags.network  || null,
-		patterns: patterns       || [],
+		action:   ENVIRONMENT.action         || null,
+		debug:    ENVIRONMENT.flags.debug    || false,
+		internet: ENVIRONMENT.flags.internet || null,
+		network:  ENVIRONMENT.flags.network  || null,
+		patterns: ENVIRONMENT.patterns       || [],
 		reviews:  REVIEWS,
 		sources:  SOURCES,
-		timeout:  flags.timeout  || null
+		timeout:  ENVIRONMENT.flags.timeout  || null
 	});
 
 	covert.on('disconnect', () => {
 		process.exit(covert.destroy() || 0);
 	});
 
-	if (patterns.length > 0 && covert.reviews.length === 0) {
+	if (ENVIRONMENT.patterns.length > 0 && covert.reviews.length === 0) {
 
-		console.warn('Covert: No Review(s) matching the patterns "' + patterns.join('" or "') + '" found.');
+		console.warn('Covert: No Review(s) matching the patterns "' + ENVIRONMENT.patterns.join('" or "') + '" found.');
 		process.exit(2);
 
 	} else {
