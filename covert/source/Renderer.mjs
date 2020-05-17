@@ -4,6 +4,10 @@ import { isReview                              } from './Review.mjs';
 
 
 
+export const isRenderer = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Renderer]';
+};
+
 const indent = (data) => {
 
 	let dummy = '';
@@ -481,6 +485,9 @@ const Renderer = function(settings) {
 	};
 
 };
+
+
+Renderer.isRenderer = isRenderer;
 
 
 Renderer.prototype = {

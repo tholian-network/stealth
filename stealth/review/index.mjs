@@ -1,6 +1,7 @@
 
 import Browser            from './Browser.mjs';
 import Client             from './Client.mjs';
+import MODULE             from './MODULE.mjs';
 import Request            from './Request.mjs';
 import Server             from './Server.mjs';
 // import Session            from './Session.mjs';
@@ -42,6 +43,8 @@ import request_Optimizer  from './request/Optimizer.mjs';
 export default {
 
 	reviews: [
+
+		MODULE,
 
 		// Parsers
 		parser_CSS,

@@ -6,6 +6,7 @@ import _Buffer   from './Buffer.mjs';
 import _Date     from './Date.mjs';
 import Emitter   from './Emitter.mjs';
 import _Function from './Function.mjs';
+import MODULE    from './MODULE.mjs';
 import _Number   from './Number.mjs';
 import _Object   from './Object.mjs';
 import _RegExp   from './RegExp.mjs';
@@ -16,6 +17,8 @@ import _String   from './String.mjs';
 export default {
 
 	reviews: [
+
+		MODULE,
 
 		_console,
 

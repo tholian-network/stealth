@@ -10,6 +10,10 @@ import { Review, isReview                                                     } 
 
 
 
+export const isLinter = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Linter]';
+};
+
 const isModule = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Module]';
 };
@@ -506,6 +510,9 @@ const Linter = function(settings) {
 	init.call(this, this._settings);
 
 };
+
+
+Linter.isLinter = isLinter;
 
 
 Linter.prototype = Object.assign({}, Emitter.prototype, {
