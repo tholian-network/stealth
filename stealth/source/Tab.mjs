@@ -4,6 +4,7 @@ import { URL                                              } from './parser/URL.m
 
 
 
+// Embedded for Cross-Platform Compatibility
 const isConfig = function(config) {
 
 	if (isObject(config) === true) {
@@ -144,6 +145,8 @@ Tab.from = function(json) {
 
 			if (isArray(data.history) === true) {
 
+				let filtered = [];
+
 				data.history.forEach((event) => {
 
 					if (
@@ -151,9 +154,17 @@ Tab.from = function(json) {
 						&& isNumber(event.time) === true
 						&& isString(event.url) === true
 					) {
-						tab.history.push(event);
+						filtered.push(event);
 					}
 
+				});
+
+				filtered.sort((a, b) => {
+					if (a.time < b.time) return -1;
+					if (b.time < a.time) return  1;
+					return 0;
+				}).forEach((event) => {
+					tab.history.push(event);
 				});
 
 			}
@@ -240,10 +251,10 @@ Tab.prototype = {
 	toJSON: function() {
 
 		let data = {
-			id:       this.id,
-			config:   {
+			id: this.id,
+			config: {
 				domain: this.config.domain,
-				mode:   {
+				mode: {
 					text:  this.config.mode.text,
 					image: this.config.mode.image,
 					audio: this.config.mode.audio,
@@ -251,7 +262,7 @@ Tab.prototype = {
 					other: this.config.mode.other
 				}
 			},
-			history:  this.history.map((event) => ({
+			history: this.history.map((event) => ({
 				config: event.config,
 				time:   event.time,
 				url:    event.url
@@ -366,7 +377,7 @@ Tab.prototype = {
 		} else if (until === 'week') {
 			limit = Date.now() - (1000 * 60 * 60 * 24 * 7);
 		} else if (until === 'forever') {
-			limit = null;
+			limit = 0;
 		}
 
 		if (limit !== null) {

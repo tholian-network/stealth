@@ -8,6 +8,7 @@ import { Optimizer                                       } from './request/Optim
 
 
 
+// Embedded for Cross-Platform Compatibility
 const isConfig = function(config) {
 
 	if (isObject(config) === true) {
