@@ -4,10 +4,107 @@ import path from 'path';
 
 import { console, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
 import { ENVIRONMENT                                                 } from './ENVIRONMENT.mjs';
-import { Session                                                     } from './Session.mjs';
+import { Session, isSession                                          } from './Session.mjs';
 import { HOSTS                                                       } from './parser/HOSTS.mjs';
+import { IP                                                          } from './parser/IP.mjs';
+import { URL                                                         } from './parser/URL.mjs';
 
 
+
+const isBlocker = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
+
+const isHost = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isArray(payload.hosts) === true
+	) {
+
+		let check = payload.hosts.filter((ip) => IP.isIP(ip));
+		if (check.length === payload.hosts.length) {
+			return true;
+		}
+
+	}
+
+
+	return false;
+
+};
+
+const isMode = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isObject(payload.mode) === true
+		&& isBoolean(payload.mode.text) === true
+		&& isBoolean(payload.mode.image) === true
+		&& isBoolean(payload.mode.audio) === true
+		&& isBoolean(payload.mode.video) === true
+		&& isBoolean(payload.mode.other) === true
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
+
+const isPeer = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isString(payload.connection) === true
+		&& [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ].includes(payload.connection)
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
+
+const isRedirect = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isString(payload.path) === true
+		&& isString(payload.location) === true
+	) {
+
+		let ref = URL.parse(payload.location);
+		if (ref.protocol === 'https' || ref.protocol === 'http') {
+
+			if (ref.domain !== null || ref.host !== null) {
+				return true;
+			}
+
+		}
+
+	}
+
+
+	return false;
+
+};
 
 export const isSettings = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Settings]';
@@ -82,9 +179,10 @@ const init = function(callback) {
 
 };
 
-const read_file = function(url, data, keepdata) {
+const read_file = function(url, data, keepdata, isData) {
 
 	keepdata = isBoolean(keepdata) ? keepdata : true;
+	isData   = isFunction(isData)  ? isData   : null;
 
 
 	let stat = null;
@@ -124,14 +222,24 @@ const read_file = function(url, data, keepdata) {
 
 		if (tmp !== null) {
 
-			if (isArray(tmp) && isArray(data)) {
+			if (isArray(tmp) === true && isArray(data) === true) {
 
 				if (keepdata === false) {
 
 					data.splice(0);
 
 					tmp.forEach((object) => {
-						data.push(object);
+
+						if (isData !== null) {
+
+							if (isData(object) === true) {
+								data.push(object);
+							}
+
+						} else {
+							data.push(object);
+						}
+
 					});
 
 				} else {
@@ -167,13 +275,33 @@ const read_file = function(url, data, keepdata) {
 							data.splice(0);
 
 							Object.values(map).forEach((object) => {
-								data.push(object);
+
+								if (isData !== null) {
+
+									if (isData(object) === true) {
+										data.push(object);
+									}
+
+								} else {
+									data.push(object);
+								}
+
 							});
 
 						} else {
 
 							tmp.forEach((object) => {
-								data.push(object);
+
+								if (isData !== null) {
+
+									if (isData(object) === true) {
+										data.push(object);
+									}
+
+								} else {
+									data.push(object);
+								}
+
 							});
 
 						}
@@ -182,7 +310,7 @@ const read_file = function(url, data, keepdata) {
 
 				}
 
-			} else if (isObject(tmp) && isObject(data)) {
+			} else if (isObject(tmp) === true && isObject(data) === true) {
 
 				if (keepdata === false) {
 
@@ -192,9 +320,24 @@ const read_file = function(url, data, keepdata) {
 
 				}
 
-				Object.keys(tmp).forEach((key) => {
-					data[key] = tmp[key];
-				});
+
+				if (isData !== null) {
+
+					if (isData(tmp) === true) {
+
+						Object.keys(tmp).forEach((key) => {
+							data[key] = tmp[key];
+						});
+
+					}
+
+				} else {
+
+					Object.keys(tmp).forEach((key) => {
+						data[key] = tmp[key];
+					});
+
+				}
 
 			}
 
@@ -223,11 +366,11 @@ const read = function(profile, keepdata, callback) {
 
 			let check = [
 				read_file.call(this, profile + '/internet.json',  this.internet,  keepdata),
-				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata),
-				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata),
-				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata),
-				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata),
-				read_file.call(this, profile + '/redirects.json', this.redirects, keepdata),
+				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata, isBlocker),
+				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata, isHost),
+				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata, isMode),
+				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata, isPeer),
+				read_file.call(this, profile + '/redirects.json', this.redirects, keepdata, isRedirect),
 				read_file.call(this, profile + '/sessions.json',  sessions,       keepdata)
 			].filter((v) => v === false);
 
@@ -284,16 +427,45 @@ const read = function(profile, keepdata, callback) {
 
 };
 
-const save_file = function(url, data) {
+const save_file = function(url, data, isData) {
+
+	isData = isFunction(isData) ? isData : null;
+
 
 	let result = false;
 
-	try {
-		fs.writeFileSync(path.resolve(url), JSON.stringify(data, null, '\t'), 'utf8');
-		result = true;
-	} catch (err) {
-		result = false;
+	let tmp = null;
+
+	if (isArray(data) === true) {
+
+		if (isData !== null) {
+			tmp = data.filter((object) => isData(object));
+		} else {
+			tmp = data;
+		}
+
+	} else if (isObject(data) === true) {
+
+		if (isData !== null) {
+			tmp = isData(data) ? data : null;
+		} else {
+			tmp = data;
+		}
+
 	}
+
+
+	if (tmp !== null) {
+
+		try {
+			fs.writeFileSync(path.resolve(url), JSON.stringify(tmp, null, '\t'), 'utf8');
+			result = true;
+		} catch (err) {
+			result = false;
+		}
+
+	}
+
 
 	return result;
 
@@ -329,11 +501,11 @@ const save = function(profile, keepdata, callback) {
 			let check = [
 				save_file.call(this, profile + '/internet.json',  this.internet),
 				true, // blockers cannot be saved
-				save_file.call(this, profile + '/hosts.json',     this.hosts),
-				save_file.call(this, profile + '/modes.json',     this.modes),
-				save_file.call(this, profile + '/peers.json',     this.peers),
-				save_file.call(this, profile + '/redirects.json', this.redirects),
-				save_file.call(this, profile + '/sessions.json',  this.sessions)
+				save_file.call(this, profile + '/hosts.json',     this.hosts,     isHost),
+				save_file.call(this, profile + '/modes.json',     this.modes,     isMode),
+				save_file.call(this, profile + '/peers.json',     this.peers,     isPeer),
+				save_file.call(this, profile + '/redirects.json', this.redirects, isRedirect),
+				save_file.call(this, profile + '/sessions.json',  this.sessions,  isSession)
 			].filter((v) => v === false);
 
 			if (callback !== null) {
@@ -456,11 +628,7 @@ const setup = function(profile, callback) {
 
 
 
-const Settings = function(stealth, profile, vendor) {
-
-	profile = isString(profile) ? profile : ENVIRONMENT.profile;
-	vendor  = isString(vendor)  ? vendor  : null;
-
+const Settings = function(settings) {
 
 	this.internet  = {
 		connection: 'mobile',
@@ -474,8 +642,21 @@ const Settings = function(stealth, profile, vendor) {
 	this.redirects = [];
 	this.sessions  = [];
 
-	this.profile = profile;
-	this.vendor  = vendor;
+
+	this.profile = ENVIRONMENT.profile;
+	this.vendor  = null;
+
+	if (isObject(settings) === true) {
+
+		if (isString(settings.profile) === true) {
+			this.profile = settings.profile;
+		}
+
+		if (isString(settings.vendor) === true) {
+			this.vendor = settings.vendor;
+		}
+
+	}
 
 
 	init.call(this, (result) => {
@@ -554,9 +735,10 @@ Settings.from = function(json) {
 
 		if (type !== null && data !== null) {
 
-			let profile  = isString(data.profile) ? data.profile : null;
-			let vendor   = isString(data.vendor)  ? data.vendor  : null;
-			let settings = new Settings(null, profile, vendor);
+			let settings = new Settings({
+				profile: isString(data.profile) ? data.profile : null,
+				vendor:  isString(data.vendor)  ? data.vendor  : null
+			});
 
 			if (isObject(data.internet) === true) {
 
@@ -567,19 +749,23 @@ Settings.from = function(json) {
 			}
 
 			if (isArray(data.hosts) === true) {
-				settings.hosts = data.hosts;
+				settings.hosts = data.hosts.filter((host) => isHost(host));
 			}
 
 			if (isArray(data.modes) === true) {
-				settings.modes = data.modes;
+				settings.modes = data.modes.filter((mode) => isMode(mode));
 			}
 
 			if (isArray(data.peers) === true) {
-				settings.peers = data.peers;
+				settings.peers = data.peers.filter((peer) => isPeer(peer));
+			}
+
+			if (isArray(data.redirects) === true) {
+				settings.redirects = data.redirects.filter((redirect) => isRedirect(redirect));
 			}
 
 			if (isArray(data.sessions) === true) {
-				settings.sessions = data.sessions.map((data) => Session.from(data)).filter((session) => session !== null);
+				settings.sessions = data.sessions.map((session) => Session.from(session)).filter((session) => session !== null);
 			}
 
 			return settings;
@@ -605,12 +791,12 @@ Settings.prototype = {
 
 		let data = {
 			internet:  {},
-			blockers:  null, // XXX: private
+			blockers:  null, // private
 			hosts:     [],
 			modes:     [],
 			peers:     [],
 			profile:   null,
-			redirects: null, // XXX: private
+			redirects: null, // private
 			sessions:  [],
 			vendor:    null
 		};
@@ -620,15 +806,27 @@ Settings.prototype = {
 		});
 
 		this.hosts.forEach((host) => {
-			data.hosts.push(host);
+
+			if (isHost(host) === true) {
+				data.hosts.push(host);
+			}
+
 		});
 
 		this.modes.forEach((mode) => {
-			data.modes.push(mode);
+
+			if (isMode(mode) === true) {
+				data.modes.push(mode);
+			}
+
 		});
 
 		this.peers.forEach((peer) => {
-			data.peers.push(peer);
+
+			if (isPeer(peer) === true) {
+				data.peers.push(peer);
+			}
+
 		});
 
 		if (this.profile !== ENVIRONMENT.profile) {
@@ -636,7 +834,11 @@ Settings.prototype = {
 		}
 
 		this.sessions.forEach((session) => {
-			data.sessions.push(session.toJSON());
+
+			if (isSession(session) === true) {
+				data.sessions.push(session.toJSON());
+			}
+
 		});
 
 		if (this.vendor !== null) {

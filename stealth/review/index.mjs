@@ -5,7 +5,7 @@ import MODULE             from './MODULE.mjs';
 import Request            from './Request.mjs';
 import Server             from './Server.mjs';
 // import Session            from './Session.mjs';
-// import Settings           from './Settings.mjs';
+import Settings           from './Settings.mjs';
 import Stealth            from './Stealth.mjs';
 import Tab                from './Tab.mjs';
 import client_Cache       from './client/Cache.mjs';
@@ -79,7 +79,7 @@ export default {
 
 		// Stealth
 		// Session,
-		// Settings,
+		Settings,
 		Stealth,
 		Client,
 		Server,
