@@ -1,25 +1,25 @@
 
-import { config, sketch                  } from '../../../covert/EXAMPLE.mjs';
-import { after, before, describe, finish } from '../../../covert/index.mjs';
-import { Optimizer                       } from '../../../stealth/source/optimizer/CSS.mjs';
+import { after, before, describe, finish, EXAMPLE } from '../../../covert/index.mjs';
+import { Optimizer                                } from '../../../stealth/source/optimizer/CSS.mjs';
 
-
-
-const SIMPLE_CFG = config('css/simple.css');
-const SIMPLE_REF = sketch('css/simple.css');
-
-const COMPLEX_CFG = config('css/complex.css');
-const COMPLEX_REF = sketch('css/complex.css');
-
-const MINIFIED_CFG = config('css/minified.css');
-const MINIFIED_REF = sketch('css/minified.css');
 
 
 before('prepare', function(assert) {
 
-	this.simple   = { ref: SIMPLE_REF,   cfg: SIMPLE_CFG   };
-	this.complex  = { ref: COMPLEX_REF,  cfg: COMPLEX_CFG  };
-	this.minified = { ref: MINIFIED_REF, cfg: MINIFIED_CFG };
+	this.simple = {
+		ref:    EXAMPLE.sketch('css/simple.css'),
+		config: EXAMPLE.config('css/simple.css')
+	};
+
+	this.complex = {
+		ref:    EXAMPLE.sketch('css/complex.css'),
+		config: EXAMPLE.config('css/complex.css')
+	};
+
+	this.minified = {
+		ref:    EXAMPLE.sketch('css/minified.css'),
+		config: EXAMPLE.config('css/minified.css')
+	};
 
 	assert(this.simple !== null);
 	assert(this.complex !== null);
@@ -32,7 +32,7 @@ describe('optimize/simple', function(assert) {
 	assert(this.simple !== null);
 	assert(typeof Optimizer.optimize === 'function');
 
-	Optimizer.optimize(this.simple.ref, this.simple.cfg, (response) => {
+	Optimizer.optimize(this.simple.ref, this.simple.config, (response) => {
 
 		assert(response !== null);
 

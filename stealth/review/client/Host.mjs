@@ -1,7 +1,6 @@
 
 import { isFunction                                                   } from '../../../base/index.mjs';
-import { IPV4, IPV6                                                   } from '../../../covert/EXAMPLE.mjs';
-import { after, before, describe, finish                              } from '../../../covert/index.mjs';
+import { after, before, describe, finish, EXAMPLE                     } from '../../../covert/index.mjs';
 import { IP                                                           } from '../../../stealth/source/parser/IP.mjs';
 import { Host                                                         } from '../../../stealth/source/client/Host.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
@@ -69,8 +68,8 @@ describe('Host.prototype.refresh()', function(assert) {
 		let check4 = response.hosts.find((ip) => ip.type === 'v4') || null;
 		let check6 = response.hosts.find((ip) => ip.type === 'v6') || null;
 
-		assert(check4, IPV4);
-		assert(check6, IPV6);
+		assert(check4, EXAMPLE.ipv4);
+		assert(check6, EXAMPLE.ipv6);
 
 	});
 
@@ -92,8 +91,8 @@ describe('Host.prototype.read()/success', function(assert) {
 		let check4 = response.hosts.find((ip) => ip.type === 'v4') || null;
 		let check6 = response.hosts.find((ip) => ip.type === 'v6') || null;
 
-		assert(check4, IPV4);
-		assert(check6, IPV6);
+		assert(check4, EXAMPLE.ipv4);
+		assert(check6, EXAMPLE.ipv6);
 
 	});
 
@@ -128,8 +127,8 @@ describe('Host.prototype.read()/success', function(assert) {
 		let check4 = response.hosts.find((ip) => ip.type === 'v4') || null;
 		let check6 = response.hosts.find((ip) => ip.type === 'v6') || null;
 
-		assert(check4, IPV4);
-		assert(check6, IPV6);
+		assert(check4, EXAMPLE.ipv4);
+		assert(check6, EXAMPLE.ipv6);
 
 	});
 

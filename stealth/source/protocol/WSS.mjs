@@ -185,88 +185,142 @@ const WSS = {
 				}
 
 
-				let socket = tls.connect({
-					host:           hostname,
-					port:           ref.port || 443,
-					ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
-					secureProtocol: 'TLS_method',
-					servername:     hostname,
-					lookup:         lookup.bind(ref),
-					socket:         connection.socket || null
-				}, () => {
+				let socket = connection.socket || null;
+				if (socket === null) {
 
-					if (socket.authorized === true) {
+					try {
 
-						connection.socket = socket;
-						onconnect(connection, ref, buffer);
+						socket = tls.connect({
+							host:           hostname,
+							port:           ref.port || 443,
+							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+							secureProtocol: 'TLS_method',
+							servername:     hostname,
+							lookup:         lookup.bind(ref)
+						}, () => {
 
-					} else {
+							if (socket.authorized === true) {
 
-						connection.socket = null;
-						connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+								connection.socket = socket;
+								onconnect(connection, ref, buffer);
 
+							} else {
+
+								connection.socket = null;
+								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+
+							}
+
+						});
+
+					} catch (err) {
+						socket = null;
 					}
 
-				});
+				} else {
 
-				socket.on('data', (fragment) => {
-					ondata(connection, ref, buffer, fragment);
-				});
+					try {
 
-				socket.on('timeout', () => {
+						socket = tls.connect({
+							host:           hostname,
+							port:           ref.port || 443,
+							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+							secureProtocol: 'TLS_method',
+							servername:     hostname,
+							lookup:         lookup.bind(ref),
+							socket:         connection.socket || null
+						}, () => {
 
-					if (connection.socket !== null) {
+							if (socket.authorized === true) {
 
-						connection.socket = null;
+								connection.socket = socket;
+								onconnect(connection, ref, buffer);
 
-						if (buffer !== null && buffer.partial === true) {
+							} else {
 
-							connection.emit('timeout', [{
-								headers: ref.headers,
-								payload: buffer.payload
-							}]);
+								connection.socket = null;
+								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 
-						} else {
-							connection.emit('timeout', [ null ]);
+							}
+
+						});
+
+					} catch (err) {
+						socket = null;
+					}
+
+				}
+
+
+				if (socket !== null) {
+
+					socket.on('data', (fragment) => {
+						ondata(connection, ref, buffer, fragment);
+					});
+
+					socket.on('timeout', () => {
+
+						if (connection.socket !== null) {
+
+							connection.socket = null;
+
+							if (buffer !== null && buffer.partial === true) {
+
+								connection.emit('timeout', [{
+									headers: ref.headers,
+									payload: buffer.payload
+								}]);
+
+							} else {
+								connection.emit('timeout', [ null ]);
+							}
+
 						}
 
-					}
+					});
 
-				});
+					socket.on('error', (err) => {
 
-				socket.on('error', (err) => {
+						if (connection.socket !== null) {
 
-					if (connection.socket !== null) {
+							connection.socket = null;
 
-						connection.socket = null;
+							let code = (err.code || '');
+							if (code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
+								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+							} else if (code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
+								connection.emit('timeout', [ null ]);
+							} else if (code.startsWith('ERR_TLS')) {
+								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+							} else {
+								onerror(connection, ref, buffer);
+							}
 
-						let code = (err.code || '');
-						if (code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
-							connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-						} else if (code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
-							connection.emit('timeout', [ null ]);
-						} else if (code.startsWith('ERR_TLS')) {
-							connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-						} else {
-							onerror(connection, ref, buffer);
 						}
 
-					}
+					});
 
-				});
+					socket.on('end', () => {
 
-				socket.on('end', () => {
+						if (connection.socket !== null) {
 
-					if (connection.socket !== null) {
+							onend(connection, ref, buffer);
+							connection.socket = null;
 
-						onend(connection, ref, buffer);
-						connection.socket = null;
+						}
 
-					}
+					});
 
-				});
+					return connection;
 
-				return connection;
+				} else {
+
+					connection.socket = null;
+					connection.emit('error', [{ type: 'request' }]);
+
+					return null;
+
+				}
 
 			} else {
 

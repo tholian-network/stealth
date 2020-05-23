@@ -186,7 +186,15 @@ const trace_assert = function() {
 			if (line.includes('(file://') && line.includes(')')) {
 
 				let tmp = line.split('(file://')[1].split(')').shift().trim();
-				if (tmp.includes('.mjs')) {
+				if (tmp.includes('/review/') && tmp.includes('.mjs')) {
+					origin = tmp;
+					break;
+				}
+
+			} else if (line.includes('file://')) {
+
+				let tmp = line.split('file://')[1].trim();
+				if (tmp.includes('/review/') && tmp.includes('.mjs')) {
 					origin = tmp;
 					break;
 				}
@@ -209,7 +217,7 @@ const trace_assert = function() {
 					let check = lines[line - 1].trim();
 
 					if (check.startsWith('assert(') && check.endsWith(');')) {
-						return check;
+						return check.substr(0, check.length - 1) + ' in line #' + line;
 					} else if (check.startsWith('assert(')) {
 						return 'assert() in line #' + line;
 					}
@@ -333,6 +341,20 @@ Results.prototype = {
 
 			}
 
+		} else if (expect !== undefined) {
+
+			if (this.index < this.data.length) {
+
+				this.data[this.index]  = false;
+				this.stack[this.index] = {
+					assert: trace_assert(),
+					diff:   [ null, clone(expect) ]
+				};
+
+				this.index++;
+
+			}
+
 		} else if (result === true || result === false) {
 
 			if (this.index < this.data.length) {
@@ -363,8 +385,11 @@ Results.prototype = {
 
 			if (this.index < this.data.length) {
 
-				this.data[this.index] = null;
-				this.diff[this.index] = null;
+				this.data[this.index]  = null;
+				this.stack[this.index] = {
+					assert: trace_assert(),
+					diff:   [ null, true ]
+				};
 
 				this.index++;
 

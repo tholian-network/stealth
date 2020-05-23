@@ -47,6 +47,7 @@ export const isRequest = function(obj) {
 
 const Request = function(data, server) {
 
+	data   = isObject(data)   ? data   : {};
 	server = isServer(server) ? server : null;
 
 
@@ -92,10 +93,10 @@ const Request = function(data, server) {
 
 
 
-	this.id       = 'request-' + Date.now();
 	this.download = null;
 	this.flags    = {
 		connect:   true,
+		proxy:     false,
 		refresh:   false,
 		useragent: null,
 		webview:   false
@@ -654,12 +655,7 @@ Request.from = function(json) {
 				if (isObject(data.flags) === true) {
 
 					Object.keys(data.flags).forEach((key) => {
-
-						let val = data.flags[key];
-						if (isBoolean(val) === true) {
-							request.set(key, val);
-						}
-
+						request.set(key, data.flags[key]);
 					});
 
 				}
@@ -678,6 +674,9 @@ Request.from = function(json) {
 };
 
 
+Request.isRequest = isRequest;
+
+
 Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Request',
@@ -686,8 +685,8 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
-			id:       this.id,
 			url:      this.url,
+			blockers: [],
 			config:   this._settings.config,
 			download: null,
 			flags:    Object.assign({}, this.flags),
@@ -696,9 +695,10 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 			journal:  blob.data.journal
 		};
 
-		// if (this._settings.blockers.length > 0) {
-		// 	data.blockers = this._settings.blockers;
-		// }
+		// Assume that blocklists have more than 16 blockers
+		if (this._settings.blockers.length < 16) {
+			this._settings.blockers.forEach((blocker) => data.blockers.push(blocker));
+		}
 
 		if (this.download !== null) {
 			data.download = this.download.toJSON();
@@ -747,18 +747,32 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	set: function(key, val) {
 
-		key = isString(key)                   ? key : null;
-		val = isBoolean(val) || isString(val) ? val : null;
+		key = isString(key) ? key : null;
 
 
 		if (key !== null) {
 
-			let exists = this.flags[key] !== undefined;
-			if (exists === true) {
+			if (isBoolean(val) === true) {
 
-				this.flags[key] = val;
+				let check = this.flags[key];
+				if (isBoolean(check) === true) {
 
-				return true;
+					this.flags[key] = val;
+
+					return true;
+
+				}
+
+			} else if (isString(val) === true || val === null) {
+
+				let check = this.flags[key];
+				if (isString(check) === true || check === null) {
+
+					this.flags[key] = val;
+
+					return true;
+
+				}
 
 			}
 

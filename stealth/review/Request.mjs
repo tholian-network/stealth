@@ -1,82 +1,240 @@
 
-import { create                          } from '../../covert/EXAMPLE.mjs';
-import { after, before, describe, finish } from '../../covert/index.mjs';
-import { Request                         } from '../../stealth/source/Request.mjs';
-import { connect, disconnect             } from './Stealth.mjs';
+import { isFunction                               } from '../../base/index.mjs';
+import { after, before, describe, finish, EXAMPLE } from '../../covert/index.mjs';
+import { Request, isRequest                       } from '../../stealth/source/Request.mjs';
+import { connect, disconnect                      } from './Server.mjs';
 
 
 
 before(connect);
 
-describe('request', function(assert) {
+describe('new Request()', function(assert) {
 
-	this.request = new Request({
-		ref:    create('https://example.com/index.html').ref,
-		config: create('https://example.com/index.html').config
-	}, this.stealth);
+	let request = new Request({
+		ref:    EXAMPLE.ref('https://example.com/index.html'),
+		config: EXAMPLE.config('https://example.com/index.html')
+	}, this.server);
 
-	this.request.once('start', () => {
-		assert(true);
-	});
+	assert(request.ref.url, 'https://example.com/index.html');
 
-	this.request.once('cache', () => {
-		assert(true);
-	});
-
-	this.request.once('stash', () => {
-		assert(true);
-	});
-
-	this.request.once('block', () => {
-		assert(true);
-	});
-
-	this.request.once('mode', () => {
-		assert(true);
-	});
-
-	this.request.once('filter', () => {
-		assert(true);
-	});
-
-	this.request.once('connect', () => {
-		assert(true);
-	});
-
-	this.request.once('download', () => {
-		assert(true);
-	});
-
-	this.request.once('optimize', () => {
-		assert(true);
-	});
-
-	this.request.once('response', () => {
-		assert(true);
-	});
-
-	this.request.start();
+	assert(Request.isRequest(request), true);
+	assert(isRequest(request),         true);
 
 });
 
-describe('request/stop', function(assert) {
+describe('Request.from()', function(assert) {
 
-	if (this.request !== null && this.request !== undefined) {
-		this.request.stop();
-	}
+	let config  = EXAMPLE.config('https://example.com/does-not-exist.html');
+	let request = Request.from({
+		type: 'Request',
+		data: {
+			url: 'https://example.com/does-not-exist.html',
+			blockers: [{
+				domain: 'malicious.example.com'
+			}],
+			config: config,
+			flags: {
+				connect:   false,
+				proxy:     true,
+				refresh:   true,
+				useragent: 'Some User/Agent 13.37',
+				webview:   true
+			}
+		}
+	});
 
-	this.request = null;
+	assert(request.get('connect'),   false);
+	assert(request.get('proxy'),     true);
+	assert(request.get('refresh'),   true);
+	assert(request.get('useragent'), 'Some User/Agent 13.37');
+	assert(request.get('webview'),   true);
 
-	assert(this.request, null);
+	assert(request.url, 'https://example.com/does-not-exist.html');
+
+	assert(request._settings.config,   config);
+	assert(request._settings.blockers, [{
+		domain: 'malicious.example.com'
+	}]);
 
 });
 
-describe('request/cache', function(assert) {
+describe('Request.isRequest()', function(assert) {
 
-	this.request = new Request({
-		ref:    create('https://example.com/index.html').ref,
-		config: create('https://example.com/index.html').config
-	}, this.stealth);
+	let request = new Request();
+
+	assert(typeof Request.isRequest, 'function');
+
+	assert(Request.isRequest(request), true);
+
+});
+
+describe('isRequest()', function(assert) {
+
+	let request = new Request();
+
+	assert(typeof isRequest, 'function');
+
+	assert(isRequest(request), true);
+
+});
+
+describe('Request.prototype.toJSON()', function(assert) {
+
+	let config  = EXAMPLE.config('https://example.com/does-not-exist.html');
+	let request = Request.from({
+		type: 'Request',
+		data: {
+			url: 'https://example.com/does-not-exist.html',
+			blockers: [{
+				domain: 'malicious.example.com'
+			}],
+			config: config,
+			flags: {
+				webview: true
+			}
+		}
+	});
+
+	let json = request.toJSON();
+
+	assert(json.type, 'Request');
+	assert(json.data, {
+		url: 'https://example.com/does-not-exist.html',
+		blockers: [{
+			domain: 'malicious.example.com'
+		}],
+		config: config,
+		download: null,
+		flags: {
+			connect:   true,
+			proxy:     false,
+			refresh:   false,
+			useragent: null,
+			webview:   true
+		},
+		timeline: {
+			error:    null,
+			stop:     null,
+			redirect: null,
+			start:    null,
+			cache:    null,
+			stash:    null,
+			block:    null,
+			mode:     null,
+			connect:  null,
+			download: null,
+			optimize: null,
+			response: null
+		},
+		events: [
+			'start',
+			'stop',
+			'cache',
+			'stash',
+			'block',
+			'mode',
+			'connect',
+			'download',
+			'optimize',
+			'redirect',
+			'response'
+		],
+		journal: []
+	});
+
+});
+
+describe('Request.prototype.get()', function(assert) {
+
+	let request = new Request();
+
+	assert(request.get(null),        null);
+	assert(request.get('connect'),   true);
+	assert(request.get('proxy'),     false);
+	assert(request.get('refresh'),   false);
+	assert(request.get('useragent'), null);
+	assert(request.get('webview'),   false);
+
+	assert(request.get('does-not-exist'), null);
+
+});
+
+describe('Request.prototype.set()', function(assert) {
+
+	let request = new Request();
+
+	assert(request.get('connect'),        true);
+	assert(request.set('connect', false), true);
+	assert(request.get('connect'),        false);
+
+	assert(request.get('useragent'),                          null);
+	assert(request.set('useragent', 'Some User/Agent 13.37'), true);
+	assert(request.get('useragent'),                          'Some User/Agent 13.37');
+
+	assert(request.get('does-not-exist'),         null);
+	assert(request.set('does-not-exist', '1337'), false);
+	assert(request.get('does-not-exist'),         null);
+	assert(request.get('does-not-exist'),         null);
+	assert(request.set('does-not-exist', true),   false);
+	assert(request.get('does-not-exist'),         null);
+	assert(request.set('does-not-exist', false),  false);
+	assert(request.get('does-not-exist'),         null);
+
+});
+
+describe('Request.prototype.start()', function(assert) {
+
+	let request = new Request({
+		ref:    EXAMPLE.ref('https://example.com/index.html'),
+		config: EXAMPLE.config('https://example.com/index.html')
+	}, this.server);
+
+	request.once('start', () => {
+		assert(true);
+	});
+
+	request.once('cache', () => {
+		assert(true);
+	});
+
+	request.once('stash', () => {
+		assert(true);
+	});
+
+	request.once('block', () => {
+		assert(true);
+	});
+
+	request.once('mode', () => {
+		assert(true);
+	});
+
+	request.once('connect', () => {
+		assert(true);
+	});
+
+	request.once('download', () => {
+		assert(true);
+	});
+
+	request.once('optimize', () => {
+		assert(true);
+	});
+
+	request.once('response', () => {
+		assert(true);
+	});
+
+	assert(request.start(), true);
+
+});
+
+describe('Request.prototype.start()/cache', function(assert) {
+
+	let request = new Request({
+		ref:    EXAMPLE.ref('https://example.com/index.html'),
+		config: EXAMPLE.config('https://example.com/index.html')
+	}, this.server);
 
 
 	let events = {
@@ -86,55 +244,46 @@ describe('request/cache', function(assert) {
 		download: false
 	};
 
-	this.request.once('cache', () => {
+	request.once('cache', () => {
 		events.cache = true;
 	});
 
-	this.request.once('stash', () => {
+	request.once('stash', () => {
 		events.stash = true;
 	});
 
-	this.request.once('connect', () => {
+	request.once('connect', () => {
 		events.connect = true;
 	});
 
-	this.request.once('download', () => {
+	request.once('download', () => {
 		events.download = true;
 	});
 
-	this.request.once('response', () => {
+	request.once('response', () => {
 
 		assert(events.cache,    true);
 		assert(events.stash,    false);
 		assert(events.connect,  false);
 		assert(events.download, false);
 
-		assert(this.request.timeline.cache !== null);
-		assert(this.request.timeline.stash,    null);
-		assert(this.request.timeline.connect,  null);
-		assert(this.request.timeline.download, null);
+		assert(request.timeline.cache !== null);
+		assert(request.timeline.stash,    null);
+		assert(request.timeline.connect,  null);
+		assert(request.timeline.download, null);
 
 	});
 
-	this.request.start();
+	assert(request.start(), true);
 
 });
 
-describe('request/stop', function(assert) {
+describe('Redirect.prototype.save()', function(assert) {
 
-	if (this.request !== null && this.request !== undefined) {
-		this.request.stop();
-	}
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.redirect.save), true);
 
-	this.request = null;
-
-	assert(this.request, null);
-
-});
-
-describe('server.services.redirect.save', function(assert) {
-
-	this.stealth.server.services.redirect.save({
+	this.server.services.redirect.save({
 		domain:   'example.com',
 		path:     '/redirect',
 		location: 'https://example.com/index.html'
@@ -147,15 +296,15 @@ describe('server.services.redirect.save', function(assert) {
 
 });
 
-describe('request/redirect', function(assert) {
+describe('Request.prototype.start()/redirect', function(assert) {
 
-	this.request = new Request({
-		ref:    create('https://example.com/redirect').ref,
-		config: create('https://example.com/redirect').config
-	}, this.stealth);
+	let request = new Request({
+		ref:    EXAMPLE.ref('https://example.com/redirect'),
+		config: EXAMPLE.config('https://example.com/redirect')
+	}, this.server);
 
 
-	this.request.once('redirect', (response) => {
+	request.once('redirect', (response) => {
 
 		assert(response !== null);
 		assert(response.headers !== null);
@@ -164,19 +313,88 @@ describe('request/redirect', function(assert) {
 
 	});
 
-	this.request.start();
+	assert(request.start(), true);
 
 });
 
-describe('request/stop', function(assert) {
+describe('Cache.prototype.remove()', function(assert) {
 
-	if (this.request !== null && this.request !== undefined) {
-		this.request.stop();
-	}
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.cache.remove), true);
 
-	this.request = null;
+	this.server.services.cache.remove({
+		domain: 'example.com',
+		path:   '/index.html'
+	}, (response) => {
 
-	assert(this.request, null);
+		assert(response !== null);
+		assert(response.payload, true);
+
+	});
+
+});
+
+describe('Request.prototype.stop()', function(assert) {
+
+	let request = new Request({
+		ref:    EXAMPLE.ref('https://example.com/index.html'),
+		config: EXAMPLE.config('https://example.com/index.html')
+	}, this.server);
+
+
+	let events = {
+		cache:    false,
+		stash:    false,
+		connect:  false,
+		download: false,
+		error:    false,
+		redirect: false,
+		response: false
+	};
+
+	request.once('cache', () => {
+		events.cache = true;
+	});
+
+	request.once('stash', () => {
+		events.stash = true;
+	});
+
+	request.once('connect', () => {
+		events.connect = true;
+		assert(request.stop(), true);
+	});
+
+	request.once('download', () => {
+		events.download = true;
+	});
+
+	request.once('error', () => {
+		events.error = true;
+	});
+
+	request.once('redirect', () => {
+		events.redirect = true;
+	});
+
+	request.once('response', () => {
+		events.response = true;
+	});
+
+	setTimeout(() => {
+
+		assert(events.cache,    true);
+		assert(events.stash,    true);
+		assert(events.connect,  true);
+		assert(events.download, true);
+
+		assert(events.error,    false);
+		assert(events.redirect, false);
+		assert(events.response, false);
+
+	}, 500);
+
+	assert(request.start(), true);
 
 });
 

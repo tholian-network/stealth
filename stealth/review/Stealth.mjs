@@ -1,11 +1,47 @@
 
+import { Emitter                         } from '../../base/index.mjs';
 import { after, before, describe, finish } from '../../covert/index.mjs';
 import { ENVIRONMENT as SANDBOX          } from '../../covert/index.mjs';
-import { Service                         } from '../../covert/EXAMPLE.mjs';
 import { ENVIRONMENT                     } from '../../stealth/source/ENVIRONMENT.mjs';
 import { Stealth, isStealth              } from '../../stealth/source/Stealth.mjs';
 import { isRequest                       } from '../../stealth/source/Request.mjs';
 import { Session, isSession              } from '../../stealth/source/Session.mjs';
+
+
+
+const Service = function() {
+
+	Emitter.call(this);
+
+	this.on('event', (payload) => {
+
+		return {
+			headers: {
+				service: 'mockup',
+				event:   'event'
+			},
+			payload: payload
+		};
+
+	});
+
+};
+
+Service.prototype = Object.assign({}, Emitter.prototype, {
+
+	'method': function(payload, callback) {
+
+		callback({
+			headers: {
+				service: 'mockup',
+				method:  'method'
+			},
+			payload: payload
+		});
+
+	}
+
+});
 
 
 

@@ -502,7 +502,7 @@ const HTTP = {
 						});
 
 					} catch (err) {
-						// Ignore Errors
+						socket = null;
 					}
 
 				}
@@ -803,9 +803,9 @@ const HTTP = {
 
 	},
 
-	upgrade: function(socket, ref) {
+	upgrade: function(socket /*, ref */) {
 
-		ref = isObject(ref) ? ref : { headers: {} };
+		// ref = isObject(ref) ? ref : { headers: {} };
 
 
 		let connection = new Connection(socket);

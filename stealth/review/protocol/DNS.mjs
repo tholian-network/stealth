@@ -1,8 +1,7 @@
 
-import { isFunction       } from '../../../base/index.mjs';
-import { describe, finish } from '../../../covert/index.mjs';
-import { IPV4, IPV6       } from '../../../covert/EXAMPLE.mjs';
-import { DNS              } from '../../../stealth/source/protocol/DNS.mjs';
+import { isFunction                } from '../../../base/index.mjs';
+import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
+import { DNS                       } from '../../../stealth/source/protocol/DNS.mjs';
 
 
 
@@ -26,8 +25,8 @@ describe('DNS.resolve()/google', function(assert) {
 		let check4 = response.payload.hosts.find((ip) => ip.type === 'v4') || null;
 		let check6 = response.payload.hosts.find((ip) => ip.type === 'v6') || null;
 
-		assert(check4, IPV4);
-		assert(check6, IPV6);
+		assert(check4, EXAMPLE.ipv4);
+		assert(check6, EXAMPLE.ipv6);
 
 	});
 
@@ -53,8 +52,8 @@ describe('DNS.resolve()/securedns', function(assert) {
 		let check4 = response.payload.hosts.find((ip) => ip.type === 'v4') || null;
 		let check6 = response.payload.hosts.find((ip) => ip.type === 'v6') || null;
 
-		assert(check4, IPV4);
-		assert(check6, IPV6);
+		assert(check4, EXAMPLE.ipv4);
+		assert(check6, EXAMPLE.ipv6);
 
 	});
 

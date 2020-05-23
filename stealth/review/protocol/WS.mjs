@@ -1,29 +1,21 @@
 
-import { isFunction, isObject            } from '../../../base/index.mjs';
-import { after, before, describe, finish } from '../../../covert/index.mjs';
-import { create                          } from '../../../covert/EXAMPLE.mjs';
-import { WS                              } from '../../../stealth/source/protocol/WS.mjs';
+import { isFunction, isObject                     } from '../../../base/index.mjs';
+import { after, before, describe, finish, EXAMPLE } from '../../../covert/index.mjs';
+import { WS                                       } from '../../../stealth/source/protocol/WS.mjs';
 
 
 
 before('WS.connect()', function(assert) {
 
-	this.buffer     = {};
 	this.connection = null;
-	this.ref        = create('ws://echo.websocket.org:80').ref;
-	this.socket     = null;
+	this.ref        = EXAMPLE.ref('ws://echo.websocket.org:80');
 
 	assert(isFunction(WS.connect), true);
 
-	this.connection = WS.connect(this.ref, this.buffer);
+	this.connection = WS.connect(this.ref);
 
-	this.connection.on('@connect', (socket) => {
-		this.socket = socket;
-		assert(this.socket !== null);
-	});
-
-	this.connection.on('@disconnect', () => {
-		this.socket = null;
+	this.connection.once('@connect', () => {
+		assert(true);
 	});
 
 });
@@ -32,7 +24,6 @@ describe('WS.send()', function(assert) {
 
 	assert(isFunction(WS.send), true);
 	assert(this.connection !== null);
-	assert(this.socket !== null);
 
 	this.connection.on('response', (response) => {
 
@@ -46,7 +37,7 @@ describe('WS.send()', function(assert) {
 
 	});
 
-	WS.send(this.socket, {
+	WS.send(this.connection, {
 		headers: {
 			service: 'mockup',
 			method:  'method'
@@ -61,19 +52,19 @@ describe('WS.receive()', function(assert) {
 
 after('WS.disconnect()', function(assert) {
 
-	if (this.socket !== null) {
-		this.socket.end();
-	}
+	assert(this.connection !== null);
 
-	this.buffer     = null;
+	this.connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+	this.connection.disconnect();
+
 	this.connection = null;
 	this.ref        = null;
-	this.socket     = null;
 
-	assert(this.buffer,     null);
 	assert(this.connection, null);
 	assert(this.ref,        null);
-	assert(this.socket,     null);
 
 });
 

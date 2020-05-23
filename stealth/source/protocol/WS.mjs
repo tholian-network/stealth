@@ -667,62 +667,80 @@ const WS = {
 				let socket = connection.socket || null;
 				if (socket === null) {
 
-					socket = net.connect({
-						host:          hosts[0].ip,
-						port:          ref.port || 80,
-						allowHalfOpen: true
-					}, () => {
+					try {
 
-						socket.setTimeout(0);
-						socket.setNoDelay(true);
-						socket.setKeepAlive(true, 0);
-						socket.allowHalfOpen = true;
+						socket = net.connect({
+							host:          hosts[0].ip,
+							port:          ref.port || 80,
+							allowHalfOpen: true
+						}, () => {
 
-						connection.socket = socket;
-						onconnect(connection, ref, buffer);
+							socket.setTimeout(0);
+							socket.setNoDelay(true);
+							socket.setKeepAlive(true, 0);
+							socket.allowHalfOpen = true;
 
-					});
+							connection.socket = socket;
+							onconnect(connection, ref, buffer);
+
+						});
+
+					} catch (err) {
+						socket = null;
+					}
 
 				}
 
-				socket.on('data', (fragment) => {
-					ondata(connection, ref, buffer, fragment);
-				});
 
-				socket.on('timeout', () => {
+				if (socket !== null) {
 
-					if (connection.socket !== null) {
+					socket.on('data', (fragment) => {
+						ondata(connection, ref, buffer, fragment);
+					});
 
-						connection.socket = null;
-						connection.emit('timeout', [ null ]);
+					socket.on('timeout', () => {
 
-					}
+						if (connection.socket !== null) {
 
-				});
+							connection.socket = null;
+							connection.emit('timeout', [ null ]);
 
-				socket.on('error', () => {
+						}
 
-					if (connection.socket !== null) {
+					});
 
-						onerror(connection, ref, buffer);
-						connection.socket = null;
+					socket.on('error', () => {
 
-					}
+						if (connection.socket !== null) {
 
-				});
+							onerror(connection, ref, buffer);
+							connection.socket = null;
 
-				socket.on('end', () => {
+						}
 
-					if (connection.socket !== null) {
+					});
 
-						onend(connection, ref, buffer);
-						connection.socket = null;
+					socket.on('end', () => {
 
-					}
+						if (connection.socket !== null) {
 
-				});
+							onend(connection, ref, buffer);
+							connection.socket = null;
 
-				return connection;
+						}
+
+					});
+
+					return connection;
+
+				} else {
+
+					connection.socket = null;
+					connection.emit('error', [{ type: 'request' }]);
+
+					return null;
+
+				}
 
 			} else {
 

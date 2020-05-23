@@ -1,13 +1,12 @@
 
-import { isArray, isString               } from '../../../base/index.mjs';
-import { after, before, describe, finish } from '../../../covert/index.mjs';
-import { sketch, HOSTS as EXAMPLE_HOSTS  } from '../../../covert/EXAMPLE.mjs';
-import { HOSTS                           } from '../../../stealth/source/parser/HOSTS.mjs';
+import { isArray, isString                        } from '../../../base/index.mjs';
+import { after, before, describe, finish, EXAMPLE } from '../../../covert/index.mjs';
+import { HOSTS                                    } from '../../../stealth/source/parser/HOSTS.mjs';
 
 
 
-const BLOCK = sketch('hosts/block.txt');
-const POSIX = sketch('hosts/posix.txt');
+const BLOCK = EXAMPLE.sketch('hosts/block.txt');
+const POSIX = EXAMPLE.sketch('hosts/posix.txt');
 
 const find_domain = (data, domain) => {
 
@@ -263,15 +262,8 @@ describe('HOSTS.parse()/remote', function(assert) {
 	assert(domain1.hosts.length, 2);
 	assert(domain2.hosts.length, 2);
 
-	assert(domain1.hosts[0].ip, EXAMPLE_HOSTS[0].ip);
-	assert(domain1.hosts[1].ip, EXAMPLE_HOSTS[1].ip);
-	assert(domain2.hosts[0].ip, EXAMPLE_HOSTS[0].ip);
-	assert(domain2.hosts[1].ip, EXAMPLE_HOSTS[1].ip);
-
-	assert(domain1.hosts[0].type, 'v4');
-	assert(domain1.hosts[1].type, 'v6');
-	assert(domain2.hosts[0].type, 'v4');
-	assert(domain2.hosts[1].type, 'v6');
+	assert(domain1.hosts, EXAMPLE.hosts);
+	assert(domain2.hosts, EXAMPLE.hosts);
 
 });
 

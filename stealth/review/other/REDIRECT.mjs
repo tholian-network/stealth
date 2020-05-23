@@ -1,8 +1,7 @@
 
-import { isBuffer, isObject } from '../../../base/index.mjs';
-import { describe, finish   } from '../../../covert/index.mjs';
-import { IPV4, IPV6         } from '../../../covert/EXAMPLE.mjs';
-import { REDIRECT           } from '../../../stealth/source/other/REDIRECT.mjs';
+import { isBuffer, isObject        } from '../../../base/index.mjs';
+import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
+import { REDIRECT                  } from '../../../stealth/source/other/REDIRECT.mjs';
 
 
 
@@ -37,7 +36,7 @@ describe('REDIRECT.error()/callback', function(assert) {
 		err:     { type: 'host' },
 		url:     'https://example.com/index.html',
 		flags:   { proxy: true },
-		headers: { '@local': IPV4.ip }
+		headers: { '@local': EXAMPLE.ipv4.ip }
 	}, (response) => {
 
 		assert(response !== null);
@@ -46,7 +45,7 @@ describe('REDIRECT.error()/callback', function(assert) {
 		assert(isObject(response.headers),   true);
 		assert(response.headers['@code'],    307);
 		assert(response.headers['@status'],  '307 Temporary Redirect');
-		assert(response.headers['location'], 'http://' + IPV4.ip + ':65432/browser/internal/fix-host.html?url=https%3A%2F%2Fexample.com%2Findex.html');
+		assert(response.headers['location'], 'http://' + EXAMPLE.ipv4.ip + ':65432/browser/internal/fix-host.html?url=https%3A%2F%2Fexample.com%2Findex.html');
 		assert(response.payload,             null);
 
 	});
@@ -55,7 +54,7 @@ describe('REDIRECT.error()/callback', function(assert) {
 		err:     { cause: 'socket-proxy', code: 500, type: 'request' },
 		url:     'https://example.com/index.html',
 		flags:   { proxy: true },
-		headers: { '@local': IPV6.ip }
+		headers: { '@local': EXAMPLE.ipv6.ip }
 	}, (response) => {
 
 		assert(response !== null);
@@ -64,7 +63,7 @@ describe('REDIRECT.error()/callback', function(assert) {
 		assert(isObject(response.headers),   true);
 		assert(response.headers['@code'],    307);
 		assert(response.headers['@status'],  '307 Temporary Redirect');
-		assert(response.headers['location'], 'http://[' + IPV6.ip + ']:65432/browser/internal/fix-request.html?url=https%3A%2F%2Fexample.com%2Findex.html&code=500&cause=socket-proxy');
+		assert(response.headers['location'], 'http://[' + EXAMPLE.ipv6.ip + ']:65432/browser/internal/fix-request.html?url=https%3A%2F%2Fexample.com%2Findex.html&code=500&cause=socket-proxy');
 		assert(response.payload,             null);
 
 	});
@@ -86,23 +85,6 @@ describe('REDIRECT.error()/callback', function(assert) {
 
 	});
 
-	REDIRECT.error({
-		err:   { type: 'filter' },
-		url:   'https://example.com/index.html',
-		flags: { webview: true }
-	}, (response) => {
-
-		assert(response !== null);
-		assert(response.headers !== null);
-
-		assert(isObject(response.headers),   true);
-		assert(response.headers['@code'],    307);
-		assert(response.headers['@status'],  '307 Temporary Redirect');
-		assert(response.headers['location'], '/browser/internal/fix-filter.html?url=https%3A%2F%2Fexample.com%2Findex.html');
-		assert(response.payload,             null);
-
-	});
-
 });
 
 describe('REDIRECT.error()/return', function(assert) {
@@ -113,21 +95,16 @@ describe('REDIRECT.error()/return', function(assert) {
 		err:     { type: 'host' },
 		url:     'https://example.com/index.html',
 		flags:   { proxy: true },
-		headers: { '@local': IPV4.ip }
+		headers: { '@local': EXAMPLE.ipv4.ip }
 	});
 	let response4 = REDIRECT.error({
 		err:     { cause: 'socket-proxy', code: 500, type: 'request' },
 		url:     'https://example.com/index.html',
 		flags:   { proxy: true },
-		headers: { '@local': IPV6.ip }
+		headers: { '@local': EXAMPLE.ipv6.ip }
 	});
 	let response5 = REDIRECT.error({
 		err:   { type: 'mode' },
-		url:   'https://example.com/index.html',
-		flags: { webview: true }
-	});
-	let response6 = REDIRECT.error({
-		err:   { type: 'filter' },
 		url:   'https://example.com/index.html',
 		flags: { webview: true }
 	});
@@ -156,7 +133,7 @@ describe('REDIRECT.error()/return', function(assert) {
 	assert(isObject(response3.headers),   true);
 	assert(response3.headers['@code'],    307);
 	assert(response3.headers['@status'],  '307 Temporary Redirect');
-	assert(response3.headers['location'], 'http://' + IPV4.ip + ':65432/browser/internal/fix-host.html?url=https%3A%2F%2Fexample.com%2Findex.html');
+	assert(response3.headers['location'], 'http://' + EXAMPLE.ipv4.ip + ':65432/browser/internal/fix-host.html?url=https%3A%2F%2Fexample.com%2Findex.html');
 	assert(response3.payload,             null);
 
 	assert(response4 !== null);
@@ -165,7 +142,7 @@ describe('REDIRECT.error()/return', function(assert) {
 	assert(isObject(response4.headers),   true);
 	assert(response4.headers['@code'],    307);
 	assert(response4.headers['@status'],  '307 Temporary Redirect');
-	assert(response4.headers['location'], 'http://[' + IPV6.ip + ']:65432/browser/internal/fix-request.html?url=https%3A%2F%2Fexample.com%2Findex.html&code=500&cause=socket-proxy');
+	assert(response4.headers['location'], 'http://[' + EXAMPLE.ipv6.ip + ']:65432/browser/internal/fix-request.html?url=https%3A%2F%2Fexample.com%2Findex.html&code=500&cause=socket-proxy');
 	assert(response4.payload,             null);
 
 	assert(response5 !== null);
@@ -176,15 +153,6 @@ describe('REDIRECT.error()/return', function(assert) {
 	assert(response5.headers['@status'],  '307 Temporary Redirect');
 	assert(response5.headers['location'], '/browser/internal/fix-mode.html?url=https%3A%2F%2Fexample.com%2Findex.html');
 	assert(response5.payload,             null);
-
-	assert(response6 !== null);
-	assert(response6.headers !== null);
-
-	assert(isObject(response6.headers),   true);
-	assert(response6.headers['@code'],    307);
-	assert(response6.headers['@status'],  '307 Temporary Redirect');
-	assert(response6.headers['location'], '/browser/internal/fix-filter.html?url=https%3A%2F%2Fexample.com%2Findex.html');
-	assert(response6.payload,             null);
 
 });
 
