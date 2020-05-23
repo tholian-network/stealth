@@ -149,9 +149,29 @@ export const console = (function() {
 		return Object.prototype.toString.call(str) === '[object String]';
 	};
 
-	const INDENT      = '    ';
-	const WHITESPACE  = new Array(512).fill(' ').join('');
-	const format_date = (n) => (n < 10 ? '0' + n : '' + n);
+	const INDENT       = '    ';
+	const WHITESPACE   = new Array(512).fill(' ').join('');
+	const format_date2 = (n) => {
+
+		if (n < 10) {
+			return '0' + n;
+		}
+
+		return '' + n;
+
+	};
+
+	const format_date3 = (n) => {
+
+		if (n < 10) {
+			return '00' + n;
+		} else if (n < 100) {
+			return '0' + n;
+		}
+
+		return '' + n;
+
+	};
 
 	const cleanify = function(raw) {
 
@@ -277,13 +297,24 @@ export const console = (function() {
 		} else if (isDate(data) === true) {
 
 			str  = indent;
+			str += highlight(data.getUTCFullYear(), 'Number');
+			str += highlight('-', 'Keyword');
+			str += highlight(format_date2(data.getUTCMonth() + 1), 'Number');
+			str += highlight('-', 'Keyword');
+			str += highlight(format_date2(data.getUTCDate()), 'Number');
+			str += highlight('T', 'Keyword');
+			str += highlight(format_date2(data.getUTCHours()), 'Number');
+			str += highlight(':', 'Keyword');
+			str += highlight(format_date2(data.getUTCMinutes()), 'Number');
+			str += highlight(':', 'Keyword');
+			str += highlight(format_date2(data.getUTCSeconds()), 'Number');
 
-			str += data.getUTCFullYear()               + '-';
-			str += format_date(data.getUTCMonth() + 1) + '-';
-			str += format_date(data.getUTCDate())      + 'T';
-			str += format_date(data.getUTCHours())     + ':';
-			str += format_date(data.getUTCMinutes())   + ':';
-			str += format_date(data.getUTCSeconds())   + 'Z';
+			if (data.getUTCMilliseconds() !== 0) {
+				str += highlight('.', 'Keyword');
+				str += highlight(format_date3(data.getUTCMilliseconds()), 'Number');
+			}
+
+			str += highlight('Z', 'Keyword');
 
 		} else if (data[Symbol.toStringTag] !== undefined && typeof data.toJSON === 'function') {
 
@@ -586,13 +617,24 @@ export const console = (function() {
 		} else if (isDate(data) === true) {
 
 			str  = indent;
+			str += highlight(data.getUTCFullYear(), 'Number');
+			str += highlight('-', 'Keyword');
+			str += highlight(format_date2(data.getUTCMonth() + 1), 'Number');
+			str += highlight('-', 'Keyword');
+			str += highlight(format_date2(data.getUTCDate()), 'Number');
+			str += highlight('T', 'Keyword');
+			str += highlight(format_date2(data.getUTCHours()), 'Number');
+			str += highlight(':', 'Keyword');
+			str += highlight(format_date2(data.getUTCMinutes()), 'Number');
+			str += highlight(':', 'Keyword');
+			str += highlight(format_date2(data.getUTCSeconds()), 'Number');
 
-			str += data.getUTCFullYear()               + '-';
-			str += format_date(data.getUTCMonth() + 1) + '-';
-			str += format_date(data.getUTCDate())      + 'T';
-			str += format_date(data.getUTCHours())     + ':';
-			str += format_date(data.getUTCMinutes())   + ':';
-			str += format_date(data.getUTCSeconds())   + 'Z';
+			if (data.getUTCMilliseconds() !== 0) {
+				str += highlight('.', 'Keyword');
+				str += highlight(format_date3(data.getUTCMilliseconds()), 'Number');
+			}
+
+			str += highlight('Z', 'Keyword');
 
 		} else if (data[Symbol.toStringTag] !== undefined && typeof data.toJSON === 'function') {
 
