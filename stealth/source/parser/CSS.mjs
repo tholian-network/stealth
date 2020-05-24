@@ -592,7 +592,7 @@ export const parse_value = function(str) {
 					if (val < 0)   val = 0;
 					if (val > 255) val = 255;
 
-				} else {
+				} else if (n === 3) {
 
 					if (v.endsWith('%')) {
 						val = parse_number(v.substr(0, v.length - 1)) / 100;
@@ -620,7 +620,176 @@ export const parse_value = function(str) {
 
 	} else if ((str.startsWith('hsl(')|| str.startsWith('hsla(')) && str.endsWith(')')) {
 
-		// TODO: hsl/a color support
+		let tmp1 = str.split('(').pop().split(')').shift();
+		let tmp2 = tmp1.split(',').map((v) => v.trim());
+
+		if (tmp2.length === 3) {
+
+			let nums = tmp2.map((v, n) => {
+
+				let val = 0;
+
+				if (v.endsWith('%')) {
+					val = parse_number(v.substr(0, v.length - 1)) / 100;
+				} else {
+					val = parse_number(v);
+				}
+
+				if (n === 0) {
+
+					if (Math.abs(val) > 360) val %= 360;
+					if (val < 0)             val += 360;
+
+					val /= 60;
+
+				}
+
+				return val;
+
+			});
+
+			if (nums.length === 3) {
+				nums.push(1);
+			}
+
+
+			let hue = nums[0];
+			let c   = (1 - Math.abs(2 * nums[2] - 1)) * nums[1];
+			let x   = c * (1 - Math.abs(hue % 2 - 1));
+			let m   = nums[2] - c / 2;
+
+			if (hue < 1) {
+
+				nums[0] = (c + m) * 255;
+				nums[1] = (x + m) * 255;
+				nums[2] = 0;
+
+			} else if (hue < 2) {
+
+				nums[0] = (x + m) * 255;
+				nums[1] = (c + m) * 255;
+				nums[2] = 0;
+
+			} else if (hue < 3) {
+
+				nums[0] = 0;
+				nums[1] = (c + m) * 255;
+				nums[2] = (x + m) * 255;
+
+			} else if (hue < 4) {
+
+				nums[0] = 0;
+				nums[1] = (x + m) * 255;
+				nums[2] = (c + m) * 255;
+
+			} else if (hue < 5) {
+
+				nums[0] = (x + m) * 255;
+				nums[1] = 0;
+				nums[2] = (c + m) * 255;
+
+			} else {
+
+				nums[0] = (c + m) * 255;
+				nums[1] = 0;
+				nums[2] = (x + m) * 255;
+
+			}
+
+			value = {
+				ext: null,
+				raw: 'rgba(' + nums.join(',') + ')',
+				typ: 'color',
+				val: nums
+			};
+
+		} else if (tmp2.length === 4) {
+
+			let nums = tmp2.map((v, n) => {
+
+				let val = 0;
+
+				if (v.endsWith('%')) {
+					val = parse_number(v.substr(0, v.length - 1)) / 100;
+				} else {
+					val = parse_number(v);
+				}
+
+				if (n === 0) {
+
+					if (Math.abs(val) > 360) val %= 360;
+					if (val < 0)             val += 360;
+
+					val /= 60;
+
+				} else if (n === 3) {
+
+					if (v.endsWith('%')) {
+						val = parse_number(v.substr(0, v.length - 1)) / 100;
+					} else {
+						val = parse_number(v);
+					}
+
+					if (val < 0) val = 0;
+					if (val > 1) val = 1;
+
+				}
+
+				return val;
+
+			});
+
+			let hue = nums[0];
+			let c   = (1 - Math.abs(2 * nums[2] - 1)) * nums[1];
+			let x   = c * (1 - Math.abs(hue % 2 - 1));
+			let m   = nums[2] - c / 2;
+
+			if (hue < 1) {
+
+				nums[0] = (c + m) * 255;
+				nums[1] = (x + m) * 255;
+				nums[2] = 0;
+
+			} else if (hue < 2) {
+
+				nums[0] = (x + m) * 255;
+				nums[1] = (c + m) * 255;
+				nums[2] = 0;
+
+			} else if (hue < 3) {
+
+				nums[0] = 0;
+				nums[1] = (c + m) * 255;
+				nums[2] = (x + m) * 255;
+
+			} else if (hue < 4) {
+
+				nums[0] = 0;
+				nums[1] = (x + m) * 255;
+				nums[2] = (c + m) * 255;
+
+			} else if (hue < 5) {
+
+				nums[0] = (x + m) * 255;
+				nums[1] = 0;
+				nums[2] = (c + m) * 255;
+
+			} else {
+
+				nums[0] = (c + m) * 255;
+				nums[1] = 0;
+				nums[2] = (x + m) * 255;
+
+			}
+
+			value = {
+				ext: null,
+				raw: 'rgba(' + nums.join(',') + ')',
+				typ: 'color',
+				val: nums
+			};
+
+		}
 
 	} else if (str.endsWith('%')) {
 
