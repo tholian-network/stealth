@@ -1,15 +1,15 @@
 
 # Stealth Browser
 
-The Stealth Browser is a Browser User Interface that is
-implemented using Web Technologies, so that it is possible
-to change the Browser Engine or Web View easily.
+The Stealth Browser is a Browser UI which is implemented using
+Web Technologies, so that it is possible to change the Browser
+Engine or Web View easily.
 
 
 ## URL-Parameter Flags
 
-- `/index.html?debug` is a parameter to toggle loading/debugging
-   of the UI by disabling the Service Worker.
+- `/browser/index.html?debug=true` is a parameter to toggle
+   loading/debugging of the UI by disabling the Service Worker.
    The default value is `false`.
 
 
@@ -22,12 +22,12 @@ to change the Browser Engine or Web View easily.
 cd /path/to/stealth;
 
 # Start Stealth Service
-bash ./stealth/bin/stealth.sh;
+node ./stealth/stealth.mjs;
 
-# Open as Progressive Web App
-bash ./browser/bin/browser.sh;
+# Open Browser Progressive Web App
+node ./browser/browser.mjs;
 
-# Open in other Web Browser
+# Open in other (modern) Web Browser
 # gio open http://localhost:65432;
 ```
 

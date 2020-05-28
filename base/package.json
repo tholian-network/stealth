@@ -4,6 +4,6 @@
 	"module":  "./build/node.mjs",
 	"browser": "./build/browser.mjs",
 	"scripts": {
-		"postinstall": "bash ./bin/base.sh"
+		"postinstall": "node ./make.mjs"
 	}
 }

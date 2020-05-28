@@ -4,13 +4,14 @@ import url     from 'url';
 import path    from 'path';
 import process from 'process';
 
-import { build as build_base } from '../../base/bin/base.mjs';
-import { console             } from '../../base/index.mjs';
+import { console             } from '../base/source/node/console.mjs';
+import { build as build_base } from '../base/make.mjs';
 
 
 
-const FILE = url.fileURLToPath(import.meta.url);
-const ROOT = path.dirname(path.resolve(FILE, '../../'));
+let   CACHE = null;
+const FILE  = url.fileURLToPath(import.meta.url);
+const ROOT  = path.dirname(path.resolve(FILE, '../'));
 
 const copy = (origin, target) => {
 
@@ -136,7 +137,7 @@ const remove = (path) => {
 
 			try {
 				fs.unlinkSync(path);
-				result = true
+				result = true;
 			} catch (err) {
 				result = false;
 			}
@@ -149,12 +150,16 @@ const remove = (path) => {
 
 };
 
+const IGNORED = [
+	ROOT + '/browser/bin',
+	ROOT + '/browser.mjs',
+	ROOT + '/browser/README.md',
+	ROOT + '/browser/make.mjs'
+];
+
 const walk = (path, result) => {
 
-	if (
-		path === ROOT + '/browser/bin'
-		|| path === ROOT + '/browser/README.md'
-	) {
+	if (IGNORED.includes(path)) {
 		return result;
 	}
 
@@ -231,16 +236,28 @@ const write = (path, buffer) => {
 
 export const clean = () => {
 
-	let results = [
-		remove(ROOT + '/browser/extern/base.mjs'),
-		remove(ROOT + '/browser/source/Browser.mjs'),
-		remove(ROOT + '/browser/source/Tab.mjs'),
-		remove(ROOT + '/browser/source/client'),
-		remove(ROOT + '/browser/source/parser')
-	];
+	if (CACHE === false) {
 
-	if (results.includes(false) === false) {
 		return true;
+
+	} else {
+
+		console.log('browser: clean()');
+
+		CACHE = false;
+
+		let results = [
+			remove(ROOT + '/browser/extern/base.mjs'),
+			remove(ROOT + '/browser/source/Browser.mjs'),
+			remove(ROOT + '/browser/source/Tab.mjs'),
+			remove(ROOT + '/browser/source/client'),
+			remove(ROOT + '/browser/source/parser')
+		];
+
+		if (results.includes(false) === false) {
+			return true;
+		}
+
 	}
 
 
@@ -250,45 +267,56 @@ export const clean = () => {
 
 export const build = () => {
 
-	let results = [
-		build_base(),
-		copy(ROOT + '/base/build/browser.mjs',     ROOT + '/browser/extern/base.mjs'),
-		copy(ROOT + '/stealth/source/Browser.mjs', ROOT + '/browser/source/Browser.mjs'),
-		copy(ROOT + '/stealth/source/Tab.mjs',     ROOT + '/browser/source/Tab.mjs'),
-		copy(ROOT + '/stealth/source/client',      ROOT + '/browser/source/client'),
-		copy(ROOT + '/stealth/source/parser',      ROOT + '/browser/source/parser')
-	];
+	if (CACHE === true) {
+
+		return true;
+
+	} else {
+
+		console.log('browser: build()');
+
+		let results = [
+			build_base(),
+			copy(ROOT + '/base/build/browser.mjs',     ROOT + '/browser/extern/base.mjs'),
+			copy(ROOT + '/stealth/source/Browser.mjs', ROOT + '/browser/source/Browser.mjs'),
+			copy(ROOT + '/stealth/source/Tab.mjs',     ROOT + '/browser/source/Tab.mjs'),
+			copy(ROOT + '/stealth/source/client',      ROOT + '/browser/source/client'),
+			copy(ROOT + '/stealth/source/parser',      ROOT + '/browser/source/parser')
+		];
 
 
-	let service = read(ROOT + '/browser/service.js');
-	if (service !== null) {
+		let service = read(ROOT + '/browser/service.js');
+		if (service !== null) {
 
-		let files = walk(ROOT + '/browser').map((path) => {
-			return path.substr((ROOT + '/browser').length + 1);
-		}).sort((a, b) => {
-			if (a < b) return -1;
-			if (b < a) return  1;
-			return 0;
-		});
+			let files = walk(ROOT + '/browser').map((path) => {
+				return path.substr((ROOT + '/browser').length + 1);
+			}).sort((a, b) => {
+				if (a < b) return -1;
+				if (b < a) return  1;
+				return 0;
+			});
 
-		if (files.length > 0) {
+			if (files.length > 0) {
 
-			let index0 = service.indexOf('const ASSETS  = [') + 17;
-			let index1 = service.indexOf('];', index0);
+				let index0 = service.indexOf('const ASSETS  = [') + 17;
+				let index1 = service.indexOf('];', index0);
 
-			if (index0 > 17 && index1 > 18) {
-				service = service.substr(0, index0) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + service.substr(index1);
+				if (index0 > 17 && index1 > 18) {
+					service = service.substr(0, index0) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + service.substr(index1);
+				}
+
+				results.push(write(ROOT + '/browser/service.js', service));
+
 			}
-
-			results.push(write(ROOT + '/browser/service.js', service));
 
 		}
 
-	}
 
+		if (results.includes(false) === false) {
+			CACHE = true;
+			return true;
+		}
 
-	if (results.includes(false) === false) {
-		return true;
 	}
 
 
@@ -297,12 +325,25 @@ export const build = () => {
 };
 
 
-if (process.argv.includes(FILE) === true) {
 
-	let results = [
-		clean(),
-		build()
-	];
+let args = process.argv.slice(1);
+if (args.includes(FILE) === true) {
+
+	let results = [];
+
+	if (args.includes('clean')) {
+		results.push(clean());
+	}
+
+	if (args.includes('build')) {
+		results.push(build());
+	}
+
+	if (results.length === 0) {
+		results.push(clean());
+		results.push(build());
+	}
+
 
 	if (results.includes(false) === false) {
 		process.exit(0);

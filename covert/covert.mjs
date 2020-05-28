@@ -1,14 +1,14 @@
 
 import process from 'process';
 
-import { console     } from '../extern/base.mjs';
-import { Covert      } from '../source/Covert.mjs';
-import { Linter      } from '../source/Linter.mjs';
-import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
+import { console     } from '../base/index.mjs';
+import { Covert      } from './source/Covert.mjs';
+import { Linter      } from './source/Linter.mjs';
+import { ENVIRONMENT } from './source/ENVIRONMENT.mjs';
 
-import BASE    from '../../base/review/index.mjs';
-import COVERT  from '../../covert/review/index.mjs';
-import STEALTH from '../../stealth/review/index.mjs';
+import BASE    from '../base/review/index.mjs';
+import COVERT  from '../covert/review/index.mjs';
+import STEALTH from '../stealth/review/index.mjs';
 
 
 
@@ -60,8 +60,8 @@ const show_help = () => {
 	console.log('');
 	console.log('    Flag       | Default | Values         | Description                                          ');
 	console.log('    -----------|---------|----------------|------------------------------------------------------');
-	console.log('    --debug    | true    | true, false    | Enable/Disable debug messages. Defaulted with false. ');
-	console.log('    --internet | false   | true, false    | Enable/Disable internet usage. Defaulted with true.  ');
+	console.log('    --debug    | false   | true, false    | Enable/Disable debug messages. Defaulted with false. ');
+	console.log('    --internet | true    | true, false    | Enable/Disable internet usage. Defaulted with true.  ');
 	console.log('    --network  | null    | 1G, 2G, 3G, 4G | Simulate network behaviour. Defaulted with null.     ');
 	console.log('    --timeout  | 10s     | (Number)s      | Override test completion timeout. Defaulted with 10s.');
 	console.log('');

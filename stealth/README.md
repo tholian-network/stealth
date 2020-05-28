@@ -4,10 +4,11 @@
 The Stealth Service is a web daemon that allows to load, parse, filter
 and render web sites from both a local cache and the interwebz.
 
-The idea is that it can be used as both a web proxy (for your custom
-web browser interface) and a web browser if there's no other way to
-deliver a platform (e.g. you can use Android for Chrome and bookmark
-the Stealth Service `/browser/index.html` URL as a Web App).
+The idea is that the [Browser UI](../browser) is also delivered by
+the Stealth Service, so that other platforms (like Android or iOS
+tablets and smartphones) can simply access a Stealth instance by
+visiting it with any modern Web Browser and to use the Progressive
+Web App in fullscreen mode.
 
 
 ## Command-Line Flags
@@ -31,6 +32,6 @@ the Stealth Service `/browser/index.html` URL as a Web App).
 cd /path/to/stealth;
 
 # Example shows default values for optional flags
-bash ./bin/stealth.sh --host=null --profile=/home/$USER/Stealth;
+node ./stealth/stealth.mjs --host=null --profile=/home/$USER/Stealth;
 ```
 

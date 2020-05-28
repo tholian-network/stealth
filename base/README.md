@@ -12,18 +12,24 @@ file.
 
 ## Usage
 
-The Base Library is using a simple [base.sh](./bin/base.sh) build script that
-generates the [/build](./build) folder. The build script is called by both the
-[browser.sh](../browser/bin/browser.sh) and [stealth.sh](../stealth/bin/stealth.sh).
+The Base Library is using a simple [make.mjs](./make.mjs) script that
+generates the [/build](./build) folder.
+
+The `make.mjs` is called by other build scripts, too:
+
+- [Browser's make.mjs](../browser/make.mjs)
+- [Covert's make.mjs](../covert/make.mjs)
+- [Stealth's make.mjs](../stealth/make.mjs)
+
 
 ```bash
 cd /path/to/stealth;
 
 # Build the Base Library
-bash ./base/bin/base.sh;
+node ./base/make.mjs;
 
-# Afterwards, simply copy/paste the BASE.mjs and use ES6 import syntax
-# cp ./base/build/browser/BASE.mjs ./to/a/browser/project/;
-# cp ./base/build/node/BASE.mjs    ./to/a/node/project/;
+# Afterwards, simply copy/paste the generated ESM module and use import syntax
+# cp ./base/build/browser.mjs ./to/a/browser/project/extern/base.mjs;
+# cp ./base/build/node.mjs    ./to/a/node/project/extern/base.mjs;
 ```
 

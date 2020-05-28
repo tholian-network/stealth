@@ -4,17 +4,25 @@
 	"private": true,
 	"version": "2020.0.0",
 	"module": "./stealth/index.mjs",
+	"bin": {
+		"browser": "./browser/browser.mjs",
+		"covert": "./covert/covert.mjs",
+		"stealth": "./stealth/stealth.mjs"
+	},
 	"scripts": {
-
 		"lint": "npx eslint ./base ./browser ./covert ./stealth",
-		"postinstall": "node ./base/bin/base.mjs",
-		"test": "node ./covert/bin/covert.mjs scan",
-
-		"base": "node ./base/bin/base.mjs",
-		"browser": "bash ./browser/bin/browser.sh",
-		"covert": "node ./covert/bin/covert.mjs",
-		"stealth": "node ./stealth/bin/stealth.mjs"
-
+		"postinstall": "node ./make.mjs build",
+		"test": "node ./covert/covert.mjs scan",
+		"clean": "node ./make.mjs clean",
+		"clean:base": "node ./base/make.mjs clean",
+		"clean:browser": "node ./browser/make.mjs clean",
+		"clean:covert": "node ./covert/make.mjs clean",
+		"clean:stealth": "node ./stealth/make.mjs clean",
+		"build": "node ./make.mjs build",
+		"build:base": "node ./base/make.mjs build",
+		"build:browser": "node ./browser/make.mjs build",
+		"build:covert": "node ./covert/make.mjs build",
+		"build:stealth": "node ./stealth/make.mjs build"
 	},
 	"exports": {
 		".": "./stealth/index.mjs",
@@ -23,6 +31,7 @@
 		"./stealth": "./stealth/index.mjs"
 	},
 	"devDependencies": {
+		"babel-eslint": "^10.1.0",
 		"eslint": "^7.0.0"
 	}
 }

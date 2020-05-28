@@ -39,13 +39,13 @@ Reviews.
 ```bash
 cd /path/to/covert;
 
-./bin/covert.sh stealth/Client;       # Execute Stealth's review/Client.mjs
-./bin/covert.sh stealth/client*;      # Execute Stealth's reviews starting with "client"
-./bin/covert.sh *Cache;               # Execute all reviews ending with "Cache"
-./bin/covert.sh stealth/client*Cache; # Execute Stealth's reviews starting with "client" and ending with "Cache"
+node ./covert.mjs stealth/Client;       # Execute Stealth's review/Client.mjs
+node ./covert.mjs stealth/client*;      # Execute Stealth's reviews starting with "client"
+node ./covert.mjs *Cache;               # Execute all reviews ending with "Cache"
+node ./covert.mjs stealth/client*Cache; # Execute Stealth's reviews starting with "client" and ending with "Cache"
 
-./bin/covert.sh --debug=true;     # Execute reviews in debug mode
-./bin/covert.sh --internet=false; # Execute reviews in offline mode
+node ./covert.mjs --debug=true;     # Execute reviews in debug mode
+node ./covert.mjs --internet=false; # Execute reviews in offline mode
 ```
 
 
@@ -56,17 +56,7 @@ cd /path/to/covert;
 ```bash
 cd /path/to/stealth;
 
-# Execute and validate all Reviews
-bash ./covert/bin/covert.sh;
+# Show Help
+node ./covert/covert.mjs;
 ```
-
-
-## Requirements
-
-Covert requires a locally installed `SOCKS` proxy that is shipped in the
-[socks-proxy](/covert/sketch/socks-proxy) folder and needs to be compiled
-before Covert itself can actually run.
-
-Therefore on most systems, `gcc` and `make` are required, unless you've
-installed another compatible C compiler.
 

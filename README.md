@@ -13,8 +13,8 @@ to compromise the freedom and rights of Web Browser End-Users.
 
 Stealth also focusses on Privacy in the sense of "Real Privacy" that does not trust any website
 or any URL by default. Everything has to be whitelisted by `Site Modes` that decide what content
-is loaded. Regularly visited Sites can be audited and their Semantic Knowledge extracted via
-`Site Optimizers` that allow automated usage.
+is loaded. Regularly visited Sites can be audited and and their Semantic Knowledge can be extracted
+via `Site Beacons`, fully automatically.
 
 
 ## Downloads / Releases
@@ -32,9 +32,7 @@ Stealth will initially be released for `MacOS` and `GNU/Linux`.
 
 Detailed Screenshots are in the [/guide/screenshots](./guide/screenshots) folder.
 
-![stealth:settings](./guide/screenshots/preview/browser-welcome.png) ![stealth:settings](./guide/screenshots/preview/browser-settings.png) ![cookie.engineer](./guide/screenshots/preview/browser-website.png)
-
-![stealth:fix-mode](./guide/screenshots/preview/browser-fix-mode.png) ![stealth:fix-filter](./guide/screenshots/preview/browser-fix-filter.png)
+![stealth:settings](./guide/screenshots/preview/browser-welcome.png)
 
 
 ## Features
@@ -67,7 +65,7 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
   allowed features (or media types). By default, Stealth will load nothing. The Site
   Mode next to the address bar decides what is loaded.
 
-- It uses whitelist-based `Site Optimizers` that allow specific elements on a Site
+- It uses whitelist-based `Site Beacons` that allow specific elements on a Site
   to be extracted as Knowledge - which in return help to train the Browser to understand
   future similar Sites on the web more easily. This can be seen as a learning mechanism
   that is similar to the "Reader Mode" in other Browsers, but whilst delivering the
@@ -94,7 +92,7 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
   to improve Privacy. Stealth also does not support Web Forms or any Web API that could
   potentially send data to the website.
 
-- Stealth also can be scripted as a Web Scraper inside `node.js`. The [Browser](./browser/source)
+- Stealth can be scripted as a Web Scraper inside `node.js`. The [Browser](./browser/source)
   is completely free-of-DOM, so every single task and interaction that the [Browser UI](./browser/design)
   does can be implemented in an automateable and programmable manner, even remotely through
   trusted Peers using Stealth's peer-to-peer network services.
@@ -103,8 +101,8 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
 ## Stealth Guide (for Hackers?)
 
 The [Guide](/guide/README.md) is currently meant for Developers that are new to the Project.
-It explains all necessities to quickly get started to hack around with Stealth and modify it
-to fit your needs.
+It explains all necessary topics to quickly get started to hack around with Stealth and modify
+it to fit your needs.
 
 A User's Guide probably will arrive at a later point in time, as Stealth currently has no
 public release yet.
@@ -125,13 +123,17 @@ is how to get started as quickly as possible:
 - (Only Linux) Alternatively Install `qmlscene` and `Qt5 WebView` version `5+` and `Qt5 QuickControls` version `2+`.
 
 ```bash
-cd /path/to/stealth;
+git clone https://github.com/cookiengineer/stealth.git;
+cd ./stealth;
+
+# Make everything
+node ./make.mjs;
 
 # Start Stealth Service
-bash stealth/bin/stealth.sh;
+node ./stealth/stealth.mjs;
 
 # Open as Progressive Web App
-bash browser/bin/browser.sh;
+node ./browser/browser.mjs;
 ```
 
 **IMPORTANT**: On Android, Stealth can be used by visiting the URL and bookmarking it as
