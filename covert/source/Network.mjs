@@ -1,7 +1,7 @@
 
-import { execSync          } from 'child_process';
-import { networkInterfaces } from 'os';
-import process               from 'process';
+import { execSync } from 'child_process';
+import os           from 'os';
+import process      from 'process';
 
 import { console, isString } from '../extern/base.mjs';
 import { IP                } from '../../stealth/source/parser/IP.mjs';
@@ -174,7 +174,7 @@ const exec = (cmd, cwd) => {
 const get_interface = () => {
 
 	let found      = null;
-	let interfaces = networkInterfaces();
+	let interfaces = os.networkInterfaces();
 
 	for (let iface in interfaces) {
 
@@ -255,6 +255,19 @@ Network.prototype = {
 
 	connect: function() {
 
+		if (os.platform() === 'darwin') {
+
+			sudo('ifconfig lo0 alias 127.0.0.2 up');
+			sudo('ifconfig lo0 alias 127.0.0.3 up');
+
+		} else if (os.platform() === 'linux') {
+
+			sudo('ifconfig lo:0 127.0.0.2 up');
+			sudo('ifconfig lo:1 127.0.0.3 up');
+
+		}
+
+
 		if (
 			STATE.network !== null
 			&& STATE.network !== this._settings.network
@@ -285,6 +298,19 @@ Network.prototype = {
 	},
 
 	disconnect: function() {
+
+		if (os.platform() === 'darwin') {
+
+			sudo('ifconfig lo0 -alias 127.0.0.2');
+			sudo('ifconfig lo0 -alias 127.0.0.3');
+
+		} else if (os.platform() === 'linux') {
+
+			sudo('ifconfig lo:0 down');
+			sudo('ifconfig lo:1 down');
+
+		}
+
 
 		if (STATE.network !== null) {
 

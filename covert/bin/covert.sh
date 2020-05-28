@@ -28,47 +28,6 @@ if [[ -z "$make_bin" ]]; then
 fi;
 
 
-if [[ "$system" == "Darwin" ]]; then
-
-	echo "Need sudo to create alias for 127.0.0.2 ...";
-	sudo ifconfig lo0 alias "127.0.0.2" up;
-
-	echo "Need sudo to create alias for 127.0.0.3 ...";
-	sudo ifconfig lo0 alias "127.0.0.3" up;
-
-fi;
-
-
-
-build_covert() {
-
-	cd "$root_dir";
-
-	bash "./base/bin/base.sh";
-
-	if [[ ! -d "./covert/extern" ]]; then
-		mkdir "./covert/extern";
-	fi;
-
-	rm "./covert/extern/base.mjs" 2> /dev/null;
-	cp "./base/build/node.mjs"    "./covert/extern/base.mjs";
-
-}
-
-build_stealth() {
-
-	cd "$root_dir";
-
-	bash "./base/bin/base.sh";
-
-	if [[ ! -d "./stealth/extern" ]]; then
-		mkdir "./stealth/extern";
-	fi;
-
-	rm "./stealth/extern/base.mjs" 2> /dev/null;
-	cp "./base/build/node.mjs"    "./stealth/extern/base.mjs";
-
-}
 
 start_socks_proxy() {
 
@@ -86,8 +45,6 @@ start_socks_proxy() {
 
 }
 
-build_covert;
-build_stealth;
 start_socks_proxy;
 
 
