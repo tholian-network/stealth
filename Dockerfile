@@ -1,6 +1,5 @@
-FROM node:11-alpine
-COPY ./ /browser
-RUN mkdir /profile
+FROM node:14-alpine
+RUN mkdir "/profile"
+RUN node "./make.mjs"
 EXPOSE 65432
-ENTRYPOINT ["/browser/bin/stealth.sh"]
-CMD ["--profile=/profile"]
+CMD [ "node", "./stealth/stealth.mjs", "--profile=/profile" ]
