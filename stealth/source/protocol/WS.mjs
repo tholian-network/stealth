@@ -303,8 +303,7 @@ const encode = function(connection, data) {
 	let payload_length = data.length;
 
 
-	let is_server = connection.type === 'server';
-	if (is_server === true) {
+	if (connection.type === 'server') {
 
 		mask         = false;
 		mask_data    = Buffer.alloc(4);
@@ -398,7 +397,7 @@ const encode = function(connection, data) {
 
 
 
-export const onconnect = function(connection, ref, buffer) {
+export const onconnect = function(connection, ref) {
 
 	let hosts = ref.hosts.sort((a, b) => {
 
@@ -439,7 +438,7 @@ export const onconnect = function(connection, ref, buffer) {
 		nonce[n] = Math.round(Math.random() * 0xff);
 	}
 
-	buffer.nonce = nonce;
+	connection.__nonce = nonce;
 
 
 	connection.socket.once('data', (data) => {
@@ -457,12 +456,12 @@ export const onconnect = function(connection, ref, buffer) {
 
 				if (accept === expect) {
 
-					buffer._interval = setInterval(() => {
+					connection.__interval = setInterval(() => {
 
 						let result = WS.ping(connection);
 						if (result === false) {
-							clearInterval(buffer._interval);
-							delete buffer._interval;
+							clearInterval(connection.__interval);
+							connection.__interval = null;
 						}
 
 					}, 60000);
@@ -491,51 +490,33 @@ export const onconnect = function(connection, ref, buffer) {
 
 };
 
-export const ondata = function(connection, ref, buffer, fragment) {
+export const ondata = function(connection, ref, chunk) {
 
-	if (buffer.fragment === undefined) {
-		buffer.fragment = null;
-	}
-
-	if (buffer.fragment !== null) {
-		fragment = Buffer.concat([ buffer.fragment, fragment ]);
-		buffer.fragment = null;
+	if (connection.__frame !== null) {
+		chunk = Buffer.concat([ connection.__frame, chunk ]);
+		connection.__frame = null;
 	}
 
 	if (connection.type === 'client') {
 
-		WS.receive(connection, fragment, (frame) => {
+		WS.receive(connection, chunk, (frame) => {
 
 			if (frame !== null) {
-
-				// TODO: buffer.fragment should be buffer.fragment.length - frame.length but don't know for sure
-
-				buffer.fragment = null;
 				connection.emit('response', [ frame ]);
-
 			} else {
-
-				buffer.fragment = fragment;
-
+				connection.__frame = chunk;
 			}
 
 		});
 
 	} else if (connection.type === 'server') {
 
-		WS.receive(connection, fragment, (frame) => {
+		WS.receive(connection, chunk, (frame) => {
 
 			if (frame !== null) {
-
-				// TODO: buffer.fragment should be buffer.fragment.length - frame.length but don't know for sure
-
-				buffer.fragment = null;
 				connection.emit('request', [ frame ]);
-
 			} else {
-
-				buffer.fragment = fragment;
-
+				connection.__frame = chunk;
 			}
 
 		});
@@ -580,6 +561,10 @@ const Connection = function(socket) {
 		operator: 0x00,
 		payload:  Buffer.alloc(0)
 	};
+
+	this.__frame    = null;
+	this.__interval = null;
+	this.__nonce    = null;
 
 	Emitter.call(this);
 
@@ -632,10 +617,9 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 const WS = {
 
-	connect: function(ref, buffer, connection) {
+	connect: function(ref, connection) {
 
 		ref        = isObject(ref)            ? ref        : null;
-		buffer     = isObject(buffer)         ? buffer     : {};
 		connection = isConnection(connection) ? connection : new Connection();
 
 
@@ -681,7 +665,7 @@ const WS = {
 							socket.allowHalfOpen = true;
 
 							connection.socket = socket;
-							onconnect(connection, ref, buffer);
+							onconnect(connection, ref);
 
 						});
 
@@ -695,7 +679,7 @@ const WS = {
 				if (socket !== null) {
 
 					socket.on('data', (fragment) => {
-						ondata(connection, ref, buffer, fragment);
+						ondata(connection, ref, fragment);
 					});
 
 					socket.on('timeout', () => {
@@ -713,7 +697,7 @@ const WS = {
 
 						if (connection.socket !== null) {
 
-							onerror(connection, ref, buffer);
+							onerror(connection, ref);
 							connection.socket = null;
 
 						}
@@ -724,7 +708,7 @@ const WS = {
 
 						if (connection.socket !== null) {
 
-							onend(connection, ref, buffer);
+							onend(connection, ref);
 							connection.socket = null;
 
 						}
@@ -970,7 +954,6 @@ const WS = {
 			let nonce = ref.headers['sec-websocket-key'] || null;
 			if (nonce !== null) {
 
-				let buffer     = {};
 				let connection = new Connection();
 
 
@@ -985,7 +968,7 @@ const WS = {
 				socket.removeAllListeners('end');
 
 				socket.on('data', (fragment) => {
-					ondata(connection, ref, buffer, fragment);
+					ondata(connection, ref, fragment);
 				});
 
 				socket.on('timeout', () => {
@@ -1003,7 +986,7 @@ const WS = {
 
 					if (connection.socket !== null) {
 
-						onerror(connection, ref, buffer);
+						onerror(connection, ref);
 						connection.socket = null;
 
 					}
@@ -1014,7 +997,7 @@ const WS = {
 
 					if (connection.socket !== null) {
 
-						onend(connection, ref, buffer);
+						onend(connection, ref);
 						connection.socket = null;
 
 					}
@@ -1023,7 +1006,7 @@ const WS = {
 
 
 				connection.socket = socket;
-				onupgrade(connection, ref, buffer);
+				onupgrade(connection, ref);
 
 
 				return connection;

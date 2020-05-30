@@ -80,6 +80,10 @@ const Connection = function(socket) {
 		payload:  Buffer.alloc(0)
 	};
 
+	this.__frame    = null;
+	this.__interval = null;
+	this.__nonce    = null;
+
 	Emitter.call(this);
 
 };
@@ -131,10 +135,9 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 const WSS = {
 
-	connect: function(ref, buffer, connection) {
+	connect: function(ref, connection) {
 
 		ref        = isObject(ref)            ? ref        : null;
-		buffer     = isObject(buffer)         ? buffer     : {};
 		connection = isConnection(connection) ? connection : new Connection();
 
 
@@ -202,7 +205,7 @@ const WSS = {
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								onconnect(connection, ref, buffer);
+								onconnect(connection, ref);
 
 							} else {
 
@@ -234,7 +237,7 @@ const WSS = {
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								onconnect(connection, ref, buffer);
+								onconnect(connection, ref);
 
 							} else {
 
@@ -255,7 +258,7 @@ const WSS = {
 				if (socket !== null) {
 
 					socket.on('data', (fragment) => {
-						ondata(connection, ref, buffer, fragment);
+						ondata(connection, ref, fragment);
 					});
 
 					socket.on('timeout', () => {
@@ -263,17 +266,7 @@ const WSS = {
 						if (connection.socket !== null) {
 
 							connection.socket = null;
-
-							if (buffer !== null && buffer.partial === true) {
-
-								connection.emit('timeout', [{
-									headers: ref.headers,
-									payload: buffer.payload
-								}]);
-
-							} else {
-								connection.emit('timeout', [ null ]);
-							}
+							connection.emit('timeout', [ null ]);
 
 						}
 
@@ -293,7 +286,7 @@ const WSS = {
 							} else if (code.startsWith('ERR_TLS')) {
 								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 							} else {
-								onerror(connection, ref, buffer);
+								onerror(connection, ref);
 							}
 
 						}
@@ -304,7 +297,7 @@ const WSS = {
 
 						if (connection.socket !== null) {
 
-							onend(connection, ref, buffer);
+							onend(connection, ref);
 							connection.socket = null;
 
 						}

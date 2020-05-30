@@ -1,13 +1,438 @@
 
 import net from 'net';
 
-import { Buffer, Emitter, isObject } from '../../extern/base.mjs';
-import { HTTP                      } from './HTTP.mjs';
-import { HTTPS                     } from './HTTPS.mjs';
-import { WS                        } from './WS.mjs';
-import { WSS                       } from './WSS.mjs';
+import { Buffer, Emitter, isArray, isObject, isString } from '../../extern/base.mjs';
+import { HTTP                                         } from './HTTP.mjs';
+import { HTTPS                                        } from './HTTPS.mjs';
+import { WS                                           } from './WS.mjs';
+import { WSS                                          } from './WSS.mjs';
+import { IP                                           } from '../parser/IP.mjs';
+import { URL                                          } from '../parser/URL.mjs';
 
 
+
+// TODO: SOCKS.upgrade() integration
+// Figure out a way how to integrate this nicely into Server.listen()
+
+// TODO: Server mode, how to correctly bind this?
+// TODO: Implement ondata(), onerror() etc based on connection.type
+
+const connect_response = () => {
+	return Buffer.from([ 0x05, 0x00 ]);
+};
+
+const encode_payload = function(ref) {
+
+	if (URL.isURL(ref) === true) {
+
+		if (IP.isIP(ref.hosts[0]) === true) {
+
+			let data = [];
+			let host = ref.hosts.sort((a, b) => {
+
+				if (a.scope === 'private' && b.scope === 'private') {
+
+					if (a.type === 'v4' && b.type === 'v4') return 0;
+					if (a.type === 'v4') return -1;
+					if (b.type === 'v4') return  1;
+
+				}
+
+				if (a.scope === 'private') return -1;
+				if (b.scope === 'private') return  1;
+
+				if (a.type === 'v4' && b.type === 'v4') return 0;
+				if (a.type === 'v4') return -1;
+				if (b.type === 'v4') return  1;
+
+				return 0;
+
+			})[0];
+
+			if (host.type === 'v4') {
+
+				data.push(0x01);
+				host.ip.split('.').forEach((v) => {
+					data.push(parseInt(v, 10));
+				});
+
+			} else if (host.type === 'v6') {
+
+				data.push(0x04);
+				host.ip.split(':').forEach((v) => {
+					data.push(parseInt(v.substr(0, 2), 16));
+					data.push(parseInt(v.substr(2, 2), 16));
+				});
+
+			}
+
+			data.push(ref.port >>> 8);
+			data.push(ref.port & 0xff);
+
+			return data;
+
+		} else if (ref.domain !== null) {
+
+			let data = [];
+
+			if (ref.subdomain !== null) {
+
+				let tmp = Buffer.from(ref.subdomain + '.' + ref.domain, 'utf8');
+
+				data.push(tmp.length);
+				tmp.forEach((v) => {
+					data.push(v);
+				});
+
+			} else {
+
+				let tmp = Buffer.from(ref.domain, 'utf8');
+
+				data.push(tmp.length);
+				tmp.forEach((v) => {
+					data.push(v);
+				});
+
+			}
+
+			data.push(ref.port >>> 8);
+			data.push(ref.port & 0xff);
+
+			return data;
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+const encode = function(connection, data) {
+
+	data = isObject(data) ? data : { headers: {}, payload: null };
+
+
+	if (isObject(data.headers) === false) {
+		data.headers = {};
+	}
+
+	if (URL.isURL(data.payload) === false) {
+		data.payload = null;
+	}
+
+
+	let blob = [ 0x05 ];
+
+	if (data.headers['@version'] === 5) {
+		blob[0] = 0x05;
+	} else if (data.headers['@version'] === 4) {
+		blob[0] = 0x04;
+	}
+
+	if (connection.type === 'server') {
+
+		if (isString(data.headers['auth']) === true) {
+
+			if (data.headers['auth'] === 'none') {
+				blob[1] = 0x00;
+			} else if (data.headers['auth'] === 'login') {
+				blob[1] = 0x02;
+			} else {
+				blob[1] = 0xff;
+			}
+
+		} else if (isString(data.headers['@status']) === true) {
+
+			if (data.headers['@status'] === 'success') {
+				blob[1] = 0x00;
+			} else if (data.headers['@status'] === 'blocked') {
+				blob[1] = 0x02;
+			} else if (data.headers['@status'] === 'error-network') {
+				blob[1] = 0x03;
+			} else if (data.headers['@status'] === 'error-host') {
+				blob[1] = 0x04;
+			} else if (data.headers['@status'] === 'error-connection') {
+				blob[1] = 0x05;
+			}
+
+			let payload = encode_payload(data.payload || null);
+			if (payload !== null) {
+				payload.forEach((v) => {
+					blob.push(v);
+				});
+			}
+
+		}
+
+	} else {
+
+		if (isArray(data.headers['auth']) === true) {
+
+			let methods = data.headers['auth'].map((v) => {
+
+				if (v === 'none') {
+					return 0x00;
+				} else if (v === 'login') {
+					return 0x02;
+				}
+
+				return null;
+
+			}).filter((method) => method !== null);
+			let length = methods.length;
+
+			blob[1] = length;
+			methods.forEach((v) => {
+				blob.push(v);
+			});
+
+		} else if (data.headers['@method'] === 'connect') {
+
+			blob[1] = 0x01;
+			blob[2] = 0x00;
+
+			let payload = encode_payload(data.payload || null);
+			if (payload !== null) {
+				payload.forEach((v) => {
+					blob.push(v);
+				});
+			}
+
+		}
+
+	}
+
+
+	if (blob.length > 1) {
+		return Buffer.from(blob);
+	}
+
+
+	return null;
+
+};
+
+const decode_payload = function(buffer) {
+
+	let payload = null;
+
+	let type = buffer[0];
+	if (type === 0x01) {
+
+		let raw_host = buffer.slice(1, 5);
+		let raw_port = buffer.slice(5, 7);
+
+		if (raw_host.length === 4 && raw_port.length === 2) {
+
+			let ip = IP.parse([
+				raw_host[0],
+				raw_host[1],
+				raw_host[2],
+				raw_host[3]
+			].join('.'));
+			let port = (raw_port[0] << 8) + (raw_port[1] & 0xff);
+
+			if (IP.isIP(ip) === true && port > 0 && port < 65535) {
+				payload = URL.parse(ip.ip + ':' + port);
+			}
+
+		}
+
+	} else if (type === 0x03) {
+
+		let length     = buffer[1];
+		let raw_domain = buffer.slice(1, 1 + length);
+		let raw_port   = buffer.slice(1 + length, 1 + length + 2);
+
+		if (raw_domain.length > 0 && raw_port.length === 2) {
+
+			let domain = Buffer.from(raw_domain).toString('utf8');
+			let port   = (raw_port[0] << 8) + (raw_port[1] & 0xff);
+			if (domain.length > 0 && port > 0 && port < 65535) {
+				payload = URL.parse(domain + ':' + port);
+			}
+
+		}
+
+	} else if (type === 0x04) {
+
+		let raw_host = buffer.slice(1, 17);
+		let raw_port = buffer.slice(17, 19);
+
+		if (raw_host.length === 16 && raw_port.length === 2) {
+
+			let ip = IP.parse([
+				raw_host.slice( 0,  2).toString('hex'),
+				raw_host.slice( 2,  4).toString('hex'),
+				raw_host.slice( 4,  6).toString('hex'),
+				raw_host.slice( 6,  8).toString('hex'),
+				raw_host.slice( 8, 10).toString('hex'),
+				raw_host.slice(10, 12).toString('hex'),
+				raw_host.slice(12, 14).toString('hex'),
+				raw_host.slice(14, 16).toString('hex')
+			].join(':'));
+			let port = (raw_port[0] << 8) + (raw_port[1] & 0xff);
+
+			if (IP.isIP(ip) === true && port > 0 && port < 65535) {
+				payload = URL.parse('[' + ip.ip + ']:' + port);
+			}
+
+		}
+
+	}
+
+	return payload;
+
+};
+
+const decode = function(connection, buffer) {
+
+	let chunk = {
+		headers: {
+			auth:    null,
+			command: null,
+			version: null
+		},
+		payload: null
+	};
+
+
+	if (buffer[0] === 0x05) {
+		chunk.headers['@version'] = 5;
+	} else if (buffer[0] === 0x04) {
+		chunk.headers['@version'] = 4;
+	}
+
+
+	if (connection.type === 'server') {
+
+		if (buffer.length === 3) {
+
+			let length  = buffer[1];
+			let methods = buffer.slice(2, 2 + length);
+
+			if (methods.length === length) {
+
+				chunk.headers['auth'] = methods.map((v) => {
+
+					if (v === 0x00) {
+						return 'none';
+					} else if (v === 0x02) {
+						return 'login';
+					} else if (v === 0xff) {
+						return 'error';
+					}
+
+					return null;
+
+				}).filter((method) => method !== null);
+
+			}
+
+		} else if (buffer.length > 3) {
+
+			let method = buffer[1];
+			if (method === 0x01) {
+				chunk.headers['@method'] = 'connect';
+			} else if (method === 0x02) {
+				chunk.headers['@method'] = 'bind';
+			}
+
+			let payload = decode_payload(buffer.slice(3));
+			if (payload !== null) {
+				chunk.payload = payload;
+			}
+
+		}
+
+	} else {
+
+		if (buffer.length === 2) {
+
+			let auth = buffer[1];
+			if (auth === 0x00) {
+				chunk.headers['auth'] = 'none';
+			} else if (auth === 0x02) {
+				chunk.headers['auth'] = 'login';
+			} else if (auth === 0xff) {
+				chunk.headers['auth'] = 'error';
+			}
+
+		} else if (buffer.length > 2) {
+
+			let method = buffer[1];
+			if (method === 0x01) {
+				chunk.headers['@method'] = 'connect';
+			} else if (method === 0x02) {
+				chunk.headers['@method'] = 'bind';
+			}
+
+			if (buffer.length > 3) {
+
+				let payload = decode_payload(buffer.slice(3));
+				if (payload !== null) {
+					chunk.payload = payload;
+				}
+
+			}
+
+		}
+
+	}
+
+};
+
+const onconnect = function(connection, ref) {
+
+	connection.socket.once('data', (data) => {
+
+		SOCKS.receive(connection, data, (response) => {
+
+			if (response.headers['@version'] === 5 && response.headers['auth'] === 'none') {
+
+				connection.socket.once('data', (data) => {
+
+					SOCKS.receive(connection, data, (response) => {
+
+						if (response.headers['@status'] === 'success') {
+							connection.emit('@tunnel');
+						} else if (response.headers['@status'] === 'error-network' || response.headers['@status'] === 'error-host') {
+							connection.emit('timeout', [ null ]);
+						} else {
+							connection.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
+						}
+
+					});
+
+				});
+
+				SOCKS.send(connection, {
+					headers: {
+						'@method': 'connect'
+					},
+					payload: ref
+				});
+
+			} else {
+				connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+			}
+
+		});
+
+	});
+
+	connection.type = 'client';
+
+	SOCKS.send(connection, {
+		headers: {
+			'auth': [ 'none' ]
+		},
+		payload: null
+	});
+
+};
 
 const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
@@ -15,7 +440,9 @@ const isConnection = function(obj) {
 
 const Connection = function(socket) {
 
+	this.ref    = null;
 	this.socket = socket || null;
+	this.type   = null;
 
 	Emitter.call(this);
 
@@ -25,10 +452,37 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Connection',
 
+	toJSON: function() {
+
+		let data = {
+			local:  null,
+			remote: null
+		};
+
+		let socket = this.socket;
+		if (socket !== null) {
+			data.local  = socket.localAddress  + ':' + socket.localPort;
+			data.remote = socket.remoteAddress + ':' + socket.remotePort;
+		}
+
+
+		return {
+			'type': 'Connection',
+			'data': data
+		};
+
+	},
+
 	disconnect: function() {
 
 		if (this.socket !== null) {
-			this.socket.destroy();
+
+			if (this.type === 'server') {
+				this.socket.destroy();
+			} else {
+				this.socket.end();
+			}
+
 		}
 
 		this.emit('@disconnect');
@@ -41,10 +495,9 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 const SOCKS = {
 
-	connect: function(ref, buffer, connection) {
+	connect: function(ref, connection) {
 
 		ref        = isObject(ref)            ? ref        : null;
-		buffer     = isObject(buffer)         ? buffer     : {};
 		connection = isConnection(connection) ? connection : new Connection();
 
 
@@ -91,7 +544,39 @@ const SOCKS = {
 				}
 
 
-				let socket = net.connect({
+				let socket = connection.socket || null;
+				if (socket === null) {
+
+					try {
+
+						socket = net.connect({
+							host: proxy.host || '127.0.0.1',
+							port: proxy.port || 1080
+						}, () => {
+
+							socket.setTimeout(0);
+							socket.setNoDelay(true);
+							socket.setKeepAlive(true, 0);
+							socket.allowHalfOpen = true;
+
+							connection.socket = socket;
+							onconnect(connection, ref);
+
+						});
+
+					} catch (err) {
+						// Ignore Errors
+					}
+
+				}
+
+
+				if (socket !== null) {
+
+				}
+
+
+				socket = net.connect({
 					host: proxy.host || '127.0.0.1',
 					port: proxy.port || 1080
 				}, () => {
@@ -113,65 +598,6 @@ const SOCKS = {
 									0x01, // TCP/IP connection
 									0x00  // reserved
 								];
-
-
-								if (host.type === 'v4') {
-
-									// ipv4
-									blob.push(0x01);
-									host.ip.split('.').forEach((v) => {
-										blob.push(parseInt(v, 10));
-									});
-
-									// port
-									blob.push(ref.port >>> 8);
-									blob.push(ref.port & 0xff);
-
-								} else if (host.type === 'v6') {
-
-									// ipv6
-									blob.push(0x04);
-									host.ip.split(':').forEach((v) => {
-										blob.push(parseInt(v.substr(0, 2), 16));
-										blob.push(parseInt(v.substr(2, 2), 16));
-									});
-
-									// port
-									blob.push(ref.port >>> 8);
-									blob.push(ref.port & 0xff);
-
-								} else if (ref.domain !== null) {
-
-									// domain name
-									blob.push(0x03);
-
-									if (ref.subdomain !== null) {
-
-										let tmp = Buffer.from(ref.subdomain + '.' + ref.domain, 'utf8');
-
-										blob.push(tmp.length);
-
-										for (let t = 0, tl = tmp.length; t < tl; t++) {
-											blob.push(tmp[t]);
-										}
-
-									} else {
-
-										let tmp = Buffer.from(ref.domain, 'utf8');
-
-										blob.push(tmp.length);
-
-										for (let t = 0, tl = tmp.length; t < tl; t++) {
-											blob.push(tmp[t]);
-										}
-
-									}
-
-									// port
-									blob.push(ref.port >>> 8);
-									blob.push(ref.port & 0xff);
-
-								}
 
 
 								if (blob.length > 3) {
@@ -233,13 +659,13 @@ const SOCKS = {
 				connection.on('@tunnel', () => {
 
 					if (ref.protocol === 'https') {
-						HTTPS.connect(ref, buffer, connection);
+						HTTPS.connect(ref, connection);
 					} else if (ref.protocol === 'http') {
-						HTTP.connect(ref, buffer, connection);
+						HTTP.connect(ref, connection);
 					} else if (ref.protocol === 'wss') {
-						WSS.connect(ref, buffer, connection);
+						WSS.connect(ref, connection);
 					} else if (ref.protocol === 'ws') {
-						WS.connect(ref, buffer, connection);
+						WS.connect(ref, connection);
 					}
 
 				});
@@ -249,13 +675,13 @@ const SOCKS = {
 			} else if (hosts.length > 0 && hosts[0].scope === 'private') {
 
 				if (ref.protocol === 'https') {
-					return HTTPS.connect(ref, buffer, connection);
+					return HTTPS.connect(ref, connection);
 				} else if (ref.protocol === 'http') {
-					return HTTP.connect(ref, buffer, connection);
+					return HTTP.connect(ref, connection);
 				} else if (ref.protocol === 'wss') {
-					return WSS.connect(ref, buffer, connection);
+					return WSS.connect(ref, connection);
 				} else if (ref.protocol === 'ws') {
-					return WS.connect(ref, buffer, connection);
+					return WS.connect(ref, connection);
 				} else {
 
 					connection.socket = null;
@@ -299,8 +725,29 @@ const SOCKS = {
 
 	},
 
-	receive:    HTTP.receive,
-	send:       HTTP.send
+	receive: function(connection, buffer, callback) {
+
+	},
+
+	send: function(connection, data) {
+
+		// TODO: SOCKS connection have the following states:
+		// 1. disconnected from SOCKS proxy
+		// 2. handshake to SOCKS proxy
+		// 3. connection established to SOCKS proxy
+		// 4 (3 and later) -> send data via ref.protocol
+
+		if (connection.state === 'disconnect') {
+		} else if (connection.state === 'connect') {
+		} else if (connection.state === 'protocol!!???!?!?') {
+		}
+
+	},
+
+	upgrade: function(socket, ref) {
+
+
+	}
 
 };
 

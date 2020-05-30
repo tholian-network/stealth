@@ -1,9 +1,9 @@
 
 import tls from 'tls';
 
-import { Emitter, isFunction, isObject     } from '../../extern/base.mjs';
-import { HTTP                              } from './HTTP.mjs';
-import { onconnect, ondata, onend, onerror } from './HTTP.mjs';
+import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
+import { HTTP                                  } from './HTTP.mjs';
+import { onconnect, ondata, onend, onerror     } from './HTTP.mjs';
 
 
 
@@ -74,6 +74,16 @@ const Connection = function(socket) {
 
 	this.socket = socket || null;
 
+	this.__fragment = {
+		encoding: 'identity',
+		headers:  null,
+		length:   null,
+		mode:     'headers',
+		partial:  false,
+		payload:  Buffer.from('', 'utf8'),
+		start:    0
+	};
+
 	Emitter.call(this);
 
 };
@@ -119,10 +129,9 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 const HTTPS = {
 
-	connect: function(ref, buffer, connection) {
+	connect: function(ref, connection) {
 
 		ref        = isObject(ref)            ? ref        : null;
-		buffer     = isObject(buffer)         ? buffer     : {};
 		connection = isConnection(connection) ? connection : new Connection();
 
 
@@ -190,7 +199,7 @@ const HTTPS = {
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								onconnect(connection, ref, buffer);
+								onconnect(connection, ref);
 
 							} else {
 
@@ -222,7 +231,7 @@ const HTTPS = {
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								onconnect(connection, ref, buffer);
+								onconnect(connection, ref);
 
 							} else {
 
@@ -243,7 +252,7 @@ const HTTPS = {
 				if (socket !== null) {
 
 					socket.on('data', (fragment) => {
-						ondata(connection, ref, buffer, fragment);
+						ondata(connection, ref, fragment);
 					});
 
 					socket.on('timeout', () => {
@@ -252,11 +261,12 @@ const HTTPS = {
 
 							connection.socket = null;
 
-							if (buffer !== null && buffer.partial === true) {
+							let fragment = connection.__fragment;
+							if (fragment.partial === true) {
 
 								connection.emit('timeout', [{
 									headers: ref.headers,
-									payload: buffer.payload
+									payload: fragment.payload
 								}]);
 
 							} else {
@@ -281,7 +291,7 @@ const HTTPS = {
 							} else if (code.startsWith('ERR_TLS')) {
 								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 							} else {
-								onerror(connection, ref, buffer);
+								onerror(connection, ref);
 							}
 
 						}
@@ -292,7 +302,7 @@ const HTTPS = {
 
 						if (connection.socket !== null) {
 
-							onend(connection, ref, buffer);
+							onend(connection, ref);
 							connection.socket = null;
 
 						}
