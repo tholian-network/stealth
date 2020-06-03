@@ -3,7 +3,6 @@ import tls from 'tls';
 
 import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
 import { HTTP                                  } from './HTTP.mjs';
-import { onconnect, ondata, onend, onerror     } from './HTTP.mjs';
 
 
 
@@ -48,10 +47,10 @@ const lookup = function(host, options, callback) {
 	}));
 
 
-	// XXX: SNI TLS extension can fire ENETUNREACH errors
-
+	// SNI TLS extension can fire ENETUNREACH errors
 	// setTimeout() delegates errors to socket listeners
 	// Please don't ask why.
+
 	setTimeout(() => {
 
 		if (options.all === true) {
@@ -72,9 +71,8 @@ const isConnection = function(obj) {
 
 const Connection = function(socket) {
 
-	this.socket = socket || null;
-
-	this.__fragment = {
+	this.socket   = socket || null;
+	this.fragment = {
 		encoding: 'identity',
 		headers:  null,
 		length:   null,
@@ -87,6 +85,56 @@ const Connection = function(socket) {
 	Emitter.call(this);
 
 };
+
+
+Connection.from = function(json) {
+
+	if (isObject(json) === true) {
+
+		let type = json.type === 'Connection' ? json.type : null;
+		let data = isObject(json.data)        ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			let connection = new Connection();
+
+			return connection;
+
+		}
+
+	} else if (isConnection(json) === true) {
+
+		if ((json instanceof Connection) === true) {
+
+			return json;
+
+		} else {
+
+			let socket     = json.socket || null;
+			let connection = new Connection(socket);
+
+			for (let prop in json) {
+
+				if (prop !== 'socket') {
+					connection[prop] = json[prop];
+				}
+
+			}
+
+			return connection;
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
+Connection.isConnection = isConnection;
+
 
 Connection.prototype = Object.assign({}, Emitter.prototype, {
 
@@ -131,8 +179,8 @@ const HTTPS = {
 
 	connect: function(ref, connection) {
 
-		ref        = isObject(ref)            ? ref        : null;
-		connection = isConnection(connection) ? connection : new Connection();
+		ref        = isObject(ref)            ? ref                         : null;
+		connection = isConnection(connection) ? Connection.from(connection) : new Connection();
 
 
 		if (ref !== null) {
@@ -199,7 +247,7 @@ const HTTPS = {
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								onconnect(connection, ref);
+								HTTP.connect(ref, connection);
 
 							} else {
 
@@ -231,7 +279,7 @@ const HTTPS = {
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								onconnect(connection, ref);
+								HTTP.connect(ref, connection);
 
 							} else {
 
@@ -251,31 +299,7 @@ const HTTPS = {
 
 				if (socket !== null) {
 
-					socket.on('data', (fragment) => {
-						ondata(connection, ref, fragment);
-					});
-
-					socket.on('timeout', () => {
-
-						if (connection.socket !== null) {
-
-							connection.socket = null;
-
-							let fragment = connection.__fragment;
-							if (fragment.partial === true) {
-
-								connection.emit('timeout', [{
-									headers: ref.headers,
-									payload: fragment.payload
-								}]);
-
-							} else {
-								connection.emit('timeout', [ null ]);
-							}
-
-						}
-
-					});
+					socket.removeAllListeners('error');
 
 					socket.on('error', (err) => {
 
@@ -291,19 +315,8 @@ const HTTPS = {
 							} else if (code.startsWith('ERR_TLS')) {
 								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 							} else {
-								onerror(connection, ref);
+								HTTP.disconnect(connection, ref);
 							}
-
-						}
-
-					});
-
-					socket.on('end', () => {
-
-						if (connection.socket !== null) {
-
-							onend(connection, ref);
-							connection.socket = null;
 
 						}
 

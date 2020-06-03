@@ -102,9 +102,9 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				let connection = null;
 				if (ref.protocol === 'wss') {
-					connection = WSS.connect(this.ref, null);
+					connection = WSS.connect(this.ref);
 				} else if (ref.protocol === 'ws') {
-					connection = WS.connect(this.ref, null);
+					connection = WS.connect(this.ref);
 				}
 
 

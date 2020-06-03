@@ -54,9 +54,9 @@ const encode_gzip = function(buffer) {
 
 
 
-export const onconnect = function(connection, ref) {
+const onconnect = function(connection, ref) {
 
-	let fragment = connection.__fragment;
+	let fragment = connection.fragment;
 
 	fragment.encoding = 'identity';
 	fragment.headers  = null;
@@ -103,9 +103,9 @@ export const onconnect = function(connection, ref) {
 
 };
 
-export const ondata = function(connection, ref, chunk) {
+const ondata = function(connection, ref, chunk) {
 
-	let fragment = connection.__fragment;
+	let fragment = connection.fragment;
 
 	if (fragment.mode === 'headers') {
 
@@ -235,9 +235,9 @@ export const ondata = function(connection, ref, chunk) {
 
 };
 
-export const onend = function(connection, ref) {
+const ondisconnect = function(connection, ref) {
 
-	let fragment = connection.__fragment;
+	let fragment = connection.fragment;
 
 	if (fragment.length !== null && fragment.length !== fragment.payload.length && isBuffer(fragment.headers) === true) {
 
@@ -329,68 +329,13 @@ export const onend = function(connection, ref) {
 
 };
 
-export const onerror = function(connection, ref) {
+const onupgrade = function(connection /*, ref */) {
 
-	if (ref.headers !== null) {
+	connection.socket.resume();
 
-		let code = (ref.headers['@status'] || '500').split(' ').shift();
-		if (code === '200' || code === '204' || code === '205' || code === '206') {
-
-			let fragment = connection.__fragment;
-
-			if (fragment.length === fragment.payload.length) {
-
-				if (fragment.encoding === 'chunked') {
-					fragment.payload  = decode_chunked(fragment.payload);
-					fragment.encoding = 'identity';
-				} else if (fragment.encoding === 'gzip') {
-					fragment.payload  = decode_gzip(fragment.payload);
-					fragment.encoding = 'identity';
-				}
-
-
-				connection.emit('response', [{
-					headers: ref.headers,
-					payload: fragment.payload
-				}]);
-
-			} else if (fragment.length < fragment.payload.length) {
-
-				if (fragment.partial === true) {
-
-					connection.emit('timeout', [{
-						headers: ref.headers,
-						payload: fragment.payload
-					}]);
-
-				} else {
-					connection.emit('timeout', [ null ]);
-				}
-
-			} else {
-				connection.emit('error', [{ type: 'stash' }]);
-			}
-
-		} else if (code === '301' || code === '307' || code === '308') {
-
-			let tmp = ref.headers['location'] || null;
-			if (tmp !== null) {
-				connection.emit('redirect', [{ headers: ref.headers }]);
-			} else {
-				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-location' }]);
-			}
-
-		} else if (code.startsWith('4') && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
-		} else if (code.startsWith('5') && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
-		} else {
-			connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
-		}
-
-	} else {
-		connection.emit('timeout', [ null ]);
-	}
+	setTimeout(() => {
+		connection.emit('@connect');
+	}, 0);
 
 };
 
@@ -402,9 +347,8 @@ const isConnection = function(obj) {
 
 const Connection = function(socket) {
 
-	this.socket = socket || null;
-
-	this.__fragment = {
+	this.socket   = socket || null;
+	this.fragment = {
 		encoding: 'identity',
 		headers:  null,
 		length:   null,
@@ -417,6 +361,56 @@ const Connection = function(socket) {
 	Emitter.call(this);
 
 };
+
+
+Connection.from = function(json) {
+
+	if (isObject(json) === true) {
+
+		let type = json.type === 'Connection' ? json.type : null;
+		let data = isObject(json.data)        ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			let connection = new Connection();
+
+			return connection;
+
+		}
+
+	} else if (isConnection(json) === true) {
+
+		if ((json instanceof Connection) === true) {
+
+			return json;
+
+		} else {
+
+			let socket     = json.socket || null;
+			let connection = new Connection(socket);
+
+			for (let prop in json) {
+
+				if (prop !== 'socket') {
+					connection[prop] = json[prop];
+				}
+
+			}
+
+			return connection;
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
+Connection.isConnection = isConnection;
+
 
 Connection.prototype = Object.assign({}, Emitter.prototype, {
 
@@ -461,8 +455,8 @@ const HTTP = {
 
 	connect: function(ref, connection) {
 
-		ref        = isObject(ref)            ? ref        : null;
-		connection = isConnection(connection) ? connection : new Connection();
+		ref        = isObject(ref)            ? ref                         : null;
+		connection = isConnection(connection) ? Connection.from(connection) : new Connection();
 
 
 		if (ref !== null) {
@@ -509,10 +503,21 @@ const HTTP = {
 						socket = null;
 					}
 
+				} else {
+
+					setTimeout(() => {
+						onconnect(connection, ref);
+					}, 0);
+
 				}
 
 
 				if (socket !== null) {
+
+					socket.removeAllListeners('data');
+					socket.removeAllListeners('timeout');
+					socket.removeAllListeners('error');
+					socket.removeAllListeners('end');
 
 					socket.on('data', (fragment) => {
 						ondata(connection, ref, fragment);
@@ -524,7 +529,7 @@ const HTTP = {
 
 							connection.socket = null;
 
-							let fragment = connection.__fragment;
+							let fragment = connection.fragment;
 							if (fragment.partial === true) {
 
 								connection.emit('timeout', [{
@@ -544,7 +549,7 @@ const HTTP = {
 
 						if (connection.socket !== null) {
 
-							onerror(connection, ref);
+							ondisconnect(connection, ref);
 							connection.socket = null;
 
 						}
@@ -555,7 +560,7 @@ const HTTP = {
 
 						if (connection.socket !== null) {
 
-							onend(connection, ref);
+							ondisconnect(connection, ref);
 							connection.socket = null;
 
 						}
@@ -639,37 +644,38 @@ const HTTP = {
 
 
 			let tmp1 = raw_headers.split('\r\n').map((line) => line.trim());
-			let tmp2 = tmp1.shift().split(' ');
+			if (tmp1.length > 1) {
 
+				let tmp2 = tmp1.shift().split(' ');
+				if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp2[0])) {
 
-			if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp2[0])) {
+					headers['@method'] = tmp2[0];
 
-				headers['@method'] = tmp2[0];
+					if (tmp2[1].startsWith('/')) {
+						headers['@url'] = tmp2[1];
+					} else if (tmp2[1].startsWith('http://') || tmp2[1].startsWith('https://')) {
+						headers['@url'] = tmp2[1];
+					}
 
-				if (tmp2[1].startsWith('/')) {
-					headers['@url'] = tmp2[1];
-				} else if (tmp2[1].startsWith('http://') || tmp2[1].startsWith('https://')) {
-					headers['@url'] = tmp2[1];
+				} else if (tmp2[0] === 'HTTP/1.1' || tmp2[0] === 'HTTP/1.0') {
+					headers['@status'] = tmp2.slice(1).join(' ');
 				}
 
-			} else if (tmp2[0] === 'HTTP/1.1' || tmp2[0] === 'HTTP/1.0') {
-				headers['@status'] = tmp2.slice(1).join(' ');
+
+				tmp1.filter((line) => line !== '').forEach((line) => {
+
+					if (line.includes(':')) {
+
+						let key = line.split(':')[0].trim().toLowerCase();
+						let val = line.split(':').slice(1).join(':').trim();
+
+						headers[key] = val;
+
+					}
+
+				});
+
 			}
-
-
-			tmp1.filter((line) => line !== '').forEach((line) => {
-
-				if (line.includes(':')) {
-
-					let key = line.split(':')[0].trim().toLowerCase();
-					let val = line.split(':').slice(1).join(':').trim();
-
-					headers[key] = val;
-
-				}
-
-			});
-
 
 			if (raw_payload !== null) {
 				payload = raw_payload;
@@ -808,26 +814,75 @@ const HTTP = {
 
 	},
 
-	upgrade: function(socket /*, ref */) {
+	upgrade: function(socket, ref) {
 
-		// ref = isObject(ref) ? ref : { headers: {} };
+		ref = isObject(ref) ? ref : { headers: {} };
+
+
+		socket.setTimeout(0);
+		socket.setNoDelay(true);
+		socket.setKeepAlive(false, 0);
+		socket.allowHalfOpen = false;
 
 
 		let connection = new Connection(socket);
-		if (connection.socket !== null) {
 
-			connection.socket.resume();
+		socket.removeAllListeners('data');
+		socket.removeAllListeners('timeout');
+		socket.removeAllListeners('error');
+		socket.removeAllListeners('end');
 
-			setTimeout(() => {
-				connection.emit('@connect');
-			}, 0);
+		socket.on('data', (fragment) => {
+			ondata(connection, ref, fragment);
+		});
 
-			return connection;
+		socket.on('timeout', () => {
 
-		}
+			if (connection.socket !== null) {
 
+				connection.socket = null;
 
-		return null;
+				let fragment = connection.fragment;
+				if (fragment.partial === true) {
+
+					connection.emit('timeout', [{
+						headers: ref.headers,
+						payload: fragment.payload
+					}]);
+
+				} else {
+					connection.emit('timeout', [ null ]);
+				}
+
+			}
+
+		});
+
+		socket.on('error', () => {
+
+			if (connection.socket !== null) {
+
+				ondisconnect(connection, ref);
+				connection.socket = null;
+
+			}
+
+		});
+
+		socket.on('end', () => {
+
+			if (connection.socket !== null) {
+
+				ondisconnect(connection, ref);
+				connection.socket = null;
+
+			}
+
+		});
+
+		onupgrade(connection, ref);
+
+		return connection;
 
 	}
 

@@ -3,7 +3,6 @@ import tls from 'tls';
 
 import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
 import { WS                                    } from './WS.mjs';
-import { onconnect, ondata, onend, onerror     } from './WS.mjs';
 
 
 
@@ -48,10 +47,10 @@ const lookup = function(host, options, callback) {
 	}));
 
 
-	// XXX: SNI TLS extension can fire ENETUNREACH errors
-
+	// SNI TLS extension can fire ENETUNREACH errors
 	// setTimeout() delegates errors to socket listeners
 	// Please don't ask why.
+
 	setTimeout(() => {
 
 		if (options.all === true) {
@@ -72,21 +71,68 @@ const isConnection = function(obj) {
 
 const Connection = function(socket) {
 
-	this.socket = socket || null;
-	this.type   = null;
-
-	this.__fragment = {
+	this.socket   = socket || null;
+	this.fragment = {
+		chunk:    null,
 		operator: 0x00,
 		payload:  Buffer.alloc(0)
 	};
-
-	this.__frame    = null;
-	this.__interval = null;
-	this.__nonce    = null;
+	this.interval = null;
+	this.type     = null;
 
 	Emitter.call(this);
 
 };
+
+
+Connection.from = function(json) {
+
+	if (isObject(json) === true) {
+
+		let type = json.type === 'Connection' ? json.type : null;
+		let data = isObject(json.data)        ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			let connection = new Connection();
+
+			return connection;
+
+		}
+
+	} else if (isConnection(json) === true) {
+
+		if ((json instanceof Connection) === true) {
+
+			return json;
+
+		} else {
+
+			let socket     = json.socket || null;
+			let connection = new Connection(socket);
+
+			for (let prop in json) {
+
+				if (prop !== 'socket') {
+					connection[prop] = json[prop];
+				}
+
+			}
+
+			return connection;
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
+Connection.isConnection = isConnection;
+
 
 Connection.prototype = Object.assign({}, Emitter.prototype, {
 
@@ -116,13 +162,7 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 	disconnect: function() {
 
 		if (this.socket !== null) {
-
-			if (this.type === 'server') {
-				this.socket.destroy();
-			} else {
-				this.socket.end();
-			}
-
+			this.socket.destroy();
 		}
 
 		this.emit('@disconnect');
@@ -137,8 +177,8 @@ const WSS = {
 
 	connect: function(ref, connection) {
 
-		ref        = isObject(ref)            ? ref        : null;
-		connection = isConnection(connection) ? connection : new Connection();
+		ref        = isObject(ref)            ? ref                         : null;
+		connection = isConnection(connection) ? Connection.from(connection) : new Connection();
 
 
 		if (ref !== null) {
@@ -205,7 +245,7 @@ const WSS = {
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								onconnect(connection, ref);
+								WS.connect(ref, connection);
 
 							} else {
 
@@ -237,7 +277,7 @@ const WSS = {
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								onconnect(connection, ref);
+								WS.connect(ref, connection);
 
 							} else {
 
@@ -257,20 +297,7 @@ const WSS = {
 
 				if (socket !== null) {
 
-					socket.on('data', (fragment) => {
-						ondata(connection, ref, fragment);
-					});
-
-					socket.on('timeout', () => {
-
-						if (connection.socket !== null) {
-
-							connection.socket = null;
-							connection.emit('timeout', [ null ]);
-
-						}
-
-					});
+					socket.removeAllListeners('error');
 
 					socket.on('error', (err) => {
 
@@ -286,19 +313,8 @@ const WSS = {
 							} else if (code.startsWith('ERR_TLS')) {
 								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
 							} else {
-								onerror(connection, ref);
+								WS.disconnect(connection);
 							}
-
-						}
-
-					});
-
-					socket.on('end', () => {
-
-						if (connection.socket !== null) {
-
-							onend(connection, ref);
-							connection.socket = null;
 
 						}
 
