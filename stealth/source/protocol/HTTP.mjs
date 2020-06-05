@@ -325,7 +325,7 @@ const ondisconnect = function(connection, ref) {
 	}
 
 
-	connection.emit('@disconnect');
+	connection.disconnect();
 
 };
 

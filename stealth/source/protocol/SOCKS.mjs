@@ -497,7 +497,7 @@ const ondata = function(connection, ref, chunk) {
 
 const ondisconnect = function(connection) {
 
-	connection.emit('@disconnect');
+	connection.disconnect();
 
 };
 
@@ -535,6 +535,10 @@ const onupgrade = function(connection /*, ref */) {
 								payload: null
 							});
 
+							setTimeout(() => {
+								connection.disconnect();
+							}, 0);
+
 						} else {
 
 							SOCKS.send({
@@ -543,6 +547,10 @@ const onupgrade = function(connection /*, ref */) {
 								},
 								payload: null
 							});
+
+							setTimeout(() => {
+								connection.disconnect();
+							}, 0);
 
 						}
 
@@ -557,32 +565,29 @@ const onupgrade = function(connection /*, ref */) {
 						payload: null
 					});
 
+					setTimeout(() => {
+						connection.disconnect();
+					}, 0);
 				}
-
-				// TODO: SOCKS Proxy should connect to host or domain
-				// And if forbidden, correctly reply. But how to implement this correctly,
-				// so that it can be implemented by the Server and not here!?
 
 			} else {
 
 				SOCKS.send({
 					headers: {
-						'@status': 'error'
+						'@status': 'error-method'
 					},
 					payload: null
 				});
+
+				setTimeout(() => {
+					connection.disconnect();
+				}, 0);
 
 			}
 
 		});
 
 	});
-
-	// TODO: Reflect network flow correctly like onconnect() does
-	// this method already sends upgrade_response()
-	// -> next request is client's connect request
-	// -> next response is server's result after connecting
-	// -> afterwards, fire @tunnel event
 
 
 	connection.type = 'server';
