@@ -1,6 +1,7 @@
 
 import { Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
 import { isStealth                               } from './Stealth.mjs';
+import { Blocker                                 } from './client/Blocker.mjs';
 import { Cache                                   } from './client/Cache.mjs';
 import { Host                                    } from './client/Host.mjs';
 import { Mode                                    } from './client/Mode.mjs';
@@ -34,6 +35,7 @@ const Client = function(settings, stealth) {
 	this.address    = null;
 	this.ref        = null;
 	this.services   = {
+		blocker:  new Blocker(this),
 		cache:    new Cache(this),
 		host:     new Host(this),
 		mode:     new Mode(this),

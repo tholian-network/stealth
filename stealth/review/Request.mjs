@@ -29,9 +29,6 @@ describe('Request.from()', function(assert) {
 		type: 'Request',
 		data: {
 			url: 'https://example.com/does-not-exist.html',
-			blockers: [{
-				domain: 'malicious.example.com'
-			}],
 			config: config,
 			flags: {
 				connect:   false,
@@ -51,10 +48,7 @@ describe('Request.from()', function(assert) {
 
 	assert(request.url, 'https://example.com/does-not-exist.html');
 
-	assert(request._settings.config,   config);
-	assert(request._settings.blockers, [{
-		domain: 'malicious.example.com'
-	}]);
+	assert(request._settings.config, config);
 
 });
 
@@ -85,9 +79,6 @@ describe('Request.prototype.toJSON()', function(assert) {
 		type: 'Request',
 		data: {
 			url: 'https://example.com/does-not-exist.html',
-			blockers: [{
-				domain: 'malicious.example.com'
-			}],
 			config: config,
 			flags: {
 				webview: true
@@ -100,9 +91,6 @@ describe('Request.prototype.toJSON()', function(assert) {
 	assert(json.type, 'Request');
 	assert(json.data, {
 		url: 'https://example.com/does-not-exist.html',
-		blockers: [{
-			domain: 'malicious.example.com'
-		}],
 		config: config,
 		download: null,
 		flags: {

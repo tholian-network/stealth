@@ -34,7 +34,6 @@ import protocol_HTTPS     from './protocol/HTTPS.mjs';
 import protocol_SOCKS     from './protocol/SOCKS.mjs';
 import protocol_WS        from './protocol/WS.mjs';
 import protocol_WSS       from './protocol/WSS.mjs';
-import request_Blocker    from './request/Blocker.mjs';
 import request_Downloader from './request/Downloader.mjs';
 import request_Optimizer  from './request/Optimizer.mjs';
 
@@ -73,7 +72,6 @@ export default {
 
 		// Requests
 		Request,
-		request_Blocker,
 		request_Downloader,
 		request_Optimizer,
 

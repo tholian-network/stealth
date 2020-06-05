@@ -1,6 +1,7 @@
 
 import { Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
 import { ENVIRONMENT                                     } from './ENVIRONMENT.mjs';
+import { Blocker                                         } from './client/Blocker.mjs';
 import { Cache                                           } from './client/Cache.mjs';
 import { Host                                            } from './client/Host.mjs';
 import { Mode                                            } from './client/Mode.mjs';
@@ -84,6 +85,7 @@ const Client = function(settings, browser) {
 	this.ref      = null;
 	this.browser  = browser;
 	this.services = {
+		blocker:  new Blocker(this),
 		cache:    new Cache(this),
 		host:     new Host(this),
 		mode:     new Mode(this),

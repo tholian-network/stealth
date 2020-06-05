@@ -570,8 +570,7 @@ describe('Browser.prototype.pause()', function(assert) {
 	assert(this.browser.tab,            this.tab);
 
 	let request = new Request({
-		blockers: [],
-		config:   {
+		config: {
 			domain: 'example.com',
 			mode: {
 				text:  true,

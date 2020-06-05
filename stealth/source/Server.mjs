@@ -4,10 +4,14 @@ import net from 'net';
 import { console, Emitter, isFunction, isString } from '../extern/base.mjs';
 import { isStealth                              } from './Stealth.mjs';
 import { Request                                } from './Request.mjs';
+import { URL                                    } from './parser/URL.mjs';
+import { DNS                                    } from './protocol/DNS.mjs';
 import { HTTP                                   } from './protocol/HTTP.mjs';
+import { SOCKS                                  } from './protocol/SOCKS.mjs';
 import { WS                                     } from './protocol/WS.mjs';
 import { REDIRECT                               } from './other/REDIRECT.mjs';
 import { ROUTER                                 } from './other/ROUTER.mjs';
+import { Blocker                                } from './server/Blocker.mjs';
 import { Cache                                  } from './server/Cache.mjs';
 import { Host                                   } from './server/Host.mjs';
 import { Mode                                   } from './server/Mode.mjs';
@@ -23,7 +27,7 @@ export const isServer = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Server]';
 };
 
-const handle_request = function(socket, ref) {
+const upgrade_http = function(socket, ref) {
 
 	let connection = HTTP.upgrade(socket, ref);
 	if (connection !== null) {
@@ -251,7 +255,156 @@ const handle_request = function(socket, ref) {
 
 };
 
-const handle_websocket = function(socket, ref) {
+const upgrade_socks = function(socket, ref) {
+
+	let connection = SOCKS.upgrade(socket, ref);
+	if (connection !== null) {
+
+		connection.once('@connect', () => {
+
+			if (this.connections.includes(connection) === false) {
+				this.connections.push(connection);
+			}
+
+		});
+
+		connection.once('@disconnect', () => {
+
+			let index = this.connections.indexOf(connection);
+			if (index !== -1) {
+				this.connections.splice(index, 1);
+			}
+
+		});
+
+		connection.on('request', (request, callback) => {
+
+			let domain = null;
+			let host   = null;
+
+			let ref = request.payload;
+			if (ref.domain !== null) {
+
+				if (ref.subdomain !== null) {
+					domain = ref.subdomain + '.' + ref.domain;
+				} else {
+					domain = ref.domain;
+				}
+
+			} else if (ref.host !== null) {
+				host = ref.host;
+			}
+
+			if (domain !== null) {
+
+				this.services.blocker.read(ref, (response) => {
+
+					if (response.payload === null) {
+
+						DNS.resolve(ref, (response) => {
+
+							if (response.payload !== null) {
+
+								ref.hosts = response.payload.hosts;
+
+								let socket = null;
+
+								try {
+									socket = net.connect({
+										host: ref.hosts[0].ip,
+										port: ref.port
+									}, () => {
+
+										connection.socket.pipe(socket);
+										socket.pipe(connection.socket);
+
+
+										let reply = null;
+										if (ref.hosts[0].type === 'v4') {
+											reply = ref.hosts[0].ip + ':' + ref.port;
+										} else if (ref.hosts[0].type === 'v6') {
+											reply = '[' + ref.hosts[0].ip + ']:' + ref.port;
+										}
+
+										callback('success', URL.parse(reply));
+
+									});
+								} catch (err) {
+									socket = null;
+								}
+
+								if (socket === null) {
+									callback('error-connection', null);
+								}
+
+							} else {
+								callback('error-host', null);
+							}
+
+						});
+
+					} else {
+						callback('error-blocked', null);
+					}
+
+				});
+
+			} else if (host !== null) {
+
+				this.services.blocker.read(ref, (response) => {
+
+					if (response.payload === null) {
+
+						let socket = null;
+
+						try {
+							socket = net.connect({
+								host: ref.hosts[0].ip,
+								port: ref.port
+							}, () => {
+
+								connection.socket.pipe(socket);
+								socket.pipe(connection.socket);
+
+								let reply = null;
+								if (ref.hosts[0].type === 'v4') {
+									reply = ref.hosts[0].ip + ':' + ref.port;
+								} else if (ref.hosts[0].type === 'v6') {
+									reply = '[' + ref.hosts[0].ip + ']:' + ref.port;
+								}
+
+								callback('success', URL.parse(reply));
+
+							});
+						} catch (err) {
+							socket = null;
+						}
+
+						if (socket === null) {
+							callback('error-connection', null);
+						}
+
+					} else {
+						callback('error-blocked', null);
+					}
+
+				});
+
+			} else {
+				callback('error', null);
+			}
+
+		});
+
+	} else {
+
+		socket.end();
+
+	}
+
+};
+
+const upgrade_ws = function(socket, ref) {
 
 	let connection = WS.upgrade(socket, ref);
 	if (connection !== null) {
@@ -387,6 +540,7 @@ const Server = function(settings, stealth) {
 
 	if (this.stealth !== null) {
 
+		this.services['blocker']  = new Blocker(this.stealth);
 		this.services['cache']    = new Cache(this.stealth);
 		this.services['host']     = new Host(this.stealth);
 		this.services['mode']     = new Mode(this.stealth);
@@ -424,40 +578,64 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 				socket.once('data', (data) => {
 
-					HTTP.receive(null, data, (request) => {
+					if (data[0] === 0x05) {
 
-						if (this.stealth !== null) {
-							request.headers['@debug'] = this.stealth._settings.debug;
-						}
+						SOCKS.receive(null, data, (request) => {
 
-						request.headers['@local']  = socket.localAddress  || null;
-						request.headers['@remote'] = socket.remoteAddress || null;
+							if (this.stealth !== null) {
+								request.headers['@debug'] = this.stealth._settings.debug;
+							}
+
+							upgrade_socks.call(this, socket, request);
+
+						});
+
+					} else if (data.indexOf('\r\n') !== -1) {
+
+						HTTP.receive(null, data, (request) => {
+
+							if (this.stealth !== null) {
+								request.headers['@debug'] = this.stealth._settings.debug;
+							}
+
+							request.headers['@local']  = socket.localAddress  || null;
+							request.headers['@remote'] = socket.remoteAddress || null;
 
 
-						let url  = (request.headers['@url'] || '');
-						let tmp1 = (request.headers['connection'] || '').toLowerCase();
-						let tmp2 = (request.headers['upgrade'] || '').toLowerCase();
+							let url  = (request.headers['@url'] || '');
+							let tmp1 = (request.headers['connection'] || '').toLowerCase();
+							let tmp2 = (request.headers['upgrade'] || '').toLowerCase();
 
-						if (tmp1.includes('upgrade') && tmp2.includes('websocket')) {
-							handle_websocket.call(this, socket, request);
-						} else if (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('/stealth')) {
-							handle_request.call(this, socket, request);
-						} else {
+							if (tmp1.includes('upgrade') && tmp2.includes('websocket')) {
 
-							ROUTER.send(request, (response) => {
+								upgrade_ws.call(this, socket, request);
 
-								let connection = HTTP.upgrade(socket);
-								if (connection !== null) {
-									HTTP.send(connection, response);
-								} else {
-									socket.end();
-								}
+							} else if (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('/stealth')) {
 
-							});
+								upgrade_http.call(this, socket, request);
 
-						}
+							} else {
 
-					});
+								ROUTER.send(request, (response) => {
+
+									let connection = HTTP.upgrade(socket);
+									if (connection !== null) {
+										HTTP.send(connection, response);
+									} else {
+										socket.end();
+									}
+
+								});
+
+							}
+
+						});
+
+					} else {
+
+						socket.end();
+
+					}
 
 				});
 

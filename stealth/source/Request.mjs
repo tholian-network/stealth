@@ -1,10 +1,9 @@
 
-import { Emitter, isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { isServer                                        } from './Server.mjs';
-import { URL                                             } from './parser/URL.mjs';
-import { Blocker                                         } from './request/Blocker.mjs';
-import { Downloader                                      } from './request/Downloader.mjs';
-import { Optimizer                                       } from './request/Optimizer.mjs';
+import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
+import { isServer                               } from './Server.mjs';
+import { URL                                    } from './parser/URL.mjs';
+import { Downloader                             } from './request/Downloader.mjs';
+import { Optimizer                              } from './request/Optimizer.mjs';
 
 
 
@@ -52,8 +51,7 @@ const Request = function(data, server) {
 
 
 	this._settings = {
-		blockers: [],
-		config:   {
+		config: {
 			domain: null,
 			mode:   {
 				text:  false,
@@ -64,10 +62,6 @@ const Request = function(data, server) {
 			}
 		}
 	};
-
-	if (isArray(data.blockers) === true) {
-		this._settings.blockers = data.blockers;
-	}
 
 	if (isConfig(data.config) === true) {
 		this._settings.config = data.config;
@@ -254,26 +248,36 @@ const Request = function(data, server) {
 
 	this.on('block', () => {
 
-		Blocker.check(this._settings.blockers, this.ref, (blocked) => {
+		this.timeline.block = Date.now();
 
-			this.timeline.block = Date.now();
+		if (this.server !== null) {
 
-			if (blocked === true) {
+			this.server.services.blocker.read({
+				domain:    this.ref.domain,
+				subdomain: this.ref.subdomain,
+				host:      this.ref.host
+			}, (response) => {
 
-				// Always Block, no matter the User's Config
-				this._settings.config.mode.text  = false;
-				this._settings.config.mode.image = false;
-				this._settings.config.mode.audio = false;
-				this._settings.config.mode.video = false;
-				this._settings.config.mode.other = false;
+				if (response.payload !== null) {
 
-				this.emit('error', [{ code: 403 }]);
+					// Always Block, no matter the User's Config
+					this._settings.config.mode.text  = false;
+					this._settings.config.mode.image = false;
+					this._settings.config.mode.audio = false;
+					this._settings.config.mode.video = false;
+					this._settings.config.mode.other = false;
 
-			} else {
-				this.emit('mode');
-			}
+					this.emit('error', [{ code: 403 }]);
 
-		});
+				} else {
+					this.emit('mode');
+				}
+
+			});
+
+		} else {
+			this.emit('mode');
+		}
 
 	});
 
@@ -646,10 +650,9 @@ Request.from = function(json) {
 			if (isString(data.url) === true) {
 
 				let request = new Request({
-					id:       isString(data.id)      ? data.id       : null,
-					url:      isString(data.url)     ? data.url      : null,
-					blockers: isArray(data.blockers) ? data.blockers : null,
-					config:   isConfig(data.config)  ? data.config   : null
+					id:     isString(data.id)      ? data.id     : null,
+					url:    isString(data.url)     ? data.url    : null,
+					config: isConfig(data.config)  ? data.config : null
 				});
 
 				if (isObject(data.flags) === true) {
@@ -686,7 +689,6 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
 			url:      this.url,
-			blockers: [],
 			config:   this._settings.config,
 			download: null,
 			flags:    Object.assign({}, this.flags),
@@ -694,11 +696,6 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 			events:   blob.data.events,
 			journal:  blob.data.journal
 		};
-
-		// Assume that blocklists have more than 16 blockers
-		if (this._settings.blockers.length < 16) {
-			this._settings.blockers.forEach((blocker) => data.blockers.push(blocker));
-		}
 
 		if (this.download !== null) {
 			data.download = this.download.toJSON();

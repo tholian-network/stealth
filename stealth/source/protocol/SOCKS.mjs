@@ -1,24 +1,44 @@
 
 import net from 'net';
 
-import { Buffer, Emitter, isArray, isObject, isString } from '../../extern/base.mjs';
-import { HTTP                                         } from './HTTP.mjs';
-import { HTTPS                                        } from './HTTPS.mjs';
-import { WS                                           } from './WS.mjs';
-import { WSS                                          } from './WSS.mjs';
-import { IP                                           } from '../parser/IP.mjs';
-import { URL                                          } from '../parser/URL.mjs';
+import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { HTTP                                                                          } from './HTTP.mjs';
+import { HTTPS                                                                         } from './HTTPS.mjs';
+import { WS                                                                            } from './WS.mjs';
+import { WSS                                                                           } from './WSS.mjs';
+import { IP                                                                            } from '../parser/IP.mjs';
+import { URL                                                                           } from '../parser/URL.mjs';
 
 
 
-// TODO: SOCKS.upgrade() integration
-// Figure out a way how to integrate this nicely into Server.listen()
+const ERRORS = [
+	'error',
+	'error-blocked',
+	'error-connection',
+	'error-host',
+	'error-method',
+	'error-network'
+];
 
-// TODO: Server mode, how to correctly bind this?
-// TODO: Implement ondata(), onerror() etc based on connection.type
+const upgrade_request = (connection) => {
 
-const connect_response = () => {
-	return Buffer.from([ 0x05, 0x00 ]);
+	return encode(connection, {
+		headers: {
+			'auth': [ 'none' ]
+		},
+		payload: null
+	});
+
+};
+
+const upgrade_response = (connection) => {
+
+	return encode(connection, {
+		headers: {
+			'auth': 'none'
+		}
+	});
+
 };
 
 const encode_payload = function(ref) {
@@ -119,7 +139,7 @@ const encode = function(connection, data) {
 	}
 
 	if (URL.isURL(data.payload) === false) {
-		data.payload = null;
+		data.payload = URL.parse('0.0.0.0:0');
 	}
 
 
@@ -147,7 +167,7 @@ const encode = function(connection, data) {
 
 			if (data.headers['@status'] === 'success') {
 				blob[1] = 0x00;
-			} else if (data.headers['@status'] === 'blocked') {
+			} else if (data.headers['@status'] === 'error-blocked') {
 				blob[1] = 0x02;
 			} else if (data.headers['@status'] === 'error-network') {
 				blob[1] = 0x03;
@@ -155,9 +175,13 @@ const encode = function(connection, data) {
 				blob[1] = 0x04;
 			} else if (data.headers['@status'] === 'error-connection') {
 				blob[1] = 0x05;
+			} else if (data.headers['@status'] === 'error-method') {
+				blob[1] = 0x07;
+			} else if (data.headers['@status'] === 'error') {
+				blob[1] = 0x01;
 			}
 
-			let payload = encode_payload(data.payload || null);
+			let payload = encode_payload(data.payload);
 			if (payload !== null) {
 				payload.forEach((v) => {
 					blob.push(v);
@@ -166,7 +190,7 @@ const encode = function(connection, data) {
 
 		}
 
-	} else {
+	} else if (connection.type === 'client') {
 
 		if (isArray(data.headers['auth']) === true) {
 
@@ -193,7 +217,7 @@ const encode = function(connection, data) {
 			blob[1] = 0x01;
 			blob[2] = 0x00;
 
-			let payload = encode_payload(data.payload || null);
+			let payload = encode_payload(data.payload);
 			if (payload !== null) {
 				payload.forEach((v) => {
 					blob.push(v);
@@ -290,11 +314,7 @@ const decode_payload = function(buffer) {
 const decode = function(connection, buffer) {
 
 	let chunk = {
-		headers: {
-			auth:    null,
-			command: null,
-			version: null
-		},
+		headers: {},
 		payload: null
 	};
 
@@ -347,7 +367,7 @@ const decode = function(connection, buffer) {
 
 		}
 
-	} else {
+	} else if (connection.type === 'client') {
 
 		if (buffer.length === 2) {
 
@@ -362,11 +382,21 @@ const decode = function(connection, buffer) {
 
 		} else if (buffer.length > 2) {
 
-			let method = buffer[1];
-			if (method === 0x01) {
-				chunk.headers['@method'] = 'connect';
-			} else if (method === 0x02) {
-				chunk.headers['@method'] = 'bind';
+			let reply = buffer[1];
+			if (reply === 0x00) {
+				chunk.headers['@status'] = 'success';
+			} else if (reply === 0x01) {
+				chunk.headers['@status'] = 'error';
+			} else if (reply === 0x02) {
+				chunk.headers['@status'] = 'error-blocked';
+			} else if (reply === 0x03) {
+				chunk.headers['@status'] = 'error-network';
+			} else if (reply === 0x04) {
+				chunk.headers['@status'] = 'error-host';
+			} else if (reply === 0x05) {
+				chunk.headers['@status'] = 'error-connection';
+			} else if (reply === 0x07) {
+				chunk.headers['@status'] = 'error-method';
 			}
 
 			if (buffer.length > 3) {
@@ -381,6 +411,9 @@ const decode = function(connection, buffer) {
 		}
 
 	}
+
+
+	return chunk;
 
 };
 
@@ -397,7 +430,9 @@ const onconnect = function(connection, ref) {
 					SOCKS.receive(connection, data, (response) => {
 
 						if (response.headers['@status'] === 'success') {
-							connection.emit('@tunnel');
+							connection.emit('@tunnel', [ response ]);
+						} else if (response.headers['@status'] === 'error-blocked') {
+							connection.emit('error', [{ code: 403 }]);
 						} else if (response.headers['@status'] === 'error-network' || response.headers['@status'] === 'error-host') {
 							connection.emit('timeout', [ null ]);
 						} else {
@@ -424,15 +459,145 @@ const onconnect = function(connection, ref) {
 	});
 
 	connection.type = 'client';
-
-	SOCKS.send(connection, {
-		headers: {
-			'auth': [ 'none' ]
-		},
-		payload: null
-	});
+	connection.socket.write(upgrade_request(
+		connection
+	));
 
 };
+
+const ondata = function(connection, ref, chunk) {
+
+	if (connection.protocol === 'socks') {
+
+		if (connection.type === 'client') {
+
+			SOCKS.receive(connection, chunk, (frame) => {
+
+				if (frame !== null) {
+					connection.emit('response', [ frame ]);
+				}
+
+			});
+
+		} else if (connection.type === 'server') {
+
+			SOCKS.receive(connection, chunk, (frame) => {
+
+				if (frame !== null) {
+					connection.emit('request', [ frame ]);
+				}
+
+			});
+
+		}
+
+	}
+
+};
+
+const ondisconnect = function(connection) {
+
+	connection.emit('@disconnect');
+
+};
+
+const onupgrade = function(connection /*, ref */) {
+
+	connection.socket.once('data', (data) => {
+
+		SOCKS.receive(connection, data, (response) => {
+
+			if (response.headers['@method'] === 'connect' && URL.isURL(response.payload) === true) {
+
+				if (connection.has('request') === true) {
+
+					connection.emit('request', [ response, (status, reply) => {
+
+						status = isString(status) ? status : null;
+						reply  = URL.isURL(reply) ? reply  : null;
+
+
+						if (status === 'success') {
+
+							SOCKS.send({
+								headers: {
+									'@status': 'success'
+								},
+								payload: reply
+							});
+
+						} else if (status !== null && ERRORS.includes(status) === true) {
+
+							SOCKS.send({
+								headers: {
+									'@status': status
+								},
+								payload: null
+							});
+
+						} else {
+
+							SOCKS.send({
+								headers: {
+									'@status': 'error'
+								},
+								payload: null
+							});
+
+						}
+
+					}]);
+
+				} else {
+
+					SOCKS.send({
+						headers: {
+							'@status': 'error-blocked'
+						},
+						payload: null
+					});
+
+				}
+
+				// TODO: SOCKS Proxy should connect to host or domain
+				// And if forbidden, correctly reply. But how to implement this correctly,
+				// so that it can be implemented by the Server and not here!?
+
+			} else {
+
+				SOCKS.send({
+					headers: {
+						'@status': 'error'
+					},
+					payload: null
+				});
+
+			}
+
+		});
+
+	});
+
+	// TODO: Reflect network flow correctly like onconnect() does
+	// this method already sends upgrade_response()
+	// -> next request is client's connect request
+	// -> next response is server's result after connecting
+	// -> afterwards, fire @tunnel event
+
+
+	connection.type = 'server';
+	connection.socket.resume();
+	connection.socket.write(upgrade_response(
+		connection
+	));
+
+	setTimeout(() => {
+		connection.emit('@connect');
+	}, 0);
+
+};
+
+
 
 const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
@@ -440,13 +605,64 @@ const isConnection = function(obj) {
 
 const Connection = function(socket) {
 
-	this.ref    = null;
-	this.socket = socket || null;
-	this.type   = null;
+	this.socket   = socket || null;
+	this.protocol = 'socks';
+	this.type     = null;
+
 
 	Emitter.call(this);
 
 };
+
+
+Connection.from = function(json) {
+
+	if (isObject(json) === true) {
+
+		let type = json.type === 'Connection' ? json.type : null;
+		let data = isObject(json.data)        ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			let connection = new Connection();
+
+			return connection;
+
+		}
+
+	} else if (isConnection(json) === true) {
+
+		if ((json instanceof Connection) === true) {
+
+			return json;
+
+		} else {
+
+			let socket     = json.socket || null;
+			let connection = new Connection(socket);
+
+			for (let prop in json) {
+
+				if (prop !== 'socket') {
+					connection[prop] = json[prop];
+				}
+
+			}
+
+			return connection;
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
+Connection.isConnection = isConnection;
+
 
 Connection.prototype = Object.assign({}, Emitter.prototype, {
 
@@ -476,13 +692,7 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 	disconnect: function() {
 
 		if (this.socket !== null) {
-
-			if (this.type === 'server') {
-				this.socket.destroy();
-			} else {
-				this.socket.end();
-			}
-
+			this.socket.destroy();
 		}
 
 		this.emit('@disconnect');
@@ -497,8 +707,8 @@ const SOCKS = {
 
 	connect: function(ref, connection) {
 
-		ref        = isObject(ref)            ? ref        : null;
-		connection = isConnection(connection) ? connection : new Connection();
+		ref        = isObject(ref)            ? ref                         : null;
+		connection = isConnection(connection) ? Connection.from(connection) : new Connection();
 
 
 		if (ref !== null) {
@@ -565,112 +775,97 @@ const SOCKS = {
 						});
 
 					} catch (err) {
-						// Ignore Errors
+						socket = null;
 					}
+
+				} else {
+
+					socket.setTimeout(0);
+					socket.setNoDelay(true);
+					socket.setKeepAlive(true, 0);
+					socket.allowHalfOpen = true;
+
+					setTimeout(() => {
+						onconnect(connection, ref);
+					}, 0);
 
 				}
 
 
 				if (socket !== null) {
 
-				}
+					socket.removeAllListeners('data');
+					socket.removeAllListeners('timeout');
+					socket.removeAllListeners('error');
+					socket.removeAllListeners('end');
 
+					// This is wrong, onconnect() reflects the network
+					// flow for connection.type = 'client'
+					// socket.on('data', (fragment) => {
+					// 	ondata(connection, ref, fragment);
+					// });
 
-				socket = net.connect({
-					host: proxy.host || '127.0.0.1',
-					port: proxy.port || 1080
-				}, () => {
+					socket.on('timeout', () => {
 
-					connection.socket = socket;
+						if (connection.socket !== null) {
 
-					socket.once('data', (response) => {
+							connection.socket = null;
+							connection.emit('timeout', [ null ]);
 
-						if (response.length === 2) {
-
-							let version = response[0];
-							let auth    = response[1];
-
-							if (version === 0x05 && auth === 0x00) {
-
-								let host = hosts[0];
-								let blob = [
-									0x05, // SOCKS v5
-									0x01, // TCP/IP connection
-									0x00  // reserved
-								];
-
-
-								if (blob.length > 3) {
-
-									socket.once('data', (response) => {
-
-										if (response.length > 3) {
-
-											let version = response[0];
-											let message = response[1];
-											let reserve = response[2];
-
-											if (version === 0x05 && message === 0x00 && reserve === 0x00) {
-												connection.emit('@tunnel');
-											} else if (version === 0x05) {
-
-												if (message === 0x03 || message === 0x04) {
-													connection.emit('timeout', [ null ]);
-												} else if (message === 0x02 || message === 0x05) {
-													connection.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
-												} else {
-													connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
-												}
-
-											} else {
-												connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
-											}
-
-										} else {
-											connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
-										}
-
-									});
-
-									socket.write(Buffer.from(blob));
-
-								} else {
-									connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
-								}
-
-							} else {
-								connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
-							}
-
-						} else {
-							connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
 						}
 
 					});
 
-					socket.write(Buffer.from([
-						0x05, // SOCKS v5
-						0x01, // auth(s) length
-						0x00  // No auth
-					]));
+					socket.on('error', () => {
 
-				});
+						if (connection.socket !== null) {
 
-				connection.on('@tunnel', () => {
+							ondisconnect(connection, ref);
+							connection.socket = null;
 
-					if (ref.protocol === 'https') {
-						HTTPS.connect(ref, connection);
-					} else if (ref.protocol === 'http') {
-						HTTP.connect(ref, connection);
-					} else if (ref.protocol === 'wss') {
-						WSS.connect(ref, connection);
-					} else if (ref.protocol === 'ws') {
-						WS.connect(ref, connection);
-					}
+						}
 
-				});
+					});
 
-				return connection;
+					socket.on('end', () => {
+
+						if (connection.socket !== null) {
+
+							ondisconnect(connection, ref);
+							connection.socket = null;
+
+						}
+
+					});
+
+					connection.once('@tunnel', () => {
+
+						if (ref.protocol === 'https') {
+							connection.protocol = 'https';
+							HTTPS.connect(ref, connection);
+						} else if (ref.protocol === 'http') {
+							connection.protocol = 'http';
+							HTTP.connect(ref, connection);
+						} else if (ref.protocol === 'wss') {
+							connection.protocol = 'wss';
+							WSS.connect(ref, connection);
+						} else if (ref.protocol === 'ws') {
+							connection.protocol = 'ws';
+							WS.connect(ref, connection);
+						}
+
+					});
+
+					return connection;
+
+				} else {
+
+					connection.socket = null;
+					connection.emit('error', [{ type: 'request' }]);
+
+					return null;
+
+				}
 
 			} else if (hosts.length > 0 && hosts[0].scope === 'private') {
 
@@ -727,25 +922,198 @@ const SOCKS = {
 
 	receive: function(connection, buffer, callback) {
 
+		connection = isConnection(connection) ? connection : null;
+		buffer     = isBuffer(buffer)         ? buffer     : null;
+		callback   = isFunction(callback)     ? callback   : null;
+
+
+		if (connection !== null && buffer !== null) {
+
+			if (connection.protocol === 'socks') {
+
+				let data = decode(connection, buffer);
+
+				if (callback !== null) {
+
+					callback({
+						headers: data.headers,
+						payload: data.payload
+					});
+
+				} else {
+
+					return {
+						headers: data.headers,
+						payload: data.payload
+					};
+
+				}
+
+			} else if (connection.protocol === 'https') {
+
+				return HTTPS.receive(connection, buffer, callback);
+
+			} else if (connection.protocol === 'http') {
+
+				return HTTP.receive(connection, buffer, callback);
+
+			} else if (connection.protocol === 'wss') {
+
+				return WSS.receive(connection, buffer, callback);
+
+			} else if (connection.protocol === 'ws') {
+
+				return WS.receive(connection, buffer, callback);
+
+			} else {
+
+				if (callback !== null) {
+					callback(null);
+				} else {
+					return null;
+				}
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			} else {
+				return null;
+			}
+
+		}
+
 	},
 
 	send: function(connection, data) {
 
-		// TODO: SOCKS connection have the following states:
-		// 1. disconnected from SOCKS proxy
-		// 2. handshake to SOCKS proxy
-		// 3. connection established to SOCKS proxy
-		// 4 (3 and later) -> send data via ref.protocol
+		connection = isConnection(connection) ? connection : null;
+		data       = isObject(data)           ? data       : {};
 
-		if (connection.state === 'disconnect') {
-		} else if (connection.state === 'connect') {
-		} else if (connection.state === 'protocol!!???!?!?') {
+
+		if (connection !== null) {
+
+			if (connection.protocol === 'socks') {
+
+				if (connection.socket !== null) {
+
+					let headers = null;
+					let payload = null;
+
+					if (isObject(data.headers) === true) {
+						headers = data.headers;
+					}
+
+					if (isBoolean(data.payload) === true) {
+						payload = data.payload;
+					} else {
+						payload = data.payload || null;
+					}
+
+
+					let headers_keys = Object.keys(headers);
+					if (headers_keys.length > 0 || payload !== null) {
+
+						let buffer = encode(connection, data);
+						if (buffer !== null) {
+							connection.socket.write(buffer);
+						}
+
+					}
+
+					return true;
+
+				}
+
+			} else if (connection.protocol === 'https') {
+
+				return HTTPS.send(connection, data);
+
+			} else if (connection.protocol === 'http') {
+
+				return HTTP.send(connection, data);
+
+			} else if (connection.protocol === 'wss') {
+
+				return WSS.send(connection, data);
+
+			} else if (connection.protocol === 'ws') {
+
+				return WS.send(connection, data);
+
+			}
+
 		}
+
+
+		return false;
 
 	},
 
 	upgrade: function(socket, ref) {
 
+		ref = isObject(ref) ? ref : { headers: {} };
+
+
+		let auth = ref.headers['auth'] || [];
+		if (auth.includes('none')) {
+
+			socket.setTimeout(0);
+			socket.setNoDelay(true);
+			socket.setKeepAlive(true, 0);
+			socket.allowHalfOpen = true;
+
+
+			let connection = new Connection(socket);
+
+			socket.removeAllListeners('data');
+			socket.removeAllListeners('timeout');
+			socket.removeAllListeners('error');
+			socket.removeAllListeners('end');
+
+			socket.on('timeout', () => {
+
+				if (connection.socket !== null) {
+
+					connection.socket = null;
+					connection.emit('timeout', [ null ]);
+
+				}
+
+			});
+
+			socket.on('error', () => {
+
+				if (connection.socket !== null) {
+
+					ondisconnect(connection, ref);
+					connection.socket = null;
+
+				}
+
+			});
+
+			socket.on('end', () => {
+
+				if (connection.socket !== null) {
+
+					ondisconnect(connection, ref);
+					connection.socket = null;
+
+				}
+
+			});
+
+			onupgrade(connection, ref);
+
+			return connection;
+
+		}
+
+
+		return null;
 
 	}
 
