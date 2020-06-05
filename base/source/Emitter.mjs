@@ -1,233 +1,248 @@
 
 export const Emitter = (function(global) {
 
-	if (typeof global.Emitter !== 'function') {
+	const isArray = (obj) => {
+		return Object.prototype.toString.call(obj) === '[object Array]';
+	};
 
-		const isArray = (obj) => {
-			return Object.prototype.toString.call(obj) === '[object Array]';
-		};
+	const isFunction = (obj) => {
+		return Object.prototype.toString.call(obj) === '[object Function]';
+	};
 
-		const isFunction = (obj) => {
-			return Object.prototype.toString.call(obj) === '[object Function]';
-		};
-
-		const isString = (obj) => {
-			return Object.prototype.toString.call(obj) === '[object String]';
-		};
+	const isString = (obj) => {
+		return Object.prototype.toString.call(obj) === '[object String]';
+	};
 
 
-		const Emitter = function() {
+	const Emitter = function() {
 
-			this.__events  = {};
-			this.__journal = [];
+		this.__events  = {};
+		this.__journal = [];
 
-		};
-
-
-		Emitter.isEmitter = function(obj) {
-			return Object.prototype.toString.call(obj) === '[object Emitter]';
-		};
+	};
 
 
-		Emitter.prototype = {
+	Emitter.isEmitter = function(obj) {
+		return Object.prototype.toString.call(obj) === '[object Emitter]';
+	};
 
-			[Symbol.toStringTag]: 'Emitter',
 
-			toJSON: function() {
+	Emitter.prototype = {
 
-				let data = {
-					events:  Object.keys(this.__events),
-					journal: []
-				};
+		[Symbol.toStringTag]: 'Emitter',
 
-				if (this.__journal.length > 0) {
+		toJSON: function() {
 
-					this.__journal.sort((a, b) => {
+			let data = {
+				events:  Object.keys(this.__events),
+				journal: []
+			};
 
-						if (a.time < b.time) return -1;
-						if (b.time < a.time) return  1;
+			if (this.__journal.length > 0) {
 
-						if (a.event < b.event) return -1;
-						if (b.event < a.event) return  1;
+				this.__journal.sort((a, b) => {
 
-						return 0;
+					if (a.time < b.time) return -1;
+					if (b.time < a.time) return  1;
 
-					}).forEach((entry) => {
+					if (a.event < b.event) return -1;
+					if (b.event < a.event) return  1;
 
-						data.journal.push({
-							event: entry.event,
-							time:  entry.time
-						});
+					return 0;
 
+				}).forEach((entry) => {
+
+					data.journal.push({
+						event: entry.event,
+						time:  entry.time
 					});
 
-				}
+				});
 
-				return {
-					'type': 'Emitter',
-					'data': data
-				};
+			}
 
-			},
+			return {
+				'type': 'Emitter',
+				'data': data
+			};
 
-			emit: function(event, args) {
+		},
 
-				event = isString(event) ? event : null;
-				args  = isArray(args)   ? args  : [];
+		emit: function(event, args) {
 
-
-				if (event !== null) {
-
-					let events = this.__events[event] || null;
-					if (events !== null) {
-
-						this.__journal.push({
-							event: event,
-							time:  Date.now()
-						});
+			event = isString(event) ? event : null;
+			args  = isArray(args)   ? args  : [];
 
 
-						let data = null;
+			if (event !== null) {
 
-						for (let e = 0, el = events.length; e < el; e++) {
+				let events = this.__events[event] || null;
+				if (events !== null) {
 
-							let entry = events[e];
-							if (entry.once === true) {
+					this.__journal.push({
+						event: event,
+						time:  Date.now()
+					});
 
-								try {
 
-									let result = entry.callback.apply(null, args);
-									if (result !== null && result !== undefined) {
-										data = result;
-									}
+					let data = null;
 
-								} catch (err) {
-									// Ignore
+					for (let e = 0, el = events.length; e < el; e++) {
+
+						let entry = events[e];
+						if (entry.once === true) {
+
+							try {
+
+								let result = entry.callback.apply(null, args);
+								if (result !== null && result !== undefined) {
+									data = result;
 								}
 
-								events.splice(e, 1);
-								el--;
-								e--;
+							} catch (err) {
+								// Ignore
+							}
 
-							} else {
+							events.splice(e, 1);
+							el--;
+							e--;
 
-								try {
+						} else {
 
-									let result = entry.callback.apply(null, args);
-									if (result !== null && result !== undefined) {
-										data = result;
-									}
+							try {
 
-								} catch (err) {
-									// Ignore
+								let result = entry.callback.apply(null, args);
+								if (result !== null && result !== undefined) {
+									data = result;
 								}
 
+							} catch (err) {
+								// Ignore
 							}
 
 						}
 
-						return data;
-
 					}
 
-				}
-
-
-				return null;
-
-			},
-
-			on: function(event, callback) {
-
-				event    = isString(event)      ? event    : null;
-				callback = isFunction(callback) ? callback : null;
-
-
-				if (event !== null) {
-
-					let events = this.__events[event] || null;
-					if (events === null) {
-						events = this.__events[event] = [];
-					}
-
-					events.push({
-						callback: callback,
-						once:     false
-					});
-
-					return true;
+					return data;
 
 				}
-
-
-				return false;
-
-			},
-
-			off: function(event, callback) {
-
-				event    = isString(event)      ? event    : null;
-				callback = isFunction(callback) ? callback : null;
-
-
-				if (event !== null) {
-
-					let events = this.__events[event] || null;
-					if (events !== null) {
-
-						if (callback !== null) {
-							this.__events[event] = events.filter((e) => e.callback !== callback);
-						} else {
-							this.__events[event] = [];
-						}
-
-					}
-
-					return true;
-
-				}
-
-
-				return false;
-
-			},
-
-			once: function(event, callback) {
-
-				event    = isString(event)      ? event    : null;
-				callback = isFunction(callback) ? callback : null;
-
-
-				if (event !== null) {
-
-					let events = this.__events[event] || null;
-					if (events === null) {
-						events = this.__events[event] = [];
-					}
-
-					events.push({
-						callback: callback,
-						once:     true
-					});
-
-					return true;
-
-				}
-
-
-				return false;
 
 			}
 
-		};
+
+			return null;
+
+		},
+
+		has: function(event) {
+
+			event = isString(event) ? event : null;
 
 
+			if (event !== null) {
+
+				let events = this.__events[event] || null;
+				if (isArray(events) === true && events.length > 0) {
+					return true;
+				}
+
+			}
+
+
+			return false;
+
+		},
+
+		on: function(event, callback) {
+
+			event    = isString(event)      ? event    : null;
+			callback = isFunction(callback) ? callback : null;
+
+
+			if (event !== null) {
+
+				let events = this.__events[event] || null;
+				if (events === null) {
+					events = this.__events[event] = [];
+				}
+
+				events.push({
+					callback: callback,
+					once:     false
+				});
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		off: function(event, callback) {
+
+			event    = isString(event)      ? event    : null;
+			callback = isFunction(callback) ? callback : null;
+
+
+			if (event !== null) {
+
+				let events = this.__events[event] || null;
+				if (events !== null) {
+
+					if (callback !== null) {
+						this.__events[event] = events.filter((e) => e.callback !== callback);
+					} else {
+						this.__events[event] = [];
+					}
+
+				}
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		once: function(event, callback) {
+
+			event    = isString(event)      ? event    : null;
+			callback = isFunction(callback) ? callback : null;
+
+
+			if (event !== null) {
+
+				let events = this.__events[event] || null;
+				if (events === null) {
+					events = this.__events[event] = [];
+				}
+
+				events.push({
+					callback: callback,
+					once:     true
+				});
+
+				return true;
+
+			}
+
+
+			return false;
+
+		}
+
+	};
+
+	if (typeof global.Emitter === 'undefined') {
 		global.Emitter = Emitter;
-
 	}
 
-
-	return global.Emitter;
+	return Emitter;
 
 })(typeof global !== 'undefined' ? global : (typeof window !== 'undefined' ? window : this));
 

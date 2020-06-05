@@ -89,7 +89,25 @@ describe('Emitter.prototype.emit()', function(assert) {
 		assert(true);
 	});
 
-	emitter.emit('foo');
+	assert(emitter.emit('foo'), null);
+
+});
+
+describe('Emitter.prototype.emit()/data', function(assert) {
+
+	let emitter = new Emitter();
+
+	emitter.on('foo', () => {
+		assert(true);
+		return { result: 'foo-1' };
+	});
+
+	emitter.on('foo', () => {
+		assert(true);
+		return { result: 'foo-2' };
+	});
+
+	assert(emitter.emit('foo'), { result: 'foo-2' });
 
 });
 
@@ -99,6 +117,7 @@ describe('Emitter.prototype.emit()/Error', function(assert) {
 
 	emitter.on('foo', () => {
 		assert(true);
+		return { result: 'foo-1' };
 	});
 
 	emitter.on('foo', () => {
@@ -107,9 +126,36 @@ describe('Emitter.prototype.emit()/Error', function(assert) {
 
 	emitter.on('foo', () => {
 		assert(true);
+		return { result: 'foo-3' };
 	});
 
-	emitter.emit('foo');
+	assert(emitter.emit('foo'), { result: 'foo-3' });
+
+});
+
+describe('Emitter.prototype.has()', function(assert) {
+
+	let emitter = new Emitter();
+
+	emitter.on('foo', () => {
+		return { result: 'foo' };
+	});
+
+	emitter.once('qux', () => {
+		return { result: 'qux' };
+	});
+
+	assert(emitter.has('foo'), true);
+	assert(emitter.has('bar'), false);
+	assert(emitter.has('qux'), true);
+
+	assert(emitter.emit('foo'), { result: 'foo' });
+	assert(emitter.emit('bar'), null);
+	assert(emitter.emit('qux'), { result: 'qux' });
+
+	assert(emitter.has('foo'), true);
+	assert(emitter.has('bar'), false);
+	assert(emitter.has('qux'), false);
 
 });
 
