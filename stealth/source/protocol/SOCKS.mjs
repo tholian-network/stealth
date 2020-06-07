@@ -1,15 +1,36 @@
 
 import net from 'net';
 
-import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { HTTP                                                                          } from './HTTP.mjs';
-import { HTTPS                                                                         } from './HTTPS.mjs';
-import { WS                                                                            } from './WS.mjs';
-import { WSS                                                                           } from './WSS.mjs';
-import { IP                                                                            } from '../parser/IP.mjs';
-import { URL                                                                           } from '../parser/URL.mjs';
+import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { HTTP                                                                                    } from './HTTP.mjs';
+import { HTTPS                                                                                   } from './HTTPS.mjs';
+import { WS                                                                                      } from './WS.mjs';
+import { WSS                                                                                     } from './WSS.mjs';
+import { IP                                                                                      } from '../parser/IP.mjs';
+import { URL                                                                                     } from '../parser/URL.mjs';
 
 
+
+const isPayload = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& (isString(payload.domain) === true || isString(payload.host) === true)
+		&& isNumber(payload.port)
+		&& isArray(payload.hosts)
+	) {
+
+		let check = payload.hosts.filter((ip) => IP.isIP(ip));
+		if (check.length === payload.hosts.length) {
+			return true;
+		}
+
+	}
+
+
+	return false;
+
+};
 
 const ERRORS = [
 	'error',
@@ -43,7 +64,10 @@ const upgrade_response = (connection) => {
 
 const encode_payload = function(ref) {
 
-	if (URL.isURL(ref) === true) {
+	ref = isPayload(ref) ? ref : null;
+
+
+	if (ref !== null) {
 
 		if (IP.isIP(ref.hosts[0]) === true) {
 
@@ -138,7 +162,7 @@ const encode = function(connection, data) {
 		data.headers = {};
 	}
 
-	if (URL.isURL(data.payload) === false) {
+	if (isPayload(data.payload) === false) {
 		data.payload = URL.parse('0.0.0.0:0');
 	}
 
@@ -335,7 +359,7 @@ const decode = function(connection, buffer) {
 
 			if (methods.length === length) {
 
-				chunk.headers['auth'] = methods.map((v) => {
+				chunk.headers['auth'] = Array.from(methods).map((v) => {
 
 					if (v === 0x00) {
 						return 'none';
@@ -463,6 +487,10 @@ const onconnect = function(connection, ref) {
 		connection
 	));
 
+	setTimeout(() => {
+		connection.emit('@connect');
+	}, 0);
+
 };
 
 const ondata = function(connection, ref, chunk) {
@@ -507,19 +535,19 @@ const onupgrade = function(connection /*, ref */) {
 
 		SOCKS.receive(connection, data, (response) => {
 
-			if (response.headers['@method'] === 'connect' && URL.isURL(response.payload) === true) {
+			if (response.headers['@method'] === 'connect' && isPayload(response.payload) === true) {
 
 				if (connection.has('request') === true) {
 
 					connection.emit('request', [ response, (status, reply) => {
 
 						status = isString(status) ? status : null;
-						reply  = URL.isURL(reply) ? reply  : null;
+						reply  = isPayload(reply) ? reply  : null;
 
 
 						if (status === 'success') {
 
-							SOCKS.send({
+							SOCKS.send(connection, {
 								headers: {
 									'@status': 'success'
 								},
@@ -528,7 +556,7 @@ const onupgrade = function(connection /*, ref */) {
 
 						} else if (status !== null && ERRORS.includes(status) === true) {
 
-							SOCKS.send({
+							SOCKS.send(connection, {
 								headers: {
 									'@status': status
 								},
@@ -541,7 +569,7 @@ const onupgrade = function(connection /*, ref */) {
 
 						} else {
 
-							SOCKS.send({
+							SOCKS.send(connection, {
 								headers: {
 									'@status': 'error'
 								},
@@ -558,7 +586,7 @@ const onupgrade = function(connection /*, ref */) {
 
 				} else {
 
-					SOCKS.send({
+					SOCKS.send(connection, {
 						headers: {
 							'@status': 'error-blocked'
 						},
@@ -568,11 +596,12 @@ const onupgrade = function(connection /*, ref */) {
 					setTimeout(() => {
 						connection.disconnect();
 					}, 0);
+
 				}
 
 			} else {
 
-				SOCKS.send({
+				SOCKS.send(connection, {
 					headers: {
 						'@status': 'error-method'
 					},
@@ -980,6 +1009,26 @@ const SOCKS = {
 
 			}
 
+		} else if (buffer !== null) {
+
+			let data = decode({ type: 'server' }, buffer);
+
+			if (callback !== null) {
+
+				callback({
+					headers: data.headers,
+					payload: data.payload
+				});
+
+			} else {
+
+				return {
+					headers: data.headers,
+					payload: data.payload
+				};
+
+			}
+
 		} else {
 
 			if (callback !== null) {
@@ -1021,7 +1070,11 @@ const SOCKS = {
 					let headers_keys = Object.keys(headers);
 					if (headers_keys.length > 0 || payload !== null) {
 
-						let buffer = encode(connection, data);
+						let buffer = encode(connection, {
+							headers: headers,
+							payload: payload
+						});
+
 						if (buffer !== null) {
 							connection.socket.write(buffer);
 						}

@@ -277,7 +277,7 @@ const upgrade_socks = function(socket, ref) {
 
 		});
 
-		connection.on('request', (request, callback) => {
+		connection.once('request', (request, callback) => {
 
 			let domain = null;
 			let host   = null;
@@ -295,6 +295,7 @@ const upgrade_socks = function(socket, ref) {
 				host = ref.host;
 			}
 
+
 			if (domain !== null) {
 
 				this.services.blocker.read(ref, (response) => {
@@ -307,6 +308,7 @@ const upgrade_socks = function(socket, ref) {
 
 								ref.hosts = response.payload.hosts;
 
+
 								let socket = null;
 
 								try {
@@ -315,9 +317,8 @@ const upgrade_socks = function(socket, ref) {
 										port: ref.port
 									}, () => {
 
-										connection.socket.pipe(socket);
 										socket.pipe(connection.socket);
-
+										connection.socket.pipe(socket);
 
 										let reply = null;
 										if (ref.hosts[0].type === 'v4') {
@@ -363,8 +364,8 @@ const upgrade_socks = function(socket, ref) {
 								port: ref.port
 							}, () => {
 
-								connection.socket.pipe(socket);
 								socket.pipe(connection.socket);
+								connection.socket.pipe(socket);
 
 								let reply = null;
 								if (ref.hosts[0].type === 'v4') {

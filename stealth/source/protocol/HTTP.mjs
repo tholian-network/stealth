@@ -99,7 +99,10 @@ const onconnect = function(connection, ref) {
 	}
 
 
-	connection.emit('@connect');
+	connection.type = 'client';
+	setTimeout(() => {
+		connection.emit('@connect');
+	}, 0);
 
 };
 
@@ -331,7 +334,9 @@ const ondisconnect = function(connection, ref) {
 
 const onupgrade = function(connection /*, ref */) {
 
+	connection.type = 'server';
 	connection.socket.resume();
+
 
 	setTimeout(() => {
 		connection.emit('@connect');
@@ -348,6 +353,7 @@ const isConnection = function(obj) {
 const Connection = function(socket) {
 
 	this.socket   = socket || null;
+	this.type     = null;
 	this.fragment = {
 		encoding: 'identity',
 		headers:  null,
@@ -797,11 +803,16 @@ const HTTP = {
 				connection.socket.write(blob.join('\r\n'));
 
 
-				if (payload !== null) {
-					connection.socket.end(payload);
-				} else {
-					connection.socket.end();
+				if (connection.type === 'server') {
+
+					if (payload !== null) {
+						connection.socket.end(payload);
+					} else {
+						connection.socket.end();
+					}
+
 				}
+
 
 				return true;
 

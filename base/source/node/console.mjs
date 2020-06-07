@@ -173,6 +173,17 @@ export const console = (function() {
 
 	};
 
+	const format_hex = (n) => {
+
+		let str = (n).toString(16);
+		if (str.length % 2 === 1) {
+			str = '0' + str;
+		}
+
+		return str;
+
+	};
+
 	const cleanify = function(raw) {
 
 		let str = '';
@@ -284,15 +295,42 @@ export const console = (function() {
 
 		} else if (isBuffer(data) === true) {
 
-			str  = indent;
-			str += highlight('Buffer', 'Type') + '.from(';
+			str = indent;
 
 			let tmp = cleanify(data.toString('utf8'));
-			if (tmp.length > 0) {
-				str += highlight('"' + tmp + '"', 'String');
-			}
+			if (tmp.length >= data.length) {
 
-			str += ', ' + highlight('"utf8"', 'String') + ')';
+				str += highlight('Buffer', 'Type') + '.from(';
+				str += highlight('"' + tmp + '"', 'String');
+				str += ', ';
+				str += highlight('"utf8"', 'String') + ')';
+
+			} else if (data.length > 0) {
+
+				str += highlight('Buffer', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+
+				for (let d = 0, dl = data.length; d < dl; d++) {
+
+					str += highlight('0x' + format_hex(data[d]), 'Number');
+
+					if (d < dl - 1) {
+						str += ',';
+					}
+
+				}
+
+				str += highlight(']', 'Literal');
+				str += ')';
+
+			} else {
+
+				str += highlight('Buffer', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+				str += highlight(']', 'Literal');
+				str += ')';
+
+			}
 
 		} else if (isDate(data) === true) {
 
@@ -604,15 +642,42 @@ export const console = (function() {
 
 		} else if (isBuffer(data) === true) {
 
-			str  = indent;
-			str += highlight('Buffer', 'Type') + '.from(';
+			str = indent;
 
 			let tmp = cleanify(data.toString('utf8'));
-			if (tmp.length > 0) {
-				str += highlight('"' + tmp + '"', 'String');
-			}
+			if (tmp.length >= data.length) {
 
-			str += ', ' + highlight('"utf8"', 'String') + ')';
+				str += highlight('Buffer', 'Type') + '.from(';
+				str += highlight('"' + tmp + '"', 'String');
+				str += ', ';
+				str += highlight('"utf8"', 'String') + ')';
+
+			} else if (data.length > 0) {
+
+				str += highlight('Buffer', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+
+				for (let d = 0, dl = data.length; d < dl; d++) {
+
+					str += highlight('0x' + format_hex(data[d]), 'Number');
+
+					if (d < dl - 1) {
+						str += ',';
+					}
+
+				}
+
+				str += highlight(']', 'Literal');
+				str += ')';
+
+			} else {
+
+				str += highlight('Buffer', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+				str += highlight(']', 'Literal');
+				str += ')';
+
+			}
 
 		} else if (isDate(data) === true) {
 
