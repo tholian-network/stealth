@@ -258,7 +258,7 @@ Network.prototype = {
 		if (os.platform() === 'darwin') {
 
 			sudo('ifconfig lo0 alias 127.0.0.2 up');
-			sudo('ifconfig lo0 alias 127.0.0.3 up');
+			sudo('ifconfig lo1 alias 127.0.0.3 up');
 
 		} else if (os.platform() === 'linux') {
 
@@ -302,7 +302,7 @@ Network.prototype = {
 		if (os.platform() === 'darwin') {
 
 			sudo('ifconfig lo0 -alias 127.0.0.2');
-			sudo('ifconfig lo0 -alias 127.0.0.3');
+			sudo('ifconfig lo1 -alias 127.0.0.3');
 
 		} else if (os.platform() === 'linux') {
 

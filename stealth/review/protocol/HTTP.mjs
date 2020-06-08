@@ -7,47 +7,54 @@ import { HTTP                                     } from '../../../stealth/sourc
 
 before('HTTP.connect()', function(assert) {
 
-	this.connection = null;
-	this.ref        = EXAMPLE.ref('http://example.com:80/index.html');
-
 	assert(isFunction(HTTP.connect), true);
 
-	this.connection = HTTP.connect(this.ref);
 
-	this.connection.once('@connect', () => {
+	let ref        = EXAMPLE.ref('http://example.com:80/index.html');
+	let connection = HTTP.connect(ref);
+
+	connection.once('@connect', () => {
 		assert(true);
 	});
 
-});
-
-describe('HTTP.send()', function(assert) {
-
-	assert(isFunction(HTTP.send), true);
-	assert(this.connection !== null);
-
-	this.connection.on('response', (response) => {
-
-		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
-
-		assert(isBuffer(response.payload), true);
-		assert(response.payload.toString('utf8').includes('<html>'));
-		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
-		assert(response.payload.toString('utf8').includes('</html>'));
-
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
-	HTTP.send(this.connection, EXAMPLE.request);
+	setTimeout(() => {
+		connection.disconnect();
+	}, 500);
+
+});
+
+after('HTTP.disconnect()', function(assert) {
+
+	assert(isFunction(HTTP.disconnect), true);
+
+
+	let ref        = EXAMPLE.ref('http://example.com:80/index.html');
+	let connection = HTTP.connect(ref);
+
+	connection.once('@connect', () => {
+		assert(true);
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+	setTimeout(() => {
+		assert(HTTP.disconnect(connection), true);
+	}, 500);
 
 });
 
 describe('HTTP.receive()', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
-	assert(this.connection !== null);
 
-	HTTP.receive(this.connection, EXAMPLE.payload, (response) => {
+
+	HTTP.receive(null, EXAMPLE.payload, (response) => {
 
 		assert(response !== null);
 		assert(response.headers !== null);
@@ -66,22 +73,34 @@ describe('HTTP.receive()', function(assert) {
 
 });
 
-after('HTTP.disconnect()', function(assert) {
+describe('HTTP.send()', function(assert) {
 
-	assert(this.connection !== null);
+	assert(isFunction(HTTP.send), true);
 
-	this.connection.once('@disconnect', () => {
-		assert(true);
+
+	let ref        = EXAMPLE.ref('http://example.com:80/index.html');
+	let connection = HTTP.connect(ref);
+
+	connection.on('response', (response) => {
+
+		assert(response !== null);
+		assert(response.headers !== null);
+		assert(response.payload !== null);
+
+		assert(isBuffer(response.payload), true);
+		assert(response.payload.toString('utf8').includes('<html>'));
+		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
+		assert(response.payload.toString('utf8').includes('</html>'));
+
 	});
 
-	this.connection.disconnect();
+	connection.once('@connect', () => {
+		assert(HTTP.send(connection, EXAMPLE.request), true);
+	});
 
-	this.connection = null;
-	this.ref        = null;
+});
 
-	assert(this.connection, null);
-	assert(this.ref,        null);
-
+describe('HTTP.upgrade()', function(assert) {
 });
 
 

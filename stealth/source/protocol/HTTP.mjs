@@ -610,7 +610,11 @@ const HTTP = {
 
 
 		if (connection !== null) {
-			return connection.disconnect();
+
+			connection.disconnect();
+
+			return true;
+
 		}
 
 
