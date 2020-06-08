@@ -76,12 +76,30 @@ const hostname = ((global) => {
 
 })(typeof window !== 'undefined' ? window : this);
 
+const secure = ((global) => {
+
+	let secure = true;
+
+	let tmp1 = (global.location || {}).protocol || '';
+	if (tmp1.includes(':')) {
+
+		let tmp2 = tmp1.split(':').shift();
+		if (tmp2 !== 'https') {
+			secure = false;
+		}
+
+	}
+
+	return secure;
+
+})(typeof window !== 'undefined' ? window : this);
 
 
 const ENVIRONMENT = {
 
 	flags:    flags,
-	hostname: hostname
+	hostname: hostname,
+	secure:   secure
 
 };
 
