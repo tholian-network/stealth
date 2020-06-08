@@ -12,7 +12,7 @@ let   CACHE = null;
 const FILE  = url.fileURLToPath(import.meta.url);
 const ROOT  = path.dirname(path.resolve(FILE, './'));
 
-const generate = (path, files) => {
+const generate = (target, files) => {
 
 	let errors  = 0;
 	let buffers = [];
@@ -28,21 +28,41 @@ const generate = (path, files) => {
 
 	});
 
+
+	let stat = null;
 	try {
-		fs.writeFileSync(path, Buffer.concat(buffers));
+		stat = fs.statSync(path.dirname(target));
+	} catch (err) {
+		stat = null;
+	}
+
+	if (stat === null || stat.isDirectory() === false) {
+
+		try {
+			fs.mkdirSync(path.dirname(target), {
+				recursive: true
+			});
+		} catch (err) {
+			// Ignore
+		}
+
+	}
+
+	try {
+		fs.writeFileSync(target, Buffer.concat(buffers));
 	} catch (err) {
 		errors++;
 	}
 
 	if (errors === 0) {
 
-		console.info('base: generate("base/' + path.substr(ROOT.length + 1) + '")');
+		console.info('base: generate("base/' + target.substr(ROOT.length + 1) + '")');
 
 		return true;
 
 	} else {
 
-		console.error('base: generate("base/' + path.substr(ROOT.length + 1) + '")');
+		console.error('base: generate("base/' + target.substr(ROOT.length + 1) + '")');
 
 		return false;
 
