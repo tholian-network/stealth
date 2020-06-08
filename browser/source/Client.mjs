@@ -146,7 +146,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 					let check = hosts.find((ip) => ip.scope === 'private') || null;
 					if (check === null) {
-						ref = URL.parse('wss://' + host + ':65432');
+						ref = URL.parse('wss://' + ENVIRONMENT.hostname + ':65432');
 					}
 
 					let host = hosts[0];
