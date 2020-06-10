@@ -1,7 +1,8 @@
 
-import os      from 'os';
-import path    from 'path';
-import process from 'process';
+import child_process from 'child_process';
+import os            from 'os';
+import path          from 'path';
+import process       from 'process';
 
 
 
@@ -48,11 +49,11 @@ const hosts = (() => {
 	let platform = os.platform();
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-		hosts = '/etc/hosts';
+		hosts = path.resolve('/etc/hosts');
 	} else if (platform === 'darwin') {
-		hosts = '/etc/hosts';
+		hosts = path.resolve('/etc/hosts');
 	} else if (platform === 'win32') {
-		hosts = path.resolve('C:\\windows\\system32\\drivers\\etc\\hosts').split('\\').join('/');
+		hosts = path.resolve('C:\\windows\\system32\\drivers\\etc\\hosts');
 	}
 
 	return hosts;
@@ -63,26 +64,15 @@ const hosts = (() => {
 const profile = (() => {
 
 	let folder   = '/tmp/stealth';
-	let user     = process.env.SUDO_USER || process.env.USER;
 	let platform = os.platform();
+	let user     = process.env.SUDO_USER || process.env.USER || process.env.USERNAME;
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-
-		folder = '/home/' + user + '/Stealth';
-
+		folder = path.resolve('/home/' + user + '/Stealth');
 	} else if (platform === 'darwin') {
-
-		folder = '/Users/' + user + '/Library/Application Support/Stealth';
-
+		folder = path.resolve('/Users/' + user + '/Library/Application Support/Stealth');
 	} else if (platform === 'win32') {
-
-		let tmp = path.resolve(process.env.USERPROFILE || 'C:\\users\\' + user).split('\\').join('/');
-		if (tmp.includes(':')) {
-			tmp = tmp.split(':').slice(1).join(':');
-		}
-
-		folder = tmp + '/Stealth';
-
+		folder = path.resolve((process.env.USERPROFILE || 'C:\\Users\\' + user) + '/Stealth');
 	}
 
 	return folder;
@@ -91,47 +81,66 @@ const profile = (() => {
 
 const root = (() => {
 
-	let pwd = process.env.PWD || null;
-	if (pwd !== null) {
-		return pwd;
+	let folder   = '/tmp/stealth';
+	let platform = os.platform();
+
+	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd' || platform === 'darwin') {
+
+		let pwd = process.env.PWD || null;
+		if (pwd !== null) {
+			folder = path.resolve(pwd);
+		}
+
+		if (folder.endsWith('/')) {
+			folder = folder.substr(0, folder.length - 1);
+		}
+
+	} else if (platform === 'win32') {
+
+		if (process.env.MSYSTEM === 'MINGW64') {
+
+			let pwd = process.env.PWD || null;
+			if (pwd.startsWith('/c/') === true) {
+				folder = path.resolve('C:\\' + pwd.substr(3).split('/').join('\\'));
+			}
+
+			if (folder.endsWith('/')) {
+				folder = folder.substr(0, folder.length - 1);
+			}
+
+		} else {
+
+			let cwd = null;
+			try {
+				cwd = child_process.execSync('echo %cd%').toString('utf8').trim();
+			} catch (err) {
+				cwd = null;
+			}
+
+			if (cwd !== null) {
+				folder = cwd;
+			}
+
+		}
+
 	}
 
-	let cwd = process.cwd();
-	if (cwd.includes('\\')) {
-		cwd = cwd.split('\\').join('/');
-	}
-
-	if (cwd.endsWith('/')) {
-		cwd = cwd.substr(0, cwd.length - 1);
-	}
-
-	return cwd;
+	return folder;
 
 })();
 
 const temp = (() => {
 
-	let user     = process.env.SUDO_USER || process.env.USER;
+	let user     = process.env.SUDO_USER || process.env.USER || process.env.USERNAME;
 	let folder   = '/tmp/stealth-' + user;
 	let platform = os.platform();
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-
-		folder = '/tmp/stealth-' + user;
-
+		folder = path.resolve('/tmp/stealth-' + user);
 	} else if (platform === 'darwin') {
-
-		folder = process.env.TMPDIR || '/tmp/stealth-' + user;
-
+		folder = path.resolve(process.env.TMPDIR || '/tmp/stealth-' + user);
 	} else if (platform === 'win32') {
-
-		let tmp = path.resolve(process.env.USERPROFILE || 'C:\\temp').split('\\').join('/');
-		if (tmp.includes(':')) {
-			tmp = tmp.split(':').slice(1).join(':');
-		}
-
-		folder = tmp + '/stealth-' + user;
-
+		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\stealth-' + user);
 	}
 
 	return folder;

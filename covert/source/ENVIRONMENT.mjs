@@ -1,7 +1,8 @@
 
-import os      from 'os';
-import path    from 'path';
-import process from 'process';
+import child_process from 'child_process';
+import os            from 'os';
+import path          from 'path';
+import process       from 'process';
 
 
 
@@ -82,47 +83,66 @@ const patterns = (() => {
 
 const root = (() => {
 
-	let pwd = process.env.PWD || null;
-	if (pwd !== null) {
-		return pwd;
+	let folder   = '/tmp/covert';
+	let platform = os.platform();
+
+	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd' || platform === 'darwin') {
+
+		let pwd = process.env.PWD || null;
+		if (pwd !== null) {
+			folder = path.resolve(pwd);
+		}
+
+		if (folder.endsWith('/')) {
+			folder = folder.substr(0, folder.length - 1);
+		}
+
+	} else if (platform === 'win32') {
+
+		if (process.env.MSYSTEM === 'MINGW64') {
+
+			let pwd = process.env.PWD || null;
+			if (pwd.startsWith('/c/') === true) {
+				folder = path.resolve('C:\\' + pwd.substr(3).split('/').join('\\'));
+			}
+
+			if (folder.endsWith('/')) {
+				folder = folder.substr(0, folder.length - 1);
+			}
+
+		} else {
+
+			let cwd = null;
+			try {
+				cwd = child_process.execSync('echo %cd%').toString('utf8').trim();
+			} catch (err) {
+				cwd = null;
+			}
+
+			if (cwd !== null) {
+				folder = cwd;
+			}
+
+		}
+
 	}
 
-	let cwd = process.cwd();
-	if (cwd.includes('\\')) {
-		cwd = cwd.split('\\').join('/');
-	}
-
-	if (cwd.endsWith('/')) {
-		cwd = cwd.substr(0, cwd.length - 1);
-	}
-
-	return cwd;
+	return folder;
 
 })();
 
 const temp = (() => {
 
-	let user     = process.env.SUDO_USER || process.env.USER;
+	let user     = process.env.SUDO_USER || process.env.USER || process.env.USERNAME;
 	let folder   = '/tmp/covert-' + user;
 	let platform = os.platform();
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-
-		folder = '/tmp/covert-' + user;
-
+		folder = path.resolve('/tmp/covert-' + user);
 	} else if (platform === 'darwin') {
-
-		folder = process.env.TMPDIR || '/tmp/covert-' + user;
-
+		folder = path.resolve(process.env.TMPDIR || '/tmp/covert-' + user);
 	} else if (platform === 'win32') {
-
-		let tmp = path.resolve(process.env.USERPROFILE || 'C:\\temp').split('\\').join('/');
-		if (tmp.includes(':')) {
-			tmp = tmp.split(':').slice(1).join(':');
-		}
-
-		folder = tmp + '/covert-' + user;
-
+		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\covert-' + user);
 	}
 
 	return folder;
@@ -168,29 +188,27 @@ const mktemp = (prefix, seed) => {
 
 	if (seed !== null) {
 
-		let path = temp + '/' + prefix + '-' + randomize(seed);
+		let tmp = path.resolve(temp + '/' + prefix + '-' + randomize(seed));
 
-		while (TEMPORARY[path] !== undefined) {
-			path = temp + '/' + prefix + '-' + randomize(seed);
+		while (TEMPORARY[tmp] !== undefined) {
+			tmp = path.resolve(temp + '/' + prefix + '-' + randomize(seed));
 		}
 
-		TEMPORARY[path] = 0;
+		TEMPORARY[tmp] = 0;
 
-		return path;
+		return tmp;
 
 	} else {
 
-		let path = temp + '/' + prefix;
+		let tmp = path.resolve(temp + '/' + prefix);
 
-		if (TEMPORARY[path] !== undefined) {
-			TEMPORARY[path] += 1;
+		if (TEMPORARY[tmp] !== undefined) {
+			TEMPORARY[tmp] += 1;
 		} else {
-			TEMPORARY[path] = 0;
+			TEMPORARY[tmp] = 0;
 		}
 
-		path += '-' + TEMPORARY[path];
-
-		return path;
+		return tmp + '-' + TEMPORARY[tmp];
 
 	}
 

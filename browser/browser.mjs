@@ -11,47 +11,66 @@ import { console } from '../base/index.mjs';
 
 const ROOT = (() => {
 
-	let pwd = process.env.PWD || null;
-	if (pwd !== null) {
-		return pwd;
+	let folder   = '/tmp/stealth';
+	let platform = os.platform();
+
+	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd' || platform === 'darwin') {
+
+		let pwd = process.env.PWD || null;
+		if (pwd !== null) {
+			folder = path.resolve(pwd);
+		}
+
+		if (folder.endsWith('/')) {
+			folder = folder.substr(0, folder.length - 1);
+		}
+
+	} else if (platform === 'win32') {
+
+		if (process.env.MSYSTEM === 'MINGW64') {
+
+			let pwd = process.env.PWD || null;
+			if (pwd.startsWith('/c/') === true) {
+				folder = path.resolve('C:\\' + pwd.substr(3).split('/').join('\\'));
+			}
+
+			if (folder.endsWith('/')) {
+				folder = folder.substr(0, folder.length - 1);
+			}
+
+		} else {
+
+			let cwd = null;
+			try {
+				cwd = child_process.execSync('echo %cd%').toString('utf8').trim();
+			} catch (err) {
+				cwd = null;
+			}
+
+			if (cwd !== null) {
+				folder = cwd;
+			}
+
+		}
+
 	}
 
-	let cwd = process.cwd();
-	if (cwd.includes('\\')) {
-		cwd = cwd.split('\\').join('/');
-	}
-
-	if (cwd.endsWith('/')) {
-		cwd = cwd.substr(0, cwd.length - 1);
-	}
-
-	return cwd;
+	return folder;
 
 })();
 
 const TEMP = (() => {
 
-	let user     = process.env.SUDO_USER || process.env.USER;
+	let user     = process.env.SUDO_USER || process.env.USER || process.env.USERNAME;
 	let folder   = '/tmp/browser-' + user;
 	let platform = os.platform();
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-
-		folder = '/tmp/browser-' + user;
-
+		folder = path.resolve('/tmp/browser-' + user);
 	} else if (platform === 'darwin') {
-
-		folder = process.env.TMPDIR || '/tmp/browser-' + user;
-
+		folder = path.resolve(process.env.TMPDIR || '/tmp/browser-' + user);
 	} else if (platform === 'win32') {
-
-		let tmp = path.resolve(process.env.USERPROFILE || 'C:\\temp').split('\\').join('/');
-		if (tmp.includes(':')) {
-			tmp = tmp.split(':').slice(1).join(':');
-		}
-
-		folder = tmp + '/browser-' + user;
-
+		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\browser-' + user);
 	}
 
 	return folder;
@@ -144,8 +163,7 @@ const which = (program) => {
 	let result = null;
 
 	try {
-		result = child_process.execSync('which ' + program, {
-		}).toString('utf8').trim();
+		result = child_process.execSync('which ' + program).toString('utf8').trim();
 	} catch (err) {
 		result = null;
 	}
@@ -286,18 +304,41 @@ if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 
 } else if (platform === 'win32') {
 
-	// let chromium = which('chromium.exe');
-	// let electron = which('electron.exe');
-	// let edgium   = which('edgium.exe');
-	// let edge     = which('edge.exe');
+	let chromium = exists(process.env.USERPROFILE + '\\AppData\\Local\\Chromium\\Application\\chrome.exe');
+	let edgium   = null; // TODO: How to detect edgium in a failsafe manner?
+	let results  = [];
 
-	// TODO: Spawn Program on Win32 needs testing,
-	// which isn't available, so it needs some replacement
+	if (chromium !== null) {
 
-	console.error('Could not find any Web Browser.');
-	console.error('Please open "http://localhost:65432/browser/index.html" manually.');
+		[
+			mkdir(TEMP),
+			spawn(chromium, [
+				'--user-data-dir=' + TEMP,
+				'--app=http://localhost:65432/browser/index.html'
+			], {
+				cwd: TEMP
+			})
+		].forEach((result) => results.push(result));
 
-	process.exit(1);
+	} else if (edgium !== null) {
+
+		// TODO: spawn edgium correctly
+
+	}
+
+
+	if (results.length === 0 || results.includes(false) === true) {
+
+		console.error('Could not find any Web Browser.');
+		console.error('Please open "http://localhost:65432/browser/index.html" manually.');
+
+		process.exit(1);
+
+	} else {
+
+		process.exit(0);
+
+	}
 
 }
 
