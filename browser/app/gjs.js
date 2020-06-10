@@ -4,11 +4,52 @@ imports.gi.versions.GLib    = '2.0';
 imports.gi.versions.Gtk     = '3.0';
 imports.gi.versions.WebKit2 = '4.0';
 
-
 const GLib   = imports.gi.GLib;
 const Gtk    = imports.gi.Gtk;
 const WebKit = imports.gi.WebKit2;
-const rmdir  = function(path) {
+
+
+
+const FLAGS = (function() {
+
+	let flags = {
+		'user-data-dir': '/tmp/browser-electron'
+	};
+
+	Array.from(ARGV).forEach((arg) => {
+
+		let tmp1 = arg.trim();
+		if (tmp1.startsWith('--')) {
+
+			tmp1 = tmp1.substr(2);
+
+			if (tmp1.includes('=')) {
+
+				let key = tmp1.split('=')[0].trim();
+				let val = tmp1.split('=').slice(1).join('=').trim();
+
+				let num = parseInt(val, 10);
+				if (!isNaN(num) && (num).toString() === val) {
+					val = num;
+				}
+
+				if (val === 'true')  val = true;
+				if (val === 'false') val = false;
+				if (val === 'null')  val = null;
+
+				flags[key] = val;
+
+			}
+
+		}
+
+	});
+
+	return flags;
+
+})();
+
+const remove = function(path) {
 
 	path = typeof path === 'string' ? path : null;
 
@@ -35,10 +76,15 @@ const rmdir  = function(path) {
 Gtk.init(null);
 
 
-const settings  = new WebKit.Settings();
-const webview   = new WebKit.WebView();
-const inspector = webview.get_inspector();
-const window    = new Gtk.Window({ title: 'Stealth' });
+const webdata    = new WebKit.WebsiteDataManager({
+	base_cache_directory: FLAGS['user-data-dir'],
+	base_data_directory:  FLAGS['user-data-dir']
+});
+const webcontext = new WebKit.WebContext({ website_data_manager: webdata });
+const webview    = new WebKit.WebView({ web_context: webcontext });
+const settings   = new WebKit.Settings();
+const inspector  = webview.get_inspector();
+const window     = new Gtk.Window({ title: 'Stealth' });
 
 
 window.connect('destroy', () => {
@@ -51,10 +97,10 @@ window.connect('destroy', () => {
 		let folder3 = data.get_local_storage_directory();
 		let folder4 = data.get_websql_directory();
 
-		if (folder1 !== null) rmdir(folder1);
-		if (folder2 !== null) rmdir(folder2);
-		if (folder3 !== null) rmdir(folder3);
-		if (folder4 !== null) rmdir(folder4);
+		if (folder1 !== null) remove(folder1);
+		if (folder2 !== null) remove(folder2);
+		if (folder3 !== null) remove(folder3);
+		if (folder4 !== null) remove(folder4);
 
 	}
 
@@ -82,7 +128,7 @@ inspector.attach();
 
 
 window.add(webview);
-window.set_size_request(640, 480);
+window.set_size_request(1280, 960);
 window.show_all();
 
 Gtk.main();

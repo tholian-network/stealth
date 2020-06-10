@@ -5,13 +5,15 @@ import path    from 'path';
 import process from 'process';
 
 import { console             } from '../base/source/node/console.mjs';
+import { isString            } from '../base/source/String.mjs';
 import { build as build_base } from '../base/make.mjs';
 
 
 
-let   CACHE = null;
-const FILE  = url.fileURLToPath(import.meta.url);
-const ROOT  = path.dirname(path.resolve(FILE, '../'));
+const CACHE  = {};
+const FILE   = url.fileURLToPath(import.meta.url);
+const ROOT   = path.dirname(path.resolve(FILE, '../'));
+const TARGET = ROOT + '/browser';
 
 const copy = (origin, target) => {
 
@@ -85,10 +87,18 @@ const copy = (origin, target) => {
 
 	}
 
+	if (origin.startsWith(ROOT) === true) {
+		origin = origin.substr(ROOT.length + 1);
+	}
+
+	if (target.startsWith(ROOT) === true) {
+		target = target.substr(ROOT.length + 1);
+	}
+
 	if (result === true) {
-		console.info('browser: copy("' + origin.substr(ROOT.length + 1) + '", "' + target.substr(ROOT.length + 1) + '")');
+		console.info('browser: copy("' + origin + '", "' + target + '")');
 	} else {
-		console.error('browser: copy("' + origin.substr(ROOT.length + 1) + '", "' + target.substr(ROOT.length + 1) + '")');
+		console.error('browser: copy("' + origin + '", "' + target + '")');
 	}
 
 	return result;
@@ -234,62 +244,106 @@ const write = (path, buffer) => {
 
 
 
-export const clean = () => {
+export const clean = (target) => {
 
-	if (CACHE === false) {
+	target = isString(target) ? target : TARGET;
 
-		return true;
 
-	} else {
+	if (CACHE[target] === true) {
 
-		console.log('browser: clean()');
+		CACHE[target] = false;
 
-		CACHE = false;
 
-		let results = [
-			remove(ROOT + '/browser/extern/base.mjs'),
-			remove(ROOT + '/browser/source/Browser.mjs'),
-			remove(ROOT + '/browser/source/Tab.mjs'),
-			remove(ROOT + '/browser/source/client'),
-			remove(ROOT + '/browser/source/parser')
-		];
+		let results = [];
+
+		if (target === TARGET) {
+
+			console.log('browser: clean()');
+
+			[
+				remove(target + '/extern/base.mjs'),
+				remove(target + '/source/Browser.mjs'),
+				remove(target + '/source/Tab.mjs'),
+				remove(target + '/source/client'),
+				remove(target + '/source/parser')
+			].forEach((result) => results.push(result));
+
+		} else {
+
+			console.log('browser: clean("' + target + '")');
+
+			[
+				remove(target)
+			].forEach((result) => results.push(result));
+
+		}
+
 
 		if (results.includes(false) === false) {
 			return true;
 		}
 
+
+		return false;
+
 	}
 
 
-	return false;
+	return true;
 
 };
 
-export const build = () => {
+export const build = (target) => {
 
-	if (CACHE === true) {
+	target = isString(target) ? target : TARGET;
 
-		return true;
 
-	} else {
-
-		console.log('browser: build()');
+	if (CACHE[target] !== true) {
 
 		let results = [
-			build_base(),
-			copy(ROOT + '/base/build/browser.mjs',     ROOT + '/browser/extern/base.mjs'),
-			copy(ROOT + '/stealth/source/Browser.mjs', ROOT + '/browser/source/Browser.mjs'),
-			copy(ROOT + '/stealth/source/Tab.mjs',     ROOT + '/browser/source/Tab.mjs'),
-			copy(ROOT + '/stealth/source/client',      ROOT + '/browser/source/client'),
-			copy(ROOT + '/stealth/source/parser',      ROOT + '/browser/source/parser')
+			build_base()
 		];
 
+		if (target === TARGET) {
 
-		let service = read(ROOT + '/browser/service.js');
+			console.log('browser: build()');
+
+			[
+				copy(ROOT + '/base/build/browser.mjs',     target + '/extern/base.mjs'),
+				copy(ROOT + '/stealth/source/Browser.mjs', target + '/source/Browser.mjs'),
+				copy(ROOT + '/stealth/source/client',      target + '/source/client'),
+				copy(ROOT + '/stealth/source/parser',      target + '/source/parser'),
+				copy(ROOT + '/stealth/source/Tab.mjs',     target + '/source/Tab.mjs')
+			].forEach((result) => results.push(result));
+
+		} else {
+
+			console.log('browser: build("' + target + '")');
+
+			[
+				copy(ROOT + '/browser/app',                    target + '/app'),
+				copy(ROOT + '/browser/design',                 target + '/design'),
+				copy(ROOT + '/base/build/browser.mjs',         target + '/extern/base.mjs'),
+				copy(ROOT + '/browser/index.html',             target + '/index.html'),
+				copy(ROOT + '/browser/index.webmanifest',      target + '/index.webmanifest'),
+				copy(ROOT + '/browser/internal',               target + '/internal'),
+				copy(ROOT + '/browser/service.js',             target + '/service.js'),
+				copy(ROOT + '/stealth/source/Browser.mjs',     target + '/source/Browser.mjs'),
+				copy(ROOT + '/browser/source/Client.mjs',      target + '/source/Client.mjs'),
+				copy(ROOT + '/stealth/source/client',          target + '/source/client'),
+				copy(ROOT + '/browser/source/ENVIRONMENT.mjs', target + '/source/ENVIRONMENT.mjs'),
+				copy(ROOT + '/stealth/source/parser',          target + '/source/parser'),
+				copy(ROOT + '/stealth/source/Tab.mjs',         target + '/source/Tab.mjs')
+			].forEach((result) => results.push(result));
+
+		}
+
+
+		let service = read(target + '/service.js');
 		if (service !== null) {
 
-			let files = walk(ROOT + '/browser').map((path) => {
-				return path.substr((ROOT + '/browser').length + 1);
+			let files = walk(target).map((path) => {
+				return path.substr(target.length + 1);
 			}).sort((a, b) => {
 				if (a < b) return -1;
 				if (b < a) return  1;
@@ -305,7 +359,7 @@ export const build = () => {
 					service = service.substr(0, index0) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + service.substr(index1);
 				}
 
-				results.push(write(ROOT + '/browser/service.js', service));
+				results.push(write(target + '/service.js', service));
 
 			}
 
@@ -313,8 +367,11 @@ export const build = () => {
 
 
 		if (results.includes(false) === false) {
-			CACHE = true;
+
+			CACHE[target] = true;
+
 			return true;
+
 		}
 
 	}

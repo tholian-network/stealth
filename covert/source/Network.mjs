@@ -152,7 +152,7 @@ const exec = (cmd, cwd) => {
 
 		execSync(cmd, {
 			cwd: cwd
-		}).toString('utf8').trim();
+		});
 
 	} catch (err) {
 

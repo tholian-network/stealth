@@ -264,7 +264,7 @@ export const console = (function() {
 
 		} else if (isString(data) === true) {
 
-			str = indent + highlight('"' + cleanify(data) + '"', 'String');
+			str = indent + highlight('"' + cleanify(data).split('"').join('\\"') + '"', 'String');
 
 		} else if (isArray(data) === true) {
 
@@ -544,7 +544,7 @@ export const console = (function() {
 
 		} else if (isString(data) === true) {
 
-			str = indent + highlight('"' + cleanify(data) + '"', 'String');
+			str = indent + highlight('"' + cleanify(data).split('"').join('\\"') + '"', 'String');
 
 		} else if (isFunction(data) === true) {
 

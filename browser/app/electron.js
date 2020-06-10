@@ -1,12 +1,16 @@
 
 const { app, BrowserWindow } = require('electron');
+const process                = require('process');
 
-const _ARGS  = Array.from(process.argv).slice(1).filter((v) => v.trim() !== '');
-const _FLAGS = (function() {
 
-	let flags = {};
 
-	_ARGS.forEach((arg) => {
+const FLAGS = (() => {
+
+	let flags = {
+		'user-data-dir': '/tmp/browser-electron'
+	};
+
+	Array.from(process.argv).slice(1).forEach((arg) => {
 
 		let tmp1 = arg.trim();
 		if (tmp1.startsWith('--')) {
@@ -41,14 +45,14 @@ const _FLAGS = (function() {
 
 
 
-app.setPath('appData',  _FLAGS['user-data-dir']);
-app.setPath('userData', _FLAGS['user-data-dir'] + '/user');
+app.setPath('appData',  FLAGS['user-data-dir']);
+app.setPath('userData', FLAGS['user-data-dir'] + '/user');
 
 app.on('ready', () => {
 
 	let window = new BrowserWindow({
-		width:  640,
-		height: 480
+		width:  1280,
+		height: 960
 	});
 
 	window.loadURL('http://localhost:65432/browser/index.html');

@@ -17,13 +17,14 @@
 		"files": [ "*.mjs" ],
 		"rules": {}
 	}, {
-		"files": [ "bin/electron/application.js" ],
+		"files": [ "app/electron.js" ],
 		"env": {
 			"node": true
 		}
 	}, {
-		"files": [ "bin/gjs/application.js" ],
+		"files": [ "app/gjs.js" ],
 		"globals": {
+			"ARGV":    true,
 			"imports": true
 		}
 	}, {

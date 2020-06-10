@@ -5,6 +5,11 @@
 
 const VERSION = 'X0:2020-03';
 const ASSETS  = [
+	'app/browser.desktop',
+	'app/browser.sh',
+	'app/electron/application.js',
+	'app/gjs/application.js',
+	'app/qml/application.qml',
 	'design/Element.mjs',
 	'design/footer/Beacon.css',
 	'design/footer/Beacon.mjs',
