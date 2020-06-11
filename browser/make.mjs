@@ -1,5 +1,7 @@
 
 import fs      from 'fs';
+import http    from 'http';
+import https   from 'https';
 import url     from 'url';
 import path    from 'path';
 import process from 'process';
@@ -7,13 +9,16 @@ import process from 'process';
 import { console             } from '../base/source/node/console.mjs';
 import { isString            } from '../base/source/String.mjs';
 import { build as build_base } from '../base/make.mjs';
+import { HOSTS               } from '../stealth/source/parser/HOSTS.mjs';
+import { URL                 } from '../stealth/source/parser/URL.mjs';
 
 
 
-const CACHE  = {};
-const FILE   = url.fileURLToPath(import.meta.url);
-const ROOT   = path.dirname(path.resolve(FILE, '../'));
-const TARGET = ROOT + '/browser';
+const CACHE   = {};
+const DOMAINS = {};
+const FILE    = url.fileURLToPath(import.meta.url);
+const ROOT    = path.dirname(path.resolve(FILE, '../'));
+const TARGET  = ROOT + '/browser';
 
 const copy = (origin, target) => {
 
@@ -102,6 +107,68 @@ const copy = (origin, target) => {
 	}
 
 	return result;
+
+};
+
+const download = (url, path, callback) => {
+
+	let lib     = url.startsWith('https://') ? https : http;
+	let request = lib.request(url, (response) => {
+
+		let cached = false;
+		let length = parseInt(response.headers['content-length'], 10);
+		if (Number.isNaN(length) === false) {
+
+			let stat = null;
+			try {
+				stat = fs.lstatSync(path);
+			} catch (err) {
+				stat = null;
+			}
+
+			if (stat !== null) {
+
+				if (stat['size'] === length) {
+					cached = true;
+				}
+			}
+
+		}
+
+		if (cached === false && response['statusCode'] === 200) {
+
+			let file = fs.createWriteStream(path);
+
+			response.on('data', (chunk) => {
+				file.write(chunk);
+			});
+
+			response.on('end', () => {
+				file.end();
+				callback(true);
+			});
+
+			file.on('error', () => {
+				fs.unlink(path, () => callback(false));
+			});
+
+			response.resume();
+
+		} else {
+
+			response.destroy();
+			callback(false);
+
+		}
+
+	});
+
+	request.on('error', () => {
+		callback(false);
+	});
+
+	request.write('');
+	request.end();
 
 };
 
@@ -381,31 +448,164 @@ export const build = (target) => {
 
 };
 
+export const update = (target) => {
+
+	target = isString(target) ? target : ROOT + '/profile';
+
+
+	if (target === ROOT + '/profile') {
+		console.log('browser: update()');
+	} else {
+		console.log('browser: update("' + target + '")');
+	}
+
+
+	let queue   = [
+		download.bind(null, 'https://hostsfile.org/Downloads/hosts.txt',   target + '/.update/hostsfile_hosts.txt'),
+		download.bind(null, 'https://hostsfile.mine.nu/hosts0.txt',        target + '/.update/hostsfile_hosts0.txt'),
+		download.bind(null, 'https://adaway.org/hosts.txt',                target + '/.update/adaway_hosts.txt'),
+		download.bind(null, 'https://someonewhocares.org/hosts/hosts',     target + '/.update/someonewhocares_hosts.txt'),
+		download.bind(null, 'https://v.firebog.net/hosts/BillStearns.txt', target + '/.update/firebog_billstearns.txt'),
+		download.bind(null, 'https://v.firebog.net/hosts/Easylist.txt',    target + '/.update/firebog_easylist.txt'),
+		download.bind(null, 'https://v.firebog.net/hosts/Easyprivacy.txt', target + '/.update/firebog_easyprivacy.txt'),
+		download.bind(null, 'https://v.firebog.net/hosts/Kowabit.txt',     target + '/.update/firebog_kowabit.txt'),
+		download.bind(null, 'https://v.firebog.net/hosts/Prigent-Ads.txt', target + '/.update/firebog_prigent.txt'),
+		download.bind(null, 'https://winhelp2002.mvps.org/hosts.txt',      target + '/.update/winhelp_hosts.txt')
+	];
+	let results = new Array(queue.length).fill(null);
+
+
+	queue.forEach((entry, q) => {
+
+		entry((result) => {
+			results[q] = result;
+		});
+
+	});
+
+	let interval = setInterval(() => {
+
+		if (results.includes(null) === false) {
+
+			if (interval !== null) {
+				clearInterval(interval);
+				interval = null;
+			}
+
+			walk(target + '/.update').map((path) => ({
+				name:   path.split('/').pop(),
+				buffer: read(path)
+			})).forEach((file) => {
+
+				let hosts = HOSTS.parse(file.buffer);
+				if (hosts !== null) {
+
+					hosts.forEach((host) => {
+
+						let ref = URL.parse(host.domain);
+						if (ref !== null) {
+
+							let domain = DOMAINS[ref.domain] || null;
+							if (domain === null) {
+								domain = DOMAINS[ref.domain] = [];
+							}
+
+							let subdomain = ref.subdomain || null;
+							if (subdomain !== null) {
+
+								if (domain.includes(subdomain) === false) {
+									domain.push(subdomain);
+								}
+
+							}
+
+						}
+
+					});
+
+					console.log('> ' + file.name + ': ' + hosts.length + ' Hosts found.');
+
+				}
+
+			});
+
+
+			setTimeout(() => {
+
+				let blockers = [];
+				let count    = 0;
+
+				for (let domain in DOMAINS) {
+
+					let subdomains = DOMAINS[domain];
+					if (subdomains.length > 0) {
+
+						subdomains.forEach((subdomain) => {
+
+							blockers.push({
+								domain: subdomain + '.' + domain
+							});
+
+						});
+
+					}
+
+					count += subdomains.length;
+
+				}
+
+				console.info(count + ' Hosts resulted in ' + blockers.length + ' Blockers.');
+
+				write(target + '/blockers.json', Buffer.from(JSON.stringify(blockers.sort((a, b) => {
+
+					if (a.domain > b.domain) return  1;
+					if (b.domain > a.domain) return -1;
+
+					return 0;
+
+				}), null, '\t'), 'utf8'));
+
+			}, 2000);
+
+		}
+
+	}, 100);
+
+};
+
 
 
 let args = process.argv.slice(1);
 if (args.includes(FILE) === true) {
 
-	let results = [];
+	if (args.includes('update')) {
 
-	if (args.includes('clean')) {
-		results.push(clean());
-	}
+		update();
 
-	if (args.includes('build')) {
-		results.push(build());
-	}
-
-	if (results.length === 0) {
-		results.push(clean());
-		results.push(build());
-	}
-
-
-	if (results.includes(false) === false) {
-		process.exit(0);
 	} else {
-		process.exit(1);
+
+		let results = [];
+
+		if (args.includes('clean')) {
+			results.push(clean());
+		}
+
+		if (args.includes('build')) {
+			results.push(build());
+		}
+
+		if (results.length === 0) {
+			results.push(clean());
+			results.push(build());
+		}
+
+
+		if (results.includes(false) === false) {
+			process.exit(0);
+		} else {
+			process.exit(1);
+		}
+
 	}
 
 }
