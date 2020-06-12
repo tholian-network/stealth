@@ -9,8 +9,6 @@ import process from 'process';
 import { console             } from '../base/source/node/console.mjs';
 import { isString            } from '../base/source/String.mjs';
 import { build as build_base } from '../base/make.mjs';
-import { HOSTS               } from '../stealth/source/parser/HOSTS.mjs';
-import { URL                 } from '../stealth/source/parser/URL.mjs';
 
 
 
@@ -26,7 +24,7 @@ const copy = (origin, target) => {
 	let result = false;
 
 	try {
-		stat = fs.statSync(origin);
+		stat = fs.statSync(path.resolve(origin));
 	} catch (err) {
 		stat = null;
 	}
@@ -38,7 +36,7 @@ const copy = (origin, target) => {
 			let files = [];
 
 			try {
-				files = fs.readdirSync(origin);
+				files = fs.readdirSync(path.resolve(origin));
 			} catch (err) {
 				files = [];
 			}
@@ -82,7 +80,7 @@ const copy = (origin, target) => {
 			}
 
 			try {
-				fs.copyFileSync(origin, target);
+				fs.copyFileSync(path.resolve(origin), path.resolve(target));
 				result = true;
 			} catch (err) {
 				result = false;
@@ -110,7 +108,7 @@ const copy = (origin, target) => {
 
 };
 
-const download = (url, path, callback) => {
+const download = (url, cache, callback) => {
 
 	let lib     = url.startsWith('https://') ? https : http;
 	let request = lib.request(url, (response) => {
@@ -121,7 +119,7 @@ const download = (url, path, callback) => {
 
 			let stat = null;
 			try {
-				stat = fs.lstatSync(path);
+				stat = fs.lstatSync(path.resolve(cache));
 			} catch (err) {
 				stat = null;
 			}
@@ -137,7 +135,7 @@ const download = (url, path, callback) => {
 
 		if (cached === false && response['statusCode'] === 200) {
 
-			let file = fs.createWriteStream(path);
+			let file = fs.createWriteStream(path.resolve(cache));
 
 			response.on('data', (chunk) => {
 				file.write(chunk);
@@ -149,7 +147,7 @@ const download = (url, path, callback) => {
 			});
 
 			file.on('error', () => {
-				fs.unlink(path, () => callback(false));
+				fs.unlink(path.resolve(cache), () => callback(false));
 			});
 
 			response.resume();
@@ -172,12 +170,12 @@ const download = (url, path, callback) => {
 
 };
 
-const read = (path) => {
+const read = (url) => {
 
 	let buffer = null;
 
 	try {
-		buffer = fs.readFileSync(path, 'utf8');
+		buffer = fs.readFileSync(path.resolve(url), 'utf8');
 	} catch(err) {
 		buffer = null;
 	}
@@ -186,13 +184,13 @@ const read = (path) => {
 
 };
 
-const remove = (path) => {
+const remove = (url) => {
 
 	let stat   = null;
 	let result = false;
 
 	try {
-		stat = fs.statSync(path);
+		stat = fs.statSync(path.resolve(url));
 	} catch (err) {
 		stat = null;
 	}
@@ -202,7 +200,7 @@ const remove = (path) => {
 		if (stat.isDirectory() === true) {
 
 			try {
-				fs.rmdirSync(path, {
+				fs.rmdirSync(path.resolve(url), {
 					recursive: true
 				});
 				result = true;
@@ -213,7 +211,7 @@ const remove = (path) => {
 		} else if (stat.isFile() === true) {
 
 			try {
-				fs.unlinkSync(path);
+				fs.unlinkSync(path.resolve(url));
 				result = true;
 			} catch (err) {
 				result = false;
@@ -228,15 +226,15 @@ const remove = (path) => {
 };
 
 const IGNORED = [
-	ROOT + '/browser/bin',
-	ROOT + '/browser.mjs',
-	ROOT + '/browser/README.md',
-	ROOT + '/browser/make.mjs'
+	path.resolve(ROOT + '/browser/bin'),
+	path.resolve(ROOT + '/browser.mjs'),
+	path.resolve(ROOT + '/browser/README.md'),
+	path.resolve(ROOT + '/browser/make.mjs')
 ];
 
-const walk = (path, result) => {
+const walk = (url, result) => {
 
-	if (IGNORED.includes(path)) {
+	if (IGNORED.includes(path.resolve(url))) {
 		return result;
 	}
 
@@ -248,7 +246,7 @@ const walk = (path, result) => {
 	let stat = null;
 
 	try {
-		stat = fs.lstatSync(path);
+		stat = fs.lstatSync(path.resolve(url));
 	} catch (err) {
 		stat = null;
 	}
@@ -260,7 +258,7 @@ const walk = (path, result) => {
 			let nodes = [];
 
 			try {
-				nodes = fs.readdirSync(path);
+				nodes = fs.readdirSync(path.resolve(url));
 			} catch (err) {
 				nodes = [];
 			}
@@ -268,16 +266,16 @@ const walk = (path, result) => {
 			if (nodes.length > 0) {
 
 				nodes.forEach((node) => {
-					walk(path + '/' + node, result);
+					walk(url + '/' + node, result);
 				});
 
 			}
 
 		} else if (stat.isFile() === true) {
 
-			let name = path.split('/').pop();
+			let name = url.split('/').pop();
 			if (name.startsWith('.') === false) {
-				result.push(path);
+				result.push(url);
 			}
 
 		}
@@ -288,21 +286,21 @@ const walk = (path, result) => {
 
 };
 
-const write = (path, buffer) => {
+const write = (url, buffer) => {
 
 	let result = false;
 
 	try {
-		fs.writeFileSync(path, buffer, 'utf8');
+		fs.writeFileSync(path.resolve(url), buffer, 'utf8');
 		result = true;
 	} catch (err) {
 		result = false;
 	}
 
 	if (result === true) {
-		console.info('browser: write("' + path.substr(ROOT.length + 1) + '")');
+		console.info('browser: write("' + path.resolve(url).substr(ROOT.length + 1) + '")');
 	} else {
-		console.error('browser: write("' + path.substr(ROOT.length + 1) + '")');
+		console.error('browser: write("' + path.resolve(url).substr(ROOT.length + 1) + '")');
 	}
 
 	return result;
@@ -409,8 +407,8 @@ export const build = (target) => {
 		let service = read(target + '/service.js');
 		if (service !== null) {
 
-			let files = walk(target).map((path) => {
-				return path.substr(target.length + 1);
+			let files = walk(target).map((url) => {
+				return url.substr(target.length + 1);
 			}).sort((a, b) => {
 				if (a < b) return -1;
 				if (b < a) return  1;
@@ -448,7 +446,7 @@ export const build = (target) => {
 
 };
 
-export const update = (target) => {
+export const update = async (target) => {
 
 	target = isString(target) ? target : ROOT + '/profile';
 
@@ -458,6 +456,19 @@ export const update = (target) => {
 	} else {
 		console.log('browser: update("' + target + '")');
 	}
+
+
+
+	// This dynamic import() allows calling the browser/make.mjs file
+	// without having a cyclic dependency for stealth/extern/base.mjs
+	let build_stealth = await import('../stealth/make.mjs').then((module) => module['build']);
+	if (build_stealth !== null) {
+		build_stealth();
+	}
+
+	const HOSTS = await import('../stealth/source/parser/HOSTS.mjs').then((module) => module['HOSTS']);
+	const URL   = await import('../stealth/source/parser/URL.mjs').then((module) => module['URL']);
+
 
 
 	let queue   = [

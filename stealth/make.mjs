@@ -20,7 +20,7 @@ const copy = (origin, target) => {
 	let result = false;
 
 	try {
-		stat = fs.statSync(origin);
+		stat = fs.statSync(path.resolve(origin));
 	} catch (err) {
 		stat = null;
 	}
@@ -32,7 +32,7 @@ const copy = (origin, target) => {
 			let files = [];
 
 			try {
-				files = fs.readdirSync(origin);
+				files = fs.readdirSync(path.resolve(origin));
 			} catch (err) {
 				files = [];
 			}
@@ -76,7 +76,7 @@ const copy = (origin, target) => {
 			}
 
 			try {
-				fs.copyFileSync(origin, target);
+				fs.copyFileSync(path.resolve(origin), path.resolve(target));
 				result = true;
 			} catch (err) {
 				result = false;
@@ -96,13 +96,13 @@ const copy = (origin, target) => {
 
 };
 
-const remove = (path) => {
+const remove = (url) => {
 
 	let stat   = null;
 	let result = false;
 
 	try {
-		stat = fs.statSync(path);
+		stat = fs.statSync(path.resolve(url));
 	} catch (err) {
 		stat = null;
 	}
@@ -112,7 +112,7 @@ const remove = (path) => {
 		if (stat.isDirectory() === true) {
 
 			try {
-				fs.rmdirSync(path, {
+				fs.rmdirSync(path.resolve(url), {
 					recursive: true
 				});
 				result = true;
@@ -123,7 +123,7 @@ const remove = (path) => {
 		} else if (stat.isFile() === true) {
 
 			try {
-				fs.unlinkSync(path);
+				fs.unlinkSync(path.resolve(url));
 				result = true;
 			} catch (err) {
 				result = false;

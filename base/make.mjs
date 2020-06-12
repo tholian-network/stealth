@@ -49,7 +49,7 @@ const generate = (target, files) => {
 	}
 
 	try {
-		fs.writeFileSync(target, Buffer.concat(buffers));
+		fs.writeFileSync(path.resolve(target), Buffer.concat(buffers));
 	} catch (err) {
 		errors++;
 	}
@@ -70,30 +70,30 @@ const generate = (target, files) => {
 
 };
 
-const read = (path) => {
+const read = (url) => {
 
 	let buffer = null;
 
 	try {
-		buffer = fs.readFileSync(path);
+		buffer = fs.readFileSync(path.resolve(url));
 	} catch (err) {
 		buffer = null;
 	}
 
 	return {
-		path:   path,
+		path:   url,
 		buffer: buffer
 	};
 
 };
 
-const remove = (path) => {
+const remove = (url) => {
 
 	let stat   = null;
 	let result = false;
 
 	try {
-		stat = fs.statSync(path);
+		stat = fs.statSync(path.resolve(url));
 	} catch (err) {
 		stat = null;
 	}
@@ -103,7 +103,7 @@ const remove = (path) => {
 		if (stat.isFile() === true) {
 
 			try {
-				fs.unlinkSync(path);
+				fs.unlinkSync(path.resolve(url));
 				result = true;
 			} catch (err) {
 				result = false;

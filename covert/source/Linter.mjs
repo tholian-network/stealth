@@ -1,5 +1,4 @@
 
-import util from 'util';
 import process from 'process';
 
 import { console, Emitter, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
