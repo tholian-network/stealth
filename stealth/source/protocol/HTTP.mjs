@@ -6,36 +6,25 @@ import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } 
 
 
 
-const decode_chunked = function(buffer) {
+const decode_chunked = function(payload) {
 
-	let offset = 0;
-	let stream = buffer.toString('utf8');
+	let chunks = payload.toString('utf8').split('\r\n');
 	let target = Buffer.from('', 'utf8');
 
-	let pos = stream.indexOf('\r\n');
-	let num = parseInt(stream.substr(0, pos), 16);
-	let tmp = stream.substr(pos + 2, num);
+	while (chunks.length > 0) {
 
-	if (pos !== -1) {
+		let length = parseInt(chunks.shift(), 16);
+		let chunk  = chunks.shift();
 
-		offset = pos + 2 + tmp.length + 2;
-		target = Buffer.concat([ target, Buffer.from(tmp, 'utf8') ]);
+		if (chunk.length === length) {
+			target = Buffer.concat([ target, Buffer.from(chunk, 'utf8') ]);
+		} else {
+			target = Buffer.from('', 'utf8');
+			break;
+		}
 
-
-		pos = stream.indexOf('\r\n', offset);
-		num = parseInt(stream.substr(offset, pos), 16);
-		tmp = stream.substr(pos + 2, num);
-
-
-		while (pos !== -1 && Number.isNaN(num) === false && num >= 0) {
-
-			offset = pos + 2 + tmp.length + 2;
-			target = Buffer.concat([ target, Buffer.from(tmp, 'utf8') ]);
-
-			pos = stream.indexOf('\r\n', offset);
-			num = parseInt(stream.substr(offset, pos), 16);
-			tmp = stream.substr(pos + 2, num);
-
+		if (chunks.length === 1 && chunks[0] === '') {
+			break;
 		}
 
 	}
@@ -44,12 +33,12 @@ const decode_chunked = function(buffer) {
 
 };
 
-const decode_gzip = function(buffer) {
-	return zlib.gunzipSync(buffer);
+const decode_gzip = function(payload) {
+	return zlib.gunzipSync(payload);
 };
 
-const encode_gzip = function(buffer) {
-	return zlib.gzipSync(buffer);
+const encode_gzip = function(payload) {
+	return zlib.gzipSync(payload);
 };
 
 
@@ -99,6 +88,25 @@ const onconnect = function(connection, ref) {
 	}
 
 
+	let timeout = Date.now() + 1000;
+
+	connection.socket.on('data', () => {
+		timeout = Date.now();
+	});
+
+	connection.interval = setInterval(() => {
+
+		if (fragment.length === null) {
+
+			if ((Date.now() - timeout) > 1000) {
+				ondisconnect(connection, ref);
+			}
+
+		}
+
+	}, 1000);
+
+
 	connection.type = 'client';
 	setTimeout(() => {
 		connection.emit('@connect');
@@ -109,7 +117,6 @@ const onconnect = function(connection, ref) {
 const ondata = function(connection, ref, chunk) {
 
 	let fragment = connection.fragment;
-
 	if (fragment.mode === 'headers') {
 
 		if (fragment.headers !== null) {
@@ -208,8 +215,12 @@ const ondata = function(connection, ref, chunk) {
 				}
 
 
-				if (fragment.length !== null && fragment.length === fragment.payload.length) {
-					connection.socket.end();
+				if (fragment.length !== null) {
+
+					if (fragment.length === fragment.payload.length) {
+						connection.socket.end();
+					}
+
 				}
 
 			});
@@ -230,8 +241,12 @@ const ondata = function(connection, ref, chunk) {
 		}]);
 
 
-		if (fragment.length === fragment.payload.length) {
-			connection.socket.end();
+		if (fragment.length !== null) {
+
+			if (fragment.length === fragment.payload.length) {
+				connection.socket.end();
+			}
+
 		}
 
 	}
@@ -353,7 +368,6 @@ const isConnection = function(obj) {
 const Connection = function(socket) {
 
 	this.socket   = socket || null;
-	this.type     = null;
 	this.fragment = {
 		encoding: 'identity',
 		headers:  null,
@@ -363,6 +377,8 @@ const Connection = function(socket) {
 		payload:  Buffer.from('', 'utf8'),
 		start:    0
 	};
+	this.interval = null;
+	this.type     = null;
 
 	Emitter.call(this);
 
@@ -445,11 +461,19 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function() {
 
-		if (this.socket !== null) {
-			this.socket.destroy();
+		if (this.interval !== null) {
+			clearInterval(this.interval);
+			this.interval = null;
 		}
 
-		this.emit('@disconnect');
+		if (this.socket !== null) {
+
+			this.socket.destroy();
+			this.socket = null;
+
+			this.emit('@disconnect');
+
+		}
 
 	}
 
@@ -500,6 +524,10 @@ const HTTP = {
 							port: ref.port || 80,
 						}, () => {
 
+							socket.setNoDelay(true);
+							socket.setKeepAlive(false, 0);
+							socket.allowHalfOpen = false;
+
 							connection.socket = socket;
 							onconnect(connection, ref);
 
@@ -510,6 +538,10 @@ const HTTP = {
 					}
 
 				} else {
+
+					socket.setNoDelay(true);
+					socket.setKeepAlive(false, 0);
+					socket.allowHalfOpen = false;
 
 					setTimeout(() => {
 						onconnect(connection, ref);
@@ -803,7 +835,6 @@ const HTTP = {
 				blob.push('');
 				blob.push('');
 
-
 				connection.socket.write(blob.join('\r\n'));
 
 
@@ -834,7 +865,6 @@ const HTTP = {
 		ref = isObject(ref) ? ref : { headers: {} };
 
 
-		socket.setTimeout(0);
 		socket.setNoDelay(true);
 		socket.setKeepAlive(false, 0);
 		socket.allowHalfOpen = false;

@@ -81,6 +81,8 @@ const Connection = function(socket) {
 		payload:  Buffer.from('', 'utf8'),
 		start:    0
 	};
+	this.interval = null;
+	this.type     = null;
 
 	Emitter.call(this);
 
@@ -163,11 +165,19 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function() {
 
-		if (this.socket !== null) {
-			this.socket.destroy();
+		if (this.interval !== null) {
+			clearInterval(this.interval);
+			this.interval = null;
 		}
 
-		this.emit('@disconnect');
+		if (this.socket !== null) {
+
+			this.socket.destroy();
+			this.socket = null;
+
+			this.emit('@disconnect');
+
+		}
 
 	}
 

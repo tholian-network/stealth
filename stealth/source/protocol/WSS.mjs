@@ -161,11 +161,19 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function() {
 
-		if (this.socket !== null) {
-			this.socket.destroy();
+		if (this.interval !== null) {
+			clearInterval(this.interval);
+			this.interval = null;
 		}
 
-		this.emit('@disconnect');
+		if (this.socket !== null) {
+
+			this.socket.destroy();
+			this.socket = null;
+
+			this.emit('@disconnect');
+
+		}
 
 	}
 

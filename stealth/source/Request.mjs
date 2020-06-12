@@ -50,8 +50,10 @@ const Request = function(data, server) {
 	server = isServer(server) ? server : null;
 
 
-	this._settings = {
-		config: {
+	if (isConfig(data.config) === true) {
+		this.config = data.config;
+	} else {
+		this.config = {
 			domain: null,
 			mode:   {
 				text:  false,
@@ -60,11 +62,7 @@ const Request = function(data, server) {
 				video: false,
 				other: false
 			}
-		}
-	};
-
-	if (isConfig(data.config) === true) {
-		this._settings.config = data.config;
+		};
 	}
 
 	if (URL.isURL(data.ref) === true) {
@@ -261,11 +259,11 @@ const Request = function(data, server) {
 				if (response.payload !== null) {
 
 					// Always Block, no matter the User's Config
-					this._settings.config.mode.text  = false;
-					this._settings.config.mode.image = false;
-					this._settings.config.mode.audio = false;
-					this._settings.config.mode.video = false;
-					this._settings.config.mode.other = false;
+					this.config.mode.text  = false;
+					this.config.mode.image = false;
+					this.config.mode.audio = false;
+					this.config.mode.video = false;
+					this.config.mode.other = false;
 
 					this.emit('error', [{ code: 403 }]);
 
@@ -284,7 +282,7 @@ const Request = function(data, server) {
 	this.on('mode', () => {
 
 		let mime    = this.ref.mime;
-		let allowed = this._settings.config.mode[mime.type] === true;
+		let allowed = this.config.mode[mime.type] === true;
 
 		this.timeline.mode = Date.now();
 
@@ -391,11 +389,11 @@ const Request = function(data, server) {
 		}
 
 
-		Downloader.check(this.ref, this._settings.config, (result) => {
+		Downloader.check(this.ref, this.config, (result) => {
 
 			if (result === true) {
 
-				Downloader.download(this.ref, this._settings.config, (download) => {
+				Downloader.download(this.ref, this.config, (download) => {
 
 					this.timeline.download = Date.now();
 
@@ -545,13 +543,13 @@ const Request = function(data, server) {
 		// ref.payload = this.response.payload;
 
 
-		// Optimizer.check(ref, this._settings.config, (result) => {
+		// Optimizer.check(ref, this.config, (result) => {
 
 		// 	this.timeline.optimize = Date.now();
 
 		// 	if (result === true) {
 
-		// 		Optimizer.optimize(ref, this._settings.config, (response) => {
+		// 		Optimizer.optimize(ref, this.config, (response) => {
 
 		// 			if (response !== null) {
 		// 				this.emit('response', [ response ]);
@@ -689,7 +687,7 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
 			url:      this.url,
-			config:   this._settings.config,
+			config:   this.config,
 			download: null,
 			flags:    Object.assign({}, this.flags),
 			timeline: Object.assign({}, this.timeline),

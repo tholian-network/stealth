@@ -726,10 +726,13 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 	disconnect: function() {
 
 		if (this.socket !== null) {
-			this.socket.destroy();
-		}
 
-		this.emit('@disconnect');
+			this.socket.destroy();
+			this.socket = null;
+
+			this.emit('@disconnect');
+
+		}
 
 	}
 

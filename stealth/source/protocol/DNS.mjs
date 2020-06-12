@@ -1,28 +1,28 @@
 
-import { Buffer, isArray, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
-import { IP                                              } from '../parser/IP.mjs';
-import { HTTPS                                           } from './HTTPS.mjs';
+import { isArray, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
+import { IP                                      } from '../parser/IP.mjs';
+import { HTTPS                                   } from './HTTPS.mjs';
 
 
 
 let DNS_RONIN = 0;
 
-const parse = function(raw) {
+const parse = function(payload) {
 
 	let hosts = [];
 
-	if (isBuffer(raw)) {
+	if (isBuffer(payload) === true) {
 
 		let data = null;
 
 		try {
-			data = JSON.parse(raw.toString('utf8'));
+			data = JSON.parse(payload.toString('utf8'));
 		} catch (err) {
 			data = null;
 		}
 
 
-		if (isObject(data) && isArray(data['Answer'])) {
+		if (isObject(data) === true && isArray(data['Answer']) === true) {
 
 			let answers = Array.from(data['Answer']).filter((answer) => {
 				return answer.type === DNS.TYPE.A || answer.type === DNS.TYPE.AAAA;
@@ -57,14 +57,7 @@ const query = function(ref, name, type, callback) {
 	ref.payload   = null;
 
 
-	let buffer = {
-		length:  null,
-		partial: false,
-		payload: Buffer.from('', 'utf8'),
-		start:   0
-	};
-
-	let connection = HTTPS.connect(ref, buffer);
+	let connection = HTTPS.connect(ref);
 	if (connection !== null) {
 
 		connection.on('@connect', () => {
@@ -80,15 +73,16 @@ const query = function(ref, name, type, callback) {
 
 		});
 
-		connection.on('@disconnect', () => {
+		connection.on('response', (response) => {
+			callback(parse(response.payload));
+		});
 
-			let hosts = parse(buffer.payload);
-			if (hosts.length > 0) {
-				callback(hosts);
-			} else {
-				callback(null);
-			}
+		connection.on('error', () => {
+			callback(null);
+		});
 
+		connection.on('redirect', () => {
+			callback(null);
 		});
 
 	}
@@ -170,7 +164,7 @@ const DNS = {
 	}, {
 		domain:   'dns.quad9.net',
 		path:     '/dns-query',
-		port:     443,
+		port:     5053,
 		protocol: 'https',
 		hosts:    [{
 			ip:    '9.9.9.9',
@@ -196,20 +190,6 @@ const DNS = {
 			type:  'v4'
 		}]
 	}, {
-		domain:   'doh.securedns.eu',
-		path:     '/dns-query',
-		port:     443,
-		protocol: 'https',
-		hosts:    [{
-			ip:    '146.185.167.43',
-			scope: 'public',
-			type:  'v4'
-		}, {
-			ip:    '2a03:b0c0:0000:1010:0000:0000:0e9a:3001',
-			scope: 'public',
-			type:  'v6'
-		}]
-	}, {
 		domain:   'doh-jp.blahdns.com',
 		path:     '/dns-query',
 		port:     443,
@@ -227,8 +207,6 @@ const DNS = {
 
 		// XXX: These DNS are broken at the moment :-/
 		if (dns.domain === 'doh-jp.blahdns.com') return false;
-		if (dns.domain === 'cloudflare-dns.com') return false;
-		if (dns.domain === 'dns.quad9.net')      return false;
 
 		return true;
 

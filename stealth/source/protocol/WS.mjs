@@ -659,10 +659,13 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 		if (this.socket !== null) {
-			this.socket.destroy();
-		}
 
-		this.emit('@disconnect');
+			this.socket.destroy();
+			this.socket = null;
+
+			this.emit('@disconnect');
+
+		}
 
 	}
 
@@ -714,7 +717,6 @@ const WS = {
 							allowHalfOpen: true
 						}, () => {
 
-							socket.setTimeout(0);
 							socket.setNoDelay(true);
 							socket.setKeepAlive(true, 0);
 							socket.allowHalfOpen = true;
@@ -730,7 +732,6 @@ const WS = {
 
 				} else {
 
-					socket.setTimeout(0);
 					socket.setNoDelay(true);
 					socket.setKeepAlive(true, 0);
 					socket.allowHalfOpen = true;
@@ -1028,7 +1029,6 @@ const WS = {
 			let nonce = ref.headers['sec-websocket-key'] || null;
 			if (nonce !== null) {
 
-				socket.setTimeout(0);
 				socket.setNoDelay(true);
 				socket.setKeepAlive(true, 0);
 				socket.allowHalfOpen = true;
