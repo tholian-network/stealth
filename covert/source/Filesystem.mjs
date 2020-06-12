@@ -1,5 +1,7 @@
 
-import fs from 'fs';
+import fs   from 'fs';
+import path from 'path';
+
 
 import { Emitter, isBoolean, isString } from '../extern/base.mjs';
 
@@ -9,12 +11,12 @@ export const isFilesystem = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Filesystem]';
 };
 
-const scan_recursive = (path, results) => {
+const scan_recursive = (url, results) => {
 
 	let stat = null;
 
 	try {
-		stat = fs.lstatSync(path);
+		stat = fs.lstatSync(path.resolve(url));
 	} catch (err) {
 		stat = null;
 	}
@@ -26,7 +28,7 @@ const scan_recursive = (path, results) => {
 			let nodes = [];
 
 			try {
-				nodes = fs.readdirSync(path);
+				nodes = fs.readdirSync(path.resolve(url));
 			} catch (err) {
 				nodes = [];
 			}
@@ -36,7 +38,7 @@ const scan_recursive = (path, results) => {
 				nodes.forEach((node) => {
 
 					if (node.startsWith('.') === false) {
-						scan_recursive(path + '/' + node, results);
+						scan_recursive(url + '/' + node, results);
 					}
 
 				});
@@ -45,8 +47,8 @@ const scan_recursive = (path, results) => {
 
 		} else if (stat.isFile() === true) {
 
-			if (results.includes(path) === false) {
-				results.push(path);
+			if (results.includes(url) === false) {
+				results.push(url);
 			}
 
 		}
@@ -81,21 +83,21 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.__state.watch.forEach((file) => {
 
-				fs.watchFile(file.path, (curr) => {
+				fs.watchFile(path.resolve(file.url), (curr) => {
 
 					if (curr.mtime > file.mtime) {
 
 						file.mtime = curr.mtime;
 
 
-						let buffer = this.read(file.path, 'utf8');
+						let buffer = this.read(file.url, 'utf8');
 						if (buffer !== file.buffer) {
 
 							if (buffer !== file.buffer) {
 
 								file.buffer = buffer;
 
-								this.emit('change', [ file.path ]);
+								this.emit('change', [ file.url ]);
 
 							}
 
@@ -116,25 +118,25 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 		if (this.__state.watch.length > 0) {
 
 			this.__state.watch.forEach((file) => {
-				fs.unwatchFile(file.path);
+				fs.unwatchFile(path.resolve(file.url));
 			});
 
 		}
 
 	},
 
-	exists: function(path, type) {
+	exists: function(url, type) {
 
-		path = isString(path) ? path : null;
+		url  = isString(url)  ? url  : null;
 		type = isString(type) ? type : null;
 
 
-		if (path !== null) {
+		if (url !== null) {
 
 			let stat = null;
 
 			try {
-				stat = fs.lstatSync(path);
+				stat = fs.lstatSync(path.resolve(url));
 			} catch (err) {
 				stat = null;
 			}
@@ -168,18 +170,18 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	read: function(path, enc) {
+	read: function(url, enc) {
 
-		path = isString(path) ? path : null;
-		enc  = isString(enc)  ? enc  : 'utf8';
+		url = isString(url) ? url : null;
+		enc = isString(enc) ? enc : 'utf8';
 
 
-		if (path !== null) {
+		if (url !== null) {
 
 			let buffer = null;
 
 			try {
-				buffer = fs.readFileSync(path, enc);
+				buffer = fs.readFileSync(path.resolve(url), enc);
 			} catch (err) {
 				buffer = null;
 			}
@@ -195,20 +197,20 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	scan: function(path, recursive) {
+	scan: function(url, recursive) {
 
-		path      = isString(path)       ? path      : null;
+		url       = isString(url)        ? url       : null;
 		recursive = isBoolean(recursive) ? recursive : false;
 
 
 		let results = [];
 
-		if (path !== null) {
+		if (url !== null) {
 
 
 			if (recursive === true) {
 
-				scan_recursive(path, results);
+				scan_recursive(url, results);
 
 			} else {
 
@@ -216,9 +218,9 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 
 				try {
 
-					let stat = fs.lstatSync(path);
+					let stat = fs.lstatSync(path.resolve(url));
 					if (stat.isDirectory() === true) {
-						nodes = fs.readdirSync(path);
+						nodes = fs.readdirSync(path.resolve(url));
 					}
 
 				} catch (err) {
@@ -234,13 +236,13 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 							let stat = null;
 
 							try {
-								stat = fs.lstatSync(path + '/' + node);
+								stat = fs.lstatSync(path.resolve(url + '/' + node));
 							} catch (err) {
 								stat = null;
 							}
 
 							if (stat !== null && stat.isFile()) {
-								results.push(path + '/' + node);
+								results.push(url + '/' + node);
 							}
 
 						}
@@ -257,20 +259,20 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	watch: function(path) {
+	watch: function(url) {
 
-		path = isString(path) ? path : null;
+		url = isString(url) ? url : null;
 
 
-		if (path !== null) {
+		if (url !== null) {
 
-			let buffer = this.read(path, 'utf8');
+			let buffer = this.read(url, 'utf8');
 			if (buffer !== null) {
 
 				let stat = null;
 
 				try {
-					stat = fs.lstatSync(path);
+					stat = fs.lstatSync(path.resolve(url));
 				} catch (err) {
 					stat = null;
 				}
@@ -278,8 +280,8 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 				if (stat !== null) {
 
 					this.__state.watch.push({
+						url:    url,
 						buffer: buffer,
-						path:   path,
 						mtime:  stat.mtime
 					});
 
