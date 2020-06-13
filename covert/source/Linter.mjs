@@ -278,14 +278,22 @@ const update_review = async function(review) {
 
 					if (name !== 'Emitter') {
 
-						if (exported.prototype[key] !== Emitter.prototype[key]) {
-							return isFunction(exported.prototype[key]);
+						if (isFunction(exported.prototype[key]) === true) {
+
+							if (isFunction(Emitter.prototype[key]) === true) {
+
+								if (exported.prototype[key].toString() !== Emitter.prototype[key].toString()) {
+									return true;
+								}
+
+							} else {
+								return true;
+							}
+
 						}
 
 					} else {
-
 						return isFunction(exported.prototype[key]);
-
 					}
 
 
