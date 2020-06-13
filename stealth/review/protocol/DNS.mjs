@@ -1,5 +1,5 @@
 
-import { isFunction                } from '../../../base/index.mjs';
+import { isFunction, isObject      } from '../../../base/index.mjs';
 import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
 import { DNS                       } from '../../../stealth/source/protocol/DNS.mjs';
 
@@ -17,8 +17,8 @@ describe('DNS.resolve()/cloudflare', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response.headers), true);
+		assert(isObject(response.payload), true);
 		assert(response.payload.domain, 'example.com');
 		assert(response.payload.hosts.length > 0);
 
@@ -44,8 +44,8 @@ describe('DNS.resolve()/dnssb', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response.headers), true);
+		assert(isObject(response.payload), true);
 		assert(response.payload.domain, 'example.com');
 		assert(response.payload.hosts.length > 0);
 
@@ -71,8 +71,8 @@ describe('DNS.resolve()/google', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response.headers), true);
+		assert(isObject(response.payload), true);
 		assert(response.payload.domain, 'example.com');
 		assert(response.payload.hosts.length > 0);
 
@@ -98,8 +98,8 @@ describe('DNS.resolve()/quad9', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response.headers), true);
+		assert(isObject(response.payload), true);
 		assert(response.payload.domain, 'example.com');
 		assert(response.payload.hosts.length > 0);
 

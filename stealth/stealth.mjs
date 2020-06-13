@@ -1,17 +1,10 @@
 
 import process from 'process';
 
-import { console     } from '../base/index.mjs';
 import { Stealth     } from './source/Stealth.mjs';
 import { ENVIRONMENT } from './source/ENVIRONMENT.mjs';
 
 
-
-console.clear();
-
-console.log('');
-console.info('Stealth');
-console.log('');
 
 let stealth = new Stealth({
 	debug:   ENVIRONMENT.flags.debug,

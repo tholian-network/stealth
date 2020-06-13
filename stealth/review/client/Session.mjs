@@ -57,8 +57,7 @@ describe('Session.prototype.download()/success', function(assert) {
 	this.client.services.session.download(URL.parse('https://example.com/index.html'), (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response.headers), true);
 
 		assert(isBuffer(response.payload), true);
 		assert(response.payload.toString('utf8').includes('<html>'));

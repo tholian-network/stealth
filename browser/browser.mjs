@@ -176,9 +176,9 @@ const which = (program) => {
 
 console.clear();
 
-console.log('');
+console.info('');
 console.info('Browser');
-console.log('');
+console.info('');
 
 let platform = os.platform();
 if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {

@@ -605,6 +605,7 @@ const Covert = function(settings) {
 	}, settings));
 
 
+	console.clear();
 	console.log('Covert: Command-Line Arguments:');
 	console.log(prettify_settings(this._settings));
 
@@ -814,10 +815,6 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		if (review !== null && test !== null) {
-
-			console.info('');
-			console.info('Covert: ' + this._settings.action + ' mode');
-			console.info('');
 
 			this.__state.review = review;
 			this.__state.test   = test;

@@ -13,6 +13,20 @@ By default, it uses the node.js [Client.mjs](../stealth/source/Client.mjs),
 so no external libraries and no external programs are necessary.
 
 
+## Requirements
+
+Currently, Covert runs officially only on Arch Linux, though it might be
+possible to run it on MacOS Mojave and later, too.
+
+In order to simulate end-to-end throttled peer-to-peer Networking correctly,
+Covert requires these external packages on minimalistic Unix/Linux systems:
+
+```bash
+# Install necessary packages
+pacman -S --needed iproute2 kmod net-tools sudo
+```
+
+
 ## Command-Line Flags
 
 - `--debug` is a boolean flag to toggle the `console.clear()` that is

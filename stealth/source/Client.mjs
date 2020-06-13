@@ -99,6 +99,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 					ref = URL.parse('wss://' + host + ':65432');
 				}
 
+
 				this.ref = ref;
 
 

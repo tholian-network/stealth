@@ -1,5 +1,5 @@
 
-import { isBuffer                                                     } from '../../base/index.mjs';
+import { isBuffer, isObject                                           } from '../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../covert/index.mjs';
 import { Browser, isBrowser, isConfig                                 } from '../../stealth/source/Browser.mjs';
 import { Request                                                      } from '../../stealth/source/Request.mjs';
@@ -308,8 +308,7 @@ describe('Browser.prototype.download()', function(assert) {
 	browser.once('download', (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response.headers), true);
 
 		assert(isBuffer(response.payload), true);
 		assert(response.payload.toString('utf8').includes('<html>'));

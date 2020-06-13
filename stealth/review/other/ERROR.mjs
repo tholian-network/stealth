@@ -1,5 +1,5 @@
 
-import { Buffer           } from '../../../base/index.mjs';
+import { Buffer, isObject } from '../../../base/index.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
 import { ERROR            } from '../../../stealth/source/other/ERROR.mjs';
 
@@ -16,7 +16,7 @@ describe('ERROR.send()/callback', function(assert) {
 	ERROR.send({}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
+		assert(isObject(response.headers),  true);
 		assert(response.headers['@code'],   500);
 		assert(response.headers['@status'], '500 Internal Server Error');
 		assert(response.payload,            null);
@@ -26,7 +26,7 @@ describe('ERROR.send()/callback', function(assert) {
 	ERROR.send({ code: 200 }, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
+		assert(isObject(response.headers),  true);
 		assert(response.headers['@code'],   200);
 		assert(response.headers['@status'], '200 OK');
 		assert(response.payload,            null);
@@ -36,7 +36,7 @@ describe('ERROR.send()/callback', function(assert) {
 	ERROR.send({ code: 404, payload: payload }, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
+		assert(isObject(response.headers),  true);
 		assert(response.headers['@code'],   404);
 		assert(response.headers['@status'], '404 Not Found');
 		assert(response.payload,            payload);
@@ -56,19 +56,19 @@ describe('ERROR.send()/return', function(assert) {
 	assert(response1, null);
 
 	assert(response2 !== null);
-	assert(response2.headers !== null);
+	assert(isObject(response2.headers),  true);
 	assert(response2.headers['@code'],   500);
 	assert(response2.headers['@status'], '500 Internal Server Error');
 	assert(response2.payload,            null);
 
 	assert(response3 !== null);
-	assert(response3.headers !== null);
+	assert(isObject(response3.headers),  true);
 	assert(response3.headers['@code'],   200);
 	assert(response3.headers['@status'], '200 OK');
 	assert(response3.payload,            null);
 
 	assert(response4 !== null);
-	assert(response4.headers !== null);
+	assert(isObject(response4.headers),  true);
 	assert(response4.headers['@code'],   404);
 	assert(response4.headers['@status'], '404 Not Found');
 	assert(response4.payload,            payload);

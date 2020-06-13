@@ -1,4 +1,5 @@
 
+import { isString         } from '../../../base/index.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
 import { IP               } from '../../../stealth/source/parser/IP.mjs';
 
@@ -37,37 +38,37 @@ describe('IP.parse()/v4/private', function(assert) {
 	let ip7 = IP.parse('169.254.123.123');
 	let ip8 = IP.parse('100.128.0.254');
 
-	assert(ip1.ip !== null);
-	assert(ip1.scope, 'private');
-	assert(ip1.type,  'v4');
+	assert(isString(ip1.ip), true);
+	assert(ip1.scope,        'private');
+	assert(ip1.type,         'v4');
 
-	assert(ip2.ip !== null);
-	assert(ip2.scope, 'private');
-	assert(ip2.type,  'v4');
+	assert(isString(ip2.ip), true);
+	assert(ip2.scope,        'private');
+	assert(ip2.type,         'v4');
 
-	assert(ip3.ip !== null);
-	assert(ip3.scope, 'private');
-	assert(ip3.type,  'v4');
+	assert(isString(ip3.ip), true);
+	assert(ip3.scope,        'private');
+	assert(ip3.type,         'v4');
 
-	assert(ip4.ip !== null);
-	assert(ip4.scope, 'private');
-	assert(ip4.type,  'v4');
+	assert(isString(ip4.ip), true);
+	assert(ip4.scope,        'private');
+	assert(ip4.type,         'v4');
 
-	assert(ip5.ip !== null);
-	assert(ip5.scope, 'private');
-	assert(ip5.type,  'v4');
+	assert(isString(ip5.ip), true);
+	assert(ip5.scope,       'private');
+	assert(ip5.type,        'v4');
 
-	assert(ip6.ip !== null);
-	assert(ip6.scope, 'private');
-	assert(ip6.type,  'v4');
+	assert(isString(ip6.ip), true);
+	assert(ip6.scope,        'private');
+	assert(ip6.type,         'v4');
 
-	assert(ip7.ip !== null);
-	assert(ip7.scope, 'private');
-	assert(ip7.type,  'v4');
+	assert(isString(ip7.ip), true);
+	assert(ip7.scope,        'private');
+	assert(ip7.type,         'v4');
 
-	assert(ip8.ip !== null);
-	assert(ip8.scope, 'private');
-	assert(ip8.type,  'v4');
+	assert(isString(ip8.ip), true);
+	assert(ip8.scope,        'private');
+	assert(ip8.type,         'v4');
 
 });
 
@@ -82,37 +83,37 @@ describe('IP.parse()/v4/public', function(assert) {
 	let ip7 = IP.parse('169.255.123.123');
 	let ip8 = IP.parse('100.129.0.254');
 
-	assert(ip1.ip !== null);
-	assert(ip1.scope, 'public');
-	assert(ip1.type,  'v4');
+	assert(isString(ip1.ip), true);
+	assert(ip1.scope,        'public');
+	assert(ip1.type,         'v4');
 
-	assert(ip2.ip !== null);
-	assert(ip2.scope, 'public');
-	assert(ip2.type,  'v4');
+	assert(isString(ip2.ip), true);
+	assert(ip2.scope,        'public');
+	assert(ip2.type,         'v4');
 
-	assert(ip3.ip !== null);
-	assert(ip3.scope, 'public');
-	assert(ip3.type,  'v4');
+	assert(isString(ip3.ip), true);
+	assert(ip3.scope,        'public');
+	assert(ip3.type,         'v4');
 
-	assert(ip4.ip !== null);
-	assert(ip4.scope, 'public');
-	assert(ip4.type,  'v4');
+	assert(isString(ip4.ip), true);
+	assert(ip4.scope,        'public');
+	assert(ip4.type,         'v4');
 
-	assert(ip5.ip !== null);
-	assert(ip5.scope, 'public');
-	assert(ip5.type,  'v4');
+	assert(isString(ip5.ip), true);
+	assert(ip5.scope,        'public');
+	assert(ip5.type,         'v4');
 
-	assert(ip6.ip !== null);
-	assert(ip6.scope, 'public');
-	assert(ip6.type,  'v4');
+	assert(isString(ip6.ip), true);
+	assert(ip6.scope,        'public');
+	assert(ip6.type,         'v4');
 
-	assert(ip7.ip !== null);
-	assert(ip7.scope, 'public');
-	assert(ip7.type,  'v4');
+	assert(isString(ip7.ip), true);
+	assert(ip7.scope,        'public');
+	assert(ip7.type,         'v4');
 
-	assert(ip8.ip !== null);
-	assert(ip8.scope, 'public');
-	assert(ip8.type,  'v4');
+	assert(isString(ip8.ip), true);
+	assert(ip8.scope,        'public');
+	assert(ip8.type,         'v4');
 
 });
 
@@ -200,21 +201,21 @@ describe('IP.parse()/v6/private', function(assert) {
 	let ip3 = IP.parse('fe80::1234:abcd');
 	let ip4 = IP.parse('fe80::1234:1234:abcd:abcd');
 
-	assert(ip1.ip !== null);
-	assert(ip1.scope, 'private');
-	assert(ip1.type,  'v6');
+	assert(isString(ip1.ip), true);
+	assert(ip1.scope,        'private');
+	assert(ip1.type,         'v6');
 
-	assert(ip2.ip !== null);
-	assert(ip2.scope, 'private');
-	assert(ip2.type,  'v6');
+	assert(isString(ip2.ip), true);
+	assert(ip2.scope,        'private');
+	assert(ip2.type,         'v6');
 
-	assert(ip3.ip !== null);
-	assert(ip3.scope, 'private');
-	assert(ip3.type,  'v6');
+	assert(isString(ip3.ip), true);
+	assert(ip3.scope,        'private');
+	assert(ip3.type,         'v6');
 
-	assert(ip4.ip !== null);
-	assert(ip4.scope, 'private');
-	assert(ip4.type,  'v6');
+	assert(isString(ip4.ip), true);
+	assert(ip4.scope,        'private');
+	assert(ip4.type,         'v6');
 
 });
 
@@ -225,21 +226,21 @@ describe('IP.parse()/v6/public', function(assert) {
 	let ip3 = IP.parse('12:34::ab:cd');
 	let ip4 = IP.parse('abcd:1234::abcd:1234');
 
-	assert(ip1.ip !== null);
-	assert(ip1.scope, 'public');
-	assert(ip1.type,  'v6');
+	assert(isString(ip1.ip), true);
+	assert(ip1.scope,        'public');
+	assert(ip1.type,         'v6');
 
-	assert(ip2.ip !== null);
-	assert(ip2.scope, 'public');
-	assert(ip2.type,  'v6');
+	assert(isString(ip2.ip), true);
+	assert(ip2.scope,        'public');
+	assert(ip2.type,         'v6');
 
-	assert(ip3.ip !== null);
-	assert(ip3.scope, 'public');
-	assert(ip3.type,  'v6');
+	assert(isString(ip3.ip), true);
+	assert(ip3.scope,        'public');
+	assert(ip3.type,         'v6');
 
-	assert(ip4.ip !== null);
-	assert(ip4.scope, 'public');
-	assert(ip4.type,  'v6');
+	assert(isString(ip4.ip), true);
+	assert(ip4.scope,        'public');
+	assert(ip4.type,         'v6');
 
 });
 

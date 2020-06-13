@@ -1,5 +1,5 @@
 
-import { isFunction                                                   } from '../../../base/index.mjs';
+import { isBuffer, isFunction, isNumber, isObject, isString           } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
 import { Stash                                                        } from '../../../stealth/source/client/Stash.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
@@ -47,14 +47,15 @@ describe('Stash.prototype.info()', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
+		assert(isObject(response), true);
 
-		assert(response.headers !== null);
-		assert(response.headers.size > 0);
-		assert(response.headers.time !== null);
+		assert(isObject(response.headers),      true);
+		assert(isNumber(response.headers.size), true);
+		assert(isString(response.headers.time), true);
 
-		assert(response.payload !== null);
-		assert(response.payload.size > 0);
-		assert(response.payload.time !== null);
+		assert(isObject(response.payload),      true);
+		assert(isNumber(response.payload.size), true);
+		assert(isString(response.payload.time), true);
 
 	});
 
@@ -71,23 +72,18 @@ describe('Stash.prototype.read()/success', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
+		assert(isObject(response.headers), true);
 		assert(response.headers['x-test'], 'save');
-		assert(response.payload !== null);
+		assert(isBuffer(response.payload), true);
 
 		let data = null;
-		let temp = response.payload || null;
-		if (temp !== null) {
-
-			try {
-				data = JSON.parse(temp.toString('utf8'));
-			} catch (err) {
-				data = null;
-			}
-
+		try {
+			data = JSON.parse(response.payload.toString('utf8'));
+		} catch (err) {
+			data = null;
 		}
 
-		assert(data !== null);
+		assert(isObject(data), true);
 		assert(data, { foo: 'bar' });
 
 	});

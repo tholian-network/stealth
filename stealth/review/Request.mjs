@@ -1,5 +1,5 @@
 
-import { isFunction                               } from '../../base/index.mjs';
+import { isFunction, isObject                     } from '../../base/index.mjs';
 import { after, before, describe, finish, EXAMPLE } from '../../covert/index.mjs';
 import { Request, isRequest                       } from '../../stealth/source/Request.mjs';
 import { connect, disconnect                      } from './Server.mjs';
@@ -295,7 +295,7 @@ describe('Request.prototype.start()/redirect', function(assert) {
 	request.once('redirect', (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
+		assert(isObject(response.headers), true);
 		assert(response.headers.location, 'https://example.com/index.html');
 		assert(response.payload, null);
 

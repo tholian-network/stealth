@@ -670,7 +670,7 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			let host = isString(this._settings.host) ? this._settings.host : 'localhost';
 			if (host !== 'localhost') {
 
-				console.info('Server: Service started on http+ws://' + host + ':65432' + '.');
+				console.info('Server: Service started on http+socks+ws://' + host + ':65432' + '.');
 
 				this.__state.connected = true;
 				this.emit('connect');
@@ -679,7 +679,7 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 			} else {
 
-				console.info('Server: Service started on http+ws://localhost:65432' + '.');
+				console.info('Server: Service started on http+socks+ws://localhost:65432' + '.');
 
 				this.__state.connected = true;
 				this.emit('connect');

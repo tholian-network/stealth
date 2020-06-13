@@ -10,7 +10,6 @@ describe('REDIRECT.error()/callback', function(assert) {
 	REDIRECT.error(null, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
 		assert(isObject(response.headers),  true);
 		assert(response.headers['@code'],   500);
 		assert(response.headers['@status'], '500 Internal Server Error');
@@ -21,9 +20,6 @@ describe('REDIRECT.error()/callback', function(assert) {
 	REDIRECT.error({}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
-
 		assert(isObject(response.headers),        true);
 		assert(response.headers['@code'],         500);
 		assert(response.headers['@status'],       '500 Internal Server Error');
@@ -40,8 +36,6 @@ describe('REDIRECT.error()/callback', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-
 		assert(isObject(response.headers),   true);
 		assert(response.headers['@code'],    307);
 		assert(response.headers['@status'],  '307 Temporary Redirect');
@@ -58,8 +52,6 @@ describe('REDIRECT.error()/callback', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-
 		assert(isObject(response.headers),   true);
 		assert(response.headers['@code'],    307);
 		assert(response.headers['@status'],  '307 Temporary Redirect');
@@ -75,8 +67,6 @@ describe('REDIRECT.error()/callback', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-
 		assert(isObject(response.headers),   true);
 		assert(response.headers['@code'],    307);
 		assert(response.headers['@status'],  '307 Temporary Redirect');
@@ -110,17 +100,12 @@ describe('REDIRECT.error()/return', function(assert) {
 	});
 
 	assert(response1 !== null);
-	assert(response1.headers !== null);
-
 	assert(isObject(response1.headers),  true);
 	assert(response1.headers['@code'],   500);
 	assert(response1.headers['@status'], '500 Internal Server Error');
 	assert(response1.payload,            null);
 
 	assert(response2 !== null);
-	assert(response2.headers !== null);
-	assert(response2.payload !== null);
-
 	assert(isObject(response2.headers),        true);
 	assert(response2.headers['@code'],         500);
 	assert(response2.headers['@status'],       '500 Internal Server Error');
@@ -128,8 +113,6 @@ describe('REDIRECT.error()/return', function(assert) {
 	assert(response2.payload.toString('utf8'), 'Error for "null".');
 
 	assert(response3 !== null);
-	assert(response3.headers !== null);
-
 	assert(isObject(response3.headers),   true);
 	assert(response3.headers['@code'],    307);
 	assert(response3.headers['@status'],  '307 Temporary Redirect');
@@ -137,8 +120,6 @@ describe('REDIRECT.error()/return', function(assert) {
 	assert(response3.payload,             null);
 
 	assert(response4 !== null);
-	assert(response4.headers !== null);
-
 	assert(isObject(response4.headers),   true);
 	assert(response4.headers['@code'],    307);
 	assert(response4.headers['@status'],  '307 Temporary Redirect');
@@ -146,8 +127,6 @@ describe('REDIRECT.error()/return', function(assert) {
 	assert(response4.payload,             null);
 
 	assert(response5 !== null);
-	assert(response5.headers !== null);
-
 	assert(isObject(response5.headers),   true);
 	assert(response5.headers['@code'],    307);
 	assert(response5.headers['@status'],  '307 Temporary Redirect');
@@ -172,8 +151,6 @@ describe('REDIRECT.send()/callback', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-
 		assert(isObject(response.headers),   true);
 		assert(response.headers['@code'],    301);
 		assert(response.headers['@status'],  '301 Moved Permanently');
@@ -188,8 +165,6 @@ describe('REDIRECT.send()/callback', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-
 		assert(isObject(response.headers),   true);
 		assert(response.headers['@code'],    307);
 		assert(response.headers['@status'],  '307 Temporary Redirect');
@@ -204,8 +179,6 @@ describe('REDIRECT.send()/callback', function(assert) {
 	}, (response) => {
 
 		assert(response !== null);
-		assert(response.headers !== null);
-
 		assert(isObject(response.headers),   true);
 		assert(response.headers['@code'],    308);
 		assert(response.headers['@status'],  '308 Permanent Redirect');
@@ -229,8 +202,6 @@ describe('REDIRECT.send()/return', function(assert) {
 	assert(response2, null);
 
 	assert(response3 !== null);
-	assert(response3.headers !== null);
-
 	assert(isObject(response3.headers),   true);
 	assert(response3.headers['@code'],    301);
 	assert(response3.headers['@status'],  '301 Moved Permanently');
@@ -238,8 +209,6 @@ describe('REDIRECT.send()/return', function(assert) {
 	assert(response3.payload,             null);
 
 	assert(response4 !== null);
-	assert(response4.headers !== null);
-
 	assert(isObject(response4.headers),   true);
 	assert(response4.headers['@code'],    307);
 	assert(response4.headers['@status'],  '307 Temporary Redirect');
@@ -247,8 +216,6 @@ describe('REDIRECT.send()/return', function(assert) {
 	assert(response4.payload,             null);
 
 	assert(response5 !== null);
-	assert(response5.headers !== null);
-
 	assert(isObject(response5.headers),   true);
 	assert(response5.headers['@code'],    308);
 	assert(response5.headers['@status'],  '308 Permanent Redirect');

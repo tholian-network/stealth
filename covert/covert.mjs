@@ -37,8 +37,10 @@ const reset = (review) => {
 
 const show_help = () => {
 
-	console.log('');
+	console.info('');
 	console.info('Covert');
+	console.info('');
+
 	console.log('');
 	console.log('Usage: covert [Action] [Identifier...] [--Flag=Value...]');
 	console.log('');
@@ -51,7 +53,7 @@ const show_help = () => {
 	console.log('');
 	console.log('    Action     | Description                                       ');
 	console.log('    -----------|---------------------------------------------------');
-	console.log('    check      | Checks reviews and validate their tests.          ');
+	console.log('    check      | Checks reviews and lints and their tests.         ');
 	console.log('    scan       | Scans reviews and executes their tests.           ');
 	console.log('    time       | Scans reviews and benchmarks their test timelines.');
 	console.log('    watch      | Watches filesystem and scans reviews on changes.  ');
@@ -70,7 +72,7 @@ const show_help = () => {
 	console.log('    covert check stealth/client/* --debug=true');
 	console.log('    covert scan stealth/protocol/*;');
 	console.log('    covert time stealth/protocol/DNS --network=2G;');
-	console.log('    covert watch stealth/protocol/DNS protocol/HTTPS;');
+	console.log('    covert watch stealth/protocol/DNS stealth/protocol/HTTPS;');
 	console.log('');
 
 };

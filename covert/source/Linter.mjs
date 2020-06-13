@@ -240,11 +240,7 @@ const update_review = async function(review) {
 
 
 		let path   = tmp.join('/');
-		let module = await import(ENVIRONMENT.root + '/' + path).then((obj) => {
-			return obj;
-		}).catch((err) => {
-			// Do nothing
-		});
+		let module = await import(ENVIRONMENT.root + '/' + path).then((mod) => mod).catch(() => {});
 
 		if (isModule(module) === true) {
 			this.modules[review.id] = module;
@@ -409,6 +405,17 @@ const update_review = async function(review) {
 				state = 'fail';
 			}
 
+			let wrong_null = body.map((line) => line.trim()).filter((line) => {
+				return line.startsWith('assert(') && line.endsWith(' !== null);') && line.startsWith('assert(this.') === false;
+			}).find((line) => {
+				return line.startsWith('assert(response.') && line.includes('.');
+			}) || null;
+
+			if (wrong_null !== null) {
+				review.errors.push(test.name + ' should use assert(isObject(value), true).');
+				state = 'fail';
+			}
+
 		}
 
 	});
@@ -445,6 +452,7 @@ const Linter = function(settings) {
 	}, settings));
 
 
+	console.clear();
 	console.log('Linter: Command-Line Arguments:');
 	console.log(prettify(this._settings));
 
