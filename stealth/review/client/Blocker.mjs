@@ -1,5 +1,5 @@
 
-import { isFunction, isObject                                         } from '../../../base/index.mjs';
+import { isFunction                                                   } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
 import { Blocker                                                      } from '../../../stealth/source/client/Blocker.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
@@ -12,6 +12,7 @@ before(connect_client);
 
 describe('new Blocker()', function(assert) {
 
+	assert(this.client !== null);
 	assert(this.client.services.blocker instanceof Blocker, true);
 
 });
@@ -25,9 +26,9 @@ describe('Blocker.prototype.read()/success', function(assert) {
 		domain: 'ads.quantserve.com'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response), true);
-		assert(response.domain,    'ads.quantserve.com');
+		assert(response, {
+			domain: 'ads.quantserve.com'
+		});
 
 	});
 
@@ -35,9 +36,9 @@ describe('Blocker.prototype.read()/success', function(assert) {
 		domain: 'subdomain.ads.quantserve.com'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response), true);
-		assert(response.domain,    'ads.quantserve.com');
+		assert(response, {
+			domain: 'ads.quantserve.com'
+		});
 
 	});
 

@@ -27,9 +27,10 @@ describe('HTTPS.send()', function(assert) {
 
 	this.connection.on('response', (response) => {
 
-		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response), true);
+
+		assert(isObject(response.headers),  true);
+		assert(response.headers['@status'], '200 OK');
 
 		assert(isBuffer(response.payload), true);
 		assert(response.payload.toString('utf8').includes('<html>'));
@@ -49,9 +50,7 @@ describe('HTTPS.receive()', function(assert) {
 
 	HTTPS.receive(this.connection, EXAMPLE.payload, (response) => {
 
-		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response), true);
 
 		assert(isObject(response.headers),         true);
 		assert(response.headers['@status'],        '200 OK');

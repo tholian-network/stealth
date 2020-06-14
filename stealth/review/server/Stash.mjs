@@ -1,28 +1,28 @@
 
 import { isBuffer, isFunction, isNumber, isObject, isString } from '../../../base/index.mjs';
 import { after, before, describe, finish                    } from '../../../covert/index.mjs';
-import { Cache                                              } from '../../../stealth/source/server/Cache.mjs';
+import { Stash                                              } from '../../../stealth/source/server/Stash.mjs';
 import { connect, disconnect                                } from '../Server.mjs';
 
 
 
 before(connect);
 
-describe('new Cache()', function(assert) {
+describe('new Stash()', function(assert) {
 
 	assert(this.server !== null);
-	assert(this.server.services.cache instanceof Cache, true);
+	assert(this.server.services.stash instanceof Stash, true);
 
 });
 
-describe('Cache.prototype.save()', function(assert) {
+describe('Stash.prototype.save()', function(assert) {
 
 	assert(this.server !== null);
-	assert(isFunction(this.server.services.cache.save), true);
+	assert(isFunction(this.server.services.stash.save), true);
 
-	this.server.services.cache.save({
+	this.server.services.stash.save({
 		domain: 'example.com',
-		path:   '/review/server/cache.json',
+		path:   '/review/server/stash.json',
 		headers: {
 			'x-test': 'save'
 		},
@@ -33,7 +33,7 @@ describe('Cache.prototype.save()', function(assert) {
 
 		assert(response, {
 			headers: {
-				service: 'cache',
+				service: 'stash',
 				event:   'save'
 			},
 			payload: true
@@ -43,19 +43,19 @@ describe('Cache.prototype.save()', function(assert) {
 
 });
 
-describe('Cache.prototype.info()', function(assert) {
+describe('Stash.prototype.info()', function(assert) {
 
 	assert(this.server !== null);
-	assert(isFunction(this.server.services.cache.info), true);
+	assert(isFunction(this.server.services.stash.info), true);
 
-	this.server.services.cache.info({
+	this.server.services.stash.info({
 		domain: 'example.com',
-		path:   '/review/server/cache.json'
+		path:   '/review/server/stash.json'
 	}, (response) => {
 
 		assert(isObject(response), true);
 		assert(response.headers, {
-			'service': 'cache',
+			'service': 'stash',
 			'event':   'info'
 		});
 
@@ -71,19 +71,19 @@ describe('Cache.prototype.info()', function(assert) {
 
 });
 
-describe('Cache.prototype.read()/success', function(assert) {
+describe('Stash.prototype.read()/success', function(assert) {
 
 	assert(this.server !== null);
-	assert(isFunction(this.server.services.cache.read), true);
+	assert(isFunction(this.server.services.stash.read), true);
 
-	this.server.services.cache.read({
+	this.server.services.stash.read({
 		domain: 'example.com',
-		path:   '/review/server/cache.json'
+		path:   '/review/server/stash.json'
 	}, (response) => {
 
 		assert(isObject(response), true);
 		assert(response.headers, {
-			'service': 'cache',
+			'service': 'stash',
 			'event':   'read'
 		});
 
@@ -110,19 +110,19 @@ describe('Cache.prototype.read()/success', function(assert) {
 
 });
 
-describe('Cache.prototype.remove()/success', function(assert) {
+describe('Stash.prototype.remove()/success', function(assert) {
 
 	assert(this.server !== null);
-	assert(isFunction(this.server.services.cache.remove), true);
+	assert(isFunction(this.server.services.stash.remove), true);
 
-	this.server.services.cache.remove({
+	this.server.services.stash.remove({
 		domain: 'example.com',
-		path:   '/review/server/cache.json'
+		path:   '/review/server/stash.json'
 	}, (response) => {
 
 		assert(response, {
 			headers: {
-				service: 'cache',
+				service: 'stash',
 				event:   'remove'
 			},
 			payload: true
@@ -132,19 +132,19 @@ describe('Cache.prototype.remove()/success', function(assert) {
 
 });
 
-describe('Cache.prototype.read()/failure', function(assert) {
+describe('Stash.prototype.read()/failure', function(assert) {
 
 	assert(this.server !== null);
-	assert(isFunction(this.server.services.cache.read), true);
+	assert(isFunction(this.server.services.stash.read), true);
 
-	this.server.services.cache.read({
+	this.server.services.stash.read({
 		domain: 'example.com',
-		path:   '/review/server/cache.json'
+		path:   '/review/server/stash.json'
 	}, (response) => {
 
 		assert(response, {
 			headers: {
-				service: 'cache',
+				service: 'stash',
 				event:   'read'
 			},
 			payload: null
@@ -154,19 +154,19 @@ describe('Cache.prototype.read()/failure', function(assert) {
 
 });
 
-describe('Cache.prototype.remove()/failure', function(assert) {
+describe('Stash.prototype.remove()/failure', function(assert) {
 
 	assert(this.server !== null);
-	assert(isFunction(this.server.services.cache.remove), true);
+	assert(isFunction(this.server.services.stash.remove), true);
 
-	this.server.services.cache.remove({
+	this.server.services.stash.remove({
 		domain: 'example.com',
-		path:   '/review/server/cache.json'
+		path:   '/review/server/stash.json'
 	}, (response) => {
 
 		assert(response, {
 			headers: {
-				service: 'cache',
+				service: 'stash',
 				event:   'remove'
 			},
 			payload: false
@@ -179,5 +179,5 @@ describe('Cache.prototype.remove()/failure', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Cache');
+export default finish('stealth/server/Stash');
 

@@ -406,13 +406,13 @@ const update_review = async function(review) {
 			}
 
 			let wrong_null = body.map((line) => line.trim()).filter((line) => {
-				return line.startsWith('assert(') && line.endsWith(' !== null);') && line.startsWith('assert(this.') === false;
+				return line.startsWith('assert(') && line.includes(' !== null);');
 			}).find((line) => {
-				return line.startsWith('assert(response.') && line.includes('.');
+				return line.startsWith('assert(this.') === false;
 			}) || null;
 
 			if (wrong_null !== null) {
-				review.errors.push(test.name + ' should use assert(isObject(value), true).');
+				review.errors.push(test.name + ' should use assert(value, expect) instead of assert(value !== null).');
 				state = 'fail';
 			}
 

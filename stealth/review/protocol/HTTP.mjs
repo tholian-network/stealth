@@ -56,9 +56,7 @@ describe('HTTP.receive()', function(assert) {
 
 	HTTP.receive(null, EXAMPLE.payload, (response) => {
 
-		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response), true);
 
 		assert(isObject(response.headers),         true);
 		assert(response.headers['@status'],        '200 OK');
@@ -83,9 +81,10 @@ describe('HTTP.send()', function(assert) {
 
 	connection.on('response', (response) => {
 
-		assert(response !== null);
-		assert(response.headers !== null);
-		assert(response.payload !== null);
+		assert(isObject(response), true);
+
+		assert(isObject(response.headers),  true);
+		assert(response.headers['@status'], '200 OK');
 
 		assert(isBuffer(response.payload), true);
 		assert(response.payload.toString('utf8').includes('<html>'));
@@ -98,9 +97,6 @@ describe('HTTP.send()', function(assert) {
 		assert(HTTP.send(connection, EXAMPLE.request), true);
 	});
 
-});
-
-describe('HTTP.upgrade()', function(assert) {
 });
 
 

@@ -27,9 +27,7 @@ describe('WSS.send()', function(assert) {
 
 	this.connection.on('response', (response) => {
 
-		assert(response !== null);
-		assert(response.headers !== null);
-
+		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
 		assert(response.headers.service,   'mockup');
 		assert(response.headers.method,    'method');
@@ -45,9 +43,6 @@ describe('WSS.send()', function(assert) {
 		payload: 'payload'
 	});
 
-});
-
-describe('WSS.receive()', function(assert) {
 });
 
 after('WSS.disconnect()', function(assert) {

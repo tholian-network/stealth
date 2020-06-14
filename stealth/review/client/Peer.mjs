@@ -13,6 +13,7 @@ before(connect_client);
 
 describe('new Peer()', function(assert) {
 
+	assert(this.client !== null);
 	assert(this.client.services.peer instanceof Peer, true);
 
 });
@@ -26,7 +27,9 @@ describe('Peer.prototype.save()', function(assert) {
 		host:       '127.0.0.3',
 		connection: 'mobile'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -40,9 +43,10 @@ describe('Peer.prototype.info()', function(assert) {
 		host: '127.0.0.3'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.domain,     ENVIRONMENT.hostname);
-		assert(response.connection, 'mobile');
+		assert(response, {
+			domain:     ENVIRONMENT.hostname,
+			connection: 'mobile'
+		});
 
 	});
 
@@ -57,7 +61,6 @@ describe('Peer.prototype.read()', function(assert) {
 		host: '127.0.0.3'
 	}, (response) => {
 
-		assert(response !== null);
 		assert(response, {
 			domain:     '127.0.0.3',
 			connection: 'mobile'
@@ -83,7 +86,6 @@ describe('Peer.prototype.proxy()/success', function(assert) {
 		}
 	}, (response) => {
 
-		assert(response !== null);
 		assert(response.internet, {
 			connection: 'mobile',
 			history:    'stealth',
@@ -103,7 +105,6 @@ describe('Peer.prototype.refresh()', function(assert) {
 		host: '127.0.0.3'
 	}, (response) => {
 
-		assert(response !== null);
 		assert(response, {
 			domain:     '127.0.0.3',
 			connection: 'mobile'
@@ -121,7 +122,9 @@ describe('Peer.prototype.remove()/success', function(assert) {
 	this.client.services.peer.remove({
 		host: '127.0.0.3'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -141,7 +144,9 @@ describe('Peer.prototype.proxy()/failure', function(assert) {
 			internet: true
 		}
 	}, (response) => {
+
 		assert(response, null);
+
 	});
 
 });
@@ -154,7 +159,9 @@ describe('Peer.prototype.remove()/success', function(assert) {
 	this.client.services.peer.remove({
 		host: '127.0.0.3'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });

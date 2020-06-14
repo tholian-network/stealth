@@ -13,6 +13,7 @@ before(connect_client);
 
 describe('new Host()', function(assert) {
 
+	assert(this.client !== null);
 	assert(this.client.services.host instanceof Host, true);
 
 });
@@ -29,7 +30,9 @@ describe('Host.prototype.save()', function(assert) {
 			IP.parse('::1')
 		]
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -43,10 +46,13 @@ describe('Host.prototype.read()/success', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.domain, 'example.com');
-		assert(response.hosts[0], IP.parse('127.0.0.1'));
-		assert(response.hosts[1], IP.parse('::1'));
+		assert(response, {
+			domain: 'example.com',
+			hosts: [
+				IP.parse('127.0.0.1'),
+				IP.parse('::1')
+			]
+		});
 
 	});
 
@@ -61,15 +67,13 @@ describe('Host.prototype.refresh()', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.domain, 'example.com');
-		assert(response.hosts.length > 0);
-
-		let check4 = response.hosts.find((ip) => ip.type === 'v4') || null;
-		let check6 = response.hosts.find((ip) => ip.type === 'v6') || null;
-
-		assert(check4, EXAMPLE.ipv4);
-		assert(check6, EXAMPLE.ipv6);
+		assert(response, {
+			domain: 'example.com',
+			hosts: [
+				EXAMPLE.ipv4,
+				EXAMPLE.ipv6
+			]
+		});
 
 	});
 
@@ -84,15 +88,13 @@ describe('Host.prototype.read()/success', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.domain, 'example.com');
-		assert(response.hosts.length > 0);
-
-		let check4 = response.hosts.find((ip) => ip.type === 'v4') || null;
-		let check6 = response.hosts.find((ip) => ip.type === 'v6') || null;
-
-		assert(check4, EXAMPLE.ipv4);
-		assert(check6, EXAMPLE.ipv6);
+		assert(response, {
+			domain: 'example.com',
+			hosts: [
+				EXAMPLE.ipv4,
+				EXAMPLE.ipv6
+			]
+		});
 
 	});
 
@@ -106,7 +108,9 @@ describe('Host.prototype.remove()/success', function(assert) {
 	this.client.services.host.remove({
 		domain: 'example.com'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -120,15 +124,13 @@ describe('Host.prototype.read()/success', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.domain, 'example.com');
-		assert(response.hosts.length > 0);
-
-		let check4 = response.hosts.find((ip) => ip.type === 'v4') || null;
-		let check6 = response.hosts.find((ip) => ip.type === 'v6') || null;
-
-		assert(check4, EXAMPLE.ipv4);
-		assert(check6, EXAMPLE.ipv6);
+		assert(response, {
+			domain: 'example.com',
+			hosts: [
+				EXAMPLE.ipv4,
+				EXAMPLE.ipv6
+			]
+		});
 
 	});
 
@@ -142,7 +144,9 @@ describe('Host.prototype.remove()/success', function(assert) {
 	this.client.services.host.remove({
 		domain: 'example.com'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });

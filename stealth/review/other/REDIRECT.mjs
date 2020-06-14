@@ -1,5 +1,5 @@
 
-import { isBuffer, isObject        } from '../../../base/index.mjs';
+import { Buffer                    } from '../../../base/index.mjs';
 import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
 import { REDIRECT                  } from '../../../stealth/source/other/REDIRECT.mjs';
 
@@ -9,22 +9,25 @@ describe('REDIRECT.error()/callback', function(assert) {
 
 	REDIRECT.error(null, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),  true);
-		assert(response.headers['@code'],   500);
-		assert(response.headers['@status'], '500 Internal Server Error');
-		assert(response.payload,            null);
+		assert(response, {
+			headers: {
+				'@code':   500,
+				'@status': '500 Internal Server Error'
+			},
+			payload: null
+		});
 
 	});
 
 	REDIRECT.error({}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),        true);
-		assert(response.headers['@code'],         500);
-		assert(response.headers['@status'],       '500 Internal Server Error');
-		assert(isBuffer(response.payload),        true);
-		assert(response.payload.toString('utf8'), 'Error for "null".');
+		assert(response, {
+			headers: {
+				'@code':   500,
+				'@status': '500 Internal Server Error'
+			},
+			payload: Buffer.from('Error for "null".', 'utf8')
+		});
 
 	});
 
@@ -35,12 +38,14 @@ describe('REDIRECT.error()/callback', function(assert) {
 		headers: { '@local': EXAMPLE.ipv4.ip }
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),   true);
-		assert(response.headers['@code'],    307);
-		assert(response.headers['@status'],  '307 Temporary Redirect');
-		assert(response.headers['location'], 'http://' + EXAMPLE.ipv4.ip + ':65432/browser/internal/fix-host.html?url=https%3A%2F%2Fexample.com%2Findex.html');
-		assert(response.payload,             null);
+		assert(response, {
+			headers: {
+				'@code':    307,
+				'@status':  '307 Temporary Redirect',
+				'location': 'http://' + EXAMPLE.ipv4.ip + ':65432/browser/internal/fix-host.html?url=https%3A%2F%2Fexample.com%2Findex.html'
+			},
+			payload: null
+		});
 
 	});
 
@@ -51,12 +56,14 @@ describe('REDIRECT.error()/callback', function(assert) {
 		headers: { '@local': EXAMPLE.ipv6.ip }
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),   true);
-		assert(response.headers['@code'],    307);
-		assert(response.headers['@status'],  '307 Temporary Redirect');
-		assert(response.headers['location'], 'http://[' + EXAMPLE.ipv6.ip + ']:65432/browser/internal/fix-request.html?url=https%3A%2F%2Fexample.com%2Findex.html&code=500&cause=socket-proxy');
-		assert(response.payload,             null);
+		assert(response, {
+			headers: {
+				'@code':    307,
+				'@status':  '307 Temporary Redirect',
+				'location': 'http://[' + EXAMPLE.ipv6.ip + ']:65432/browser/internal/fix-request.html?url=https%3A%2F%2Fexample.com%2Findex.html&code=500&cause=socket-proxy'
+			},
+			payload: null
+		});
 
 	});
 
@@ -66,12 +73,14 @@ describe('REDIRECT.error()/callback', function(assert) {
 		flags: { webview: true }
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),   true);
-		assert(response.headers['@code'],    307);
-		assert(response.headers['@status'],  '307 Temporary Redirect');
-		assert(response.headers['location'], '/browser/internal/fix-mode.html?url=https%3A%2F%2Fexample.com%2Findex.html');
-		assert(response.payload,             null);
+		assert(response, {
+			headers: {
+				'@code':    307,
+				'@status':  '307 Temporary Redirect',
+				'location': '/browser/internal/fix-mode.html?url=https%3A%2F%2Fexample.com%2Findex.html'
+			},
+			payload: null
+		});
 
 	});
 
@@ -99,50 +108,63 @@ describe('REDIRECT.error()/return', function(assert) {
 		flags: { webview: true }
 	});
 
-	assert(response1 !== null);
-	assert(isObject(response1.headers),  true);
-	assert(response1.headers['@code'],   500);
-	assert(response1.headers['@status'], '500 Internal Server Error');
-	assert(response1.payload,            null);
+	assert(response1, {
+		headers: {
+			'@code':   500,
+			'@status': '500 Internal Server Error'
+		},
+		payload: null
+	});
 
-	assert(response2 !== null);
-	assert(isObject(response2.headers),        true);
-	assert(response2.headers['@code'],         500);
-	assert(response2.headers['@status'],       '500 Internal Server Error');
-	assert(isBuffer(response2.payload),        true);
-	assert(response2.payload.toString('utf8'), 'Error for "null".');
+	assert(response2, {
+		headers: {
+			'@code':   500,
+			'@status': '500 Internal Server Error'
+		},
+		payload: Buffer.from('Error for "null".', 'utf8')
+	});
 
-	assert(response3 !== null);
-	assert(isObject(response3.headers),   true);
-	assert(response3.headers['@code'],    307);
-	assert(response3.headers['@status'],  '307 Temporary Redirect');
-	assert(response3.headers['location'], 'http://' + EXAMPLE.ipv4.ip + ':65432/browser/internal/fix-host.html?url=https%3A%2F%2Fexample.com%2Findex.html');
-	assert(response3.payload,             null);
+	assert(response3, {
+		headers: {
+			'@code':    307,
+			'@status':  '307 Temporary Redirect',
+			'location': 'http://' + EXAMPLE.ipv4.ip + ':65432/browser/internal/fix-host.html?url=https%3A%2F%2Fexample.com%2Findex.html'
+		},
+		payload: null
+	});
 
-	assert(response4 !== null);
-	assert(isObject(response4.headers),   true);
-	assert(response4.headers['@code'],    307);
-	assert(response4.headers['@status'],  '307 Temporary Redirect');
-	assert(response4.headers['location'], 'http://[' + EXAMPLE.ipv6.ip + ']:65432/browser/internal/fix-request.html?url=https%3A%2F%2Fexample.com%2Findex.html&code=500&cause=socket-proxy');
-	assert(response4.payload,             null);
+	assert(response4, {
+		headers: {
+			'@code':    307,
+			'@status':  '307 Temporary Redirect',
+			'location': 'http://[' + EXAMPLE.ipv6.ip + ']:65432/browser/internal/fix-request.html?url=https%3A%2F%2Fexample.com%2Findex.html&code=500&cause=socket-proxy'
+		},
+		payload: null
+	});
 
-	assert(response5 !== null);
-	assert(isObject(response5.headers),   true);
-	assert(response5.headers['@code'],    307);
-	assert(response5.headers['@status'],  '307 Temporary Redirect');
-	assert(response5.headers['location'], '/browser/internal/fix-mode.html?url=https%3A%2F%2Fexample.com%2Findex.html');
-	assert(response5.payload,             null);
+	assert(response5, {
+		headers: {
+			'@code':    307,
+			'@status':  '307 Temporary Redirect',
+			'location': '/browser/internal/fix-mode.html?url=https%3A%2F%2Fexample.com%2Findex.html'
+		},
+		payload: null
+	});
 
 });
 
 describe('REDIRECT.send()/callback', function(assert) {
 
 	REDIRECT.send(null, (response) => {
+
 		assert(response, null);
+
 	});
 
 	REDIRECT.send({}, (response) => {
+
 		assert(response, null);
+
 	});
 
 	REDIRECT.send({
@@ -150,12 +172,14 @@ describe('REDIRECT.send()/callback', function(assert) {
 		location: 'https://example.com/index.html'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),   true);
-		assert(response.headers['@code'],    301);
-		assert(response.headers['@status'],  '301 Moved Permanently');
-		assert(response.headers['location'], 'https://example.com/index.html');
-		assert(response.payload,             null);
+		assert(response, {
+			headers: {
+				'@code':    301,
+				'@status':  '301 Moved Permanently',
+				'location': 'https://example.com/index.html'
+			},
+			payload: null
+		});
 
 	});
 
@@ -164,12 +188,14 @@ describe('REDIRECT.send()/callback', function(assert) {
 		path: '/stealth/README.md'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),   true);
-		assert(response.headers['@code'],    307);
-		assert(response.headers['@status'],  '307 Temporary Redirect');
-		assert(response.headers['location'], '/stealth/README.md');
-		assert(response.payload,             null);
+		assert(response, {
+			headers: {
+				'@code':    307,
+				'@status':  '307 Temporary Redirect',
+				'location': '/stealth/README.md'
+			},
+			payload: null
+		});
 
 	});
 
@@ -178,12 +204,14 @@ describe('REDIRECT.send()/callback', function(assert) {
 		path: '/stealth/README.md'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),   true);
-		assert(response.headers['@code'],    308);
-		assert(response.headers['@status'],  '308 Permanent Redirect');
-		assert(response.headers['location'], '/stealth/README.md');
-		assert(response.payload,             null);
+		assert(response, {
+			headers: {
+				'@code':    308,
+				'@status':  '308 Permanent Redirect',
+				'location': '/stealth/README.md'
+			},
+			payload: null
+		});
 
 	});
 
@@ -201,26 +229,32 @@ describe('REDIRECT.send()/return', function(assert) {
 
 	assert(response2, null);
 
-	assert(response3 !== null);
-	assert(isObject(response3.headers),   true);
-	assert(response3.headers['@code'],    301);
-	assert(response3.headers['@status'],  '301 Moved Permanently');
-	assert(response3.headers['location'], 'https://example.com/index.html');
-	assert(response3.payload,             null);
+	assert(response3, {
+		headers: {
+			'@code':    301,
+			'@status':  '301 Moved Permanently',
+			'location': 'https://example.com/index.html'
+		},
+		payload: null
+	});
 
-	assert(response4 !== null);
-	assert(isObject(response4.headers),   true);
-	assert(response4.headers['@code'],    307);
-	assert(response4.headers['@status'],  '307 Temporary Redirect');
-	assert(response4.headers['location'], '/stealth/README.md');
-	assert(response4.payload,             null);
+	assert(response4, {
+		headers: {
+			'@code':    307,
+			'@status':  '307 Temporary Redirect',
+			'location': '/stealth/README.md'
+		},
+		payload: null
+	});
 
-	assert(response5 !== null);
-	assert(isObject(response5.headers),   true);
-	assert(response5.headers['@code'],    308);
-	assert(response5.headers['@status'],  '308 Permanent Redirect');
-	assert(response5.headers['location'], '/stealth/README.md');
-	assert(response5.payload,             null);
+	assert(response5, {
+		headers: {
+			'@code':    308,
+			'@status':  '308 Permanent Redirect',
+			'location': '/stealth/README.md'
+		},
+		payload: null
+	});
 
 });
 

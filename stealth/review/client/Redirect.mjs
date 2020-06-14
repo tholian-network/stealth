@@ -12,6 +12,7 @@ before(connect_client);
 
 describe('new Redirect()', function(assert) {
 
+	assert(this.client !== null);
 	assert(this.client.services.redirect instanceof Redirect, true);
 
 });
@@ -26,7 +27,9 @@ describe('Redirect.prototype.save()', function(assert) {
 		path:     '/review/client/redirect',
 		location: 'https://example.com/review/client/redirect/location.json'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -41,7 +44,6 @@ describe('Redirect.prototype.read()/success', function(assert) {
 		path:   '/review/client/redirect'
 	}, (response) => {
 
-		assert(response !== null);
 		assert(response, {
 			domain:   'example.com',
 			path:     '/review/client/redirect',
@@ -61,7 +63,9 @@ describe('Redirect.prototype.remove()/success', function(assert) {
 		domain: 'example.com',
 		path:   '/review/client/redirect'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -75,7 +79,9 @@ describe('Redirect.prototype.read()/failure', function(assert) {
 		domain: 'example.com',
 		path:   '/review/client/redirect'
 	}, (response) => {
+
 		assert(response, null);
+
 	});
 
 });
@@ -89,7 +95,9 @@ describe('Redirect.prototype.remove()/success', function(assert) {
 		domain: 'example.com',
 		path:   '/review/client/redirect'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });

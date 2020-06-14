@@ -12,6 +12,7 @@ before(connect_client);
 
 describe('new Stash()', function(assert) {
 
+	assert(this.client !== null);
 	assert(this.client.services.stash instanceof Stash, true);
 
 });
@@ -31,7 +32,9 @@ describe('Stash.prototype.save()', function(assert) {
 			foo: 'bar'
 		}
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -46,7 +49,6 @@ describe('Stash.prototype.info()', function(assert) {
 		path:   '/review/client/stash.json'
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response), true);
 
 		assert(isObject(response.headers),      true);
@@ -71,10 +73,15 @@ describe('Stash.prototype.read()/success', function(assert) {
 		path:   '/review/client/stash.json'
 	}, (response) => {
 
-		assert(response !== null);
+		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
-		assert(response.headers['x-test'], 'save');
 		assert(isBuffer(response.payload), true);
+
+		assert(response.headers, {
+			'x-test':         'save',
+			'content-type':   'application/json',
+			'content-length': 17
+		});
 
 		let data = null;
 		try {
@@ -83,7 +90,6 @@ describe('Stash.prototype.read()/success', function(assert) {
 			data = null;
 		}
 
-		assert(isObject(data), true);
 		assert(data, { foo: 'bar' });
 
 	});
@@ -99,7 +105,9 @@ describe('Stash.prototype.remove()/success', function(assert) {
 		domain: 'example.com',
 		path:   '/review/client/stash.json'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -113,7 +121,9 @@ describe('Stash.prototype.read()/failure', function(assert) {
 		domain: 'example.com',
 		path:   '/review/client/stash.json'
 	}, (response) => {
+
 		assert(response, null);
+
 	});
 
 });
@@ -127,7 +137,9 @@ describe('Stash.prototype.remove()/failure', function(assert) {
 		domain: 'example.com',
 		path:   '/review/client/stash.json'
 	}, (response) => {
+
 		assert(response, false);
+
 	});
 
 });

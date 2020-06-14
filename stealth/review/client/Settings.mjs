@@ -12,6 +12,7 @@ before(connect_client);
 
 describe('new Settings()', function(assert) {
 
+	assert(this.client !== null);
 	assert(this.client.services.settings instanceof Settings, true);
 
 });
@@ -23,7 +24,6 @@ describe('Settings.prototype.read()/all', function(assert) {
 
 	this.client.services.settings.read(null, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),          true);
 		assert(isObject(response.internet), true);
 		assert(response.blockers,           null);
@@ -46,7 +46,6 @@ describe('Settings.prototype.read()/internet', function(assert) {
 		internet: true
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),          true);
 		assert(isObject(response.internet), true);
 		assert(response.blockers,           null);
@@ -69,7 +68,6 @@ describe('Settings.prototype.read()/blockers', function(assert) {
 		blockers: true
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response), true);
 		assert(response.internet,  null);
 		assert(response.blockers,  null);
@@ -92,7 +90,6 @@ describe('Settings.prototype.read()/hosts', function(assert) {
 		hosts: true
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),      true);
 		assert(response.internet,       null);
 		assert(response.blockers,       null);
@@ -115,7 +112,6 @@ describe('Settings.prototype.read()/modes', function(assert) {
 		modes: true
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),      true);
 		assert(response.internet,       null);
 		assert(response.blockers,       null);
@@ -138,7 +134,6 @@ describe('Settings.prototype.read()/peers', function(assert) {
 		peers: true
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),      true);
 		assert(response.internet,       null);
 		assert(response.blockers,       null);
@@ -161,7 +156,6 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 		redirects: true
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response), true);
 		assert(response.internet,  null);
 		assert(response.blockers,  null);
@@ -184,7 +178,6 @@ describe('Settings.prototype.read()/sessions', function(assert) {
 		sessions: true
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),         true);
 		assert(response.internet,          null);
 		assert(response.blockers,          null);
@@ -237,7 +230,9 @@ describe('Settings.prototype.save()/all', function(assert) {
 			location: 'https://covert.localdomain/location.html'
 		}]
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -257,12 +252,13 @@ describe('Settings.prototype.read()/all', function(assert) {
 		sessions:  true  // private
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response),           true);
-		assert(isObject(response.internet),  true);
-		assert(response.internet.connection, 'mobile');
-		assert(response.internet.history,    'week');
-		assert(response.internet.useragent,  'stealth');
+		assert(isObject(response), true);
+
+		assert(response.internet, {
+			connection: 'mobile',
+			history:    'week',
+			useragent:  'stealth'
+		});
 
 		assert(response.blockers, null);
 
@@ -317,7 +313,9 @@ describe('Settings.prototype.save()/internet', function(assert) {
 			useragent:  'stealth'
 		}
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -331,12 +329,11 @@ describe('Settings.prototype.read()/internet', function(assert) {
 		internet: true
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response),           true);
-		assert(isObject(response.internet),  true);
-		assert(response.internet.connection, 'broadband');
-		assert(response.internet.history,    'stealth');
-		assert(response.internet.useragent,  'stealth');
+		assert(response.internet, {
+			connection: 'broadband',
+			history:    'stealth',
+			useragent:  'stealth'
+		});
 
 	});
 
@@ -357,7 +354,9 @@ describe('Settings.prototype.save()/hosts', function(assert) {
 			}]
 		}]
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -371,7 +370,6 @@ describe('Settings.prototype.read()/hosts', function(assert) {
 		hosts: true,
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),      true);
 		assert(isArray(response.hosts), true);
 
@@ -417,7 +415,9 @@ describe('Settings.prototype.save()/modes', function(assert) {
 			}
 		}]
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -431,7 +431,6 @@ describe('Settings.prototype.read()/modes', function(assert) {
 		modes: true,
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),      true);
 		assert(isArray(response.modes), true);
 
@@ -475,7 +474,9 @@ describe('Settings.prototype.save()/peers', function(assert) {
 			connection: 'peer'
 		}]
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -489,7 +490,6 @@ describe('Settings.prototype.read()/peers', function(assert) {
 		peers: true,
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response),      true);
 		assert(isArray(response.peers), true);
 
@@ -522,7 +522,9 @@ describe('Settings.prototype.save()/redirects', function(assert) {
 			location: 'https://covert-two.localdomain/location.html'
 		}]
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -536,8 +538,6 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 		redirects: true // private
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response), true);
 		assert(response.redirects, null);
 
 	});

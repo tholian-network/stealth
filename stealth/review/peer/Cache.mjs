@@ -7,109 +7,119 @@ import { Stealth                         } from '../../../stealth/source/Stealth
 
 
 
-before('peers[].connect', function(assert) {
+before('Peer #1 - (Client/Stealth).prototype.connect()', function(assert) {
 
-	this.peers = [];
-
-
-	let client1 = new Client({
+	let client = new Client({
 		host: '127.0.0.1'
 	});
-	let client2 = new Client({
-		host: '127.0.0.2'
-	});
 
-	let stealth1 = new Stealth({
+	let stealth = new Stealth({
 		host:    '127.0.0.1',
 		profile: SANDBOX.mktemp('stealth/peer/Cache'),
 		root:    SANDBOX.root
 	});
-	let stealth2 = new Stealth({
+
+	client.once('connect', () => {
+
+		this.peer1 = {
+			client:  client,
+			server:  stealth.server,
+			stealth: stealth
+		};
+
+		assert(true);
+
+	});
+
+	stealth.once('connect', () => {
+
+		setTimeout(() => {
+			assert(client.connect());
+		}, 100);
+
+	});
+
+	stealth.connect();
+
+});
+
+before('Peer #2 - (Client/Stealth).prototype.connect()', function(assert) {
+
+	let client = new Client({
+		host: '127.0.0.2'
+	});
+
+	let stealth = new Stealth({
 		host:    '127.0.0.2',
 		profile: SANDBOX.mktemp('stealth/peer/Cache'),
 		root:    SANDBOX.root
 	});
 
+	client.once('connect', () => {
 
-	client1.once('connect', () => {
-
-		this.peers.push({
-			client:  client1,
-			server:  stealth1.server,
-			stealth: stealth1
-		});
-
-		assert(true);
-
-	});
-
-	client2.once('connect', () => {
-
-		this.peers.push({
-			client:  client2,
-			server:  stealth2.server,
-			stealth: stealth2
-		});
+		this.peer2 = {
+			client:  client,
+			server:  stealth.server,
+			stealth: stealth
+		};
 
 		assert(true);
 
 	});
 
-	stealth1.once('connect', () => {
+	stealth.once('connect', () => {
 
 		setTimeout(() => {
-			assert(client1.connect());
+			assert(client.connect());
 		}, 100);
 
 	});
 
-	stealth2.once('connect', () => {
-
-		setTimeout(() => {
-			assert(client2.connect());
-		}, 100);
-
-	});
-
-	assert(stealth1.connect());
-	assert(stealth2.connect());
+	stealth.connect();
 
 });
 
-describe('peers[0].client.services.peer.save', function(assert) {
+describe('Client #1 - Peer.prototype.save()', function(assert) {
 
-	assert(this.peers[0].client !== null);
-	assert(isFunction(this.peers[0].client.services.peer.save), true);
+	assert(this.peer1 !== null);
+	assert(this.peer1.client !== null);
+	assert(isFunction(this.peer1.client.services.peer.save), true);
 
-	this.peers[0].client.services.peer.save({
+	this.peer1.client.services.peer.save({
 		host:       '127.0.0.2',
 		connection: 'peer'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
 
-describe('peers[1].client.services.peer.save', function(assert) {
+describe('Client #2 - Peer.prototype.save()', function(assert) {
 
-	assert(this.peers[1].client !== null);
-	assert(isFunction(this.peers[1].client.services.peer.save), true);
+	assert(this.peer2 !== null);
+	assert(this.peer2.client !== null);
+	assert(isFunction(this.peer2.client.services.peer.save), true);
 
-	this.peers[1].client.services.peer.save({
+	this.peer2.client.services.peer.save({
 		host:       '127.0.0.1',
 		connection: 'peer'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
 
-describe('peers[0].server.services.cache.save', function(assert) {
+describe('Server #1 - Cache.prototype.save()', function(assert) {
 
-	assert(this.peers[0].server !== null);
-	assert(isFunction(this.peers[0].client.services.cache.save), true);
+	assert(this.peer1 !== null);
+	assert(this.peer1.server !== null);
+	assert(isFunction(this.peer1.server.services.cache.save), true);
 
-	this.peers[0].server.services.cache.save({
+	this.peer1.server.services.cache.save({
 		domain: 'example.com',
 		path:   '/review/peer/cache.json',
 		headers: {
@@ -120,27 +130,37 @@ describe('peers[0].server.services.cache.save', function(assert) {
 		}
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.payload, true);
+		assert(response, {
+			headers: {
+				service: 'cache',
+				event:   'save'
+			},
+			payload: true
+		});
 
 	});
 
 });
 
-describe('peers[0].client.services.cache.read', function(assert) {
+describe('Client #1 - Cache.prototype.read()', function(assert) {
 
-	assert(this.peers[0].client !== null);
-	assert(isFunction(this.peers[0].client.services.cache.read), true);
+	assert(this.peer1 !== null);
+	assert(this.peer1.client !== null);
+	assert(isFunction(this.peer1.client.services.cache.read), true);
 
-	this.peers[0].client.services.cache.read({
+	this.peer1.client.services.cache.read({
 		domain: 'example.com',
 		path:   '/review/peer/cache.json'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),       true);
-		assert(response.headers['content-type'], 'application/json');
-		assert(isBuffer(response.payload),       true);
+		assert(isObject(response),         true);
+		assert(isObject(response.headers), true);
+		assert(isBuffer(response.payload), true);
+
+		assert(response.headers, {
+			'content-type':   'application/json',
+			'content-length': 17
+		});
 
 		let data = null;
 		try {
@@ -149,19 +169,19 @@ describe('peers[0].client.services.cache.read', function(assert) {
 			data = null;
 		}
 
-		assert(isObject(data), true);
 		assert(data, { foo: 'bar' });
 
 	});
 
 });
 
-describe('peers[1].client.services.peer.proxy/server', function(assert) {
+describe('Client #2 - Peer.prototype.proxy()', function(assert) {
 
-	assert(this.peers[1].client !== null);
-	assert(isFunction(this.peers[1].client.services.peer.proxy), true);
+	assert(this.peer2 !== null);
+	assert(this.peer2.client !== null);
+	assert(isFunction(this.peer2.client.services.peer.proxy), true);
 
-	this.peers[1].client.services.peer.proxy({
+	this.peer2.client.services.peer.proxy({
 		host: '127.0.0.1',
 		headers: {
 			service: 'cache',
@@ -173,10 +193,14 @@ describe('peers[1].client.services.peer.proxy/server', function(assert) {
 		}
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),       true);
-		assert(response.headers['content-type'], 'application/json');
-		assert(isBuffer(response.payload),       true);
+		assert(isObject(response),         true);
+		assert(isObject(response.headers), true);
+		assert(isBuffer(response.payload), true);
+
+		assert(response.headers, {
+			'content-type':   'application/json',
+			'content-length': 17
+		});
 
 		let data = null;
 		try {
@@ -185,18 +209,23 @@ describe('peers[1].client.services.peer.proxy/server', function(assert) {
 			data = null;
 		}
 
-		assert(isObject(data), true);
 		assert(data, { foo: 'bar' });
 
-		this.peers[1].server.services.cache.save({
+
+		this.peer2.server.services.cache.save({
 			domain:  'example.com',
 			path:    '/review/peer/cache.json',
 			headers: response.headers,
 			payload: response.payload
 		}, (response) => {
 
-			assert(response !== null);
-			assert(response.payload, true);
+			assert(response, {
+				headers: {
+					service: 'cache',
+					event:   'save'
+				},
+				payload: true
+			});
 
 		});
 
@@ -204,20 +233,24 @@ describe('peers[1].client.services.peer.proxy/server', function(assert) {
 
 });
 
-describe('peers[1].client.services.cache.read', function(assert) {
+describe('Client #2 - Cache.prototype.read()', function(assert) {
 
-	assert(this.peers[1].client !== null);
-	assert(isFunction(this.peers[1].client.services.cache.read), true);
+	assert(this.peer2.client !== null);
+	assert(isFunction(this.peer2.client.services.cache.read), true);
 
-	this.peers[1].client.services.cache.read({
+	this.peer2.client.services.cache.read({
 		domain: 'example.com',
 		path:   '/review/peer/cache.json'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),       true);
-		assert(response.headers['content-type'], 'application/json');
-		assert(isBuffer(response.payload),       true);
+		assert(isObject(response),         true);
+		assert(isObject(response.headers), true);
+		assert(isBuffer(response.payload), true);
+
+		assert(response.headers, {
+			'content-type':   'application/json',
+			'content-length': 17
+		});
 
 		let data = null;
 		try {
@@ -226,88 +259,109 @@ describe('peers[1].client.services.cache.read', function(assert) {
 			data = null;
 		}
 
-		assert(isObject(data), true);
 		assert(data, { foo: 'bar' });
 
 	});
 
 });
 
-describe('peers[0].server.services.cache.remove', function(assert) {
+describe('Server #1 - Cache.prototype.remove()', function(assert) {
 
-	assert(this.peers[0].server !== null);
-	assert(isFunction(this.peers[0].server.services.cache.remove), true);
+	assert(this.peer1 !== null);
+	assert(this.peer1.server !== null);
+	assert(isFunction(this.peer1.server.services.cache.remove), true);
 
-	this.peers[0].server.services.cache.remove({
+	this.peer1.server.services.cache.remove({
 		domain: 'example.com',
 		path:   '/review/peer/cache.json'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.payload, true);
+		assert(response, {
+			headers: {
+				service: 'cache',
+				event:   'remove'
+			},
+			payload: true
+		});
 
 	});
 
 });
 
-describe('peers[1].server.services.cache.remove', function(assert) {
+describe('Server #2 - Cache.prototype.remove()', function(assert) {
 
-	assert(this.peers[1].server !== null);
-	assert(isFunction(this.peers[1].server.services.cache.remove), true);
+	assert(this.peer2 !== null);
+	assert(this.peer2.server !== null);
+	assert(isFunction(this.peer2.server.services.cache.remove), true);
 
-	this.peers[1].server.services.cache.remove({
+	this.peer2.server.services.cache.remove({
 		domain: 'example.com',
 		path:   '/review/peer/cache.json'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.payload, true);
+		assert(response, {
+			headers: {
+				service: 'cache',
+				event:   'remove'
+			},
+			payload: true
+		});
 
 	});
 
 });
 
-describe('peers[0].client.services.cache.read', function(assert) {
+describe('Client #1 - Cache.prototype.read()', function(assert) {
 
-	assert(this.peers[0].client !== null);
-	assert(isFunction(this.peers[0].client.services.cache.read), true);
+	assert(this.peer1 !== null);
+	assert(this.peer1.client !== null);
+	assert(isFunction(this.peer1.client.services.cache.read), true);
 
-	this.peers[0].client.services.cache.read({
+	this.peer1.client.services.cache.read({
 		domain: 'example.com',
 		path:   '/review/peer/cache.json'
 	}, (response) => {
+
 		assert(response, null);
+
 	});
 
 });
 
-describe('peers[1].client.services.cache.read', function(assert) {
+describe('Client #2 - Cache.prototype.read()', function(assert) {
 
-	assert(this.peers[1].client !== null);
-	assert(isFunction(this.peers[1].client.services.cache.read), true);
+	assert(this.peer2 !== null);
+	assert(this.peer2.client !== null);
+	assert(isFunction(this.peer2.client.services.cache.read), true);
 
-	this.peers[1].client.services.cache.read({
+	this.peer2.client.services.cache.read({
 		domain: 'example.com',
 		path:   '/review/peer/cache.json'
 	}, (response) => {
+
 		assert(response, null);
+
 	});
 
 });
 
-after('peers[].disconnect', function(assert) {
+after('Peer #1 - (Client/Stealth).prototype.disconnect()', function(assert) {
 
-	assert(this.peers.length, 2);
+	assert(this.peer1 !== null);
+	assert(this.peer1.client.disconnect());
+	assert(this.peer1.stealth.disconnect());
 
-	assert(this.peers[0].client.disconnect());
-	assert(this.peers[0].stealth.disconnect());
-	this.peers.splice(0, 1);
+	this.peer1 = null;
 
-	assert(this.peers[0].client.disconnect());
-	assert(this.peers[0].stealth.disconnect());
-	this.peers.splice(0, 1);
+});
 
-	assert(this.peers.length, 0);
+after('Peer #2 - (Client/Stealth).prototype.disconnect()', function(assert) {
+
+	assert(this.peer2 !== null);
+	assert(this.peer2.client.disconnect());
+	assert(this.peer2.stealth.disconnect());
+
+	this.peer2 = null;
 
 });
 

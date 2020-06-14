@@ -307,10 +307,10 @@ describe('Browser.prototype.download()', function(assert) {
 
 	browser.once('download', (response) => {
 
-		assert(response !== null);
+		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
-
 		assert(isBuffer(response.payload), true);
+
 		assert(response.payload.toString('utf8').includes('<html>'));
 		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
 		assert(response.payload.toString('utf8').includes('</html>'));

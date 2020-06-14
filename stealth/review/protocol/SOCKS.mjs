@@ -61,13 +61,6 @@ describe('SOCKS.disconnect()', function(assert) {
 
 });
 
-describe('SOCKS.receive()', function(assert) {
-
-	assert(isFunction(SOCKS.receive), true);
-
-
-});
-
 describe('SOCKS.send()', function(assert, console) {
 
 	assert(isFunction(SOCKS.send), true);
@@ -111,71 +104,6 @@ describe('SOCKS.send()', function(assert, console) {
 	}, 500);
 
 });
-
-
-// describe('SOCKS.send()', function(assert) {
-//
-//
-// 	this.connection.on('response', (response) => {
-//
-// 		assert(response !== null);
-// 		assert(response.headers !== null);
-// 		assert(response.payload !== null);
-//
-// 		assert(isBuffer(response.payload), true);
-// 		assert(response.payload.toString('utf8').includes('<html>'));
-// 		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
-// 		assert(response.payload.toString('utf8').includes('</html>'));
-//
-// 	});
-//
-// 	SOCKS.send(this.connection, EXAMPLE.request);
-//
-// });
-//
-// describe('SOCKS.receive()', function(assert) {
-//
-// 	assert(isFunction(SOCKS.receive), true);
-// 	assert(this.connection !== null);
-//
-// 	SOCKS.receive(this.connection, EXAMPLE.payload, (response) => {
-//
-// 		assert(response !== null);
-// 		assert(response.headers !== null);
-// 		assert(response.payload !== null);
-//
-// 		assert(isObject(response.headers),         true);
-// 		assert(response.headers['@status'],        '200 OK');
-// 		assert(response.headers['content-length'], '' + response.payload.length);
-//
-// 		assert(isBuffer(response.payload), true);
-// 		assert(response.payload.toString('utf8').includes('<html>'));
-// 		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
-// 		assert(response.payload.toString('utf8').includes('</html>'));
-//
-// 	});
-//
-// });
-//
-// after('SOCKS.disconnect()', function(assert) {
-//
-// 	assert(this.connection !== null);
-//
-// 	this.connection.once('@disconnect', () => {
-// 		assert(true);
-// 	});
-//
-// 	this.connection.disconnect();
-//
-// 	this.connection = null;
-// 	this.proxy      = null;
-// 	this.ref        = null;
-//
-// 	assert(this.connection, null);
-// 	assert(this.proxy,      null);
-// 	assert(this.ref,        null);
-//
-// });
 
 after(disconnect_stealth);
 

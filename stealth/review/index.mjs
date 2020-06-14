@@ -40,12 +40,12 @@ import request_Optimizer  from './request/Optimizer.mjs';
 import server_Blocker     from './server/Blocker.mjs';
 import server_Cache       from './server/Cache.mjs';
 // import server_Host        from './server/Host.mjs';
-// import server_Mode        from './server/Mode.mjs';
-// import server_Peer        from './server/Peer.mjs';
-// import server_Redirect    from './server/Redirect.mjs';
+import server_Mode        from './server/Mode.mjs';
+import server_Peer        from './server/Peer.mjs';
+import server_Redirect    from './server/Redirect.mjs';
 // import server_Session     from './server/Session.mjs';
 // import server_Settings    from './server/Settings.mjs';
-// import server_Stash       from './server/Stash.mjs';
+import server_Stash       from './server/Stash.mjs';
 
 
 
@@ -98,12 +98,12 @@ export default {
 		server_Blocker,
 		server_Cache,
 		// server_Host,
-		// server_Mode,
-		// server_Peer,
-		// server_Redirect,
+		server_Mode,
+		server_Peer,
+		server_Redirect,
 		// server_Session,
 		// server_Settings,
-		// server_Stash,
+		server_Stash,
 
 		client_Blocker,
 		client_Cache,

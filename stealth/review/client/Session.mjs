@@ -1,5 +1,5 @@
 
-import { isArray, isBuffer, isFunction, isObject                      } from '../../../base/index.mjs';
+import { isBuffer, isFunction, isObject                               } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
 import { Session                                                      } from '../../../stealth/source/client/Session.mjs';
 import { URL                                                          } from '../../../stealth/source/parser/URL.mjs';
@@ -14,6 +14,7 @@ before(connect_client);
 
 describe('new Session()', function(assert) {
 
+	assert(this.client !== null);
 	assert(this.client.services.session instanceof Session, true);
 
 });
@@ -44,7 +45,9 @@ describe('Mode.prototype.save()/success', function(assert) {
 			other: false
 		}
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -56,10 +59,10 @@ describe('Session.prototype.download()/success', function(assert) {
 
 	this.client.services.session.download(URL.parse('https://example.com/index.html'), (response) => {
 
-		assert(response !== null);
+		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
-
 		assert(isBuffer(response.payload), true);
+
 		assert(response.payload.toString('utf8').includes('<html>'));
 		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
 		assert(response.payload.toString('utf8').includes('</html>'));
@@ -76,9 +79,6 @@ describe('Session.prototype.query()/all', function(assert) {
 	this.client.services.session.query({
 		domain: '*'
 	}, (response) => {
-
-		assert(isArray(response), true);
-		assert(response.length,   1);
 
 		assert(response, [{
 			type: 'Session',
@@ -103,9 +103,6 @@ describe('Session.prototype.query()/domain/success', function(assert) {
 		domain: ENVIRONMENT.hostname
 	}, (response) => {
 
-		assert(isArray(response), true);
-		assert(response.length,   1);
-
 		assert(response, [{
 			type: 'Session',
 			data: {
@@ -129,8 +126,7 @@ describe('Session.prototype.query()/domain/failure', function(assert) {
 		domain: 'does-not-exist'
 	}, (response) => {
 
-		assert(isArray(response), true);
-		assert(response.length,   0);
+		assert(response, []);
 
 	});
 
@@ -144,15 +140,14 @@ describe('Session.prototype.read()', function(assert) {
 
 	this.client.services.session.read({}, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response), true);
-
-		assert(response.type, 'Session');
-		assert(response.data, {
-			agent:   null,
-			domain:  ENVIRONMENT.hostname,
-			tabs:    [],
-			warning: 0
+		assert(response, {
+			type: 'Session',
+			data: {
+				agent:   null,
+				domain:  ENVIRONMENT.hostname,
+				tabs:    [],
+				warning: 0
+			}
 		});
 
 	});

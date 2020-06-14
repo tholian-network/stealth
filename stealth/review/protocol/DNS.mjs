@@ -16,7 +16,7 @@ describe('DNS.resolve()/cloudflare', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
+		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
 		assert(isObject(response.payload), true);
 		assert(response.payload.domain, 'example.com');
@@ -43,7 +43,7 @@ describe('DNS.resolve()/dnssb', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
+		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
 		assert(isObject(response.payload), true);
 		assert(response.payload.domain, 'example.com');
@@ -70,7 +70,7 @@ describe('DNS.resolve()/google', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
+		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
 		assert(isObject(response.payload), true);
 		assert(response.payload.domain, 'example.com');
@@ -97,7 +97,7 @@ describe('DNS.resolve()/quad9', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
+		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
 		assert(isObject(response.payload), true);
 		assert(response.payload.domain, 'example.com');

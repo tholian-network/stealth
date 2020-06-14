@@ -10,6 +10,7 @@ before(connect);
 
 describe('new Blocker()', function(assert) {
 
+	assert(this.server !== null);
 	assert(this.server.services.blocker instanceof Blocker, true);
 
 });
@@ -18,9 +19,12 @@ describe('Blocker.isBlocker()', function(assert) {
 
 	assert(isFunction(Blocker.isBlocker), true);
 
-	assert(Blocker.isBlocker(null),                      false);
-	assert(Blocker.isBlocker({}),                        false);
-	assert(Blocker.isBlocker({ domain: 'example.com' }), true);
+	assert(Blocker.isBlocker(null), false);
+	assert(Blocker.isBlocker({}),   false);
+
+	assert(Blocker.isBlocker({
+		domain: 'example.com'
+	}), true);
 
 });
 
@@ -33,7 +37,6 @@ describe('Blocker.prototype.read()/success', function(assert) {
 		domain: 'ads.quantserve.com'
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response), true);
 		assert(isObject(response.headers), true);
 		assert(response.headers['service'], 'blocker');
@@ -48,7 +51,6 @@ describe('Blocker.prototype.read()/success', function(assert) {
 		domain: 'subdomain.ads.quantserve.com'
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response), true);
 		assert(isObject(response.headers), true);
 		assert(response.headers['service'], 'blocker');
@@ -70,7 +72,6 @@ describe('Blocker.prototype.read()/failure', function(assert) {
 		domain: 'quantserve.com'
 	}, (response) => {
 
-		assert(response !== null);
 		assert(isObject(response), true);
 		assert(isObject(response.headers), true);
 		assert(response.headers['service'], 'blocker');

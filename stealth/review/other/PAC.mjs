@@ -1,5 +1,5 @@
 
-import { isBuffer, isObject        } from '../../../base/index.mjs';
+import { Buffer                    } from '../../../base/index.mjs';
 import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
 import { PAC                       } from '../../../stealth/source/other/PAC.mjs';
 
@@ -15,82 +15,134 @@ describe('PAC.send()/callback', function(assert) {
 	let url6 = 'http://[' + EXAMPLE.ipv6.ip + ']:65432/proxy.pac';
 
 	PAC.send(null, (response) => {
+
 		assert(response, null);
+
 	});
 
 	PAC.send({}, (response) => {
+
 		assert(response, null);
+
 	});
 
 	PAC.send({ url: url1 }, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),  true);
-		assert(response.headers['@code'],   200);
-		assert(response.headers['@status'], '200 OK');
-
-		assert(isBuffer(response.payload), true);
-		assert(response.payload.toString('utf8').includes('PROXY example.com:443; DIRECT'));
+		assert(response, {
+			headers: {
+				'@code':   200,
+				'@status': '200 OK'
+			},
+			payload: Buffer.from([
+				'',
+				'function FindProxyForURL(url, host) {',
+				'	if (host === "example.com") return "DIRECT";',
+				'	if (host === "localhost") return "DIRECT";',
+				'	return "PROXY example.com:443; DIRECT";',
+				'}',
+				''
+			].join('\n'), 'utf8')
+		});
 
 	});
 
 	PAC.send({ url: url2 }, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),  true);
-		assert(response.headers['@code'],   200);
-		assert(response.headers['@status'], '200 OK');
-
-		assert(isBuffer(response.payload), true);
-		assert(response.payload.toString('utf8').includes('PROXY proxy.example.com:65432; DIRECT'));
+		assert(response, {
+			headers: {
+				'@code':   200,
+				'@status': '200 OK'
+			},
+			payload: Buffer.from([
+				'',
+				'function FindProxyForURL(url, host) {',
+				'	if (host === "proxy.example.com") return "DIRECT";',
+				'	if (host === "localhost") return "DIRECT";',
+				'	return "PROXY proxy.example.com:65432; DIRECT";',
+				'}',
+				''
+			].join('\n'), 'utf8')
+		});
 
 	});
 
 	PAC.send({ url: url3 }, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),  true);
-		assert(response.headers['@code'],   200);
-		assert(response.headers['@status'], '200 OK');
-
-		assert(isBuffer(response.payload), true);
-		assert(response.payload.toString('utf8').includes('PROXY ' + EXAMPLE.ipv4.ip + ':443; DIRECT'));
+		assert(response, {
+			headers: {
+				'@code':   200,
+				'@status': '200 OK'
+			},
+			payload: Buffer.from([
+				'',
+				'function FindProxyForURL(url, host) {',
+				'	if (host === "' + EXAMPLE.ipv4.ip + '") return "DIRECT";',
+				'	if (host === "localhost") return "DIRECT";',
+				'	return "PROXY ' + EXAMPLE.ipv4.ip + ':443; DIRECT";',
+				'}',
+				''
+			].join('\n'), 'utf8')
+		});
 
 	});
 
 	PAC.send({ url: url4 }, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),  true);
-		assert(response.headers['@code'],   200);
-		assert(response.headers['@status'], '200 OK');
-
-		assert(isBuffer(response.payload), true);
-		assert(response.payload.toString('utf8').includes('PROXY ' + EXAMPLE.ipv4.ip + ':65432; DIRECT'));
+		assert(response, {
+			headers: {
+				'@code':   200,
+				'@status': '200 OK'
+			},
+			payload: Buffer.from([
+				'',
+				'function FindProxyForURL(url, host) {',
+				'	if (host === "' + EXAMPLE.ipv4.ip + '") return "DIRECT";',
+				'	if (host === "localhost") return "DIRECT";',
+				'	return "PROXY ' + EXAMPLE.ipv4.ip + ':65432; DIRECT";',
+				'}',
+				''
+			].join('\n'), 'utf8')
+		});
 
 	});
 
 	PAC.send({ url: url5 }, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),  true);
-		assert(response.headers['@code'],   200);
-		assert(response.headers['@status'], '200 OK');
-
-		assert(isBuffer(response.payload), true);
-		assert(response.payload.toString('utf8').includes('PROXY [' + EXAMPLE.ipv6.ip + ']:443; DIRECT'));
+		assert(response, {
+			headers: {
+				'@code':   200,
+				'@status': '200 OK'
+			},
+			payload: Buffer.from([
+				'',
+				'function FindProxyForURL(url, host) {',
+				'	if (host === "[' + EXAMPLE.ipv6.ip + ']") return "DIRECT";',
+				'	if (host === "localhost") return "DIRECT";',
+				'	return "PROXY [' + EXAMPLE.ipv6.ip + ']:443; DIRECT";',
+				'}',
+				''
+			].join('\n'), 'utf8')
+		});
 
 	});
 
 	PAC.send({ url: url6 }, (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers),  true);
-		assert(response.headers['@code'],   200);
-		assert(response.headers['@status'], '200 OK');
-
-		assert(isBuffer(response.payload), true);
-		assert(response.payload.toString('utf8').includes('PROXY [' + EXAMPLE.ipv6.ip + ']:65432; DIRECT'));
+		assert(response, {
+			headers: {
+				'@code':   200,
+				'@status': '200 OK'
+			},
+			payload: Buffer.from([
+				'',
+				'function FindProxyForURL(url, host) {',
+				'	if (host === "[' + EXAMPLE.ipv6.ip + ']") return "DIRECT";',
+				'	if (host === "localhost") return "DIRECT";',
+				'	return "PROXY [' + EXAMPLE.ipv6.ip + ']:65432; DIRECT";',
+				'}',
+				''
+			].join('\n'), 'utf8')
+		});
 
 	});
 
@@ -111,47 +163,101 @@ describe('PAC.send()/return', function(assert) {
 
 	assert(response2, null);
 
-	assert(response3 !== null);
-	assert(isObject(response3.headers),  true);
-	assert(response3.headers['@code'],   200);
-	assert(response3.headers['@status'], '200 OK');
-	assert(isBuffer(response3.payload),  true);
-	assert(response3.payload.toString('utf8').includes('PROXY example.com:443; DIRECT'));
+	assert(response3, {
+		headers: {
+			'@code':   200,
+			'@status': '200 OK'
+		},
+		payload: Buffer.from([
+			'',
+			'function FindProxyForURL(url, host) {',
+			'	if (host === "example.com") return "DIRECT";',
+			'	if (host === "localhost") return "DIRECT";',
+			'	return "PROXY example.com:443; DIRECT";',
+			'}',
+			''
+		].join('\n'), 'utf8')
+	});
 
-	assert(response4 !== null);
-	assert(isObject(response4.headers),  true);
-	assert(response4.headers['@code'],   200);
-	assert(response4.headers['@status'], '200 OK');
-	assert(isBuffer(response4.payload),  true);
-	assert(response4.payload.toString('utf8').includes('PROXY proxy.example.com:65432; DIRECT'));
+	assert(response4, {
+		headers: {
+			'@code':   200,
+			'@status': '200 OK'
+		},
+		payload: Buffer.from([
+			'',
+			'function FindProxyForURL(url, host) {',
+			'	if (host === "proxy.example.com") return "DIRECT";',
+			'	if (host === "localhost") return "DIRECT";',
+			'	return "PROXY proxy.example.com:65432; DIRECT";',
+			'}',
+			''
+		].join('\n'), 'utf8')
+	});
 
-	assert(response5 !== null);
-	assert(isObject(response5.headers),  true);
-	assert(response5.headers['@code'],   200);
-	assert(response5.headers['@status'], '200 OK');
-	assert(isBuffer(response5.payload),  true);
-	assert(response5.payload.toString('utf8').includes('PROXY ' + EXAMPLE.ipv4.ip + ':443; DIRECT'));
+	assert(response5, {
+		headers: {
+			'@code':   200,
+			'@status': '200 OK'
+		},
+		payload: Buffer.from([
+			'',
+			'function FindProxyForURL(url, host) {',
+			'	if (host === "' + EXAMPLE.ipv4.ip + '") return "DIRECT";',
+			'	if (host === "localhost") return "DIRECT";',
+			'	return "PROXY ' + EXAMPLE.ipv4.ip + ':443; DIRECT";',
+			'}',
+			''
+		].join('\n'), 'utf8')
+	});
 
-	assert(response6 !== null);
-	assert(isObject(response6.headers),  true);
-	assert(response6.headers['@code'],   200);
-	assert(response6.headers['@status'], '200 OK');
-	assert(isBuffer(response6.payload),  true);
-	assert(response6.payload.toString('utf8').includes('PROXY ' + EXAMPLE.ipv4.ip + ':65432; DIRECT'));
+	assert(response6, {
+		headers: {
+			'@code':   200,
+			'@status': '200 OK'
+		},
+		payload: Buffer.from([
+			'',
+			'function FindProxyForURL(url, host) {',
+			'	if (host === "' + EXAMPLE.ipv4.ip + '") return "DIRECT";',
+			'	if (host === "localhost") return "DIRECT";',
+			'	return "PROXY ' + EXAMPLE.ipv4.ip + ':65432; DIRECT";',
+			'}',
+			''
+		].join('\n'), 'utf8')
+	});
 
-	assert(response7 !== null);
-	assert(isObject(response7.headers),  true);
-	assert(response7.headers['@code'],   200);
-	assert(response7.headers['@status'], '200 OK');
-	assert(isBuffer(response7.payload),  true);
-	assert(response7.payload.toString('utf8').includes('PROXY [' + EXAMPLE.ipv6.ip + ']:443; DIRECT'));
+	assert(response7, {
+		headers: {
+			'@code':   200,
+			'@status': '200 OK'
+		},
+		payload: Buffer.from([
+			'',
+			'function FindProxyForURL(url, host) {',
+			'	if (host === "[' + EXAMPLE.ipv6.ip + ']") return "DIRECT";',
+			'	if (host === "localhost") return "DIRECT";',
+			'	return "PROXY [' + EXAMPLE.ipv6.ip + ']:443; DIRECT";',
+			'}',
+			''
+		].join('\n'), 'utf8')
+	});
 
-	assert(response8 !== null);
-	assert(isObject(response8.headers),  true);
-	assert(response8.headers['@code'],   200);
-	assert(response8.headers['@status'], '200 OK');
-	assert(isBuffer(response8.payload),  true);
-	assert(response8.payload.toString('utf8').includes('PROXY [' + EXAMPLE.ipv6.ip + ']:65432; DIRECT'));
+	assert(response8, {
+		headers: {
+			'@code':   200,
+			'@status': '200 OK'
+		},
+		payload: Buffer.from([
+			'',
+			'function FindProxyForURL(url, host) {',
+			'	if (host === "[' + EXAMPLE.ipv6.ip + ']") return "DIRECT";',
+			'	if (host === "localhost") return "DIRECT";',
+			'	return "PROXY [' + EXAMPLE.ipv6.ip + ']:65432; DIRECT";',
+			'}',
+			''
+		].join('\n'), 'utf8')
+	});
 
 });
 

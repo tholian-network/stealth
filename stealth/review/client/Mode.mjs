@@ -1,5 +1,5 @@
 
-import { isFunction, isObject                                         } from '../../../base/index.mjs';
+import { isFunction                                                   } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
 import { Mode                                                         } from '../../../stealth/source/client/Mode.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
@@ -12,6 +12,7 @@ before(connect_client);
 
 describe('new Mode()', function(assert) {
 
+	assert(this.client !== null);
 	assert(this.client.services.mode instanceof Mode, true);
 
 });
@@ -31,7 +32,9 @@ describe('Mode.prototype.save()', function(assert) {
 			other: false
 		}
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -45,14 +48,16 @@ describe('Mode.prototype.read()/success', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.domain,         'example.com');
-		assert(isObject(response.mode), true);
-		assert(response.mode.text,      false);
-		assert(response.mode.image,     true);
-		assert(response.mode.audio,     false);
-		assert(response.mode.video,     true);
-		assert(response.mode.other,     false);
+		assert(response, {
+			domain: 'example.com',
+			mode: {
+				text:  false,
+				image: true,
+				audio: false,
+				video: true,
+				other: false
+			}
+		});
 
 	});
 
@@ -66,7 +71,9 @@ describe('Mode.prototype.remove()/success', function(assert) {
 	this.client.services.mode.remove({
 		domain: 'example.com'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
@@ -79,7 +86,9 @@ describe('Mode.prototype.read()/failure', function(assert) {
 	this.client.services.mode.read({
 		domain: 'example.com'
 	}, (response) => {
+
 		assert(response, null);
+
 	});
 
 });
@@ -92,7 +101,9 @@ describe('Mode.prototype.remove()/failure', function(assert) {
 	this.client.services.mode.remove({
 		domain: 'example.com'
 	}, (response) => {
+
 		assert(response, true);
+
 	});
 
 });
