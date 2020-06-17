@@ -20,7 +20,7 @@ const readify = function(raw) {
 			payload.hosts     = isBoolean(payload.hosts)     ? payload.hosts     : false;
 			payload.modes     = isBoolean(payload.modes)     ? payload.modes     : false;
 			payload.peers     = isBoolean(payload.peers)     ? payload.peers     : false;
-			payload.redirects = isBoolean(payload.redirects) ? payload.redirects : false;
+			payload.redirects = false; // cannot be read
 			payload.sessions  = isBoolean(payload.sessions)  ? payload.sessions  : false;
 
 			return payload;
@@ -148,7 +148,16 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 					if (result === true) {
 
 						let blob = this.stealth.settings.toJSON();
-						let data = blob.data;
+						let data = {
+							internet:  blob.data.internet,
+							blockers:  null,
+							hosts:     blob.data.hosts,
+							modes:     blob.data.modes,
+							peers:     blob.data.peers,
+							redirects: null,
+							sessions:  blob.data.sessions
+						};
+
 
 						callback({
 							headers: {

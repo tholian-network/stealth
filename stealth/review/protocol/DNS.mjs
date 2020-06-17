@@ -1,5 +1,5 @@
 
-import { isFunction, isObject      } from '../../../base/index.mjs';
+import { isFunction                } from '../../../base/index.mjs';
 import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
 import { DNS                       } from '../../../stealth/source/protocol/DNS.mjs';
 
@@ -16,17 +16,13 @@ describe('DNS.resolve()/cloudflare', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(isObject(response),         true);
-		assert(isObject(response.headers), true);
-		assert(isObject(response.payload), true);
-		assert(response.payload.domain, 'example.com');
-		assert(response.payload.hosts.length > 0);
-
-		let check4 = response.payload.hosts.find((ip) => ip.type === 'v4') || null;
-		let check6 = response.payload.hosts.find((ip) => ip.type === 'v6') || null;
-
-		assert(check4, EXAMPLE.ipv4);
-		assert(check6, EXAMPLE.ipv6);
+		assert(response, {
+			headers: {},
+			payload: {
+				domain: 'example.com',
+				hosts:  EXAMPLE.hosts
+			}
+		});
 
 	});
 
@@ -43,17 +39,13 @@ describe('DNS.resolve()/dnssb', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(isObject(response),         true);
-		assert(isObject(response.headers), true);
-		assert(isObject(response.payload), true);
-		assert(response.payload.domain, 'example.com');
-		assert(response.payload.hosts.length > 0);
-
-		let check4 = response.payload.hosts.find((ip) => ip.type === 'v4') || null;
-		let check6 = response.payload.hosts.find((ip) => ip.type === 'v6') || null;
-
-		assert(check4, EXAMPLE.ipv4);
-		assert(check6, EXAMPLE.ipv6);
+		assert(response, {
+			headers: {},
+			payload: {
+				domain: 'example.com',
+				hosts:  EXAMPLE.hosts
+			}
+		});
 
 	});
 
@@ -70,17 +62,13 @@ describe('DNS.resolve()/google', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(isObject(response),         true);
-		assert(isObject(response.headers), true);
-		assert(isObject(response.payload), true);
-		assert(response.payload.domain, 'example.com');
-		assert(response.payload.hosts.length > 0);
-
-		let check4 = response.payload.hosts.find((ip) => ip.type === 'v4') || null;
-		let check6 = response.payload.hosts.find((ip) => ip.type === 'v6') || null;
-
-		assert(check4, EXAMPLE.ipv4);
-		assert(check6, EXAMPLE.ipv6);
+		assert(response, {
+			headers: {},
+			payload: {
+				domain: 'example.com',
+				hosts:  EXAMPLE.hosts
+			}
+		});
 
 	});
 
@@ -97,17 +85,13 @@ describe('DNS.resolve()/quad9', function(assert) {
 		domain: 'example.com'
 	}, (response) => {
 
-		assert(isObject(response),         true);
-		assert(isObject(response.headers), true);
-		assert(isObject(response.payload), true);
-		assert(response.payload.domain, 'example.com');
-		assert(response.payload.hosts.length > 0);
-
-		let check4 = response.payload.hosts.find((ip) => ip.type === 'v4') || null;
-		let check6 = response.payload.hosts.find((ip) => ip.type === 'v6') || null;
-
-		assert(check4, EXAMPLE.ipv4);
-		assert(check6, EXAMPLE.ipv6);
+		assert(response, {
+			headers: {},
+			payload: {
+				domain: 'example.com',
+				hosts:  EXAMPLE.hosts
+			}
+		});
 
 	});
 

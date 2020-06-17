@@ -22,16 +22,19 @@ describe('Settings.prototype.read()/all', function(assert) {
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.settings.read), true);
 
+	let defaults = this.stealth.settings.toJSON().data;
+
 	this.client.services.settings.read(null, (response) => {
 
-		assert(isObject(response),          true);
-		assert(isObject(response.internet), true);
-		assert(response.blockers,           null);
-		assert(isArray(response.hosts),     true);
-		assert(isArray(response.modes),     true);
-		assert(isArray(response.peers),     true);
-		assert(response.redirects,          null);
-		assert(isArray(response.sessions),  true);
+		assert(response, {
+			internet:  defaults.internet,
+			blockers:  null,
+			hosts:     defaults.hosts,
+			modes:     defaults.modes,
+			peers:     defaults.peers,
+			redirects: defaults.redirects,
+			sessions:  defaults.sessions
+		});
 
 	});
 
@@ -42,18 +45,21 @@ describe('Settings.prototype.read()/internet', function(assert) {
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.settings.read), true);
 
+	let defaults = this.stealth.settings.toJSON().data;
+
 	this.client.services.settings.read({
 		internet: true
 	}, (response) => {
 
-		assert(isObject(response),          true);
-		assert(isObject(response.internet), true);
-		assert(response.blockers,           null);
-		assert(response.hosts,              null);
-		assert(response.modes,              null);
-		assert(response.peers,              null);
-		assert(response.redirects,          null);
-		assert(response.sessions,           null);
+		assert(response, {
+			internet:  defaults.internet,
+			blockers:  null,
+			hosts:     null,
+			modes:     null,
+			peers:     null,
+			redirects: null,
+			sessions:  null
+		});
 
 	});
 
@@ -68,14 +74,15 @@ describe('Settings.prototype.read()/blockers', function(assert) {
 		blockers: true
 	}, (response) => {
 
-		assert(isObject(response), true);
-		assert(response.internet,  null);
-		assert(response.blockers,  null);
-		assert(response.hosts,     null);
-		assert(response.modes,     null);
-		assert(response.peers,     null);
-		assert(response.redirects, null);
-		assert(response.sessions,  null);
+		assert(response, {
+			internet:  null,
+			blockers:  null,
+			hosts:     null,
+			modes:     null,
+			peers:     null,
+			redirects: null,
+			sessions:  null
+		});
 
 	});
 
@@ -86,18 +93,21 @@ describe('Settings.prototype.read()/hosts', function(assert) {
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.settings.read), true);
 
+	let defaults = this.stealth.settings.toJSON().data;
+
 	this.client.services.settings.read({
 		hosts: true
 	}, (response) => {
 
-		assert(isObject(response),      true);
-		assert(response.internet,       null);
-		assert(response.blockers,       null);
-		assert(isArray(response.hosts), true);
-		assert(response.modes,          null);
-		assert(response.peers,          null);
-		assert(response.redirects,      null);
-		assert(response.sessions,       null);
+		assert(response, {
+			internet:  null,
+			blockers:  null,
+			hosts:     defaults.hosts,
+			modes:     null,
+			peers:     null,
+			redirects: null,
+			sessions:  null
+		});
 
 	});
 
@@ -108,18 +118,21 @@ describe('Settings.prototype.read()/modes', function(assert) {
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.settings.read), true);
 
+	let defaults = this.stealth.settings.toJSON().data;
+
 	this.client.services.settings.read({
 		modes: true
 	}, (response) => {
 
-		assert(isObject(response),      true);
-		assert(response.internet,       null);
-		assert(response.blockers,       null);
-		assert(response.hosts,          null);
-		assert(isArray(response.modes), true);
-		assert(response.peers,          null);
-		assert(response.redirects,      null);
-		assert(response.sessions,       null);
+		assert(response, {
+			internet:  null,
+			blockers:  null,
+			hosts:     null,
+			modes:     defaults.modes,
+			peers:     null,
+			redirects: null,
+			sessions:  null
+		});
 
 	});
 
@@ -130,18 +143,21 @@ describe('Settings.prototype.read()/peers', function(assert) {
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.settings.read), true);
 
+	let defaults = this.stealth.settings.toJSON().data;
+
 	this.client.services.settings.read({
 		peers: true
 	}, (response) => {
 
-		assert(isObject(response),      true);
-		assert(response.internet,       null);
-		assert(response.blockers,       null);
-		assert(response.hosts,          null);
-		assert(response.modes,          null);
-		assert(isArray(response.peers), true);
-		assert(response.redirects,      null);
-		assert(response.sessions,       null);
+		assert(response, {
+			internet:  null,
+			blockers:  null,
+			hosts:     null,
+			modes:     null,
+			peers:     defaults.peers,
+			redirects: null,
+			sessions:  null
+		});
 
 	});
 
@@ -156,14 +172,15 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 		redirects: true
 	}, (response) => {
 
-		assert(isObject(response), true);
-		assert(response.internet,  null);
-		assert(response.blockers,  null);
-		assert(response.hosts,     null);
-		assert(response.modes,     null);
-		assert(response.peers,     null);
-		assert(response.redirects, null);
-		assert(response.sessions,  null);
+		assert(response, {
+			internet:  null,
+			blockers:  null,
+			hosts:     null,
+			modes:     null,
+			peers:     null,
+			redirects: null,
+			sessions:  null
+		});
 
 	});
 
@@ -174,18 +191,21 @@ describe('Settings.prototype.read()/sessions', function(assert) {
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.settings.read), true);
 
+	let defaults = this.stealth.settings.toJSON().data;
+
 	this.client.services.settings.read({
 		sessions: true
 	}, (response) => {
 
-		assert(isObject(response),         true);
-		assert(response.internet,          null);
-		assert(response.blockers,          null);
-		assert(response.hosts,             null);
-		assert(response.modes,             null);
-		assert(response.peers,             null);
-		assert(response.redirects,         null);
-		assert(isArray(response.sessions), true);
+		assert(response, {
+			internet:  null,
+			blockers:  null,
+			hosts:     null,
+			modes:     null,
+			peers:     null,
+			redirects: null,
+			sessions:  defaults.sessions
+		});
 
 	});
 
@@ -291,7 +311,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 
 		assert(response.redirects, null);
 
-		assert(response.sessions,  []);
+		assert(response.sessions, []);
 
 	});
 

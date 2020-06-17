@@ -321,8 +321,13 @@ describe('Cache.prototype.remove()', function(assert) {
 		path:   '/index.html'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.payload, true);
+		assert(response, {
+			headers: {
+				service: 'cache',
+				event:   'remove'
+			},
+			payload: true
+		});
 
 	});
 

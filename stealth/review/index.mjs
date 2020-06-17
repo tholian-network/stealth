@@ -44,7 +44,7 @@ import server_Mode        from './server/Mode.mjs';
 import server_Peer        from './server/Peer.mjs';
 import server_Redirect    from './server/Redirect.mjs';
 import server_Session     from './server/Session.mjs';
-// import server_Settings    from './server/Settings.mjs';
+import server_Settings    from './server/Settings.mjs';
 import server_Stash       from './server/Stash.mjs';
 
 
@@ -102,7 +102,7 @@ export default {
 		server_Peer,
 		server_Redirect,
 		server_Session,
-		// server_Settings,
+		server_Settings,
 		server_Stash,
 
 		client_Blocker,
