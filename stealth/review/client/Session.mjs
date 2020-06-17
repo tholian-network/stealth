@@ -1,9 +1,9 @@
 
 import { isBuffer, isFunction, isObject                               } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
+import { ENVIRONMENT                                                  } from '../../../stealth/source/ENVIRONMENT.mjs';
 import { Session                                                      } from '../../../stealth/source/client/Session.mjs';
 import { URL                                                          } from '../../../stealth/source/parser/URL.mjs';
-import { ENVIRONMENT                                                  } from '../../../stealth/source/ENVIRONMENT.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
@@ -131,7 +131,6 @@ describe('Session.prototype.query()/domain/failure', function(assert) {
 	});
 
 });
-
 
 describe('Session.prototype.read()', function(assert) {
 

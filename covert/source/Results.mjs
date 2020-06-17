@@ -1,6 +1,6 @@
 
-import { isArray, isBoolean, isDate, isFunction, isNumber, isObject, isRegExp, isString } from '../extern/base.mjs';
-import { Filesystem                                                                     } from './Filesystem.mjs';
+import { Buffer, isArray, isBoolean, isBuffer, isDate, isFunction, isNumber, isObject, isRegExp, isString } from '../extern/base.mjs';
+import { Filesystem                                                                                       } from './Filesystem.mjs';
 
 
 
@@ -18,6 +18,14 @@ const clone = function(obj) {
 		data = JSON.parse(JSON.stringify(obj));
 	} catch (err) {
 		data = null;
+	}
+
+	if (isObject(data.payload) === true) {
+
+		if (data.payload.type === 'Buffer') {
+			data.payload = Buffer.from(data.payload.data || []);
+		}
+
 	}
 
 	return data;
@@ -72,6 +80,10 @@ const diff = function(aobject, bobject) {
 	} else if (isBoolean(aobject) === true && isBoolean(bobject) === true) {
 
 		return aobject !== bobject;
+
+	} else if (isBuffer(aobject) === true && isBuffer(bobject) === true) {
+
+		return aobject.toString('hex') !== bobject.toString('hex');
 
 	} else if (isDate(aobject) === true && isDate(bobject) === true) {
 

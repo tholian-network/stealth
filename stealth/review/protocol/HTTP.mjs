@@ -84,7 +84,7 @@ describe('HTTP.send()', function(assert) {
 		assert(isObject(response), true);
 
 		assert(isObject(response.headers),  true);
-		assert(response.headers['@status'], '200 OK');
+		assert(response.headers['@status'], '206 Partial Content');
 
 		assert(isBuffer(response.payload), true);
 		assert(response.payload.toString('utf8').includes('<html>'));

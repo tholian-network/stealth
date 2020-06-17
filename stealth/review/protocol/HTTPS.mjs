@@ -20,29 +20,6 @@ before('HTTPS.connect()', function(assert) {
 
 });
 
-describe('HTTPS.send()', function(assert) {
-
-	assert(isFunction(HTTPS.send), true);
-	assert(this.connection !== null);
-
-	this.connection.on('response', (response) => {
-
-		assert(isObject(response), true);
-
-		assert(isObject(response.headers),  true);
-		assert(response.headers['@status'], '200 OK');
-
-		assert(isBuffer(response.payload), true);
-		assert(response.payload.toString('utf8').includes('<html>'));
-		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
-		assert(response.payload.toString('utf8').includes('</html>'));
-
-	});
-
-	HTTPS.send(this.connection, EXAMPLE.request);
-
-});
-
 describe('HTTPS.receive()', function(assert) {
 
 	assert(isFunction(HTTPS.receive), true);
@@ -62,6 +39,29 @@ describe('HTTPS.receive()', function(assert) {
 		assert(response.payload.toString('utf8').includes('</html>'));
 
 	});
+
+});
+
+describe('HTTPS.send()', function(assert) {
+
+	assert(isFunction(HTTPS.send), true);
+	assert(this.connection !== null);
+
+	this.connection.on('response', (response) => {
+
+		assert(isObject(response), true);
+
+		assert(isObject(response.headers),  true);
+		assert(response.headers['@status'], '206 Partial Content');
+
+		assert(isBuffer(response.payload), true);
+		assert(response.payload.toString('utf8').includes('<html>'));
+		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
+		assert(response.payload.toString('utf8').includes('</html>'));
+
+	});
+
+	HTTPS.send(this.connection, EXAMPLE.request);
 
 });
 

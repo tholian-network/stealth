@@ -1,5 +1,5 @@
 
-import { isFunction, isObject            } from '../../../base/index.mjs';
+import { isFunction                      } from '../../../base/index.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { Blocker                         } from '../../../stealth/source/server/Blocker.mjs';
 import { connect, disconnect             } from '../Server.mjs';
@@ -37,13 +37,15 @@ describe('Blocker.prototype.read()/success', function(assert) {
 		domain: 'ads.quantserve.com'
 	}, (response) => {
 
-		assert(isObject(response), true);
-		assert(isObject(response.headers), true);
-		assert(response.headers['service'], 'blocker');
-		assert(response.headers['event'],   'read');
-
-		assert(isObject(response.payload), true);
-		assert(response.payload.domain,    'ads.quantserve.com');
+		assert(response, {
+			headers: {
+				service: 'blocker',
+				event:   'read'
+			},
+			payload: {
+				domain: 'ads.quantserve.com'
+			}
+		});
 
 	});
 
@@ -51,13 +53,15 @@ describe('Blocker.prototype.read()/success', function(assert) {
 		domain: 'subdomain.ads.quantserve.com'
 	}, (response) => {
 
-		assert(isObject(response), true);
-		assert(isObject(response.headers), true);
-		assert(response.headers['service'], 'blocker');
-		assert(response.headers['event'],   'read');
-
-		assert(isObject(response.payload), true);
-		assert(response.payload.domain,    'ads.quantserve.com');
+		assert(response, {
+			headers: {
+				service: 'blocker',
+				event:   'read'
+			},
+			payload: {
+				domain: 'ads.quantserve.com'
+			}
+		});
 
 	});
 
@@ -72,12 +76,13 @@ describe('Blocker.prototype.read()/failure', function(assert) {
 		domain: 'quantserve.com'
 	}, (response) => {
 
-		assert(isObject(response), true);
-		assert(isObject(response.headers), true);
-		assert(response.headers['service'], 'blocker');
-		assert(response.headers['event'],   'read');
-
-		assert(response.payload, null);
+		assert(response, {
+			headers: {
+				service: 'blocker',
+				event:   'read'
+			},
+			payload: null
+		});
 
 	});
 

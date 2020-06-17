@@ -1,5 +1,5 @@
 
-import { isFunction, isObject                     } from '../../base/index.mjs';
+import { isFunction, isNumber                     } from '../../base/index.mjs';
 import { after, before, describe, finish, EXAMPLE } from '../../covert/index.mjs';
 import { Request, isRequest                       } from '../../stealth/source/Request.mjs';
 import { connect, disconnect                      } from './Server.mjs';
@@ -46,9 +46,8 @@ describe('Request.from()', function(assert) {
 	assert(request.get('useragent'), 'Some User/Agent 13.37');
 	assert(request.get('webview'),   true);
 
-	assert(request.url, 'https://example.com/does-not-exist.html');
-
-	assert(request._settings.config, config);
+	assert(request.url,    'https://example.com/does-not-exist.html');
+	assert(request.config, config);
 
 });
 
@@ -255,10 +254,10 @@ describe('Request.prototype.start()/cache', function(assert) {
 		assert(events.connect,  false);
 		assert(events.download, false);
 
-		assert(request.timeline.cache !== null);
-		assert(request.timeline.stash,    null);
-		assert(request.timeline.connect,  null);
-		assert(request.timeline.download, null);
+		assert(isNumber(request.timeline.cache), true);
+		assert(request.timeline.stash,           null);
+		assert(request.timeline.connect,         null);
+		assert(request.timeline.download,        null);
 
 	});
 
@@ -277,8 +276,13 @@ describe('Redirect.prototype.save()', function(assert) {
 		location: 'https://example.com/index.html'
 	}, (response) => {
 
-		assert(response !== null);
-		assert(response.payload, true);
+		assert(response, {
+			headers: {
+				service: 'redirect',
+				event:   'save'
+			},
+			payload: true
+		});
 
 	});
 
@@ -294,10 +298,12 @@ describe('Request.prototype.start()/redirect', function(assert) {
 
 	request.once('redirect', (response) => {
 
-		assert(response !== null);
-		assert(isObject(response.headers), true);
-		assert(response.headers.location, 'https://example.com/index.html');
-		assert(response.payload, null);
+		assert(response, {
+			headers: {
+				location: 'https://example.com/index.html'
+			},
+			payload: null
+		});
 
 	});
 
