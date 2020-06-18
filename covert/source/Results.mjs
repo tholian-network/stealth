@@ -20,10 +20,14 @@ const clone = function(obj) {
 		data = null;
 	}
 
-	if (isObject(data.payload) === true) {
+	if (data !== null) {
 
-		if (data.payload.type === 'Buffer') {
-			data.payload = Buffer.from(data.payload.data || []);
+		if (isObject(data.payload) === true) {
+
+			if (data.payload.type === 'Buffer') {
+				data.payload = Buffer.from(data.payload.data || []);
+			}
+
 		}
 
 	}
@@ -105,7 +109,24 @@ const diff = function(aobject, bobject) {
 
 	} else if (isNumber(aobject) === true && isNumber(bobject) === true) {
 
-		return aobject !== bobject;
+		if (aobject === bobject) {
+
+			return false;
+
+		} else {
+
+			// Allow 16ms of variance due to timing issues via setTimeout()
+			if ((aobject).toString().length === 13 && (bobject).toString().length === 13) {
+
+				if (aobject >= bobject - 8 && aobject <= bobject + 8) {
+					return false;
+				}
+
+			}
+
+			return true;
+
+		}
 
 	} else if (isObject(aobject) === true && isObject(bobject) === true) {
 

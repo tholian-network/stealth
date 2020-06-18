@@ -207,41 +207,53 @@ Session.prototype = {
 
 
 		this.agent   = null;
-		this.domain  = null;
+		this.domain  = Date.now() + '.tholian.network';
 		this.stealth = null;
 		this.tabs    = [];
 		this.warning = 0;
+
+
+		return true;
 
 	},
 
 	dispatch: function(headers) {
 
-		headers = isObject(headers) ? headers : {};
+		headers = isObject(headers) ? headers : null;
 
 
-		let domain = headers['domain'] || null;
-		if (domain !== null) {
-			this.domain = domain;
-		}
+		if (headers !== null) {
 
-		if (this.domain.endsWith('.tholian.network')) {
+			let domain = headers['domain'] || null;
+			if (domain !== null) {
+				this.domain = domain;
+			}
 
-			let address = headers['@remote'] || null;
-			if (address !== null) {
+			if (this.domain.endsWith('.tholian.network')) {
 
-				let ip = IP.parse(address);
-				if (ip.type !== null) {
-					this.domain = IP.render(ip);
+				let address = headers['@remote'] || null;
+				if (address !== null) {
+
+					let ip = IP.parse(address);
+					if (ip.type !== null) {
+						this.domain = IP.render(ip);
+					}
+
 				}
 
 			}
 
+			let useragent = headers['user-agent'] || null;
+			if (useragent !== null) {
+				this.agent = UA.parse(headers['user-agent']);
+			}
+
+			return true;
+
 		}
 
-		let useragent = headers['user-agent'] || null;
-		if (useragent !== null) {
-			this.agent = UA.parse(headers['user-agent']);
-		}
+
+		return false;
 
 	},
 
@@ -402,10 +414,12 @@ Session.prototype = {
 			console.warn('Session "' + this.domain + '" received warning #' + this.warning + '.');
 		}
 
-
-		if (this.warning >= 3) {
+		if (this.warning > 3) {
 			this.destroy();
 		}
+
+
+		return true;
 
 	}
 

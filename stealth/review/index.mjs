@@ -4,7 +4,7 @@ import Client             from './Client.mjs';
 import MODULE             from './MODULE.mjs';
 import Request            from './Request.mjs';
 import Server             from './Server.mjs';
-// import Session            from './Session.mjs';
+import Session            from './Session.mjs';
 import Settings           from './Settings.mjs';
 import Stealth            from './Stealth.mjs';
 import Tab                from './Tab.mjs';
@@ -86,7 +86,7 @@ export default {
 		request_Optimizer,
 
 		// Stealth
-		// Session,
+		Session,
 		Settings,
 		Stealth,
 		Client,
