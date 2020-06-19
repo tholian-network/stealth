@@ -105,6 +105,71 @@ describe('Session.from()', function(assert) {
 
 });
 
+describe('Session.merge()', function(assert) {
+
+	let session1 = new Session();
+	let session2 = Session.from({
+		type: 'Session',
+		data: {
+			agent: {
+				engine:   'safari',
+				platform: 'browser',
+				system:   'desktop',
+				version:  '12.0'
+			},
+			domain: 'peer.tholian.network',
+			tabs:    [{
+				type: 'Tab',
+				data: {
+					id: '1337',
+					history: [{
+						config: {
+							domain: 'example.com',
+							mode: {
+								text:  true,
+								image: false,
+								audio: false,
+								video: false,
+								other: true
+							}
+						},
+						time: Date.now(),
+						url: 'https://example.com/index.html'
+					}]
+				}
+			}]
+		}
+	});
+
+	Session.merge(session1, session2);
+
+	assert(session1.agent, {
+		engine:   'safari',
+		platform: 'browser',
+		system:   'desktop',
+		version:  '12.0'
+	});
+
+	assert(session1.domain, 'peer.tholian.network');
+
+	assert(session1.tabs.length, 1);
+	assert(session1.tabs[0].id,  '1337');
+
+	assert(session1.tabs[0].history.length,    1);
+	assert(session1.tabs[0].history[0].url,    'https://example.com/index.html');
+	assert(session1.tabs[0].history[0].config, {
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: false,
+			video: false,
+			other: true
+		}
+	});
+
+});
+
 describe('Session.isSession()', function(assert) {
 
 	let session = new Session(null);
