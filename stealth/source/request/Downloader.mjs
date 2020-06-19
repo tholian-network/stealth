@@ -204,17 +204,17 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 			if (proxy !== null) {
 
 				this.__interval = setInterval(() => measure.call(this), 1000);
-				this.connection = SOCKS.connect(this.ref, this.buffer);
+				this.connection = SOCKS.connect(this.ref);
 
 			} else if (this.ref.protocol === 'https') {
 
 				this.__interval = setInterval(() => measure.call(this), 1000);
-				this.connection = HTTPS.connect(this.ref, this.buffer);
+				this.connection = HTTPS.connect(this.ref);
 
 			} else if (this.ref.protocol === 'http') {
 
 				this.__interval = setInterval(() => measure.call(this), 1000);
-				this.connection = HTTP.connect(this.ref, this.buffer);
+				this.connection = HTTP.connect(this.ref);
 
 			}
 
@@ -248,8 +248,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					let headers = {
 						'@method': 'GET',
-						'@path':   this.ref.path,
-						'@query':  this.ref.query,
+						'@url':    this.ref.path + (this.ref.query !== null ? ('?' + this.ref.query) : ''),
 						'host':    hostname,
 						'range':   'bytes=' + this.buffer.start + '-'
 					};

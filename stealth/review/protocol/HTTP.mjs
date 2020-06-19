@@ -1,7 +1,10 @@
 
+import net from 'net';
+
 import { isBuffer, isFunction, isObject           } from '../../../base/index.mjs';
 import { after, before, describe, finish, EXAMPLE } from '../../../covert/index.mjs';
 import { HTTP                                     } from '../../../stealth/source/protocol/HTTP.mjs';
+import { URL                                      } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -95,6 +98,52 @@ describe('HTTP.send()', function(assert) {
 
 	connection.once('@connect', () => {
 		assert(HTTP.send(connection, EXAMPLE.request), true);
+	});
+
+});
+
+describe('HTTP.upgrade()', function(assert) {
+
+	let server = new net.Server({
+		allowHalfOpen:  true,
+		pauseOnConnect: true
+	});
+
+	server.once('connection', (socket) => {
+
+		let connection = HTTP.upgrade(socket);
+
+		connection.once('@connect', () => {
+			assert(true);
+		});
+
+		connection.once('request', (request) => {
+			assert(request, EXAMPLE.request);
+		});
+
+		connection.once('@disconnect', () => {
+			assert(true);
+		});
+
+		socket.resume();
+
+	});
+
+	server.listen(13337, null);
+
+
+	let connection = HTTP.connect(URL.parse('http://localhost:13337'));
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+			assert(HTTP.send(connection, EXAMPLE.request), true);
+		}, 100);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 });

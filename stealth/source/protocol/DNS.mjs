@@ -65,7 +65,7 @@ const query = function(ref, name, type, callback) {
 			HTTPS.send(connection, {
 				headers: {
 					'@method': 'GET',
-					'@path':   ref.path + '?name=' + name + '&type=' + type,
+					'@url':    ref.path + '?name=' + name + '&type=' + type,
 					'accept':  'application/dns-json',
 					'host':    ref.domain
 				}

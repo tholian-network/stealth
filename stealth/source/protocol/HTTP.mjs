@@ -129,18 +129,14 @@ const ondata = function(connection, ref, chunk) {
 		let check = fragment.headers.indexOf(Buffer.from('\r\n\r\n', 'utf8'));
 		if (check !== -1) {
 
-			HTTP.receive(connection, fragment.headers, (response) => {
+			HTTP.receive(connection, fragment.headers, (frame) => {
 
 				fragment.mode = 'payload';
+				ref.headers   = frame.headers;
 
 
-				if (ref.headers === null) {
-					ref.headers = response.headers;
-				}
-
-
-				let tmp0 = response.headers['content-length'] || null;
-				let tmp1 = response.headers['content-range']  || null;
+				let tmp0 = frame.headers['content-length'] || null;
+				let tmp1 = frame.headers['content-range']  || null;
 				if (tmp0 !== null && fragment.length === null) {
 
 					let num = parseInt(tmp0, 10);
@@ -162,8 +158,8 @@ const ondata = function(connection, ref, chunk) {
 				}
 
 
-				let tmp2 = response.headers['content-encoding']  || null;
-				let tmp3 = response.headers['transfer-encoding'] || null;
+				let tmp2 = frame.headers['content-encoding']  || null;
+				let tmp3 = frame.headers['transfer-encoding'] || null;
 				if (tmp2 === 'gzip' || tmp3 === 'gzip') {
 					fragment.encoding = 'gzip';
 				} else if (tmp3 === 'chunked') {
@@ -173,52 +169,70 @@ const ondata = function(connection, ref, chunk) {
 				}
 
 
-				let tmp4 = (response.headers['@status'] || '').split(' ').shift();
-				let tmp5 = (response.headers['content-range'] || null);
-				if (tmp4 === '206' && tmp5 !== null) {
+				if (connection.type === 'client') {
 
-					fragment.partial = true;
+					let tmp4 = (frame.headers['@status'] || '').split(' ').shift();
+					let tmp5 = (frame.headers['content-range'] || null);
+					if (tmp4 === '206' && tmp5 !== null) {
 
-					if (response.payload !== null) {
+						fragment.partial = true;
 
-						if (fragment.payload !== null) {
-							fragment.payload = Buffer.concat([ fragment.payload, response.payload ]);
-						} else {
-							fragment.payload = response.payload;
+						if (frame.payload !== null) {
+
+							if (fragment.payload !== null) {
+								fragment.payload = Buffer.concat([ fragment.payload, frame.payload ]);
+							} else {
+								fragment.payload = frame.payload;
+							}
+
 						}
 
-					}
+					} else if (tmp4 === '200') {
 
-				} else if (tmp4 === '200') {
+						fragment.partial = false;
 
-					fragment.partial = false;
+						if (frame.payload !== null) {
+							fragment.payload = frame.payload;
+						}
 
-					if (response.payload !== null) {
-						fragment.payload = response.payload;
-					}
+					} else if (tmp4 === '416') {
 
-				} else if (tmp4 === '416') {
+						connection.emit('error', [{ type: 'stash' }]);
 
-					connection.emit('error', [{ type: 'stash' }]);
+					} else {
 
-				} else {
+						fragment.partial = false;
 
-					fragment.partial = false;
+						if (frame.payload !== null) {
+							fragment.payload = frame.payload;
+						}
 
-					if (response.payload !== null) {
-						fragment.payload = response.payload;
-					}
-
-					connection.socket.removeAllListeners('data');
-					connection.socket.end();
-
-				}
-
-
-				if (fragment.length !== null) {
-
-					if (fragment.length === fragment.payload.length) {
+						connection.socket.removeAllListeners('data');
 						connection.socket.end();
+
+					}
+
+
+					if (fragment.length !== null && fragment.length === fragment.payload.length) {
+						connection.socket.end();
+					}
+
+				} else if (connection.type === 'server') {
+
+					if (fragment.length !== null && fragment.length === fragment.payload.length) {
+
+						connection.emit('request', [{
+							headers: ref.headers,
+							payload: fragment.payload
+						}]);
+
+					} else if (fragment.length === null) {
+
+						connection.emit('request', [{
+							headers: ref.headers,
+							payload: fragment.payload
+						}]);
+
 					}
 
 				}
@@ -241,10 +255,28 @@ const ondata = function(connection, ref, chunk) {
 		}]);
 
 
-		if (fragment.length !== null) {
+		if (connection.type === 'client') {
 
-			if (fragment.length === fragment.payload.length) {
+			if (fragment.length !== null && fragment.length === fragment.payload.length) {
 				connection.socket.end();
+			}
+
+		} else if (connection.type === 'server') {
+
+			if (fragment.length !== null && fragment.length === fragment.payload.length) {
+
+				connection.emit('request', [{
+					headers: ref.headers,
+					payload: fragment.payload
+				}]);
+
+			} else if (fragment.length === null) {
+
+				connection.emit('request', [{
+					headers: ref.headers,
+					payload: fragment.payload
+				}]);
+
 			}
 
 		}
@@ -262,16 +294,14 @@ const ondisconnect = function(connection, ref) {
 		let check = fragment.headers.indexOf(Buffer.from('\r\n\r\n', 'utf8'));
 		if (check !== -1) {
 
-			HTTP.receive(connection, fragment.headers, (response) => {
+			HTTP.receive(connection, fragment.headers, (frame) => {
 
-				if (ref.headers === null) {
-					ref.headers = response.headers;
-				}
+				ref.headers = frame.headers;
 
-				if (response.payload !== null) {
+				if (frame.payload !== null) {
 
-					if (response.payload.length === fragment.length) {
-						fragment.payload = response.payload;
+					if (frame.payload.length === fragment.length) {
+						fragment.payload = frame.payload;
 					}
 
 				}
@@ -283,63 +313,67 @@ const ondisconnect = function(connection, ref) {
 	}
 
 
-	if (ref.headers !== null) {
+	if (connection.type === 'client') {
 
-		let code = (ref.headers['@status'] || '500').split(' ').shift();
-		if (code === '200' || code === '204' || code === '205' || code === '206') {
+		if (ref.headers !== null) {
 
-			if (fragment.length === null || fragment.length === fragment.payload.length) {
+			let code = (ref.headers['@status'] || '500').split(' ').shift();
+			if (code === '200' || code === '204' || code === '205' || code === '206') {
 
-				if (fragment.encoding === 'chunked') {
-					fragment.payload  = decode_chunked(fragment.payload);
-					fragment.encoding = 'identity';
-				} else if (fragment.encoding === 'gzip') {
-					fragment.payload  = decode_gzip(fragment.payload);
-					fragment.encoding = 'identity';
-				}
+				if (fragment.length === null || fragment.length === fragment.payload.length) {
+
+					if (fragment.encoding === 'chunked') {
+						fragment.payload  = decode_chunked(fragment.payload);
+						fragment.encoding = 'identity';
+					} else if (fragment.encoding === 'gzip') {
+						fragment.payload  = decode_gzip(fragment.payload);
+						fragment.encoding = 'identity';
+					}
 
 
-				connection.emit('response', [{
-					headers: ref.headers,
-					payload: fragment.payload
-				}]);
-
-			} else if (fragment.length < fragment.payload.length) {
-
-				if (fragment.partial === true) {
-
-					connection.emit('timeout', [{
+					connection.emit('response', [{
 						headers: ref.headers,
 						payload: fragment.payload
 					}]);
 
+				} else if (fragment.length < fragment.payload.length) {
+
+					if (fragment.partial === true) {
+
+						connection.emit('timeout', [{
+							headers: ref.headers,
+							payload: fragment.payload
+						}]);
+
+					} else {
+						connection.emit('timeout', [ null ]);
+					}
+
 				} else {
-					connection.emit('timeout', [ null ]);
+					connection.emit('error', [{ type: 'stash' }]);
 				}
 
+			} else if (code === '301' || code === '307' || code === '308') {
+
+				let tmp = ref.headers['location'] || null;
+				if (tmp !== null) {
+					connection.emit('redirect', [{ headers: ref.headers }]);
+				} else {
+					connection.emit('error', [{ code: code, type: 'request', cause: 'headers-location' }]);
+				}
+
+			} else if (code.startsWith('4') && code.length === 3) {
+				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
+			} else if (code.startsWith('5') && code.length === 3) {
+				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
 			} else {
-				connection.emit('error', [{ type: 'stash' }]);
+				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
 			}
 
-		} else if (code === '301' || code === '307' || code === '308') {
-
-			let tmp = ref.headers['location'] || null;
-			if (tmp !== null) {
-				connection.emit('redirect', [{ headers: ref.headers }]);
-			} else {
-				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-location' }]);
-			}
-
-		} else if (code.startsWith('4') && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
-		} else if (code.startsWith('5') && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
 		} else {
-			connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
+			connection.emit('timeout', [ null ]);
 		}
 
-	} else {
-		connection.emit('timeout', [ null ]);
 	}
 
 
@@ -805,15 +839,7 @@ const HTTP = {
 				}
 
 
-				if (isString(headers['@method']) === true && isString(headers['@path']) === true) {
-
-					if (isString(headers['@query']) === true) {
-						blob.push(headers['@method'] + ' ' + headers['@path'] + '?' + headers['@query'] + ' HTTP/1.1');
-					} else {
-						blob.push(headers['@method'] + ' ' + headers['@path'] + ' HTTP/1.1');
-					}
-
-				} else if (isString(headers['@method']) === true && isString(headers['@url']) === true) {
+				if (isString(headers['@method']) === true && isString(headers['@url']) === true) {
 					blob.push(headers['@method'] + ' ' + headers['@url'] + ' HTTP/1.1');
 				} else if (isString(headers['@status']) === true) {
 					blob.push('HTTP/1.1 ' + headers['@status']);

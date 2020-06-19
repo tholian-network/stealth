@@ -170,8 +170,7 @@ const EXAMPLE = {
 	request: {
 		headers: {
 			'@method': 'GET',
-			'@path':   '/index.html',
-			'@query':  null,
+			'@url':    '/index.html',
 			'host':    'example.com',
 			'range':   'bytes=0-'
 		},
