@@ -384,9 +384,14 @@ const ondisconnect = function(connection, ref) {
 
 };
 
-const onupgrade = function(connection /*, ref */) {
+const onupgrade = function(connection, ref) {
 
 	connection.type = 'server';
+
+	connection.socket.on('data', (fragment) => {
+		ondata(connection, ref, fragment);
+	});
+
 	connection.socket.resume();
 
 
@@ -917,10 +922,6 @@ const HTTP = {
 			connection.socket.removeAllListeners('timeout');
 			connection.socket.removeAllListeners('error');
 			connection.socket.removeAllListeners('end');
-
-			connection.socket.on('data', (fragment) => {
-				ondata(connection, ref, fragment);
-			});
 
 			connection.socket.on('timeout', () => {
 

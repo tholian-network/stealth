@@ -277,7 +277,7 @@ const upgrade_socks = function(socket, ref) {
 
 		});
 
-		connection.once('request', (request, callback) => {
+		connection.once('@connect-tunnel', (request, callback) => {
 
 			let domain = null;
 			let host   = null;
@@ -317,9 +317,6 @@ const upgrade_socks = function(socket, ref) {
 										port: ref.port
 									}, () => {
 
-										socket.pipe(connection.socket);
-										connection.socket.pipe(socket);
-
 										let reply = null;
 										if (ref.hosts[0].type === 'v4') {
 											reply = ref.hosts[0].ip + ':' + ref.port;
@@ -327,7 +324,7 @@ const upgrade_socks = function(socket, ref) {
 											reply = '[' + ref.hosts[0].ip + ']:' + ref.port;
 										}
 
-										callback('success', URL.parse(reply));
+										callback('success', URL.parse(reply), socket);
 
 									});
 								} catch (err) {
@@ -364,9 +361,6 @@ const upgrade_socks = function(socket, ref) {
 								port: ref.port
 							}, () => {
 
-								socket.pipe(connection.socket);
-								connection.socket.pipe(socket);
-
 								let reply = null;
 								if (ref.hosts[0].type === 'v4') {
 									reply = ref.hosts[0].ip + ':' + ref.port;
@@ -374,7 +368,7 @@ const upgrade_socks = function(socket, ref) {
 									reply = '[' + ref.hosts[0].ip + ']:' + ref.port;
 								}
 
-								callback('success', URL.parse(reply));
+								callback('success', URL.parse(reply), socket);
 
 							});
 						} catch (err) {

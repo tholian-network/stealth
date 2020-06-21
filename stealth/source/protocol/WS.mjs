@@ -537,6 +537,12 @@ const onupgrade = function(connection, ref) {
 	let nonce = ref.headers['sec-websocket-key'] || '';
 
 	connection.type = 'server';
+
+	connection.socket.on('data', (fragment) => {
+		ondata(connection, ref, fragment);
+	});
+
+
 	connection.socket.resume();
 	connection.socket.write(upgrade_response(nonce));
 
@@ -1043,10 +1049,6 @@ const WS = {
 				connection.socket.removeAllListeners('timeout');
 				connection.socket.removeAllListeners('error');
 				connection.socket.removeAllListeners('end');
-
-				connection.socket.on('data', (fragment) => {
-					ondata(connection, ref, fragment);
-				});
 
 				connection.socket.on('timeout', () => {
 

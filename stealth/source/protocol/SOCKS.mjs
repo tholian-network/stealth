@@ -524,7 +524,7 @@ const ondata = function(connection, ref, chunk) {
 			SOCKS.receive(connection, chunk, (frame) => {
 
 				if (frame !== null) {
-					connection.emit('response', [ frame ]);
+					connection.emit('response', [ frame, connection.protocol ]);
 				}
 
 			});
@@ -534,7 +534,7 @@ const ondata = function(connection, ref, chunk) {
 			SOCKS.receive(connection, chunk, (frame) => {
 
 				if (frame !== null) {
-					connection.emit('request', [ frame ]);
+					connection.emit('request', [ frame, connection.protocol ]);
 				}
 
 			});
@@ -551,7 +551,7 @@ const ondisconnect = function(connection) {
 
 };
 
-const onupgrade = function(connection /*, ref */) {
+const onupgrade = function(connection, ref) {
 
 	connection.socket.once('data', (data) => {
 
@@ -559,12 +559,13 @@ const onupgrade = function(connection /*, ref */) {
 
 			if (response.headers['@method'] === 'connect' && isPayload(response.payload) === true) {
 
-				if (connection.has('request') === true) {
+				if (connection.has('@connect-tunnel') === true) {
 
-					connection.emit('request', [ response, (status, reply) => {
+					connection.emit('@connect-tunnel', [ response, (status, reply, socket) => {
 
 						status = isString(status) ? status : null;
 						reply  = isPayload(reply) ? reply  : null;
+						socket = isSocket(socket) ? socket : null;
 
 
 						if (status === 'success') {
@@ -575,6 +576,23 @@ const onupgrade = function(connection /*, ref */) {
 								},
 								payload: reply
 							});
+
+							if (socket !== null) {
+
+								socket.pipe(connection.socket);
+								connection.socket.pipe(socket);
+
+							} else {
+
+								connection.socket.on('data', (fragment) => {
+									ondata(connection, ref, fragment);
+								});
+
+							}
+
+							setTimeout(() => {
+								connection.emit('@tunnel', [ null ]);
+							}, 0);
 
 						} else if (status !== null && ERRORS.includes(status) === true) {
 
@@ -610,13 +628,17 @@ const onupgrade = function(connection /*, ref */) {
 
 					SOCKS.send(connection, {
 						headers: {
-							'@status': 'error-blocked'
+							'@status': 'success'
 						},
-						payload: null
+						payload: URL.parse('127.0.0.1:65432')
+					});
+
+					connection.socket.on('data', (fragment) => {
+						ondata(connection, ref, fragment);
 					});
 
 					setTimeout(() => {
-						connection.disconnect();
+						connection.emit('@tunnel', [ null ]);
 					}, 0);
 
 				}
@@ -657,6 +679,30 @@ const onupgrade = function(connection /*, ref */) {
 
 const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
+};
+
+const isSocket = function(obj) {
+
+	if (obj !== null && obj !== undefined) {
+		return obj instanceof net.Socket;
+	}
+
+	return false;
+
+};
+
+const isUpgrade = function(ref) {
+
+	if (
+		isObject(ref) === true
+		&& isObject(ref.headers) === true
+		&& (ref.headers['auth'] || []).includes('none')
+	) {
+		return true;
+	}
+
+	return false;
+
 };
 
 const Connection = function(socket) {
@@ -1121,61 +1167,87 @@ const SOCKS = {
 
 	},
 
-	upgrade: function(socket, ref) {
+	upgrade: function(tunnel, ref) {
 
-		ref = isObject(ref) ? ref : { headers: {} };
-
-
-		let auth = ref.headers['auth'] || [];
-		if (auth.includes('none')) {
-
-			socket.setTimeout(0);
-			socket.setNoDelay(true);
-			socket.setKeepAlive(true, 0);
-			socket.allowHalfOpen = true;
+		ref = isUpgrade(ref) ? ref : null;
 
 
-			let connection = new Connection(socket);
+		let connection = null;
 
-			socket.removeAllListeners('data');
-			socket.removeAllListeners('timeout');
-			socket.removeAllListeners('error');
-			socket.removeAllListeners('end');
+		if (isSocket(tunnel) === true) {
+			connection = new Connection(tunnel);
+		} else if (isConnection(tunnel) === true) {
+			connection = Connection.from(tunnel);
+		}
 
-			socket.on('timeout', () => {
 
-				if (connection.socket !== null) {
+		if (connection !== null) {
 
-					connection.socket = null;
-					connection.emit('timeout', [ null ]);
+			if (ref !== null) {
 
-				}
+				connection.socket.setNoDelay(true);
+				connection.socket.setKeepAlive(true, 0);
+				connection.socket.allowHalfOpen = true;
 
-			});
+				connection.socket.removeAllListeners('data');
+				connection.socket.removeAllListeners('timeout');
+				connection.socket.removeAllListeners('error');
+				connection.socket.removeAllListeners('end');
 
-			socket.on('error', () => {
+				connection.socket.on('timeout', () => {
 
-				if (connection.socket !== null) {
+					if (connection.socket !== null) {
 
-					ondisconnect(connection, ref);
-					connection.socket = null;
+						connection.socket = null;
+						connection.emit('timeout', [ null ]);
 
-				}
+					}
 
-			});
+				});
 
-			socket.on('end', () => {
+				connection.socket.on('error', () => {
 
-				if (connection.socket !== null) {
+					if (connection.socket !== null) {
 
-					ondisconnect(connection, ref);
-					connection.socket = null;
+						ondisconnect(connection, ref);
+						connection.socket = null;
 
-				}
+					}
 
-			});
+				});
 
-			onupgrade(connection, ref);
+				connection.socket.on('end', () => {
+
+					if (connection.socket !== null) {
+
+						ondisconnect(connection, ref);
+						connection.socket = null;
+
+					}
+
+				});
+
+				onupgrade(connection, ref);
+
+			} else {
+
+				connection.type = 'server';
+
+				connection.socket.once('data', (data) => {
+
+					SOCKS.receive(connection, data, (request) => {
+
+						if (isUpgrade(request) === true) {
+							SOCKS.upgrade(connection, request);
+						} else {
+							connection.disconnect();
+						}
+
+					});
+
+				});
+
+			}
 
 			return connection;
 
