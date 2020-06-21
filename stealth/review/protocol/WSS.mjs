@@ -1,21 +1,178 @@
 
-import { isFunction, isObject                     } from '../../../base/index.mjs';
-import { after, before, describe, finish, EXAMPLE } from '../../../covert/index.mjs';
-import { WSS                                      } from '../../../stealth/source/protocol/WSS.mjs';
+import net from 'net';
+
+import { Buffer, isFunction        } from '../../../base/index.mjs';
+import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
+import { WSS                       } from '../../../stealth/source/protocol/WSS.mjs';
 
 
 
-before('WSS.connect()', function(assert) {
+const mock_frame = (type) => {
 
-	this.connection = null;
-	this.ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
+	let mask = [
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0
+	];
+	let temp = [];
+
+	let payload = Buffer.from(JSON.stringify({
+		headers: {
+			service: 'service',
+			method:  'method',
+			event:   'event'
+		},
+		payload: Buffer.from('payload', 'utf8')
+	}), 'utf8');
+
+	if (type === 'client') {
+
+		temp.push(128 + 0x01);
+		temp.push(128 + 126);
+		temp.push((payload.length >> 8) & 0xff);
+		temp.push((payload.length >> 0) & 0xff);
+
+		mask.forEach((value) => {
+			temp.push(value);
+		});
+
+		payload.forEach((value, index) => {
+			temp.push(value ^ mask[index % 4]);
+		});
+
+	} else {
+
+		temp.push(128 + 0x01);
+		temp.push(  0 + 126);
+		temp.push((payload.length >> 8) & 0xff);
+		temp.push((payload.length >> 0) & 0xff);
+
+		payload.forEach((value) => {
+			temp.push(value);
+		});
+
+	}
+
+	return Buffer.from(temp);
+
+};
+
+
+
+describe('WSS.connect()', function(assert) {
 
 	assert(isFunction(WSS.connect), true);
 
-	this.connection = WSS.connect(this.ref);
 
-	this.connection.once('@connect', () => {
+	let ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
+	let connection = WSS.connect(ref);
+
+	connection.once('@connect', () => {
+
 		assert(true);
+
+		setTimeout(() => {
+			connection.disconnect();
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('WSS.disconnect()', function(assert) {
+
+	assert(isFunction(WSS.disconnect), true);
+
+
+	let ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
+	let connection = WSS.connect(ref);
+
+	connection.once('@connect', () => {
+
+		assert(true);
+
+		setTimeout(() => {
+			assert(WSS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('WSS.receive()/client', function(assert) {
+
+	assert(isFunction(WSS.receive), true);
+
+
+	let ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
+	let connection = WSS.connect(ref);
+
+	connection.once('@connect', () => {
+
+		WSS.receive(connection, mock_frame('client'), (request) => {
+
+			assert(request, {
+				headers: {
+					service: 'service',
+					method:  'method',
+					event:   'event'
+				},
+				payload: Buffer.from('payload', 'utf8')
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('WSS.receive()/server', function(assert) {
+
+	assert(isFunction(WSS.receive), true);
+
+
+	let nonce = Buffer.alloc(16);
+	for (let n = 0; n < 16; n++) {
+		nonce[n] = Math.round(Math.random() * 0xff);
+	}
+
+	let connection = WSS.upgrade(new net.Socket(), {
+		headers: {
+			'connection':             'upgrade',
+			'upgrade':                'websocket',
+			'sec-websocket-protocol': 'stealth',
+			'sec-websocket-key':      nonce.toString('base64')
+		}
+	});
+
+	connection.once('@connect', () => {
+
+		WSS.receive(connection, mock_frame('server'), (response) => {
+
+			assert(response, {
+				headers: {
+					service: 'service',
+					method:  'method',
+					event:   'event'
+				},
+				payload: Buffer.from('payload', 'utf8')
+			});
+
+			connection.disconnect();
+
+		});
+
 	});
 
 });
@@ -23,43 +180,36 @@ before('WSS.connect()', function(assert) {
 describe('WSS.send()', function(assert) {
 
 	assert(isFunction(WSS.send), true);
-	assert(this.connection !== null);
 
-	this.connection.on('response', (response) => {
 
-		assert(isObject(response),         true);
-		assert(isObject(response.headers), true);
-		assert(response.headers.service,   'mockup');
-		assert(response.headers.method,    'method');
-		assert(response.payload,           'payload');
+	let ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
+	let connection = WSS.connect(ref);
+
+	connection.on('response', (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'service',
+				event:   'event',
+				method:  'method'
+			},
+			payload: Buffer.from('payload', 'utf8')
+		});
 
 	});
 
-	WSS.send(this.connection, {
-		headers: {
-			service: 'mockup',
-			method:  'method'
-		},
-		payload: 'payload'
+	connection.once('@connect', () => {
+
+		assert(WSS.send(connection, {
+			headers: {
+				service: 'service',
+				event:   'event',
+				method:  'method'
+			},
+			payload: Buffer.from('payload', 'utf8')
+		}), true);
+
 	});
-
-});
-
-after('WSS.disconnect()', function(assert) {
-
-	assert(this.connection !== null);
-
-	this.connection.once('@disconnect', () => {
-		assert(true);
-	});
-
-	this.connection.disconnect();
-
-	this.connection = null;
-	this.ref        = null;
-
-	assert(this.connection, null);
-	assert(this.ref,        null);
 
 });
 

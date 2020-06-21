@@ -114,25 +114,6 @@ const EXAMPLE = {
 	ipv4: IP.parse('93.184.216.34'),
 	ipv6: IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946'),
 
-	payload: Buffer.concat([
-		Buffer.from([
-			'HTTP/1.1 200 OK',
-			'Content-Encoding: identity',
-			'Cache-Control: max-age=604800',
-			'Content-Type: text/html; charset=UTF-8',
-			'Date: Sun, 14 Apr 2019 13:15:09 GMT',
-			'Etag: "1541025663"',
-			'Expires: Sun, 21 Apr 2019 13:15:09 GMT',
-			'Last-Modified: Fri, 09 Aug 2013 23:54:35 GMT',
-			'Server: ECS (dcb/7EED)',
-			'Vary: Accept-Encoding',
-			'X-Cache: HIT',
-			'Content-Length: 1304'
-		].join('\r\n'), 'utf8'),
-		Buffer.from('\r\n\r\n', 'utf8'),
-		Buffer.from(FILE.toString('utf8').split('\n').join('\r\n'), 'utf8'),
-		Buffer.from('\r\n\r\n', 'utf8')
-	]),
 
 	ref: function(url) {
 
@@ -165,16 +146,6 @@ const EXAMPLE = {
 
 		return ref;
 
-	},
-
-	request: {
-		headers: {
-			'@method': 'GET',
-			'@url':    '/index.html',
-			'host':    'example.com',
-			'range':   'bytes=0-'
-		},
-		payload: null
 	},
 
 	sketch: function(file) {

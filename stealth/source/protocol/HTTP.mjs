@@ -90,8 +90,11 @@ const onconnect = function(connection, ref) {
 
 	let timeout = Date.now() + 1000;
 
-	connection.socket.on('data', () => {
+	connection.socket.on('data', (fragment) => {
+
+		ondata(connection, ref, fragment);
 		timeout = Date.now();
+
 	});
 
 	connection.interval = setInterval(() => {
@@ -399,6 +402,16 @@ const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
 };
 
+const isSocket = function(obj) {
+
+	if (obj !== null && obj !== undefined) {
+		return obj instanceof net.Socket;
+	}
+
+	return false;
+
+};
+
 const Connection = function(socket) {
 
 	this.socket   = socket || null;
@@ -548,34 +561,32 @@ const HTTP = {
 
 			if (hosts.length > 0) {
 
-				let socket = connection.socket || null;
-				if (socket === null) {
+				if (connection.socket === null) {
 
 					try {
 
-						socket = net.connect({
+						connection.socket = net.connect({
 							host: hosts[0].ip,
 							port: ref.port || 80,
 						}, () => {
 
-							socket.setNoDelay(true);
-							socket.setKeepAlive(false, 0);
-							socket.allowHalfOpen = false;
+							connection.socket.setNoDelay(true);
+							connection.socket.setKeepAlive(false, 0);
+							connection.socket.allowHalfOpen = false;
 
-							connection.socket = socket;
 							onconnect(connection, ref);
 
 						});
 
 					} catch (err) {
-						socket = null;
+						connection.socket = null;
 					}
 
 				} else {
 
-					socket.setNoDelay(true);
-					socket.setKeepAlive(false, 0);
-					socket.allowHalfOpen = false;
+					connection.socket.setNoDelay(true);
+					connection.socket.setKeepAlive(false, 0);
+					connection.socket.allowHalfOpen = false;
 
 					setTimeout(() => {
 						onconnect(connection, ref);
@@ -584,18 +595,14 @@ const HTTP = {
 				}
 
 
-				if (socket !== null) {
+				if (connection.socket !== null) {
 
-					socket.removeAllListeners('data');
-					socket.removeAllListeners('timeout');
-					socket.removeAllListeners('error');
-					socket.removeAllListeners('end');
+					connection.socket.removeAllListeners('data');
+					connection.socket.removeAllListeners('timeout');
+					connection.socket.removeAllListeners('error');
+					connection.socket.removeAllListeners('end');
 
-					socket.on('data', (fragment) => {
-						ondata(connection, ref, fragment);
-					});
-
-					socket.on('timeout', () => {
+					connection.socket.on('timeout', () => {
 
 						if (connection.socket !== null) {
 
@@ -617,7 +624,7 @@ const HTTP = {
 
 					});
 
-					socket.on('error', () => {
+					connection.socket.on('error', () => {
 
 						if (connection.socket !== null) {
 
@@ -628,7 +635,7 @@ const HTTP = {
 
 					});
 
-					socket.on('end', () => {
+					connection.socket.on('end', () => {
 
 						if (connection.socket !== null) {
 
@@ -886,74 +893,87 @@ const HTTP = {
 
 	},
 
-	upgrade: function(socket, ref) {
+	upgrade: function(tunnel, ref) {
 
 		ref = isObject(ref) ? ref : { headers: {} };
 
 
-		socket.setNoDelay(true);
-		socket.setKeepAlive(false, 0);
-		socket.allowHalfOpen = false;
+		let connection = null;
+
+		if (isSocket(tunnel) === true) {
+			connection = new Connection(tunnel);
+		} else if (isConnection(tunnel) === true) {
+			connection = Connection.from(tunnel);
+		}
 
 
-		let connection = new Connection(socket);
+		if (connection !== null) {
 
-		socket.removeAllListeners('data');
-		socket.removeAllListeners('timeout');
-		socket.removeAllListeners('error');
-		socket.removeAllListeners('end');
+			connection.socket.setNoDelay(true);
+			connection.socket.setKeepAlive(false, 0);
+			connection.socket.allowHalfOpen = false;
 
-		socket.on('data', (fragment) => {
-			ondata(connection, ref, fragment);
-		});
+			connection.socket.removeAllListeners('data');
+			connection.socket.removeAllListeners('timeout');
+			connection.socket.removeAllListeners('error');
+			connection.socket.removeAllListeners('end');
 
-		socket.on('timeout', () => {
+			connection.socket.on('data', (fragment) => {
+				ondata(connection, ref, fragment);
+			});
 
-			if (connection.socket !== null) {
+			connection.socket.on('timeout', () => {
 
-				connection.socket = null;
+				if (connection.socket !== null) {
 
-				let fragment = connection.fragment;
-				if (fragment.partial === true) {
+					connection.socket = null;
 
-					connection.emit('timeout', [{
-						headers: ref.headers,
-						payload: fragment.payload
-					}]);
+					let fragment = connection.fragment;
+					if (fragment.partial === true) {
 
-				} else {
-					connection.emit('timeout', [ null ]);
+						connection.emit('timeout', [{
+							headers: ref.headers,
+							payload: fragment.payload
+						}]);
+
+					} else {
+						connection.emit('timeout', [ null ]);
+					}
+
 				}
 
-			}
+			});
 
-		});
+			connection.socket.on('error', () => {
 
-		socket.on('error', () => {
+				if (connection.socket !== null) {
 
-			if (connection.socket !== null) {
+					ondisconnect(connection, ref);
+					connection.socket = null;
 
-				ondisconnect(connection, ref);
-				connection.socket = null;
+				}
 
-			}
+			});
 
-		});
+			connection.socket.on('end', () => {
 
-		socket.on('end', () => {
+				if (connection.socket !== null) {
 
-			if (connection.socket !== null) {
+					ondisconnect(connection, ref);
+					connection.socket = null;
 
-				ondisconnect(connection, ref);
-				connection.socket = null;
+				}
 
-			}
+			});
 
-		});
+			onupgrade(connection, ref);
 
-		onupgrade(connection, ref);
+			return connection;
 
-		return connection;
+		}
+
+
+		return null;
 
 	}
 

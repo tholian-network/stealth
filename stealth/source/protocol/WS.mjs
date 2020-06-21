@@ -454,21 +454,12 @@ const onconnect = function(connection, ref) {
 
 				if (accept === expect) {
 
-					connection.interval = setInterval(() => {
+					connection.type     = 'client';
+					connection.interval = setInterval(() => connection.ping(), 60000);
+					connection.socket.on('data', (fragment) => {
+						ondata(connection, ref, fragment);
+					});
 
-						let result = WS.ping(connection);
-						if (result === false) {
-
-							if (connection.interval !== null) {
-								clearInterval(connection.interval);
-								connection.interval = null;
-							}
-
-						}
-
-					}, 60000);
-
-					connection.type = 'client';
 					connection.emit('@connect');
 
 				} else {
@@ -561,9 +552,39 @@ const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
 };
 
+const isSocket = function(obj) {
+
+	if (obj !== null && obj !== undefined) {
+		return obj instanceof net.Socket;
+	}
+
+	return false;
+
+};
+
+const isUpgrade = function(ref) {
+
+	if (
+		isObject(ref) === true
+		&& isObject(ref.headers) === true
+		&& (ref.headers['connection'] || '').toLowerCase().includes('upgrade')
+		&& (ref.headers['upgrade'] || '').toLowerCase().includes('websocket')
+		&& (ref.headers['sec-websocket-protocol'] || '').includes('stealth')
+		&& (ref.headers['sec-websocket-key'] || '') !== ''
+	) {
+		return true;
+	}
+
+	return false;
+
+};
+
 const Connection = function(socket) {
 
-	this.socket   = socket || null;
+	socket = isSocket(socket) ? socket : null;
+
+
+	this.socket   = socket;
 	this.fragment = {
 		chunk:    null,
 		operator: 0x00,
@@ -667,6 +688,32 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
+	},
+
+	ping: function() {
+
+		if (this.type === 'client') {
+
+			if (this.socket !== null) {
+
+				this.socket.write(Buffer.from([
+					128 + 0x09, // Ping Frame
+					128 + 0x00,
+					(Math.random() * 0xff) | 0,
+					(Math.random() * 0xff) | 0,
+					(Math.random() * 0xff) | 0,
+					(Math.random() * 0xff) | 0
+				]));
+
+			} else if (this.interval !== null) {
+
+				clearInterval(this.interval);
+				this.interval = null;
+
+			}
+
+		}
+
 	}
 
 });
@@ -706,35 +753,33 @@ const WS = {
 
 			if (hosts.length > 0) {
 
-				let socket = connection.socket || null;
-				if (socket === null) {
+				if (connection.socket === null) {
 
 					try {
 
-						socket = net.connect({
+						connection.socket = net.connect({
 							host:          hosts[0].ip,
 							port:          ref.port || 80,
 							allowHalfOpen: true
 						}, () => {
 
-							socket.setNoDelay(true);
-							socket.setKeepAlive(true, 0);
-							socket.allowHalfOpen = true;
+							connection.socket.setNoDelay(true);
+							connection.socket.setKeepAlive(true, 0);
+							connection.socket.allowHalfOpen = true;
 
-							connection.socket = socket;
 							onconnect(connection, ref);
 
 						});
 
 					} catch (err) {
-						socket = null;
+						connection.socket = null;
 					}
 
 				} else {
 
-					socket.setNoDelay(true);
-					socket.setKeepAlive(true, 0);
-					socket.allowHalfOpen = true;
+					connection.socket.setNoDelay(true);
+					connection.socket.setKeepAlive(true, 0);
+					connection.socket.allowHalfOpen = true;
 
 					setTimeout(() => {
 						onconnect(connection, ref);
@@ -743,18 +788,14 @@ const WS = {
 				}
 
 
-				if (socket !== null) {
+				if (connection.socket !== null) {
 
-					socket.removeAllListeners('data');
-					socket.removeAllListeners('timeout');
-					socket.removeAllListeners('error');
-					socket.removeAllListeners('end');
+					connection.socket.removeAllListeners('data');
+					connection.socket.removeAllListeners('timeout');
+					connection.socket.removeAllListeners('error');
+					connection.socket.removeAllListeners('end');
 
-					socket.on('data', (fragment) => {
-						ondata(connection, ref, fragment);
-					});
-
-					socket.on('timeout', () => {
+					connection.socket.on('timeout', () => {
 
 						if (connection.socket !== null) {
 
@@ -765,7 +806,7 @@ const WS = {
 
 					});
 
-					socket.on('error', () => {
+					connection.socket.on('error', () => {
 
 						if (connection.socket !== null) {
 
@@ -776,7 +817,7 @@ const WS = {
 
 					});
 
-					socket.on('end', () => {
+					connection.socket.on('end', () => {
 
 						if (connection.socket !== null) {
 
@@ -836,38 +877,6 @@ const WS = {
 
 	},
 
-	ping: function(connection) {
-
-		connection = isConnection(connection) ? connection : null;
-
-
-		if (connection !== null) {
-
-			if (connection.socket !== null) {
-
-				let buffer = Buffer.alloc(6);
-
-				buffer[0] = 128 + 0x09; // ping
-				buffer[1] = 128 + 0x00; // masked (client)
-
-				buffer[2] = (Math.random() * 0xff) | 0;
-				buffer[3] = (Math.random() * 0xff) | 0;
-				buffer[4] = (Math.random() * 0xff) | 0;
-				buffer[5] = (Math.random() * 0xff) | 0;
-
-				if (connection.socket.writable === true) {
-					return connection.socket.write(buffer);
-				}
-
-			}
-
-		}
-
-
-		return false;
-
-	},
-
 	receive: function(connection, buffer, callback) {
 
 		connection = isConnection(connection) ? connection : null;
@@ -901,15 +910,8 @@ const WS = {
 				// Special case: Deserialize Buffer instances
 				if (isObject(data.payload) === true) {
 
-					let tmp_headers = data.payload.headers || null;
-					let tmp_payload = data.payload.payload || null;
-
-					if (tmp_headers !== null && tmp_payload !== null) {
-
-						if (tmp_payload.type === 'Buffer') {
-							data.payload.payload = Buffer.from(tmp_payload.data);
-						}
-
+					if (data.payload.type === 'Buffer') {
+						data.payload = Buffer.from(data.payload.data);
 					}
 
 				}
@@ -1015,37 +1017,38 @@ const WS = {
 
 	},
 
-	upgrade: function(socket, ref) {
+	upgrade: function(tunnel, ref) {
 
-		ref = isObject(ref) ? ref : { headers: {} };
-
-
-		let tmp1 = (ref.headers['connection']             || '').toLowerCase();
-		let tmp2 = (ref.headers['upgrade']                || '').toLowerCase();
-		let tmp3 = (ref.headers['sec-websocket-protocol'] || '').toLowerCase();
-
-		if (tmp1.includes('upgrade') && tmp2.includes('websocket') && tmp3.includes('stealth')) {
-
-			let nonce = ref.headers['sec-websocket-key'] || null;
-			if (nonce !== null) {
-
-				socket.setNoDelay(true);
-				socket.setKeepAlive(true, 0);
-				socket.allowHalfOpen = true;
+		ref = isUpgrade(ref) ? ref : null;
 
 
-				let connection = new Connection(socket);
+		let connection = null;
 
-				socket.removeAllListeners('data');
-				socket.removeAllListeners('timeout');
-				socket.removeAllListeners('error');
-				socket.removeAllListeners('end');
+		if (isSocket(tunnel) === true) {
+			connection = new Connection(tunnel);
+		} else if (isConnection(tunnel) === true) {
+			connection = Connection.from(tunnel);
+		}
 
-				socket.on('data', (fragment) => {
+
+		if (connection !== null) {
+
+			if (ref !== null) {
+
+				connection.socket.setNoDelay(true);
+				connection.socket.setKeepAlive(true, 0);
+				connection.socket.allowHalfOpen = true;
+
+				connection.socket.removeAllListeners('data');
+				connection.socket.removeAllListeners('timeout');
+				connection.socket.removeAllListeners('error');
+				connection.socket.removeAllListeners('end');
+
+				connection.socket.on('data', (fragment) => {
 					ondata(connection, ref, fragment);
 				});
 
-				socket.on('timeout', () => {
+				connection.socket.on('timeout', () => {
 
 					if (connection.socket !== null) {
 
@@ -1056,7 +1059,7 @@ const WS = {
 
 				});
 
-				socket.on('error', () => {
+				connection.socket.on('error', () => {
 
 					if (connection.socket !== null) {
 
@@ -1067,7 +1070,7 @@ const WS = {
 
 				});
 
-				socket.on('end', () => {
+				connection.socket.on('end', () => {
 
 					if (connection.socket !== null) {
 
@@ -1080,9 +1083,25 @@ const WS = {
 
 				onupgrade(connection, ref);
 
-				return connection;
+			} else {
+
+				connection.socket.once('data', (data) => {
+
+					HTTP.receive(null, data, (request) => {
+
+						if (isUpgrade(request) === true) {
+							WS.upgrade(connection, request);
+						} else {
+							connection.disconnect();
+						}
+
+					});
+
+				});
 
 			}
+
+			return connection;
 
 		}
 

@@ -26,6 +26,14 @@ Covert requires these external packages on minimalistic Unix/Linux systems:
 pacman -S --needed iproute2 kmod net-tools sudo
 ```
 
+Additionally, the following ports have to be allowed in the Firewall to
+transmit and receive of both UDP/TCP data:
+
+- `80` (`--internet=true`) for [stealth/protocol/HTTP](../stealth/review/protocol/HTTP.mjs) and [stealth/protocol/WS](../stealth/review/protocol/WS.mjs).
+- `443` (`--internet=true`) for [stealth/protocol/HTTPS](../stealth/review/protocol/HTTPS.mjs) and [stealth/protocol/WSS](../stealth/review/protocol/WSS.mjs).
+- `13337` (`--internet=true`) for [stealth/protocol/HTTP](../stealth/review/protocol/HTTP.mjs) and [stealth/protocol/WS](../stealth/review/protocol/WS.mjs).
+- `65432` for [stealth/Client](../stealth/review/Client.mjs) and [stealth/Server](../stealth/review/Server.mjs).
+
 
 ## Command-Line Flags
 

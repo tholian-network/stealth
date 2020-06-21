@@ -377,7 +377,6 @@ const WSS = {
 
 	},
 
-	ping:    WS.ping,
 	receive: WS.receive,
 	send:    WS.send,
 	upgrade: WS.upgrade

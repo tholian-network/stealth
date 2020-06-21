@@ -454,7 +454,29 @@ const onconnect = function(connection, ref) {
 					SOCKS.receive(connection, data, (response) => {
 
 						if (response.headers['@status'] === 'success') {
-							connection.emit('@tunnel', [ response ]);
+
+							let tunnel = null;
+
+							if (ref.protocol === 'https') {
+								connection.protocol = 'https';
+								tunnel = HTTPS.connect(ref, connection);
+							} else if (ref.protocol === 'http') {
+								connection.protocol = 'http';
+								tunnel = HTTP.connect(ref, connection);
+							} else if (ref.protocol === 'wss') {
+								connection.protocol = 'wss';
+								tunnel = WSS.connect(ref, connection);
+							} else if (ref.protocol === 'ws') {
+								connection.protocol = 'ws';
+								tunnel = WS.connect(ref, connection);
+							}
+
+							if (tunnel !== null) {
+								connection.emit('@tunnel', [ tunnel ]);
+							} else {
+								connection.disconnect();
+							}
+
 						} else if (response.headers['@status'] === 'error-blocked') {
 							connection.emit('error', [{ code: 403 }]);
 						} else if (response.headers['@status'] === 'error-network' || response.headers['@status'] === 'error-host') {
@@ -871,24 +893,6 @@ const SOCKS = {
 							ondisconnect(connection, ref);
 							connection.socket = null;
 
-						}
-
-					});
-
-					connection.once('@tunnel', () => {
-
-						if (ref.protocol === 'https') {
-							connection.protocol = 'https';
-							HTTPS.connect(ref, connection);
-						} else if (ref.protocol === 'http') {
-							connection.protocol = 'http';
-							HTTP.connect(ref, connection);
-						} else if (ref.protocol === 'wss') {
-							connection.protocol = 'wss';
-							WSS.connect(ref, connection);
-						} else if (ref.protocol === 'ws') {
-							connection.protocol = 'ws';
-							WS.connect(ref, connection);
 						}
 
 					});
