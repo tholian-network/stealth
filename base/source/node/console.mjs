@@ -23,13 +23,74 @@ export const console = (function() {
 	};
 
 	const PALETTE = {
-		'Boolean':  38,
-		'Keyword': 204,
-		'Literal': 174,
-		'Number':  197,
-		'String':   77,
-		'Type':    174
+		'Boolean':   38,
+		'Global':   174,
+		'Keyword':  204,
+		'Literal':  174,
+		'Number':   197,
+		'Scope':     38,
+		'String':    77,
+		'Type':     174
 	};
+
+	const SYNTAX = {
+
+		'console':    'Global',
+		'global':     'Global',
+		'this':       'Scope',
+		'window':     'Global',
+		'process':    'Global',
+
+		'function':   'Literal',
+		'const':      'Keyword',
+		'let':        'Scope',
+		'new':        'Scope',
+		'for':        'Keyword',
+		'while':      'Keyword',
+		'if':         'Keyword',
+		'else if':    'Keyword',
+		'else':       'Keyword',
+		'switch':     'Keyword',
+		'case':       'Keyword',
+		'typeof':     'Scope',
+		'instanceof': 'Scope',
+
+		'(':          'Literal',
+		')':          'Literal',
+		'{':          'Literal',
+		'}':          'Literal',
+
+		'null':       'Keyword',
+		'undefined':  'Keyword',
+		'false':      'Boolean',
+		'true':       'Boolean',
+		'Infinity':   'Keyword',
+		'NaN':        'Number',
+
+		'Array':      'Keyword',
+		'Boolean':    'Keyword',
+		'Buffer':     'Keyword',
+		'Date':       'Keyword',
+		'Emitter':    'Keyword',
+		'Function':   'Keyword',
+		'Number':     'Keyword',
+		'Object':     'Keyword',
+		'RegExp':     'Keyword',
+		'String':     'Keyword',
+
+		'isArray':    'Keyword',
+		'isBoolean':  'Keyword',
+		'isBuffer':   'Keyword',
+		'isDate':     'Keyword',
+		'isEmitter':  'Keyword',
+		'isFunction': 'Keyword',
+		'isNumber':   'Keyword',
+		'isObject':   'Keyword',
+		'isRegExp':   'Keyword',
+		'isString':   'Keyword'
+
+	};
+
 
 	const align = function(array, other) {
 
@@ -67,6 +128,147 @@ export const console = (function() {
 		} else {
 			return str;
 		}
+
+	};
+
+	const highlight_split = function(chunk, split) {
+
+		let index = chunk.indexOf(split);
+		if (index !== -1) {
+
+			let temp1 = chunk.substr(0, index).split(' ').map((ch) => highlight_chunk(ch)).join(' ');
+			let temp2 = chunk.substr(index + 1).split(' ').map((ch) => highlight_chunk(ch)).join(' ');
+
+			if (SYNTAX[split] !== undefined) {
+				chunk = temp1 + highlight(split, SYNTAX[split]) + temp2;
+			} else {
+				chunk = temp1 + split + temp2;
+			}
+
+		}
+
+		return chunk;
+
+	};
+
+	const highlight_chunk = function(chunk) {
+
+		let prefix = '';
+		let suffix = '';
+
+		if (chunk.startsWith('\t') === true) {
+
+			let index = Array.from(chunk).findIndex((val) => val !== '\t');
+			if (index !== -1) {
+				prefix = chunk.substr(0, index);
+				chunk  = chunk.substr(index);
+			}
+
+		}
+
+		if (chunk.endsWith(';') || chunk.endsWith(',')) {
+			suffix = chunk.substr(chunk.length - 1, 1);
+			chunk  = chunk.substr(0, chunk.length - 1);
+		}
+
+		if (SYNTAX[chunk] !== undefined) {
+
+			chunk = highlight(chunk, SYNTAX[chunk]);
+
+		} else if (chunk.includes(':')) {
+
+			chunk = highlight_split(chunk, ':');
+
+		} else if (chunk.includes('(')) {
+
+			chunk = highlight_split(chunk, '(');
+
+		} else if (chunk.includes(')')) {
+
+			chunk = highlight_split(chunk, ')');
+
+		} else if (chunk.includes('{')) {
+
+			chunk = highlight_split(chunk, '{');
+
+		} else if (chunk.includes('}')) {
+
+			chunk = highlight_split(chunk, '}');
+
+		} else if (chunk.includes(' ')) {
+
+			chunk = highlight_split(chunk, ' ');
+
+		} else if ((/^([0-9.]*)$/g).test(chunk) === true) {
+
+			if (chunk.includes('.')) {
+
+				let num = parseFloat(chunk);
+				if (Number.isNaN(num) === false && (num).toString() === chunk) {
+					chunk = highlight(chunk, 'Number');
+				}
+
+			} else {
+
+				let num = parseInt(chunk, 10);
+				if (Number.isNaN(num) === false && (num).toString() === chunk) {
+					chunk = highlight(chunk, 'Number');
+				}
+
+			}
+
+		} else if (chunk.includes('.')) {
+
+			chunk = chunk.split('.').map((ch) => highlight_chunk(ch)).join('.');
+
+		}
+
+		return prefix + chunk + suffix;
+
+	};
+
+	const highlight_line = function(line) {
+
+		if (line.includes('"') === true) {
+
+			let index1 = line.indexOf('"');
+			let index2 = line.indexOf('"', index1 + 1);
+			if (index1 !== -1 && index2 !== -1) {
+
+				let str = '';
+
+				str += line.substr(0, index1).split(' ').map((chunk) => highlight_chunk(chunk)).join(' ');
+				str += highlight(line.substr(index1, index2 - index1 + 1), 'String');
+				str += line.substr(index2 + 1).split(' ').map((chunk) => highlight_chunk(chunk)).join(' ');
+
+				line = str;
+
+			}
+
+		} else if (line.includes('\'') === true) {
+
+			let index1 = line.indexOf('\'');
+			let index2 = line.indexOf('\'', index1 + 1);
+			if (index1 !== -1 && index2 !== -1) {
+
+				let str = '';
+
+				str += line.substr(0, index1).split(' ').map((chunk) => highlight_chunk(chunk)).join(' ');
+				str += highlight(line.substr(index1, index2 - index1 + 1), 'String');
+				str += line.substr(index2 + 1).split(' ').map((chunk) => highlight_chunk(chunk)).join(' ');
+
+				line = str;
+
+			}
+
+		} else {
+
+			line = highlight_chunk(line);
+
+		}
+
+
+		return line;
 
 	};
 
@@ -551,26 +753,69 @@ export const console = (function() {
 			str = '';
 
 			let lines = data.toString().split('\n');
+			if (lines.length > 1) {
 
-			for (let l = 0, ll = lines.length; l < ll; l++) {
+				let offset = '';
 
-				let line = lines[l];
-
-				if (l > 0 && l < ll - 1) {
-
-
-					// TODO: Replace trim() with correctly indented \t before
-
-
-					str += indent + '\t' + line.trim();
-
-				} else {
-					str += indent + line.trim();
+				let tmp = lines.find((line) => line.startsWith('\t') && line.trim() !== '') || null;
+				if (tmp !== null) {
+					offset = tmp.substr(0, tmp.length - tmp.trim().length);
 				}
 
-				if (l < ll - 1) {
+				if (
+					lines[0].startsWith('\t') === false
+					&& lines[lines.length - 1].startsWith('\t') === false
+				) {
+					lines[0]                = offset + lines[0];
+					lines[lines.length - 1] = offset + lines[lines.length - 1];
+				}
+
+				lines = lines.map((line) => {
+					return highlight_line(line);
+				});
+
+
+				let first_line = lines[0];
+				if (first_line.includes('function(') || first_line.includes('{')) {
+
+					if (indent.length > 0) {
+						str += indent.substr(0, indent.length - 1) + '\t' + first_line.trim();
+					} else {
+						str += first_line.trim();
+					}
+
+				}
+
+				str += '\n';
+
+				for (let l = 1, ll = lines.length; l < ll - 1; l++) {
+
+					if (lines[l].startsWith(offset) === true) {
+						str += indent + '\t' + lines[l].substr(offset.length).trimRight();
+					} else {
+						str += indent + '\t' + lines[l].trim();
+					}
+
 					str += '\n';
+
 				}
+
+				let last_line = lines[lines.length - 1];
+				if (last_line.includes('}') === true) {
+
+					if (indent.length > 0) {
+						str += indent.substr(0, indent.length - 1) + '\t' + last_line.trim();
+					} else {
+						str += last_line.trim();
+					}
+
+				}
+
+				str += '\n';
+
+			} else {
+
+				str += indent + highlight_line(lines[0]);
 
 			}
 
