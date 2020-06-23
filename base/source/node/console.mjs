@@ -41,6 +41,11 @@ export const console = (function() {
 		'window':     'Global',
 		'process':    'Global',
 
+		'setTimeout':    'Global',
+		'clearTimeout':  'Global',
+		'setInterval':   'Global',
+		'clearInterval': 'Global',
+
 		'function':   'Literal',
 		'const':      'Keyword',
 		'let':        'Scope',
