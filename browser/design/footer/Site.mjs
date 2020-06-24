@@ -7,7 +7,16 @@ const TEMPLATE = `
 <article>
 	<h3>Site Modes</h3>
 </article>
+<article>
+	<h3>Site Beacons</h3>
+</article>
+<article>
+	<h3>Site Echoes</h3>
+</article>
 `;
+
+const update = function(tab) {
+};
 
 
 const Site = function(browser, widgets) {
@@ -34,6 +43,10 @@ const Site = function(browser, widgets) {
 		this.element.state('');
 
 	});
+
+
+	browser.on('show',    (tab) => update.call(this, tab));
+	browser.on('refresh', (tab) => update.call(this, tab));
 
 };
 

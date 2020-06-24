@@ -21,6 +21,8 @@ browser-tabs {
 	user-select: none;
 	overflow-x: hidden;
 	overflow-y: auto;
+	scrollbar-color: var(--scrollbar-default-color) var(--scrollbar-default-background);
+	scrollbar-width: auto;
 }
 
 browser-tabs.active {
@@ -30,12 +32,14 @@ browser-tabs.active {
 browser-tabs::-webkit-scrollbar {
 	width: 16px;
 	border: 0px solid transparent;
-	background: transparent;
+	background: var(--scrollbar-default-background);
 }
 
 browser-tabs::-webkit-scrollbar-thumb {
 	width: 16px;
-	background: #ffffff;
+	border: 0px solid transparent;
+	border-radius: 2px;
+	background: var(--scrollbar-default-color);
 }
 
 browser-tabs button {

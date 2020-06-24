@@ -4,9 +4,8 @@ import { Element } from '../../design/index.mjs';
 
 
 const TEMPLATE = `
-<button data-key="beacon" title="Beacon Settings" disabled></button>
-<button data-key="session" title="Session Settings" disabled></button>
 <button data-key="site" title="Site Settings" disabled></button>
+<button data-key="session" title="Session Settings" disabled></button>
 <button data-key="browser" title="Browser Settings" disabled></button>
 `;
 
@@ -25,11 +24,9 @@ const update = function(tab) {
 		}
 
 		if (tab.ref.protocol === 'stealth') {
-			this.beacon.state('disabled');
 			this.session.state('disabled');
 			this.site.state('disabled');
 		} else {
-			this.beacon.state('enabled');
 			this.session.state('enabled');
 			this.site.state('enabled');
 		}
@@ -39,7 +36,6 @@ const update = function(tab) {
 		this.browser.state('enabled');
 		this.browser.state('');
 
-		this.beacon.state('disabled');
 		this.session.state('disabled');
 		this.site.state('disabled');
 
@@ -49,7 +45,7 @@ const update = function(tab) {
 
 const toggle = function(name, widgets) {
 
-	[ 'beacon', 'session', 'site' ].forEach((sidebar) => {
+	[ 'site', 'session' ].forEach((sidebar) => {
 
 		let button = this[sidebar]    || null;
 		let widget = widgets[sidebar] || null;
@@ -83,7 +79,6 @@ const toggle = function(name, widgets) {
 const Settings = function(browser, widgets) {
 
 	this.element = Element.from('browser-settings', TEMPLATE);
-	this.beacon  = this.element.query('[data-key="beacon"]');
 	this.browser = this.element.query('[data-key="browser"]');
 	this.session = this.element.query('[data-key="session"]');
 	this.site    = this.element.query('[data-key="site"]');
@@ -92,14 +87,6 @@ const Settings = function(browser, widgets) {
 	this.element.on('contextmenu', (e) => {
 		e.preventDefault();
 		e.stopPropagation();
-	});
-
-	this.beacon.on('click', () => {
-
-		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
-			toggle.call(this, 'beacon', widgets);
-		}
-
 	});
 
 	this.browser.on('click', () => {

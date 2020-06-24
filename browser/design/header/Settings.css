@@ -70,9 +70,8 @@ browser-settings button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
-browser-settings button[data-key="beacon"]:before  { content: '\e3e4'; }
+browser-settings button[data-key="session"]:before { content: '\e1e2'; }
 browser-settings button[data-key="site"]:before    { content: '\e869'; }
-browser-settings button[data-key="session"]:before { content: '\e01b'; }
 browser-settings button[data-key="browser"]:before { content: '\e8b8'; }
 
 

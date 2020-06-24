@@ -2,7 +2,7 @@
 browser-address {
 	display: inline-block;
 	position: relative;
-	width: calc(100% - 128px - 320px);
+	width: calc(100% - 128px - 160px - 128px);
 	height: 32px;
 	margin: 0px;
 	padding: 0px;
@@ -134,7 +134,7 @@ browser-address input::selection {
 @media screen and (max-width: 800px) {
 
 	browser-address {
-		width: calc(100% - 128px - 288px);
+		width: calc(100% - 128px - 160px - 96px);
 		text-align: left;
 	}
 

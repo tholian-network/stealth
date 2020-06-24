@@ -93,7 +93,8 @@ article code {
 	font-size: inherit;
 	font-weight: normal;
 	font-style: normal;
-	background: #202020;
+	color: var(--layout-focus-color);
+	background: var(--layout-focus-background);
 	border: 1px solid #666666;
 	border-radius: 4px;
 	overflow-x: auto;

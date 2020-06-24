@@ -5,18 +5,17 @@ const header = doc.querySelector('header');
 const main   = doc.querySelector('main');
 const footer = doc.querySelector('footer');
 
-import { isBrowser   } from '../source/Browser.mjs';
-import { Address     } from './header/Address.mjs';
-import { Beacon      } from './footer/Beacon.mjs';
-import { Context     } from './footer/Context.mjs';
-import { Help        } from './footer/Help.mjs';
-import { History     } from './header/History.mjs';
-import { Mode        } from './header/Mode.mjs';
-import { Session     } from './footer/Session.mjs';
-import { Settings    } from './header/Settings.mjs';
-import { Site        } from './footer/Site.mjs';
-import { Tabs        } from './footer/Tabs.mjs';
-import { Webview     } from './main/Webview.mjs';
+import { isBrowser } from '../source/Browser.mjs';
+import { Address   } from './header/Address.mjs';
+import { Context   } from './footer/Context.mjs';
+import { Help      } from './footer/Help.mjs';
+import { History   } from './header/History.mjs';
+import { Mode      } from './header/Mode.mjs';
+import { Session   } from './footer/Session.mjs';
+import { Settings  } from './header/Settings.mjs';
+import { Site      } from './footer/Site.mjs';
+import { Tabs      } from './footer/Tabs.mjs';
+import { Webview   } from './main/Webview.mjs';
 
 
 
@@ -43,7 +42,6 @@ export const dispatch = (window, browser) => {
 		});
 
 		WIDGETS.address  = new Address(browser, WIDGETS);
-		WIDGETS.beacon   = new Beacon(browser, WIDGETS);
 		WIDGETS.context  = new Context(browser, WIDGETS);
 		WIDGETS.help     = new Help(browser, WIDGETS);
 		WIDGETS.history  = new History(browser, WIDGETS);
@@ -63,7 +61,6 @@ export const dispatch = (window, browser) => {
 		WIDGETS.webview.render(main);
 
 		WIDGETS.tabs.render(footer);
-		WIDGETS.beacon.render(footer);
 		WIDGETS.site.render(footer);
 		WIDGETS.session.render(footer);
 		WIDGETS.context.render(footer);
@@ -81,7 +78,6 @@ export const dispatch = (window, browser) => {
 				WIDGETS.history.open,
 				WIDGETS.address.input,
 				...WIDGETS.mode.buttons,
-				WIDGETS.settings.beacon,
 				WIDGETS.settings.session,
 				WIDGETS.settings.site,
 				WIDGETS.settings.browser
