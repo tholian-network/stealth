@@ -1,10 +1,62 @@
 
-import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { ENVIRONMENT                             } from '../ENVIRONMENT.mjs';
-import { IP                                      } from '../parser/IP.mjs';
-import { Client, isClient                        } from '../Client.mjs';
+import { Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { ENVIRONMENT                                                  } from '../ENVIRONMENT.mjs';
+import { IP                                                           } from '../parser/IP.mjs';
+import { Client, isClient                                             } from '../Client.mjs';
 
 
+
+const CONNECTION = [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
+
+const toDomain = function(payload) {
+
+	let domain = null;
+
+	if (isString(payload.domain)) {
+
+		if (isString(payload.subdomain)) {
+			domain = payload.subdomain + '.' + payload.domain;
+		} else {
+			domain = payload.domain;
+		}
+
+	} else if (isString(payload.host)) {
+		domain = payload.host;
+	}
+
+	return domain;
+
+};
+
+const toRequest = function(payload) {
+
+	if (
+		isObject(payload)
+		&& isObject(payload.headers)
+		&& isString(payload.headers.service)
+		&& (isString(payload.headers.method) || isString(payload.headers.event))
+		&& (payload.payload === null || isBoolean(payload.payload) || isBuffer(payload.payload) || isObject(payload.payload))
+	) {
+
+		if (payload.headers.service === 'peer' && payload.headers.method === 'proxy') {
+			return null;
+		}
+
+		return {
+			headers: {
+				service: payload.headers.service || null,
+				method:  payload.headers.method  || null,
+				event:   payload.headers.event   || null
+			},
+			payload: payload.payload
+		};
+
+	}
+
+
+	return null;
+
+};
 
 const connect_client = function(hosts, callback) {
 
@@ -95,69 +147,39 @@ const connect_peer = function(hosts, callback) {
 
 };
 
+const handle_request = (client, request, callback) => {
 
+	let service = client.services[request.headers.service] || null;
+	if (service !== null) {
 
-const CONNECTION = [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
+		if (request.headers.event !== null) {
 
-const payloadify = function(raw) {
-
-	let payload = raw;
-	if (isObject(payload) === true) {
-
-		payload = Object.assign({}, raw);
-
-		payload.domain     = isString(payload.domain)                ? payload.domain     : null;
-		payload.subdomain  = isString(payload.subdomain)             ? payload.subdomain  : null;
-		payload.host       = isString(payload.host)                  ? payload.host       : null;
-		payload.connection = CONNECTION.includes(payload.connection) ? payload.connection : 'offline';
-
-		return payload;
-
-	}
-
-	return null;
-
-};
-
-const proxify = function(raw) {
-
-	let payload = raw;
-	if (isObject(payload) === true) {
-
-		payload = Object.assign({}, raw);
-
-		payload.domain    = isString(payload.domain)      ? payload.domain    : null;
-		payload.subdomain = isString(payload.subdomain)   ? payload.subdomain : null;
-		payload.host      = isString(payload.host)        ? payload.host      : null;
-		payload.payload   = payload.payload !== undefined ? payload.payload   : null;
-
-
-		if (isObject(payload.headers) === true) {
-
-			payload.headers = Object.assign({}, raw.headers);
-
-			payload.headers.service = isString(payload.headers.service) ? payload.headers.service : null;
-			payload.headers.method  = isString(payload.headers.method)  ? payload.headers.method  : null;
-			payload.headers.event   = isString(payload.headers.event)   ? payload.headers.event   : null;
-
-
-			if (payload.headers.service !== null) {
-
-				if (payload.headers.service === 'peer' && payload.headers.method === 'proxy') {
-					return null;
-				}
-
-				if (payload.headers.method !== null || payload.headers.event !== null) {
-					return payload;
-				}
-
+			let response = service.emit(request.headers.event, [ request.payload ]);
+			if (response !== null) {
+				callback(response);
+			} else {
+				callback(null);
 			}
 
+		} else if (request.headers.method !== null) {
+
+			if (isFunction(service[request.headers.method])) {
+
+				service[request.headers.method](request.payload, (response) => {
+					callback(response);
+				});
+
+			} else {
+				callback(null);
+			}
+
+		} else {
+			callback(null);
 		}
 
+	} else {
+		callback(null);
 	}
-
-	return null;
 
 };
 
@@ -174,9 +196,9 @@ const Peer = function(stealth) {
 Peer.isPeer = function(payload) {
 
 	if (
-		isObject(payload) === true
-		&& isString(payload.domain) === true
-		&& isString(payload.connection) === true
+		isObject(payload)
+		&& isString(payload.domain)
+		&& isString(payload.connection)
 		&& CONNECTION.includes(payload.connection)
 	) {
 		return true;
@@ -188,17 +210,49 @@ Peer.isPeer = function(payload) {
 };
 
 
+Peer.toPeer = function(payload) {
+
+	if (isObject(payload)) {
+
+		let domain = null;
+
+		if (isString(payload.domain)) {
+
+			if (isString(payload.subdomain)) {
+				domain = payload.subdomain + '.' + payload.domain;
+			} else {
+				domain = payload.domain;
+			}
+
+		} else if (isString(payload.host)) {
+			domain = payload.host;
+		}
+
+		if (domain !== null && isString(payload.connection)) {
+
+			return {
+				domain:     domain,
+				connection: CONNECTION.includes(payload.connection) ? payload.connection : 'offline'
+			};
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
 Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	info: function(payload, callback) {
 
-		payload  = payload !== undefined ? payload  : null;
-		callback = isFunction(callback)  ? callback : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (callback !== null) {
-
-			let settings = this.stealth.settings;
 
 			callback({
 				headers: {
@@ -207,7 +261,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 				},
 				payload: {
 					domain:     ENVIRONMENT.hostname,
-					connection: settings.internet.connection
+					connection: this.stealth.settings.internet.connection
 				}
 			});
 
@@ -217,66 +271,53 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	proxy: function(payload, callback) {
 
-		payload  = isObject(payload)    ? proxify(payload) : null;
-		callback = isFunction(callback) ? callback         : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let host    = null;
+		let peer    = null;
+		let domain  = toDomain(payload);
+		let request = toRequest(payload);
 
-			let peer     = null;
-			let host     = null;
-			let settings = this.stealth.settings;
+		if (domain !== null) {
 
-			if (payload.domain !== null) {
+			host = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+			peer = this.stealth.settings.peers.find((p) => p.domain === domain) || null;
 
-				if (payload.subdomain !== null) {
-					host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
-					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					host = settings.hosts.find((h) => h.domain === payload.domain) || null;
-					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
-				}
-
-			} else if (payload.host !== null) {
+			if (host === null && isString(payload.host)) {
 				host = {
-					domain: payload.host,
+					domain: domain,
 					hosts:  [ IP.parse(payload.host) ]
 				};
-				peer = settings.peers.find((p) => p.domain === payload.host) || null;
 			}
 
+		}
 
-			// Always allow to call Peer.info()
-			if (host !== null && peer === null) {
+		if (host !== null && peer === null) {
 
-				if (payload.headers.service === 'peer' && payload.headers.method === 'info') {
+			if (request.headers.service === 'peer' && request.headers.method === 'info') {
 
-					peer = {
-						domain:     host.domain,
-						connection: 'peer'
-					};
-
-				}
+				peer = {
+					domain:     domain,
+					connection: 'peer'
+				};
 
 			}
 
+		}
 
-			if (host !== null && peer !== null) {
 
-				connect_peer.call(this, IP.sort(host.hosts), (client) => {
+		if (host !== null && peer !== null && request !== null) {
 
-					if (client !== null) {
+			connect_peer.call(this, IP.sort(host.hosts), (client) => {
 
-						let event   = payload.headers.event   || null;
-						let method  = payload.headers.method  || null;
-						let service = payload.headers.service || null;
+				if (client !== null) {
 
-						if (service !== null && event !== null) {
+					handle_request(client, request, (response) => {
 
-							let instance = client.services[service] || null;
-							if (instance !== null) {
+						if (response !== null) {
 
-								let response = instance.emit(event, [ payload.payload ]);
+							if (callback !== null) {
 
 								callback({
 									headers: {
@@ -286,63 +327,30 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 									payload: response
 								});
 
-							} else {
-
-								callback({
-									_warn_: true,
-									headers: {
-										service: 'peer',
-										event:   'proxy'
-									},
-									payload: null
-								});
-
-							}
-
-						} else if (service !== null && method !== null) {
-
-							let instance = client.services[service] || null;
-							if (instance !== null && isFunction(instance[method])) {
-
-								instance[method](payload.payload, (response) => {
-
-									callback({
-										headers: {
-											service: 'peer',
-											event:   'proxy'
-										},
-										payload: response
-									});
-
-								});
-
-							} else {
-
-								callback({
-									_warn_: true,
-									headers: {
-										service: 'peer',
-										event:   'proxy'
-									},
-									payload: null
-								});
-
 							}
 
 						} else {
 
-							callback({
-								_warn_: true,
-								headers: {
-									service: 'peer',
-									event:   'proxy'
-								},
-								payload: null
-							});
+							if (callback !== null) {
+
+								callback({
+									_warn_: true,
+									headers: {
+										service: 'peer',
+										event:   'proxy'
+									},
+									payload: null
+								});
+
+							}
 
 						}
 
-					} else {
+					});
+
+				} else {
+
+					if (callback !== null) {
 
 						callback({
 							headers: {
@@ -354,9 +362,13 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 					}
 
-				});
+				}
 
-			} else {
+			});
+
+		} else {
+
+			if (callback !== null) {
 
 				callback({
 					_warn_: true,
@@ -369,44 +381,23 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			}
 
-		} else if (callback !== null) {
-
-			callback({
-				_warn_: true,
-				headers: {
-					service: 'peer',
-					event:   'proxy'
-				},
-				payload: null
-			});
-
 		}
 
 	},
 
 	read: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let peer   = null;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			peer = this.stealth.settings.peers.find((p) => p.domain === domain) || null;
+		}
 
-			let peer     = null;
-			let settings = this.stealth.settings;
 
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
-				}
-
-			} else if (payload.host !== null) {
-				peer = settings.peers.find((p) => p.domain === payload.host) || null;
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
@@ -416,93 +407,65 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 				payload: peer
 			});
 
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'peer',
-					event:   'read'
-				},
-				payload: null
-			});
-
 		}
 
 	},
 
 	refresh: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let host   = null;
+		let peer   = null;
+		let domain = toDomain(payload);
+		if (domain !== null) {
 
-			let peer     = null;
-			let host     = null;
-			let settings = this.stealth.settings;
+			host = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+			peer = this.stealth.settings.peers.find((p) => p.domain === domain) || null;
 
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
-					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					host = settings.hosts.find((h) => h.domain === payload.domain) || null;
-					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
-				}
-
-			} else if (payload.host !== null) {
+			if (host === null && isString(payload.host)) {
 				host = {
-					domain: payload.host,
+					domain: domain,
 					hosts:  [ IP.parse(payload.host) ]
 				};
-				peer = settings.peers.find((p) => p.domain === payload.host) || null;
 			}
 
+		}
 
-			if (host !== null && peer !== null) {
+		if (host !== null && peer !== null) {
 
-				connect_peer.call(this, IP.sort(host.hosts), (client) => {
+			connect_peer.call(this, IP.sort(host.hosts), (client) => {
 
-					if (client !== null) {
+				if (client !== null) {
 
-						let service = client.services.peer || null;
-						if (service !== null) {
+					client.services.peer.info(null, (response) => {
 
-							service.info(null, (response) => {
+						if (response !== null) {
 
-								if (response !== null) {
+							if (CONNECTION.includes(response.connection)) {
+								peer.connection = response.connection;
+							}
 
-									if (CONNECTION.includes(response.connection)) {
-										peer.connection = response.connection;
-									}
+						}
 
-								}
-
-								callback({
-									headers: {
-										service: 'peer',
-										event:   'refresh'
-									},
-									payload: peer
-								});
-
-							});
-
-						} else {
+						if (callback !== null) {
 
 							callback({
 								headers: {
 									service: 'peer',
 									event:   'refresh'
 								},
-								payload: null
+								payload: peer
 							});
 
 						}
 
-					} else {
+					});
+
+				} else {
+
+					if (callback !== null) {
 
 						callback({
 							headers: {
@@ -514,21 +477,11 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 					}
 
-				});
+				}
 
-			} else {
+			});
 
-				callback({
-					headers: {
-						service: 'peer',
-						event:   'refresh'
-					},
-					payload: peer
-				});
-
-			}
-
-		} else if (callback !== null) {
+		} else {
 
 			callback({
 				headers: {
@@ -544,55 +497,29 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let peer   = null;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			peer = this.stealth.settings.peers.find((p) => p.domain === domain) || null;
+		}
 
-			let peer = null;
-			let settings = this.stealth.settings;
-
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
-				}
-
-			} else if (payload.host !== null) {
-				peer = settings.peers.find((p) => p.domain === payload.host) || null;
-			}
+		if (peer !== null) {
+			this.stealth.settings.peers.remove(peer);
+			this.stealth.settings.save();
+		}
 
 
-			if (peer !== null) {
-
-				let index = settings.peers.indexOf(peer);
-				if (index !== -1) {
-					settings.peers.splice(index, 1);
-				}
-
-				settings.save();
-
-			}
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'peer',
 					event:   'remove'
 				},
-				payload: true
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'peer',
-					event:   'remove'
-				},
-				payload: false
+				payload: (domain !== null)
 			});
 
 		}
@@ -601,78 +528,40 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let peer_old = null;
+		let peer_new = Peer.toPeer(payload);
 
-			let peer     = null;
-			let settings = this.stealth.settings;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			peer_old = this.stealth.settings.peers.find((p) => p.domain === domain) || null;
+		}
 
-			if (payload.domain !== null) {
+		if (peer_new !== null) {
 
-				if (payload.subdomain !== null) {
-					peer = settings.peers.find((p) => p.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					peer = settings.peers.find((p) => p.domain === payload.domain) || null;
-				}
+			if (peer_old !== null) {
 
-			} else if (payload.host !== null) {
-				peer = settings.peers.find((p) => p.domain === payload.host) || null;
+				peer_old.connection = peer_new.connection;
+
+			} else {
+				this.stealth.settings.peers.push(peer_new);
 			}
 
+			this.stealth.settings.save();
 
-			if (peer !== null) {
+		}
 
-				peer.connection = payload.connection || 'offline';
 
-				settings.save();
-
-			} else if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					payload.domain    = payload.subdomain + '.' + payload.domain;
-					payload.subdomain = null;
-				}
-
-				peer = {
-					domain:     payload.domain,
-					connection: payload.connection || 'offline'
-				};
-
-				settings.peers.push(peer);
-				settings.save();
-
-			} else if (payload.host !== null) {
-
-				peer = {
-					domain:     payload.host,
-					connection: payload.connection || 'offline'
-				};
-
-				settings.peers.push(peer);
-				settings.save();
-
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'peer',
 					event:   'save'
 				},
-				payload: (peer !== null)
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'peer',
-					event:   'save'
-				},
-				payload: false
+				payload: (peer_new !== null)
 			});
 
 		}

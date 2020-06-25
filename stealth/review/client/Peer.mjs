@@ -86,10 +86,19 @@ describe('Peer.prototype.proxy()/success', function(assert) {
 		}
 	}, (response) => {
 
-		assert(response.internet, {
-			connection: 'mobile',
-			history:    'stealth',
-			useragent:  'stealth'
+		assert(response, {
+			internet: {
+				connection: 'mobile',
+				history:    'stealth',
+				useragent:  'stealth'
+			},
+			beacons:   null,
+			blockers:  null,
+			hosts:     null,
+			modes:     null,
+			peers:     null,
+			redirects: null,
+			sessions:  null
 		});
 
 	});

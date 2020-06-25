@@ -4,38 +4,35 @@ import { URL                                     } from '../parser/URL.mjs';
 
 
 
-const payloadify = function(raw) {
+const toDomain = function(payload) {
 
-	let payload = raw;
-	if (isObject(payload) === true) {
+	let domain = null;
 
-		payload = Object.assign({}, raw);
+	if (isString(payload.domain)) {
 
-		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
-		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
-		payload.host      = isString(payload.host)      ? payload.host      : null;
-		payload.path      = isString(payload.path)      ? payload.path      : '/';
-		payload.location  = isString(payload.location)  ? payload.location  : null;
-
-
-		if (payload.location !== null) {
-
-			let ref = URL.parse(payload.location);
-			if (ref.protocol === 'https' || ref.protocol === 'http') {
-
-				if (ref.domain !== null || ref.host !== null) {
-					return payload;
-				}
-
-			}
-
+		if (isString(payload.subdomain)) {
+			domain = payload.subdomain + '.' + payload.domain;
 		} else {
-			return payload;
+			domain = payload.domain;
 		}
 
+	} else if (isString(payload.host)) {
+		domain = payload.host;
 	}
 
-	return null;
+	return domain;
+
+};
+
+const toPath = function(payload) {
+
+	let path = null;
+
+	if (isString(payload.path)) {
+		path = payload.path;
+	}
+
+	return path;
 
 };
 
@@ -75,43 +72,74 @@ Redirect.isRedirect = function(payload) {
 };
 
 
+Redirect.toRedirect = function(payload) {
+
+	if (isObject(payload)) {
+
+		let domain = null;
+
+		if (isString(payload.domain)) {
+
+			if (isString(payload.subdomain)) {
+				domain = payload.subdomain + '.' + payload.domain;
+			} else {
+				domain = payload.domain;
+			}
+
+		} else if (isString(payload.host)) {
+			domain = payload.host;
+		}
+
+		if (domain !== null && isString(payload.path) && isString(payload.location)) {
+
+			let ref = URL.parse(payload.location);
+			if (
+				(ref.domain !== null || ref.host !== null)
+				&& (ref.protocol === 'https' || ref.protocol === 'http')
+			) {
+
+				return {
+					domain:   domain,
+					path:     payload.path,
+					location: payload.location
+				};
+
+			} else if (payload.location.startsWith('/')) {
+
+				return {
+					domain:   domain,
+					path:     payload.path,
+					location: payload.location
+				};
+
+			}
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
 Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let redirect = null;
+		let domain   = toDomain(payload);
+		let path     = toPath(payload);
+		if (domain !== null && path !== null) {
+			redirect = this.stealth.settings.redirects.find((r) => r.domain === domain && r.path === path) || null;
+		}
 
-			let redirect = null;
-			let settings = this.stealth.settings;
 
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-
-					redirect = settings.redirects.find((r) => {
-						return r.domain === payload.subdomain + '.' + payload.domain && r.path === payload.path;
-					}) || null;
-
-				} else {
-
-					redirect = settings.redirects.find((r) => {
-						return r.domain === payload.domain && r.path === payload.path;
-					}) || null;
-
-				}
-
-			} else if (payload.host !== null) {
-
-				redirect = settings.redirects.find((r) => {
-					return r.host === payload.host && r.path === payload.path;
-				}) || null;
-
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
@@ -121,84 +149,36 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 				payload: redirect
 			});
 
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'redirect',
-					event:   'read'
-				},
-				payload: null
-			});
-
 		}
 
 	},
 
 	remove: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let redirect = null;
+		let domain   = toDomain(payload);
+		let path     = toPath(payload);
+		if (domain !== null && path !== null) {
+			redirect = this.stealth.settings.redirects.find((r) => r.domain === domain && r.path === path) || null;
+		}
 
-			let redirect = null;
-			let settings = this.stealth.settings;
-
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-
-					redirect = settings.redirects.find((r) => {
-						return r.domain === payload.subdomain + '.' + payload.domain && r.path === payload.path;
-					}) || null;
-
-				} else {
-
-					redirect = settings.redirects.find((r) => {
-						return r.domain === payload.domain && r.path === payload.path;
-					}) || null;
-
-				}
-
-			} else if (payload.host !== null) {
-
-				redirect = settings.redirects.find((r) => {
-					return r.host === payload.host && r.path === payload.path;
-				}) || null;
-
-			}
+		if (redirect !== null) {
+			this.stealth.settings.redirects.remove(redirect);
+			this.stealth.settings.save();
+		}
 
 
-			if (redirect !== null) {
-
-				let index = settings.redirects.indexOf(redirect);
-				if (index !== -1) {
-					settings.redirects.splice(index, 1);
-				}
-
-				settings.save();
-
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'redirect',
 					event:   'remove'
 				},
-				payload: true
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'redirect',
-					event:   'remove'
-				},
-				payload: false
+				payload: (domain !== null && path !== null)
 			});
 
 		}
@@ -207,96 +187,41 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && payload.location !== null && callback !== null) {
+		let redirect_old = null;
+		let redirect_new = Redirect.toRedirect(payload);
 
-			let redirect = null;
-			let settings = this.stealth.settings;
+		let domain = toDomain(payload);
+		let path   = toPath(payload);
+		if (domain !== null && path !== null) {
+			redirect_old = this.stealth.settings.redirects.find((r) => r.domain === domain && r.path === path) || null;
+		}
 
-			if (payload.domain !== null) {
+		if (redirect_new !== null) {
 
-				if (payload.subdomain !== null) {
+			if (redirect_old !== null) {
 
-					redirect = settings.redirects.find((r) => {
-						return r.domain === payload.subdomain + '.' + payload.domain && r.path === payload.path;
-					}) || null;
+				redirect_old.location = redirect_new.location;
 
-				} else {
-
-					redirect = settings.redirects.find((r) => {
-						return r.domain === payload.domain && r.path === payload.path;
-					}) || null;
-
-				}
-
-			} else if (payload.host !== null) {
-
-				redirect = settings.redirects.find((r) => {
-					return r.host === payload.host && r.path === payload.path;
-				}) || null;
-
+			} else {
+				this.stealth.settings.redirects.push(redirect_new);
 			}
 
+			this.stealth.settings.save();
 
-			if (redirect !== null) {
+		}
 
-				if (redirect.location !== payload.location) {
 
-					redirect.location = payload.location;
-
-					settings.save();
-
-				}
-
-			} else if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					payload.domain    = payload.subdomain + '.' + payload.domain;
-					payload.subdomain = null;
-				}
-
-				redirect = {
-					domain:   payload.domain,
-					path:     payload.path,
-					location: payload.location
-				};
-
-				settings.redirects.push(redirect);
-				settings.save();
-
-			} else if (payload.host !== null) {
-
-				redirect = {
-					host:     payload.host,
-					path:     payload.path,
-					location: payload.location
-				};
-
-				settings.redirects.push(redirect);
-				settings.save();
-
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'redirect',
 					event:   'save'
 				},
-				payload: (redirect !== null)
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'redirect',
-					event:   'save'
-				},
-				payload: false
+				payload: (redirect_new !== null)
 			});
 
 		}

@@ -5,28 +5,64 @@ import { IP                                               } from '../parser/IP.m
 
 
 
-const payloadify = function(raw) {
+const toDomain = function(payload) {
 
-	let payload = raw;
-	if (isObject(payload) === true) {
+	let domain = null;
 
-		payload = Object.assign({}, raw);
+	if (isString(payload.domain)) {
 
-		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
-		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
-		payload.host      = isString(payload.host)      ? payload.host      : null;
-
-		if (isArray(payload.hosts) === true) {
-			payload.hosts = payload.hosts.filter((ip) => IP.isIP(ip));
+		if (isString(payload.subdomain)) {
+			domain = payload.subdomain + '.' + payload.domain;
 		} else {
-			payload.hosts = [];
+			domain = payload.domain;
 		}
 
-		return payload;
+	}
+
+	return domain;
+
+};
+
+const toQuery = function(payload) {
+
+	if (isString(payload.domain)) {
+
+		if (isString(payload.subdomain)) {
+
+			return {
+				domain:    payload.domain,
+				subdomain: payload.subdomain
+			};
+
+		} else {
+
+			return {
+				domain:    payload.domain,
+				subdomain: null
+			};
+
+		}
 
 	}
 
 	return null;
+
+};
+
+const toIP = function(payload) {
+
+	let ip = null;
+
+	if (isString(payload.host)) {
+
+		let value = IP.parse(payload.host);
+		if (IP.isIP(value)) {
+			ip = value;
+		}
+
+	}
+
+	return ip;
 
 };
 
@@ -61,44 +97,70 @@ Host.isHost = function(payload) {
 };
 
 
+Host.toHost = function(payload) {
+
+	if (isObject(payload)) {
+
+		let domain = null;
+
+		if (isString(payload.domain)) {
+
+			if (isString(payload.subdomain)) {
+				domain = payload.subdomain + '.' + payload.domain;
+			} else {
+				domain = payload.domain;
+			}
+
+		} else if (isString(payload.host)) {
+			domain = payload.host;
+		}
+
+		if (domain !== null && isArray(payload.hosts)) {
+
+			let check = payload.hosts.filter((ip) => IP.isIP(ip));
+			if (check.length === payload.hosts.length) {
+
+				return {
+					domain: domain,
+					hosts:  payload.hosts
+				};
+
+			}
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
 Host.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let host   = null;
+		let domain = toDomain(payload);
+		let query  = toQuery(payload);
+		let ip     = toIP(payload);
 
-			let host     = null;
-			let settings = this.stealth.settings;
-
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					host = settings.hosts.find((h) => h.domain === payload.domain) || null;
-				}
-
-			} else if (payload.host !== null) {
-
-				host = settings.hosts.find((h) => {
-
-					let check = h.hosts.find((ip) => ip.ip === payload.host) || null;
-					if (check !== null) {
-						return true;
-					}
-
-					return false;
-
-				}) || null;
-
-			}
+		if (domain !== null) {
+			host = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+		} else if (ip !== null) {
+			host = this.stealth.settings.hosts.find((h) => {
+				return h.hosts.find((h) => h.ip === ip.ip) !== undefined;
+			}) || null;
+		}
 
 
-			if (host !== null) {
+		if (host !== null) {
+
+			if (callback !== null) {
 
 				callback({
 					headers: {
@@ -108,58 +170,52 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 					payload: host
 				});
 
-			} else if (payload.domain !== null) {
+			}
 
-				DNS.resolve(payload, (response) => {
+		} else if (query !== null) {
 
-					let host = null;
+			DNS.resolve(query, (response) => {
 
-					if (response.payload !== null) {
+				let host_old = null;
+				let host_new = Host.toHost(response.payload);
 
-						if (payload.subdomain !== null) {
-							host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
-						} else {
-							host = settings.hosts.find((h) => h.domain === payload.domain) || null;
-						}
+				let domain = toDomain(response.payload);
+				if (domain !== null) {
+					host_old = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+				}
 
+				if (host_new !== null) {
 
-						if (host !== null) {
+					if (host_old !== null) {
 
-							host.hosts = response.payload.hosts;
+						host_old.hosts = host_new.hosts;
 
-							settings.save();
-
-						} else {
-
-							if (payload.subdomain !== null) {
-								payload.domain    = payload.subdomain + '.' + payload.domain;
-								payload.subdomain = null;
-							}
-
-							host = {
-								domain: payload.domain,
-								hosts:  response.payload.hosts
-							};
-
-							settings.hosts.push(host);
-							settings.save();
-
-						}
-
+					} else {
+						this.stealth.settings.hosts.push(host_new);
 					}
 
+					this.stealth.settings.save();
+
+				}
+
+
+				if (callback !== null) {
 
 					callback({
 						headers: {
 							service: 'host',
 							event:   'read'
 						},
-						payload: host
+						payload: host_new
 					});
 
-				});
+				}
 
-			} else {
+			});
+
+		} else {
+
+			if (callback !== null) {
 
 				callback({
 					headers: {
@@ -171,83 +227,60 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 			}
 
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'host',
-					event:   'read'
-				},
-				payload: null
-			});
-
 		}
 
 	},
 
 	refresh: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let query = toQuery(payload);
+		if (query !== null) {
 
-			let settings = this.stealth.settings;
+			DNS.resolve(query, (response) => {
 
-			if (payload.domain !== null) {
+				let host_old = null;
+				let host_new = Host.toHost(response.payload);
 
-				DNS.resolve(payload, (response) => {
+				let domain = toDomain(response.payload);
+				if (domain !== null) {
+					host_old = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+				}
 
-					let host = null;
+				if (host_new !== null) {
 
-					if (response.payload !== null) {
+					if (host_old !== null) {
 
-						if (payload.subdomain !== null) {
-							host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
-						} else {
-							host = settings.hosts.find((h) => h.domain === payload.domain) || null;
-						}
+						host_old.hosts = host_new.hosts;
 
-
-						if (host !== null) {
-
-							host.hosts = response.payload.hosts;
-
-							settings.save();
-
-						} else {
-
-							if (payload.subdomain !== null) {
-								payload.domain    = payload.subdomain + '.' + payload.domain;
-								payload.subdomain = null;
-							}
-
-							host = {
-								domain: payload.domain,
-								hosts:  response.payload.hosts
-							};
-
-							settings.hosts.push(host);
-							settings.save();
-
-						}
-
-
+					} else {
+						this.stealth.settings.hosts.push(host_new);
 					}
 
+					this.stealth.settings.save();
+
+				}
+
+
+				if (callback !== null) {
 
 					callback({
 						headers: {
 							service: 'host',
 							event:   'refresh'
 						},
-						payload: host
+						payload: host_new
 					});
 
-				});
+				}
 
-			} else {
+			});
+
+		} else {
+
+			if (callback !== null) {
 
 				callback({
 					headers: {
@@ -259,70 +292,35 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 			}
 
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'host',
-					event:   'refresh'
-				},
-				payload: null
-			});
-
 		}
 
 	},
 
 	remove: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let host   = null;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			host = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+		}
 
-			let host     = null;
-			let settings = this.stealth.settings;
-
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					host = settings.hosts.find((h) => h.domain === payload.domain) || null;
-				}
-
-			}
+		if (host !== null) {
+			this.stealth.settings.hosts.remove(host);
+			this.stealth.settings.save();
+		}
 
 
-			if (host !== null) {
-
-				let index = settings.hosts.indexOf(host);
-				if (index !== -1) {
-					settings.hosts.splice(index, 1);
-				}
-
-				settings.save();
-
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'host',
 					event:   'remove'
 				},
-				payload: true
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'host',
-					event:   'remove'
-				},
-				payload: false
+				payload: (domain !== null)
 			});
 
 		}
@@ -331,68 +329,40 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let host_old = null;
+		let host_new = Host.toHost(payload);
 
-			let host     = null;
-			let settings = this.stealth.settings;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			host_old = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+		}
 
-			if (payload.domain !== null) {
+		if (host_new !== null) {
 
-				if (payload.subdomain !== null) {
-					host = settings.hosts.find((h) => h.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					host = settings.hosts.find((h) => h.domain === payload.domain) || null;
-				}
+			if (host_old !== null) {
 
+				host_old.hosts = host_new.hosts;
+
+			} else {
+				this.stealth.settings.hosts.push(host_new);
 			}
 
+			this.stealth.settings.save();
 
-			if (host !== null) {
-
-				host.hosts = payload.hosts;
-
-				settings.save();
-
-			} else if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					payload.domain    = payload.subdomain + '.' + payload.domain;
-					payload.subdomain = null;
-				}
+		}
 
 
-				host = {
-					domain: payload.domain,
-					hosts:  payload.hosts
-				};
-
-				settings.hosts.push(host);
-				settings.save();
-
-			}
-
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'host',
 					event:   'save'
 				},
-				payload: (host !== null)
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'host',
-					event:   'save'
-				},
-				payload: false
+				payload: (host_new !== null)
 			});
 
 		}

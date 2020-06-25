@@ -28,6 +28,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 
 		assert(response, {
 			internet:  defaults.internet,
+			beacons:   defaults.beacons,
 			blockers:  null,
 			hosts:     defaults.hosts,
 			modes:     defaults.modes,
@@ -53,6 +54,33 @@ describe('Settings.prototype.read()/internet', function(assert) {
 
 		assert(response, {
 			internet:  defaults.internet,
+			beacons:   null,
+			blockers:  null,
+			hosts:     null,
+			modes:     null,
+			peers:     null,
+			redirects: null,
+			sessions:  null
+		});
+
+	});
+
+});
+
+describe('Settings.prototype.read()/beacons', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.settings.read), true);
+
+	let defaults = this.stealth.settings.toJSON().data;
+
+	this.client.services.settings.read({
+		beacons: true
+	}, (response) => {
+
+		assert(response, {
+			internet:  null,
+			beacons:   defaults.beacons,
 			blockers:  null,
 			hosts:     null,
 			modes:     null,
@@ -76,6 +104,7 @@ describe('Settings.prototype.read()/blockers', function(assert) {
 
 		assert(response, {
 			internet:  null,
+			beacons:   null,
 			blockers:  null,
 			hosts:     null,
 			modes:     null,
@@ -101,6 +130,7 @@ describe('Settings.prototype.read()/hosts', function(assert) {
 
 		assert(response, {
 			internet:  null,
+			beacons:   null,
 			blockers:  null,
 			hosts:     defaults.hosts,
 			modes:     null,
@@ -126,6 +156,7 @@ describe('Settings.prototype.read()/modes', function(assert) {
 
 		assert(response, {
 			internet:  null,
+			beacons:   null,
 			blockers:  null,
 			hosts:     null,
 			modes:     defaults.modes,
@@ -151,6 +182,7 @@ describe('Settings.prototype.read()/peers', function(assert) {
 
 		assert(response, {
 			internet:  null,
+			beacons:   null,
 			blockers:  null,
 			hosts:     null,
 			modes:     null,
@@ -174,6 +206,7 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 
 		assert(response, {
 			internet:  null,
+			beacons:   null,
 			blockers:  null,
 			hosts:     null,
 			modes:     null,
@@ -199,6 +232,7 @@ describe('Settings.prototype.read()/sessions', function(assert) {
 
 		assert(response, {
 			internet:  null,
+			beacons:   null,
 			blockers:  null,
 			hosts:     null,
 			modes:     null,
@@ -222,6 +256,19 @@ describe('Settings.prototype.save()/all', function(assert) {
 			history:    'week',
 			useragent:  'stealth'
 		},
+		beacons: [{
+			domain: 'covert.localdomain',
+			path:   '/news/*',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h1' ],
+				mode:   'text',
+			}, {
+				label:  'article',
+				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
+				mode:   'text'
+			}]
+		}],
 		hosts: [{
 			domain: 'covert.localdomain',
 			hosts: [{
@@ -264,6 +311,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 
 	this.client.services.settings.read({
 		internet:  true,
+		beacons:   true,
 		blockers:  true, // private
 		hosts:     true,
 		modes:     true,
@@ -278,6 +326,22 @@ describe('Settings.prototype.read()/all', function(assert) {
 			connection: 'mobile',
 			history:    'week',
 			useragent:  'stealth'
+		});
+
+		let beacon = response.beacons.find((b) => b.domain === 'covert.localdomain') || null;
+
+		assert(beacon, {
+			domain: 'covert.localdomain',
+			path:    '/news/*',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h1' ],
+				mode:   'text',
+			}, {
+				label:  'article',
+				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
+				mode:   'text'
+			}]
 		});
 
 		assert(response.blockers, null);
@@ -358,6 +422,78 @@ describe('Settings.prototype.read()/internet', function(assert) {
 	});
 
 });
+
+describe('Settings.prototype.save()/beacons', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.settings.save), true);
+
+	this.client.services.settings.save({
+		beacons: [{
+			domain: 'covert-two.localdomain',
+			path:   '*awesome-topic/',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h3' ],
+				mode:   'text',
+			}, {
+				label:  'article',
+				select: [ 'article > p' ],
+				mode:   'text'
+			}]
+		}]
+	}, (response) => {
+
+		assert(response, true);
+
+	});
+
+});
+
+describe('Settings.prototype.read()/beacons', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.settings.read), true);
+
+	this.client.services.settings.read({
+		beacons: true
+	}, (response) => {
+
+		let beacon1 = response.beacons.find((b) => b.domain === 'covert.localdomain') || null;
+		let beacon2 = response.beacons.find((b) => b.domain === 'covert-two.localdomain') || null;
+
+		assert(beacon1, {
+			domain: 'covert.localdomain',
+			path:   '/news/*',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h1' ],
+				mode:   'text',
+			}, {
+				label:  'article',
+				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
+				mode:   'text'
+			}]
+		});
+
+		assert(beacon2, {
+			domain: 'covert-two.localdomain',
+			path:   '*awesome-topic/',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h3' ],
+				mode:   'text',
+			}, {
+				label:  'article',
+				select: [ 'article > p' ],
+				mode:   'text'
+			}]
+		});
+
+	});
+
+});
+
 
 describe('Settings.prototype.save()/hosts', function(assert) {
 

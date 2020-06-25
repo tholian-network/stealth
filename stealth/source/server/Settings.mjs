@@ -1,5 +1,6 @@
 
 import { Emitter, isArray, isBoolean, isFunction, isObject } from '../../extern/base.mjs';
+import { Beacon                                            } from './Beacon.mjs';
 import { Host                                              } from './Host.mjs';
 import { Mode                                              } from './Mode.mjs';
 import { Peer                                              } from './Peer.mjs';
@@ -16,6 +17,7 @@ const readify = function(raw) {
 			payload = Object.assign({}, raw);
 
 			payload.internet  = isBoolean(payload.internet)  ? payload.internet  : false;
+			payload.beacons   = isBoolean(payload.beacons)   ? payload.beacons   : false;
 			payload.blockers  = false; // cannot be read
 			payload.hosts     = isBoolean(payload.hosts)     ? payload.hosts     : false;
 			payload.modes     = isBoolean(payload.modes)     ? payload.modes     : false;
@@ -41,6 +43,7 @@ const saveify = function(raw) {
 		payload = Object.assign({}, raw);
 
 		payload.internet  = isObject(payload.internet) ? payload.internet : {};
+		payload.beacons   = isArray(payload.beacons)   ? payload.beacons  : [];
 		payload.blockers  = []; // cannot be saved
 		payload.hosts     = isArray(payload.hosts)     ? payload.hosts    : [];
 		payload.modes     = isArray(payload.modes)     ? payload.modes    : [];
@@ -48,16 +51,20 @@ const saveify = function(raw) {
 		payload.redirects = []; // cannot be saved
 		payload.sessions  = []; // cannot be saved
 
+		if (isArray(payload.beacons) === true) {
+			payload.beacons = payload.beacons.filter((beacon) => Beacon.isBeacon(beacon));
+		}
+
 		if (isArray(payload.hosts) === true) {
-			payload.hosts = payload.hosts.filter((h) => Host.isHost(h));
+			payload.hosts = payload.hosts.filter((host) => Host.isHost(host));
 		}
 
 		if (isArray(payload.modes) === true) {
-			payload.modes = payload.modes.filter((m) => Mode.isMode(m));
+			payload.modes = payload.modes.filter((mode) => Mode.isMode(mode));
 		}
 
 		if (isArray(payload.peers) === true) {
-			payload.peers = payload.peers.filter((p) => Peer.isPeer(p));
+			payload.peers = payload.peers.filter((peer) => Peer.isPeer(peer));
 		}
 
 		return payload;
@@ -97,6 +104,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						let blob = this.stealth.settings.toJSON();
 						let data = {
 							internet:  null,
+							beacons:   null,
 							blockers:  null,
 							hosts:     null,
 							modes:     null,
@@ -150,6 +158,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 						let blob = this.stealth.settings.toJSON();
 						let data = {
 							internet:  blob.data.internet,
+							beacons:   blob.data.beacons,
 							blockers:  null,
 							hosts:     blob.data.hosts,
 							modes:     blob.data.modes,
@@ -202,6 +211,22 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 				if (settings.internet[key] !== undefined) {
 					settings.internet[key] = payload.internet[key];
 				}
+
+			});
+
+			payload.beacons.forEach((beacon) => {
+
+				let other = settings.beacons.find((b) => b.domain === beacon.domain && b.path === beacon.path) || null;
+				if (other !== null) {
+
+					let index = settings.beacons.indexOf(other);
+					if (index !== -1) {
+						settings.beacons.splice(index, 1);
+					}
+
+				}
+
+				settings.beacons.push(beacon);
 
 			});
 

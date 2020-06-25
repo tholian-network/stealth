@@ -3,25 +3,23 @@ import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
 
 
 
-const payloadify = function(raw) {
+const toDomain = function(payload) {
 
-	let payload = raw;
-	if (isObject(payload) === true) {
+	let domain = null;
 
-		payload = Object.assign({}, raw);
+	if (isString(payload.domain)) {
 
-		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
-		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
-		payload.host      = isString(payload.host)      ? payload.host      : null;
-
-
-		if (payload.domain !== null || payload.host !== null) {
-			return payload;
+		if (isString(payload.subdomain)) {
+			domain = payload.subdomain + '.' + payload.domain;
+		} else {
+			domain = payload.domain;
 		}
 
+	} else if (isString(payload.host)) {
+		domain = payload.host;
 	}
 
-	return null;
+	return domain;
 
 };
 
@@ -52,31 +50,55 @@ Blocker.isBlocker = function(payload) {
 };
 
 
+Blocker.toBlocker = function(payload) {
+
+	if (isObject(payload)) {
+
+		let domain = null;
+
+		if (isString(payload.domain)) {
+
+			if (isString(payload.subdomain)) {
+				domain = payload.subdomain + '.' + payload.domain;
+			} else {
+				domain = payload.domain;
+			}
+
+		} else if (isString(payload.host)) {
+			domain = payload.host;
+		}
+
+		if (domain !== null && isObject(payload.mode)) {
+
+			return {
+				domain: domain
+			};
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
 Blocker.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let blocker = null;
+		let domain  = toDomain(payload);
+		if (domain !== null) {
+			blocker = this.stealth.settings.blockers.find((b) => b.domain === domain) || null;
+		}
 
-			let blocker  = null;
-			let settings = this.stealth.settings;
 
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					blocker = settings.blockers.find((b) => (payload.subdomain + '.' + payload.domain).endsWith(b.domain)) || null;
-				} else {
-					blocker = settings.blockers.find((b) => (payload.domain).endsWith(b.domain)) || null;
-				}
-
-			} else if (payload.host !== null) {
-				blocker = settings.blockers.find((b) => b.domain === payload.host) || null;
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
@@ -84,16 +106,6 @@ Blocker.prototype = Object.assign({}, Emitter.prototype, {
 					event:   'read'
 				},
 				payload: blocker
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'blocker',
-					event:   'read'
-				},
-				payload: null
 			});
 
 		}

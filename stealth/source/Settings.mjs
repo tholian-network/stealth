@@ -11,6 +11,40 @@ import { URL                                                         } from './p
 
 
 
+const isBeacon = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isString(payload.path) === true
+		&& isArray(payload.beacons) === true
+	) {
+
+		let check = payload.beacons.filter((beacon) => {
+
+			if (
+				isString(beacon.label) === true
+				&& isArray(beacon.select) === true
+				&& [ 'text', 'image', 'audio', 'video', 'other' ].includes(beacon.mode)
+			) {
+				return true;
+			}
+
+			return false;
+
+		});
+
+		if (check.length === payload.beacons.length) {
+			return true;
+		}
+
+	}
+
+
+	return false;
+
+};
+
 const isBlocker = function(payload) {
 
 	if (
@@ -111,6 +145,7 @@ export const isSettings = function(obj) {
 };
 
 const get_message = (settings) => `
+${settings.beacons.length} Beacon${settings.beacons.length === 1 ? '' : 's'}, \
 ${settings.blockers.length} Blocker${settings.blockers.length === 1 ? '' : 's'}, \
 ${settings.hosts.length} Host${settings.hosts.length === 1 ? '' : 's'}, \
 ${settings.modes.length} Mode${settings.modes.length === 1 ? '' : 's'}, \
@@ -366,6 +401,7 @@ const read = function(profile, keepdata, callback) {
 
 			let check = [
 				read_file.call(this, profile + '/internet.json',  this.internet,  keepdata),
+				read_file.call(this, profile + '/beacons.json',   this.beacons,   keepdata, isBeacon),
 				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata, isBlocker),
 				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata, isHost),
 				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata, isMode),
@@ -500,6 +536,7 @@ const save = function(profile, keepdata, callback) {
 
 			let check = [
 				save_file.call(this, profile + '/internet.json',  this.internet),
+				save_file.call(this, profile + '/beacons.json',   this.beacons,   isBeacon),
 				true, // blockers cannot be saved
 				save_file.call(this, profile + '/hosts.json',     this.hosts,     isHost),
 				save_file.call(this, profile + '/modes.json',     this.modes,     isMode),
@@ -635,6 +672,7 @@ const Settings = function(settings) {
 		history:    'stealth',
 		useragent:  'stealth'
 	};
+	this.beacons   = [];
 	this.blockers  = [];
 	this.hosts     = [];
 	this.modes     = [];
@@ -748,6 +786,10 @@ Settings.from = function(json) {
 
 			}
 
+			if (isArray(data.beacons) === true) {
+				settings.beacons = data.beacons.filter((beacon) => isBeacon(beacon));
+			}
+
 			if (isArray(data.hosts) === true) {
 				settings.hosts = data.hosts.filter((host) => isHost(host));
 			}
@@ -791,6 +833,7 @@ Settings.prototype = {
 
 		let data = {
 			internet:  {},
+			beacons:   [],
 			blockers:  null, // private
 			hosts:     [],
 			modes:     [],
@@ -803,6 +846,14 @@ Settings.prototype = {
 
 		Object.keys(this.internet).forEach((key) => {
 			data.internet[key] = this.internet[key];
+		});
+
+		this.beacons.forEach((beacon) => {
+
+			if (isBeacon(beacon) === true) {
+				data.beacons.push(beacon);
+			}
+
 		});
 
 		this.hosts.forEach((host) => {

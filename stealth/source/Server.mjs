@@ -11,6 +11,7 @@ import { SOCKS                                  } from './protocol/SOCKS.mjs';
 import { WS                                     } from './protocol/WS.mjs';
 import { REDIRECT                               } from './other/REDIRECT.mjs';
 import { ROUTER                                 } from './other/ROUTER.mjs';
+import { Beacon                                 } from './server/Beacon.mjs';
 import { Blocker                                } from './server/Blocker.mjs';
 import { Cache                                  } from './server/Cache.mjs';
 import { Host                                   } from './server/Host.mjs';
@@ -535,6 +536,7 @@ const Server = function(settings, stealth) {
 
 	if (this.stealth !== null) {
 
+		this.services['beacon']   = new Beacon(this.stealth);
 		this.services['blocker']  = new Blocker(this.stealth);
 		this.services['cache']    = new Cache(this.stealth);
 		this.services['host']     = new Host(this.stealth);

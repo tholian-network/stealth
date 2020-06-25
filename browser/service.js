@@ -9,8 +9,6 @@ const ASSETS  = [
 	'app/gjs.js',
 	'browser.mjs',
 	'design/Element.mjs',
-	'design/footer/Beacon.css',
-	'design/footer/Beacon.mjs',
 	'design/footer/Context.css',
 	'design/footer/Context.mjs',
 	'design/footer/Help.css',

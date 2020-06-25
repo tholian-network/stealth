@@ -3,35 +3,23 @@ import { Emitter, isBoolean, isFunction, isObject, isString } from '../../extern
 
 
 
-const payloadify = function(raw) {
+const toDomain = function(payload) {
 
-	let payload = raw;
-	if (isObject(payload) === true) {
+	let domain = null;
 
-		payload = Object.assign({}, raw);
+	if (isString(payload.domain)) {
 
-		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
-		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
-		payload.host      = isString(payload.host)      ? payload.host      : null;
-
-		if (isObject(payload.mode) === true) {
-
-			payload.mode = Object.assign({}, raw.mode);
-
-			payload.mode.text  = isBoolean(payload.mode.text)  ? payload.mode.text  : false;
-			payload.mode.image = isBoolean(payload.mode.image) ? payload.mode.image : false;
-			payload.mode.audio = isBoolean(payload.mode.audio) ? payload.mode.audio : false;
-			payload.mode.video = isBoolean(payload.mode.video) ? payload.mode.video : false;
-			payload.mode.other = isBoolean(payload.mode.other) ? payload.mode.other : false;
-
+		if (isString(payload.subdomain)) {
+			domain = payload.subdomain + '.' + payload.domain;
+		} else {
+			domain = payload.domain;
 		}
 
-		return payload;
-
+	} else if (isString(payload.host)) {
+		domain = payload.host;
 	}
 
-
-	return null;
+	return domain;
 
 };
 
@@ -48,14 +36,14 @@ const Mode = function(stealth) {
 Mode.isMode = function(payload) {
 
 	if (
-		isObject(payload) === true
-		&& isString(payload.domain) === true
-		&& isObject(payload.mode) === true
-		&& isBoolean(payload.mode.text) === true
-		&& isBoolean(payload.mode.image) === true
-		&& isBoolean(payload.mode.audio) === true
-		&& isBoolean(payload.mode.video) === true
-		&& isBoolean(payload.mode.other) === true
+		isObject(payload)
+		&& isString(payload.domain)
+		&& isObject(payload.mode)
+		&& isBoolean(payload.mode.text)
+		&& isBoolean(payload.mode.image)
+		&& isBoolean(payload.mode.audio)
+		&& isBoolean(payload.mode.video)
+		&& isBoolean(payload.mode.other)
 	) {
 		return true;
 	}
@@ -66,29 +54,62 @@ Mode.isMode = function(payload) {
 };
 
 
+Mode.toMode = function(payload) {
+
+	if (isObject(payload)) {
+
+		let domain = null;
+
+		if (isString(payload.domain)) {
+
+			if (isString(payload.subdomain)) {
+				domain = payload.subdomain + '.' + payload.domain;
+			} else {
+				domain = payload.domain;
+			}
+
+		} else if (isString(payload.host)) {
+			domain = payload.host;
+		}
+
+		if (domain !== null && isObject(payload.mode)) {
+
+			return {
+				domain: domain,
+				mode: {
+					text:  isBoolean(payload.mode.text)  ? payload.mode.text  : false,
+					image: isBoolean(payload.mode.image) ? payload.mode.image : false,
+					audio: isBoolean(payload.mode.audio) ? payload.mode.audio : false,
+					video: isBoolean(payload.mode.video) ? payload.mode.video : false,
+					other: isBoolean(payload.mode.other) ? payload.mode.other : false
+				}
+			};
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
 Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let mode   = null;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			mode = this.stealth.settings.modes.find((m) => m.domain === domain) || null;
+		}
 
-			let mode     = null;
-			let settings = this.stealth.settings;
 
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					mode = settings.modes.find((m) => m.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					mode = settings.modes.find((m) => m.domain === payload.domain) || null;
-				}
-
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
@@ -98,69 +119,35 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 				payload: mode
 			});
 
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'mode',
-					event:   'read'
-				},
-				payload: null
-			});
-
 		}
 
 	},
 
 	remove: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let mode   = null;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			mode = this.stealth.settings.modes.find((m) => m.domain === domain) || null;
+		}
 
-			let mode     = null;
-			let settings = this.stealth.settings;
-
-			if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					mode = settings.modes.find((m) => m.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					mode = settings.modes.find((m) => m.domain === payload.domain) || null;
-				}
-
-			}
+		if (mode !== null) {
+			this.stealth.settings.modes.remove(mode);
+			this.stealth.settings.save();
+		}
 
 
-			if (mode !== null) {
-
-				let index = settings.modes.indexOf(mode);
-				if (index !== -1) {
-					settings.modes.splice(index, 1);
-				}
-
-				settings.save();
-
-			}
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'mode',
 					event:   'remove'
 				},
-				payload: true
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'mode',
-					event:   'remove'
-				},
-				payload: false
+				payload: (domain !== null)
 			});
 
 		}
@@ -169,77 +156,44 @@ Mode.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let mode_old = null;
+		let mode_new = Mode.toMode(payload);
 
-			let mode     = null;
-			let settings = this.stealth.settings;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			mode_old = this.stealth.settings.modes.find((m) => m.domain === domain) || null;
+		}
 
+		if (mode_new !== null) {
 
-			if (payload.domain !== null) {
+			if (mode_old !== null) {
 
-				if (payload.subdomain !== null) {
-					mode = settings.modes.find((m) => m.domain === payload.subdomain + '.' + payload.domain) || null;
-				} else{
-					mode = settings.modes.find((m) => m.domain === payload.domain) || null;
-				}
+				mode_old.mode.text  = mode_new.mode.text;
+				mode_old.mode.image = mode_new.mode.image;
+				mode_old.mode.audio = mode_new.mode.audio;
+				mode_old.mode.video = mode_new.mode.video;
+				mode_old.mode.other = mode_new.mode.other;
 
+			} else {
+				this.stealth.settings.modes.push(mode_new);
 			}
 
+			this.stealth.settings.save();
 
-			if (mode !== null) {
+		}
 
-				mode.mode.text  = payload.mode.text  || false;
-				mode.mode.image = payload.mode.image || false;
-				mode.mode.audio = payload.mode.audio || false;
-				mode.mode.video = payload.mode.video || false;
-				mode.mode.other = payload.mode.other || false;
 
-				settings.save();
-
-			} else if (payload.domain !== null) {
-
-				if (payload.subdomain !== null) {
-					payload.domain    = payload.subdomain + '.' + payload.domain;
-					payload.subdomain = null;
-				}
-
-				mode = {
-					domain: payload.domain,
-					mode:   {
-						text:  payload.mode.text  || false,
-						image: payload.mode.image || false,
-						audio: payload.mode.audio || false,
-						video: payload.mode.video || false,
-						other: payload.mode.other || false
-					}
-				};
-
-				settings.modes.push(mode);
-				settings.save();
-
-			}
-
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'mode',
 					event:   'save'
 				},
-				payload: (mode !== null)
-			});
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'mode',
-					event:   'save'
-				},
-				payload: false
+				payload: (mode_new !== null)
 			});
 
 		}

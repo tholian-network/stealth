@@ -9,5 +9,25 @@ if (typeof Array.isArray !== 'function') {
 
 }
 
+if (typeof Array.prototype.remove !== 'function') {
+
+	Array.prototype.remove = function(value) {
+
+		let index = this.indexOf(value);
+
+		while (index !== -1) {
+
+			this.splice(index, 1);
+
+			index = this.indexOf(value);
+
+		}
+
+		return this;
+
+	};
+
+}
+
 export const isArray = Array.isArray;
 

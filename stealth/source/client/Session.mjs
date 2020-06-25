@@ -1,5 +1,5 @@
 
-import { Emitter, isFunction, isObject } from '../../extern/base.mjs';
+import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
 
 
 
@@ -21,7 +21,19 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			this.once('download', (response) => callback(response));
+			this.once('download', (response) => {
+
+				if (isObject(response.payload) ===  true) {
+
+					if (response.payload.type === 'Buffer') {
+						response.payload = Buffer.from(response.payload.data);
+					}
+
+				}
+
+				callback(response);
+
+			});
 
 			this.client.send({
 				headers: {
