@@ -825,11 +825,11 @@ const HTTP = {
 
 				if (payload !== null) {
 
-					if (isBuffer(payload)) {
+					if (isBuffer(payload) === true) {
 						// Do nothing
-					} else if (isString(payload)) {
+					} else if (isString(payload) === true) {
 						payload = Buffer.from(payload, 'utf8');
-					} else if (isObject(payload)) {
+					} else if (isObject(payload) === true) {
 						payload = Buffer.from(JSON.stringify(payload, null, '\t'), 'utf8');
 					}
 

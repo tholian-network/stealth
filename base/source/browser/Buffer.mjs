@@ -348,7 +348,7 @@ export const Buffer = (function(global) {
 				this[n] = 0;
 			}
 
-		} else if (Buffer.isBuffer(subject)) {
+		} else if (Buffer.isBuffer(subject) === true) {
 
 			this.length = subject.length;
 

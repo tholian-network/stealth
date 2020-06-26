@@ -1,6 +1,7 @@
 
 import { Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
 import { ENVIRONMENT                                     } from './ENVIRONMENT.mjs';
+import { Beacon                                          } from './client/Beacon.mjs';
 import { Blocker                                         } from './client/Blocker.mjs';
 import { Cache                                           } from './client/Cache.mjs';
 import { Host                                            } from './client/Host.mjs';
@@ -9,6 +10,7 @@ import { Peer                                            } from './client/Peer.m
 import { Redirect                                        } from './client/Redirect.mjs';
 import { Session                                         } from './client/Session.mjs';
 import { Settings                                        } from './client/Settings.mjs';
+import { Stash                                           } from './client/Stash.mjs';
 import { URL                                             } from './parser/URL.mjs';
 
 
@@ -85,6 +87,7 @@ const Client = function(settings, browser) {
 	this.ref      = null;
 	this.browser  = browser;
 	this.services = {
+		beacon:   new Beacon(this),
 		blocker:  new Blocker(this),
 		cache:    new Cache(this),
 		host:     new Host(this),
@@ -92,7 +95,8 @@ const Client = function(settings, browser) {
 		peer:     new Peer(this),
 		redirect: new Redirect(this),
 		session:  new Session(this),
-		settings: new Settings(this)
+		settings: new Settings(this),
+		stash:    new Stash(this)
 	};
 
 	this.__state = {

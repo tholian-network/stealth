@@ -265,7 +265,7 @@ const update_review = async function(review) {
 				let custom = exported.prototype[Symbol.toStringTag] || null;
 
 				let statics = Object.keys(exported).filter((key) => {
-					return isFunction(exported[key]);
+					return isFunction(exported[key]) === true;
 				}).map((key) => {
 					return name + '.' + key + '()';
 				});
@@ -289,7 +289,7 @@ const update_review = async function(review) {
 						}
 
 					} else {
-						return isFunction(exported.prototype[key]);
+						return isFunction(exported.prototype[key]) === true;
 					}
 
 
@@ -347,7 +347,7 @@ const update_review = async function(review) {
 			} else if (isObject(exported) === true) {
 
 				let statics = Object.keys(exported).filter((key) => {
-					return isFunction(exported[key]);
+					return isFunction(exported[key]) === true;
 				}).map((key) => {
 					return name + '.' + key + '()';
 				});

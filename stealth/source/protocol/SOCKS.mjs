@@ -16,11 +16,11 @@ const isPayload = function(payload) {
 	if (
 		isObject(payload) === true
 		&& (isString(payload.domain) === true || isString(payload.host) === true)
-		&& isNumber(payload.port)
-		&& isArray(payload.hosts)
+		&& isNumber(payload.port) === true
+		&& isArray(payload.hosts) === true
 	) {
 
-		let check = payload.hosts.filter((ip) => IP.isIP(ip));
+		let check = payload.hosts.filter((ip) => IP.isIP(ip) === true);
 		if (check.length === payload.hosts.length) {
 			return true;
 		}

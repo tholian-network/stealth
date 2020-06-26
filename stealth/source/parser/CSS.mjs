@@ -84,7 +84,7 @@ export const filter = function(search, limit) {
 			for (let key in search) {
 
 				let val = value[key];
-				if (val !== null && isString(val)) {
+				if (val !== null && isString(val) === true) {
 
 					if (search[key].includes(val)) {
 						valid = true;
@@ -146,7 +146,7 @@ export const has = function(search, limit) {
 			for (let key in search) {
 
 				let val = value[key];
-				if (val !== null && isString(val)) {
+				if (val !== null && isString(val) === true) {
 
 					if (search[key].includes(val)) {
 						valid = true;
@@ -200,7 +200,7 @@ export const match = function(search) {
 			for (let key in search) {
 
 				let val = value[v][key];
-				if (val !== null && isString(val)) {
+				if (val !== null && isString(val) === true) {
 
 					if (search[key].includes(val)) {
 						valid = true;
@@ -229,7 +229,7 @@ export const match = function(search) {
 		for (let key in search) {
 
 			let val = value[key];
-			if (val !== null && isString(val)) {
+			if (val !== null && isString(val) === true) {
 
 				if (search[key].includes(val)) {
 					valid = true;
@@ -983,7 +983,7 @@ export const shift = function(search, limit) {
 			for (let key in search) {
 
 				let val = value[key];
-				if (val !== null && isString(val)) {
+				if (val !== null && isString(val) === true) {
 
 					if (search[key].includes(val)) {
 						valid = true;

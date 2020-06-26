@@ -187,7 +187,7 @@ const HOSTS = {
 
 						if (ref.domain === tmp.subdomain + '.' + tmp.domain) {
 
-							let check = ref.hosts.map((ip) => IP.isIP(ip));
+							let check = ref.hosts.map((ip) => IP.isIP(ip) === true);
 							if (check.includes(false) === false) {
 								return true;
 							}
@@ -198,7 +198,7 @@ const HOSTS = {
 
 						if (ref.domain === tmp.domain) {
 
-							let check = ref.hosts.map((ip) => IP.isIP(ip));
+							let check = ref.hosts.map((ip) => IP.isIP(ip) === true);
 							if (check.includes(false) === false) {
 								return true;
 							}
@@ -265,7 +265,7 @@ const HOSTS = {
 				let domain = entry.domain || null;
 				let hosts  = entry.hosts  || null;
 
-				if (isString(domain) && isArray(hosts)) {
+				if (isString(domain) === true && isArray(hosts) === true) {
 
 					if (hosts.length > 0) {
 						hosts.forEach((ip) => {

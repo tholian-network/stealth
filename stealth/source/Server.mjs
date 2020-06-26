@@ -458,7 +458,7 @@ const upgrade_ws = function(socket, ref) {
 			if (service !== null && event !== null) {
 
 				let instance = this.services[service] || null;
-				if (instance !== null) {
+				if (instance !== null && instance.has(event) === true) {
 
 					let response = instance.emit(event, [ request.payload, connection.session ]);
 					if (response !== null) {
@@ -479,7 +479,7 @@ const upgrade_ws = function(socket, ref) {
 			} else if (service !== null && method !== null) {
 
 				let instance = this.services[service] || null;
-				if (instance !== null && isFunction(instance[method])) {
+				if (instance !== null && isFunction(instance[method]) === true) {
 
 					instance[method](request.payload, (response) => {
 

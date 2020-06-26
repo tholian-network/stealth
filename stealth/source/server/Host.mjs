@@ -9,9 +9,9 @@ const toDomain = function(payload) {
 
 	let domain = null;
 
-	if (isString(payload.domain)) {
+	if (isString(payload.domain) === true) {
 
-		if (isString(payload.subdomain)) {
+		if (isString(payload.subdomain) === true) {
 			domain = payload.subdomain + '.' + payload.domain;
 		} else {
 			domain = payload.domain;
@@ -25,9 +25,9 @@ const toDomain = function(payload) {
 
 const toQuery = function(payload) {
 
-	if (isString(payload.domain)) {
+	if (isString(payload.domain) === true) {
 
-		if (isString(payload.subdomain)) {
+		if (isString(payload.subdomain) === true) {
 
 			return {
 				domain:    payload.domain,
@@ -53,10 +53,10 @@ const toIP = function(payload) {
 
 	let ip = null;
 
-	if (isString(payload.host)) {
+	if (isString(payload.host) === true) {
 
 		let value = IP.parse(payload.host);
-		if (IP.isIP(value)) {
+		if (IP.isIP(value) === true) {
 			ip = value;
 		}
 
@@ -84,7 +84,7 @@ Host.isHost = function(payload) {
 		&& isArray(payload.hosts) === true
 	) {
 
-		let check = payload.hosts.filter((ip) => IP.isIP(ip));
+		let check = payload.hosts.filter((ip) => IP.isIP(ip) === true);
 		if (check.length === payload.hosts.length) {
 			return true;
 		}
@@ -99,25 +99,25 @@ Host.isHost = function(payload) {
 
 Host.toHost = function(payload) {
 
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		let domain = null;
 
-		if (isString(payload.domain)) {
+		if (isString(payload.domain) === true) {
 
-			if (isString(payload.subdomain)) {
+			if (isString(payload.subdomain) === true) {
 				domain = payload.subdomain + '.' + payload.domain;
 			} else {
 				domain = payload.domain;
 			}
 
-		} else if (isString(payload.host)) {
+		} else if (isString(payload.host) === true) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isArray(payload.hosts)) {
+		if (domain !== null && isArray(payload.hosts) === true) {
 
-			let check = payload.hosts.filter((ip) => IP.isIP(ip));
+			let check = payload.hosts.filter((ip) => IP.isIP(ip) === true);
 			if (check.length === payload.hosts.length) {
 
 				return {

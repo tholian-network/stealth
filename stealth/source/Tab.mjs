@@ -417,7 +417,7 @@ Tab.prototype = {
 
 		if (request !== null) {
 
-			if (this.requests.includes(request) === true) {
+			if (this.requests.includes(request)) {
 				return true;
 			}
 

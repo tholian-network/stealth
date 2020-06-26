@@ -62,7 +62,7 @@ const remove_request = function(request) {
 
 	this.tabs.forEach((tab) => {
 
-		if (tab.includes(request) === true) {
+		if (tab.includes(request)) {
 			tab.untrack(request);
 		}
 
@@ -304,7 +304,7 @@ Session.prototype = {
 				tab.navigate(request.url);
 			}
 
-			if (tab.includes(request) === false) {
+			if (tab.includes(request)) {
 
 				request.once('start', () => {
 
@@ -360,7 +360,7 @@ Session.prototype = {
 				let tab = this.tabs.find((t) => t.id === tid) || null;
 				if (tab !== null) {
 
-					if (tab.includes(request) === true) {
+					if (tab.includes(request)) {
 						request.off('progress');
 						tab.untrack(request);
 					}
@@ -373,7 +373,7 @@ Session.prototype = {
 
 				this.tabs.forEach((tab) => {
 
-					if (tab.includes(request) === true) {
+					if (tab.includes(request)) {
 						tab.untrack(request);
 					}
 

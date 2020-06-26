@@ -262,7 +262,7 @@ describe('Settings.prototype.save()/all', function(assert) {
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h1' ],
-				mode:   'text',
+				mode:   'text'
 			}, {
 				label:  'article',
 				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
@@ -336,7 +336,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h1' ],
-				mode:   'text',
+				mode:   'text'
 			}, {
 				label:  'article',
 				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
@@ -435,7 +435,7 @@ describe('Settings.prototype.save()/beacons', function(assert) {
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h3' ],
-				mode:   'text',
+				mode:   'text'
 			}, {
 				label:  'article',
 				select: [ 'article > p' ],
@@ -468,7 +468,7 @@ describe('Settings.prototype.read()/beacons', function(assert) {
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h1' ],
-				mode:   'text',
+				mode:   'text'
 			}, {
 				label:  'article',
 				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
@@ -482,7 +482,7 @@ describe('Settings.prototype.read()/beacons', function(assert) {
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h3' ],
-				mode:   'text',
+				mode:   'text'
 			}, {
 				label:  'article',
 				select: [ 'article > p' ],

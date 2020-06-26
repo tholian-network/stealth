@@ -226,6 +226,15 @@ describe('Settings.prototype.toJSON()', function(assert) {
 			history:    'forever',
 			useragent:  'spider-desktop'
 		},
+		beacons:  [{
+			domain: 'covert.localdomain',
+			path:   '/news/*',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h1' ],
+				mode:   'text'
+			}]
+		}],
 		blockers: null,
 		hosts: [{
 			domain: 'covert.localdomain',
@@ -276,6 +285,15 @@ describe('Settings.prototype.read()', function(assert) {
 				history:    'forever',
 				useragent:  'spider-desktop'
 			},
+			beacons: [{
+				domain: 'covert.localdomain',
+				path:   '/news/*',
+				beacons: [{
+					label:  'headline',
+					select: [ '#header h1' ],
+					mode:   'text'
+				}]
+			}],
 			blockers: [{
 				domain: 'malicious.example.com'
 			}],
@@ -329,6 +347,16 @@ describe('Settings.prototype.read()', function(assert) {
 			history:    'forever',
 			useragent:  'spider-desktop'
 		});
+
+		assert(read_file(sandbox + '/beacons.json'), [{
+			domain: 'covert.localdomain',
+			path:   '/news/*',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h1' ],
+				mode:   'text'
+			}]
+		}]);
 
 		assert(read_file(sandbox + '/blockers.json'), []);
 
@@ -400,6 +428,7 @@ describe('Settings.prototype.save()', function(assert) {
 			useragent:  'stealth'
 		});
 
+		assert(read_file(sandbox + '/beacons.json'),   []);
 		assert(read_file(sandbox + '/blockers.json'),  []);
 
 		// Native Hosts (/etc/hosts) differ on machines
@@ -419,6 +448,16 @@ describe('Settings.prototype.save()', function(assert) {
 			history:    'forever',
 			useragent:  'spider-desktop'
 		};
+
+		settings.beacons = [{
+			domain: 'covert.localdomain',
+			path:   '/news/*',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h1' ],
+				mode:   'text'
+			}]
+		}];
 
 		settings.blockers = [{
 			domain: 'malicious.example.com'
@@ -476,6 +515,16 @@ describe('Settings.prototype.save()', function(assert) {
 			history:    'forever',
 			useragent:  'spider-desktop'
 		});
+
+		assert(read_file(sandbox + '/beacons.json'), [{
+			domain: 'covert.localdomain',
+			path:   '/news/*',
+			beacons: [{
+				label:  'headline',
+				select: [ '#header h1' ],
+				mode:   'text'
+			}]
+		}]);
 
 		assert(read_file(sandbox + '/blockers.json'), []);
 

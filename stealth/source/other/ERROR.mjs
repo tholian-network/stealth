@@ -58,9 +58,9 @@ const ERROR = {
 			}
 
 			let payload = null;
-			if (isBuffer(data.payload)) {
+			if (isBuffer(data.payload) === true) {
 				payload = data.payload;
-			} else if (isObject(data.payload)) {
+			} else if (isObject(data.payload) === true) {
 				payload = Buffer.from(JSON.stringify(data.payload, null, '\t'), 'utf8');
 			} else {
 				payload = null;

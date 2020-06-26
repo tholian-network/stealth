@@ -23,7 +23,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.once('download', (response) => {
 
-				if (isObject(response.payload) ===  true) {
+				if (isObject(response.payload) === true) {
 
 					if (response.payload.type === 'Buffer') {
 						response.payload = Buffer.from(response.payload.data);
@@ -68,7 +68,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 			});
 
 		} else if (callback !== null) {
-			callback(null);
+			callback([]);
 		}
 
 	},

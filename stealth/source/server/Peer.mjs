@@ -12,15 +12,15 @@ const toDomain = function(payload) {
 
 	let domain = null;
 
-	if (isString(payload.domain)) {
+	if (isString(payload.domain) === true) {
 
-		if (isString(payload.subdomain)) {
+		if (isString(payload.subdomain) === true) {
 			domain = payload.subdomain + '.' + payload.domain;
 		} else {
 			domain = payload.domain;
 		}
 
-	} else if (isString(payload.host)) {
+	} else if (isString(payload.host) === true) {
 		domain = payload.host;
 	}
 
@@ -31,11 +31,16 @@ const toDomain = function(payload) {
 const toRequest = function(payload) {
 
 	if (
-		isObject(payload)
-		&& isObject(payload.headers)
-		&& isString(payload.headers.service)
-		&& (isString(payload.headers.method) || isString(payload.headers.event))
-		&& (payload.payload === null || isBoolean(payload.payload) || isBuffer(payload.payload) || isObject(payload.payload))
+		isObject(payload) === true
+		&& isObject(payload.headers) === true
+		&& isString(payload.headers.service) === true
+		&& (isString(payload.headers.method) === true || isString(payload.headers.event) === true)
+		&& (
+			payload.payload === null
+			|| isBoolean(payload.payload) === true
+			|| isBuffer(payload.payload) === true
+			|| isObject(payload.payload) === true
+		)
 	) {
 
 		if (payload.headers.service === 'peer' && payload.headers.method === 'proxy') {
@@ -112,9 +117,9 @@ const connect_peer = function(hosts, callback) {
 			if (client === null) {
 
 				let peer = this.stealth.peers.find((p) => p.address === host.ip) || null;
-				if (isClient(peer) === true) {
+				if (isClient(peer)) {
 
-					if (peer.is('connected') === true) {
+					if (peer.is('connected')) {
 
 						client = peer;
 
@@ -133,7 +138,7 @@ const connect_peer = function(hosts, callback) {
 
 		});
 
-		if (isClient(client) === true && client.is('connected') === true) {
+		if (isClient(client) && client.is('connected')) {
 			callback(client);
 		} else {
 			connect_client.call(this, hosts, callback);
@@ -152,7 +157,7 @@ const handle_request = (client, request, callback) => {
 	let service = client.services[request.headers.service] || null;
 	if (service !== null) {
 
-		if (request.headers.event !== null) {
+		if (request.headers.event !== null && service.has(request.headers.event) === true) {
 
 			let response = service.emit(request.headers.event, [ request.payload ]);
 			if (response !== null) {
@@ -161,17 +166,11 @@ const handle_request = (client, request, callback) => {
 				callback(null);
 			}
 
-		} else if (request.headers.method !== null) {
+		} else if (request.headers.method !== null && isFunction(service[request.headers.method]) === true) {
 
-			if (isFunction(service[request.headers.method])) {
-
-				service[request.headers.method](request.payload, (response) => {
-					callback(response);
-				});
-
-			} else {
-				callback(null);
-			}
+			service[request.headers.method](request.payload, (response) => {
+				callback(response);
+			});
 
 		} else {
 			callback(null);
@@ -196,10 +195,10 @@ const Peer = function(stealth) {
 Peer.isPeer = function(payload) {
 
 	if (
-		isObject(payload)
-		&& isString(payload.domain)
-		&& isString(payload.connection)
-		&& CONNECTION.includes(payload.connection)
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isString(payload.connection) === true
+		&& CONNECTION.includes(payload.connection) === true
 	) {
 		return true;
 	}
@@ -212,23 +211,23 @@ Peer.isPeer = function(payload) {
 
 Peer.toPeer = function(payload) {
 
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		let domain = null;
 
-		if (isString(payload.domain)) {
+		if (isString(payload.domain) === true) {
 
-			if (isString(payload.subdomain)) {
+			if (isString(payload.subdomain) === true) {
 				domain = payload.subdomain + '.' + payload.domain;
 			} else {
 				domain = payload.domain;
 			}
 
-		} else if (isString(payload.host)) {
+		} else if (isString(payload.host) === true) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isString(payload.connection)) {
+		if (domain !== null && isString(payload.connection) === true) {
 
 			return {
 				domain:     domain,
@@ -284,7 +283,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 			host = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
 			peer = this.stealth.settings.peers.find((p) => p.domain === domain) || null;
 
-			if (host === null && isString(payload.host)) {
+			if (host === null && isString(payload.host) === true) {
 				host = {
 					domain: domain,
 					hosts:  [ IP.parse(payload.host) ]
@@ -424,7 +423,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 			host = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
 			peer = this.stealth.settings.peers.find((p) => p.domain === domain) || null;
 
-			if (host === null && isString(payload.host)) {
+			if (host === null && isString(payload.host) === true) {
 				host = {
 					domain: domain,
 					hosts:  [ IP.parse(payload.host) ]

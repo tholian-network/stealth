@@ -362,16 +362,16 @@ const URL = {
 	isDomain: function(abs, rel) {
 
 		let ref_abs = null;
-		if (isString(abs)) {
+		if (isString(abs) === true) {
 			ref_abs = URL.parse(abs);
-		} else if (isObject(abs)) {
+		} else if (isObject(abs) === true) {
 			ref_abs = abs;
 		}
 
 		let ref_rel = null;
-		if (isString(rel)) {
+		if (isString(rel) === true) {
 			ref_rel = URL.parse(rel);
-		} else if (isObject(rel)) {
+		} else if (isObject(rel) === true) {
 			ref_rel = rel;
 		}
 
@@ -969,17 +969,17 @@ const URL = {
 	resolve: function(abs, rel) {
 
 		let ref_abs = null;
-		if (isString(abs)) {
+		if (isString(abs) === true) {
 			ref_abs = URL.parse(abs);
-		} else if (isObject(abs)) {
+		} else if (isObject(abs) === true) {
 			ref_abs = abs;
 			abs     = abs.url;
 		}
 
 		let ref_rel = null;
-		if (isString(rel)) {
+		if (isString(rel) === true) {
 			ref_rel = URL.parse(rel);
-		} else if (isObject(rel)) {
+		} else if (isObject(rel) === true) {
 
 			ref_rel = rel;
 			rel     = ref_rel.path;
@@ -1184,7 +1184,7 @@ const URL = {
 
 		if (array !== null) {
 
-			return array.filter((url) => URL.isURL(url)).sort((a, b) => {
+			return array.filter((url) => URL.isURL(url) === true).sort((a, b) => {
 
 				if (a.protocol === 'stealth' && b.protocol !== 'stealth') return  1;
 				if (b.protocol === 'stealth' && a.protocol !== 'stealth') return -1;

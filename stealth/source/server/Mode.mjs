@@ -7,15 +7,15 @@ const toDomain = function(payload) {
 
 	let domain = null;
 
-	if (isString(payload.domain)) {
+	if (isString(payload.domain) === true) {
 
-		if (isString(payload.subdomain)) {
+		if (isString(payload.subdomain) === true) {
 			domain = payload.subdomain + '.' + payload.domain;
 		} else {
 			domain = payload.domain;
 		}
 
-	} else if (isString(payload.host)) {
+	} else if (isString(payload.host) === true) {
 		domain = payload.host;
 	}
 
@@ -36,14 +36,14 @@ const Mode = function(stealth) {
 Mode.isMode = function(payload) {
 
 	if (
-		isObject(payload)
-		&& isString(payload.domain)
-		&& isObject(payload.mode)
-		&& isBoolean(payload.mode.text)
-		&& isBoolean(payload.mode.image)
-		&& isBoolean(payload.mode.audio)
-		&& isBoolean(payload.mode.video)
-		&& isBoolean(payload.mode.other)
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isObject(payload.mode) === true
+		&& isBoolean(payload.mode.text) === true
+		&& isBoolean(payload.mode.image) === true
+		&& isBoolean(payload.mode.audio) === true
+		&& isBoolean(payload.mode.video) === true
+		&& isBoolean(payload.mode.other) === true
 	) {
 		return true;
 	}
@@ -56,23 +56,23 @@ Mode.isMode = function(payload) {
 
 Mode.toMode = function(payload) {
 
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		let domain = null;
 
-		if (isString(payload.domain)) {
+		if (isString(payload.domain) === true) {
 
-			if (isString(payload.subdomain)) {
+			if (isString(payload.subdomain) === true) {
 				domain = payload.subdomain + '.' + payload.domain;
 			} else {
 				domain = payload.domain;
 			}
 
-		} else if (isString(payload.host)) {
+		} else if (isString(payload.host) === true) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isObject(payload.mode)) {
+		if (domain !== null && isObject(payload.mode) === true) {
 
 			return {
 				domain: domain,

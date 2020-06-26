@@ -6,139 +6,14 @@ import { console, isArray, isBoolean, isFunction, isObject, isString } from '../
 import { ENVIRONMENT                                                 } from './ENVIRONMENT.mjs';
 import { Session, isSession                                          } from './Session.mjs';
 import { HOSTS                                                       } from './parser/HOSTS.mjs';
-import { IP                                                          } from './parser/IP.mjs';
-import { URL                                                         } from './parser/URL.mjs';
+import { Beacon                                                      } from './server/Beacon.mjs';
+import { Blocker                                                     } from './server/Blocker.mjs';
+import { Host                                                        } from './server/Host.mjs';
+import { Mode                                                        } from './server/Mode.mjs';
+import { Peer                                                        } from './server/Peer.mjs';
+import { Redirect                                                    } from './server/Redirect.mjs';
 
 
-
-const isBeacon = function(payload) {
-
-	if (
-		isObject(payload) === true
-		&& isString(payload.domain) === true
-		&& isString(payload.path) === true
-		&& isArray(payload.beacons) === true
-	) {
-
-		let check = payload.beacons.filter((beacon) => {
-
-			if (
-				isString(beacon.label) === true
-				&& isArray(beacon.select) === true
-				&& [ 'text', 'image', 'audio', 'video', 'other' ].includes(beacon.mode)
-			) {
-				return true;
-			}
-
-			return false;
-
-		});
-
-		if (check.length === payload.beacons.length) {
-			return true;
-		}
-
-	}
-
-
-	return false;
-
-};
-
-const isBlocker = function(payload) {
-
-	if (
-		isObject(payload) === true
-		&& isString(payload.domain) === true
-	) {
-		return true;
-	}
-
-
-	return false;
-
-};
-
-const isHost = function(payload) {
-
-	if (
-		isObject(payload) === true
-		&& isString(payload.domain) === true
-		&& isArray(payload.hosts) === true
-	) {
-
-		let check = payload.hosts.filter((ip) => IP.isIP(ip));
-		if (check.length === payload.hosts.length) {
-			return true;
-		}
-
-	}
-
-
-	return false;
-
-};
-
-const isMode = function(payload) {
-
-	if (
-		isObject(payload) === true
-		&& isString(payload.domain) === true
-		&& isObject(payload.mode) === true
-		&& isBoolean(payload.mode.text) === true
-		&& isBoolean(payload.mode.image) === true
-		&& isBoolean(payload.mode.audio) === true
-		&& isBoolean(payload.mode.video) === true
-		&& isBoolean(payload.mode.other) === true
-	) {
-		return true;
-	}
-
-
-	return false;
-
-};
-
-const isPeer = function(payload) {
-
-	if (
-		isObject(payload) === true
-		&& isString(payload.domain) === true
-		&& isString(payload.connection) === true
-		&& [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ].includes(payload.connection)
-	) {
-		return true;
-	}
-
-
-	return false;
-
-};
-
-const isRedirect = function(payload) {
-
-	if (
-		isObject(payload) === true
-		&& isString(payload.domain) === true
-		&& isString(payload.path) === true
-		&& isString(payload.location) === true
-	) {
-
-		let ref = URL.parse(payload.location);
-		if (ref.protocol === 'https' || ref.protocol === 'http') {
-
-			if (ref.domain !== null || ref.host !== null) {
-				return true;
-			}
-
-		}
-
-	}
-
-
-	return false;
-
-};
 
 export const isSettings = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Settings]';
@@ -267,7 +142,7 @@ const read_file = function(url, data, keepdata, isData) {
 
 						if (isData !== null) {
 
-							if (isData(object) === true) {
+							if (isData(object)) {
 								data.push(object);
 							}
 
@@ -401,12 +276,12 @@ const read = function(profile, keepdata, callback) {
 
 			let check = [
 				read_file.call(this, profile + '/internet.json',  this.internet,  keepdata),
-				read_file.call(this, profile + '/beacons.json',   this.beacons,   keepdata, isBeacon),
-				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata, isBlocker),
-				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata, isHost),
-				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata, isMode),
-				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata, isPeer),
-				read_file.call(this, profile + '/redirects.json', this.redirects, keepdata, isRedirect),
+				read_file.call(this, profile + '/beacons.json',   this.beacons,   keepdata, Beacon.isBeacon),
+				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata, Blocker.isBlocker),
+				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata, Host.isHost),
+				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata, Mode.isMode),
+				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata, Peer.isPeer),
+				read_file.call(this, profile + '/redirects.json', this.redirects, keepdata, Redirect.isRedirect),
 				read_file.call(this, profile + '/sessions.json',  sessions,       keepdata)
 			].filter((v) => v === false);
 
@@ -536,12 +411,12 @@ const save = function(profile, keepdata, callback) {
 
 			let check = [
 				save_file.call(this, profile + '/internet.json',  this.internet),
-				save_file.call(this, profile + '/beacons.json',   this.beacons,   isBeacon),
+				save_file.call(this, profile + '/beacons.json',   this.beacons,   Beacon.isBeacon),
 				true, // blockers cannot be saved
-				save_file.call(this, profile + '/hosts.json',     this.hosts,     isHost),
-				save_file.call(this, profile + '/modes.json',     this.modes,     isMode),
-				save_file.call(this, profile + '/peers.json',     this.peers,     isPeer),
-				save_file.call(this, profile + '/redirects.json', this.redirects, isRedirect),
+				save_file.call(this, profile + '/hosts.json',     this.hosts,     Host.isHost),
+				save_file.call(this, profile + '/modes.json',     this.modes,     Mode.isMode),
+				save_file.call(this, profile + '/peers.json',     this.peers,     Peer.isPeer),
+				save_file.call(this, profile + '/redirects.json', this.redirects, Redirect.isRedirect),
 				save_file.call(this, profile + '/sessions.json',  this.sessions,  isSession)
 			].filter((v) => v === false);
 
@@ -787,23 +662,23 @@ Settings.from = function(json) {
 			}
 
 			if (isArray(data.beacons) === true) {
-				settings.beacons = data.beacons.filter((beacon) => isBeacon(beacon));
+				settings.beacons = data.beacons.filter((beacon) => Beacon.isBeacon(beacon));
 			}
 
 			if (isArray(data.hosts) === true) {
-				settings.hosts = data.hosts.filter((host) => isHost(host));
+				settings.hosts = data.hosts.filter((host) => Host.isHost(host));
 			}
 
 			if (isArray(data.modes) === true) {
-				settings.modes = data.modes.filter((mode) => isMode(mode));
+				settings.modes = data.modes.filter((mode) => Mode.isMode(mode));
 			}
 
 			if (isArray(data.peers) === true) {
-				settings.peers = data.peers.filter((peer) => isPeer(peer));
+				settings.peers = data.peers.filter((peer) => Peer.isPeer(peer));
 			}
 
 			if (isArray(data.redirects) === true) {
-				settings.redirects = data.redirects.filter((redirect) => isRedirect(redirect));
+				settings.redirects = data.redirects.filter((redirect) => Redirect.isRedirect(redirect));
 			}
 
 			if (isArray(data.sessions) === true) {
@@ -850,7 +725,7 @@ Settings.prototype = {
 
 		this.beacons.forEach((beacon) => {
 
-			if (isBeacon(beacon) === true) {
+			if (Beacon.isBeacon(beacon) === true) {
 				data.beacons.push(beacon);
 			}
 
@@ -858,7 +733,7 @@ Settings.prototype = {
 
 		this.hosts.forEach((host) => {
 
-			if (isHost(host) === true) {
+			if (Host.isHost(host) === true) {
 				data.hosts.push(host);
 			}
 
@@ -866,7 +741,7 @@ Settings.prototype = {
 
 		this.modes.forEach((mode) => {
 
-			if (isMode(mode) === true) {
+			if (Mode.isMode(mode) === true) {
 				data.modes.push(mode);
 			}
 
@@ -874,7 +749,7 @@ Settings.prototype = {
 
 		this.peers.forEach((peer) => {
 
-			if (isPeer(peer) === true) {
+			if (Peer.isPeer(peer) === true) {
 				data.peers.push(peer);
 			}
 

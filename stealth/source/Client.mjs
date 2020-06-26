@@ -1,6 +1,7 @@
 
 import { Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
 import { isStealth                               } from './Stealth.mjs';
+import { Beacon                                  } from './client/Beacon.mjs';
 import { Blocker                                 } from './client/Blocker.mjs';
 import { Cache                                   } from './client/Cache.mjs';
 import { Host                                    } from './client/Host.mjs';
@@ -35,6 +36,7 @@ const Client = function(settings, stealth) {
 	this.address    = null;
 	this.ref        = null;
 	this.services   = {
+		beacon:   new Beacon(this),
 		blocker:  new Blocker(this),
 		cache:    new Cache(this),
 		host:     new Host(this),
@@ -137,7 +139,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 							if (service !== null && event !== null) {
 
 								let instance = this.services[service] || null;
-								if (instance !== null) {
+								if (instance !== null && instance.has(event) === true) {
 
 									let request = instance.emit(event, [ response.payload ]);
 									if (request !== null) {
@@ -168,7 +170,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 							} else if (service !== null && method !== null) {
 
 								let instance = this.services[service] || null;
-								if (instance !== null && isFunction(instance[method])) {
+								if (instance !== null && isFunction(instance[method]) === true) {
 
 									instance[method](response.payload, (request) => {
 

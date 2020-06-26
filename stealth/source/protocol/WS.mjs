@@ -174,11 +174,11 @@ const decode = function(connection, buffer) {
 			let tmp = decode_json(fragment.payload);
 			if (tmp !== null) {
 
-				if (isObject(tmp.headers)) {
+				if (isObject(tmp.headers) === true) {
 					chunk.headers = tmp.headers;
 				}
 
-				if (isBoolean(tmp.payload)) {
+				if (isBoolean(tmp.payload) === true) {
 					chunk.payload = tmp.payload;
 				} else {
 					chunk.payload = tmp.payload || null;
@@ -200,11 +200,11 @@ const decode = function(connection, buffer) {
 			let tmp = decode_json(payload_data);
 			if (tmp !== null) {
 
-				if (isObject(tmp.headers)) {
+				if (isObject(tmp.headers) === true) {
 					chunk.headers = tmp.headers;
 				}
 
-				if (isBoolean(tmp.payload)) {
+				if (isBoolean(tmp.payload) === true) {
 					chunk.payload = tmp.payload;
 				} else {
 					chunk.payload = tmp.payload || null;
@@ -573,9 +573,9 @@ const isUpgrade = function(ref) {
 	if (
 		isObject(ref) === true
 		&& isObject(ref.headers) === true
-		&& (ref.headers['connection'] || '').toLowerCase().includes('upgrade')
-		&& (ref.headers['upgrade'] || '').toLowerCase().includes('websocket')
-		&& (ref.headers['sec-websocket-protocol'] || '').includes('stealth')
+		&& (ref.headers['connection'] || '').toLowerCase().includes('upgrade') === true
+		&& (ref.headers['upgrade'] || '').toLowerCase().includes('websocket') === true
+		&& (ref.headers['sec-websocket-protocol'] || '').includes('stealth') === true
 		&& (ref.headers['sec-websocket-key'] || '') !== ''
 	) {
 		return true;
@@ -977,7 +977,7 @@ const WS = {
 				}
 
 
-				if (isNumber(headers['@status'])) {
+				if (isNumber(headers['@status']) === true) {
 
 					let buffer = Buffer.alloc(4);
 					let code   = headers['@status'];

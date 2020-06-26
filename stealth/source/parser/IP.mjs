@@ -124,7 +124,7 @@ const validate_ipv4 = function(ipv4) {
 
 		tmp.forEach((t) => {
 
-			if (!isNaN(t) && t >= 0 && t <= 255) {
+			if (Number.isNaN(t) === false && t >= 0 && t <= 255) {
 				// continue
 			} else {
 				valid = false;
@@ -178,7 +178,7 @@ const validate_ipv6 = function(ipv6) {
 					valid = false;
 				}
 
-			} else if (!isNaN(num) && num >= 0 && num <= 65535) {
+			} else if (Number.isNaN(num) === false && num >= 0 && num <= 65535) {
 				// continue
 			} else {
 				valid = false;
@@ -202,7 +202,7 @@ const validate_ipv6 = function(ipv6) {
 					valid = false;
 				}
 
-			} else if (!isNaN(num) && num >= 0 && num <= 65535) {
+			} else if (Number.isNaN(num) === false && num >= 0 && num <= 65535) {
 				// continue
 			} else {
 				valid = false;
@@ -353,7 +353,7 @@ const IP = {
 
 		if (array !== null) {
 
-			return array.filter((ip) => IP.isIP(ip)).sort((a, b) => {
+			return array.filter((ip) => IP.isIP(ip) === true).sort((a, b) => {
 
 				if (a.scope === 'private' && b.scope !== 'private') return -1;
 				if (b.scope === 'private' && a.scope !== 'private') return  1;

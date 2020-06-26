@@ -8,15 +8,15 @@ const toDomain = function(payload) {
 
 	let domain = null;
 
-	if (isString(payload.domain)) {
+	if (isString(payload.domain) === true) {
 
-		if (isString(payload.subdomain)) {
+		if (isString(payload.subdomain) === true) {
 			domain = payload.subdomain + '.' + payload.domain;
 		} else {
 			domain = payload.domain;
 		}
 
-	} else if (isString(payload.host)) {
+	} else if (isString(payload.host) === true) {
 		domain = payload.host;
 	}
 
@@ -28,7 +28,7 @@ const toPath = function(payload) {
 
 	let path = null;
 
-	if (isString(payload.path)) {
+	if (isString(payload.path) === true) {
 		path = payload.path;
 	}
 
@@ -56,12 +56,13 @@ Redirect.isRedirect = function(payload) {
 	) {
 
 		let ref = URL.parse(payload.location);
-		if (ref.protocol === 'https' || ref.protocol === 'http') {
-
-			if (ref.domain !== null || ref.host !== null) {
-				return true;
-			}
-
+		if (
+			(ref.domain !== null || ref.host !== null)
+			&& (ref.protocol === 'https' || ref.protocol === 'http')
+		) {
+			return true;
+		} else if (payload.location.startsWith('/')) {
+			return true;
 		}
 
 	}
@@ -74,23 +75,23 @@ Redirect.isRedirect = function(payload) {
 
 Redirect.toRedirect = function(payload) {
 
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		let domain = null;
 
-		if (isString(payload.domain)) {
+		if (isString(payload.domain) === true) {
 
-			if (isString(payload.subdomain)) {
+			if (isString(payload.subdomain) === true) {
 				domain = payload.subdomain + '.' + payload.domain;
 			} else {
 				domain = payload.domain;
 			}
 
-		} else if (isString(payload.host)) {
+		} else if (isString(payload.host) === true) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isString(payload.path) && isString(payload.location)) {
+		if (domain !== null && isString(payload.path) === true && isString(payload.location) === true) {
 
 			let ref = URL.parse(payload.location);
 			if (

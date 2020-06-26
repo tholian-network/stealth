@@ -914,7 +914,7 @@ const UA = {
 
 					if (
 						(system === 'desktop' || system === 'mobile')
-						&& isString(version)
+						&& isString(version) === true
 					) {
 						return true;
 					}
@@ -928,7 +928,7 @@ const UA = {
 
 					if (
 						(system === 'desktop' || system === 'mobile')
-						&& isString(version)
+						&& isString(version) === true
 					) {
 						return true;
 					}
@@ -1089,7 +1089,7 @@ const UA = {
 
 		if (array !== null) {
 
-			return array.filter((ua) => UA.isUA(ua)).sort((a, b) => {
+			return array.filter((ua) => UA.isUA(ua) === true).sort((a, b) => {
 
 				if (a.platform === 'browser' && b.platform === 'spider') return -1;
 				if (b.platform === 'browser' && a.platform === 'spider') return  1;

@@ -9,15 +9,15 @@ const toDomain = function(payload) {
 
 	let domain = null;
 
-	if (isString(payload.domain)) {
+	if (isString(payload.domain) === true) {
 
-		if (isString(payload.subdomain)) {
+		if (isString(payload.subdomain) === true) {
 			domain = payload.subdomain + '.' + payload.domain;
 		} else {
 			domain = payload.domain;
 		}
 
-	} else if (isString(payload.host)) {
+	} else if (isString(payload.host) === true) {
 		domain = payload.host;
 	}
 

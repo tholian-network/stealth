@@ -312,7 +312,7 @@ export const console = (function() {
 
 		if (isArray(obj) === true && obj.length > 4) {
 
-			let check = obj.filter((v) => isNumber(v));
+			let check = obj.filter((v) => isNumber(v) === true);
 			if (check.length === obj.length) {
 
 				let dim = Math.floor(Math.sqrt(obj.length));
@@ -624,7 +624,7 @@ export const console = (function() {
 
 			}
 
-		} else if (isObject(data) || data[Symbol.toStringTag] !== undefined) {
+		} else if (isObject(data) === true || data[Symbol.toStringTag] !== undefined) {
 
 			let keys = Object.keys(data);
 			if (keys.length === 0) {
@@ -1014,7 +1014,7 @@ export const console = (function() {
 
 			}
 
-		} else if (isObject(data) || data[Symbol.toStringTag] !== undefined) {
+		} else if (isObject(data) === true || data[Symbol.toStringTag] !== undefined) {
 
 			let keys = Object.keys(data);
 			if (keys.length === 0) {

@@ -12,7 +12,7 @@ const indent = (data) => {
 
 	let dummy = '';
 
-	if (isArray(data)) {
+	if (isArray(data) === true) {
 
 		data.forEach((value) => {
 
@@ -26,7 +26,7 @@ const indent = (data) => {
 
 	return function(str) {
 
-		if (isString(str)) {
+		if (isString(str) === true) {
 			return dummy.substr(0, dummy.length - str.length);
 		}
 
