@@ -84,7 +84,8 @@ const decode = function(connection, buffer) {
 		fragment: false,
 		headers:  {},
 		payload:  null,
-		response: null
+		response: null,
+		overflow: null
 	};
 
 
@@ -93,18 +94,24 @@ const decode = function(connection, buffer) {
 	let operator       = (buffer[0] &  15);
 	let mask           = (buffer[1] & 128) === 128;
 	let mask_data      = Buffer.alloc(4);
+	let overflow_data  = null;
 	let payload_length = buffer[1] & 127;
 	let payload_data   = null;
-
 
 	if (payload_length <= 125) {
 
 		if (mask === true) {
-			mask_data    = buffer.slice(2, 6);
-			payload_data = buffer.slice(6, 6 + payload_length);
+
+			mask_data     = buffer.slice(2, 6);
+			payload_data  = buffer.slice(6, 6 + payload_length);
+			overflow_data = buffer.slice(6 + payload_length);
+
 		} else {
-			mask_data    = null;
-			payload_data = buffer.slice(2, 2 + payload_length);
+
+			mask_data     = null;
+			payload_data  = buffer.slice(2, 2 + payload_length);
+			overflow_data = buffer.slice(2 + payload_length);
+
 		}
 
 	} else if (payload_length === 126) {
@@ -117,11 +124,17 @@ const decode = function(connection, buffer) {
 		}
 
 		if (mask === true) {
-			mask_data    = buffer.slice(4, 8);
-			payload_data = buffer.slice(8, 8 + payload_length);
+
+			mask_data     = buffer.slice(4, 8);
+			payload_data  = buffer.slice(8, 8 + payload_length);
+			overflow_data = buffer.slice(8 + payload_length);
+
 		} else {
-			mask_data    = null;
-			payload_data = buffer.slice(4, 4 + payload_length);
+
+			mask_data     = null;
+			payload_data  = buffer.slice(4, 4 + payload_length);
+			overflow_data = buffer.slice(4 + payload_length);
+
 		}
 
 	} else if (payload_length === 127) {
@@ -138,11 +151,17 @@ const decode = function(connection, buffer) {
 		}
 
 		if (mask === true) {
-			mask_data    = buffer.slice(10, 14);
-			payload_data = buffer.slice(14, 14 + payload_length);
+
+			mask_data     = buffer.slice(10, 14);
+			payload_data  = buffer.slice(14, 14 + payload_length);
+			overflow_data = buffer.slice(14 + payload_length);
+
 		} else {
-			mask_data    = null;
-			payload_data = buffer.slice(10, 10 + payload_length);
+
+			mask_data     = null;
+			payload_data  = buffer.slice(10, 10 + payload_length);
+			overflow_data = buffer.slice(10 + payload_length);
+
 		}
 
 	}
@@ -150,6 +169,10 @@ const decode = function(connection, buffer) {
 
 	if (mask_data !== null) {
 		payload_data = payload_data.map((value, index) => value ^ mask_data[index % 4]);
+	}
+
+	if (overflow_data !== null && overflow_data.length > 0) {
+		chunk.overflow = overflow_data;
 	}
 
 
@@ -485,35 +508,16 @@ const onconnect = function(connection, ref) {
 
 const ondata = function(connection, ref, chunk) {
 
-	let fragment = connection.fragment;
-
-	if (fragment.chunk !== null) {
-		chunk = Buffer.concat([ fragment.chunk, chunk ]);
-		fragment.chunk = null;
-	}
-
 	if (connection.type === 'client') {
 
 		WS.receive(connection, chunk, (frame) => {
-
-			if (frame !== null) {
-				connection.emit('response', [ frame ]);
-			} else {
-				fragment.chunk = chunk;
-			}
-
+			connection.emit('response', [ frame ]);
 		});
 
 	} else if (connection.type === 'server') {
 
 		WS.receive(connection, chunk, (frame) => {
-
-			if (frame !== null) {
-				connection.emit('request', [ frame ]);
-			} else {
-				fragment.chunk = chunk;
-			}
-
+			connection.emit('request', [ frame ]);
 		});
 
 	}
@@ -592,7 +596,7 @@ const Connection = function(socket) {
 
 	this.socket   = socket;
 	this.fragment = {
-		chunk:    null,
+		buffer:   null,
 		operator: 0x00,
 		payload:  Buffer.alloc(0)
 	};
@@ -892,7 +896,14 @@ const WS = {
 
 		if (buffer !== null) {
 
+			if (connection.fragment.buffer !== null) {
+				buffer = Buffer.concat([ connection.fragment.buffer, buffer ]);
+				connection.fragment.buffer = null;
+			}
+
+
 			let data = decode(connection, buffer);
+
 			if (data.close === true) {
 				connection.socket.end();
 			}
@@ -905,11 +916,7 @@ const WS = {
 
 			} else if (data.fragment === true) {
 
-				if (callback !== null) {
-					callback(null);
-				} else {
-					return null;
-				}
+				connection.fragment.buffer = buffer;
 
 			} else {
 
@@ -930,13 +937,11 @@ const WS = {
 						payload: data.payload
 					});
 
-				} else {
+				}
 
-					return {
-						headers: data.headers,
-						payload: data.payload
-					};
-
+				// Special case: Network gave us multiple Buffers
+				if (data.overflow !== null) {
+					WS.receive(connection, data.overflow, callback);
 				}
 
 			}
@@ -945,81 +950,87 @@ const WS = {
 
 			if (callback !== null) {
 				callback(null);
-			} else {
-				return null;
 			}
 
 		}
 
 	},
 
-	send: function(connection, data) {
+	send: function(connection, data, callback) {
 
 		connection = isConnection(connection) ? connection : null;
 		data       = isObject(data)           ? data       : {};
+		callback   = isFunction(callback)     ? callback   : null;
 
 
-		if (connection !== null) {
+		if (connection !== null && connection.socket !== null) {
 
-			if (connection.socket !== null) {
+			let buffer  = null;
+			let headers = null;
+			let payload = null;
 
-				let headers = null;
-				let payload = null;
+			if (isObject(data.headers) === true) {
+				headers = data.headers;
+			} else {
+				headers = {};
+			}
 
-				if (isObject(data.headers) === true) {
-					headers = data.headers;
-				}
-
-				if (isBoolean(data.payload) === true) {
-					payload = data.payload;
-				} else {
-					payload = data.payload || null;
-				}
+			if (isBoolean(data.payload) === true) {
+				payload = data.payload;
+			} else {
+				payload = data.payload || null;
+			}
 
 
-				if (isNumber(headers['@status']) === true) {
+			if (isNumber(headers['@status']) === true) {
 
-					let buffer = Buffer.alloc(4);
-					let code   = headers['@status'];
+				buffer = Buffer.from([
+					128 + 0x08, // close
+					0   + 0x02, // unmasked (client and server)
+					(headers['@status'] >> 8) & 0xff,
+					(headers['@status'] >> 0) & 0xff
+				]);
 
-					buffer[0] = 128 + 0x08; // close
-					buffer[1] =   0 + 0x02; // unmasked (client and server)
+			} else {
 
-					buffer[1] = (code >> 8) & 0xff;
-					buffer[2] = (code >> 0) & 0xff;
+				let headers_keys = Object.keys(headers).filter((h) => h.startsWith('@') === false);
+				if (headers_keys.length > 0 || payload !== null) {
 
-					connection.socket.write(buffer);
+					let tmp = { headers: {}, payload: payload };
+					headers_keys.forEach((key) => tmp.headers[key] = headers[key]);
 
-				} else {
-
-					let headers_keys = Object.keys(headers).filter((h) => h.startsWith('@') === false);
-					if (headers_keys.length > 0 || payload !== null) {
-
-						let tmp = { headers: {}, payload: payload };
-						headers_keys.forEach((key) => tmp.headers[key] = headers[key]);
-
-						let data = encode_json(tmp);
-						if (data !== null) {
-
-							let buffer = encode(connection, data);
-							if (buffer !== null) {
-								connection.socket.write(buffer);
-							}
-
-						}
-
+					let data = encode_json(tmp);
+					if (data !== null) {
+						buffer = encode(connection, data);
 					}
 
 				}
 
-				return true;
+			}
+
+			if (buffer !== null) {
+
+				connection.socket.write(buffer);
+
+				if (callback !== null) {
+					callback(true);
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(false);
+				}
 
 			}
 
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			}
+
 		}
-
-
-		return false;
 
 	},
 

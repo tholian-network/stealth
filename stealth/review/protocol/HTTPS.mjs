@@ -169,7 +169,7 @@ describe('HTTPS.send()', function(assert) {
 
 	connection.once('@connect', () => {
 
-		assert(HTTPS.send(connection, {
+		HTTPS.send(connection, {
 			headers: {
 				'@method':         'GET',
 				'@url':            '/index.html',
@@ -177,7 +177,11 @@ describe('HTTPS.send()', function(assert) {
 				'accept-encoding': 'gzip'
 			},
 			payload: null
-		}), true);
+		}, (result) => {
+
+			assert(result, true);
+
+		});
 
 	});
 

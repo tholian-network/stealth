@@ -1031,37 +1031,28 @@ const SOCKS = {
 						payload: data.payload
 					});
 
-				} else {
-
-					return {
-						headers: data.headers,
-						payload: data.payload
-					};
-
 				}
 
 			} else if (connection.protocol === 'https') {
 
-				return HTTPS.receive(connection, buffer, callback);
+				HTTPS.receive(connection, buffer, callback);
 
 			} else if (connection.protocol === 'http') {
 
-				return HTTP.receive(connection, buffer, callback);
+				HTTP.receive(connection, buffer, callback);
 
 			} else if (connection.protocol === 'wss') {
 
-				return WSS.receive(connection, buffer, callback);
+				WSS.receive(connection, buffer, callback);
 
 			} else if (connection.protocol === 'ws') {
 
-				return WS.receive(connection, buffer, callback);
+				WS.receive(connection, buffer, callback);
 
 			} else {
 
 				if (callback !== null) {
 					callback(null);
-				} else {
-					return null;
 				}
 
 			}
@@ -1077,93 +1068,103 @@ const SOCKS = {
 					payload: data.payload
 				});
 
-			} else {
-
-				return {
-					headers: data.headers,
-					payload: data.payload
-				};
-
 			}
 
 		} else {
 
 			if (callback !== null) {
 				callback(null);
-			} else {
-				return null;
 			}
 
 		}
 
 	},
 
-	send: function(connection, data) {
+	send: function(connection, data, callback) {
 
 		connection = isConnection(connection) ? connection : null;
 		data       = isObject(data)           ? data       : {};
+		callback   = isFunction(callback)     ? callback   : null;
 
 
-		if (connection !== null) {
+		if (connection !== null && connection.socket !== null) {
 
 			if (connection.protocol === 'socks') {
 
-				if (connection.socket !== null) {
+				let buffer  = null;
+				let headers = null;
+				let payload = null;
 
-					let headers = null;
-					let payload = null;
+				if (isObject(data.headers) === true) {
+					headers = data.headers;
+				}
 
-					if (isObject(data.headers) === true) {
-						headers = data.headers;
+				if (isBoolean(data.payload) === true) {
+					payload = data.payload;
+				} else {
+					payload = data.payload || null;
+				}
+
+
+				let headers_keys = Object.keys(headers);
+				if (headers_keys.length > 0 || payload !== null) {
+
+					buffer = encode(connection, {
+						headers: headers,
+						payload: payload
+					});
+
+
+				}
+
+
+				if (buffer !== null) {
+
+					connection.socket.write(buffer);
+
+					if (callback !== null) {
+						callback(true);
 					}
 
-					if (isBoolean(data.payload) === true) {
-						payload = data.payload;
-					} else {
-						payload = data.payload || null;
+				} else {
+
+					if (callback !== null) {
+						callback(false);
 					}
-
-
-					let headers_keys = Object.keys(headers);
-					if (headers_keys.length > 0 || payload !== null) {
-
-						let buffer = encode(connection, {
-							headers: headers,
-							payload: payload
-						});
-
-						if (buffer !== null) {
-							connection.socket.write(buffer);
-						}
-
-					}
-
-					return true;
 
 				}
 
 			} else if (connection.protocol === 'https') {
 
-				return HTTPS.send(connection, data);
+				HTTPS.send(connection, data, callback);
 
 			} else if (connection.protocol === 'http') {
 
-				return HTTP.send(connection, data);
+				HTTP.send(connection, data, callback);
 
 			} else if (connection.protocol === 'wss') {
 
-				return WSS.send(connection, data);
+				WSS.send(connection, data, callback);
 
 			} else if (connection.protocol === 'ws') {
 
-				return WS.send(connection, data);
+				WS.send(connection, data, callback);
+
+			} else {
+
+				if (callback !== null) {
+					callback(false);
+				}
 
 			}
 
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			}
+
 		}
-
-
-		return false;
 
 	},
 

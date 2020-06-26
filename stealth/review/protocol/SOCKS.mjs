@@ -102,7 +102,7 @@ describe('SOCKS.connect()/http', function(assert) {
 
 		tunnel.once('@connect', () => {
 
-			assert(HTTP.send(tunnel, {
+			HTTP.send(tunnel, {
 				headers: {
 					'@method':         'GET',
 					'@url':            '/index.html',
@@ -110,7 +110,11 @@ describe('SOCKS.connect()/http', function(assert) {
 					'accept-encoding': 'gzip'
 				},
 				payload: null
-			}), true);
+			}, (result) => {
+
+				assert(result, true);
+
+			});
 
 		});
 
@@ -146,7 +150,7 @@ describe('SOCKS.connect()/https', function(assert) {
 
 		tunnel.once('@connect', () => {
 
-			assert(HTTPS.send(tunnel, {
+			HTTPS.send(tunnel, {
 				headers: {
 					'@method':         'GET',
 					'@url':            '/index.html',
@@ -154,7 +158,11 @@ describe('SOCKS.connect()/https', function(assert) {
 					'accept-encoding': 'gzip'
 				},
 				payload: null
-			}), true);
+			}, (result) => {
+
+				assert(result, true);
+
+			});
 
 		});
 
@@ -188,14 +196,18 @@ describe('SOCKS.connect()/ws', function(assert) {
 
 		tunnel.once('@connect', () => {
 
-			assert(WS.send(tunnel, {
+			WS.send(tunnel, {
 				headers: {
 					service: 'service',
 					event:   'event',
 					method:  'method'
 				},
 				payload: Buffer.from('payload', 'utf8')
-			}), true);
+			}, (result) => {
+
+				assert(result, true);
+
+			});
 
 		});
 
@@ -229,14 +241,18 @@ describe('SOCKS.connect()/wss', function(assert) {
 
 		tunnel.once('@connect', () => {
 
-			assert(WSS.send(tunnel, {
+			WSS.send(tunnel, {
 				headers: {
 					service: 'service',
 					event:   'event',
 					method:  'method'
 				},
 				payload: Buffer.from('payload', 'utf8')
-			}), true);
+			}, (result) => {
+
+				assert(result, true);
+
+			});
 
 		});
 
@@ -314,7 +330,7 @@ describe('SOCKS.upgrade()', function(assert) {
 
 		tunnel.once('@connect', () => {
 
-			assert(HTTP.send(connection, {
+			HTTP.send(connection, {
 				headers: {
 					'@method':         'GET',
 					'@url':            '/index.html',
@@ -322,7 +338,11 @@ describe('SOCKS.upgrade()', function(assert) {
 					'accept-encoding': 'gzip'
 				},
 				payload: null
-			}), true);
+			}, (result) => {
+
+				assert(result, true);
+
+			});
 
 		});
 

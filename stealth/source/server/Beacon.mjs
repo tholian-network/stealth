@@ -7,15 +7,15 @@ const toDomain = function(payload) {
 
 	let domain = null;
 
-	if (isString(payload.domain)) {
+	if (isString(payload.domain) === true) {
 
-		if (isString(payload.subdomain)) {
+		if (isString(payload.subdomain) === true) {
 			domain = payload.subdomain + '.' + payload.domain;
 		} else {
 			domain = payload.domain;
 		}
 
-	} else if (isString(payload.host)) {
+	} else if (isString(payload.host) === true) {
 		domain = payload.host;
 	}
 
@@ -27,7 +27,7 @@ const toPath = function(payload) {
 
 	let path = null;
 
-	if (isString(payload.path)) {
+	if (isString(payload.path) === true) {
 		path = payload.path;
 	}
 
@@ -59,9 +59,14 @@ Beacon.isBeacon = function(payload) {
 			if (
 				isString(beacon.label) === true
 				&& isArray(beacon.select) === true
-				&& [ 'text', 'image', 'audio', 'video', 'other' ].includes(beacon.mode)
+				&& [ 'text', 'image', 'audio', 'video', 'other' ].includes(beacon.mode) === true
 			) {
-				return true;
+
+				let check = beacon.select.filter((s) => isString(s) === true);
+				if (check.length === beacon.select.length) {
+					return true;
+				}
+
 			}
 
 			return false;
@@ -82,32 +87,37 @@ Beacon.isBeacon = function(payload) {
 
 Beacon.toBeacon = function(payload) {
 
-	if (isObject(payload)) {
+	if (isObject(payload) === true) {
 
 		let domain = null;
 
-		if (isString(payload.domain)) {
+		if (isString(payload.domain) === true) {
 
-			if (isString(payload.subdomain)) {
+			if (isString(payload.subdomain) === true) {
 				domain = payload.subdomain + '.' + payload.domain;
 			} else {
 				domain = payload.domain;
 			}
 
-		} else if (isString(payload.host)) {
+		} else if (isString(payload.host) === true) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isString(payload.path) && isArray(payload.beacons)) {
+		if (domain !== null && isString(payload.path) === true && isArray(payload.beacons) === true) {
 
 			let check = payload.beacons.filter((beacon) => {
 
 				if (
 					isString(beacon.label) === true
 					&& isArray(beacon.select) === true
-					&& [ 'text', 'image', 'audio', 'video', 'other' ].includes(beacon.mode)
+					&& [ 'text', 'image', 'audio', 'video', 'other' ].includes(beacon.mode) === true
 				) {
-					return true;
+
+					let check = beacon.select.filter((s) => isString(s) === true);
+					if (check.length === beacon.select.length) {
+						return true;
+					}
+
 				}
 
 				return false;
@@ -156,14 +166,67 @@ Beacon.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			if (path === '*') {
+
 				// Do nothing
+
 			} else if (path.startsWith('*')) {
-				temp = temp.filter((t) => t.path.endsWith(path.substr(1)));
+
+				temp = temp.filter((t) => {
+
+					let other = t.path;
+					if (other.startsWith('*')) {
+						return other.substr(1).endsWith(path.substr(1));
+					} else if (other.endsWith('*')) {
+						return other.substr(0, other.length - 1).includes(path.substr(0, path.length - 1));
+					} else {
+						return other.endsWith(path.substr(1));
+					}
+
+				});
+
 			} else if (path.endsWith('*')) {
-				temp = temp.filter((t) => t.path.startsWith(path.substr(0, path.length - 1)));
+
+				temp = temp.filter((t) => {
+
+					let other = t.path;
+					if (other.startsWith('*')) {
+						return other.substr(1).includes(path.substr(0, path.length - 1));
+					} else if (other.endsWith('*')) {
+						return other.substr(0, other.length - 1).startsWith(path.substr(0, path.length - 1));
+					} else {
+						return other.startsWith(path.substr(0, path.length - 1));
+					}
+
+				});
+
+			} else {
+
+				temp = temp.filter((t) => {
+
+					let other = t.path;
+					if (other.startsWith('*')) {
+						return path.endsWith(other.substr(1));
+					} else if (other.endsWith('*')) {
+						return path.startsWith(other.substr(0, other.length - 1));
+					} else {
+						return other === path;
+					}
+
+				});
+
 			}
 
-			beacons = temp;
+			beacons = temp.sort((a, b) => {
+
+				if (a.domain < b.domain) return -1;
+				if (b.domain < a.domain) return  1;
+
+				if (a.path < b.path) return -1;
+				if (b.path < a.path) return  1;
+
+				return 0;
+
+			});
 
 		}
 
@@ -252,7 +315,7 @@ Beacon.prototype = Object.assign({}, Emitter.prototype, {
 		let domain = toDomain(payload);
 		let path   = toPath(payload);
 		if (domain !== null && path !== null) {
-			beacon_old = this.stealth.settings.beacons.find((b) => b.domain === domain) || null;
+			beacon_old = this.stealth.settings.beacons.find((b) => b.domain === domain && b.path === path) || null;
 		}
 
 		if (beacon_new !== null) {

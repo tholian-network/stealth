@@ -200,14 +200,18 @@ describe('WSS.send()', function(assert) {
 
 	connection.once('@connect', () => {
 
-		assert(WSS.send(connection, {
+		WSS.send(connection, {
 			headers: {
 				service: 'service',
 				event:   'event',
 				method:  'method'
 			},
 			payload: Buffer.from('payload', 'utf8')
-		}), true);
+		}, (result) => {
+
+			assert(result, true);
+
+		});
 
 	});
 

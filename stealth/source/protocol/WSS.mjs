@@ -73,7 +73,7 @@ const Connection = function(socket) {
 
 	this.socket   = socket || null;
 	this.fragment = {
-		chunk:    null,
+		buffer:   null,
 		operator: 0x00,
 		payload:  Buffer.alloc(0)
 	};

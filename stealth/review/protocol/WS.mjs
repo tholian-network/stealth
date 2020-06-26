@@ -200,14 +200,18 @@ describe('WS.send()', function(assert) {
 
 	connection.once('@connect', () => {
 
-		assert(WS.send(connection, {
+		WS.send(connection, {
 			headers: {
 				service: 'service',
 				event:   'event',
 				method:  'method'
 			},
 			payload: Buffer.from('payload', 'utf8')
-		}), true);
+		}, (result) => {
+
+			assert(result, true);
+
+		});
 
 	});
 
@@ -258,14 +262,18 @@ describe('WS.upgrade()', function(assert) {
 
 		setTimeout(() => {
 
-			assert(WS.send(connection, {
+			WS.send(connection, {
 				headers: {
 					service: 'service',
 					event:   'event',
 					method:  'method'
 				},
 				payload: Buffer.from('payload', 'utf8')
-			}), true);
+			}, (result) => {
+
+				assert(result, true);
+
+			});
 
 		}, 100);
 

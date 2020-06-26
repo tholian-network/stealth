@@ -38,7 +38,7 @@ import protocol_WS        from './protocol/WS.mjs';
 import protocol_WSS       from './protocol/WSS.mjs';
 import request_Downloader from './request/Downloader.mjs';
 import request_Optimizer  from './request/Optimizer.mjs';
-// import server_Beacon      from './server/Beacon.mjs';
+import server_Beacon      from './server/Beacon.mjs';
 import server_Blocker     from './server/Blocker.mjs';
 import server_Cache       from './server/Cache.mjs';
 import server_Host        from './server/Host.mjs';
@@ -97,7 +97,7 @@ export default {
 		Browser,
 
 		// Network Services
-		// server_Beacon,
+		server_Beacon,
 		server_Blocker,
 		server_Cache,
 		server_Host,

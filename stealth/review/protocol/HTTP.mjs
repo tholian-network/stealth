@@ -169,7 +169,7 @@ describe('HTTP.send()', function(assert) {
 
 	connection.once('@connect', () => {
 
-		assert(HTTP.send(connection, {
+		HTTP.send(connection, {
 			headers: {
 				'@method':         'GET',
 				'@url':            '/index.html',
@@ -177,7 +177,11 @@ describe('HTTP.send()', function(assert) {
 				'accept-encoding': 'gzip'
 			},
 			payload: null
-		}), true);
+		}, (result) => {
+
+			assert(result, true);
+
+		});
 
 	});
 
@@ -229,7 +233,7 @@ describe('HTTP.upgrade()', function(assert) {
 
 		setTimeout(() => {
 
-			assert(HTTP.send(connection, {
+			HTTP.send(connection, {
 				headers: {
 					'@method':         'GET',
 					'@url':            '/index.html',
@@ -237,7 +241,11 @@ describe('HTTP.upgrade()', function(assert) {
 					'accept-encoding': 'gzip'
 				},
 				payload: null
-			}), true);
+			}, (result) => {
+
+				assert(result, true);
+
+			});
 
 		}, 100);
 

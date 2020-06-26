@@ -777,104 +777,99 @@ const HTTP = {
 					payload: payload
 				});
 
-			} else {
-
-				return {
-					headers: headers,
-					payload: payload
-				};
-
 			}
 
 		} else {
 
 			if (callback !== null) {
 				callback(null);
-			} else {
-				return null;
 			}
 
 		}
 
 	},
 
-	send: function(connection, data) {
+	send: function(connection, data, callback) {
 
 		connection = isConnection(connection) ? connection : null;
 		data       = isObject(data)           ? data       : { headers: {}, payload: null };
+		callback   = isFunction(callback)     ? callback   : null;
 
 
-		if (connection !== null) {
+		if (connection !== null && connection.socket !== null) {
 
-			if (connection.socket !== null) {
+			let buffer  = null;
+			let blob    = [];
+			let headers = {};
+			let payload = null;
 
-				let blob    = [];
-				let headers = {};
-				let payload = null;
+			if (isObject(data.headers) === true) {
+				headers = data.headers;
+			}
 
-				if (isObject(data.headers) === true) {
-					headers = data.headers;
-				}
-
-				if (isBoolean(data.payload) === true) {
-					payload = data.payload;
-				} else {
-					payload = data.payload || null;
-				}
-
-
-				if (payload !== null) {
-
-					if (isBuffer(payload) === true) {
-						// Do nothing
-					} else if (isString(payload) === true) {
-						payload = Buffer.from(payload, 'utf8');
-					} else if (isObject(payload) === true) {
-						payload = Buffer.from(JSON.stringify(payload, null, '\t'), 'utf8');
-					}
+			if (isBoolean(data.payload) === true) {
+				payload = data.payload;
+			} else {
+				payload = data.payload || null;
+			}
 
 
-					let tmp1 = headers['content-encoding']  || null;
-					let tmp2 = headers['transfer-encoding'] || null;
+			if (payload !== null) {
 
-					if (tmp1 === 'gzip' || tmp2 === 'gzip') {
-
-						payload = encode_gzip(payload);
-
-					} else if (tmp2 === 'chunked') {
-
-						// Don't embrace Legacy Encoding
-						delete headers['transfer-encoding'];
-
-					}
-
+				if (isBuffer(payload) === true) {
+					// Do nothing
+				} else if (isString(payload) === true) {
+					payload = Buffer.from(payload, 'utf8');
+				} else if (isObject(payload) === true) {
+					payload = Buffer.from(JSON.stringify(payload, null, '\t'), 'utf8');
 				}
 
 
-				if (isString(headers['@method']) === true && isString(headers['@url']) === true) {
-					blob.push(headers['@method'] + ' ' + headers['@url'] + ' HTTP/1.1');
-				} else if (isString(headers['@status']) === true) {
-					blob.push('HTTP/1.1 ' + headers['@status']);
-				} else {
-					blob.push('HTTP/1.1 200 OK');
+				let tmp1 = headers['content-encoding']  || null;
+				let tmp2 = headers['transfer-encoding'] || null;
+
+				if (tmp1 === 'gzip' || tmp2 === 'gzip') {
+
+					payload = encode_gzip(payload);
+
+				} else if (tmp2 === 'chunked') {
+
+					// Don't embrace Legacy Encoding
+					delete headers['transfer-encoding'];
+
 				}
 
-
-				Object.keys(headers).filter((h) => h.startsWith('@') === false).forEach((name) => {
-
-					let key = name.split('-').map((v) => v.charAt(0).toUpperCase() + v.substr(1).toLowerCase()).join('-');
-					let val = headers[name];
-
-					blob.push(key + ': ' + val);
-
-				});
+			}
 
 
-				blob.push('');
-				blob.push('');
+			if (isString(headers['@method']) === true && isString(headers['@url']) === true) {
+				blob.push(headers['@method'] + ' ' + headers['@url'] + ' HTTP/1.1');
+			} else if (isString(headers['@status']) === true) {
+				blob.push('HTTP/1.1 ' + headers['@status']);
+			} else {
+				blob.push('HTTP/1.1 200 OK');
+			}
 
-				connection.socket.write(blob.join('\r\n'));
 
+			Object.keys(headers).filter((h) => h.startsWith('@') === false).forEach((name) => {
+
+				let key = name.split('-').map((v) => v.charAt(0).toUpperCase() + v.substr(1).toLowerCase()).join('-');
+				let val = headers[name];
+
+				blob.push(key + ': ' + val);
+
+			});
+
+
+			blob.push('');
+			blob.push('');
+
+			buffer = Buffer.from(blob.join('\r\n'), 'utf8');
+
+
+			if (buffer !== null) {
+
+				connection.socket.write(buffer);
 
 				if (connection.type === 'server') {
 
@@ -886,15 +881,25 @@ const HTTP = {
 
 				}
 
+				if (callback !== null) {
+					callback(true);
+				}
 
-				return true;
+			} else {
+
+				if (callback !== null) {
+					callback(false);
+				}
 
 			}
 
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			}
+
 		}
-
-
-		return false;
 
 	},
 
