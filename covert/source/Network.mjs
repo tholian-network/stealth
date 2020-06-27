@@ -3,7 +3,6 @@ import { execSync } from 'child_process';
 import os           from 'os';
 
 import { console, isString } from '../extern/base.mjs';
-import { ENVIRONMENT       } from './ENVIRONMENT.mjs';
 import { IP                } from '../../stealth/source/parser/IP.mjs';
 
 
@@ -114,19 +113,16 @@ const disconnect = () => {
 
 };
 
-const exec = (cmd, cwd) => {
+const exec = (cmd) => {
 
 	cmd = isString(cmd) ? cmd : null;
-	cwd = isString(cwd) ? cwd : ENVIRONMENT.home;
 
 
 	let error = null;
 
 	try {
 
-		execSync(cmd, {
-			cwd: cwd
-		});
+		execSync(cmd);
 
 	} catch (err) {
 
@@ -177,10 +173,9 @@ const get_interface = () => {
 
 };
 
-const sudo = (cmd, cwd) => {
+const sudo = (cmd) => {
 
 	cmd = isString(cmd) ? cmd : null;
-	cwd = isString(cwd) ? cwd : ENVIRONMENT.home;
 
 	if (cmd.startsWith('sudo ') === false) {
 		cmd = 'sudo ' + cmd.trim();
@@ -191,9 +186,7 @@ const sudo = (cmd, cwd) => {
 
 	try {
 
-		execSync(cmd, {
-			cwd: cwd
-		});
+		execSync(cmd);
 
 	} catch (err) {
 

@@ -50,6 +50,8 @@ const hosts = (() => {
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 		hosts = path.resolve('/etc/hosts');
+	} else if (platform === 'android') {
+		hosts = path.resolve('/system/etc/hosts');
 	} else if (platform === 'darwin') {
 		hosts = path.resolve('/etc/hosts');
 	} else if (platform === 'win32') {
@@ -69,10 +71,16 @@ const profile = (() => {
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 		folder = path.resolve('/home/' + user + '/Stealth');
+	} else if (platform === 'android') {
+		folder = path.resolve('/mnt/sdcard/Stealth');
 	} else if (platform === 'darwin') {
 		folder = path.resolve('/Users/' + user + '/Library/Application Support/Stealth');
 	} else if (platform === 'win32') {
 		folder = path.resolve((process.env.USERPROFILE || 'C:\\Users\\' + user) + '/Stealth');
+	}
+
+	if (folder.endsWith('/')) {
+		folder = folder.substr(0, folder.length - 1);
 	}
 
 	return folder;
@@ -91,8 +99,11 @@ const root = (() => {
 			folder = path.resolve(pwd);
 		}
 
-		if (folder.endsWith('/')) {
-			folder = folder.substr(0, folder.length - 1);
+	} else if (platform === 'android') {
+
+		let pwd = process.env.PWD || null;
+		if (pwd !== null) {
+			folder = path.resolve(pwd);
 		}
 
 	} else if (platform === 'win32') {
@@ -102,10 +113,6 @@ const root = (() => {
 			let pwd = process.env.PWD || null;
 			if (pwd.startsWith('/c/') === true) {
 				folder = path.resolve('C:\\' + pwd.substr(3).split('/').join('\\'));
-			}
-
-			if (folder.endsWith('/')) {
-				folder = folder.substr(0, folder.length - 1);
 			}
 
 		} else {
@@ -125,6 +132,10 @@ const root = (() => {
 
 	}
 
+	if (folder.endsWith('/')) {
+		folder = folder.substr(0, folder.length - 1);
+	}
+
 	return folder;
 
 })();
@@ -137,10 +148,16 @@ const temp = (() => {
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 		folder = path.resolve('/tmp/stealth-' + user);
+	} else if (platform === 'android') {
+		folder = path.resolve(process.env.TMPDIR || '/mnt/sdcard/Stealth/TEMP');
 	} else if (platform === 'darwin') {
 		folder = path.resolve(process.env.TMPDIR || '/tmp/stealth-' + user);
 	} else if (platform === 'win32') {
 		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\stealth-' + user);
+	}
+
+	if (folder.endsWith('/')) {
+		folder = folder.substr(0, folder.length - 1);
 	}
 
 	return folder;

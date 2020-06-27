@@ -69,25 +69,6 @@ const flags = (() => {
 
 })();
 
-const home = (() => {
-
-	let user     = process.env.SUDO_USER || process.env.USER || process.env.USERNAME;
-	let folder   = '/home/' + user;
-	let platform = os.platform();
-
-
-	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-		folder = path.resolve(process.env.HOME || '/home/' + user);
-	} else if (platform === 'darwin') {
-		folder = path.resolve(process.env.HOME || '/Users/' + user);
-	} else if (platform === 'win32') {
-		folder = path.resolve(process.env.USERPROFILE || 'C:\\Users\\' + user);
-	}
-
-	return folder;
-
-})();
-
 const patterns = (() => {
 
 	let patterns = [];
@@ -112,8 +93,11 @@ const root = (() => {
 			folder = path.resolve(pwd);
 		}
 
-		if (folder.endsWith('/')) {
-			folder = folder.substr(0, folder.length - 1);
+	} else if (platform === 'android') {
+
+		let pwd = process.env.PWD || null;
+		if (pwd !== null) {
+			folder = path.resolve(pwd);
 		}
 
 	} else if (platform === 'win32') {
@@ -123,10 +107,6 @@ const root = (() => {
 			let pwd = process.env.PWD || null;
 			if (pwd.startsWith('/c/') === true) {
 				folder = path.resolve('C:\\' + pwd.substr(3).split('/').join('\\'));
-			}
-
-			if (folder.endsWith('/')) {
-				folder = folder.substr(0, folder.length - 1);
 			}
 
 		} else {
@@ -146,6 +126,10 @@ const root = (() => {
 
 	}
 
+	if (folder.endsWith('/')) {
+		folder = folder.substr(0, folder.length - 1);
+	}
+
 	return folder;
 
 })();
@@ -158,10 +142,16 @@ const temp = (() => {
 
 	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 		folder = path.resolve('/tmp/covert-' + user);
+	} else if (platform === 'android') {
+		folder = path.resolve(process.env.TMPDIR || '/mnt/sdcard/Covert');
 	} else if (platform === 'darwin') {
 		folder = path.resolve(process.env.TMPDIR || '/tmp/covert-' + user);
 	} else if (platform === 'win32') {
 		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\covert-' + user);
+	}
+
+	if (folder.endsWith('/')) {
+		folder = folder.substr(0, folder.length - 1);
 	}
 
 	return folder;
@@ -239,7 +229,6 @@ const ENVIRONMENT = {
 
 	action:   action,
 	flags:    flags,
-	home:     home,
 	mktemp:   mktemp,
 	patterns: patterns,
 	root:     root,
