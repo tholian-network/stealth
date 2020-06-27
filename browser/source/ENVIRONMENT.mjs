@@ -63,7 +63,7 @@ const hostname = ((global) => {
 	let tmp1 = (global.location || {}).host || '';
 	if (tmp1.includes(':')) {
 
-		let tmp2 = tmp1.split(':').shift();
+		let tmp2 = tmp1.split(':').slice(0, -1).join(':');
 		if (tmp2 !== 'localhost') {
 			host = tmp2;
 		}
