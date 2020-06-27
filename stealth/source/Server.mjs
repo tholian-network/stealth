@@ -2,8 +2,10 @@
 import net from 'net';
 
 import { console, Emitter, isFunction, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                            } from './ENVIRONMENT.mjs';
 import { isStealth                              } from './Stealth.mjs';
 import { Request                                } from './Request.mjs';
+import { IP                                     } from './parser/IP.mjs';
 import { URL                                    } from './parser/URL.mjs';
 import { DNS                                    } from './protocol/DNS.mjs';
 import { HTTP                                   } from './protocol/HTTP.mjs';
@@ -666,7 +668,10 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			let host = isString(this._settings.host) ? this._settings.host : 'localhost';
 			if (host !== 'localhost') {
 
-				console.info('Server: Service started on http+socks+ws://' + host + ':65432' + '.');
+				console.info('');
+				console.info('Server: Service started on http+socks+ws://' + host + ':65432.');
+				console.info('Server: > http://' + host + ':65432.');
+				console.info('');
 
 				this.__state.connected = true;
 				this.emit('connect');
@@ -675,7 +680,30 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 			} else {
 
-				console.info('Server: Service started on http+socks+ws://localhost:65432' + '.');
+				console.info('');
+				console.info('Server: Service started on http+socks+ws://localhost:65432.');
+
+				if (ENVIRONMENT.ips.length > 0) {
+
+					ENVIRONMENT.ips.forEach((ip) => {
+
+						let hostname = null;
+
+						if (ip.type === 'v4') {
+							hostname = IP.render(ip);
+						} else if (ip.type === 'v6') {
+							hostname = '[' + IP.render(ip) + ']';
+						}
+
+						if (hostname !== null) {
+							console.info('Server: > http://' + hostname + ':65432.');
+						}
+
+					});
+
+				}
+
+				console.info('');
 
 				this.__state.connected = true;
 				this.emit('connect');

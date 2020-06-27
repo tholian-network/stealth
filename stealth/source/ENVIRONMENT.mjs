@@ -4,6 +4,8 @@ import os            from 'os';
 import path          from 'path';
 import process       from 'process';
 
+import { IP } from './parser/IP.mjs';
+
 
 
 const flags = (() => {
@@ -60,6 +62,38 @@ const hosts = (() => {
 
 	return hosts;
 
+})();
+
+const ips = (() => {
+
+	let ips = [];
+
+	Object.values(os.networkInterfaces()).flat().forEach((iface) => {
+
+		if (iface.internal === false) {
+
+			let ip = IP.parse(iface.address);
+			if (ip.type === 'v4') {
+
+				let other = ips.find((i) => i.ip === ip.ip) || null;
+				if (other === null) {
+					ips.push(ip);
+				}
+
+			} else if (ip.type === 'v6' && iface.scopeid === 0) {
+
+				let other = ips.find((i) => i.ip === ip.ip) || null;
+				if (other === null) {
+					ips.push(ip);
+				}
+
+			}
+
+		}
+
+	});
+
+	return ips;
 
 })();
 
@@ -168,12 +202,13 @@ const temp = (() => {
 
 const ENVIRONMENT = {
 
-	flags:    flags,
-	hostname: hostname,
-	hosts:    hosts,
-	profile:  profile,
-	root:     root,
-	temp:     temp
+	flags:     flags,
+	hostname:  hostname,
+	hosts:     hosts,
+	ips:       ips,
+	profile:   profile,
+	root:      root,
+	temp:      temp
 
 };
 
