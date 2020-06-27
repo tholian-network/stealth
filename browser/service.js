@@ -91,6 +91,7 @@ const ASSETS  = [
 	'source/Client.mjs',
 	'source/ENVIRONMENT.mjs',
 	'source/Tab.mjs',
+	'source/client/Beacon.mjs',
 	'source/client/Blocker.mjs',
 	'source/client/Cache.mjs',
 	'source/client/Host.mjs',

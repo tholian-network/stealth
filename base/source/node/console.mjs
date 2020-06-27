@@ -1,5 +1,7 @@
 
-import process from 'process';
+import os                        from 'os';
+import process                   from 'process';
+import { clear as clear_stdout } from 'console';
 
 
 
@@ -1155,11 +1157,20 @@ export const console = (function() {
 
 		} else {
 
-			// clear screen and reset cursor
-			process.stdout.write('\x1B[2J\x1B[0f');
+			if (os.platform() === 'win32') {
 
-			// clear scroll buffer
-			process.stdout.write('\u001b[3J');
+				// clear screen characters don't work on MINGW64
+				clear_stdout();
+
+			} else {
+
+				// clear screen and reset cursor
+				process.stdout.write('\x1B[2J\x1B[0f');
+
+				// clear scroll buffer
+				process.stdout.write('\u001b[3J');
+
+			}
 
 		}
 
