@@ -69,6 +69,25 @@ const flags = (() => {
 
 })();
 
+const home = (() => {
+
+	let user     = process.env.SUDO_USER || process.env.USER || process.env.USERNAME;
+	let folder   = '/home/' + user;
+	let platform = os.platform();
+
+
+	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
+		folder = path.resolve(process.env.HOME || '/home/' + user);
+	} else if (platform === 'darwin') {
+		folder = path.resolve(process.env.HOME || '/Users/' + user);
+	} else if (platform === 'win32') {
+		folder = path.resolve(process.env.USERPROFILE || 'C:\\Users\\' + user);
+	}
+
+	return folder;
+
+})();
+
 const patterns = (() => {
 
 	let patterns = [];
@@ -220,6 +239,7 @@ const ENVIRONMENT = {
 
 	action:   action,
 	flags:    flags,
+	home:     home,
 	mktemp:   mktemp,
 	patterns: patterns,
 	root:     root,

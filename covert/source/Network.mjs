@@ -1,9 +1,9 @@
 
 import { execSync } from 'child_process';
 import os           from 'os';
-import process      from 'process';
 
 import { console, isString } from '../extern/base.mjs';
+import { ENVIRONMENT       } from './ENVIRONMENT.mjs';
 import { IP                } from '../../stealth/source/parser/IP.mjs';
 
 
@@ -114,36 +114,10 @@ const disconnect = () => {
 
 };
 
-const HOME = (() => {
-
-	if (process.env.SUDO_USER !== undefined) {
-
-		if (process.env.USER === 'root') {
-			return '/home/' + process.env.SUDO_USER;
-		} else {
-			return '/home/' + process.env.USER;
-		}
-
-	} else if (process.env.HOME !== undefined) {
-
-		return process.env.HOME;
-
-	} else if (process.env.USER !== undefined) {
-
-		return '/home/' + process.env.USER;
-
-	} else {
-
-		return execSync('echo ~').trim();
-
-	}
-
-})();
-
 const exec = (cmd, cwd) => {
 
 	cmd = isString(cmd) ? cmd : null;
-	cwd = isString(cwd) ? cwd : HOME;
+	cwd = isString(cwd) ? cwd : ENVIRONMENT.home;
 
 
 	let error = null;
@@ -206,7 +180,7 @@ const get_interface = () => {
 const sudo = (cmd, cwd) => {
 
 	cmd = isString(cmd) ? cmd : null;
-	cwd = isString(cwd) ? cwd : HOME;
+	cwd = isString(cwd) ? cwd : ENVIRONMENT.home;
 
 	if (cmd.startsWith('sudo ') === false) {
 		cmd = 'sudo ' + cmd.trim();
