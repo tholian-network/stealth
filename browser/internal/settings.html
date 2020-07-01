@@ -6,6 +6,19 @@
 		<link rel="stylesheet" href="settings/index.css">
 	</head>
 	<body>
+		<article id="interface">
+			<h3>Interface</h3>
+			<div id="interface-theme">
+				<div>
+					<input id="interface-theme-1" name="interface-theme" type="radio" value="dark">
+					<label for="interface-theme-1">Use dark theme.</label>
+				</div>
+				<div>
+					<input id="interface-theme-2" name="interface-theme" type="radio" value="light">
+					<label for="interface-theme-2">Use light theme.</label>
+				</div>
+			</div>
+		</article>
 		<article id="internet">
 			<h3>Internet Connection</h3>
 			<p>
@@ -202,9 +215,17 @@
 				</tfoot>
 			</table>
 			<h3>Beacons</h3>
-			<p>
-				Beacons are not ready yet. Stay tuned!
-			</p>
+			<table id="sites-beacons">
+				<thead>
+					<tr>
+						<th>Domain</th>
+						<th>Path</th>
+						<th>Beacons</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
 		</article>
 		<script type="module" src="settings/index.mjs"></script>
 	</body>

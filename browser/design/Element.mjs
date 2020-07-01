@@ -12,7 +12,7 @@ const CACHE  = {
 	virtual: []
 };
 
-const isElement = function(element) {
+export const isElement = function(element) {
 
 	let str = Object.prototype.toString.call(element);
 	if (str.startsWith('[object') && str.includes('HTML') && str.endsWith('Element]')) {
@@ -119,15 +119,19 @@ const Element = function(type, template, virtual) {
 
 
 	this.element = null;
+	this.type    = null;
 
 	this.__events    = {};
+	this.__journal   = [];
 	this.__listeners = {};
 
 
 	if (isElement(type) === true) {
 		this.element = type;
+		this.type    = this.element.tagName.toLowerCase();
 	} else if (isString(type) === true) {
 		this.element = doc.createElement(type);
+		this.type    = this.element.tagName.toLowerCase();
 	}
 
 	if (isArray(template) === true) {
@@ -229,6 +233,47 @@ Element.query = function(query) {
 
 
 Element.prototype = {
+
+	[Symbol.toStringTag]: 'Element',
+
+	toJSON: function() {
+
+		let data = {
+			type:     this.type || null,
+			template: this.element.innerHTML,
+			events:   Object.keys(this.__events),
+			journal:  []
+		};
+
+		if (this.__journal.length > 0) {
+
+			this.__journal.sort((a, b) => {
+
+				if (a.time < b.time) return -1;
+				if (b.time < a.time) return  1;
+
+				if (a.event < b.event) return -1;
+				if (b.event < a.event) return  1;
+
+				return 0;
+
+			}).forEach((entry) => {
+
+				data.journal.push({
+					event: entry.event,
+					time:  entry.time
+				});
+
+			});
+
+		}
+
+		return {
+			'type': 'Element',
+			'data': data
+		};
+
+	},
 
 	area: function(area) {
 
@@ -408,7 +453,7 @@ Element.prototype = {
 	emit: function(event, args) {
 
 		event = isString(event) ? event : null;
-		args  = isArray(args)   ? args  : (args !== undefined ? [ args ] : []);
+		args  = isArray(args)   ? args  : [];
 
 
 		if (event !== null) {
@@ -436,6 +481,12 @@ Element.prototype = {
 
 			let events = this.__events[event] || null;
 			if (events !== null) {
+
+				this.__journal.push({
+					event: event,
+					time:  Date.now()
+				});
+
 
 				let data = null;
 
@@ -516,6 +567,25 @@ Element.prototype = {
 
 	},
 
+	has: function(event) {
+
+		event = isString(event) ? event : null;
+
+
+		if (event !== null) {
+
+			let events = this.__events[event] || null;
+			if (isArray(events) === true && events.length > 0) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	},
+
 	erase: function(target) {
 
 		target = isElement(target) ? target : null;
@@ -587,7 +657,16 @@ Element.prototype = {
 			let listener = this.__listeners[event] || null;
 			if (listener === null) {
 
-				listener = this.__listeners[event] = this.emit.bind(this, event);
+				listener = this.__listeners[event] = function() {
+
+					let args = [];
+					for (let a = 0, al = arguments.length; a < al; a++) {
+						args.push(arguments[a]);
+					}
+
+					this.emit(event, args);
+
+				}.bind(this);
 
 				if (this.element !== null) {
 					this.element.addEventListener(event, listener, true);
@@ -668,7 +747,16 @@ Element.prototype = {
 			let listener = this.__listeners[event] || null;
 			if (listener === null) {
 
-				listener = this.__listeners[event] = this.emit.bind(this, event);
+				listener = this.__listeners[event] = function() {
+
+					let args = [];
+					for (let a = 0, al = arguments.length; a < al; a++) {
+						args.push(arguments[a]);
+					}
+
+					this.emit(event, args);
+
+				}.bind(this);
 
 				if (this.element !== null) {
 					this.element.addEventListener(event, listener, true);
@@ -1086,9 +1174,6 @@ Element.prototype = {
 
 };
 
-
-export const from  = Element.from;
-export const query = Element.query;
 
 export { Element };
 

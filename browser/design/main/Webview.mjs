@@ -62,6 +62,19 @@ const get_src = function(id, ref, refresh) {
 
 };
 
+const update_theme = function(theme) {
+
+	if (this.window !== null) {
+
+		let body = this.window.document.querySelector('body');
+		if (body !== null) {
+			body.setAttribute('data-theme', theme);
+		}
+
+	}
+
+};
+
 const update = function(tab, refresh) {
 
 	let ref = tab.ref;
@@ -115,7 +128,12 @@ const Webview = function(browser) {
 
 	});
 
+	this.webview.on('load', () => {
+		update_theme.call(this, browser.settings['interface'].theme);
+	});
 
+
+	browser.on('theme',   (theme)              => update_theme.call(this, theme));
 	browser.on('show',    (tab, tabs, refresh) => update.call(this, tab, refresh));
 	browser.on('refresh', (tab, tabs, refresh) => update.call(this, tab, refresh));
 

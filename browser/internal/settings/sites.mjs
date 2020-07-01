@@ -129,8 +129,12 @@ const listen_modes = (browser, callback) => {
 };
 
 const render_beacon = (beacon, actions, visible) => `
-TODO: Render Beacon correctly...
-      ${beacon} ${actions} ${visible}
+<tr data-visible="${visible}">
+	<td data-key="domain">${beacon.domain}</td>
+	<td data-key="path">${beacon.path}</td>
+	<td>${beacon.beacons.length} Beacons</td>
+	<td>${actions.map((action) => '<button data-action="' + action + '"></button>').join('')}</td>
+</tr>
 `;
 
 const render_mode = (mode, actions, visible) => `
@@ -264,7 +268,7 @@ export const update = (settings, actions) => {
 
 			ELEMENTS.beacons.output.value(beacons.sort(sort_beacon).map((beacon) => {
 				visible++;
-				return render_beacon(beacon, actions, true);
+				return render_beacon(beacon, [ 'remove' ], true);
 			}));
 
 		} else if (value !== '') {
@@ -273,9 +277,9 @@ export const update = (settings, actions) => {
 
 				if (beacon.domain.includes(value)) {
 					visible++;
-					return render_beacon(beacon, actions, true);
+					return render_beacon(beacon, [ 'remove' ], true);
 				} else {
-					return render_beacon(beacon, actions, false);
+					return render_beacon(beacon, [ 'remove' ], false);
 				}
 
 			}));
@@ -286,9 +290,9 @@ export const update = (settings, actions) => {
 
 				if (beacon.domain.includes('.') === false) {
 					visible++;
-					return render_beacon(beacon, actions, true);
+					return render_beacon(beacon, [ 'remove' ], true);
 				} else {
-					return render_beacon(beacon, actions, false);
+					return render_beacon(beacon, [ 'remove' ], false);
 				}
 
 			}));

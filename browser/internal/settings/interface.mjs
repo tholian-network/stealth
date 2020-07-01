@@ -5,9 +5,7 @@ import { Element            } from '../../internal/index.mjs';
 
 
 const ELEMENTS = {
-	connection: Element.query('#internet-connection input'),
-	history:    Element.query('#internet-history input'),
-	useragent:  Element.query('#internet-useragent input')
+	theme: Element.query('#interface-theme input')
 };
 
 export const listen = function(browser, callback) {
@@ -21,7 +19,7 @@ export const listen = function(browser, callback) {
 				let active = others.find((o) => o.attr('checked') === true) || null;
 				if (active !== null) {
 
-					let cur_val = browser.settings['internet'][type];
+					let cur_val = browser.settings['interface'][type];
 					let new_val = active.value();
 
 					if (cur_val !== new_val) {
@@ -30,7 +28,7 @@ export const listen = function(browser, callback) {
 						element.state('busy');
 
 						callback('save', {
-							'internet': Object.assign({}, browser.settings['internet'], { [type]: new_val })
+							'interface': Object.assign({}, browser.settings['interface'], { [type]: new_val })
 						}, (result) => {
 							element.state('enabled');
 							element.state(result === true ? '' : 'error');
@@ -61,39 +59,20 @@ export const update = function(settings) {
 	settings = isObject(settings) ? settings : {};
 
 
-	if (isObject(settings['internet']) === true) {
+	if (isObject(settings['interface']) === true) {
 
-		if (isString(settings['internet'].connection) === true) {
-
-			update_choices(
-				[ 'mobile', 'broadband', 'peer', 'i2p', 'tor' ],
-				settings['internet'].connection,
-				ELEMENTS.connection
-			);
-
-		}
-
-		if (isString(settings['internet'].history) === true) {
+		if (isString(settings['interface'].theme) === true) {
 
 			update_choices(
-				[ 'stealth', 'day', 'week', 'forever' ],
-				settings['internet'].history,
-				ELEMENTS.history
-			);
-
-		}
-
-		if (isString(settings['internet'].useragent) === true) {
-
-			update_choices(
-				[ 'stealth', 'browser-mobile', 'browser-desktop', 'spider-mobile', 'spider-desktop' ],
-				settings['internet'].useragent,
-				ELEMENTS.useragent
+				[ 'dark', 'light' ],
+				settings['interface'].theme,
+				ELEMENTS.theme
 			);
 
 		}
 
 	}
+
 
 };
 
@@ -112,13 +91,15 @@ export const init = function(browser) {
 
 					if (result === true) {
 
-						Object.keys(data['internet']).forEach((key) => {
-							browser.settings['internet'][key] = data['internet'][key];
+						Object.keys(data['interface']).forEach((key) => {
+							browser.settings['interface'][key] = data['interface'][key];
 						});
 
 						update({
-							'internet': browser.settings['internet']
+							'interface': browser.settings['interface']
 						});
+
+						browser.emit('theme', [ browser.settings['interface'].theme ]);
 
 					}
 

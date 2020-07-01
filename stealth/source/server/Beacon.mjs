@@ -59,11 +59,16 @@ Beacon.isBeacon = function(payload) {
 			if (
 				isString(beacon.label) === true
 				&& isArray(beacon.select) === true
-				&& [ 'text', 'image', 'audio', 'video', 'other' ].includes(beacon.mode) === true
+				&& isArray(beacon.mode) === true
 			) {
 
-				let check = beacon.select.filter((s) => isString(s) === true);
-				if (check.length === beacon.select.length) {
+				let check1 = beacon.select.filter((s) => isString(s) === true);
+				let check2 = beacon.mode.filter((m) => [ 'text', 'image', 'audio', 'video', 'other' ].includes(m) === true);
+
+				if (
+					check1.length === beacon.select.length
+					&& check2.length === beacon.mode.length
+				) {
 					return true;
 				}
 
@@ -110,11 +115,16 @@ Beacon.toBeacon = function(payload) {
 				if (
 					isString(beacon.label) === true
 					&& isArray(beacon.select) === true
-					&& [ 'text', 'image', 'audio', 'video', 'other' ].includes(beacon.mode) === true
+					&& isArray(beacon.mode) === true
 				) {
 
-					let check = beacon.select.filter((s) => isString(s) === true);
-					if (check.length === beacon.select.length) {
+					let check1 = beacon.select.filter((s) => isString(s) === true);
+					let check2 = beacon.mode.filter((m) => [ 'text', 'image', 'audio', 'video', 'other' ].includes(m) === true);
+
+					if (
+						check1.length === beacon.select.length
+						&& check2.length === beacon.mode.length
+					) {
 						return true;
 					}
 

@@ -285,7 +285,7 @@ const Tabs = function(browser, widgets) {
 
 			let tab = browser.tabs.find((t) => t.id === '' + button.attr('data-id'));
 			if (tab !== null) {
-				browser.kill(tab);
+				browser.close(tab);
 			}
 
 		}

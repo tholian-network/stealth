@@ -275,14 +275,15 @@ const read = function(profile, keepdata, callback) {
 			let sessions = [];
 
 			let check = [
-				read_file.call(this, profile + '/internet.json',  this.internet,  keepdata),
-				read_file.call(this, profile + '/beacons.json',   this.beacons,   keepdata, Beacon.isBeacon),
-				read_file.call(this, profile + '/blockers.json',  this.blockers,  keepdata, Blocker.isBlocker),
-				read_file.call(this, profile + '/hosts.json',     this.hosts,     keepdata, Host.isHost),
-				read_file.call(this, profile + '/modes.json',     this.modes,     keepdata, Mode.isMode),
-				read_file.call(this, profile + '/peers.json',     this.peers,     keepdata, Peer.isPeer),
-				read_file.call(this, profile + '/redirects.json', this.redirects, keepdata, Redirect.isRedirect),
-				read_file.call(this, profile + '/sessions.json',  sessions,       keepdata)
+				read_file.call(this, profile + '/interface.json', this['interface'], keepdata),
+				read_file.call(this, profile + '/internet.json',  this['internet'],  keepdata),
+				read_file.call(this, profile + '/beacons.json',   this['beacons'],   keepdata, Beacon.isBeacon),
+				read_file.call(this, profile + '/blockers.json',  this['blockers'],  keepdata, Blocker.isBlocker),
+				read_file.call(this, profile + '/hosts.json',     this['hosts'],     keepdata, Host.isHost),
+				read_file.call(this, profile + '/modes.json',     this['modes'],     keepdata, Mode.isMode),
+				read_file.call(this, profile + '/peers.json',     this['peers'],     keepdata, Peer.isPeer),
+				read_file.call(this, profile + '/redirects.json', this['redirects'], keepdata, Redirect.isRedirect),
+				read_file.call(this, profile + '/sessions.json',  sessions,          keepdata)
 			].filter((v) => v === false);
 
 			if (sessions.length > 0) {
@@ -410,14 +411,15 @@ const save = function(profile, keepdata, callback) {
 
 
 			let check = [
-				save_file.call(this, profile + '/internet.json',  this.internet),
-				save_file.call(this, profile + '/beacons.json',   this.beacons,   Beacon.isBeacon),
+				save_file.call(this, profile + '/interface.json', this['interface']),
+				save_file.call(this, profile + '/internet.json',  this['internet']),
+				save_file.call(this, profile + '/beacons.json',   this['beacons'],   Beacon.isBeacon),
 				true, // blockers cannot be saved
-				save_file.call(this, profile + '/hosts.json',     this.hosts,     Host.isHost),
-				save_file.call(this, profile + '/modes.json',     this.modes,     Mode.isMode),
-				save_file.call(this, profile + '/peers.json',     this.peers,     Peer.isPeer),
-				save_file.call(this, profile + '/redirects.json', this.redirects, Redirect.isRedirect),
-				save_file.call(this, profile + '/sessions.json',  this.sessions,  isSession)
+				save_file.call(this, profile + '/hosts.json',     this['hosts'],     Host.isHost),
+				save_file.call(this, profile + '/modes.json',     this['modes'],     Mode.isMode),
+				save_file.call(this, profile + '/peers.json',     this['peers'],     Peer.isPeer),
+				save_file.call(this, profile + '/redirects.json', this['redirects'], Redirect.isRedirect),
+				save_file.call(this, profile + '/sessions.json',  this['sessions'],  isSession)
 			].filter((v) => v === false);
 
 			if (callback !== null) {
@@ -542,18 +544,15 @@ const setup = function(profile, callback) {
 
 const Settings = function(settings) {
 
-	this.internet  = {
-		connection: 'mobile',
-		history:    'stealth',
-		useragent:  'stealth'
-	};
-	this.beacons   = [];
-	this.blockers  = [];
-	this.hosts     = [];
-	this.modes     = [];
-	this.peers     = [];
-	this.redirects = [];
-	this.sessions  = [];
+	this['interface'] = { theme: 'dark' };
+	this['internet']  = { connection: 'mobile', history: 'stealth', useragent: 'stealth' };
+	this['beacons']   = [];
+	this['blockers']  = [];
+	this['hosts']     = [];
+	this['modes']     = [];
+	this['peers']     = [];
+	this['redirects'] = [];
+	this['sessions']  = [];
 
 
 	this.profile = ENVIRONMENT.profile;
@@ -653,36 +652,44 @@ Settings.from = function(json) {
 				vendor:  isString(data.vendor)  ? data.vendor  : null
 			});
 
-			if (isObject(data.internet) === true) {
+			if (isObject(data['interface']) === true) {
 
-				Object.keys(data.internet).forEach((key) => {
-					settings.internet[key] = data.internet[key];
+				Object.keys(data['interface']).forEach((key) => {
+					settings['interface'][key] = data['interface'][key];
 				});
 
 			}
 
-			if (isArray(data.beacons) === true) {
-				settings.beacons = data.beacons.filter((beacon) => Beacon.isBeacon(beacon));
+			if (isObject(data['internet']) === true) {
+
+				Object.keys(data['internet']).forEach((key) => {
+					settings['internet'][key] = data['internet'][key];
+				});
+
 			}
 
-			if (isArray(data.hosts) === true) {
-				settings.hosts = data.hosts.filter((host) => Host.isHost(host));
+			if (isArray(data['beacons']) === true) {
+				settings['beacons'] = data['beacons'].filter((beacon) => Beacon.isBeacon(beacon));
 			}
 
-			if (isArray(data.modes) === true) {
-				settings.modes = data.modes.filter((mode) => Mode.isMode(mode));
+			if (isArray(data['hosts']) === true) {
+				settings['hosts'] = data['hosts'].filter((host) => Host.isHost(host));
 			}
 
-			if (isArray(data.peers) === true) {
-				settings.peers = data.peers.filter((peer) => Peer.isPeer(peer));
+			if (isArray(data['modes']) === true) {
+				settings['modes'] = data['modes'].filter((mode) => Mode.isMode(mode));
 			}
 
-			if (isArray(data.redirects) === true) {
-				settings.redirects = data.redirects.filter((redirect) => Redirect.isRedirect(redirect));
+			if (isArray(data['peers']) === true) {
+				settings['peers'] = data['peers'].filter((peer) => Peer.isPeer(peer));
 			}
 
-			if (isArray(data.sessions) === true) {
-				settings.sessions = data.sessions.map((session) => Session.from(session)).filter((session) => session !== null);
+			if (isArray(data['redirects']) === true) {
+				settings['redirects'] = data['redirects'].filter((redirect) => Redirect.isRedirect(redirect));
+			}
+
+			if (isArray(data['sessions']) === true) {
+				settings['sessions'] = data['sessions'].map((session) => Session.from(session)).filter((session) => session !== null);
 			}
 
 			return settings;
@@ -707,68 +714,81 @@ Settings.prototype = {
 	toJSON: function() {
 
 		let data = {
-			internet:  {},
-			beacons:   [],
-			blockers:  null, // private
-			hosts:     [],
-			modes:     [],
-			peers:     [],
-			profile:   null,
-			redirects: null, // private
-			sessions:  [],
-			vendor:    null
+			'interface': {},
+			'internet':  {},
+			'beacons':   [],
+			'blockers':  null, // private
+			'hosts':     [],
+			'modes':     [],
+			'peers':     [],
+			'profile':   null,
+			'redirects': [],
+			'sessions':  [],
+			'vendor':    null
 		};
 
-		Object.keys(this.internet).forEach((key) => {
-			data.internet[key] = this.internet[key];
+		Object.keys(this['interface']).forEach((key) => {
+			data['interface'][key] = this['interface'][key];
 		});
 
-		this.beacons.forEach((beacon) => {
+		Object.keys(this['internet']).forEach((key) => {
+			data['internet'][key] = this['internet'][key];
+		});
+
+		this['beacons'].forEach((beacon) => {
 
 			if (Beacon.isBeacon(beacon) === true) {
-				data.beacons.push(beacon);
+				data['beacons'].push(beacon);
 			}
 
 		});
 
-		this.hosts.forEach((host) => {
+		this['hosts'].forEach((host) => {
 
 			if (Host.isHost(host) === true) {
-				data.hosts.push(host);
+				data['hosts'].push(host);
 			}
 
 		});
 
-		this.modes.forEach((mode) => {
+		this['modes'].forEach((mode) => {
 
 			if (Mode.isMode(mode) === true) {
-				data.modes.push(mode);
+				data['modes'].push(mode);
 			}
 
 		});
 
-		this.peers.forEach((peer) => {
+		this['peers'].forEach((peer) => {
 
 			if (Peer.isPeer(peer) === true) {
-				data.peers.push(peer);
+				data['peers'].push(peer);
 			}
 
 		});
 
-		if (this.profile !== ENVIRONMENT.profile) {
-			data.profile = this.profile;
+		if (this['profile'] !== ENVIRONMENT.profile) {
+			data['profile'] = this['profile'];
 		}
 
-		this.sessions.forEach((session) => {
+		this['redirects'].forEach((redirect) => {
 
-			if (isSession(session) === true) {
-				data.sessions.push(session.toJSON());
+			if (Redirect.isRedirect(redirect) === true) {
+				data['redirects'].push(redirect);
 			}
 
 		});
 
-		if (this.vendor !== null) {
-			data.vendor = this.vendor;
+		this['sessions'].forEach((session) => {
+
+			if (isSession(session) === true) {
+				data['sessions'].push(session.toJSON());
+			}
+
+		});
+
+		if (this['vendor'] !== null) {
+			data['vendor'] = this['vendor'];
 		}
 
 

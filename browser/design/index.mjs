@@ -30,6 +30,15 @@ export const dispatch = (window, browser) => {
 
 	if (browser !== null) {
 
+		browser.on('theme', (theme) => {
+
+			let body = window.document.querySelector('body');
+			if (body !== null) {
+				body.setAttribute('data-theme', theme);
+			}
+
+		});
+
 		Object.keys(WIDGETS).forEach((key) => {
 
 			let widget = WIDGETS[key] || null;

@@ -79,11 +79,15 @@ const Browser = function(settings) {
 		host: this._settings.host
 	}, this);
 	this.settings = {
-		internet: { connection: 'mobile' },
-		hosts:    [],
-		modes:    [],
-		peers:    [],
-		sessions: []
+		'interface': { theme: 'dark' },
+		'internet':  { connection: 'mobile', history: 'stealth', useragent: 'stealth' },
+		'beacons':   [],
+		'blockers':  [],
+		'hosts':     [],
+		'modes':     [],
+		'peers':     [],
+		'redirects': [],
+		'sessions':  []
 	};
 	this.tab      = null;
 	this.tabs     = [];
@@ -98,30 +102,51 @@ const Browser = function(settings) {
 
 	this.client.services.settings.on('read', (response) => {
 
-		if (isObject(response.internet) === true) {
-			this.settings.internet = response.internet;
+		if (isObject(response['interface']) === true) {
+
+			let old_theme = this.settings['interface'].theme;
+			let new_theme = response['interface'].theme;
+
+			if (old_theme !== new_theme) {
+				this.emit('theme', [ new_theme ]);
+			}
+
+			this.settings['interface'] = response['interface'];
+
 		}
 
-		if (isArray(response.hosts) === true) {
-			this.settings.hosts = response.hosts;
+		if (isObject(response['internet']) === true) {
+			this.settings['internet'] = response['internet'];
 		}
 
-		if (isArray(response.modes) === true) {
+		if (isArray(response['beacons']) === true) {
+			this.settings['beacons'] = response['beacons'];
+		}
 
-			this.settings.modes = response.modes;
+		if (isArray(response['hosts']) === true) {
+			this.settings['hosts'] = response['hosts'];
+		}
 
-			this.settings.modes.forEach((config) => {
+		if (isArray(response['modes']) === true) {
+
+			this.settings['modes'] = response['modes'];
+
+			this.settings['modes'].forEach((config) => {
 				on_mode_change.call(this, config);
 			});
 
 		}
 
-		if (isArray(response.peers) === true) {
-			this.settings.peers = response.peers;
+		if (isArray(response['peers']) === true) {
+			this.settings['peers'] = response['peers'];
 		}
 
-		if (isArray(response.sessions) === true) {
-			this.settings.sessions = response.sessions;
+		if (isArray(response['redirects']) === true) {
+			this.settings['redirects'] = response['redirects'];
+		}
+
+		if (isArray(response['sessions']) === true) {
+			this.settings['sessions'] = response['sessions'];
 		}
 
 	});

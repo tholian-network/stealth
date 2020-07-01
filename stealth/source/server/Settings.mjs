@@ -16,14 +16,15 @@ const readify = function(raw) {
 
 			payload = Object.assign({}, raw);
 
-			payload.internet  = isBoolean(payload.internet)  ? payload.internet  : false;
-			payload.beacons   = isBoolean(payload.beacons)   ? payload.beacons   : false;
-			payload.blockers  = false; // cannot be read
-			payload.hosts     = isBoolean(payload.hosts)     ? payload.hosts     : false;
-			payload.modes     = isBoolean(payload.modes)     ? payload.modes     : false;
-			payload.peers     = isBoolean(payload.peers)     ? payload.peers     : false;
-			payload.redirects = false; // cannot be read
-			payload.sessions  = isBoolean(payload.sessions)  ? payload.sessions  : false;
+			payload['interface'] = isBoolean(payload['interface']) ? payload['interface'] : false;
+			payload['internet']  = isBoolean(payload['internet'])  ? payload['internet']  : false;
+			payload['beacons']   = isBoolean(payload['beacons'])   ? payload['beacons']   : false;
+			payload['blockers']  = false; // cannot be read
+			payload['hosts']     = isBoolean(payload['hosts'])     ? payload['hosts']     : false;
+			payload['modes']     = isBoolean(payload['modes'])     ? payload['modes']     : false;
+			payload['peers']     = isBoolean(payload['peers'])     ? payload['peers']     : false;
+			payload['redirects'] = false; // cannot be read
+			payload['sessions']  = isBoolean(payload['sessions'])  ? payload['sessions']  : false;
 
 			return payload;
 
@@ -42,29 +43,30 @@ const saveify = function(raw) {
 
 		payload = Object.assign({}, raw);
 
-		payload.internet  = isObject(payload.internet) ? payload.internet : {};
-		payload.beacons   = isArray(payload.beacons)   ? payload.beacons  : [];
-		payload.blockers  = []; // cannot be saved
-		payload.hosts     = isArray(payload.hosts)     ? payload.hosts    : [];
-		payload.modes     = isArray(payload.modes)     ? payload.modes    : [];
-		payload.peers     = isArray(payload.peers)     ? payload.peers    : [];
-		payload.redirects = []; // cannot be saved
-		payload.sessions  = []; // cannot be saved
+		payload['interface'] = isObject(payload['interface']) ? payload['interface'] : {};
+		payload['internet']  = isObject(payload['internet'])  ? payload['internet']  : {};
+		payload['beacons']   = isArray(payload['beacons'])    ? payload['beacons']   : [];
+		payload['blockers']  = []; // cannot be saved
+		payload['hosts']     = isArray(payload['hosts'])      ? payload['hosts']     : [];
+		payload['modes']     = isArray(payload['modes'])      ? payload['modes']     : [];
+		payload['peers']     = isArray(payload['peers'])      ? payload['peers']     : [];
+		payload['redirects'] = []; // cannot be saved
+		payload['sessions']  = []; // cannot be saved
 
-		if (isArray(payload.beacons) === true) {
-			payload.beacons = payload.beacons.filter((beacon) => Beacon.isBeacon(beacon));
+		if (isArray(payload['beacons']) === true) {
+			payload.beacons = payload['beacons'].filter((beacon) => Beacon.isBeacon(beacon));
 		}
 
-		if (isArray(payload.hosts) === true) {
-			payload.hosts = payload.hosts.filter((host) => Host.isHost(host));
+		if (isArray(payload['hosts']) === true) {
+			payload['hosts'] = payload['hosts'].filter((host) => Host.isHost(host));
 		}
 
-		if (isArray(payload.modes) === true) {
-			payload.modes = payload.modes.filter((mode) => Mode.isMode(mode));
+		if (isArray(payload['modes']) === true) {
+			payload['modes'] = payload['modes'].filter((mode) => Mode.isMode(mode));
 		}
 
-		if (isArray(payload.peers) === true) {
-			payload.peers = payload.peers.filter((peer) => Peer.isPeer(peer));
+		if (isArray(payload['peers']) === true) {
+			payload['peers'] = payload['peers'].filter((peer) => Peer.isPeer(peer));
 		}
 
 		return payload;
@@ -103,14 +105,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 						let blob = this.stealth.settings.toJSON();
 						let data = {
-							internet:  null,
-							beacons:   null,
-							blockers:  null,
-							hosts:     null,
-							modes:     null,
-							peers:     null,
-							redirects: null,
-							sessions:  null
+							'interface': null,
+							'internet':  null,
+							'beacons':   null,
+							'blockers':  null,
+							'hosts':     null,
+							'modes':     null,
+							'peers':     null,
+							'redirects': null,
+							'sessions':  null
 						};
 
 
@@ -157,14 +160,15 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 						let blob = this.stealth.settings.toJSON();
 						let data = {
-							internet:  blob.data.internet,
-							beacons:   blob.data.beacons,
-							blockers:  null,
-							hosts:     blob.data.hosts,
-							modes:     blob.data.modes,
-							peers:     blob.data.peers,
-							redirects: null,
-							sessions:  blob.data.sessions
+							'interface': blob.data['interface'],
+							'internet':  blob.data['internet'],
+							'beacons':   blob.data['beacons'],
+							'blockers':  null,
+							'hosts':     blob.data['hosts'],
+							'modes':     blob.data['modes'],
+							'peers':     blob.data['peers'],
+							'redirects': null,
+							'sessions':  blob.data['sessions']
 						};
 
 
@@ -206,75 +210,63 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			let settings = this.stealth.settings;
 
-			Object.keys(payload.internet).forEach((key) => {
+			Object.keys(payload['interface']).forEach((key) => {
 
-				if (settings.internet[key] !== undefined) {
-					settings.internet[key] = payload.internet[key];
+				if (settings['interface'][key] !== undefined) {
+					settings['interface'][key] = payload['interface'][key];
 				}
 
 			});
 
-			payload.beacons.forEach((beacon) => {
+			Object.keys(payload['internet']).forEach((key) => {
 
-				let other = settings.beacons.find((b) => b.domain === beacon.domain && b.path === beacon.path) || null;
-				if (other !== null) {
-
-					let index = settings.beacons.indexOf(other);
-					if (index !== -1) {
-						settings.beacons.splice(index, 1);
-					}
-
+				if (settings['internet'][key] !== undefined) {
+					settings['internet'][key] = payload['internet'][key];
 				}
-
-				settings.beacons.push(beacon);
 
 			});
 
-			payload.hosts.forEach((host) => {
+			payload['beacons'].forEach((beacon) => {
 
-				let other = settings.hosts.find((h) => h.domain === host.domain) || null;
+				let other = settings['beacons'].find((b) => b.domain === beacon.domain && b.path === beacon.path) || null;
 				if (other !== null) {
-
-					let index = settings.hosts.indexOf(other);
-					if (index !== -1) {
-						settings.hosts.splice(index, 1);
-					}
-
+					settings['beacons'].remove(other);
 				}
 
-				settings.hosts.push(host);
+				settings['beacons'].push(beacon);
 
 			});
 
-			payload.modes.forEach((mode) => {
+			payload['hosts'].forEach((host) => {
 
-				let other = settings.modes.find((m) => m.domain === mode.domain) || null;
+				let other = settings['hosts'].find((h) => h.domain === host.domain) || null;
 				if (other !== null) {
-
-					let index = settings.modes.indexOf(other);
-					if (index !== -1) {
-						settings.modes.splice(index, 1);
-					}
-
+					settings['hosts'].remove(other);
 				}
 
-				settings.modes.push(mode);
+				settings['hosts'].push(host);
 
 			});
 
-			payload.peers.forEach((peer) => {
+			payload['modes'].forEach((mode) => {
 
-				let other = settings.peers.find((p) => p.domain === peer.domain) || null;
+				let other = settings['modes'].find((m) => m.domain === mode.domain) || null;
 				if (other !== null) {
-
-					let index = settings.peers.indexOf(other);
-					if (index !== -1) {
-						settings.peers.splice(index, 1);
-					}
-
+					settings['modes'].remove(other);
 				}
 
-				settings.peers.push(peer);
+				settings['modes'].push(mode);
+
+			});
+
+			payload['peers'].forEach((peer) => {
+
+				let other = settings['peers'].find((p) => p.domain === peer.domain) || null;
+				if (other !== null) {
+					settings['peers'].remove(other);
+				}
+
+				settings['peers'].push(peer);
 
 			});
 

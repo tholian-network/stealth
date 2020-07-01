@@ -49,9 +49,10 @@ browser-settings button.active {
 
 browser-settings button[disabled],
 browser-settings button[disabled]:hover {
-	color: var(--element-default-color);
-	background: var(--element-default-background);
-	cursor: default;
+	color: var(--element-disable-color);
+	border: 1px solid transparent;
+	background: var(--element-disable-background);
+	cursor: not-allowed;
 }
 
 browser-settings button[disabled].active {

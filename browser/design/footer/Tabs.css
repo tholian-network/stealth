@@ -16,7 +16,7 @@ browser-tabs {
 	border: 0px solid transparent;
 	border-right: 1px solid #666666;
 	transform: translate(-100%, 0%);
-	transition: 200ms all ease-out;
+	transition: 200ms transform ease-out;
 	z-index: 1022;
 	user-select: none;
 	overflow-x: hidden;

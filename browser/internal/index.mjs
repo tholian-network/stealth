@@ -4,7 +4,7 @@ const global = (typeof window !== 'undefined' ? window : this);
 import { isBoolean, isObject, isString } from '../extern/base.mjs';
 import { isBrowser                     } from '../source/Browser.mjs';
 import { URL                           } from '../source/parser/URL.mjs';
-import { Element                       } from './common/Element.mjs';
+import { Element                       } from '../design/Element.mjs';
 
 
 
@@ -13,7 +13,7 @@ const STATE = {
 };
 
 
-export * from './common/Element.mjs';
+export * from '../design/Element.mjs';
 
 
 const oncontext = function(window, browser, element, autofocus) {

@@ -208,6 +208,7 @@ if (args.includes(FILE) === true) {
 	let results = [];
 
 	if (args.includes('clean')) {
+		CACHE = true;
 		results.push(clean());
 	}
 
@@ -216,6 +217,7 @@ if (args.includes(FILE) === true) {
 	}
 
 	if (results.length === 0) {
+		CACHE = true;
 		results.push(clean());
 		results.push(build());
 	}

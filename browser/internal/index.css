@@ -355,6 +355,9 @@ article input[type="radio"]:before {
 	-webkit-font-smoothing: antialiased;
 }
 
+article input[type="radio"][name="interface-theme"][value="dark"]:before  { content: '\e1ad'; }
+article input[type="radio"][name="interface-theme"][value="light"]:before { content: '\e1ac'; }
+
 article input[type="radio"][name="internet-connection"][value="mobile"]:before    { content: '\e1b9'; }
 article input[type="radio"][name="internet-connection"][value="broadband"]:before { content: '\e1ba'; }
 article input[type="radio"][name="internet-connection"][value="peer"]:before      { content: '\e1e2'; }
@@ -372,6 +375,7 @@ article input[type="radio"][name="internet-useragent"][value="browser-desktop"]:
 article input[type="radio"][name="internet-useragent"][value="spider-mobile"]:before   { content: '\e335'; }
 article input[type="radio"][name="internet-useragent"][value="spider-desktop"]:before  { content: '\e335'; }
 
+article input[type="radio"][name="interface-theme"].busy:before,
 article input[type="radio"][name="internet-connection"].busy:before,
 article input[type="radio"][name="internet-history"].busy:before,
 article input[type="radio"][name="internet-useragent"].busy:before {

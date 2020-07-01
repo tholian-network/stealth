@@ -28,7 +28,7 @@ describe('Beacon.prototype.save()', function(assert) {
 		beacons: [{
 			label:  'article',
 			select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
-			mode:   'text'
+			mode:   [ 'text', 'image' ]
 		}]
 	}, (response) => {
 
@@ -54,7 +54,7 @@ describe('Beacon.prototype.read()/success', function(assert) {
 			beacons: [{
 				label:  'article',
 				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
-				mode:   'text'
+				mode:   [ 'text', 'image' ]
 			}]
 		});
 
@@ -105,7 +105,7 @@ describe('Beacon.prototype.save()/all', function(assert) {
 		beacons: [{
 			label:  'topic',
 			select: [ 'h1#awesome-topic' ],
-			mode:   'text'
+			mode:   [ 'text' ]
 		}]
 	}, (response) => {
 
@@ -119,7 +119,7 @@ describe('Beacon.prototype.save()/all', function(assert) {
 		beacons: [{
 			label:  'topic',
 			select: [ 'h1' ],
-			mode:   'text'
+			mode:   [ 'text' ]
 		}]
 	}, (response) => {
 
@@ -133,7 +133,7 @@ describe('Beacon.prototype.save()/all', function(assert) {
 		beacons: [{
 			label:  'topic',
 			select: [ 'h1#awesome-topic' ],
-			mode:   'text'
+			mode:   [ 'text' ]
 		}]
 	}, (response) => {
 
@@ -147,7 +147,7 @@ describe('Beacon.prototype.save()/all', function(assert) {
 		beacons: [{
 			label:  'topic',
 			select: [ 'h3' ],
-			mode:   'text'
+			mode:   [ 'text' ]
 		}]
 	}, (response) => {
 
@@ -173,7 +173,7 @@ describe('Beacon.prototype.query()/domain/all', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}, {
 			domain: 'example.com',
@@ -181,7 +181,7 @@ describe('Beacon.prototype.query()/domain/all', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1#awesome-topic' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}, {
 			domain: 'news.example.com',
@@ -189,7 +189,7 @@ describe('Beacon.prototype.query()/domain/all', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1#awesome-topic' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}, {
 			domain: 'tholian.network',
@@ -197,7 +197,7 @@ describe('Beacon.prototype.query()/domain/all', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h3' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}]);
 
@@ -221,7 +221,7 @@ describe('Beacon.prototype.query()/domain/prefix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}, {
 			domain: 'example.com',
@@ -229,7 +229,7 @@ describe('Beacon.prototype.query()/domain/prefix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1#awesome-topic' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}]);
 
@@ -253,7 +253,7 @@ describe('Beacon.prototype.query()/domain/suffix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}, {
 			domain: 'example.com',
@@ -261,7 +261,7 @@ describe('Beacon.prototype.query()/domain/suffix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1#awesome-topic' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}, {
 			domain: 'news.example.com',
@@ -269,7 +269,7 @@ describe('Beacon.prototype.query()/domain/suffix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1#awesome-topic' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}]);
 
@@ -286,7 +286,7 @@ describe('Beacon.prototype.query()/domain/suffix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h3' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}]);
 
@@ -310,7 +310,7 @@ describe('Beacon.prototype.query()/path/all', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}, {
 			domain: 'example.com',
@@ -318,7 +318,7 @@ describe('Beacon.prototype.query()/path/all', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1#awesome-topic' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}]);
 
@@ -342,7 +342,7 @@ describe('Beacon.prototype.query()/path/prefix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}, {
 			domain: 'example.com',
@@ -350,7 +350,7 @@ describe('Beacon.prototype.query()/path/prefix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1#awesome-topic' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}]);
 
@@ -374,7 +374,7 @@ describe('Beacon.prototype.query()/path/suffix', function(assert) {
 			beacons: [{
 				label:  'topic',
 				select: [ 'h1#awesome-topic' ],
-				mode:   'text'
+				mode:   [ 'text' ]
 			}]
 		}]);
 

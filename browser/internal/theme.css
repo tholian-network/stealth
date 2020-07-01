@@ -1,20 +1,24 @@
 
-body {
+body,
+body[data-theme="dark"] {
 
 	--layout-default-color: #ffffff;
-	--layout-default-background: #121212;
+	--layout-default-background: #000000;
 
 	--layout-focus-color: #ffffff;
 	--layout-focus-background: rgba(255,255,255,0.20);
 
-	--link-default-color: #3399ff;
+	--link-default-color: #22ccff;
 	--link-default-background: transparent;
 
-	--link-focus-color: #3399ff;
+	--link-focus-color: #22ccff;
 	--link-focus-background: rgba(255,255,255,0.20);
 
-	--element-default-color: #999999;
+	--element-default-color: #aaaaaa;
 	--element-default-background: transparent;
+
+	--element-disable-color: #222222;
+	--element-disable-background: transparent;
 
 	--element-focus-color: #ffffff;
 	--element-focus-background: rgba(255,255,255,0.20);
@@ -22,7 +26,7 @@ body {
 	--element-active-color: #ffffff;
 	--element-active-background: rgba(255,255,255,0.10);
 
-	--element-select-color: #3399ff;
+	--element-select-color: #22ccff;
 	--element-select-background: rgba(51,153,255,0.20);
 
 	--scrollbar-default-color: #ffffff;
@@ -30,78 +34,37 @@ body {
 
 }
 
+body[data-theme="light"] {
 
+	--layout-default-color: #111111;
+	--layout-default-background: #eeeeee;
 
-@media (prefers-color-scheme: light) {
+	--layout-focus-color: #111111;
+	--layout-focus-background: rgba(0,0,0,0.20);
 
-	body {
+	--link-default-color: #22ccff;
+	--link-default-background: transparent;
 
-		--layout-default-color: #222222;
-		--layout-default-background: #ededed;
+	--link-focus-color: #22ccff;
+	--link-focus-background: rgba(34,204,255,0.20);
 
-		--layout-focus-color: #222222;
-		--layout-focus-background: rgba(0,0,0,0.20);
+	--element-default-color: #666666;
+	--element-default-background: transparent;
 
-		--link-default-color: #3399ff;
-		--link-default-background: transparent;
+	--element-disable-color: #dddddd;
+	--element-disable-background: transparent;
 
-		--link-focus-color: #3399ff;
-		--link-focus-background: rgba(51,153,255,0.20);
+	--element-focus-color: #22ccff;
+	--element-focus-background: rgba(34,204,255,0.20);
 
-		--element-default-color: #222222;
-		--element-default-background: transparent;
+	--element-active-color: #22ccff;
+	--element-active-background: rgba(34,204,255,0.10);
 
-		--element-focus-color: #3399ff;
-		--element-focus-background: rgba(51,153,255,0.20);
+	--element-select-color: #22ccff;
+	--element-select-background: rgba(34,204,255,0.20);
 
-		--element-active-color: #3399ff;
-		--element-active-background: rgba(51,153,255,0.10);
-
-		--element-select-color: #3399ff;
-		--element-select-background: rgba(51,153,255,0.20);
-
-		--scrollbar-default-color: #222222;
-		--scrollbar-default-background: transparent;
-
-	}
-
-}
-
-
-
-@media (prefers-color-scheme: dark) {
-
-	body {
-
-		--layout-default-color: #ffffff;
-		--layout-default-background: #121212;
-
-		--layout-focus-color: #ffffff;
-		--layout-focus-background: rgba(255,255,255,0.20);
-
-
-		--link-default-color: #3399ff;
-		--link-default-background: transparent;
-
-		--link-focus-color: #3399ff;
-		--link-focus-background: rgba(255,255,255,0.20);
-
-		--element-default-color: #999999;
-		--element-default-background: transparent;
-
-		--element-focus-color: #ffffff;
-		--element-focus-background: rgba(255,255,255,0.20);
-
-		--element-active-color: #ffffff;
-		--element-active-background: rgba(255,255,255,0.10);
-
-		--element-select-color: #3399ff;
-		--element-select-background: rgba(51,153,255,0.20);
-
-		--scrollbar-default-color: #ffffff;
-		--scrollbar-default-background: transparent;
-
-	}
+	--scrollbar-default-color: #111111;
+	--scrollbar-default-background: transparent;
 
 }
 
