@@ -11,11 +11,11 @@ import { init as init_sites     } from './sites.mjs';
 let browser = access('browser');
 if (browser !== null) {
 
-	init_interface(browser, browser.settings);
-	init_internet(browser, browser.settings);
-	init_hosts(browser, browser.settings);
-	init_peers(browser, browser.settings);
-	init_sites(browser, browser.settings);
+	init_interface(browser);
+	init_internet(browser);
+	init_hosts(browser);
+	init_peers(browser);
+	init_sites(browser);
 
 }
 

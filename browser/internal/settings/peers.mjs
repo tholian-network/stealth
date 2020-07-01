@@ -17,7 +17,7 @@ const ELEMENTS = {
 	search: Element.query('#peers-filter input')
 };
 
-export const listen = function(browser, callback) {
+export const listen = function(settings, callback) {
 
 	let domain = ELEMENTS.input.domain || null;
 	if (domain !== null) {
@@ -163,7 +163,7 @@ export const listen = function(browser, callback) {
 	if (search !== null) {
 
 		search.on('change', () => {
-			update(browser.settings);
+			update(settings);
 		});
 
 	}
@@ -247,26 +247,25 @@ export const sort = (a, b) => {
 export const update = (settings, actions) => {
 
 	settings = isObject(settings) ? settings : {};
-	actions  = isArray(actions)   ? actions  : [ 'refresh', 'remove' ];
+	actions  = isArray(actions)   ? actions  : [ 'info', 'refresh', 'remove', 'save' ];
 
 
-	let peers = settings.peers || null;
-	if (peers !== null) {
+	if (isArray(settings['peers']) === true) {
 
 		let visible = 0;
-		let total   = peers.length;
+		let total   = settings['peers'].length;
 		let value   = search();
 
 		if (value === null) {
 
-			ELEMENTS.output.value(peers.sort(sort).map((peer) => {
+			ELEMENTS.output.value(settings['peers'].sort(sort).map((peer) => {
 				visible++;
 				return render(peer, actions, true);
 			}));
 
 		} else if (value !== '') {
 
-			ELEMENTS.output.value(peers.sort(sort).map((peer) => {
+			ELEMENTS.output.value(settings['peers'].sort(sort).map((peer) => {
 
 				if (peer.domain.includes(value)) {
 					visible++;
@@ -279,7 +278,7 @@ export const update = (settings, actions) => {
 
 		} else {
 
-			ELEMENTS.output.value(peers.sort(sort).map((peer) => {
+			ELEMENTS.output.value(settings['peers'].sort(sort).map((peer) => {
 
 				if (peer.domain.includes('.') === false) {
 					visible++;
@@ -303,194 +302,167 @@ export const update = (settings, actions) => {
 
 
 
-export const init = (browser) => {
+export const init = (browser, settings, actions) => {
 
-	listen(browser, (action, data, done) => {
+	actions  = isArray(actions)   ? actions  : [ 'info', 'refresh', 'remove', 'save' ];
+	settings = isObject(settings) ? settings : browser.settings;
 
-		let service = browser.client.services.peer || null;
-		if (service !== null) {
 
-			if (action === 'info') {
+	if (isArray(settings['hosts']) === false) {
+		settings['hosts'] = [];
+	}
 
-				let host_ip = IP.parse(data.domain);
-				if (host_ip.type !== null) {
+	if (isArray(settings['peers']) === false) {
+		settings['peers'] = [];
+	}
 
-					service.proxy({
-						host:    host_ip.ip,
-						headers: {
-							service: 'peer',
-							method:  'info'
-						},
-						payload: null
-					}, (peer) => {
 
-						if (peer !== null) {
+	listen(settings, (action, data, done) => {
 
-							let cache = browser.settings.hosts.find((h) => h.domain === peer.domain) || null;
-							if (cache !== null) {
+		if (action === 'info') {
 
-								let check = cache.hosts.find((h) => h.ip === host_ip.ip) || null;
-								if (check !== null) {
-									done(true, peer);
-								} else {
+			let host_ip = IP.parse(data.domain);
+			if (host_ip.type !== null) {
 
-									cache.hosts.push(host_ip);
+				browser.client.services.peer.proxy({
+					host:    host_ip.ip,
+					headers: {
+						service: 'peer',
+						method:  'info'
+					},
+					payload: null
+				}, (peer) => {
 
-									let hosts_service = browser.client.services.host || null;
-									if (hosts_service !== null) {
-										hosts_service.save(cache, (result) => {
+					if (peer !== null) {
 
-											if (result === true) {
-												update_hosts({
-													hosts: browser.settings.hosts
-												});
-											}
+						let cache = settings['hosts'].find((h) => h.domain === peer.domain) || null;
+						if (cache !== null) {
 
-											done(result, peer);
-
-										});
-									} else {
-										done(false, peer);
-									}
-
-								}
-
+							let check = cache.hosts.find((h) => h.ip === host_ip.ip) || null;
+							if (check !== null) {
+								done(true, peer);
 							} else {
 
-								let hosts_service = browser.client.services.host || null;
-								if (hosts_service !== null) {
-									hosts_service.save({
-										domain: peer.domain,
-										hosts:  [ host_ip ]
-									}, (result) => {
-										done(result, peer);
-									});
-								} else {
-									done(false, peer);
-								}
+								cache.hosts.push(host_ip);
+
+								browser.client.services.host.save(cache, (result) => {
+
+									if (result === true) {
+										update_hosts(settings, actions);
+									}
+
+									done(result, peer);
+
+								});
 
 							}
 
 						} else {
-							done(false);
+
+							browser.client.services.host.save({
+								domain: peer.domain,
+								hosts:  [ host_ip ]
+							}, (result) => {
+								done(result, peer);
+							});
+
 						}
 
-					});
+					} else {
+						done(false);
+					}
 
-				} else {
+				});
 
-					let host_service = browser.client.services.host || null;
-					if (host_service !== null) {
+			} else {
 
-						host_service.read(data, (host) => {
+				browser.client.services.host.read(data, (host) => {
 
-							if (host !== null) {
+					if (host !== null) {
 
-								let cache = browser.settings.hosts.find((h) => h.domain === host.domain) || null;
-								if (cache !== null) {
-									cache.hosts = host.hosts;
-								}
+						let cache = settings['hosts'].find((h) => h.domain === host.domain) || null;
+						if (cache !== null) {
+							cache.hosts = host.hosts;
+						}
 
-								update_hosts({
-									hosts: browser.settings.hosts
-								});
+						update_hosts(settings, actions);
 
-								service.proxy({
-									domain:  host.domain,
-									headers: {
-										service: 'peer',
-										method:  'info'
-									},
-									payload: null
-								}, (peer) => {
-									done(peer !== null, peer);
-								});
-
-							} else {
-								done(false);
-							}
-
+						browser.client.services.peer.proxy({
+							domain:  host.domain,
+							headers: {
+								service: 'peer',
+								method:  'info'
+							},
+							payload: null
+						}, (peer) => {
+							done(peer !== null, peer);
 						});
 
 					} else {
 						done(false);
 					}
 
+				});
+
+			}
+
+		} else if (action === 'refresh') {
+
+			browser.client.services.peer.refresh(data, (peer) => {
+
+				if (peer !== null) {
+
+					let cache = settings['peers'].find((p) => p.domain === peer.domain) || null;
+					if (cache !== null) {
+						cache.connection = data.connection;
+					}
+
+					update(settings, actions);
+
 				}
 
-			} else if (action === 'refresh') {
+				done(peer !== null);
 
-				service.refresh(data, (peer) => {
+			});
 
-					if (peer !== null) {
+		} else if (action === 'remove') {
 
-						let cache = browser.settings.peers.find((p) => p.domain === peer.domain) || null;
-						if (cache !== null) {
-							cache.connection = data.connection;
-						}
+			browser.client.services.peer.remove(data, (result) => {
 
-						update({
-							peers: browser.settings.peers
-						});
+				if (result === true) {
 
+					let cache = settings['peers'].find((p) => p.domain === data.domain) || null;
+					if (cache !== null) {
+						settings['peers'].remove(cache);
+						update(settings, actions);
 					}
 
-					done(peer !== null);
+				}
 
-				});
+				done(result);
 
-			} else if (action === 'remove') {
+			});
 
-				service.remove(data, (result) => {
+		} else if (action === 'save') {
 
-					if (result === true) {
+			browser.client.services.peer.save(data, (result) => {
 
-						let cache = browser.settings.peers.find((p) => p.domain === data.domain) || null;
-						if (cache !== null) {
+				if (result === true) {
 
-							let index = browser.settings.peers.indexOf(cache);
-							if (index !== -1) {
-								browser.settings.peers.splice(index, 1);
-							}
-
-							update({
-								peers: browser.settings.peers
-							});
-
-						}
-
+					let cache = settings['peers'].find((p) => p.domain === data.domain) || null;
+					if (cache !== null) {
+						cache.connection = data.connection;
+					} else {
+						settings['peers'].push(data);
 					}
 
-					done(result);
+					update(settings, actions);
 
-				});
+				}
 
-			} else if (action === 'save') {
+				done(result);
 
-				service.save(data, (result) => {
-
-					if (result === true) {
-
-						let cache = browser.settings.peers.find((p) => p.domain === data.domain) || null;
-						if (cache !== null) {
-							cache.connection = data.connection;
-						} else {
-							browser.settings.peers.push(data);
-						}
-
-						update({
-							peers: browser.settings.peers
-						});
-
-					}
-
-					done(result);
-
-				});
-
-			} else {
-				done(false);
-			}
+			});
 
 		} else {
 			done(false);
@@ -500,7 +472,7 @@ export const init = (browser) => {
 
 	reset();
 
-	update(browser.settings);
+	update(settings, actions);
 
 };
 

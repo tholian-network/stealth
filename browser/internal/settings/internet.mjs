@@ -1,6 +1,6 @@
 
-import { isObject, isString } from '../../extern/base.mjs';
-import { Element            } from '../../internal/index.mjs';
+import { isArray, isObject, isString } from '../../extern/base.mjs';
+import { Element                     } from '../../internal/index.mjs';
 
 
 
@@ -10,7 +10,7 @@ const ELEMENTS = {
 	useragent:  Element.query('#internet-useragent input')
 };
 
-export const listen = function(browser, callback) {
+export const listen = function(settings, callback) {
 
 	Object.keys(ELEMENTS).forEach((type) => {
 
@@ -21,7 +21,7 @@ export const listen = function(browser, callback) {
 				let active = others.find((o) => o.attr('checked') === true) || null;
 				if (active !== null) {
 
-					let cur_val = browser.settings['internet'][type];
+					let cur_val = settings['internet'][type];
 					let new_val = active.value();
 
 					if (cur_val !== new_val) {
@@ -30,7 +30,7 @@ export const listen = function(browser, callback) {
 						element.state('busy');
 
 						callback('save', {
-							'internet': Object.assign({}, browser.settings['internet'], { [type]: new_val })
+							'internet': Object.assign({}, settings['internet'], { [type]: new_val })
 						}, (result) => {
 							element.state('enabled');
 							element.state(result === true ? '' : 'error');
@@ -99,36 +99,36 @@ export const update = function(settings) {
 
 
 
-export const init = function(browser) {
+export const init = function(browser, settings, actions) {
 
-	listen(browser, (action, data, done) => {
+	actions  = isArray(actions)   ? actions  : [ 'save' ];
+	settings = isObject(settings) ? settings : browser.settings;
 
-		let service = browser.client.services.settings || null;
-		if (service !== null) {
 
-			if (action === 'save') {
+	if (isObject(settings['internet']) === false) {
+		settings['internet'] = {};
+	}
 
-				service.save(data, (result) => {
 
-					if (result === true) {
+	listen(settings, (action, data, done) => {
 
-						Object.keys(data['internet']).forEach((key) => {
-							browser.settings['internet'][key] = data['internet'][key];
-						});
+		if (action === 'save') {
 
-						update({
-							'internet': browser.settings['internet']
-						});
+			browser.client.services.settings.save(data, (result) => {
 
-					}
+				if (result === true) {
 
-					done(result);
+					Object.keys(data['internet']).forEach((key) => {
+						settings['internet'][key] = data['internet'][key];
+					});
 
-				});
+					update(settings, actions);
 
-			} else {
-				done(false);
-			}
+				}
+
+				done(result);
+
+			});
 
 		} else {
 			done(false);
@@ -136,7 +136,7 @@ export const init = function(browser) {
 
 	});
 
-	update(browser.settings);
+	update(settings, actions);
 
 };
 

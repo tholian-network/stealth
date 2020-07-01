@@ -18,7 +18,7 @@ const ELEMENTS = {
 	}
 };
 
-const listen = (browser, callback) => {
+const listen = (settings, callback) => {
 
 	let output = ELEMENTS.peers.output || null;
 	if (output !== null) {
@@ -124,12 +124,11 @@ const update = () => {
 let browser = access('browser');
 if (browser !== null) {
 
-	let service = browser.client.services.peer || null;
-	if (service !== null && browser.settings.peers.length > 0) {
+	if (browser.settings['peers'].length > 0) {
 
-		browser.settings.peers.forEach((peer) => {
+		browser.settings['peers'].forEach((peer) => {
 
-			service.proxy({
+			browser.client.services.peer.proxy({
 				domain:  peer.domain,
 				headers: {
 					service: 'cache',
@@ -193,88 +192,67 @@ if (browser !== null) {
 
 	}
 
-	listen(browser, (action, data, done) => {
+	listen(browser.settings, (action, data, done) => {
 
-		let service = browser.client.services.peer || null;
-		if (service !== null) {
+		if (action === 'request') {
 
-			if (action === 'request') {
+			browser.client.services.peer.proxy({
+				domain:  data.domain,
+				headers: {
+					service: 'session',
+					method:  'request'
+				},
+				payload: ENVIRONMENT.flags.url
+			}, (response) => {
 
-				service.proxy({
-					domain:  data.domain,
-					headers: {
-						service: 'session',
-						method:  'request'
-					},
-					payload: ENVIRONMENT.flags.url
-				}, (response) => {
+				if (response !== null) {
 
-					if (response !== null) {
+					browser.client.services.cache.save({
+						domain:    ENVIRONMENT.flags.url.domain    || null,
+						host:      ENVIRONMENT.flags.url.host      || null,
+						subdomain: ENVIRONMENT.flags.url.subdomain || null,
+						path:      ENVIRONMENT.flags.url.path      || null,
+						headers:   response.headers || null,
+						payload:   response.payload || null
+					}, (result) => {
+						done(result);
+					});
 
-						let service = browser.client.services.cache || null;
-						if (service !== null) {
+				} else {
+					done(false);
+				}
 
-							service.save({
-								domain:    ENVIRONMENT.flags.url.domain    || null,
-								host:      ENVIRONMENT.flags.url.host      || null,
-								subdomain: ENVIRONMENT.flags.url.subdomain || null,
-								path:      ENVIRONMENT.flags.url.path      || null,
-								headers:   response.headers || null,
-								payload:   response.payload || null
-							}, (result) => {
-								done(result);
-							});
+			});
 
-						} else {
-							done(false);
-						}
+		} else if (action === 'download') {
 
-					} else {
-						done(false);
-					}
+			browser.client.services.peer.proxy({
+				domain:  data.domain,
+				headers: {
+					service: 'cache',
+					method:  'read'
+				},
+				payload: ENVIRONMENT.flags.url
+			}, (response) => {
 
-				});
+				if (response !== null) {
 
-			} else if (action === 'download') {
+					browser.client.services.cache.save({
+						domain:    ENVIRONMENT.flags.url.domain    || null,
+						host:      ENVIRONMENT.flags.url.host      || null,
+						subdomain: ENVIRONMENT.flags.url.subdomain || null,
+						path:      ENVIRONMENT.flags.url.path      || null,
+						headers:   response.headers || null,
+						payload:   response.payload || null
+					}, (result) => {
+						done(result);
+					});
 
-				service.proxy({
-					domain:  data.domain,
-					headers: {
-						service: 'cache',
-						method:  'read'
-					},
-					payload: ENVIRONMENT.flags.url
-				}, (response) => {
+				} else {
+					done(false);
+				}
 
-					if (response !== null) {
-
-						let service = browser.client.services.cache || null;
-						if (service !== null) {
-
-							service.save({
-								domain:    ENVIRONMENT.flags.url.domain    || null,
-								host:      ENVIRONMENT.flags.url.host      || null,
-								subdomain: ENVIRONMENT.flags.url.subdomain || null,
-								path:      ENVIRONMENT.flags.url.path      || null,
-								headers:   response.headers || null,
-								payload:   response.payload || null
-							}, (result) => {
-								done(result);
-							});
-
-						} else {
-							done(false);
-						}
-
-					} else {
-						done(false);
-					}
-
-				});
-
-			} else {
-				done(false);
-			}
+			});
 
 		} else {
 			done(false);

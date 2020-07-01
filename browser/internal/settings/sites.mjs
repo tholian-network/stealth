@@ -7,9 +7,6 @@ import { Element           } from '../../internal/index.mjs';
 const ELEMENTS = {
 
 	beacons: {
-		input: {
-			// TODO: Query Beacon input elements
-		},
 		output: Element.query('#sites-beacons tbody')
 	},
 
@@ -33,7 +30,49 @@ const ELEMENTS = {
 
 };
 
-const listen_modes = (browser, callback) => {
+const listen_beacons = (settings, callback) => {
+
+	let output = ELEMENTS.beacons.output || null;
+	if (output !== null) {
+
+		output.on('click', (e) => {
+
+			let target = e.target;
+			let type   = target.tagName.toLowerCase();
+
+			if (type === 'button') {
+
+				let button  = Element.from(target, null, false);
+				let action  = button.attr('data-action');
+				let dataset = button.parent('tr');
+
+				if (action !== null) {
+
+					button.state('disabled');
+					button.state('busy');
+
+					// TODO: save action would require beacons
+					callback(action, {
+						'domain': dataset.query('*[data-key="domain"]').value() || null,
+						'path':   dataset.query('*[data-key="path"]').value()   || null
+					}, (result) => {
+
+						button.state('enabled');
+						button.state(result === true ? '' : 'error');
+
+					});
+
+				}
+
+			}
+
+		});
+
+	}
+
+};
+
+const listen_modes = (settings, callback) => {
 
 	let button = ELEMENTS.modes.input.button || null;
 	if (button !== null) {
@@ -153,14 +192,7 @@ const render_mode = (mode, actions, visible) => `
 
 export const reset = () => {
 
-	reset_beacons();
 	reset_modes();
-
-};
-
-export const reset_beacons = () => {
-
-	// TODO: Reset Beacon input elements
 
 };
 
@@ -209,6 +241,42 @@ const search = () => {
 
 };
 
+const sort_beacon = (a, b) => {
+
+	let a_domains = a.domain.split('.').reverse();
+	let b_domains = b.domain.split('.').reverse();
+
+	let max = Math.max(a_domains.length, b_domains.length);
+
+	for (let d = 0; d < max; d++) {
+
+		let a_domain = a_domains[d] || null;
+		let b_domain = b_domains[d] || null;
+
+		if (a_domain === null) {
+
+			if (b_domain === null) {
+				return 0;
+			} else {
+				return -1;
+			}
+
+		} else if (b_domain === null) {
+			return 1;
+		}
+
+		if (a_domain > b_domain) return  1;
+		if (b_domain > a_domain) return -1;
+
+	}
+
+	if (a.path < b.path) return -1;
+	if (b.path < a.path) return  1;
+
+	return 0;
+
+};
+
 const sort_mode = (a, b) => {
 
 	let a_domains = a.domain.split('.').reverse();
@@ -242,13 +310,6 @@ const sort_mode = (a, b) => {
 
 };
 
-const sort_beacon = (a, b) => {
-
-	// TODO: Sort Beacon datasets correctly
-	return sort_mode(a, b);
-
-};
-
 export const update = (settings, actions) => {
 
 	settings = isObject(settings) ? settings : {};
@@ -259,21 +320,20 @@ export const update = (settings, actions) => {
 	let total   = 0;
 	let value   = search();
 
-	let beacons = settings.beacons || null;
-	if (beacons !== null) {
+	if (isArray(settings['beacons']) === true) {
 
-		total += beacons.length;
+		total += settings['beacons'].length;
 
 		if (value === null) {
 
-			ELEMENTS.beacons.output.value(beacons.sort(sort_beacon).map((beacon) => {
+			ELEMENTS.beacons.output.value(settings['beacons'].sort(sort_beacon).map((beacon) => {
 				visible++;
 				return render_beacon(beacon, [ 'remove' ], true);
 			}));
 
 		} else if (value !== '') {
 
-			ELEMENTS.beacons.output.value(beacons.sort(sort_beacon).map((beacon) => {
+			ELEMENTS.beacons.output.value(settings['beacons'].sort(sort_beacon).map((beacon) => {
 
 				if (beacon.domain.includes(value)) {
 					visible++;
@@ -286,7 +346,7 @@ export const update = (settings, actions) => {
 
 		} else {
 
-			ELEMENTS.beacons.output.value(beacons.sort(sort_beacon).map((beacon) => {
+			ELEMENTS.beacons.output.value(settings['beacons'].sort(sort_beacon).map((beacon) => {
 
 				if (beacon.domain.includes('.') === false) {
 					visible++;
@@ -301,21 +361,20 @@ export const update = (settings, actions) => {
 
 	}
 
-	let modes = settings.modes || null;
-	if (modes !== null) {
+	if (isArray(settings['modes']) === true) {
 
-		total += modes.length;
+		total += settings['modes'].length;
 
 		if (value === null) {
 
-			ELEMENTS.modes.output.value(modes.sort(sort_mode).map((mode) => {
+			ELEMENTS.modes.output.value(settings['modes'].sort(sort_mode).map((mode) => {
 				visible++;
 				return render_mode(mode, actions, true);
 			}));
 
 		} else if (value !== '') {
 
-			ELEMENTS.modes.output.value(modes.sort(sort_mode).map((mode) => {
+			ELEMENTS.modes.output.value(settings['modes'].sort(sort_mode).map((mode) => {
 
 				if (mode.domain.includes(value)) {
 					visible++;
@@ -328,7 +387,7 @@ export const update = (settings, actions) => {
 
 		} else {
 
-			ELEMENTS.modes.output.value(modes.sort(sort_mode).map((mode) => {
+			ELEMENTS.modes.output.value(settings['modes'].sort(sort_mode).map((mode) => {
 
 				if (mode.domain.includes('.') === false) {
 					visible++;
@@ -354,72 +413,89 @@ export const update = (settings, actions) => {
 
 export const init = (browser, settings, actions) => {
 
-	settings = isObject(settings) ? settings : browser.settings;
 	actions  = isArray(actions)   ? actions  : [ 'remove', 'save' ];
+	settings = isObject(settings) ? settings : browser.settings;
 
-	// TODO: listen_beacons()
 
-	listen_modes(browser, (action, data, done) => {
+	if (isArray(settings['beacons']) === false) {
+		settings['beacons'] = [];
+	}
 
-		let service = browser.client.services.mode || null;
-		if (service !== null) {
+	if (isArray(settings['modes']) === false) {
+		settings['modes'] = [];
+	}
 
-			if (action === 'remove') {
 
-				service.remove(data, (result) => {
+	listen_beacons(settings, (action, data, done) => {
 
-					if (result === true) {
+		if (action === 'remove') {
 
-						let cache = settings.modes.find((m) => m.domain === data.domain) || null;
-						if (cache !== null) {
+			browser.client.services.beacon.remove(data, (result) => {
 
-							let index = settings.modes.indexOf(cache);
-							if (index !== -1) {
-								settings.modes.splice(index, 1);
-							}
+				if (result === true) {
 
-							update({
-								modes: settings.modes
-							}, actions);
-
-						}
-
+					let cache = settings['beacons'].find((b) => b.domain === data.domain && b.path === data.path) || null;
+					if (cache !== null) {
+						settings['beacons'].remove(cache);
+						update(settings, actions);
 					}
 
-					done(result);
+				}
 
-				});
+				done(result);
 
-			} else if (action === 'save') {
+			});
 
-				service.save(data, (result) => {
+		} else {
+			done(false);
+		}
 
-					if (result === true) {
+	});
 
-						let cache = settings.modes.find((m) => m.domain === data.domain) || null;
-						if (cache !== null) {
-							cache.mode.text  = data.mode.text  === true;
-							cache.mode.image = data.mode.image === true;
-							cache.mode.audio = data.mode.audio === true;
-							cache.mode.video = data.mode.video === true;
-							cache.mode.other = data.mode.other === true;
-						} else {
-							settings.modes.push(data);
-						}
+	listen_modes(settings, (action, data, done) => {
 
-						update({
-							modes: settings.modes
-						}, actions);
+		if (action === 'remove') {
 
+			browser.client.services.mode.remove(data, (result) => {
+
+				if (result === true) {
+
+					let cache = settings['modes'].find((m) => m.domain === data.domain) || null;
+					if (cache !== null) {
+						settings['modes'].remove(cache);
+						update(settings, actions);
 					}
 
-					done(result);
+				}
 
-				});
+				done(result);
 
-			} else {
-				done(false);
-			}
+			});
+
+		} else if (action === 'save') {
+
+			browser.client.services.mode.save(data, (result) => {
+
+				if (result === true) {
+
+					let cache = settings['modes'].find((m) => m.domain === data.domain) || null;
+					if (cache !== null) {
+						cache.mode.text  = data.mode.text  === true;
+						cache.mode.image = data.mode.image === true;
+						cache.mode.audio = data.mode.audio === true;
+						cache.mode.video = data.mode.video === true;
+						cache.mode.other = data.mode.other === true;
+					} else {
+						settings['modes'].push(data);
+					}
+
+					update(settings, actions);
+
+				}
+
+				done(result);
+
+			});
 
 		} else {
 			done(false);

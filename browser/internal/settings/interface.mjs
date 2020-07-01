@@ -1,6 +1,6 @@
 
-import { isObject, isString } from '../../extern/base.mjs';
-import { Element            } from '../../internal/index.mjs';
+import { isArray, isObject, isString } from '../../extern/base.mjs';
+import { Element                     } from '../../internal/index.mjs';
 
 
 
@@ -8,7 +8,7 @@ const ELEMENTS = {
 	theme: Element.query('#interface-theme input')
 };
 
-export const listen = function(browser, callback) {
+export const listen = function(settings, callback) {
 
 	Object.keys(ELEMENTS).forEach((type) => {
 
@@ -19,7 +19,7 @@ export const listen = function(browser, callback) {
 				let active = others.find((o) => o.attr('checked') === true) || null;
 				if (active !== null) {
 
-					let cur_val = browser.settings['interface'][type];
+					let cur_val = settings['interface'][type];
 					let new_val = active.value();
 
 					if (cur_val !== new_val) {
@@ -28,7 +28,7 @@ export const listen = function(browser, callback) {
 						element.state('busy');
 
 						callback('save', {
-							'interface': Object.assign({}, browser.settings['interface'], { [type]: new_val })
+							'interface': Object.assign({}, settings['interface'], { [type]: new_val })
 						}, (result) => {
 							element.state('enabled');
 							element.state(result === true ? '' : 'error');
@@ -78,38 +78,38 @@ export const update = function(settings) {
 
 
 
-export const init = function(browser) {
+export const init = function(browser, settings, actions) {
 
-	listen(browser, (action, data, done) => {
+	actions  = isArray(actions)   ? actions  : [ 'save' ];
+	settings = isObject(settings) ? settings : browser.settings;
 
-		let service = browser.client.services.settings || null;
-		if (service !== null) {
 
-			if (action === 'save') {
+	if (isObject(settings['interface']) === false) {
+		settings['interface'] = {};
+	}
 
-				service.save(data, (result) => {
 
-					if (result === true) {
+	listen(settings, (action, data, done) => {
 
-						Object.keys(data['interface']).forEach((key) => {
-							browser.settings['interface'][key] = data['interface'][key];
-						});
+		if (action === 'save') {
 
-						update({
-							'interface': browser.settings['interface']
-						});
+			browser.client.services.settings.save(data, (result) => {
 
-						browser.emit('theme', [ browser.settings['interface'].theme ]);
+				if (result === true) {
 
-					}
+					Object.keys(data['interface']).forEach((key) => {
+						settings['interface'][key] = data['interface'][key];
+					});
 
-					done(result);
+					update(settings, actions);
 
-				});
+					browser.emit('theme', [ settings['interface'].theme ]);
 
-			} else {
-				done(false);
-			}
+				}
+
+				done(result);
+
+			});
 
 		} else {
 			done(false);
@@ -117,7 +117,7 @@ export const init = function(browser) {
 
 	});
 
-	update(browser.settings);
+	update(settings, actions);
 
 };
 
