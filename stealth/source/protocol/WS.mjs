@@ -903,45 +903,54 @@ const WS = {
 
 
 			let data = decode(connection, buffer);
+			if (data !== null) {
 
-			if (data.close === true) {
-				connection.socket.end();
-			}
-
-			if (data.response !== null) {
-
-				if (connection.socket !== null) {
-					connection.socket.write(data.response);
+				if (data.close === true) {
+					connection.socket.end();
 				}
 
-			} else if (data.fragment === true) {
+				if (data.response !== null) {
 
-				connection.fragment.buffer = buffer;
+					if (connection.socket !== null) {
+						connection.socket.write(data.response);
+					}
 
-			} else {
+				} else if (data.fragment === true) {
 
-				// Special case: Deserialize Buffer instances
-				if (isObject(data.payload) === true) {
+					connection.fragment.buffer = buffer;
 
-					if (data.payload.type === 'Buffer') {
-						data.payload = Buffer.from(data.payload.data);
+				} else {
+
+					// Special case: Deserialize Buffer instances
+					if (isObject(data.payload) === true) {
+
+						if (data.payload.type === 'Buffer') {
+							data.payload = Buffer.from(data.payload.data);
+						}
+
+					}
+
+
+					if (callback !== null) {
+
+						callback({
+							headers: data.headers,
+							payload: data.payload
+						});
+
+					}
+
+					// Special case: Network gave us multiple Buffers
+					if (data.overflow !== null) {
+						WS.receive(connection, data.overflow, callback);
 					}
 
 				}
 
+			} else {
 
 				if (callback !== null) {
-
-					callback({
-						headers: data.headers,
-						payload: data.payload
-					});
-
-				}
-
-				// Special case: Network gave us multiple Buffers
-				if (data.overflow !== null) {
-					WS.receive(connection, data.overflow, callback);
+					callback(null);
 				}
 
 			}
