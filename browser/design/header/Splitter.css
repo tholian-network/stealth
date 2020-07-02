@@ -66,11 +66,7 @@ header button[data-key="splitter"]:before {
 	content: '\e5d4';
 }
 
-browser-splitter > browser-history {
-	margin-right: 32px;
-}
-
 browser-splitter > browser-mode {
-	margin-right: 32px;
+	width: calc(100% - 128px - 96px);
 }
 
