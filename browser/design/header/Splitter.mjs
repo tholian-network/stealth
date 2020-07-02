@@ -1,10 +1,9 @@
 
-import { Element  } from '../../design/index.mjs';
-import { isString } from '../../extern/base.mjs';
+import { Element } from '../../design/index.mjs';
 
 
 
-const render = function() {
+const update = function() {
 
 	if (this.header !== null) {
 
@@ -51,28 +50,48 @@ const Splitter = function(browser, widgets) {
 	this.__state = '';
 
 
+	this.button.attr('data-key', 'splitter');
+	this.button.attr('title',    'Show additional Settings');
+
 	this.widgets['history']  = widgets['history'];
 	this.widgets['address']  = widgets['address'];
 	this.widgets['mode']     = widgets['mode'];
 	this.widgets['settings'] = widgets['settings'];
 
 
-	this.button.attr('data-key', 'splitter');
-	this.button.attr('title',    'Show additional Settings');
-
 	this.button.on('click', () => {
 
 		if (this.element.state() === 'active') {
-
-			this.button.state('');
-			this.element.state('');
-
+			this.element.emit('hide');
 		} else {
-
-			this.button.state('active');
-			this.element.state('active');
-
+			this.element.emit('show');
 		}
+
+	});
+
+	this.element.on('hide', () => {
+
+		this.button.state('');
+		this.element.state('');
+
+	});
+
+	this.element.on('resize', (width /*, height */) => {
+
+		if (width < 640) {
+			this.__state = 'active';
+		} else {
+			this.__state = '';
+		}
+
+		update.call(this);
+
+	});
+
+	this.element.on('show', () => {
+
+		this.button.state('active');
+		this.element.state('active');
 
 	});
 
@@ -87,37 +106,10 @@ Splitter.prototype = {
 
 
 		if (element !== null) {
-
 			this.header = element;
-			render.call(this);
-
 		} else {
-
 			this.header = null;
-			render.call(this);
-
 		}
-
-	},
-
-	state: function(state) {
-
-		state = isString(state) ? state : null;
-
-
-		if (state === 'active') {
-
-			this.__state = 'active';
-			render.call(this);
-
-		} else {
-
-			this.__state = '';
-			render.call(this);
-
-		}
-
-		return true;
 
 	}
 

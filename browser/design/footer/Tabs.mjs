@@ -60,6 +60,63 @@ const sort_by_id = function(a, b) {
 
 };
 
+const update_area = function() {
+
+	let area = this.element.area();
+	if (area !== null) {
+
+		if (this.__state === 'active') {
+
+			let webview = Element.query('browser-webview');
+			if (webview !== null) {
+				webview.area({
+					x: area.w > 1 ? area.w : null
+				});
+			}
+
+			let site = Element.query('browser-site');
+			if (site !== null) {
+				site.area({
+					x: area.w > 1 ? area.w : null
+				});
+			}
+
+			let session = Element.query('browser-session');
+			if (session !== null) {
+				session.area({
+					x: area.w > 1 ? area.w : null
+				});
+			}
+
+		} else {
+
+			let webview = Element.query('browser-webview');
+			if (webview !== null) {
+				webview.area({
+					x: null
+				});
+			}
+
+			let site = Element.query('browser-site');
+			if (site !== null) {
+				site.area({
+					x: null
+				});
+			}
+
+			let session = Element.query('browser-session');
+			if (session !== null) {
+				session.area({
+					x: null
+				});
+			}
+
+		}
+
+	}
+
+};
+
 const update = function(tab, tabs) {
 
 	if (tabs.length > 1) {
@@ -124,11 +181,15 @@ const update = function(tab, tabs) {
 			this.buttons = buttons;
 			this.element.state('active');
 			this.element.value(this.buttons);
+			update_area.call(this);
 
 		} else {
+
 			this.buttons = [];
 			this.element.state('');
 			this.element.value('');
+			update_area.call(this);
+
 		}
 
 	} else {
@@ -136,40 +197,7 @@ const update = function(tab, tabs) {
 		this.buttons = [];
 		this.element.state('');
 		this.element.value('');
-
-	}
-
-
-	let area = this.element.area();
-	if (area !== null) {
-
-		let webview = Element.query('browser-webview');
-		if (webview !== null) {
-			webview.area({
-				x: area.w > 1 ? area.w : null
-			});
-		}
-
-		let beacon = Element.query('browser-beacon');
-		if (beacon !== null) {
-			beacon.area({
-				x: area.w > 1 ? area.w : null
-			});
-		}
-
-		let site = Element.query('browser-site');
-		if (site !== null) {
-			site.area({
-				x: area.w > 1 ? area.w : null
-			});
-		}
-
-		let session = Element.query('browser-session');
-		if (session !== null) {
-			session.area({
-				x: area.w > 1 ? area.w : null
-			});
-		}
+		update_area.call(this);
 
 	}
 
@@ -187,6 +215,8 @@ const Tabs = function(browser, widgets) {
 	this.curr = null;
 	this.next = null;
 	this.prev = null;
+
+	this.__state = 'active';
 
 
 	this.element.on('click', (e) => {
@@ -292,6 +322,46 @@ const Tabs = function(browser, widgets) {
 
 	});
 
+	this.element.on('hide', () => {
+		this.element.state('');
+	});
+
+	this.element.on('resize', (width /*, height */) => {
+
+		if (width < 640) {
+			this.__state = '';
+			this.element.state('');
+		} else {
+			this.__state = 'active';
+			this.element.state('active');
+		}
+
+		update_area.call(this);
+
+	});
+
+	this.element.on('show', () => {
+
+		if (this.buttons.length > 0) {
+			this.element.state('active');
+		}
+
+	});
+
+
+	let splitter = widgets.splitter || null;
+	if (splitter !== null) {
+
+		splitter.element.on('show', () => {
+			this.element.emit('show');
+		});
+
+		splitter.element.on('hide', () => {
+			this.element.emit('hide');
+		});
+
+	}
+
 
 	browser.on('show',    (tab, tabs) => update.call(this, tab, tabs));
 	browser.on('refresh', (tab, tabs) => update.call(this, tab, tabs));
@@ -305,8 +375,14 @@ Tabs.prototype = {
 		this.element.erase(target);
 	},
 
+	hide: function() {
+	},
+
 	render: function(target) {
 		this.element.render(target);
+	},
+
+	show: function() {
 	}
 
 };

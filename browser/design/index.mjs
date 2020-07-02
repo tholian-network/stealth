@@ -17,9 +17,14 @@ import { Webview   } from './main/Webview.mjs';
 
 const on_resize = function() {
 
-	let splitter = WIDGETS.splitter || null;
-	if (splitter !== null) {
-		splitter.state(this.innerWidth < 640 ? 'active' : '');
+	let width  = this.innerWidth  || null;
+	let height = this.innerHeight || null;
+
+	if (width !== null && height !== null) {
+
+		WIDGETS.splitter.element.emit('resize', [ width, height ]);
+		WIDGETS.tabs.element.emit('resize', [ width, height ]);
+
 	}
 
 };

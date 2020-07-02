@@ -118,3 +118,13 @@ browser-tabs button[title^="ws:"]:before      { content: '\e898'; }
 browser-tabs button[title^="socks:"]:before   { content: '\e32a'; }
 browser-tabs button[title^="stealth:"]:before { content: '\e8b8'; }
 
+
+
+@media screen and (max-width: 640px) {
+
+	browser-tabs {
+		right: 0px;
+	}
+
+}
+
