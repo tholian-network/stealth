@@ -22,5 +22,6 @@ browser-webview iframe {
 	height: 100%;
 	border: 0px solid transparent;
 	box-sizing: border-box;
+	-webkit-overflow-scrolling: touch;
 }
 

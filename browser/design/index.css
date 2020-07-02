@@ -4,6 +4,7 @@
 @import url("./header/Address.css");
 @import url("./header/Mode.css");
 @import url("./header/Settings.css");
+@import url("./header/Splitter.css");
 
 @import url("./main/Webview.css");
 
@@ -26,12 +27,12 @@
  *         ... browser-address
  *         ... browser-mode
  *         ... browser-settings
+ *         ... browser-splitter
  *
  * 1023 => footer => browser-context
  * 1022 => footer => browser-tabs
  *
  *  512 => footer
- *         ... browser-beacon
  *         ... browser-site
  *         ... browser-session
  *
@@ -65,6 +66,7 @@ header {
 	z-index: 1024;
 	border: 0px solid transparent;
 	border-bottom: 1px solid #666666;
+	background: var(--layout-default-background);
 	box-sizing: border-box;
 	vertical-align: middle;
 }

@@ -1,0 +1,76 @@
+
+browser-splitter {
+	display: block;
+	position: absolute;
+	width: 100%;
+	width: calc(100% - 32px);
+	height: 40px;
+	line-height: 32px;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 32px;
+	border: 0px solid transparent;
+	border-bottom: 1px solid #666666;
+	background: var(--layout-default-background);
+	box-sizing: border-box;
+	text-align: center;
+	vertical-align: middle;
+	pointer-events: none;
+	transition: 200ms opacity ease-out;
+	opacity: 0;
+	z-index: 3;
+}
+
+browser-splitter.active {
+	pointer-events: all;
+	transition: 200ms opacity ease-out;
+	opacity: 1;
+}
+
+header button[data-key="splitter"] {
+	display: inline-block;
+	min-width: 32px;
+	margin: 0px;
+	padding: 0px;
+	line-height: 32px;
+	height: 32px;
+	color: var(--element-default-color);
+	font-size: 24px;
+	text-align: center;
+	background: var(--element-default-background);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	vertical-align: middle;
+	user-select: none;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+header button[data-key="splitter"].active {
+	color: var(--element-active-color);
+}
+
+header button[data-key="splitter"]:before {
+	display: inline-block;
+	width: 100%;
+	font-family: 'icon';
+	text-align: center;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+	content: '\e5d4';
+}
+
+browser-splitter > browser-history {
+	margin-right: 32px;
+}
+
+browser-splitter > browser-mode {
+	margin-right: 32px;
+}
+

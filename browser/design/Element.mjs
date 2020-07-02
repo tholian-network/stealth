@@ -588,12 +588,32 @@ Element.prototype = {
 
 	erase: function(target) {
 
-		target = isElement(target) ? target : null;
+		if (Element.isElement(target) === true) {
 
+			if (isFunction(target.element.removeChild) === true) {
 
-		if (target !== null) {
+				if (this.element !== null) {
+					target.element.removeChild(this.element);
+				}
 
-			if (isFunction(target.removeChild)) {
+				if (this.element !== null) {
+
+					let index1 = CACHE.reality.indexOf(this.element);
+					let index2 = CACHE.virtual.indexOf(this);
+					if (index1 !== -1 && index2 !== -1 && index1 === index2) {
+						CACHE.reality.splice(index1, 1);
+						CACHE.virtual.splice(index2, 1);
+					}
+
+				}
+
+			}
+
+			return true;
+
+		} else if (isElement(target) === true) {
+
+			if (isFunction(target.removeChild) === true) {
 
 				if (this.element !== null) {
 					target.removeChild(this.element);
@@ -872,12 +892,21 @@ Element.prototype = {
 
 	render: function(target) {
 
-		target = isElement(target) ? target : null;
+		if (Element.isElement(target) === true) {
 
+			if (isFunction(target.element.appendChild) === true) {
 
-		if (target !== null) {
+				if (this.element !== null) {
+					target.element.appendChild(this.element);
+				}
 
-			if (isFunction(target.appendChild)) {
+			}
+
+			return true;
+
+		} else if (isElement(target) === true) {
+
+			if (isFunction(target.appendChild) === true) {
 
 				if (this.element !== null) {
 					target.appendChild(this.element);

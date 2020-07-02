@@ -2,7 +2,7 @@
 browser-address {
 	display: inline-block;
 	position: relative;
-	width: calc(100% - 128px - 160px - 128px);
+	width: auto;
 	height: 32px;
 	margin: 0px;
 	padding: 0px;
@@ -12,6 +12,14 @@ browser-address {
 	text-align: center;
 	vertical-align: middle;
 	overflow: hidden;
+}
+
+browser-address {
+	width: calc(100% - 32px);
+}
+
+browser-history + browser-address {
+	width: calc(100% - 128px - 160px - 128px);
 }
 
 browser-address ul {
@@ -94,6 +102,8 @@ browser-address input {
 	line-height: 32px;
 	top: 0px;
 	left: 32px;
+	bottom: auto;
+	right: auto;
 	margin: 0px;
 	padding: 0px;
 	padding-top: 1px; /* WTF, Blink, WTF */
@@ -134,6 +144,10 @@ browser-address input::selection {
 @media screen and (max-width: 800px) {
 
 	browser-address {
+		width: calc(100% - 32px);
+	}
+
+	browser-history + browser-address {
 		width: calc(100% - 128px - 160px - 96px);
 		text-align: left;
 	}
