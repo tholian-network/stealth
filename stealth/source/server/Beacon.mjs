@@ -1,5 +1,5 @@
 
-import { Emitter, isArray, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { Emitter, isArray, isBoolean, isFunction, isObject, isString } from '../../extern/base.mjs';
 
 
 
@@ -59,16 +59,16 @@ Beacon.isBeacon = function(payload) {
 			if (
 				isString(beacon.label) === true
 				&& isArray(beacon.select) === true
-				&& isArray(beacon.mode) === true
+				&& isObject(beacon.mode) === true
+				&& isBoolean(beacon.mode.text) === true
+				&& isBoolean(beacon.mode.image) === true
+				&& isBoolean(beacon.mode.audio) === true
+				&& isBoolean(beacon.mode.video) === true
+				&& isBoolean(beacon.mode.other) === true
 			) {
 
-				let check1 = beacon.select.filter((s) => isString(s) === true);
-				let check2 = beacon.mode.filter((m) => [ 'text', 'image', 'audio', 'video', 'other' ].includes(m) === true);
-
-				if (
-					check1.length === beacon.select.length
-					&& check2.length === beacon.mode.length
-				) {
+				let check = beacon.select.filter((s) => isString(s) === true);
+				if (check.length === beacon.select.length) {
 					return true;
 				}
 
@@ -115,16 +115,11 @@ Beacon.toBeacon = function(payload) {
 				if (
 					isString(beacon.label) === true
 					&& isArray(beacon.select) === true
-					&& isArray(beacon.mode) === true
+					&& isObject(beacon.mode) === true
 				) {
 
-					let check1 = beacon.select.filter((s) => isString(s) === true);
-					let check2 = beacon.mode.filter((m) => [ 'text', 'image', 'audio', 'video', 'other' ].includes(m) === true);
-
-					if (
-						check1.length === beacon.select.length
-						&& check2.length === beacon.mode.length
-					) {
+					let check = beacon.select.filter((s) => isString(s) === true);
+					if (check.length === beacon.select.length) {
 						return true;
 					}
 
@@ -139,7 +134,17 @@ Beacon.toBeacon = function(payload) {
 				return {
 					domain:  domain,
 					path:    payload.path,
-					beacons: payload.beacons
+					beacons: payload.beacons.map((beacon) => ({
+						label:  beacon.label,
+						select: beacon.select,
+						mode:   {
+							text:  isBoolean(beacon.mode.text)  ? beacon.mode.text  : false,
+							image: isBoolean(beacon.mode.image) ? beacon.mode.image : false,
+							audio: isBoolean(beacon.mode.audio) ? beacon.mode.audio : false,
+							video: isBoolean(beacon.mode.video) ? beacon.mode.video : false,
+							other: isBoolean(beacon.mode.other) ? beacon.mode.other : false
+						}
+					}))
 				};
 
 			}

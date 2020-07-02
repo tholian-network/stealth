@@ -27,14 +27,42 @@ describe('Settings.prototype.read()/all', function(assert) {
 	this.client.services.settings.read(null, (response) => {
 
 		assert(response, {
-			internet:  defaults.internet,
-			beacons:   defaults.beacons,
-			blockers:  null,
-			hosts:     defaults.hosts,
-			modes:     defaults.modes,
-			peers:     defaults.peers,
-			redirects: defaults.redirects,
-			sessions:  defaults.sessions
+			'interface': defaults['interface'],
+			'internet':  defaults['internet'],
+			'beacons':   defaults['beacons'],
+			'blockers':  null,
+			'hosts':     defaults['hosts'],
+			'modes':     defaults['modes'],
+			'peers':     defaults['peers'],
+			'redirects': defaults['redirects'],
+			'sessions':  defaults['sessions']
+		});
+
+	});
+
+});
+
+describe('Settings.prototype.read()/interface', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.settings.read), true);
+
+	let defaults = this.stealth.settings.toJSON().data;
+
+	this.client.services.settings.read({
+		'interface': true
+	}, (response) => {
+
+		assert(response, {
+			'interface': defaults['interface'],
+			'internet':  null,
+			'beacons':   null,
+			'blockers':  null,
+			'hosts':     null,
+			'modes':     null,
+			'peers':     null,
+			'redirects': null,
+			'sessions':  null
 		});
 
 	});
@@ -49,18 +77,19 @@ describe('Settings.prototype.read()/internet', function(assert) {
 	let defaults = this.stealth.settings.toJSON().data;
 
 	this.client.services.settings.read({
-		internet: true
+		'internet': true
 	}, (response) => {
 
 		assert(response, {
-			internet:  defaults.internet,
-			beacons:   null,
-			blockers:  null,
-			hosts:     null,
-			modes:     null,
-			peers:     null,
-			redirects: null,
-			sessions:  null
+			'interface': null,
+			'internet':  defaults['internet'],
+			'beacons':   null,
+			'blockers':  null,
+			'hosts':     null,
+			'modes':     null,
+			'peers':     null,
+			'redirects': null,
+			'sessions':  null
 		});
 
 	});
@@ -75,18 +104,19 @@ describe('Settings.prototype.read()/beacons', function(assert) {
 	let defaults = this.stealth.settings.toJSON().data;
 
 	this.client.services.settings.read({
-		beacons: true
+		'beacons': true
 	}, (response) => {
 
 		assert(response, {
-			internet:  null,
-			beacons:   defaults.beacons,
-			blockers:  null,
-			hosts:     null,
-			modes:     null,
-			peers:     null,
-			redirects: null,
-			sessions:  null
+			'interface': null,
+			'internet':  null,
+			'beacons':   defaults['beacons'],
+			'blockers':  null,
+			'hosts':     null,
+			'modes':     null,
+			'peers':     null,
+			'redirects': null,
+			'sessions':  null
 		});
 
 	});
@@ -99,18 +129,19 @@ describe('Settings.prototype.read()/blockers', function(assert) {
 	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
-		blockers: true
+		'blockers': true
 	}, (response) => {
 
 		assert(response, {
-			internet:  null,
-			beacons:   null,
-			blockers:  null,
-			hosts:     null,
-			modes:     null,
-			peers:     null,
-			redirects: null,
-			sessions:  null
+			'interface': null,
+			'internet':  null,
+			'beacons':   null,
+			'blockers':  null,
+			'hosts':     null,
+			'modes':     null,
+			'peers':     null,
+			'redirects': null,
+			'sessions':  null
 		});
 
 	});
@@ -125,18 +156,19 @@ describe('Settings.prototype.read()/hosts', function(assert) {
 	let defaults = this.stealth.settings.toJSON().data;
 
 	this.client.services.settings.read({
-		hosts: true
+		'hosts': true
 	}, (response) => {
 
 		assert(response, {
-			internet:  null,
-			beacons:   null,
-			blockers:  null,
-			hosts:     defaults.hosts,
-			modes:     null,
-			peers:     null,
-			redirects: null,
-			sessions:  null
+			'interface': null,
+			'internet':  null,
+			'beacons':   null,
+			'blockers':  null,
+			'hosts':     defaults['hosts'],
+			'modes':     null,
+			'peers':     null,
+			'redirects': null,
+			'sessions':  null
 		});
 
 	});
@@ -151,18 +183,19 @@ describe('Settings.prototype.read()/modes', function(assert) {
 	let defaults = this.stealth.settings.toJSON().data;
 
 	this.client.services.settings.read({
-		modes: true
+		'modes': true
 	}, (response) => {
 
 		assert(response, {
-			internet:  null,
-			beacons:   null,
-			blockers:  null,
-			hosts:     null,
-			modes:     defaults.modes,
-			peers:     null,
-			redirects: null,
-			sessions:  null
+			'interface': null,
+			'internet':  null,
+			'beacons':   null,
+			'blockers':  null,
+			'hosts':     null,
+			'modes':     defaults['modes'],
+			'peers':     null,
+			'redirects': null,
+			'sessions':  null
 		});
 
 	});
@@ -177,18 +210,19 @@ describe('Settings.prototype.read()/peers', function(assert) {
 	let defaults = this.stealth.settings.toJSON().data;
 
 	this.client.services.settings.read({
-		peers: true
+		'peers': true
 	}, (response) => {
 
 		assert(response, {
-			internet:  null,
-			beacons:   null,
-			blockers:  null,
-			hosts:     null,
-			modes:     null,
-			peers:     defaults.peers,
-			redirects: null,
-			sessions:  null
+			'interface': null,
+			'internet':  null,
+			'beacons':   null,
+			'blockers':  null,
+			'hosts':     null,
+			'modes':     null,
+			'peers':     defaults['peers'],
+			'redirects': null,
+			'sessions':  null
 		});
 
 	});
@@ -201,18 +235,19 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
-		redirects: true
+		'redirects': true
 	}, (response) => {
 
 		assert(response, {
-			internet:  null,
-			beacons:   null,
-			blockers:  null,
-			hosts:     null,
-			modes:     null,
-			peers:     null,
-			redirects: null,
-			sessions:  null
+			'interface': null,
+			'internet':  null,
+			'beacons':   null,
+			'blockers':  null,
+			'hosts':     null,
+			'modes':     null,
+			'peers':     null,
+			'redirects': null,
+			'sessions':  null
 		});
 
 	});
@@ -227,18 +262,19 @@ describe('Settings.prototype.read()/sessions', function(assert) {
 	let defaults = this.stealth.settings.toJSON().data;
 
 	this.client.services.settings.read({
-		sessions: true
+		'sessions': true
 	}, (response) => {
 
 		assert(response, {
-			internet:  null,
-			beacons:   null,
-			blockers:  null,
-			hosts:     null,
-			modes:     null,
-			peers:     null,
-			redirects: null,
-			sessions:  defaults.sessions
+			'interface': null,
+			'internet':  null,
+			'beacons':   null,
+			'blockers':  null,
+			'hosts':     null,
+			'modes':     null,
+			'peers':     null,
+			'redirects': null,
+			'sessions':  defaults['sessions']
 		});
 
 	});
@@ -251,25 +287,40 @@ describe('Settings.prototype.save()/all', function(assert) {
 	assert(isFunction(this.client.services.settings.save), true);
 
 	this.client.services.settings.save({
-		internet: {
+		'interface': {
+			theme: 'light'
+		},
+		'internet': {
 			connection: 'mobile',
 			history:    'week',
 			useragent:  'stealth'
 		},
-		beacons: [{
+		'beacons': [{
 			domain: 'covert.localdomain',
 			path:   '/news/*',
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h1' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: false,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}, {
 				label:  'article',
 				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: true,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}]
 		}],
-		hosts: [{
+		'hosts': [{
 			domain: 'covert.localdomain',
 			hosts: [{
 				ip:    '127.0.0.1',
@@ -277,7 +328,7 @@ describe('Settings.prototype.save()/all', function(assert) {
 				type:  'v4'
 			}]
 		}],
-		modes: [{
+		'modes': [{
 			domain: 'covert.localdomain',
 			mode: {
 				text:  true,
@@ -287,11 +338,11 @@ describe('Settings.prototype.save()/all', function(assert) {
 				other: true
 			}
 		}],
-		peers: [{
+		'peers': [{
 			domain:     'covert.localdomain',
 			connection: 'mobile'
 		}],
-		redirects: [{
+		'redirects': [{
 			domain:   'covert.localdomain',
 			path:     '/redirect',
 			location: 'https://covert.localdomain/location.html'
@@ -310,25 +361,30 @@ describe('Settings.prototype.read()/all', function(assert) {
 	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
-		internet:  true,
-		beacons:   true,
-		blockers:  true, // private
-		hosts:     true,
-		modes:     true,
-		peers:     true,
-		redirects: true, // private
-		sessions:  true  // private
+		'interface': true,
+		'internet':  true,
+		'beacons':   true,
+		'blockers':  true, // private
+		'hosts':     true,
+		'modes':     true,
+		'peers':     true,
+		'redirects': true, // private
+		'sessions':  true  // private
 	}, (response) => {
 
 		assert(isObject(response), true);
 
-		assert(response.internet, {
+		assert(response['interface'], {
+			theme: 'light'
+		});
+
+		assert(response['internet'], {
 			connection: 'mobile',
 			history:    'week',
 			useragent:  'stealth'
 		});
 
-		let beacon = response.beacons.find((b) => b.domain === 'covert.localdomain') || null;
+		let beacon = response['beacons'].find((b) => b.domain === 'covert.localdomain') || null;
 
 		assert(beacon, {
 			domain: 'covert.localdomain',
@@ -336,17 +392,29 @@ describe('Settings.prototype.read()/all', function(assert) {
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h1' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: false,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}, {
 				label:  'article',
 				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: true,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}]
 		});
 
-		assert(response.blockers, null);
+		assert(response['blockers'], null);
 
-		let host = response.hosts.find((h) => h.domain === 'covert.localdomain') || null;
+		let host = response['hosts'].find((h) => h.domain === 'covert.localdomain') || null;
 
 		assert(host, {
 			domain: 'covert.localdomain',
@@ -357,7 +425,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 			}]
 		});
 
-		assert(response.modes, [{
+		assert(response['modes'], [{
 			domain: 'covert.localdomain',
 			mode: {
 				text:  true,
@@ -368,19 +436,52 @@ describe('Settings.prototype.read()/all', function(assert) {
 			}
 		}]);
 
-		assert(response.peers, [{
+		assert(response['peers'], [{
 			domain:     'covert.localdomain',
 			connection: 'mobile'
 		}]);
 
-		assert(response.redirects, null);
+		assert(response['redirects'], null);
 
-		assert(response.sessions, []);
+		assert(response['sessions'], []);
 
 	});
 
 });
 
+describe('Settings.prototype.save()/interface', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.settings.save), true);
+
+	this.client.services.settings.save({
+		'interface': {
+			theme: 'dark'
+		}
+	}, (response) => {
+
+		assert(response, true);
+
+	});
+
+});
+
+describe('Settings.prototype.read()/interface', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.settings.read), true);
+
+	this.client.services.settings.read({
+		'interface': true
+	}, (response) => {
+
+		assert(response['interface'], {
+			theme: 'dark'
+		});
+
+	});
+
+});
 describe('Settings.prototype.save()/internet', function(assert) {
 
 	assert(this.client !== null);
@@ -391,7 +492,7 @@ describe('Settings.prototype.save()/internet', function(assert) {
 	});
 
 	this.client.services.settings.save({
-		internet: {
+		'internet': {
 			connection: 'broadband',
 			history:    'stealth',
 			useragent:  'stealth'
@@ -410,10 +511,10 @@ describe('Settings.prototype.read()/internet', function(assert) {
 	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
-		internet: true
+		'internet': true
 	}, (response) => {
 
-		assert(response.internet, {
+		assert(response['internet'], {
 			connection: 'broadband',
 			history:    'stealth',
 			useragent:  'stealth'
@@ -429,17 +530,29 @@ describe('Settings.prototype.save()/beacons', function(assert) {
 	assert(isFunction(this.client.services.settings.save), true);
 
 	this.client.services.settings.save({
-		beacons: [{
+		'beacons': [{
 			domain: 'covert-two.localdomain',
 			path:   '*awesome-topic/',
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h3' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: false,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}, {
 				label:  'article',
 				select: [ 'article > p' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: false,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}]
 		}]
 	}, (response) => {
@@ -456,11 +569,14 @@ describe('Settings.prototype.read()/beacons', function(assert) {
 	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
-		beacons: true
+		'beacons': true
 	}, (response) => {
 
-		let beacon1 = response.beacons.find((b) => b.domain === 'covert.localdomain') || null;
-		let beacon2 = response.beacons.find((b) => b.domain === 'covert-two.localdomain') || null;
+		assert(isObject(response),           true);
+		assert(isArray(response['beacons']), true);
+
+		let beacon1 = response['beacons'].find((b) => b.domain === 'covert.localdomain') || null;
+		let beacon2 = response['beacons'].find((b) => b.domain === 'covert-two.localdomain') || null;
 
 		assert(beacon1, {
 			domain: 'covert.localdomain',
@@ -468,11 +584,23 @@ describe('Settings.prototype.read()/beacons', function(assert) {
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h1' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: false,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}, {
 				label:  'article',
 				select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: true,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}]
 		});
 
@@ -482,11 +610,23 @@ describe('Settings.prototype.read()/beacons', function(assert) {
 			beacons: [{
 				label:  'headline',
 				select: [ '#header h3' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: false,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}, {
 				label:  'article',
 				select: [ 'article > p' ],
-				mode:   'text'
+				mode:   {
+					text:  true,
+					image: false,
+					audio: false,
+					video: false,
+					other: false
+				}
 			}]
 		});
 
@@ -501,7 +641,7 @@ describe('Settings.prototype.save()/hosts', function(assert) {
 	assert(isFunction(this.client.services.settings.save), true);
 
 	this.client.services.settings.save({
-		hosts: [{
+		'hosts': [{
 			domain: 'covert-two.localdomain',
 			hosts: [{
 				ip:    '127.0.0.2',
@@ -523,14 +663,14 @@ describe('Settings.prototype.read()/hosts', function(assert) {
 	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
-		hosts: true,
+		'hosts': true,
 	}, (response) => {
 
-		assert(isObject(response),      true);
-		assert(isArray(response.hosts), true);
+		assert(isObject(response),         true);
+		assert(isArray(response['hosts']), true);
 
-		let host1 = response.hosts.find((h) => h.domain === 'covert.localdomain') || null;
-		let host2 = response.hosts.find((h) => h.domain === 'covert-two.localdomain') || null;
+		let host1 = response['hosts'].find((h) => h.domain === 'covert.localdomain') || null;
+		let host2 = response['hosts'].find((h) => h.domain === 'covert-two.localdomain') || null;
 
 		assert(host1, {
 			domain: 'covert.localdomain',
@@ -560,7 +700,7 @@ describe('Settings.prototype.save()/modes', function(assert) {
 	assert(isFunction(this.client.services.settings.save), true);
 
 	this.client.services.settings.save({
-		modes: [{
+		'modes': [{
 			domain: 'covert-two.localdomain',
 			mode: {
 				text:  true,
@@ -587,11 +727,11 @@ describe('Settings.prototype.read()/modes', function(assert) {
 		modes: true,
 	}, (response) => {
 
-		assert(isObject(response),      true);
-		assert(isArray(response.modes), true);
+		assert(isObject(response),         true);
+		assert(isArray(response['modes']), true);
 
-		let mode1 = response.modes.find((m) => m.domain === 'covert.localdomain') || null;
-		let mode2 = response.modes.find((m) => m.domain === 'covert-two.localdomain') || null;
+		let mode1 = response['modes'].find((m) => m.domain === 'covert.localdomain') || null;
+		let mode2 = response['modes'].find((m) => m.domain === 'covert-two.localdomain') || null;
 
 		assert(mode1, {
 			domain: 'covert.localdomain',
@@ -625,7 +765,7 @@ describe('Settings.prototype.save()/peers', function(assert) {
 	assert(isFunction(this.client.services.settings.save), true);
 
 	this.client.services.settings.save({
-		peers: [{
+		'peers': [{
 			domain:     'covert-two.localdomain',
 			connection: 'peer'
 		}]
@@ -646,11 +786,11 @@ describe('Settings.prototype.read()/peers', function(assert) {
 		peers: true,
 	}, (response) => {
 
-		assert(isObject(response),      true);
-		assert(isArray(response.peers), true);
+		assert(isObject(response),         true);
+		assert(isArray(response['peers']), true);
 
-		let peer1 = response.peers.find((p) => p.domain === 'covert.localdomain') || null;
-		let peer2 = response.peers.find((p) => p.domain === 'covert-two.localdomain') || null;
+		let peer1 = response['peers'].find((p) => p.domain === 'covert.localdomain') || null;
+		let peer2 = response['peers'].find((p) => p.domain === 'covert-two.localdomain') || null;
 
 		assert(peer1, {
 			domain:     'covert.localdomain',
@@ -672,7 +812,7 @@ describe('Settings.prototype.save()/redirects', function(assert) {
 	assert(isFunction(this.client.services.settings.save), true);
 
 	this.client.services.settings.save({
-		redirects: [{
+		'redirects': [{
 			domain:   'covert-two.localdomain',
 			path:     '/redirect',
 			location: 'https://covert-two.localdomain/location.html'
@@ -691,10 +831,10 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 	assert(isFunction(this.client.services.settings.read), true);
 
 	this.client.services.settings.read({
-		redirects: true // private
+		'redirects': true // private
 	}, (response) => {
 
-		assert(response.redirects, null);
+		assert(response['redirects'], null);
 
 	});
 
