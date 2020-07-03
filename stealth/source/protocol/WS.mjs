@@ -1017,6 +1017,7 @@ const WS = {
 
 			}
 
+
 			if (buffer !== null) {
 
 				connection.socket.write(buffer);

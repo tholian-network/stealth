@@ -1,5 +1,5 @@
 
-import { Emitter, isFunction, isObject } from '../../extern/base.mjs';
+import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
 
 
 
@@ -45,7 +45,23 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			this.once('read', (response) => callback(response));
+			this.once('read', (response) => {
+
+				if (isObject(response) === true) {
+
+					if (isObject(response.payload) === true) {
+
+						if (response.payload.type === 'Buffer') {
+							response.payload = Buffer.from(response.payload.data);
+						}
+
+					}
+
+				}
+
+				callback(response);
+
+			});
 
 			this.client.send({
 				headers: {

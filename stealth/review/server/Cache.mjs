@@ -169,7 +169,7 @@ describe('Cache.prototype.remove()/failure', function(assert) {
 				service: 'cache',
 				event:   'remove'
 			},
-			payload: false
+			payload: true
 		});
 
 	});

@@ -138,7 +138,7 @@ describe('Cache.prototype.remove()/failure', function(assert) {
 		path:   '/review/client/cache.json'
 	}, (response) => {
 
-		assert(response, false);
+		assert(response, true);
 
 	});
 

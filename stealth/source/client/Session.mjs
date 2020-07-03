@@ -23,10 +23,14 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.once('download', (response) => {
 
-				if (isObject(response.payload) === true) {
+				if (isObject(response) === true) {
 
-					if (response.payload.type === 'Buffer') {
-						response.payload = Buffer.from(response.payload.data);
+					if (isObject(response.payload) === true) {
+
+						if (response.payload.type === 'Buffer') {
+							response.payload = Buffer.from(response.payload.data);
+						}
+
 					}
 
 				}

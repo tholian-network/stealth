@@ -2,15 +2,64 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { Buffer, Emitter, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { URL                                                       } from '../parser/URL.mjs';
+import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { URL                                                                  } from '../parser/URL.mjs';
 
 
 
-const info = function(url, callback) {
+const toDomain = function(payload) {
 
-	callback = isFunction(callback) ? callback : null;
+	let domain = null;
 
+	if (isString(payload.domain) === true) {
+
+		if (isString(payload.subdomain) === true) {
+			domain = payload.subdomain + '.' + payload.domain;
+		} else {
+			domain = payload.domain;
+		}
+
+	} else if (isString(payload.host) === true) {
+		domain = payload.host;
+	}
+
+	return domain;
+
+};
+
+const toMIME = function(payload) {
+
+	let mime   = { ext: 'bin', type: 'other', binary: true, format: 'application/octet-stream' };
+	let domain = toDomain(payload);
+	let path   = toPath(payload);
+
+	if (domain !== null && path !== null) {
+		mime = URL.parse('https://' + domain + path).mime;
+	}
+
+	return mime;
+
+};
+
+const toPath = function(payload) {
+
+	let path = null;
+
+	if (isString(payload.path) === true) {
+
+		if (payload.path.endsWith('/')) {
+			path = payload.path + 'index.html';
+		} else {
+			path = payload.path;
+		}
+
+	}
+
+	return path;
+
+};
+
+const info = function(url) {
 
 	let stat = null;
 
@@ -20,33 +69,21 @@ const info = function(url, callback) {
 		stat = null;
 	}
 
-
-	if (stat !== null && callback !== null) {
-
-		callback({
-			size: stat.size || 0,
-			time: (stat.mtime).toISOString()
-		});
-
-	} else if (stat !== null) {
+	if (stat !== null && stat.isFile() === true) {
 
 		return {
 			size: stat.size || 0,
 			time: (stat.mtime).toISOString()
 		};
 
-	} else if (callback !== null) {
-		callback(null);
-	} else {
-		return null;
 	}
+
+
+	return null;
 
 };
 
-const mkdir = function(url, callback) {
-
-	callback = isFunction(callback) ? callback : null;
-
+const mkdir = function(url) {
 
 	let stat = null;
 
@@ -65,63 +102,80 @@ const mkdir = function(url, callback) {
 
 	}
 
-
-	if (stat !== null && callback !== null) {
-		callback(stat.isDirectory());
-	} else if (stat !== null) {
-		return stat.isDirectory();
-	} else if (callback !== null) {
-		callback(false);
-	} else {
-		return false;
+	if (stat !== null && stat.isDirectory() === true) {
+		return true;
 	}
+
+
+	return false;
 
 };
 
-const payloadify = function(raw) {
+const read = function(url, json) {
 
-	let payload = raw;
-	if (isObject(payload) === true) {
+	json = isBoolean(json) ? json : false;
 
-		payload = Object.assign({}, raw);
 
-		payload.domain    = isString(payload.domain)    ? payload.domain    : null;
-		payload.subdomain = isString(payload.subdomain) ? payload.subdomain : null;
-		payload.host      = isString(payload.host)      ? payload.host      : null;
-		payload.path      = isString(payload.path)      ? payload.path      : '/';
+	let buffer = null;
 
-		if (payload.domain !== null && payload.path !== null) {
-			payload.mime = URL.parse('https://' + payload.domain + payload.path).mime;
-		} else {
-			payload.mime = null;
+	try {
+		buffer = fs.readFileSync(path.resolve(url));
+	} catch (err) {
+		buffer = null;
+	}
+
+	if (buffer !== null && json === true) {
+
+		try {
+			buffer = JSON.parse(buffer.toString('utf8'));
+		} catch (err) {
+			buffer = {};
 		}
-
-		if (payload.path.endsWith('/')) {
-			payload.path += 'index' + (payload.mime.ext !== null ? ('.' + payload.mime.ext) : '');
-		}
-
-		if (isBuffer(payload.headers) === true) {
-			// Do nothing
-		} else if (isObject(payload.headers) === true) {
-			payload.headers = Buffer.from(JSON.stringify(payload.headers, null, '\t'), 'utf8');
-		} else {
-			payload.headers = null;
-		}
-
-		if (isBuffer(payload.payload) === true) {
-			// Do nothing
-		} else if (isObject(payload.payload) === true) {
-			payload.payload = Buffer.from(JSON.stringify(payload.payload, null, '\t'), 'utf8');
-		} else {
-			payload.payload = null;
-		}
-
-		return payload;
 
 	}
 
+	return buffer;
 
-	return null;
+};
+
+const remove = function(url) {
+
+	let result = false;
+
+	if (info(url) !== null) {
+
+		try {
+			fs.unlinkSync(path.resolve(url));
+			result = true;
+		} catch (err) {
+			result = false;
+		}
+
+	} else {
+
+		result = true;
+
+	}
+
+	return result;
+
+};
+
+const save = function(url, buffer) {
+
+	mkdir(path.dirname(path.resolve(url)));
+
+
+	let result = false;
+
+	try {
+		fs.writeFileSync(path.resolve(url), buffer);
+		result = true;
+	} catch (err) {
+		result = false;
+	}
+
+	return result;
 
 };
 
@@ -135,87 +189,105 @@ const Cache = function(stealth) {
 };
 
 
+Cache.toCache = function(payload) {
+
+	if (isObject(payload) === true) {
+
+		let domain = null;
+
+		if (isString(payload.domain) === true) {
+
+			if (isString(payload.subdomain) === true) {
+				domain = payload.subdomain + '.' + payload.domain;
+			} else {
+				domain = payload.domain;
+			}
+
+		} else if (isString(payload.host) === true) {
+			domain = payload.host;
+		}
+
+		let cache_headers = null;
+
+		if (isBuffer(payload.headers) === true) {
+			cache_headers = payload.headers;
+		} else if (isObject(payload.headers) === true) {
+
+			if (payload.headers.type === 'Buffer') {
+				cache_headers = Buffer.from(payload.headers.data);
+			} else {
+				cache_headers = Buffer.from(JSON.stringify(payload.headers, null, '\t'), 'utf8');
+			}
+
+		}
+
+		let cache_payload = null;
+
+		if (isBuffer(payload.payload) === true) {
+			cache_payload = payload.payload;
+		} else if (isObject(payload.payload) === true) {
+
+			if (payload.payload.type === 'Buffer') {
+				cache_payload = Buffer.from(payload.payload.data);
+			} else {
+				cache_payload = Buffer.from(JSON.stringify(payload.payload, null, '\t'), 'utf8');
+			}
+
+		}
+
+
+		if (domain !== null && cache_headers !== null && cache_payload !== null) {
+
+			return {
+				headers: cache_headers,
+				payload: cache_payload
+			};
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
 Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	info: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let response = null;
 
-			let file    = null;
-			let profile = this.stealth.settings.profile || null;
+		let domain = toDomain(payload);
+		let path   = toPath(payload);
 
-			if (payload.domain !== null) {
+		if (domain !== null && path !== null) {
 
-				if (payload.subdomain !== null) {
-					file = payload.subdomain + '.' + payload.domain;
-				} else {
-					file = payload.domain;
-				}
+			let cache_headers = info(this.stealth.settings.profile + '/cache/headers/' + domain + path);
+			let cache_payload = info(this.stealth.settings.profile + '/cache/payload/' + domain + path);
 
-			} else if (payload.host !== null) {
-				file = payload.host;
+			if (cache_headers !== null && cache_payload !== null) {
+				response = {
+					headers: cache_headers,
+					payload: cache_payload
+				};
 			}
 
-			if (payload.path !== null) {
-				file += payload.path;
-			}
+		}
 
 
-			if (profile !== null && file !== null) {
-
-
-				let headers = info(profile + '/cache/headers/' + file);
-				let payload = info(profile + '/cache/payload/' + file);
-
-				if (headers !== null && payload !== null) {
-
-					callback({
-						headers: {
-							service: 'cache',
-							event:   'info'
-						},
-						payload: {
-							headers: headers,
-							payload: payload
-						}
-					});
-
-				} else {
-
-					callback({
-						headers: {
-							service: 'cache',
-							event:   'info'
-						},
-						payload: null
-					});
-
-				}
-
-			} else {
-
-				callback({
-					headers: {
-						service: 'cache',
-						event:   'info'
-					},
-					payload: null
-				});
-
-			}
-
-		} else if (callback !== null) {
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'cache',
 					event:   'info'
 				},
-				payload: null
+				payload: response
 			});
 
 		}
@@ -224,105 +296,45 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	read: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let response = null;
 
-			let file    = null;
-			let profile = this.stealth.settings.profile || null;
+		let domain = toDomain(payload);
+		let mime   = toMIME(payload);
+		let path   = toPath(payload);
 
-			if (payload.domain !== null) {
+		if (domain !== null && mime !== null && path !== null) {
 
-				if (payload.subdomain !== null) {
-					file = payload.subdomain + '.' + payload.domain;
-				} else {
-					file = payload.domain;
-				}
+			let cache_headers = read(this.stealth.settings.profile + '/cache/headers/' + domain + path, true);
+			let cache_payload = read(this.stealth.settings.profile + '/cache/payload/' + domain + path, false);
 
-			} else if (payload.host !== null) {
-				file = payload.host;
-			}
+			if (cache_headers !== null && cache_payload !== null) {
 
-			if (payload.path !== null) {
-				file += payload.path;
-			}
-
-
-			if (profile !== null && file !== null) {
-
-				fs.readFile(path.resolve(profile + '/cache/headers/' + file), (err, raw_headers) => {
-
-					let headers = {};
-
-					if (!err) {
-
-						try {
-							headers = JSON.parse(raw_headers.toString('utf8'));
-						} catch (err) {
-							headers = {};
-						}
-
-					}
-
-
-					fs.readFile(path.resolve(profile + '/cache/payload/' + file), (err, raw_payload) => {
-
-						if (!err) {
-
-							Object.assign(headers, {
-								'content-type':   payload.mime.format,
-								'content-length': Buffer.byteLength(raw_payload)
-							});
-
-							callback({
-								headers: {
-									service: 'cache',
-									event:   'read'
-								},
-								payload: {
-									headers: headers,
-									payload: raw_payload
-								}
-							});
-
-						} else if (callback !== null) {
-
-							callback({
-								headers: {
-									service: 'cache',
-									event:   'read'
-								},
-								payload: null
-							});
-
-						}
-
-					});
-
+				Object.assign(cache_headers, {
+					'content-type':   mime.format,
+					'content-length': Buffer.byteLength(cache_payload)
 				});
 
-			} else {
-
-				callback({
-					headers: {
-						service: 'cache',
-						event:   'read'
-					},
-					payload: null
-				});
+				response = {
+					headers: cache_headers,
+					payload: cache_payload
+				};
 
 			}
 
-		} else if (callback !== null) {
+		}
+
+
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'cache',
 					event:   'read'
 				},
-				payload: null
+				payload: response
 			});
 
 		}
@@ -331,82 +343,34 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	remove: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let result = false;
 
-			let file    = null;
-			let profile = this.stealth.settings.profile || null;
+		let domain = toDomain(payload);
+		let path   = toPath(payload);
 
-			if (payload.domain !== null) {
+		if (domain !== null && path !== null) {
 
-				if (payload.subdomain !== null) {
-					file = payload.subdomain + '.' + payload.domain;
-				} else {
-					file = payload.domain;
-				}
+			let cache_headers = remove(this.stealth.settings.profile + '/cache/headers/' + domain + path);
+			let cache_payload = remove(this.stealth.settings.profile + '/cache/payload/' + domain + path);
 
-			} else if (payload.host !== null) {
-				file = payload.host;
+			if (cache_headers === true && cache_payload === true) {
+				result = true;
 			}
 
-			if (payload.path !== null) {
-				file += payload.path;
-			}
+		}
 
 
-			fs.stat(path.resolve(profile + '/cache/headers/' + file), (err, stat) => {
-
-				if (!err) {
-
-					if (stat.isFile() === true) {
-						fs.unlink(path.resolve(profile + '/cache/headers/' + file), () => {});
-					}
-
-				}
-
-			});
-
-			fs.stat(path.resolve(profile + '/cache/payload/' + file), (err, stat) => {
-
-				if (!err && stat.isFile()) {
-
-					fs.unlink(path.resolve(profile + '/cache/payload/' + file), (err) => {
-
-						callback({
-							headers: {
-								service: 'cache',
-								event:   'remove'
-							},
-							payload: (err === null)
-						});
-
-					});
-
-				} else {
-
-					callback({
-						headers: {
-							service: 'cache',
-							event:   'remove'
-						},
-						payload: false
-					});
-
-				}
-
-			});
-
-		} else if (callback !== null) {
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'cache',
 					event:   'remove'
 				},
-				payload: false
+				payload: result
 			});
 
 		}
@@ -415,85 +379,39 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 	save: function(payload, callback) {
 
-		payload  = isObject(payload)    ? payloadify(payload) : null;
-		callback = isFunction(callback) ? callback            : null;
+		callback = isFunction(callback) ? callback : null;
 
 
-		if (payload !== null && callback !== null) {
+		let result = false;
+		let cache  = Cache.toCache(payload);
 
-			let file    = null;
-			let profile = this.stealth.settings.profile || null;
+		let domain = toDomain(payload);
+		let path   = toPath(payload);
 
-			if (payload.domain !== null) {
+		if (domain !== null && path !== null) {
 
-				if (payload.subdomain !== null) {
-					file = payload.subdomain + '.' + payload.domain;
-				} else {
-					file = payload.domain;
-				}
+			if (cache !== null) {
 
-			} else if (payload.host !== null) {
-				file = payload.host;
-			}
+				let cache_headers = save(this.stealth.settings.profile + '/cache/headers/' + domain + path, cache.headers);
+				let cache_payload = save(this.stealth.settings.profile + '/cache/payload/' + domain + path, cache.payload);
 
-			if (payload.path !== null) {
-				file += payload.path;
-			}
-
-
-			if (file !== null && profile !== null) {
-
-				let folder = file.split('/').slice(0, -1).join('/');
-				let result = false;
-
-				if (payload.headers !== null) {
-
-					mkdir(profile + '/cache/headers/' + folder, () => {
-						fs.writeFile(path.resolve(profile + '/cache/headers/' + file), payload.headers, () => {});
-					});
-
+				if (cache_headers === true && cache_payload === true) {
 					result = true;
-
 				}
-
-				if (payload.payload !== null) {
-
-					mkdir(profile + '/cache/payload/' + folder, () => {
-						fs.writeFile(path.resolve(profile + '/cache/payload/' + file), payload.payload, () => {});
-					});
-
-					result = true;
-
-				}
-
-				callback({
-					headers: {
-						service: 'cache',
-						event:   'save'
-					},
-					payload: result
-				});
-
-			} else {
-
-				callback({
-					headers: {
-						service: 'cache',
-						event:   'save'
-					},
-					payload: false
-				});
 
 			}
 
-		} else if (callback !== null) {
+		}
+
+
+		if (callback !== null) {
 
 			callback({
 				headers: {
 					service: 'cache',
 					event:   'save'
 				},
-				payload: false
+				payload: result
 			});
 
 		}
