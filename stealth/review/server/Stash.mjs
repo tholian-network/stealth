@@ -169,7 +169,7 @@ describe('Stash.prototype.remove()/failure', function(assert) {
 				service: 'stash',
 				event:   'remove'
 			},
-			payload: false
+			payload: true
 		});
 
 	});

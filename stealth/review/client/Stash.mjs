@@ -138,7 +138,7 @@ describe('Stash.prototype.remove()/failure', function(assert) {
 		path:   '/review/client/stash.json'
 	}, (response) => {
 
-		assert(response, false);
+		assert(response, true);
 
 	});
 
