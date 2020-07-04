@@ -5,6 +5,11 @@ import { URL                                               } from '../../source/
 
 
 
+const isTab = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Tab]';
+};
+
+
 const global    = (typeof window !== 'undefined' ? window : this);
 const CLIPBOARD = (function(navigator) {
 
@@ -77,11 +82,30 @@ const CLIPBOARD = (function(navigator) {
 })(global.navigator || {});
 
 const ACTIONS = [{
+	icon:     'close',
+	label:    'close',
+	callback: function(browser, value) {
+
+		if (isTab(value) === true) {
+
+			browser.close(value);
+
+		} else if (isString(value) === true) {
+
+			let tab = browser.tabs.find((t) => t.id === value) || null;
+			if (tab !== null) {
+				browser.close(tab);
+			}
+
+		}
+
+	}
+}, {
 	icon:     'copy',
 	label:    'copy',
 	callback: function(browser, value) {
 
-		if (isString(value)) {
+		if (isString(value) === true) {
 
 			CLIPBOARD.write(value, () => {
 				// Do nothing
@@ -95,7 +119,11 @@ const ACTIONS = [{
 	label:    'download',
 	callback: function(browser, value) {
 
-		if (isString(value)) {
+		if (URL.isURL(value) === true) {
+
+			browser.download(value.url);
+
+		} else if (isString(value) === true) {
 
 			let ref = URL.parse(value.trim());
 			if (ref.protocol !== null) {
@@ -110,7 +138,11 @@ const ACTIONS = [{
 	label:    'open',
 	callback: function(browser, value) {
 
-		if (isString(value)) {
+		if (URL.isURL(value) === true) {
+
+			browser.navigate(value.url);
+
+		} else if (isString(value) === true) {
 
 			let ref = URL.parse(value.trim());
 			if (ref.protocol !== null) {

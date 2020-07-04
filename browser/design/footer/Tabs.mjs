@@ -231,7 +231,18 @@ const Tabs = function(browser, widgets) {
 
 			let tab = browser.tabs.find((t) => t.id === '' + button.attr('data-id')) || null;
 			if (tab !== null) {
+
 				browser.show(tab);
+
+				setTimeout(() => {
+
+					let splitter = widgets.splitter || null;
+					if (splitter !== null) {
+						splitter.element.emit('hide');
+					}
+
+				}, 0);
+
 			}
 
 		}
@@ -258,6 +269,11 @@ const Tabs = function(browser, widgets) {
 					actions.push({
 						label: 'copy',
 						value: tab.url
+					});
+
+					actions.push({
+						label: 'close',
+						value: tab.id
 					});
 
 				}
@@ -289,6 +305,7 @@ const Tabs = function(browser, widgets) {
 				});
 
 			}
+
 
 			if (actions.length > 0) {
 

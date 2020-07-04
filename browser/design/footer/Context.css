@@ -90,6 +90,7 @@ browser-context button::-moz-focus-inner {
 }
 
 browser-context button[data-icon="default"]:before  { content: '\e315'; }
+browser-context button[data-icon="close"]:before    { content: '\e5cd'; }
 browser-context button[data-icon="confirm"]:before  { content: '\e5ca'; }
 browser-context button[data-icon="copy"]:before     { content: '\e14d'; }
 browser-context button[data-icon="download"]:before { content: '\e2c4'; }
