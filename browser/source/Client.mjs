@@ -15,6 +15,14 @@ import { URL                                             } from './parser/URL.mj
 
 
 
+const isEvent = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Event]';
+};
+
+const isErrorEvent = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object ErrorEvent]';
+};
+
 const isBrowser = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Browser]';
 };
@@ -173,104 +181,123 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				let socket = null;
 
-				socket = new WebSocket(ref.protocol + '://' + server + ':' + ref.port, [ 'stealth' ]);
+				try {
+					socket = new WebSocket(ref.protocol + '://' + server + ':' + ref.port, [ 'stealth' ]);
+				} catch (err) {
+					socket = null;
+				}
 
-				socket.onmessage = (e) => {
 
-					let response = receive(e.data);
-					if (response !== null) {
+				if (socket !== null) {
 
-						// Special case: Deserialize Buffer instances
-						if (isObject(response.payload) === true) {
+					socket.onmessage = (e) => {
 
-							let tmp_headers = response.payload.headers || null;
-							let tmp_payload = response.payload.payload || null;
+						let response = receive(e.data);
+						if (response !== null) {
 
-							if (tmp_headers !== null && tmp_payload !== null) {
+							// Special case: Deserialize Buffer instances
+							if (isObject(response.payload) === true) {
 
-								if (tmp_payload.type === 'Buffer') {
-									response.payload.payload = Buffer.from(tmp_payload.data);
+								let tmp_headers = response.payload.headers || null;
+								let tmp_payload = response.payload.payload || null;
+
+								if (tmp_headers !== null && tmp_payload !== null) {
+
+									if (tmp_payload.type === 'Buffer') {
+										response.payload.payload = Buffer.from(tmp_payload.data);
+									}
+
 								}
 
 							}
 
-						}
 
+							let event   = response.headers.event   || null;
+							let service = response.headers.service || null;
+							let method  = response.headers.method  || null;
 
-						let event   = response.headers.event   || null;
-						let service = response.headers.service || null;
-						let method  = response.headers.method  || null;
+							if (service !== null && event !== null) {
 
-						if (service !== null && event !== null) {
+								let instance = this.services[service] || null;
+								if (instance !== null && instance.has(event) === true) {
 
-							let instance = this.services[service] || null;
-							if (instance !== null) {
-
-								let request = instance.emit(event, [ response.payload ]);
-								if (request !== null) {
-									send(socket, request);
-								}
-
-							} else {
-
-								let request = this.emit('response', [ response ]);
-								if (request !== null) {
-									send(socket, request);
-								}
-
-							}
-
-						} else if (service !== null && method !== null) {
-
-							let instance = this.services[service] || null;
-							if (instance !== null && isFunction(instance[method])) {
-
-								instance[method](response.payload, (request) => {
-
+									let request = instance.emit(event, [ response.payload ]);
 									if (request !== null) {
 										send(socket, request);
 									}
 
-								});
+								} else {
 
-							} else {
+									let request = this.emit('response', [ response ]);
+									if (request !== null) {
+										send(socket, request);
+									}
 
-								let request = this.emit('response', [ response ]);
-								if (request !== null) {
-									send(socket, request);
+								}
+
+							} else if (service !== null && method !== null) {
+
+								let instance = this.services[service] || null;
+								if (instance !== null && isFunction(instance[method]) === true) {
+
+									instance[method](response.payload, (request) => {
+
+										if (request !== null) {
+											send(socket, request);
+										}
+
+									});
+
+								} else {
+
+									let request = this.emit('response', [ response ]);
+									if (request !== null) {
+										send(socket, request);
+									}
+
 								}
 
 							}
 
 						}
 
-					}
+					};
 
-				};
+					socket.onclose = () => {
+						this.disconnect();
+					};
 
-				socket.onclose = () => {
-					this.disconnect();
-				};
+					socket.ontimeout = () => {
+						this.disconnect();
+					};
 
-				socket.ontimeout = () => {
-					this.disconnect();
-				};
+					socket.onerror = (err) => {
 
-				socket.onerror = () => {
-					this.disconnect();
-				};
+						if (isEvent(err) === true || isErrorEvent(err) === true) {
 
-				socket.onopen = () => {
+							this.__state.connected = false;
+							this.__state.socket    = null;
 
-					this.__state.connected = true;
-					this.__state.socket    = socket;
+							this.emit('disconnect');
 
-					this.emit('connect');
+						} else {
+							this.disconnect();
+						}
 
-				};
+					};
 
+					socket.onopen = () => {
 
-				return true;
+						this.__state.connected = true;
+						this.__state.socket    = socket;
+
+						this.emit('connect');
+
+					};
+
+					return true;
+
+				}
 
 			}
 

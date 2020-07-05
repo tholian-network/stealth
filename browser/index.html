@@ -38,6 +38,11 @@
 			import { dispatch as dispatch_internal } from './internal/index.mjs';
 
 
+			window.onerror = (err) => {
+				console.error('Uncaught Error');
+				console.error(err);
+			};
+
 
 			console.log('Browser: Initializing ...');
 
@@ -77,9 +82,22 @@
 
 			setTimeout(() => {
 
-				browser.once('connect', () => {
+				browser.on('connect', () => {
+					console.info('Browser: Connected to ws://' + ENVIRONMENT.hostname + ':65432.');
+				});
 
-					console.info('Browser: Design connected to ws://' + ENVIRONMENT.hostname + ':65432.');
+				browser.on('disconnect', () => {
+					console.error('Browser: Disconnected from ws://' + ENVIRONMENT.hostname + ':65432.');
+				});
+
+				browser.on('disconnect', () => {
+
+					console.log('Browser: Reconnecting to ws://' + ENVIRONMENT.hostname + ':65432 after ' + (browser.__state.reconnect * 30) + ' seconds ...');
+					browser.reconnect();
+
+				});
+
+				browser.once('connect', () => {
 
 					[
 						// 'stealth:settings'
@@ -96,11 +114,8 @@
 
 				});
 
-				browser.once('disconnect', () => {
-					console.error('Browser: Design disconnected from ws://' + ENVIRONMENT.hostname + ':65432.');
-				});
-
 				browser.connect();
+
 
 				if (typeof window.onbeforeunload !== 'undefined') {
 

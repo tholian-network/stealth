@@ -93,7 +93,8 @@ const Browser = function(settings) {
 	this.tabs     = [];
 
 	this.__state = {
-		connected: false
+		connected: false,
+		reconnect: 0
 	};
 
 
@@ -249,6 +250,8 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			});
 
 			this.client.once('disconnect', () => {
+
+				this.client.off('connect');
 
 				this.__state.connected = false;
 				this.emit('disconnect');
@@ -531,6 +534,49 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				return true;
 
 			}
+
+		}
+
+
+		return false;
+
+	},
+
+	reconnect: function() {
+
+		if (this.__state.connected === false) {
+
+			let reconnect = this.__state.reconnect++;
+
+			setTimeout(() => {
+
+				if (this.__state.connected === false) {
+
+					this.client.once('connect', () => {
+
+						this.__state.connected = true;
+						this.__state.reconnect = 0;
+
+						this.emit('connect');
+
+					});
+
+					this.client.once('disconnect', () => {
+
+						this.client.off('connect');
+
+						this.__state.connected = false;
+						this.emit('disconnect');
+
+					});
+
+					this.client.connect();
+
+				}
+
+			}, reconnect * 30000);
+
+			return true;
 
 		}
 
