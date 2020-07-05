@@ -770,10 +770,16 @@ export const console = (function() {
 				type = type.substr(7, type.length - 8).trim();
 			}
 
-			let msg   = (data.message || '').trim();
-			let stack = (data.stack   || '').trim().split('\n');
 
-			if (msg.length > 0 && stack.length > 0) {
+			let msg = (data.message || '').trim();
+			if (msg.length > 0) {
+				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String') + '\n';
+			} else {
+				str = indent + highlight(type, 'Keyword') + ':\n';
+			}
+
+			let stack = (data.stack || '').trim().split('\n');
+			if (stack.length > 0) {
 
 				let origin = null;
 
@@ -788,19 +794,21 @@ export const console = (function() {
 							break;
 						}
 
+					} else if (line.includes('file:///')) {
+
+						let tmp = line.split('file://')[1].trim();
+						if (tmp.includes('.mjs')) {
+							origin = tmp;
+							break;
+						}
+
 					}
 
 				}
 
-				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String') + '\n';
-
 				if (origin !== null) {
 					str += origin;
 				}
-
-			} else if (msg.length > 0) {
-
-				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String') + '\n';
 
 			}
 

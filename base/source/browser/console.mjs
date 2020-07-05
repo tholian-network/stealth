@@ -820,21 +820,51 @@ export const console = (function(global) {
 				type = type.substr(7, type.length - 8).trim();
 			}
 
-			let msg   = (data.message || '').trim();
-			let stack = (data.stack   || '').trim().split('\n');
+			let msg = (data.message || '').trim();
+			if (msg.length > 0) {
+				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String') + '\n';
+			} else {
+				str = indent + highlight(type, 'Keyword') + ':\n';
+			}
 
-			if (msg.length > 0 && stack.length > 0) {
+
+			let stack = (data.stack || '').trim().split('\n');
+			if (stack.length > 0) {
 
 				let origin = null;
 
 				for (let s = 0, sl = stack.length; s < sl; s++) {
 
 					let line = stack[s].trim();
-					if (line.includes('(file://') && line.includes(')')) {
+					if (line.includes('(https://') && line.includes(')')) {
 
-						let tmp = line.split('(file://')[1].split(')').shift().trim();
-						if (tmp.includes('.mjs')) {
-							origin = tmp;
+						let tmp = line.split('(https://')[1].split(')').shift().trim();
+						if (tmp.includes('.mjs') || tmp.includes('.html')) {
+							origin = 'https://' + tmp;
+							break;
+						}
+
+					} else if (line.includes('(http://') && line.includes(')')) {
+
+						let tmp = line.split('(http://')[1].split(')').shift().trim();
+						if (tmp.includes('.mjs') || tmp.includes('.html')) {
+							origin = 'http://' + tmp;
+							break;
+						}
+
+					} else if (line.includes('https://')) {
+
+						let tmp = line.split('https://')[1].trim();
+						if (tmp.includes('.mjs') || tmp.includes('.html')) {
+							origin = 'https://' + tmp;
+							break;
+						}
+
+					} else if (line.includes('http://')) {
+
+						let tmp = line.split('http://')[1].trim();
+						if (tmp.includes('.mjs') || tmp.includes('.html')) {
+							origin = 'http://' + tmp;
 							break;
 						}
 
@@ -842,15 +872,9 @@ export const console = (function(global) {
 
 				}
 
-				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String') + '\n';
-
 				if (origin !== null) {
 					str += origin;
 				}
-
-			} else if (msg.length > 0) {
-
-				str = indent + highlight(type, 'Keyword') + ': ' + highlight('"' + msg + '"', 'String') + '\n';
 
 			}
 
