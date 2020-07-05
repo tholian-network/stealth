@@ -59,6 +59,8 @@ export const console = (function(global) {
 		'typeof':     'Scope',
 		'instanceof': 'Scope',
 
+		'[':          'Literal',
+		']':          'Literal',
 		'(':          'Literal',
 		')':          'Literal',
 		'{':          'Literal',
@@ -127,27 +129,27 @@ export const console = (function(global) {
 				'\ttransition: 200ms transform ease-out;',
 				'\ttransform: translate(0%, 0%);',
 				'}',
-				'base-console div {',
+				'base-console base-console-line {',
 				'\tdisplay: block;',
 				'\tposition: relative;',
 				'\twhite-space: pre;',
 				'\tcolor: #ffffff;',
 				'\tfont-family: monospace;',
 				'}',
-				'base-console div.blink {',
+				'base-console base-console-line.blink {',
 				'\tbackground: #000000;',
 				'\tanimation: base_console_blink 1s linear infinite;',
 				'}',
-				'base-console div.error {',
+				'base-console base-console-line.error {',
 				'\tbackground: #cc0000;',
 				'}',
-				'base-console div.info {',
+				'base-console base-console-line.info {',
 				'\tbackground: #4e9a06;',
 				'}',
-				'base-console div.log {',
+				'base-console base-console-line.log {',
 				'\tbackground: transparent;',
 				'}',
-				'base-console div.warn {',
+				'base-console base-console-line.warn {',
 				'\tbackground: #ffcc00;',
 				'}',
 				'@keyframes base_console_blink {',
@@ -158,13 +160,13 @@ export const console = (function(global) {
 			];
 
 			Object.keys(PALETTE).forEach((keyword) => {
-				style.push('base-console div i.' + keyword.toLowerCase() + '{');
+				style.push('base-console base-console-line i.' + keyword.toLowerCase() + '{');
 				style.push('\tcolor: ' + PALETTE[keyword] + ';');
 				style.push('}');
 			});
 
 			Object.keys(PALETTE_DIFF).forEach((keyword) => {
-				style.push('base-console div.diff i.' + keyword.toLowerCase() + '{');
+				style.push('base-console base-console-line.diff i.' + keyword.toLowerCase() + '{');
 				style.push('\tbackground: ' + PALETTE_DIFF[keyword] + ';');
 				style.push('}');
 			});
@@ -182,7 +184,7 @@ export const console = (function(global) {
 
 		return (message, type) => {
 
-			let line = global.document.createElement('div');
+			let line = global.document.createElement('base-console-line');
 
 			line.setAttribute('class', type);
 			line.innerHTML = message;
@@ -1168,7 +1170,7 @@ export const console = (function(global) {
 
 		if (args.length === 2 && isString(args[1]) === true) {
 
-			return args[0] + ' ' + args[1] + '\n';
+			return args[0] + ' ' + args[1];
 
 		} else {
 
@@ -1233,7 +1235,7 @@ export const console = (function(global) {
 			let element = global.document.querySelector('base-console');
 			if (element !== null) {
 
-				let line = Array.from(element.querySelectorAll('div')).pop() || null;
+				let line = Array.from(element.querySelectorAll('base-console-line')).pop() || null;
 				if (line !== null) {
 					line.parentNode.removeChild(line);
 				}
@@ -1247,7 +1249,7 @@ export const console = (function(global) {
 			let element = global.document.querySelector('base-console');
 			if (element !== null) {
 
-				Array.from(element.querySelectorAll('div')).forEach((line) => {
+				Array.from(element.querySelectorAll('base-console-line')).forEach((line) => {
 					line.parentNode.removeChild(line);
 				});
 
@@ -1477,7 +1479,6 @@ export const console = (function(global) {
 						msg += highlight_diff(line_a, 'normal');
 						msg += highlight_diff(div_a,  'normal');
 						msg += highlight_diff(' ',    'normal');
-
 						msg += highlight_diff(line_b, 'normal');
 						msg += highlight_diff(div_b,  'normal');
 						msg += highlight_diff(' ',    'normal');

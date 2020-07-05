@@ -9,30 +9,30 @@ export const console = (function() {
 
 	const BLINK = {
 		colors:   [
-			16, 17, 18, 19, 20,
-			21, 27, 33, 39, 45,
-			45, 39, 33, 27, 21,
-			20, 19, 18, 17, 16
+			'48;5;16', '48;5;17', '48;5;18', '48;5;19', '48;5;20',
+			'48;5;21', '48;5;27', '48;5;33', '48;5;39', '48;5;45',
+			'48;5;45', '48;5;39', '48;5;33', '48;5;27', '48;5;21',
+			'48;5;20', '48;5;19', '48;5;18', '48;5;17', '48;5;16'
 		],
 		index:    0,
 		interval: null
 	};
 
-	const DIFF = {
-		insert: '\u001b[48;5;22m',
-		normal: '\u001b[40m',
-		remove: '\u001b[48;5;88m'
+	const PALETTE = {
+		'Boolean': '38',
+		'Global':  '174',
+		'Keyword': '204',
+		'Literal': '174',
+		'Number':  '197',
+		'Scope':   '38',
+		'String':  '77',
+		'Type':    '174'
 	};
 
-	const PALETTE = {
-		'Boolean':   38,
-		'Global':   174,
-		'Keyword':  204,
-		'Literal':  174,
-		'Number':   197,
-		'Scope':     38,
-		'String':    77,
-		'Type':     174
+	const PALETTE_DIFF = {
+		insert: '48;5;22',
+		normal: '40',
+		remove: '48;5;88'
 	};
 
 	const SYNTAX = {
@@ -62,6 +62,9 @@ export const console = (function() {
 		'typeof':     'Scope',
 		'instanceof': 'Scope',
 
+		// XXX: Cannot highlight [ due to how bash colors work
+		// '[':          'Literal',
+		// ']':          'Literal',
 		'(':          'Literal',
 		')':          'Literal',
 		'{':          'Literal',
@@ -98,6 +101,49 @@ export const console = (function() {
 
 	};
 
+	const write_console = function(message, type) {
+
+		let color = null;
+		if (type === 'blink') {
+
+			let tmp = BLINK.colors[BLINK.index % BLINK.colors.length] || null;
+			if (tmp !== null) {
+				color = tmp;
+			} else {
+				color = '40';
+			}
+
+		} else if (type === 'diff') {
+			color = null;
+		} else if (type === 'error') {
+			color = '41';
+		} else if (type === 'info') {
+			color = '42';
+		} else if (type === 'log') {
+			color = '40';
+		} else if (type === 'warn') {
+			color = '43';
+		}
+
+		if (color !== null) {
+
+			if (message.includes('\n') === true) {
+
+				message.split('\n').forEach((line) => {
+					process.stdout.write('\u001b[' + color + 'm' + line + '\u001b[K\n');
+				});
+
+				process.stdout.write('\u001b[0m\n');
+
+			} else {
+				process.stdout.write('\u001b[' + color + 'm' + message + '\u001b[K\u001b[0m\n');
+			}
+
+		} else {
+			process.stdout.write(message + '\n');
+		}
+
+	};
 
 	const align = function(array, other) {
 
@@ -132,6 +178,17 @@ export const console = (function() {
 		let color = PALETTE[type] || null;
 		if (color !== null) {
 			return '\u001b[38;5;' + color + 'm' + str + '\u001b[39m';
+		} else {
+			return str;
+		}
+
+	};
+
+	const highlight_diff = function(str, type) {
+
+		let color = PALETTE_DIFF[type] || null;
+		if (color !== null) {
+			return '\u001b[' + color + 'm' + str;
 		} else {
 			return str;
 		}
@@ -1059,13 +1116,11 @@ export const console = (function() {
 
 	};
 
-	const stringify_arguments = function(args, color) {
-
-		color = isString(color) ? color : ('' + color).trim();
+	const stringify_arguments = function(args) {
 
 		if (args.length === 2 && isString(args[1]) === true) {
 
-			return '\u001b[' + color + 'm' + args[0] + ' ' + args[1] + '\u001b[K\u001b[0m\n';
+			return args[0] + ' ' + args[1];
 
 		} else {
 
@@ -1073,13 +1128,9 @@ export const console = (function() {
 			let multiline = chunks.find((value) => value.includes('\n')) !== undefined;
 			if (multiline === true) {
 
-				let lines = [];
-
-				if (color !== '') {
-					lines.push('\u001b[' + color + 'm' + args[0] + '\u001b[K');
-				} else {
-					lines.push(args[0]);
-				}
+				let lines = [
+					args[0]
+				];
 
 				chunks.forEach((raw) => {
 
@@ -1093,25 +1144,17 @@ export const console = (function() {
 							line = line.split('\r').join('\\r');
 						}
 
-						if (color !== '') {
-							lines.push('\u001b[' + color + 'm' + line + '\u001b[K');
-						} else {
-							lines.push(line);
-						}
+						lines.push(line);
 
 					});
 
 				});
 
-				return lines.join('\n') + '\u001b[0m\n';
+				return lines.join('\n');
 
 			} else {
 
-				if (color !== '') {
-					return '\u001b[' + color + 'm' + args[0] + ' ' + chunks.join(', ') + '\u001b[K\u001b[0m\n';
-				} else {
-					return args[0] + ' ' + chunks.join(', ') + '\u001b[0m\n';
-				}
+				return args[0] + ' ' + chunks.join(', ');
 
 			}
 
@@ -1135,13 +1178,7 @@ export const console = (function() {
 
 		}
 
-
-		let color = BLINK.colors[BLINK.index % BLINK.colors.length] || null;
-		if (color !== null) {
-			process.stdout.write(stringify_arguments(args, '48;5;' + color));
-		} else {
-			process.stdout.write(stringify_arguments(args, 40));
-		}
+		write_console(stringify_arguments(args), 'blink');
 
 	};
 
@@ -1184,7 +1221,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stdout.write(stringify_arguments(args, 41));
+		write_console(stringify_arguments(args), 'error');
 
 	};
 
@@ -1317,39 +1354,25 @@ export const console = (function() {
 
 					let msg = '';
 
-					msg += DIFF.normal;
-					msg += value_a;
-
-					msg += DIFF.normal;
-					msg += ' ';
-
-					msg += DIFF.normal;
-					msg += value_b;
-
-					msg += DIFF.normal;
-					msg += ' ';
+					msg += highlight_diff(value_a, 'normal');
+					msg += highlight_diff(' ',     'normal');
+					msg += highlight_diff(value_b, 'normal');
+					msg += highlight_diff(' ',     'normal');
 					msg += '\u001b[0m\n';
 
-					process.stdout.write(msg);
+					write_console(msg, 'diff');
 
 				} else {
 
 					let msg = '';
 
-					msg += DIFF.remove;
-					msg += value_a;
-
-					msg += DIFF.normal;
-					msg += ' ';
-
-					msg += DIFF.insert;
-					msg += value_b;
-
-					msg += DIFF.normal;
-					msg += ' ';
+					msg += highlight_diff(value_a, 'remove');
+					msg += highlight_diff(' ',     'normal');
+					msg += highlight_diff(value_b, 'insert');
+					msg += highlight_diff(' ',     'normal');
 					msg += '\u001b[0m\n';
 
-					process.stdout.write(msg);
+					write_console(msg, 'diff');
 
 				}
 
@@ -1400,76 +1423,43 @@ export const console = (function() {
 
 						let msg = '';
 
-						msg += DIFF.normal;
-						msg += line_a;
-
-						msg += DIFF.normal;
-						msg += div_a;
-
-						msg += DIFF.normal;
-						msg += ' ';
-
-						msg += DIFF.normal;
-						msg += line_b;
-
-						msg += DIFF.normal;
-						msg += div_b;
-
-						msg += DIFF.normal;
-						msg += ' ';
+						msg += highlight_diff(line_a, 'normal');
+						msg += highlight_diff(div_a,  'normal');
+						msg += highlight_diff(' ',    'normal');
+						msg += highlight_diff(line_b, 'normal');
+						msg += highlight_diff(div_b,  'normal');
+						msg += highlight_diff(' ',    'normal');
 						msg += '\u001b[0m\n';
 
-						process.stdout.write(msg);
+						write_console(msg, 'diff');
 
 					} else if (op === '+') {
 
 						let msg = '';
 
-						msg += DIFF.normal;
-						msg += line_a;
-
-						msg += DIFF.normal;
-						msg += div_a;
-
-						msg += DIFF.normal;
-						msg += ' ';
-
-						msg += DIFF.insert;
-						msg += line_b;
-
-						msg += DIFF.normal;
-						msg += div_b;
-
-						msg += DIFF.normal;
-						msg += ' ';
+						msg += highlight_diff(line_a, 'normal');
+						msg += highlight_diff(div_a,  'normal');
+						msg += highlight_diff(' ',    'normal');
+						msg += highlight_diff(line_b, 'insert');
+						msg += highlight_diff(div_b,  'normal');
+						msg += highlight_diff(' ',    'normal');
 						msg += '\u001b[0m\n';
 
-						process.stdout.write(msg);
+						write_console(msg, 'diff');
 
 					} else if (op === '-') {
 
 						let msg = '';
 
-						msg += DIFF.remove;
-						msg += line_a;
-
-						msg += DIFF.normal;
-						msg += div_a;
-
-						msg += DIFF.normal;
-						msg += ' ';
-
-						msg += DIFF.normal;
-						msg += line_b;
-
-						msg += DIFF.normal;
-						msg += div_b;
-
-						msg += DIFF.normal;
-						msg += ' ';
+						msg += highlight_diff(line_a, 'remove');
+						msg += highlight_diff(div_a,  'normal');
+						msg += highlight_diff(' ',    'normal');
+						msg += highlight_diff(line_b, 'normal');
+						msg += highlight_diff(div_b,  'normal');
+						msg += highlight_diff(' ',    'normal');
 						msg += '\u001b[0m\n';
 
-						process.stdout.write(msg);
+						write_console(msg, 'diff');
 
 					} else if (op === '-+') {
 
@@ -1478,57 +1468,31 @@ export const console = (function() {
 
 						if (offset[0] !== -1 && offset[1] !== -1 && offset[2] !== -1) {
 
-							msg += DIFF.normal;
-							msg += line_a.substr(0, offset[0]);
-							msg += DIFF.remove;
-							msg += line_a.substr(offset[0], offset[1] - offset[0]);
-							msg += DIFF.normal;
-							msg += line_a.substr(offset[1]);
-
-							msg += DIFF.normal;
-							msg += div_a;
-
-							msg += DIFF.normal;
-							msg += ' ';
-
-							msg += DIFF.normal;
-							msg += line_b.substr(0, offset[0]);
-							msg += DIFF.insert;
-							msg += line_b.substr(offset[0], offset[2] - offset[0]);
-							msg += DIFF.normal;
-							msg += line_b.substr(offset[2]);
-
-							msg += DIFF.normal;
-							msg += div_b;
-
-							msg += DIFF.normal;
-							msg += ' ';
+							msg += highlight_diff(line_a.substr(0, offset[0]),                     'normal');
+							msg += highlight_diff(line_a.substr(offset[0], offset[1] - offset[0]), 'remove');
+							msg += highlight_diff(line_a.substr(offset[1]),                        'normal');
+							msg += highlight_diff(div_a,                                           'normal');
+							msg += highlight_diff(' ',                                             'normal');
+							msg += highlight_diff(line_b.substr(0, offset[0]),                     'normal');
+							msg += highlight_diff(line_b.substr(offset[0], offset[2] - offset[0]), 'insert');
+							msg += highlight_diff(line_b.substr(offset[2]),                        'normal');
+							msg += highlight_diff(div_b,                                           'normal');
+							msg += highlight_diff(' ',                                             'normal');
 							msg += '\u001b[0m\n';
 
-							process.stdout.write(msg);
+							write_console(msg, 'diff');
 
 						} else {
 
-							msg += DIFF.remove;
-							msg += line_a;
-
-							msg += DIFF.normal;
-							msg += div_a;
-
-							msg += DIFF.normal;
-							msg += ' ';
-
-							msg += DIFF.insert;
-							msg += line_b;
-
-							msg += DIFF.normal;
-							msg += div_b;
-
-							msg += DIFF.normal;
-							msg += ' ';
+							msg += highlight_diff(line_a, 'remove');
+							msg += highlight_diff(div_a,  'normal');
+							msg += highlight_diff(' ',    'normal');
+							msg += highlight_diff(line_b, 'insert');
+							msg += highlight_diff(div_b,  'normal');
+							msg += highlight_diff(' ',    'normal');
 							msg += '\u001b[0m\n';
 
-							process.stdout.write(msg);
+							write_console(msg, 'diff');
 
 						}
 
@@ -1550,7 +1514,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stdout.write(stringify_arguments(args, 41));
+		write_console(stringify_arguments(args), 'error');
 
 	};
 
@@ -1562,7 +1526,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stdout.write(stringify_arguments(args, 42));
+		write_console(stringify_arguments(args), 'info');
 
 	};
 
@@ -1574,7 +1538,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stdout.write(stringify_arguments(args, 40));
+		write_console(stringify_arguments(args), 'log');
 
 	};
 
@@ -1586,7 +1550,7 @@ export const console = (function() {
 			args.push(arguments[a]);
 		}
 
-		process.stdout.write(stringify_arguments(args, 43));
+		write_console(stringify_arguments(args), 'warn');
 
 	};
 

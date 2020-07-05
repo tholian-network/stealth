@@ -27,6 +27,8 @@ const ASSETS  = [
 	'design/header/Mode.mjs',
 	'design/header/Settings.css',
 	'design/header/Settings.mjs',
+	'design/header/Splitter.css',
+	'design/header/Splitter.mjs',
 	'design/index.css',
 	'design/index.mjs',
 	'design/main/Webview.css',
