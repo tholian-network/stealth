@@ -1,17 +1,19 @@
 
-import { Element   } from './Element.mjs';
-import { isBrowser } from '../source/Browser.mjs';
-import { Address   } from './header/Address.mjs';
-import { Context   } from './footer/Context.mjs';
-import { Help      } from './footer/Help.mjs';
-import { History   } from './header/History.mjs';
-import { Mode      } from './header/Mode.mjs';
-import { Session   } from './footer/Session.mjs';
-import { Settings  } from './header/Settings.mjs';
-import { Site      } from './footer/Site.mjs';
-import { Splitter  } from './header/Splitter.mjs';
-import { Tabs      } from './footer/Tabs.mjs';
-import { Webview   } from './main/Webview.mjs';
+import { Element     } from './Element.mjs';
+import { isBrowser   } from '../source/Browser.mjs';
+import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
+import { Address     } from './header/Address.mjs';
+import { Console     } from './footer/Console.mjs';
+import { Context     } from './footer/Context.mjs';
+import { Help        } from './footer/Help.mjs';
+import { History     } from './header/History.mjs';
+import { Mode        } from './header/Mode.mjs';
+import { Session     } from './footer/Session.mjs';
+import { Settings    } from './header/Settings.mjs';
+import { Site        } from './footer/Site.mjs';
+import { Splitter    } from './header/Splitter.mjs';
+import { Tabs        } from './footer/Tabs.mjs';
+import { Webview     } from './main/Webview.mjs';
 
 
 
@@ -42,15 +44,6 @@ export const dispatch = (window, browser) => {
 
 	if (browser !== null) {
 
-		browser.on('theme', (theme) => {
-
-			let body = window.document.querySelector('body');
-			if (body !== null) {
-				body.setAttribute('data-theme', theme);
-			}
-
-		});
-
 		Object.keys(WIDGETS).forEach((key) => {
 
 			let widget = WIDGETS[key] || null;
@@ -61,6 +54,28 @@ export const dispatch = (window, browser) => {
 			WIDGETS[key] = null;
 
 		});
+
+
+		if (ENVIRONMENT.flags.debug === true) {
+
+			WIDGETS.console = new Console(browser, WIDGETS);
+
+			let body = window.document.querySelector('body');
+			if (body !== null) {
+				WIDGETS.console.render(body);
+			}
+
+		}
+
+		browser.on('theme', (theme) => {
+
+			let body = window.document.querySelector('body');
+			if (body !== null) {
+				body.setAttribute('data-theme', theme);
+			}
+
+		});
+
 
 		WIDGETS.address   = new Address(browser, WIDGETS);
 		WIDGETS.context   = new Context(browser, WIDGETS);

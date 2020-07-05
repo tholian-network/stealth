@@ -392,14 +392,8 @@ Tabs.prototype = {
 		this.element.erase(target);
 	},
 
-	hide: function() {
-	},
-
 	render: function(target) {
 		this.element.render(target);
-	},
-
-	show: function() {
 	}
 
 };

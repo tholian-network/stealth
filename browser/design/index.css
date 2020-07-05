@@ -1,18 +1,19 @@
 
 @import url("./other/index.css");
-@import url("./header/History.css");
 @import url("./header/Address.css");
+@import url("./header/History.css");
 @import url("./header/Mode.css");
 @import url("./header/Settings.css");
 @import url("./header/Splitter.css");
 
 @import url("./main/Webview.css");
 
-@import url("./footer/Tabs.css");
-@import url("./footer/Site.css");
-@import url("./footer/Session.css");
+@import url("./footer/Console.css");
 @import url("./footer/Context.css");
 @import url("./footer/Help.css");
+@import url("./footer/Session.css");
+@import url("./footer/Site.css");
+@import url("./footer/Tabs.css");
 
 
 

@@ -110,14 +110,13 @@ export const console = (function(global) {
 
 			let style = [
 				'base-console {',
+				'\tall: unset;',
 				'\tdisplay: block;',
 				'\tposition: fixed;',
 				'\ttop: 0px;',
 				'\tright: 0px;',
 				'\tbottom: 0px;',
 				'\tleft: 0px;',
-				'\tborder: 1px solid #ffffff;',
-				'\tborder-radius: 0px;',
 				'\tbox-sizing: border-box;',
 				'\tbackground: #2e3436;',
 				'\ttransition: 200ms transform ease-out;',

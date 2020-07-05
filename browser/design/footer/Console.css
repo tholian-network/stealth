@@ -1,0 +1,49 @@
+
+browser-console {
+	position: fixed;
+	top: auto;
+	right: auto;
+	bottom: 0px;
+	left: 0px;
+	z-index: 2049;
+}
+
+browser-console button {
+	display: inline-block;
+	min-width: 32px;
+	margin: 0px;
+	padding: 0px;
+	line-height: 32px;
+	height: 32px;
+	color: var(--element-default-color);
+	font-size: 24px;
+	text-align: center;
+	background: var(--layout-default-background);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	vertical-align: middle;
+	user-select: none;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+browser-console button:hover,
+browser-console button.active {
+	color: var(--element-active-color);
+}
+
+browser-console button:before {
+	display: inline-block;
+	width: 100%;
+	font-family: 'icon';
+	text-align: center;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+	content: '\e1b0';
+}
+
