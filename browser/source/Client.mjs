@@ -1,17 +1,17 @@
 
-import { Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                                     } from './ENVIRONMENT.mjs';
-import { Beacon                                          } from './client/Beacon.mjs';
-import { Blocker                                         } from './client/Blocker.mjs';
-import { Cache                                           } from './client/Cache.mjs';
-import { Host                                            } from './client/Host.mjs';
-import { Mode                                            } from './client/Mode.mjs';
-import { Peer                                            } from './client/Peer.mjs';
-import { Redirect                                        } from './client/Redirect.mjs';
-import { Session                                         } from './client/Session.mjs';
-import { Settings                                        } from './client/Settings.mjs';
-import { Stash                                           } from './client/Stash.mjs';
-import { URL                                             } from './parser/URL.mjs';
+import { console, Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                              } from './ENVIRONMENT.mjs';
+import { Beacon                                                   } from './client/Beacon.mjs';
+import { Blocker                                                  } from './client/Blocker.mjs';
+import { Cache                                                    } from './client/Cache.mjs';
+import { Host                                                     } from './client/Host.mjs';
+import { Mode                                                     } from './client/Mode.mjs';
+import { Peer                                                     } from './client/Peer.mjs';
+import { Redirect                                                 } from './client/Redirect.mjs';
+import { Session                                                  } from './client/Session.mjs';
+import { Settings                                                 } from './client/Settings.mjs';
+import { Stash                                                    } from './client/Stash.mjs';
+import { URL                                                      } from './parser/URL.mjs';
 
 
 
@@ -271,9 +271,19 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 						this.disconnect();
 					};
 
-					socket.onerror = (err) => {
+					socket.onerror = (event) => {
 
-						if (isEvent(err) === true || isErrorEvent(err) === true) {
+						if (isErrorEvent(event) === true) {
+
+							console.error('Client: Socket Error');
+							console.error(event.error);
+
+							this.__state.connected = false;
+							this.__state.socket    = null;
+
+							this.emit('disconnect');
+
+						} else if (isEvent(event) === true) {
 
 							this.__state.connected = false;
 							this.__state.socket    = null;
