@@ -32,10 +32,9 @@ const ELEMENTS = {
 
 const listen_beacons = (settings, callback) => {
 
-	let output = ELEMENTS.beacons.output || null;
-	if (output !== null) {
+	if (ELEMENTS.beacons.output !== null) {
 
-		output.on('click', (e) => {
+		ELEMENTS.beacons.output.on('click', (e) => {
 
 			let target = e.target;
 			let type   = target.tagName.toLowerCase();
@@ -117,10 +116,9 @@ const listen_modes = (settings, callback) => {
 
 	}
 
-	let output = ELEMENTS.modes.output || null;
-	if (output !== null) {
+	if (ELEMENTS.modes.output !== null) {
 
-		output.on('click', (e) => {
+		ELEMENTS.modes.output.on('click', (e) => {
 
 			let target = e.target;
 			let type   = target.tagName.toLowerCase();
@@ -320,7 +318,7 @@ export const update = (settings, actions) => {
 	let total   = 0;
 	let value   = search();
 
-	if (isArray(settings['beacons']) === true) {
+	if (isArray(settings['beacons']) === true && ELEMENTS.beacons.output !== null) {
 
 		total += settings['beacons'].length;
 
@@ -361,7 +359,7 @@ export const update = (settings, actions) => {
 
 	}
 
-	if (isArray(settings['modes']) === true) {
+	if (isArray(settings['modes']) === true && ELEMENTS.modes.output !== null) {
 
 		total += settings['modes'].length;
 
