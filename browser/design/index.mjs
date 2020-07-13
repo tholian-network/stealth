@@ -1,19 +1,25 @@
 
 import { Element     } from './Element.mjs';
+import { Widget      } from './Widget.mjs';
 import { isBrowser   } from '../source/Browser.mjs';
 import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
-import { Address     } from './header/Address.mjs';
-import { Console     } from './footer/Console.mjs';
-import { Context     } from './footer/Context.mjs';
-import { Help        } from './footer/Help.mjs';
-import { History     } from './header/History.mjs';
-import { Mode        } from './header/Mode.mjs';
-import { Session     } from './footer/Session.mjs';
-import { Settings    } from './header/Settings.mjs';
-import { Site        } from './footer/Site.mjs';
-import { Splitter    } from './header/Splitter.mjs';
-import { Tabs        } from './footer/Tabs.mjs';
-import { Webview     } from './main/Webview.mjs';
+
+import { Address     } from './appbar/Address.mjs';
+import { History     } from './appbar/History.mjs';
+import { Mode        } from './appbar/Mode.mjs';
+import { Settings    } from './appbar/Settings.mjs';
+import { Splitter    } from './appbar/Splitter.mjs';
+
+import { Console     } from './backdrop/Console.mjs';
+import { Help        } from './backdrop/Help.mjs';
+import { Tabs        } from './backdrop/Tabs.mjs';
+import { Webview     } from './backdrop/Webview.mjs';
+
+// TODO: Port Session and Site Sidebars to browser-dialog[data-key=""]
+// import { Session     } from './dialog/Session.mjs';
+// import { Site        } from './dialog/Site.mjs';
+
+import { Context     } from './menu/Context.mjs';
 
 
 
@@ -24,18 +30,19 @@ const on_resize = function() {
 
 	if (width !== null && height !== null) {
 
-		WIDGETS.splitter.element.emit('resize', [ width, height ]);
-		WIDGETS.tabs.element.emit('resize', [ width, height ]);
+		let splitter = Widget.query('browser-splitter');
+		let tabs     = Widget.query('browser-tabs');
+
+		if (splitter !== null && tabs !== null) {
+			splitter.emit('resize', [ width, height ]);
+			tabs.emit('resize', [ width, height ]);
+		}
 
 	}
 
 };
 
 
-
-export * from './Element.mjs';
-
-export const WIDGETS = window.WIDGETS = {};
 
 export const dispatch = (window, browser) => {
 
@@ -44,79 +51,56 @@ export const dispatch = (window, browser) => {
 
 	if (browser !== null) {
 
-		Object.keys(WIDGETS).forEach((key) => {
+		let elements = {
+			header: Element.query('header'),
+			main:   Element.query('main'),
+			footer: Element.query('footer')
+		};
 
-			let widget = WIDGETS[key] || null;
-			if (widget !== null) {
-				widget.erase();
+		let widgets = {
+			appmenu: {
+				address:  new Address(browser),
+				history:  new History(browser),
+				mode:     new Mode(browser),
+				settings: new Settings(browser),
+				splitter: new Splitter(browser)
+			},
+			backdrop: {
+				console: ENVIRONMENT.flags.debug === true ? new Console(browser) : null,
+				help:    new Help(browser),
+				tabs:    new Tabs(browser),
+				webview: new Webview(browser)
+			},
+			menu: {
+				context: new Context(browser)
 			}
+		};
 
-			WIDGETS[key] = null;
+		widgets.appmenu['history'].render(elements.header);
+		widgets.appmenu['address'].render(elements.header);
+		widgets.appmenu['mode'].render(elements.header);
+		widgets.appmenu['settings'].render(elements.header);
+		widgets.appmenu['splitter'].render(elements.header);
 
-		});
+		widgets.backdrop['webview'].render(elements.main);
+		widgets.backdrop['tabs'].render(elements.main);
+		widgets.backdrop['help'].render(elements.main);
 
-
-		if (ENVIRONMENT.flags.debug === true) {
-
-			WIDGETS.console = new Console(browser, WIDGETS);
-
-			let body = window.document.querySelector('body');
-			if (body !== null) {
-				WIDGETS.console.render(body);
-			}
-
+		if (widgets.backdrop['console'] !== null) {
+			widgets.backdrop['console'].render(Element.query('body'));
 		}
+
+		widgets.menu['context'].render(elements.footer);
+
 
 		browser.on('theme', (theme) => {
 
-			let body = window.document.querySelector('body');
+			let body = Element.query('body');
 			if (body !== null) {
-				body.setAttribute('data-theme', theme);
+				body.attr('data-theme', theme);
 			}
 
 		});
-
-
-		WIDGETS.address   = new Address(browser, WIDGETS);
-		WIDGETS.context   = new Context(browser, WIDGETS);
-		WIDGETS.help      = new Help(browser, WIDGETS);
-		WIDGETS.history   = new History(browser, WIDGETS);
-		WIDGETS.mode      = new Mode(browser, WIDGETS);
-		WIDGETS.session   = new Session(browser, WIDGETS);
-		WIDGETS.settings  = new Settings(browser, WIDGETS);
-		WIDGETS.site      = new Site(browser, WIDGETS);
-		WIDGETS.splitter  = new Splitter(browser, WIDGETS);
-		WIDGETS.tabs      = new Tabs(browser, WIDGETS);
-		WIDGETS.webview   = new Webview(browser, WIDGETS);
-
-		let header = Element.from(window.document.querySelector('header'));
-		if (header !== null) {
-
-			WIDGETS.history.render(header);
-			WIDGETS.address.render(header);
-			WIDGETS.mode.render(header);
-			WIDGETS.settings.render(header);
-			WIDGETS.splitter.render(header);
-
-		}
-
-		let main = Element.from(window.document.querySelector('main'));
-		if (main !== null) {
-
-			WIDGETS.webview.render(main);
-
-		}
-
-		let footer = Element.from(window.document.querySelector('footer'));
-		if (footer !== null) {
-
-			WIDGETS.tabs.render(footer);
-			WIDGETS.site.render(footer);
-			WIDGETS.session.render(footer);
-			WIDGETS.context.render(footer);
-			WIDGETS.help.render(footer);
-
-		}
 
 
 		setTimeout(() => {
@@ -124,25 +108,36 @@ export const dispatch = (window, browser) => {
 			let tabindex = 1;
 
 			[
-				WIDGETS.history.back,
-				WIDGETS.history.next,
-				WIDGETS.history.action,
-				WIDGETS.history.open,
-				WIDGETS.address.input,
-				...WIDGETS.mode.buttons,
-				WIDGETS.settings.session,
-				WIDGETS.settings.site,
-				WIDGETS.settings.browser
+				widgets.appmenu['history'].buttons.back,
+				widgets.appmenu['history'].buttons.next,
+				widgets.appmenu['history'].buttons.action,
+				widgets.appmenu['history'].buttons.open,
+				widgets.appmenu['address'].input,
+				...widgets.appmenu['mode'].buttons,
+				widgets.appmenu['settings'].buttons.site,
+				widgets.appmenu['settings'].buttons.session,
+				widgets.appmenu['settings'].buttons.browser
 			].filter((v) => v !== null).forEach((element) => {
 				element.attr('tabindex', tabindex++);
 			});
 
-			WIDGETS.tabs.tabindex = tabindex;
+			widgets.backdrop['tabs'].tabindex = tabindex;
 
 		}, 100);
 
 		window.addEventListener('resize', () => on_resize.call(window));
 		setTimeout(() => on_resize.call(window), 200);
+
+
+		if (ENVIRONMENT.flags.debug === true) {
+
+			window.ELEMENTS = elements;
+			window.WIDGETS  = widgets;
+
+			window.Element  = Element;
+			window.Widget   = Widget;
+
+		}
 
 	}
 

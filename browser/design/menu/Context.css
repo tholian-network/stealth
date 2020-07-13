@@ -89,14 +89,17 @@ browser-context button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
+browser-context button[data-icon="back"]:before     { content: '\e5c4'; }
 browser-context button[data-icon="default"]:before  { content: '\e315'; }
 browser-context button[data-icon="close"]:before    { content: '\e5cd'; }
 browser-context button[data-icon="confirm"]:before  { content: '\e5ca'; }
 browser-context button[data-icon="copy"]:before     { content: '\e14d'; }
 browser-context button[data-icon="download"]:before { content: '\e2c4'; }
 browser-context button[data-icon="focus"]:before    { content: '\e3dc'; }
+browser-context button[data-icon="next"]:before     { content: '\e5c8'; }
 browser-context button[data-icon="open"]:before     { content: '\e89e'; }
 browser-context button[data-icon="paste"]:before    { content: '\e14f'; }
+browser-context button[data-icon="pause"]:before    { content: '\e034'; }
 browser-context button[data-icon="refresh"]:before  { content: '\e5d5'; }
 browser-context button[data-icon="read"]:before     { content: '\e5d5'; }
 browser-context button[data-icon="remove"]:before   { content: '\e5cd'; }

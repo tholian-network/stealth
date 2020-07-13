@@ -162,7 +162,7 @@ export const update = (settings, actions) => {
 	actions  = isArray(actions)   ? actions  : [ 'refresh', 'remove', 'save' ];
 
 
-	if (isArray(settings['hosts']) === true) {
+	if (isArray(settings['hosts']) === true && ELEMENTS.output !== null) {
 
 		let visible = 0;
 		let total   = settings['hosts'].length;

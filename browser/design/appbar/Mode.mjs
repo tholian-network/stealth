@@ -1,19 +1,10 @@
 
-import { Element } from '../../design/index.mjs';
+import { Element } from '../Element.mjs';
+import { Widget  } from '../Widget.mjs';
 
 
 
-const TEMPLATE = `
-<button data-key="text" data-val="false" title="Allow/Disallow Text on current Site"></button>
-<button data-key="image" data-val="false" title="Allow/Disallow Image on current Site"></button>
-<button data-key="audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>
-<button data-key="video" data-val="false" title="Allow/Disallow Video on current Site"></button>
-<button data-key="other" data-val="false" title="Allow/Disallow Other on current Site"></button>
-`;
-
-
-
-const get_config = function(tab) {
+const toConfig = function(tab) {
 
 	if (tab !== null) {
 
@@ -33,7 +24,7 @@ const get_config = function(tab) {
 
 			this.buttons.forEach((button) => {
 
-				let key = button.element.getAttribute('data-key') || null;
+				let key = button.attr('data-key');
 				if (key !== null) {
 					config.mode[key] = button.value() === true;
 				}
@@ -83,10 +74,7 @@ const update = function(tab) {
 
 		Object.keys(tab.config.mode).forEach((key) => {
 
-			let button = this.buttons.find((other) => {
-				return other.element.getAttribute('data-key') === key;
-			}) || null;
-
+			let button = this.buttons.find((b) => b.attr('data-key') === key) || null;
 			if (button !== null) {
 				button.value(tab.config.mode[key]);
 			}
@@ -108,13 +96,22 @@ const update = function(tab) {
 
 const Mode = function(browser) {
 
-	this.element = Element.from('browser-mode', TEMPLATE);
+	this.element = new Element('browser-mode', [
+		'<button data-key="text" data-val="false" title="Allow/Disallow Text on current Site"></button>',
+		'<button data-key="image" data-val="false" title="Allow/Disallow Image on current Site"></button>',
+		'<button data-key="audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>',
+		'<button data-key="video" data-val="false" title="Allow/Disallow Video on current Site"></button>',
+		'<button data-key="other" data-val="false" title="Allow/Disallow Other on current Site"></button>'
+	].join(''));
+
 	this.buttons = this.element.query('[data-key]');
 
 
 	this.element.on('contextmenu', (e) => {
+
 		e.preventDefault();
 		e.stopPropagation();
+
 	});
 
 	this.buttons.forEach((button) => {
@@ -128,7 +125,7 @@ const Mode = function(browser) {
 				button.value(true);
 			}
 
-			let config = get_config.call(this, browser.tab);
+			let config = toConfig.call(this, browser.tab);
 			if (config !== null) {
 				browser.set(config);
 			}
@@ -142,20 +139,13 @@ const Mode = function(browser) {
 	// browser.on('refresh') isn't necessary
 	browser.on('show',    () => update.call(this, browser.tab));
 
-};
 
-
-Mode.prototype = {
-
-	erase: function(target) {
-		this.element.erase(target);
-	},
-
-	render: function(target) {
-		this.element.render(target);
-	}
+	Widget.call(this);
 
 };
+
+
+Mode.prototype = Object.assign({}, Widget.prototype);
 
 
 export { Mode };

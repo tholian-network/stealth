@@ -1,19 +1,22 @@
 
 @import url("./other/index.css");
-@import url("./header/Address.css");
-@import url("./header/History.css");
-@import url("./header/Mode.css");
-@import url("./header/Settings.css");
-@import url("./header/Splitter.css");
 
-@import url("./main/Webview.css");
+@import url("./appbar/Address.css");
+@import url("./appbar/History.css");
+@import url("./appbar/Mode.css");
+@import url("./appbar/Settings.css");
+@import url("./appbar/Splitter.css");
 
-@import url("./footer/Console.css");
-@import url("./footer/Context.css");
-@import url("./footer/Help.css");
-@import url("./footer/Session.css");
-@import url("./footer/Site.css");
-@import url("./footer/Tabs.css");
+@import url("./backdrop/Console.css");
+@import url("./backdrop/Help.css");
+@import url("./backdrop/Tabs.css");
+@import url("./backdrop/Webview.css");
+
+/* TODO: Port Session and Site Sidebars to browser-dialog[data-key=""] */
+/* @import url("./dialog/Session.css"); */
+/* @import url("./dialog/Site.css");    */
+
+@import url("./menu/Context.css");
 
 
 

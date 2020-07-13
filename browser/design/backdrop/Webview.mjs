@@ -1,14 +1,11 @@
 
-import { Element             } from '../../design/index.mjs';
+import { Element             } from '../Element.mjs';
+import { Widget              } from '../Widget.mjs';
 import { isBoolean, isString } from '../../extern/base.mjs';
-import { dispatch            } from '../../internal/index.mjs';
+// import { dispatch            } from '../../internal/index.mjs';
 import { URL                 } from '../../source/parser/URL.mjs';
 
 
-
-const TEMPLATE = `
-<iframe sandbox="allow-scripts allow-same-origin" src="/browser/internal/welcome.html"></iframe>
-`;
 
 const get_src = function(id, ref, refresh) {
 
@@ -85,15 +82,15 @@ const update = function(tab, refresh) {
 
 		if (refresh === true) {
 
-			this.ref                 = ref;
-			this.webview.element.src = src;
+			this.ref = ref;
+			this.webview.attr('src', src);
 
 		} else {
 
-			if (this.webview.element.src !== src) {
+			if (this.webview.attr('src') !== src) {
 
-				this.ref                 = ref;
-				this.webview.element.src = src;
+				this.ref = ref;
+				this.webview.attr('src', src);
 
 			}
 
@@ -107,19 +104,23 @@ const update = function(tab, refresh) {
 
 const Webview = function(browser) {
 
-	this.element = Element.from('browser-webview', TEMPLATE);
+	this.element = new Element('browser-webview', [
+		'<iframe sandbox="allow-scripts allow-same-origin" src="/browser/internal/welcome.html"></iframe>'
+	]);
+
 	this.ref     = URL.parse('stealth:welcome');
 	this.webview = this.element.query('iframe');
-	this.window  = this.webview.element.contentWindow || null;
+	this.window  = this.webview.node.contentWindow || null;
 
 
 	this.webview.on('load', () => {
 
-		let window = this.webview.element.contentWindow || null;
+		let window = this.webview.node.contentWindow || null;
 		if (window !== null) {
 
 			if (this.ref.protocol === 'stealth') {
-				dispatch(window, browser);
+				// TODO: Reintegrate this
+				// dispatch(window, browser);
 			}
 
 		}
@@ -137,20 +138,13 @@ const Webview = function(browser) {
 	browser.on('show',    (tab, tabs, refresh) => update.call(this, tab, refresh));
 	browser.on('refresh', (tab, tabs, refresh) => update.call(this, tab, refresh));
 
-};
 
-
-Webview.prototype = {
-
-	erase: function(target) {
-		this.element.erase(target);
-	},
-
-	render: function(target) {
-		this.element.render(target);
-	}
+	Widget.call(this);
 
 };
+
+
+Webview.prototype = Object.assign({}, Widget.prototype);
 
 
 export { Webview };

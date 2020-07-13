@@ -1,14 +1,10 @@
 
-import { Element  } from '../../design/index.mjs';
+import { Element  } from '../Element.mjs';
+import { Widget   } from '../Widget.mjs';
 import { isString } from '../../extern/base.mjs';
 import { URL      } from '../../source/parser/URL.mjs';
 
 
-
-const TEMPLATE = `
-<ul><li data-key="protocol" data-val="stealth"></li><li>welcome</li></ul>
-<input type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">
-`;
 
 const update = function(tab) {
 
@@ -17,7 +13,7 @@ const update = function(tab) {
 		this.input.state('');
 		this.input.value(tab.ref);
 
-		this.protocol.element.title = tab.ref.protocol;
+		this.protocol.attr('title', tab.ref.protocol);
 		this.protocol.value(tab.ref.protocol);
 
 
@@ -56,7 +52,7 @@ const update = function(tab) {
 				// Do nothing
 			}
 
-			chunks.push(Element.from('li', domain, false));
+			chunks.push(new Element('li', domain));
 
 		} else if (host !== null) {
 
@@ -71,39 +67,39 @@ const update = function(tab) {
 			if (protocol === 'file') {
 				// Do nothing
 			} else if (protocol === 'ftps' && port !== 990) {
-				domain += ':' + port;
+				host += ':' + port;
 			} else if (protocol === 'ftp' && port !== 21) {
-				domain += ':' + port;
+				host += ':' + port;
 			} else if (protocol === 'https' && port !== 443) {
-				domain += ':' + port;
+				host += ':' + port;
 			} else if (protocol === 'http' && port !== 80) {
-				domain += ':' + port;
+				host += ':' + port;
 			} else if (protocol === 'wss' && port !== 443) {
-				domain += ':' + port;
+				host += ':' + port;
 			} else if (protocol === 'ws' && port !== 80) {
-				domain += ':' + port;
+				host += ':' + port;
 			} else if (protocol === 'socks' && port !== 1080) {
-				domain += ':' + port;
+				host += ':' + port;
 			} else if (protocol === 'stealth') {
 				// Do nothing
 			}
 
-			chunks.push(Element.from('li', host, false));
+			chunks.push(new Element('li', host));
 
 		}
 
 		let path = tab.ref.path || '/';
 		if (path !== '/') {
-			path.split('/').forEach((ch) => {
-				if (ch !== '') {
-					chunks.push(Element.from('li', '/' + ch, false));
+			path.split('/').forEach((chunk) => {
+				if (chunk !== '') {
+					chunks.push(new Element('li', '/' + chunk));
 				}
 			});
 		}
 
 		let query = tab.ref.query || null;
 		if (query !== null) {
-			chunks.push(Element.from('li', '?' + query, false));
+			chunks.push(new Element('li', '?' + query));
 		}
 
 		this.output.value(chunks);
@@ -114,7 +110,7 @@ const update = function(tab) {
 		this.input.value('');
 		this.input.emit('focus');
 
-		this.protocol.element.title = '';
+		this.protocol.attr('title', '');
 		this.protocol.value('');
 
 		this.output.state('');
@@ -126,9 +122,13 @@ const update = function(tab) {
 
 
 
-const Address = function(browser, widgets) {
+const Address = function(browser) {
 
-	this.element  = Element.from('browser-address', TEMPLATE);
+	this.element = new Element('browser-address', [
+		'<ul><li data-key="protocol" data-val="stealth"></li><li>welcome</li></ul>',
+		'<input type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">'
+	].join(''));
+
 	this.protocol = this.element.query('[data-key="protocol"]');
 	this.input    = this.element.query('input');
 	this.output   = this.element.query('ul');
@@ -136,18 +136,18 @@ const Address = function(browser, widgets) {
 
 	this.element.on('contextmenu', (e) => {
 
-		let context = widgets.context || null;
+		let context = Widget.query('browser-context');
 		if (context !== null) {
 
 			let area = this.input.area();
 			if (area !== null) {
 
-				widgets.context.read((clipped) => {
+				context.read((clipped) => {
 
 					let ref = URL.parse(clipped);
 					if (ref.protocol === 'https' || ref.protocol === 'http') {
 
-						context.set([{
+						context.value([{
 							label: 'open',
 							value: clipped,
 						}, {
@@ -164,7 +164,7 @@ const Address = function(browser, widgets) {
 									if (ref.protocol === 'https' || ref.protocol === 'http') {
 										this.input.state('active');
 										this.input.value(ref);
-										this.input.element.setSelectionRange(0, ref.url.length);
+										this.input.node.setSelectionRange(0, ref.url.length);
 										this.input.emit('focus');
 									}
 
@@ -175,7 +175,7 @@ const Address = function(browser, widgets) {
 
 					} else {
 
-						context.set([{
+						context.value([{
 							label: 'copy',
 							value: browser.tab.url
 						}]);
@@ -202,7 +202,7 @@ const Address = function(browser, widgets) {
 
 	this.input.on('blur', () => {
 
-		let url = this.input.element.value.trim();
+		let url = this.input.node.value.trim();
 		if (url === '') {
 
 			update.call(this, browser.tab);
@@ -247,10 +247,10 @@ const Address = function(browser, widgets) {
 
 	this.input.on('click', (e) => {
 
-		let context = widgets.context || null;
+		let context = Widget.query('browser-context');
 		if (context !== null) {
 
-			if (context.element.state() === 'active') {
+			if (context.state() === 'active') {
 				context.emit('hide');
 			}
 
@@ -262,17 +262,8 @@ const Address = function(browser, widgets) {
 
 	this.input.on('focus', () => {
 
-		// Set by output.on('click')
 		if (this.input.state() !== 'active') {
-
-			let ref = this.input.value() || null;
-			if (ref !== null) {
-				this.input.element.setSelectionRange(0, ref.url.length);
-				this.input.state('active');
-			} else {
-				this.input.state('active');
-			}
-
+			this.input.state('active');
 		}
 
 	});
@@ -288,16 +279,15 @@ const Address = function(browser, widgets) {
 
 	this.output.on('click', (e) => {
 
-		let target   = e.target;
-		let elements = Array.from(this.output.query('li')).slice(1);
+		let items = this.output.query('li').slice(1);
+		let index = items.findIndex((item) => item.node === e.target);
 
-		let index = elements.findIndex((e) => e.element === target);
 		if (index !== -1) {
 
 			let ref = this.input.value();
 			let url = ref.url;
 
-			let values = elements.map((e) => e.value());
+			let values = items.map((item) => item.value());
 			let before = values.slice(0, index).join('');
 
 			if (ref.protocol === 'stealth') {
@@ -306,19 +296,20 @@ const Address = function(browser, widgets) {
 				before = ref.protocol + '://' + before;
 			}
 
+
 			let offset = url.indexOf(before) + before.length;
 
 			this.input.state('active');
-			this.input.element.setSelectionRange(offset, offset + values[index].length);
+			this.input.node.setSelectionRange(offset, offset + values[index].length);
 			this.input.emit('focus');
 
 		}
 
 
-		let context = widgets.context || null;
+		let context = Widget.query('browser-context');
 		if (context !== null) {
 
-			if (context.element.state() === 'active') {
+			if (context.state() === 'active') {
 				context.emit('hide');
 			}
 
@@ -330,20 +321,13 @@ const Address = function(browser, widgets) {
 	browser.on('show',    (tab) => update.call(this, tab));
 	browser.on('refresh', (tab) => update.call(this, tab));
 
-};
 
-
-Address.prototype = {
-
-	erase: function(target) {
-		this.element.erase(target);
-	},
-
-	render: function(target) {
-		this.element.render(target);
-	}
+	Widget.call(this);
 
 };
+
+
+Address.prototype = Object.assign({}, Widget.prototype);
 
 
 export { Address };

@@ -12,35 +12,39 @@ export const listen = function(settings, callback) {
 
 	Object.keys(ELEMENTS).forEach((type) => {
 
-		ELEMENTS[type].forEach((element, e, others) => {
+		if (ELEMENTS[type] !== null) {
 
-			element.on('change', () => {
+			ELEMENTS[type].forEach((element, e, others) => {
 
-				let active = others.find((o) => o.attr('checked') === true) || null;
-				if (active !== null) {
+				element.on('change', () => {
 
-					let cur_val = settings['interface'][type];
-					let new_val = active.value();
+					let active = others.find((o) => o.attr('checked') === true) || null;
+					if (active !== null) {
 
-					if (cur_val !== new_val) {
+						let cur_val = settings['interface'][type];
+						let new_val = active.value();
 
-						element.state('disabled');
-						element.state('busy');
+						if (cur_val !== new_val) {
 
-						callback('save', {
-							'interface': Object.assign({}, settings['interface'], { [type]: new_val })
-						}, (result) => {
-							element.state('enabled');
-							element.state(result === true ? '' : 'error');
-						});
+							element.state('disabled');
+							element.state('busy');
+
+							callback('save', {
+								'interface': Object.assign({}, settings['interface'], { [type]: new_val })
+							}, (result) => {
+								element.state('enabled');
+								element.state(result === true ? '' : 'error');
+							});
+
+						}
 
 					}
 
-				}
+				});
 
 			});
 
-		});
+		}
 
 	});
 

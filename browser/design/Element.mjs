@@ -1,29 +1,15 @@
 
 import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '../extern/base.mjs';
 import { IP                                                           } from '../source/parser/IP.mjs';
+import { UA                                                           } from '../source/parser/UA.mjs';
 import { URL                                                          } from '../source/parser/URL.mjs';
 
 
 
-const global = (typeof window !== 'undefined' ? window : this);
-const doc    = global.document;
-const CACHE  = {
-	reality: [],
-	virtual: []
-};
+const global   = (typeof window !== 'undefined' ? window : this);
+const ELEMENTS = [];
 
-export const isElement = function(element) {
-
-	let str = Object.prototype.toString.call(element);
-	if (str.startsWith('[object') && str.includes('HTML') && str.endsWith('Element]')) {
-		return true;
-	}
-
-	return false;
-
-};
-
-const Dummy = function() {
+const FakeEvent = function() {
 
 	this.x = 0;
 	this.y = 0;
@@ -32,24 +18,41 @@ const Dummy = function() {
 
 };
 
-const render_value = function(val) {
+const isHTMLElement = function(element) {
 
-	let san = '';
-
-	if (isBoolean(val)) {
-		san = (val).toString();
-	} else if (isString(val)) {
-		san = val;
-	} else if (isArray(val)) {
-		san = JSON.stringify(val);
-	} else if (isObject(val)) {
-		san = JSON.stringify(val);
-	} else if (isNumber(val)) {
-		san = (val).toString();
+	let str = Object.prototype.toString.call(element);
+	if (str.startsWith('[object') && str.includes('HTML') && str.includes('Element]')) {
+		return true;
 	}
 
-	return san;
 
+	return false;
+
+};
+
+const isContent = function(content) {
+
+	if (isString(content) === true) {
+
+		return true;
+
+	} else if (isHTMLElement(content) === true) {
+
+		return true;
+
+	} else if (isArray(content) === true) {
+
+		let check = content.filter((c) => isElement(c) || isHTMLElement(c) || isString(c));
+		if (check.length === content.length) {
+			return true;
+		}
+
+	}
+
+};
+
+export const isElement = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Element]';
 };
 
 const parse_value = function(raw) {
@@ -111,117 +114,166 @@ const parse_value = function(raw) {
 
 };
 
+const render_value = function(val) {
+
+	let san = '';
+
+	if (val === null) {
+		san = 'null';
+	} else if (isBoolean(val) === true) {
+		san = (val).toString();
+	} else if (isString(val) === true) {
+		san = val;
+	} else if (isArray(val) === true) {
+		san = JSON.stringify(val);
+	} else if (isObject(val) === true) {
+		san = JSON.stringify(val);
+	} else if (isNumber(val) === true) {
+		san = (val).toString();
+	}
+
+	return san;
+
+};
 
 
-const Element = function(type, template, virtual) {
 
-	virtual = isBoolean(virtual) ? virtual : true;
+const Element = function(type, content) {
+
+	type    = isString(type)     ? type    : null;
+	content = isContent(content) ? content : null;
 
 
-	this.element = null;
-	this.type    = null;
+	if (type === null) {
+		return null;
+	}
+
+
+	this.node = global.document.createElement(type);
+	this.type = this.node.tagName.toLowerCase();
 
 	this.__events    = {};
 	this.__journal   = [];
 	this.__listeners = {};
 
 
-	if (isElement(type) === true) {
-		this.element = type;
-		this.type    = this.element.tagName.toLowerCase();
-	} else if (isString(type) === true) {
-		this.element = doc.createElement(type);
-		this.type    = this.element.tagName.toLowerCase();
-	}
+	if (content !== null) {
 
-	if (isArray(template) === true) {
+		if (isString(content) === true) {
 
-		template.filter((v) => isElement(v)).forEach((node) => {
-			this.element.appendChild(node);
-		});
+			this.node.innerHTML = content.trim().split('\n').join('');
 
-	} else if (isString(template) === true) {
-		this.element.innerHTML = template.trim().split('\n').join('');
-	}
+		} else if (isHTMLElement(content) === true) {
 
+			this.node.appendChild(content);
 
-	if (this.element !== null && virtual === true) {
+		} else if (isArray(content) === true) {
 
-		if (CACHE.reality.includes(this.element) === false) {
-			CACHE.reality.push(this.element);
-			CACHE.virtual.push(this);
+			let elements = content.filter((c) => isElement(c));
+			let nodes    = content.filter((c) => isHTMLElement(c));
+			let strings  = content.filter((c) => isString(c));
+
+			if (elements.length > 0) {
+
+				elements.forEach((element) => {
+
+					if (element.node !== null) {
+						this.node.appendChild(element.node);
+					}
+
+				});
+
+			} else if (nodes.length > 0) {
+
+				nodes.forEach((node) => {
+					this.node.appendChild(node);
+				});
+
+			} else if (strings.length > 0) {
+
+				this.node.innerHTML = strings.map((str) => {
+					return str.trim().split('\n').join('');
+				}).join('');
+
+			}
+
 		}
 
 	}
 
-};
 
-
-Element.isElement = function(element) {
-
-	if (element !== undefined && element !== null) {
-		return element instanceof Element;
-	}
-
-	return false;
+	ELEMENTS.push(this);
 
 };
 
-Element.from = function(type, template, virtual) {
 
-	if (isElement(type) && isString(template) && isBoolean(virtual)) {
-		return new Element(type, template, virtual);
-	} else if (isElement(type) && isString(template)) {
-		return new Element(type, template);
-	} else if (isElement(type) && isBoolean(virtual)) {
-		return new Element(type, null, virtual);
-	} else if (isElement(type)) {
-		return new Element(type);
-	} else if (isString(type) && isString(template) && isBoolean(virtual)) {
-		return new Element(type, template, virtual);
-	} else if (isString(type) && isString(template)) {
-		return new Element(type, template);
-	} else if (isString(type) && isBoolean(virtual)) {
-		return new Element(type, null, virtual);
-	} else if (isString(type)) {
-		return new Element(type);
-	}
+Element.isElement = isElement;
 
-
-	return null;
-
-};
 
 Element.query = function(query) {
 
 	query = isString(query) ? query : null;
 
 
+	let found = null;
+
 	if (query !== null) {
 
-		let nodes = Array.from(doc.querySelectorAll(query));
+		let nodes = Array.from(global.document.querySelectorAll(query));
 		if (nodes.length > 1) {
 
-			return nodes.map((node) => {
+			found = [];
 
-				let index = CACHE.reality.indexOf(node);
-				if (index !== -1) {
-					return CACHE.virtual[index];
+			nodes.forEach((node) => {
+
+				let element = ELEMENTS.find((e) => e.node === node) || null;
+				if (element !== null) {
+
+					found.push(element);
+
 				} else {
-					return new Element(node);
+
+					element      = new Element(node.tagName.toLowerCase());
+					element.node = node;
+
+					found.push(element);
+
 				}
 
 			});
 
 		} else if (nodes.length === 1) {
 
-			let index = CACHE.reality.indexOf(nodes[0]);
-			if (index !== -1) {
-				return CACHE.virtual[index];
-			} else {
-				return new Element(nodes[0]);
+			found = ELEMENTS.find((element) => {
+				return element.node === nodes[0];
+			}) || null;
+
+			if (found === null) {
+
+				found      = new Element(nodes[0].tagName.toLowerCase());
+				found.node = nodes[0];
+
 			}
 
+		}
+
+	}
+
+	return found;
+
+};
+
+
+Element.toElement = function(node) {
+
+	node = isHTMLElement(node) ? node : null;
+
+
+	if (node !== null) {
+
+		let element = ELEMENTS.find((e) => e.node === node) || null;
+		if (element !== null) {
+			return element;
 		}
 
 	}
@@ -239,11 +291,20 @@ Element.prototype = {
 	toJSON: function() {
 
 		let data = {
-			type:     this.type || null,
-			template: this.element.innerHTML,
-			events:   Object.keys(this.__events),
-			journal:  []
+			node:    null,
+			type:    null,
+			content: null,
+			events:  Object.keys(this.__events),
+			journal: []
 		};
+
+		if (this.node !== null) {
+			data.content = this.node.innerHTML.trim();
+		}
+
+		if (this.type !== null) {
+			data.type = this.type;
+		}
 
 		if (this.__journal.length > 0) {
 
@@ -288,44 +349,37 @@ Element.prototype = {
 			let y = isNumber(area.y) ? (area.y | 0) : null;
 			let z = isNumber(area.z) ? (area.z | 0) : null;
 
-			if (this.element !== null) {
-
-				if (w !== null) {
-					this.element.style['width'] = w + 'px';
-				} else {
-					this.element.style['width'] = '';
-				}
-
-				if (h !== null) {
-					this.element.style['height'] = h + 'px';
-				} else {
-					this.element.style['height'] = '';
-				}
-
-				if (x !== null) {
-					this.element.style['left'] = x + 'px';
-				} else {
-					this.element.style['left'] = '';
-				}
-
-				if (y !== null) {
-					this.element.style['top'] = y + 'px';
-				} else {
-					this.element.style['top'] = '';
-				}
-
-				if (z !== null) {
-					this.element.style['z-index'] = z;
-				} else {
-					this.element.style['z-index'] = '';
-				}
-
-				return true;
-
+			if (w !== null) {
+				this.node.style['width'] = w + 'px';
+			} else {
+				this.node.style['width'] = '';
 			}
 
+			if (h !== null) {
+				this.node.style['height'] = h + 'px';
+			} else {
+				this.node.style['height'] = '';
+			}
 
-			return false;
+			if (x !== null) {
+				this.node.style['left'] = x + 'px';
+			} else {
+				this.node.style['left'] = '';
+			}
+
+			if (y !== null) {
+				this.node.style['top'] = y + 'px';
+			} else {
+				this.node.style['top'] = '';
+			}
+
+			if (z !== null) {
+				this.node.style['z-index'] = z;
+			} else {
+				this.node.style['z-index'] = '';
+			}
+
+			return true;
 
 		} else {
 
@@ -334,25 +388,20 @@ Element.prototype = {
 				x: 0, y: 0, z: 0
 			};
 
-			if (this.element !== null) {
+			let rect = this.node.getBoundingClientRect();
+			if (rect !== null) {
+				area.w = rect.width;
+				area.h = rect.height;
+				area.x = (rect.left + area.w / 2) | 0;
+				area.y = (rect.top  + area.h / 2) | 0;
+			}
 
-				let rect = this.element.getBoundingClientRect();
-				if (rect !== null) {
-					area.w = rect.width;
-					area.h = rect.height;
-					area.x = (rect.left + area.w / 2) | 0;
-					area.y = (rect.top  + area.h / 2) | 0;
-				}
+			let z_index = this.node.style['z-index'] || null;
+			if (z_index !== null) {
 
-
-				let z_index = this.element.style['z-index'] || null;
-				if (z_index !== null) {
-
-					let num = parseInt(z_index, 10);
-					if (Number.isNaN(num) === false) {
-						area.z = num;
-					}
-
+				let num = parseInt(z_index, 10);
+				if (Number.isNaN(num) === false) {
+					area.z = num;
 				}
 
 			}
@@ -373,68 +422,52 @@ Element.prototype = {
 
 			if (val !== undefined) {
 
-				if (this.element !== null) {
+				let attributes = Object.keys(this.node.attributes).map((a) => this.node.attributes[a].name);
+				if (attributes.includes(key)) {
 
-					let attributes = Object.keys(this.element.attributes).map((a) => this.element.attributes[a].name);
-					if (attributes.includes(key)) {
-
-						let san = render_value(val);
-						if (san.length === 0) {
-							this.element.removeAttribute(key);
-						} else {
-							this.element.setAttribute(key, san);
-						}
-
-						return true;
-
-					} else if (this.element[key] !== undefined) {
-
-						this.element[key] = val;
-
-						return true;
-
+					let san = render_value(val);
+					if (san.length === 0) {
+						this.node.removeAttribute(key);
 					} else {
+						this.node.setAttribute(key, san);
+					}
 
-						let san = render_value(val);
-						if (san.length === 0) {
-							this.element.removeAttribute(key);
-						} else {
-							this.element.setAttribute(key, san);
-						}
+				} else if (this.node[key] !== undefined) {
 
-						return true;
+					this.node[key] = val;
 
+				} else {
+
+					let san = render_value(val);
+					if (san.length === 0) {
+						this.node.removeAttribute(key);
+					} else {
+						this.node.setAttribute(key, san);
 					}
 
 				}
 
-				return false;
+				return true;
 
 			} else {
 
-				if (this.element !== null) {
+				let attributes = Object.keys(this.node.attributes).map((a) => this.node.attributes[a].name);
+				if (attributes.includes(key)) {
 
-					let attributes = Object.keys(this.element.attributes).map((a) => this.element.attributes[a].name);
-					if (attributes.includes(key)) {
+					let raw = this.node.getAttribute(key);
+					if (isString(raw) === true) {
+						return parse_value(raw);
+					} else if (raw !== null) {
+						return raw;
+					}
 
-						let raw = this.element.getAttribute(key);
+				} else if (this.node[key] !== undefined) {
 
-						if (isString(raw)) {
-							return parse_value(raw);
-						} else if (raw !== null) {
-							return raw;
-						}
-
-					} else if (this.element[key] !== undefined) {
-
-						let raw = this.element[key];
-
-						if (isString(raw)) {
-							return parse_value(raw);
-						} else if (raw !== null) {
-							return raw;
-						}
-
+					let raw = this.node[key];
+					if (isString(raw) === true) {
+						return parse_value(raw);
+					} else if (raw !== null) {
+						return raw;
 					}
 
 				}
@@ -450,6 +483,20 @@ Element.prototype = {
 
 	},
 
+	destroy: function() {
+
+		let parent = this.node.parentNode || null;
+		if (parent !== null) {
+			parent.removeChild(this.node);
+		}
+
+		let index = ELEMENTS.indexOf(this);
+		if (index !== -1) {
+			ELEMENTS.splice(index, 1);
+		}
+
+	},
+
 	emit: function(event, args) {
 
 		event = isString(event) ? event : null;
@@ -462,19 +509,15 @@ Element.prototype = {
 			let listener = this.__listeners[event] || null;
 			if (listener !== null && args.length === 0) {
 
-				if (this.element !== null) {
+				if (isFunction(this.node[event]) === true) {
 
-					if (isFunction(this.element[event])) {
+					this.node[event]();
 
-						this.element[event]();
-
-						return null;
-
-					}
+					return null;
 
 				}
 
-				args = [ new Dummy() ];
+				args = [ new FakeEvent() ];
 
 			}
 
@@ -532,10 +575,7 @@ Element.prototype = {
 					let listener = this.__listeners[event] || null;
 					if (listener !== null) {
 
-						if (this.element !== null) {
-							this.element.removeEventListener(event, listener, true);
-						}
-
+						this.node.removeEventListener(event, listener, true);
 						listener = this.__listeners[event] = null;
 
 					}
@@ -546,15 +586,11 @@ Element.prototype = {
 
 			} else {
 
-				if (this.element !== null) {
+				if (isFunction(this.node[event]) === true) {
 
-					if (isFunction(this.element[event])) {
+					this.node[event]();
 
-						this.element[event]();
-
-						return null;
-
-					}
+					return null;
 
 				}
 
@@ -564,6 +600,15 @@ Element.prototype = {
 
 
 		return null;
+
+	},
+
+	erase: function() {
+
+		let parent = this.node.parentNode || null;
+		if (parent !== null) {
+			parent.removeChild(this.node);
+		}
 
 	},
 
@@ -586,68 +631,33 @@ Element.prototype = {
 
 	},
 
-	erase: function(target) {
+	off: function(event, callback) {
 
-		if (Element.isElement(target) === true) {
+		event    = isString(event)      ? event    : null;
+		callback = isFunction(callback) ? callback : null;
 
-			if (isFunction(target.element.removeChild) === true) {
 
-				if (this.element !== null) {
-					target.element.removeChild(this.element);
+		if (event !== null) {
+
+			let events = this.__events[event] || null;
+			if (events !== null) {
+
+				if (callback !== null) {
+					this.__events[event] = events.filter((e) => e.callback !== callback);
+				} else {
+					this.__events[event] = [];
 				}
 
-				if (this.element !== null) {
+				if (this.__events[event].length === 0) {
 
-					let index1 = CACHE.reality.indexOf(this.element);
-					let index2 = CACHE.virtual.indexOf(this);
-					if (index1 !== -1 && index2 !== -1 && index1 === index2) {
-						CACHE.reality.splice(index1, 1);
-						CACHE.virtual.splice(index2, 1);
+					let listener = this.__listeners[event] || null;
+					if (listener !== null) {
+
+						this.node.removeEventListener(event, listener, true);
+						listener = this.__listeners[event] = null;
+
 					}
 
-				}
-
-			}
-
-			return true;
-
-		} else if (isElement(target) === true) {
-
-			if (isFunction(target.removeChild) === true) {
-
-				if (this.element !== null) {
-					target.removeChild(this.element);
-				}
-
-				if (this.element !== null) {
-
-					let index1 = CACHE.reality.indexOf(this.element);
-					let index2 = CACHE.virtual.indexOf(this);
-					if (index1 !== -1 && index2 !== -1 && index1 === index2) {
-						CACHE.reality.splice(index1, 1);
-						CACHE.virtual.splice(index2, 1);
-					}
-
-				}
-
-			}
-
-			return true;
-
-		} else {
-
-			if (this.element !== null) {
-
-				let parent = this.element.parentNode || null;
-				if (parent !== null) {
-					parent.removeChild(this.element);
-				}
-
-				let index1 = CACHE.reality.indexOf(this.element);
-				let index2 = CACHE.virtual.indexOf(this);
-				if (index1 !== -1 && index2 !== -1 && index1 === index2) {
-					CACHE.reality.splice(index1, 1);
-					CACHE.virtual.splice(index2, 1);
 				}
 
 				return true;
@@ -688,9 +698,7 @@ Element.prototype = {
 
 				}.bind(this);
 
-				if (this.element !== null) {
-					this.element.addEventListener(event, listener, true);
-				}
+				this.node.addEventListener(event, listener, true);
 
 			}
 
@@ -700,49 +708,6 @@ Element.prototype = {
 			});
 
 			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	off: function(event, callback) {
-
-		event    = isString(event)      ? event    : null;
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (event !== null) {
-
-			let events = this.__events[event] || null;
-			if (events !== null) {
-
-				if (callback !== null) {
-					this.__events[event] = events.filter((e) => e.callback !== callback);
-				} else {
-					this.__events[event] = [];
-				}
-
-				if (this.__events[event].length === 0) {
-
-					let listener = this.__listeners[event] || null;
-					if (listener !== null) {
-
-						if (this.element !== null) {
-							this.element.removeEventListener(event, listener, true);
-						}
-
-						listener = this.__listeners[event] = null;
-
-					}
-
-				}
-
-				return true;
-
-			}
 
 		}
 
@@ -778,9 +743,7 @@ Element.prototype = {
 
 				}.bind(this);
 
-				if (this.element !== null) {
-					this.element.addEventListener(event, listener, true);
-				}
+				this.node.addEventListener(event, listener, true);
 
 			}
 
@@ -798,120 +761,72 @@ Element.prototype = {
 
 	},
 
-	parent: function(type) {
-
-		type = isString(type) ? type : null;
-
-
-		if (type !== null) {
-
-			if (this.element !== null) {
-
-				let parent = this.element.parentNode || null;
-				if (parent !== null) {
-
-					let other = parent.tagName.toLowerCase();
-
-					while (
-						parent !== null
-						&& other !== type
-					) {
-
-						parent = parent.parentNode || null;
-
-						if (parent !== null) {
-							other = parent.tagName.toLowerCase();
-						}
-
-					}
-
-					if (parent !== null) {
-
-						let index = CACHE.reality.indexOf(parent);
-						if (index !== -1) {
-							return CACHE.virtual[index];
-						} else {
-							return new Element(parent);
-						}
-
-					}
-
-				}
-
-			}
-
-		} else {
-
-			if (this.element !== null) {
-
-				let parent = this.element.parentNode || null;
-				if (parent !== null) {
-
-					let index = CACHE.reality.indexOf(parent);
-					if (index !== -1) {
-						return CACHE.virtual[index];
-					} else {
-						return new Element(parent);
-					}
-
-				}
-
-			}
-
-		}
-
-
-		return null;
-
-	},
-
 	query: function(query) {
 
 		query = isString(query) ? query : null;
 
 
+		let found = null;
+
 		if (query !== null) {
 
-			if (this.element !== null) {
+			if (this.node !== null) {
 
-				let elements = Array.from(this.element.querySelectorAll(query));
-				if (elements.length > 1) {
-					return elements.map((e) => Element.from(e));
-				} else if (elements.length === 1) {
-					return Element.from(elements[0]);
+				let nodes = Array.from(this.node.querySelectorAll(query));
+				if (nodes.length > 1) {
+
+					found = [];
+
+					nodes.forEach((node) => {
+
+						let element = ELEMENTS.find((e) => e.node === node) || null;
+						if (element !== null) {
+
+							found.push(element);
+
+						} else {
+
+							element      = new Element(node.tagName.toLowerCase());
+							element.node = node;
+
+							found.push(element);
+
+						}
+
+					});
+
+				} else if (nodes.length === 1) {
+
+					found = ELEMENTS.find((element) => {
+						return element.node === nodes[0];
+					}) || null;
+
+					if (found === null) {
+
+						found      = new Element(nodes[0].tagName.toLowerCase());
+						found.node = nodes[0];
+
+					}
+
 				}
 
 			}
 
 		}
 
-
-		return null;
+		return found;
 
 	},
 
 	render: function(target) {
 
-		if (Element.isElement(target) === true) {
+		target = isElement(target) ? target : null;
 
-			if (isFunction(target.element.appendChild) === true) {
 
-				if (this.element !== null) {
-					target.element.appendChild(this.element);
-				}
+		if (target !== null) {
 
-			}
-
-			return true;
-
-		} else if (isElement(target) === true) {
-
-			if (isFunction(target.appendChild) === true) {
-
-				if (this.element !== null) {
-					target.appendChild(this.element);
-				}
-
+			if (isFunction(target.node.appendChild) === true) {
+				target.node.appendChild(this.node);
 			}
 
 			return true;
@@ -930,90 +845,44 @@ Element.prototype = {
 
 		if (state !== null) {
 
-			if (this.element !== null) {
+			if (state === 'enabled' || state === 'disabled') {
 
-				if (state === 'enabled' || state === 'disabled') {
-
-					let type = this.element.tagName.toLowerCase();
-					if (type === 'button' || type === 'input' || type === 'textarea') {
-
-						if (state === 'disabled') {
-							this.element.setAttribute('disabled', true);
-						} else {
-							this.element.removeAttribute('disabled');
-						}
-
-					} else {
-						this.element.className = state;
-					}
-
-				} else {
-					this.element.className = state;
-				}
-
-
-				return true;
-
-			}
-
-			return false;
-
-		} else {
-
-			if (this.element !== null) {
-
-				let type = this.element.tagName.toLowerCase();
+				let type = this.type;
 				if (type === 'button' || type === 'input' || type === 'textarea') {
 
-					let state = this.element.getAttribute('disabled') || null;
-					if (state !== null) {
-						return 'disabled';
+					if (state === 'disabled') {
+						this.node.setAttribute('disabled', true);
 					} else {
-						return this.element.className || null;
+						this.node.removeAttribute('disabled');
 					}
 
 				} else {
-					return this.element.className || null;
+					this.node.className = state;
 				}
 
-			}
-
-			return null;
-
-		}
-
-	},
-
-	title: function(title) {
-
-		title = isString(title) ? title : null;
-
-
-		if (this.element !== null) {
-
-			if (title !== null) {
-				this.element.setAttribute('title', title);
 			} else {
-				this.element.removeAttribute('title');
+				this.node.className = state;
 			}
 
 			return true;
 
+		} else {
+
+			let type = this.type;
+			if (type === 'button' || type === 'input' || type === 'textarea') {
+
+				let state = this.node.getAttribute('disabled') || null;
+				if (state !== null) {
+					return 'disabled';
+				} else {
+					return 'enabled';
+				}
+
+			} else {
+				return this.node.className || null;
+			}
+
 		}
-
-
-		return false;
-
-	},
-
-	type: function() {
-
-		if (this.element !== null) {
-			return this.element.tagName.toLowerCase();
-		}
-
-
-		return null;
 
 	},
 
@@ -1024,166 +893,314 @@ Element.prototype = {
 
 		if (value !== undefined) {
 
-			let element = this.element || null;
-			if (element !== null) {
+			let val = this.node.getAttribute('data-val');
+			if (val !== null) {
 
-				let val = element.getAttribute('data-val');
-				if (val !== null) {
-					element.setAttribute('data-val', value);
-				} else {
+				this.node.setAttribute('data-val', render_value(value));
 
-					let type = element.tagName.toLowerCase();
-					if (type === 'input') {
+			} else {
 
-						let map = element.getAttribute('data-map');
-						if (map === 'IP') {
-							element.value = IP.render(value);
-						} else if (map === 'URL') {
-							element.value = URL.render(value);
+				let type = this.type;
+				if (type === 'input') {
+
+					let map = this.node.getAttribute('data-map');
+					if (map === 'IP') {
+						this.node.value = IP.render(value);
+					} else if (map === 'UA') {
+						this.node.value = UA.render(value);
+					} else if (map === 'URL') {
+						this.node.value = URL.render(value);
+					} else {
+						this.node.value = value !== null ? render_value(value) : null;
+					}
+
+				} else if (type === 'textarea') {
+
+					let map = this.node.getAttribute('data-map');
+					if (map === 'IP') {
+
+						if (isArray(value) === true) {
+							this.node.value = value.map((v) => IP.render(v)).join('\n');
 						} else {
-							element.value = value;
+							this.node.value = IP.render(value);
 						}
 
-					} else if (type === 'textarea') {
+					} else if (map === 'UA') {
 
-						let map = element.getAttribute('data-map');
-						if (map === 'IP') {
-
-							if (isArray(value)) {
-								element.value = value.map((v) => IP.render(v)).join('\n');
-							} else {
-								element.value = IP.render(value);
-							}
-
-						} else if (map === 'URL') {
-
-							if (isArray(value)) {
-								element.value = value.map((v) => URL.render(v)).join('\n');
-							} else {
-								element.value = URL.render(value);
-							}
-
+						if (isArray(value) === true) {
+							this.node.value = value.map((v) => UA.render(v)).join('\n');
 						} else {
-							element.value = value;
+							this.node.value = UA.render(value);
+						}
+
+					} else if (map === 'URL') {
+
+						if (isArray(value) === true) {
+							this.node.value = value.map((v) => URL.render(v)).join('\n');
+						} else {
+							this.node.value = URL.render(value);
 						}
 
 					} else {
 
-						let map = element.getAttribute('data-map');
-						if (map === 'IP') {
+						if (isArray(value) === true) {
+							this.node.value = value.map((v) => render_value(v)).join('\n');
+						} else {
+							this.node.value = value !== null ? render_value(value) : null;
+						}
 
-							if (isArray(value)) {
-								element.innerHTML = value.map((v) => IP.render(v)).join('\n');
+					}
+
+				} else {
+
+					let map = this.node.getAttribute('data-map');
+					if (map === 'IP') {
+
+						if (isArray(value) === true) {
+							this.node.innerHTML = value.map((v) => IP.render(v)).join('\n');
+						} else {
+							this.node.innerHTML = IP.render(value);
+						}
+
+					} else if (map === 'UA') {
+
+						if (isArray(value) === true) {
+							this.node.innerHTML = value.map((v) => UA.render(v)).join('\n');
+						} else {
+							this.node.innerHTML = UA.render(value);
+						}
+
+					} else if (map === 'URL') {
+
+						if (isArray(value) === true) {
+							this.node.innerHTML = value.map((v) => URL.render(v)).join('\n');
+						} else {
+							this.node.innerHTML = URL.render(value);
+						}
+
+					} else {
+
+						if (isArray(value) === true) {
+
+							let elements = value.filter((v) => isElement(v));
+							let nodes    = value.filter((v) => isHTMLElement(v));
+							let strings  = value.filter((v) => isString(v));
+
+							if (elements.length > 0) {
+
+								this.node.innerHTML = '';
+
+								elements.forEach((element) => {
+
+									if (element.node !== null) {
+										this.node.appendChild(element.node);
+									}
+
+								});
+
+							} else if (nodes.length > 0) {
+
+								this.node.innerHTML = '';
+
+								nodes.forEach((node) => {
+									this.node.appendChild(node);
+								});
+
+							} else if (strings.length > 0) {
+								this.node.innerHTML = strings.join('');
 							} else {
-								element.innerHTML = IP.render(value);
-							}
-
-						} else if (map === 'URL') {
-
-							if (isArray(value)) {
-								element.innerHTML = value.map((v) => URL.render(v)).join('\n');
-							} else {
-								element.innerHTML = URL.render(value);
+								this.node.innerHTML = value.map((v) => render_value(v)).join('\n');
 							}
 
 						} else {
-
-							if (isArray(value) && value.length > 0 && isElement(value[0].element)) {
-
-								element.innerHTML = '';
-
-								value.forEach((child) => {
-									element.appendChild(child.element);
-								});
-
-							} else if (isArray(value) && value.length > 0 && isElement(value[0])) {
-
-								element.innerHTML = '';
-
-								value.forEach((child) => {
-									element.appendChild(child);
-								});
-
-							} else if (isArray(value)) {
-								element.innerHTML = value.join('');
-							} else {
-								element.innerHTML = value;
-							}
-
+							this.node.innerHTML = render_value(value);
 						}
 
 					}
 
 				}
 
-				return true;
-
 			}
-
-
-			return false;
 
 		} else {
 
-			let element = this.element || null;
-			if (element !== null) {
+			let val = this.node.getAttribute('data-val');
+			if (val !== null) {
 
-				let val = element.getAttribute('data-val');
-				if (val !== null) {
-					return parse_value(val);
-				} else {
+				return parse_value(val);
 
-					let type = element.tagName.toLowerCase();
-					if (type === 'input') {
+			} else {
 
-						let map = element.getAttribute('data-map');
-						let val = (element.value).trim();
-						if (map === 'IP') {
-							return IP.parse(val);
-						} else if (map === 'URL') {
-							return URL.parse(val);
+				let type = this.type;
+				if (type === 'input') {
+
+					let map = this.node.getAttribute('data-map');
+					let val = (this.node.value).trim();
+
+					if (map === 'IP') {
+
+						let check = IP.parse(val);
+						if (IP.isIP(check) === true) {
+							return check;
 						} else {
-							return parse_value(val);
+							return null;
 						}
 
-					} else if (type === 'textarea') {
+					} else if (map === 'UA') {
 
-						let map = element.getAttribute('data-map');
-						let val = (element.value).trim();
+						let check = UA.parse(val);
+						if (UA.isUA(check) === true) {
+							return check;
+						} else {
+							return null;
+						}
 
-						if (map === 'IP') {
+					} else if (map === 'URL') {
 
-							let raw = val.split('\n').map((v) => v.trim()).filter((v) => v !== '');
+						let check = URL.parse(val);
+						if (URL.isURL(check) === true) {
+							return check;
+						} else {
+							return null;
+						}
 
-							return raw.map((v) => IP.parse(v)).filter((ip) => ip.type !== null);
+					} else {
+						return parse_value(val);
+					}
 
-						} else if (map === 'URL') {
+				} else if (type === 'textarea') {
 
-							let raw = val.split('\n').map((v) => v.trim()).filter((v) => v !== '');
+					let map = this.node.getAttribute('data-map');
+					let val = (this.node.value).trim();
 
-							return raw.map((v) => URL.parse(v)).filter((ref) => (ref.domain !== null || ref.host !== null));
+					if (map === 'IP') {
+
+						return val.split('\n').map((v) => {
+							return v.trim();
+						}).filter((v) => {
+							return v !== '';
+						}).map((v) => {
+							return IP.parse(v);
+						}).filter((ip) => {
+							return IP.isIP(ip);
+						});
+
+					} else if (map === 'UA') {
+
+						return val.split('\n').map((v) => {
+							return v.trim();
+						}).filter((v) => {
+							return v !== '';
+						}).map((v) => {
+							return UA.parse(v);
+						}).filter((ua) => {
+							return UA.isUA(ua);
+						});
+
+					} else if (map === 'URL') {
+
+						return val.split('\n').map((v) => {
+							return v.trim();
+						}).filter((v) => {
+							return v !== '';
+						}).map((v) => {
+							return URL.parse(v);
+						}).filter((url) => {
+							return URL.isURL(url);
+						});
+
+					} else {
+
+						return val.split('\n').map((v) => {
+							return parse_value(v.trim());
+						});
+
+					}
+
+				} else {
+
+					let map = this.node.getAttribute('data-map');
+					let val = (this.node.innerHTML).trim();
+
+					if (map === 'IP') {
+
+						if (val.includes('\n')) {
+
+							return val.split('\n').map((v) => {
+								return v.trim();
+							}).filter((v) => {
+								return v !== '';
+							}).map((v) => {
+								return IP.parse(v);
+							}).filter((ip) => {
+								return IP.isIP(ip);
+							});
 
 						} else {
-							return parse_value(val);
+
+							let check = IP.parse(val);
+							if (IP.isIP(check) === true) {
+								return check;
+							} else {
+								return null;
+							}
+
+						}
+
+					} else if (map === 'UA') {
+
+						if (val.includes('\n')) {
+
+							return val.split('\n').map((v) => {
+								return v.trim();
+							}).filter((v) => {
+								return v !== '';
+							}).map((v) => {
+								return UA.parse(v);
+							}).filter((ua) => {
+								return UA.isUA(ua);
+							});
+
+						} else {
+
+							let check = UA.parse(val);
+							if (UA.isUA(check) === true) {
+								return check;
+							} else {
+								return null;
+							}
+
+						}
+
+					} else if (map === 'URL') {
+
+						if (val.includes('\n')) {
+
+							return val.split('\n').map((v) => {
+								return v.trim();
+							}).filter((v) => {
+								return v !== '';
+							}).map((v) => {
+								return URL.parse(v);
+							}).filter((url) => {
+								return URL.isURL(url);
+							});
+
+						} else {
+
+							let check = URL.parse(val);
+							if (URL.isURL(check) === true) {
+								return check;
+							} else {
+								return null;
+							}
+
 						}
 
 					} else {
 
-						let map = element.getAttribute('data-map');
-						let val = (element.innerHTML).trim();
-
-						if (map === 'IP') {
-
-							let raw = val.split('\n').map((v) => v.trim()).filter((v) => v !== '');
-
-							return raw.map((v) => IP.parse(v)).filter((ip) => ip.type !== null);
-
-						} else if (map === 'URL') {
-
-							let raw = val.split('\n').map((v) => v.trim()).filter((v) => v !== '');
-
-							return raw.map((v) => URL.parse(v)).filter((ref) => (ref.domain !== null || ref.host !== null));
-
+						if (val.includes('\n')) {
+							return val.split('\n').map((v) => parse_value(v));
 						} else {
 							return parse_value(val);
 						}
@@ -1195,9 +1212,6 @@ Element.prototype = {
 			}
 
 		}
-
-
-		return null;
 
 	}
 
