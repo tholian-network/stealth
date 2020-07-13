@@ -55,6 +55,24 @@ export const isElement = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Element]';
 };
 
+const destroy_children = function() {
+
+	let children = Array.from(this.node.children);
+	if (children.length > 0) {
+
+		children.forEach((child) => {
+
+			let element = ELEMENTS.find((e) => e.node === child) || null;
+			if (element !== null) {
+				element.destroy();
+			}
+
+		});
+
+	}
+
+};
+
 const parse_value = function(raw) {
 
 	raw = isString(raw) ? raw : (raw).toString();
@@ -485,6 +503,8 @@ Element.prototype = {
 
 	destroy: function() {
 
+		destroy_children.call(this);
+
 		let parent = this.node.parentNode || null;
 		if (parent !== null) {
 			parent.removeChild(this.node);
@@ -494,6 +514,8 @@ Element.prototype = {
 		if (index !== -1) {
 			ELEMENTS.splice(index, 1);
 		}
+
+		return true;
 
 	},
 
@@ -770,43 +792,39 @@ Element.prototype = {
 
 		if (query !== null) {
 
-			if (this.node !== null) {
+			let nodes = Array.from(this.node.querySelectorAll(query));
+			if (nodes.length > 1) {
 
-				let nodes = Array.from(this.node.querySelectorAll(query));
-				if (nodes.length > 1) {
+				found = [];
 
-					found = [];
+				nodes.forEach((node) => {
 
-					nodes.forEach((node) => {
+					let element = ELEMENTS.find((e) => e.node === node) || null;
+					if (element !== null) {
 
-						let element = ELEMENTS.find((e) => e.node === node) || null;
-						if (element !== null) {
+						found.push(element);
 
-							found.push(element);
+					} else {
 
-						} else {
+						element      = new Element(node.tagName.toLowerCase());
+						element.node = node;
 
-							element      = new Element(node.tagName.toLowerCase());
-							element.node = node;
-
-							found.push(element);
-
-						}
-
-					});
-
-				} else if (nodes.length === 1) {
-
-					found = ELEMENTS.find((element) => {
-						return element.node === nodes[0];
-					}) || null;
-
-					if (found === null) {
-
-						found      = new Element(nodes[0].tagName.toLowerCase());
-						found.node = nodes[0];
+						found.push(element);
 
 					}
+
+				});
+
+			} else if (nodes.length === 1) {
+
+				found = ELEMENTS.find((element) => {
+					return element.node === nodes[0];
+				}) || null;
+
+				if (found === null) {
+
+					found      = new Element(nodes[0].tagName.toLowerCase());
+					found.node = nodes[0];
 
 				}
 
@@ -956,6 +974,8 @@ Element.prototype = {
 					let map = this.node.getAttribute('data-map');
 					if (map === 'IP') {
 
+						destroy_children.call(this);
+
 						if (isArray(value) === true) {
 							this.node.innerHTML = value.map((v) => IP.render(v)).join('\n');
 						} else {
@@ -963,6 +983,8 @@ Element.prototype = {
 						}
 
 					} else if (map === 'UA') {
+
+						destroy_children.call(this);
 
 						if (isArray(value) === true) {
 							this.node.innerHTML = value.map((v) => UA.render(v)).join('\n');
@@ -972,6 +994,8 @@ Element.prototype = {
 
 					} else if (map === 'URL') {
 
+						destroy_children.call(this);
+
 						if (isArray(value) === true) {
 							this.node.innerHTML = value.map((v) => URL.render(v)).join('\n');
 						} else {
@@ -980,6 +1004,8 @@ Element.prototype = {
 
 					} else {
 
+						destroy_children.call(this);
+
 						if (isArray(value) === true) {
 
 							let elements = value.filter((v) => isElement(v));
@@ -987,8 +1013,6 @@ Element.prototype = {
 							let strings  = value.filter((v) => isString(v));
 
 							if (elements.length > 0) {
-
-								this.node.innerHTML = '';
 
 								elements.forEach((element) => {
 
@@ -1000,20 +1024,24 @@ Element.prototype = {
 
 							} else if (nodes.length > 0) {
 
-								this.node.innerHTML = '';
-
 								nodes.forEach((node) => {
 									this.node.appendChild(node);
 								});
 
 							} else if (strings.length > 0) {
+
 								this.node.innerHTML = strings.join('');
+
 							} else {
+
 								this.node.innerHTML = value.map((v) => render_value(v)).join('\n');
+
 							}
 
 						} else {
+
 							this.node.innerHTML = render_value(value);
+
 						}
 
 					}

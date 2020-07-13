@@ -175,11 +175,6 @@ const Help = function(/* browser */) {
 
 	this.element.on('show', () => {
 
-		this.__state.hints.forEach((hint) => {
-			hint.destroy();
-		});
-
-
 		let hints = [];
 
 		let history = Widget.query('browser-history');
@@ -258,10 +253,7 @@ const Help = function(/* browser */) {
 		}
 
 
-		this.__state.hints = hints.filter((hint) => {
-			return hint !== null;
-		});
-
+		this.__state.hints = hints.filter((hint) => hint !== null);
 		this.element.value([ this.content, ...this.__state.hints ]);
 		this.element.state('active');
 

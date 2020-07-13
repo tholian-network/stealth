@@ -137,6 +137,21 @@ Widget.prototype = {
 
 	},
 
+	destroy: function() {
+
+		if (isElement(this.element) === true) {
+			this.element.destroy();
+		}
+
+		let index = WIDGETS.indexOf(this);
+		if (index !== -1) {
+			WIDGETS.splice(index, 1);
+		}
+
+		return true;
+
+	},
+
 	emit: function(event, args) {
 
 		if (isElement(this.element) === true) {

@@ -15,6 +15,7 @@ const update = function(tab) {
 
 		this.protocol.attr('title', tab.ref.protocol);
 		this.protocol.value(tab.ref.protocol);
+		this.protocol.erase();
 
 
 		let chunks = [ this.protocol ];
@@ -125,7 +126,7 @@ const update = function(tab) {
 const Address = function(browser) {
 
 	this.element = new Element('browser-address', [
-		'<ul><li data-key="protocol" data-val="stealth"></li><li>welcome</li></ul>',
+		'<ul><li data-key="protocol" data-val="stealth"></li></ul>',
 		'<input type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">'
 	].join(''));
 
@@ -279,7 +280,7 @@ const Address = function(browser) {
 
 	this.output.on('click', (e) => {
 
-		let items = this.output.query('li').slice(1);
+		let items = this.output.query('li').filter((item) => item !== this.protocol);
 		let index = items.findIndex((item) => item.node === e.target);
 
 		if (index !== -1) {

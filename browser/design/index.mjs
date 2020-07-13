@@ -58,7 +58,7 @@ export const dispatch = (window, browser) => {
 		};
 
 		let widgets = {
-			appmenu: {
+			appbar: {
 				address:  new Address(browser),
 				history:  new History(browser),
 				mode:     new Mode(browser),
@@ -76,11 +76,11 @@ export const dispatch = (window, browser) => {
 			}
 		};
 
-		widgets.appmenu['history'].render(elements.header);
-		widgets.appmenu['address'].render(elements.header);
-		widgets.appmenu['mode'].render(elements.header);
-		widgets.appmenu['settings'].render(elements.header);
-		widgets.appmenu['splitter'].render(elements.header);
+		widgets.appbar['history'].render(elements.header);
+		widgets.appbar['address'].render(elements.header);
+		widgets.appbar['mode'].render(elements.header);
+		widgets.appbar['settings'].render(elements.header);
+		widgets.appbar['splitter'].render(elements.header);
 
 		widgets.backdrop['webview'].render(elements.main);
 		widgets.backdrop['tabs'].render(elements.main);
@@ -108,15 +108,15 @@ export const dispatch = (window, browser) => {
 			let tabindex = 1;
 
 			[
-				widgets.appmenu['history'].buttons.back,
-				widgets.appmenu['history'].buttons.next,
-				widgets.appmenu['history'].buttons.action,
-				widgets.appmenu['history'].buttons.open,
-				widgets.appmenu['address'].input,
-				...widgets.appmenu['mode'].buttons,
-				widgets.appmenu['settings'].buttons.site,
-				widgets.appmenu['settings'].buttons.session,
-				widgets.appmenu['settings'].buttons.browser
+				widgets.appbar['history'].buttons.back,
+				widgets.appbar['history'].buttons.next,
+				widgets.appbar['history'].buttons.action,
+				widgets.appbar['history'].buttons.open,
+				widgets.appbar['address'].input,
+				...widgets.appbar['mode'].buttons,
+				widgets.appbar['settings'].buttons.site,
+				widgets.appbar['settings'].buttons.session,
+				widgets.appbar['settings'].buttons.browser
 			].filter((v) => v !== null).forEach((element) => {
 				element.attr('tabindex', tabindex++);
 			});
