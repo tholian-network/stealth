@@ -1,5 +1,5 @@
 
-browser-context {
+browser-menu-context {
 	display: block;
 	position: fixed;
 	min-width: 128px;
@@ -19,18 +19,17 @@ browser-context {
 	box-sizing: border-box;
 	transform: translate(-50%, -16px);
 	transition: 200ms opacity ease-out;
-	z-index: 1023;
 	user-select: none;
 	pointer-events: none;
 	opacity: 0;
 }
 
-browser-context.active {
+browser-menu-context.active {
 	pointer-events: auto;
 	opacity: 1;
 }
 
-browser-context button {
+browser-menu-context button {
 	display: block;
 	min-width: 32px;
 	width: 100%;
@@ -55,7 +54,7 @@ browser-context button {
 	cursor: pointer;
 }
 
-browser-context button:before {
+browser-menu-context button:before {
 	display: inline-block;
 	width: 1em;
 	height: auto;
@@ -70,38 +69,38 @@ browser-context button:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-browser-context button:focus,
-browser-context button:hover {
+browser-menu-context button:focus,
+browser-menu-context button:hover {
 	color: var(--element-focus-color);
 	border: 1px solid var(--element-focus-color);
 	background: var(--element-focus-background);
 	outline: none;
 }
 
-browser-context button.active {
+browser-menu-context button.active {
 	color: var(--element-active-color);
 	border: 1px solid var(--element-active-color);
 	background: var(--element-active-background);
 	outline: none;
 }
 
-browser-context button::-moz-focus-inner {
+browser-menu-context button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
-browser-context button[data-icon="back"]:before     { content: '\e5c4'; }
-browser-context button[data-icon="default"]:before  { content: '\e315'; }
-browser-context button[data-icon="close"]:before    { content: '\e5cd'; }
-browser-context button[data-icon="confirm"]:before  { content: '\e5ca'; }
-browser-context button[data-icon="copy"]:before     { content: '\e14d'; }
-browser-context button[data-icon="download"]:before { content: '\e2c4'; }
-browser-context button[data-icon="focus"]:before    { content: '\e3dc'; }
-browser-context button[data-icon="next"]:before     { content: '\e5c8'; }
-browser-context button[data-icon="open"]:before     { content: '\e89e'; }
-browser-context button[data-icon="paste"]:before    { content: '\e14f'; }
-browser-context button[data-icon="pause"]:before    { content: '\e034'; }
-browser-context button[data-icon="refresh"]:before  { content: '\e5d5'; }
-browser-context button[data-icon="read"]:before     { content: '\e5d5'; }
-browser-context button[data-icon="remove"]:before   { content: '\e5cd'; }
-browser-context button[data-icon="save"]:before     { content: '\e5ca'; }
+browser-menu-context button[data-icon="back"]:before     { content: '\e5c4'; }
+browser-menu-context button[data-icon="default"]:before  { content: '\e315'; }
+browser-menu-context button[data-icon="close"]:before    { content: '\e5cd'; }
+browser-menu-context button[data-icon="confirm"]:before  { content: '\e5ca'; }
+browser-menu-context button[data-icon="copy"]:before     { content: '\e14d'; }
+browser-menu-context button[data-icon="download"]:before { content: '\e2c4'; }
+browser-menu-context button[data-icon="focus"]:before    { content: '\e3dc'; }
+browser-menu-context button[data-icon="next"]:before     { content: '\e5c8'; }
+browser-menu-context button[data-icon="open"]:before     { content: '\e89e'; }
+browser-menu-context button[data-icon="paste"]:before    { content: '\e14f'; }
+browser-menu-context button[data-icon="pause"]:before    { content: '\e034'; }
+browser-menu-context button[data-icon="refresh"]:before  { content: '\e5d5'; }
+browser-menu-context button[data-icon="read"]:before     { content: '\e5d5'; }
+browser-menu-context button[data-icon="remove"]:before   { content: '\e5cd'; }
+browser-menu-context button[data-icon="save"]:before     { content: '\e5ca'; }
 

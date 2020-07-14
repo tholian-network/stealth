@@ -93,7 +93,7 @@ const render_hint = function(key, area, title) {
 
 	if (isString(key) === true && isObject(area) === true) {
 
-		let element = new Element('browser-hint', key.toUpperCase());
+		let element = new Element('button', key.toUpperCase());
 
 		element.attr('data-key', key);
 		element.attr('title',    title);
@@ -117,7 +117,7 @@ const render_hint = function(key, area, title) {
 
 const Help = function(/* browser */) {
 
-	this.content = new Element('browser-text', [
+	this.article = new Element('article', [
 		'<h3>Keyboard Help</h3>',
 		'<div><code>[Enter]</code> Quit Help</div>',
 		'<ul>',
@@ -136,18 +136,18 @@ const Help = function(/* browser */) {
 		'</ul>'
 	]);
 
-	this.element = new Element('browser-help', [
-		this.content
+	this.element = new Element('browser-backdrop-help', [
+		this.article
 	]);
 
 	this.__state = {
 		hints: [],
-		items: this.content.query('li[data-key]')
+		items: this.article.query('li[data-key]')
 	};
 
 
 	this.element.on('click', () => {
-		this.content.area({ x: null });
+		this.article.area({ x: null });
 		this.element.state('');
 	});
 
@@ -201,7 +201,7 @@ const Help = function(/* browser */) {
 
 				let tabs_area = tabs.element.area();
 				let tabs_last = tabs.buttons[tabs.buttons.length - 1].area();
-				let text_area = this.content.area();
+				let text_area = this.article.area();
 
 				if (tabs_area !== null && text_area !== null) {
 
@@ -214,23 +214,23 @@ const Help = function(/* browser */) {
 						if (cur_x <= tabs_area.w) {
 							this.context.area({ x: tabs_area.w + text_area.w / 2 });
 						} else {
-							this.content.area({ x: null });
+							this.article.area({ x: null });
 						}
 
 					} else {
-						this.content.area({ x: null });
+						this.article.area({ x: null });
 					}
 
 				} else {
-					this.content.area({ x: null });
+					this.article.area({ x: null });
 				}
 
 			} else {
-				this.content.area({ x: null });
+				this.article.area({ x: null });
 			}
 
 		} else {
-			this.content.area({ x: null });
+			this.article.area({ x: null });
 		}
 
 		let mode = Widget.query('browser-mode');
@@ -254,13 +254,13 @@ const Help = function(/* browser */) {
 
 
 		this.__state.hints = hints.filter((hint) => hint !== null);
-		this.element.value([ this.content, ...this.__state.hints ]);
+		this.element.value([ this.article, ...this.__state.hints ]);
 		this.element.state('active');
 
 	});
 
 	this.element.on('hide', () => {
-		this.content.area({ x: null });
+		this.article.area({ x: null });
 		this.element.state('');
 	});
 

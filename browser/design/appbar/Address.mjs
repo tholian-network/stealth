@@ -125,7 +125,7 @@ const update = function(tab) {
 
 const Address = function(browser) {
 
-	this.element = new Element('browser-address', [
+	this.element = new Element('browser-appbar-address', [
 		'<ul><li data-key="protocol" data-val="stealth"></li></ul>',
 		'<input type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">'
 	].join(''));
@@ -137,7 +137,7 @@ const Address = function(browser) {
 
 	this.element.on('contextmenu', (e) => {
 
-		let context = Widget.query('browser-context');
+		let context = Widget.query('browser-menu-context');
 		if (context !== null) {
 
 			let area = this.input.area();
@@ -248,7 +248,7 @@ const Address = function(browser) {
 
 	this.input.on('click', (e) => {
 
-		let context = Widget.query('browser-context');
+		let context = Widget.query('browser-menu-context');
 		if (context !== null) {
 
 			if (context.state() === 'active') {
@@ -307,7 +307,7 @@ const Address = function(browser) {
 		}
 
 
-		let context = Widget.query('browser-context');
+		let context = Widget.query('browser-menu-context');
 		if (context !== null) {
 
 			if (context.state() === 'active') {

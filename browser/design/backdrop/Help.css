@@ -1,5 +1,5 @@
 
-browser-help {
+browser-backdrop-help {
 	display: block;
 	position: fixed;
 	top: 0px;
@@ -11,17 +11,16 @@ browser-help {
 	background: rgba(0,0,0,0.75);
 	transition: 200ms all ease-out;
 	opacity: 0;
-	z-index: 1024;
 	pointer-events: none;
 	user-select: none;
 }
 
-browser-help.active {
+browser-backdrop-help.active {
 	opacity: 1;
 	pointer-events: auto;
 }
 
-browser-help browser-hint {
+browser-backdrop-help button {
 	display: block;
 	position: fixed;
 	width: 32px;
@@ -43,16 +42,16 @@ browser-help browser-hint {
 	overflow: hidden;
 }
 
-browser-help browser-hint[title^="or"] {
+browser-backdrop-help button[title^="or"] {
 	cursor: help;
 }
 
-browser-help browser-hint.active,
-browser-help browser-hint:hover {
+browser-backdrop-help button.active,
+browser-backdrop-help button:hover {
 	border: 1px solid var(--element-active-color);
 }
 
-browser-help browser-hint:before {
+browser-backdrop-help button:before {
 	display: block;
 	position: absolute;
 	content: ' ';
@@ -64,12 +63,12 @@ browser-help browser-hint:before {
 	transition: 200ms all ease-out;
 }
 
-browser-help browser-hint.active:before,
-browser-help browser-hint:hover:before {
+browser-backdrop-help button.active:before,
+browser-backdrop-help button:hover:before {
 	border: 1px solid var(--element-focus-color);
 }
 
-browser-help browser-text {
+browser-backdrop-help article {
 	display: block;
 	position: fixed;
 	min-width: 625px;
@@ -89,7 +88,7 @@ browser-help browser-text {
 	transform: translate(-50%, -50%);
 }
 
-browser-help browser-text h3 {
+browser-backdrop-help article h3 {
 	display: block;
 	margin: 0px 0px 1em 0px;
 	padding: 0px 0px 0.5em 0px;
@@ -101,13 +100,13 @@ browser-help browser-text h3 {
 	border-bottom: 2px solid var(--layout-default-color);
 }
 
-browser-help browser-text ul {
+browser-backdrop-help article ul {
 	display: block;
 	margin: 1em 0px 0px 0px;
 	padding: 0px;
 }
 
-browser-help browser-text ul li {
+browser-backdrop-help article ul li {
 	margin: 0px;
 	padding: 0px;
 	line-height: 1.5em;
@@ -116,13 +115,13 @@ browser-help browser-text ul li {
 	border-radius: 4px;
 }
 
-browser-help browser-text ul li.active {
+browser-backdrop-help article ul li.active {
 	color: var(--element-active-color);
 	border: 1px solid var(--element-active-color);
 	background: var(--element-active-background);
 }
 
-browser-help browser-text code {
+browser-backdrop-help article code {
 	display: inline-block;
 	width: 5em;
 	font-family: 'vera-mono';

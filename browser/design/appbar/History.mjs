@@ -27,7 +27,7 @@ const update = function(tab) {
 
 const History = function(browser) {
 
-	this.element = new Element('browser-history', [
+	this.element = new Element('browser-appbar-history', [
 		'<button data-key="back" title="Visit earlier Site" disabled></button>',
 		'<button data-key="next" title="Visit later Site" disabled></button>',
 		'<button data-key="action" data-val="refresh" title="Refresh/Pause current Tab" disabled></button>',
@@ -57,7 +57,7 @@ const History = function(browser) {
 
 	this.buttons.action.on('click', () => {
 
-		let val = this.action.value();
+		let val = this.buttons.action.value();
 		if (val === 'refresh') {
 			browser.refresh();
 		} else if (val === 'pause') {

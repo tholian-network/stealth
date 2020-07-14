@@ -1,0 +1,26 @@
+
+browser-sheet-session {
+	display: block;
+	position: fixed;
+	width: auto;
+	height: auto;
+	top: 40px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+	color: var(--layout-default-color);
+	font-family: 'museo';
+	background: var(--layout-default-background);
+	border: 0px solid transparent;
+	transform: translate(100%, 0%);
+	transition: 200ms transform ease-out;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+browser-sheet-session.active {
+	transform: translate(0%, 0%);
+}
+

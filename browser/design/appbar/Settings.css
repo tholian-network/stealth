@@ -1,5 +1,5 @@
 
-browser-settings {
+browser-appbar-settings {
 	display: inline-block;
 	position: relative;
 	width: auto;
@@ -12,7 +12,7 @@ browser-settings {
 	user-select: none;
 }
 
-browser-settings button {
+browser-appbar-settings button {
 	display: inline-block;
 	min-width: 32px;
 	margin: 0px;
@@ -34,7 +34,7 @@ browser-settings button {
 	cursor: pointer;
 }
 
-browser-settings button:before {
+browser-appbar-settings button:before {
 	display: inline-block;
 	width: 100%;
 	font-family: 'icon';
@@ -43,43 +43,43 @@ browser-settings button:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-browser-settings button.active {
+browser-appbar-settings button.active {
 	color: var(--element-active-color);
 }
 
-browser-settings button[disabled],
-browser-settings button[disabled]:hover {
+browser-appbar-settings button[disabled],
+browser-appbar-settings button[disabled]:hover {
 	color: var(--element-disable-color);
 	border: 1px solid transparent;
 	background: var(--element-disable-background);
 	cursor: not-allowed;
 }
 
-browser-settings button[disabled].active {
+browser-appbar-settings button[disabled].active {
 	color: var(--element-active-color);
 }
 
-browser-settings button:focus,
-browser-settings button:hover {
+browser-appbar-settings button:focus,
+browser-appbar-settings button:hover {
 	color: var(--element-focus-color);
 	border: 1px solid var(--element-focus-color);
 	background: var(--element-focus-background);
 	outline: none;
 }
 
-browser-settings button::-moz-focus-inner {
+browser-appbar-settings button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
-browser-settings button[data-key="session"]:before { content: '\e1e2'; }
-browser-settings button[data-key="site"]:before    { content: '\e869'; }
-browser-settings button[data-key="browser"]:before { content: '\e8b8'; }
+browser-appbar-settings button[data-key="session"]:before { content: '\e1e2'; }
+browser-appbar-settings button[data-key="site"]:before    { content: '\e869'; }
+browser-appbar-settings button[data-key="browser"]:before { content: '\e8b8'; }
 
 
 
 @media screen and (max-width: 800px) {
 
-	browser-settings {
+	browser-appbar-settings {
 		margin-left: 0px;
 	}
 

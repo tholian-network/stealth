@@ -6,7 +6,10 @@ import { Widget  } from '../Widget.mjs';
 
 const update = function() {
 
-	if (this.header !== null) {
+	let appbar  = Element.query('browser-appbar');
+	let element = this.element;
+
+	if (appbar !== null && element !== null) {
 
 		this.appbar['address'].erase();
 		this.appbar['history'].erase();
@@ -16,24 +19,24 @@ const update = function() {
 
 		if (this.__state.mobile === true) {
 
-			this.appbar['history'].render(this.element);
+			this.appbar['history'].render(element);
 
-			this.appbar['address'].render(this.header);
-			this.button.render(this.header);
+			this.appbar['address'].render(appbar);
+			this.button.render(appbar);
 
-			this.appbar['mode'].render(this.element);
-			this.appbar['settings'].render(this.element);
+			this.appbar['mode'].render(element);
+			this.appbar['settings'].render(element);
 
-			this.element.render(this.header);
+			element.render(appbar);
 
 		} else {
 
-			this.appbar['history'].render(this.header);
-			this.appbar['address'].render(this.header);
-			this.appbar['mode'].render(this.header);
-			this.appbar['settings'].render(this.header);
+			this.appbar['history'].render(appbar);
+			this.appbar['address'].render(appbar);
+			this.appbar['mode'].render(appbar);
+			this.appbar['settings'].render(appbar);
 
-			this.element.erase();
+			element.erase();
 
 		}
 
@@ -45,8 +48,7 @@ const update = function() {
 
 const Splitter = function(/* browser */) {
 
-	this.element = new Element('browser-splitter');
-	this.header  = Element.query('header');
+	this.element = new Element('browser-appbar-splitter');
 
 	this.__state = {
 		mobile: false
@@ -54,10 +56,10 @@ const Splitter = function(/* browser */) {
 
 
 	this.appbar = {
-		'history':  Widget.query('browser-history'),
-		'address':  Widget.query('browser-address'),
-		'mode':     Widget.query('browser-mode'),
-		'settings': Widget.query('browser-settings')
+		'history':  Widget.query('browser-appbar-history'),
+		'address':  Widget.query('browser-appbar-address'),
+		'mode':     Widget.query('browser-appbar-mode'),
+		'settings': Widget.query('browser-appbar-settings')
 	};
 
 	this.button = new Element('button');

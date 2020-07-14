@@ -224,7 +224,7 @@ const toAction = function(action) {
 
 const Context = function(browser) {
 
-	this.element = new Element('browser-context');
+	this.element = new Element('browser-menu-context');
 	this.actions = [];
 	this.buttons = [];
 
@@ -302,11 +302,13 @@ Context.prototype = Object.assign({}, Widget.prototype, {
 
 		if (area !== null) {
 
-			area = Object.assign({}, this.element.area(), {
+			area = {
+				w: isNumber(area.w) ? (area.w | 0) : null,
+				h: isNumber(area.h) ? (area.h | 0) : null,
 				x: isNumber(area.x) ? (area.x | 0) : (global.innerWidth  / 2),
 				y: isNumber(area.y) ? (area.y | 0) : (global.innerHeight / 2),
 				z: isNumber(area.z) ? (area.z | 0) : null
-			});
+			};
 
 			setTimeout(() => {
 

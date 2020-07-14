@@ -1,5 +1,5 @@
 
-browser-webview {
+browser-backdrop-webview {
 	display: block;
 	position: fixed;
 	width: auto;
@@ -11,12 +11,11 @@ browser-webview {
 	margin: 0px;
 	padding: 0px;
 	transition: 200ms all ease-out;
-	z-index: 1;
 	user-select: none;
 	pointer-events: auto;
 }
 
-browser-webview iframe {
+browser-backdrop-webview iframe {
 	display: block;
 	width: 100%;
 	height: 100%;

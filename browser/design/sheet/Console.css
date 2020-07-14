@@ -1,14 +1,13 @@
 
-browser-console {
+browser-sheet-console {
 	position: fixed;
 	top: auto;
 	right: auto;
 	bottom: 0px;
 	left: 0px;
-	z-index: 2049;
 }
 
-browser-console button {
+browser-sheet-console button {
 	display: inline-block;
 	min-width: 32px;
 	margin: 0px;
@@ -32,12 +31,12 @@ browser-console button {
 	cursor: pointer;
 }
 
-browser-console button:hover,
-browser-console button.active {
+browser-sheet-console button:hover,
+browser-sheet-console button.active {
 	color: var(--element-active-color);
 }
 
-browser-console button:before {
+browser-sheet-console button:before {
 	display: inline-block;
 	width: 100%;
 	font-family: 'icon';

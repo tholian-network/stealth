@@ -1,5 +1,5 @@
 
-browser-tabs {
+browser-backdrop-tabs {
 	display: block;
 	position: fixed;
 	width: auto;
@@ -17,7 +17,6 @@ browser-tabs {
 	border-right: 1px solid #666666;
 	transform: translate(-100%, 0%);
 	transition: 200ms transform ease-out;
-	z-index: 1022;
 	user-select: none;
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -25,24 +24,24 @@ browser-tabs {
 	scrollbar-width: auto;
 }
 
-browser-tabs.active {
+browser-backdrop-tabs.active {
 	transform: translate(0%, 0%);
 }
 
-browser-tabs::-webkit-scrollbar {
+browser-backdrop-tabs::-webkit-scrollbar {
 	width: 16px;
 	border: 0px solid transparent;
 	background: var(--scrollbar-default-background);
 }
 
-browser-tabs::-webkit-scrollbar-thumb {
+browser-backdrop-tabs::-webkit-scrollbar-thumb {
 	width: 16px;
 	border: 0px solid transparent;
 	border-radius: 2px;
 	background: var(--scrollbar-default-color);
 }
 
-browser-tabs button {
+browser-backdrop-tabs button {
 	display: block;
 	min-width: 32px;
 	width: 100%;
@@ -69,7 +68,7 @@ browser-tabs button {
 	cursor: pointer;
 }
 
-browser-tabs button:before {
+browser-backdrop-tabs button:before {
 	display: inline-block;
 	width: 30px;
 	height: auto;
@@ -84,8 +83,8 @@ browser-tabs button:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-browser-tabs button:focus,
-browser-tabs button:hover {
+browser-backdrop-tabs button:focus,
+browser-backdrop-tabs button:hover {
 	color: var(--element-focus-color);
 	background: var(--element-focus-background);
 	border-top: 1px solid var(--element-focus-color);
@@ -93,36 +92,36 @@ browser-tabs button:hover {
 	outline: none;
 }
 
-browser-tabs button.active {
+browser-backdrop-tabs button.active {
 	color: var(--element-active-color);
 	background: var(--element-active-background);
 	border-top: 1px solid var(--element-active-color);
 	border-bottom: 1px solid var(--element-active-color);
 }
 
-browser-tabs button.active:first-of-type {
+browser-backdrop-tabs button.active:first-of-type {
 	border-top: 1px solid transparent;
 }
 
-browser-tabs button::-moz-focus-inner {
+browser-backdrop-tabs button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
-browser-tabs button[title^="file:"]:before    { content: '\e84f'; }
-browser-tabs button[title^="ftps:"]:before    { content: '\e897'; }
-browser-tabs button[title^="ftp:"]:before     { content: '\e898'; }
-browser-tabs button[title^="https:"]:before   { content: '\e897'; }
-browser-tabs button[title^="http:"]:before    { content: '\e898'; }
-browser-tabs button[title^="wss:"]:before     { content: '\e897'; }
-browser-tabs button[title^="ws:"]:before      { content: '\e898'; }
-browser-tabs button[title^="socks:"]:before   { content: '\e32a'; }
-browser-tabs button[title^="stealth:"]:before { content: '\e8b8'; }
+browser-backdrop-tabs button[title^="file:"]:before    { content: '\e84f'; }
+browser-backdrop-tabs button[title^="ftps:"]:before    { content: '\e897'; }
+browser-backdrop-tabs button[title^="ftp:"]:before     { content: '\e898'; }
+browser-backdrop-tabs button[title^="https:"]:before   { content: '\e897'; }
+browser-backdrop-tabs button[title^="http:"]:before    { content: '\e898'; }
+browser-backdrop-tabs button[title^="wss:"]:before     { content: '\e897'; }
+browser-backdrop-tabs button[title^="ws:"]:before      { content: '\e898'; }
+browser-backdrop-tabs button[title^="socks:"]:before   { content: '\e32a'; }
+browser-backdrop-tabs button[title^="stealth:"]:before { content: '\e8b8'; }
 
 
 
 @media screen and (max-width: 640px) {
 
-	browser-tabs {
+	browser-backdrop-tabs {
 		right: 0px;
 	}
 

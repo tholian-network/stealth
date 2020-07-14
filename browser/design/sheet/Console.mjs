@@ -8,7 +8,7 @@ const Console = function(/* browser */) {
 
 	this.button  = new Element('button');
 	this.console = Element.query('base-console');
-	this.element = new Element('browser-console', [
+	this.element = new Element('browser-sheet-console', [
 		this.button
 	]);
 

@@ -1,5 +1,5 @@
 
-browser-mode {
+browser-appbar-mode {
 	display: inline-block;
 	position: relative;
 	width: auto;
@@ -12,7 +12,7 @@ browser-mode {
 	user-select: none;
 }
 
-browser-mode button {
+browser-appbar-mode button {
 	display: inline-block;
 	min-width: 32px;
 	margin: 0px;
@@ -34,7 +34,7 @@ browser-mode button {
 	cursor: pointer;
 }
 
-browser-mode button:before {
+browser-appbar-mode button:before {
 	display: inline-block;
 	width: 100%;
 	font-family: 'icon';
@@ -43,31 +43,31 @@ browser-mode button:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-browser-mode button[disabled],
-browser-mode button[disabled]:hover {
+browser-appbar-mode button[disabled],
+browser-appbar-mode button[disabled]:hover {
 	color: var(--element-disable-color);
 	border: 1px solid transparent;
 	background: var(--element-disable-background);
 	cursor: not-allowed;
 }
 
-browser-mode button:focus,
-browser-mode button:hover {
+browser-appbar-mode button:focus,
+browser-appbar-mode button:hover {
 	color: var(--element-focus-color);
 	border: 1px solid var(--element-focus-color);
 	background: var(--element-focus-background);
 	outline: none;
 }
 
-browser-history button::-moz-focus-inner {
+browser-appbar-mode button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
-browser-mode button[data-key="text"]:before  { content: '\e06f'; }
-browser-mode button[data-key="image"]:before { content: '\e432'; }
-browser-mode button[data-key="audio"]:before { content: '\e049'; }
-browser-mode button[data-key="video"]:before { content: '\e404'; }
-browser-mode button[data-key="other"]:before { content: '\e048'; }
-browser-mode button[data-val="true"]         { color: var(--element-active-color); }
-browser-mode button[data-val="true"]:hover   { color: var(--element-active-color); }
+browser-appbar-mode button[data-key="text"]:before  { content: '\e06f'; }
+browser-appbar-mode button[data-key="image"]:before { content: '\e432'; }
+browser-appbar-mode button[data-key="audio"]:before { content: '\e049'; }
+browser-appbar-mode button[data-key="video"]:before { content: '\e404'; }
+browser-appbar-mode button[data-key="other"]:before { content: '\e048'; }
+browser-appbar-mode button[data-val="true"]         { color: var(--element-active-color); }
+browser-appbar-mode button[data-val="true"]:hover   { color: var(--element-active-color); }
 

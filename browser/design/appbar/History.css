@@ -1,5 +1,5 @@
 
-browser-history {
+browser-appbar-history {
 	display: inline-block;
 	position: relative;
 	width: auto;
@@ -12,7 +12,7 @@ browser-history {
 	user-select: none;
 }
 
-browser-history button {
+browser-appbar-history button {
 	display: inline-block;
 	min-width: 32px;
 	margin: 0px;
@@ -34,7 +34,7 @@ browser-history button {
 	cursor: pointer;
 }
 
-browser-history button:before {
+browser-appbar-history button:before {
 	display: inline-block;
 	width: 100%;
 	font-family: 'icon';
@@ -43,30 +43,30 @@ browser-history button:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-browser-history button[disabled],
-browser-history button[disabled]:hover {
+browser-appbar-history button[disabled],
+browser-appbar-history button[disabled]:hover {
 	color: var(--element-disable-color);
 	border: 1px solid transparent;
 	background: var(--element-disable-background);
 	cursor: not-allowed;
 }
 
-browser-history button:focus,
-browser-history button:hover {
+browser-appbar-history button:focus,
+browser-appbar-history button:hover {
 	color: var(--element-focus-color);
 	border: 1px solid var(--element-focus-color);
 	background: var(--element-focus-background);
 	outline: none;
 }
 
-browser-history button::-moz-focus-inner {
+browser-appbar-history button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
-browser-history button[data-key="back"]:before                       { content: '\e5c4'; }
-browser-history button[data-key="next"]:before                       { content: '\e5c8'; }
-browser-history button[data-key="action"]:before                     { content: '\e5d5'; }
-browser-history button[data-key="action"][data-val="refresh"]:before { content: '\e5d5'; }
-browser-history button[data-key="action"][data-val="pause"]:before   { content: '\e034'; }
-browser-history button[data-key="open"]:before                       { content: '\e145'; }
+browser-appbar-history button[data-key="back"]:before                       { content: '\e5c4'; }
+browser-appbar-history button[data-key="next"]:before                       { content: '\e5c8'; }
+browser-appbar-history button[data-key="action"]:before                     { content: '\e5d5'; }
+browser-appbar-history button[data-key="action"][data-val="refresh"]:before { content: '\e5d5'; }
+browser-appbar-history button[data-key="action"][data-val="pause"]:before   { content: '\e034'; }
+browser-appbar-history button[data-key="open"]:before                       { content: '\e145'; }
 

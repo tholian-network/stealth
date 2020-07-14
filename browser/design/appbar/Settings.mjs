@@ -27,8 +27,13 @@ const update = function(tab) {
 
 		} else {
 
-			this.buttons.session.state('enabled');
-			this.buttons.site.state('enabled');
+			if (this.sheets.session !== null) {
+				this.buttons.session.state('enabled');
+			}
+
+			if (this.sheets.site !== null) {
+				this.buttons.site.state('enabled');
+			}
 
 		}
 
@@ -44,63 +49,11 @@ const update = function(tab) {
 
 };
 
-const toggle_dialog = function(active) {
-
-	if (active !== null) {
-
-		Object.keys(this.dialogs).forEach((key) => {
-
-			let button = this.buttons[key] || null;
-			let dialog = this.dialogs[key] || null;
-
-			if (button !== null && dialog !== null) {
-
-				if (active === key) {
-
-					if (button.state() === 'active') {
-						button.state('');
-						dialog.emit('hide');
-					} else {
-						button.state('active');
-						dialog.emit('show');
-					}
-
-				} else {
-
-					button.state('');
-					dialog.emit('hide');
-
-				}
-
-			}
-
-		});
-
-	} else {
-
-		Object.keys(this.dialogs).forEach((key) => {
-
-			let button = this.buttons[key] || null;
-			if (button !== null) {
-				button.state('');
-			}
-
-			let dialog = this.dialogs[key] || null;
-			if (dialog !== null) {
-				dialog.emit('hide');
-			}
-
-		});
-
-	}
-
-};
-
 
 
 const Settings = function(browser) {
 
-	this.element = new Element('browser-settings', [
+	this.element = new Element('browser-appbar-settings', [
 		'<button data-key="site" title="Site Settings" disabled></button>',
 		'<button data-key="session" title="Session Settings" disabled></button>',
 		'<button data-key="browser" title="Browser Settings" disabled></button>'
@@ -113,10 +66,10 @@ const Settings = function(browser) {
 		site:    this.element.query('[data-key="site"]')
 	};
 
-	this.dialogs = {
+	this.sheets = {
 		browser: null,
-		session: Element.query('browser-dialog[data-key="session"]'),
-		site:    Element.query('browser-dialog[data-key="site"]')
+		session: null,
+		site:    null
 	};
 
 	this.element.on('contextmenu', (e) => {
@@ -128,32 +81,102 @@ const Settings = function(browser) {
 
 	this.buttons.browser.on('click', () => {
 
-		toggle_dialog.call(this, null);
+		if (this.sheets.site !== null) {
+			this.sheets.site.emit('hide');
+		}
+
+		if (this.sheets.session !== null) {
+			this.sheets.session.emit('hide');
+		}
 
 		browser.navigate('stealth:settings');
 
 	});
 
-	this.buttons.session.on('click', () => {
+	setTimeout(() => {
 
-		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
-			toggle_dialog.call(this, 'session');
+		let session = Widget.query('browser-sheet-session');
+		if (session !== null) {
+
+			this.sheets.session = session;
+
+			this.sheets.session.on('show', () => {
+				this.buttons.session.state('active');
+			});
+
+			this.sheets.session.on('hide', () => {
+				this.buttons.session.state('');
+			});
+
+			this.buttons.session.on('click', () => {
+
+				if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
+
+					if (this.sheets.site !== null) {
+						this.sheets.site.emit('hide');
+					}
+
+					this.sheets.session.emit('show');
+
+				}
+
+			});
+
+		} else {
+
+			this.buttons.session.state('disabled');
+
 		}
 
-	});
+		let site = Widget.query('browser-sheet-site');
+		if (site !== null) {
 
-	this.buttons.site.on('click', () => {
+			this.sheets.site = site;
 
-		if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
-			toggle_dialog.call(this, 'site');
+			this.sheets.site.on('show', () => {
+				this.buttons.site.state('active');
+			});
+
+			this.sheets.site.on('hide', () => {
+				this.buttons.site.state('');
+			});
+
+			this.buttons.site.on('click', () => {
+
+				if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
+
+					if (this.sheets.session !== null) {
+						this.sheets.session.emit('hide');
+					}
+
+					this.sheets.site.emit('show');
+
+				}
+
+			});
+
+		} else {
+
+			this.buttons.site.state('disabled');
+
 		}
 
-	});
+	}, 0);
 
 
 	browser.on('show',    (tab) => update.call(this, tab));
 	browser.on('refresh', (tab) => update.call(this, tab));
-	browser.on('hide',    ()    => toggle_dialog.call(this, null));
+	browser.on('hide',    ()    => {
+
+		if (this.sheets.site !== null) {
+			this.sheets.site.emit('hide');
+		}
+
+		if (this.sheets.session !== null) {
+			this.sheets.session.emit('hide');
+		}
+
+	});
 
 
 	Widget.call(this);

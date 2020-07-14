@@ -10,14 +10,13 @@ import { Mode        } from './appbar/Mode.mjs';
 import { Settings    } from './appbar/Settings.mjs';
 import { Splitter    } from './appbar/Splitter.mjs';
 
-import { Console     } from './backdrop/Console.mjs';
 import { Help        } from './backdrop/Help.mjs';
 import { Tabs        } from './backdrop/Tabs.mjs';
 import { Webview     } from './backdrop/Webview.mjs';
 
-// TODO: Port Session and Site Sidebars to browser-dialog[data-key=""]
-// import { Session     } from './dialog/Session.mjs';
-// import { Site        } from './dialog/Site.mjs';
+import { Console     } from './sheet/Console.mjs';
+import { Session     } from './sheet/Session.mjs';
+import { Site        } from './sheet/Site.mjs';
 
 import { Context     } from './menu/Context.mjs';
 
@@ -30,8 +29,8 @@ const on_resize = function() {
 
 	if (width !== null && height !== null) {
 
-		let splitter = Widget.query('browser-splitter');
-		let tabs     = Widget.query('browser-tabs');
+		let splitter = Widget.query('browser-appbar-splitter');
+		let tabs     = Widget.query('browser-backdrop-tabs');
 
 		if (splitter !== null && tabs !== null) {
 			splitter.emit('resize', [ width, height ]);
@@ -52,9 +51,10 @@ export const dispatch = (window, browser) => {
 	if (browser !== null) {
 
 		let elements = {
-			header: Element.query('header'),
-			main:   Element.query('main'),
-			footer: Element.query('footer')
+			appbar:   new Element('browser-appbar'),
+			backdrop: new Element('browser-backdrop'),
+			sheet:    new Element('browser-sheet'),
+			menu:     new Element('browser-menu')
 		};
 
 		let widgets = {
@@ -66,41 +66,55 @@ export const dispatch = (window, browser) => {
 				splitter: new Splitter(browser)
 			},
 			backdrop: {
-				console: ENVIRONMENT.flags.debug === true ? new Console(browser) : null,
 				help:    new Help(browser),
 				tabs:    new Tabs(browser),
 				webview: new Webview(browser)
 			},
 			menu: {
 				context: new Context(browser)
+			},
+			sheet: {
+				console: ENVIRONMENT.flags.debug === true ? new Console(browser) : null,
+				session: new Session(browser),
+				site:    new Site(browser)
 			}
 		};
 
-		widgets.appbar['history'].render(elements.header);
-		widgets.appbar['address'].render(elements.header);
-		widgets.appbar['mode'].render(elements.header);
-		widgets.appbar['settings'].render(elements.header);
-		widgets.appbar['splitter'].render(elements.header);
+		widgets.appbar['history'].render(elements.appbar);
+		widgets.appbar['address'].render(elements.appbar);
+		widgets.appbar['mode'].render(elements.appbar);
+		widgets.appbar['settings'].render(elements.appbar);
+		widgets.appbar['splitter'].render(elements.appbar);
 
-		widgets.backdrop['webview'].render(elements.main);
-		widgets.backdrop['tabs'].render(elements.main);
-		widgets.backdrop['help'].render(elements.main);
+		widgets.backdrop['webview'].render(elements.backdrop);
+		widgets.backdrop['tabs'].render(elements.backdrop);
 
-		if (widgets.backdrop['console'] !== null) {
-			widgets.backdrop['console'].render(Element.query('body'));
+		// TODO: Maybe Help should be a sheet?
+		widgets.backdrop['help'].render(elements.backdrop);
+
+		widgets.sheet['session'].render(elements.sheet);
+		widgets.sheet['site'].render(elements.sheet);
+
+		if (widgets.sheet['console'] !== null) {
+			widgets.sheet['console'].render(elements.sheet);
 		}
 
-		widgets.menu['context'].render(elements.footer);
+		widgets.menu['context'].render(elements.menu);
 
 
-		browser.on('theme', (theme) => {
+		let body = Element.query('body');
+		if (body !== null) {
 
-			let body = Element.query('body');
-			if (body !== null) {
+			elements.appbar.render(body);
+			elements.backdrop.render(body);
+			elements.sheet.render(body);
+			elements.menu.render(body);
+
+			browser.on('theme', (theme) => {
 				body.attr('data-theme', theme);
-			}
+			});
 
-		});
+		}
 
 
 		setTimeout(() => {

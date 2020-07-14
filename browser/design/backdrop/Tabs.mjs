@@ -39,7 +39,7 @@ const update_area = function() {
 	let area = this.element.area();
 	if (area !== null) {
 
-		let webview = Widget.query('browser-webview');
+		let webview = Widget.query('browser-backdrop-webview');
 		if (webview !== null) {
 
 			if (this.__state.mobile === false) {
@@ -162,7 +162,7 @@ const update = function(tab, tabs) {
 
 const Tabs = function(browser) {
 
-	this.element  = new Element('browser-tabs');
+	this.element  = new Element('browser-backdrop-tabs');
 	this.buttons  = [];
 	this.tabindex = -1;
 
@@ -178,7 +178,7 @@ const Tabs = function(browser) {
 
 	this.element.on('click', (e) => {
 
-		let context = Widget.query('browser-context');
+		let context = Widget.query('browser-menu-context');
 		if (context !== null) {
 			context.emit('hide');
 		}
@@ -198,7 +198,7 @@ const Tabs = function(browser) {
 
 						setTimeout(() => {
 
-							let splitter = Widget.query('browser-splitter');
+							let splitter = Widget.query('browser-appbar-splitter');
 							if (splitter !== null) {
 								splitter.emit('hide');
 							}
@@ -217,7 +217,7 @@ const Tabs = function(browser) {
 
 	this.element.on('contextmenu', (e) => {
 
-		let context = Widget.query('browser-context');
+		let context = Widget.query('browser-menu-context');
 		let target  = Element.toElement(e.target);
 
 		if (context !== null && target !== null) {
@@ -339,7 +339,7 @@ const Tabs = function(browser) {
 	});
 
 
-	let splitter = Widget.query('browser-splitter');
+	let splitter = Widget.query('browser-appbar-splitter');
 	if (splitter !== null) {
 
 		splitter.on('show', () => this.emit('show'));

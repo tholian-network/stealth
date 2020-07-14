@@ -96,7 +96,7 @@ const update = function(tab) {
 
 const Mode = function(browser) {
 
-	this.element = new Element('browser-mode', [
+	this.element = new Element('browser-appbar-mode', [
 		'<button data-key="text" data-val="false" title="Allow/Disallow Text on current Site"></button>',
 		'<button data-key="image" data-val="false" title="Allow/Disallow Image on current Site"></button>',
 		'<button data-key="audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>',

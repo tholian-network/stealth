@@ -1,5 +1,5 @@
 
-browser-address {
+browser-appbar-address {
 	display: inline-block;
 	position: relative;
 	width: auto;
@@ -14,15 +14,15 @@ browser-address {
 	overflow: hidden;
 }
 
-browser-address {
+browser-appbar-address {
 	width: calc(100% - 32px);
 }
 
-browser-history + browser-address {
+browser-appbar-history + browser-appbar-address {
 	width: calc(100% - 128px - 160px - 128px);
 }
 
-browser-address ul {
+browser-appbar-address ul {
 	display: inline-block;
 	position: relative;
 	width: calc(100% - 64px);
@@ -36,7 +36,7 @@ browser-address ul {
 	z-index: 1;
 }
 
-browser-address ul li {
+browser-appbar-address ul li {
 	display: inline-block;
 	list-style: none;
 	height: calc(32px - 2px);
@@ -50,7 +50,7 @@ browser-address ul li {
 	transition: 200ms all ease-out;
 }
 
-browser-address ul li:hover {
+browser-appbar-address ul li:hover {
 	color: var(--element-focus-color);
 	border-radius: 4px 4px 0px 0px;
 	border-bottom: 2px solid var(--element-focus-color);
@@ -58,7 +58,7 @@ browser-address ul li:hover {
 	cursor: text;
 }
 
-browser-address ul li[data-key="protocol"] {
+browser-appbar-address ul li[data-key="protocol"] {
 	width: 32px;
 	height: 32px;
 	color: var(--element-default-color);
@@ -66,14 +66,14 @@ browser-address ul li[data-key="protocol"] {
 	line-height: 32px;
 }
 
-browser-address ul li[data-key="protocol"]:hover {
+browser-appbar-address ul li[data-key="protocol"]:hover {
 	color: var(--element-default-color);
 	border-bottom: 2px solid transparent;
 	background: transparent;
 	cursor: default;
 }
 
-browser-address ul li[data-key="protocol"]:before {
+browser-appbar-address ul li[data-key="protocol"]:before {
 	display: inline-block;
 	width: 100%;
 	content: '\e157';
@@ -83,17 +83,17 @@ browser-address ul li[data-key="protocol"]:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-browser-address ul li[data-key="protocol"][data-val="file"]:before    { content: '\e84f'; }
-browser-address ul li[data-key="protocol"][data-val="ftps"]:before    { content: '\e897'; }
-browser-address ul li[data-key="protocol"][data-val="ftp"]:before     { content: '\e898'; }
-browser-address ul li[data-key="protocol"][data-val="https"]:before   { content: '\e897'; }
-browser-address ul li[data-key="protocol"][data-val="http"]:before    { content: '\e898'; }
-browser-address ul li[data-key="protocol"][data-val="wss"]:before     { content: '\e897'; }
-browser-address ul li[data-key="protocol"][data-val="ws"]:before      { content: '\e898'; }
-browser-address ul li[data-key="protocol"][data-val="socks"]:before   { content: '\e32a'; }
-browser-address ul li[data-key="protocol"][data-val="stealth"]:before { content: '\e8b8'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="file"]:before    { content: '\e84f'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="ftps"]:before    { content: '\e897'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="ftp"]:before     { content: '\e898'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="https"]:before   { content: '\e897'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="http"]:before    { content: '\e898'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="wss"]:before     { content: '\e897'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="ws"]:before      { content: '\e898'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="socks"]:before   { content: '\e32a'; }
+browser-appbar-address ul li[data-key="protocol"][data-val="stealth"]:before { content: '\e8b8'; }
 
-browser-address input {
+browser-appbar-address input {
 	display: block;
 	position: absolute;
 	width: 100%;
@@ -126,13 +126,13 @@ browser-address input {
 	z-index: 0;
 }
 
-browser-address input.active {
+browser-appbar-address input.active {
 	transition: 200ms all ease-out;
 	opacity: 1;
 	z-index: 2;
 }
 
-browser-address input::selection {
+browser-appbar-address input::selection {
 	color: var(--element-select-color);
 	border-radius: 4px;
 	background: var(--element-select-background);
@@ -143,26 +143,26 @@ browser-address input::selection {
 
 @media screen and (max-width: 800px) {
 
-	browser-address {
+	browser-appbar-address {
 		width: calc(100% - 32px);
 	}
 
-	browser-history + browser-address {
+	browser-appbar-history + browser-appbar-address {
 		width: calc(100% - 128px - 160px - 96px);
 		text-align: left;
 	}
 
-	browser-address ul {
+	browser-appbar-address ul {
 		width: auto;
 		margin: 0px 0px;
 		text-align: left;
 	}
 
-	browser-address ul li {
+	browser-appbar-address ul li {
 		width: auto;
 	}
 
-	browser-address input {
+	browser-appbar-address input {
 		width: 100%;
 		left: 0px;
 	}

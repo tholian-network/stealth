@@ -7,44 +7,42 @@
 @import url("./appbar/Settings.css");
 @import url("./appbar/Splitter.css");
 
-@import url("./backdrop/Console.css");
 @import url("./backdrop/Help.css");
 @import url("./backdrop/Tabs.css");
 @import url("./backdrop/Webview.css");
 
-/* TODO: Port Session and Site Sidebars to browser-dialog[data-key=""] */
-/* @import url("./dialog/Session.css"); */
-/* @import url("./dialog/Site.css");    */
+@import url("./sheet/Console.css");
+@import url("./sheet/Session.css");
+@import url("./sheet/Site.css");
 
 @import url("./menu/Context.css");
 
 
 
 /*
- * element z-index map
- *
- * 1025 => footer
- *         ... browser-help
- *
- * 1024 => header
- *         ... browser-history
- *         ... browser-address
- *         ... browser-mode
- *         ... browser-settings
- *         ... browser-splitter
- *
- * 1023 => footer => browser-context
- * 1022 => footer => browser-tabs
- *
- *  512 => footer
- *         ... browser-site
- *         ... browser-session
- *
- *    1 => main
- *         ... browser-webview
- *
+ * App Layers
  */
 
+base-console                               { z-index:   255 !important; }
+base-console.active ~ browser-appbar       { z-index:   254 !important; }
+
+browser-appbar                             { z-index:   512; }
+browser-appbar browser-appbar-history      { z-index: unset; }
+browser-appbar browser-appbar-address      { z-index: unset; }
+browser-appbar browser-appbar-mode         { z-index: unset; }
+browser-appbar browser-appbar-settings     { z-index: unset; }
+browser-appbar button[data-key="splitter"] { z-index: unset; } /* only on mobile */
+browser-appbar browser-appbar-splitter     { z-index:   255; } /* only on mobile */
+browser-backdrop                           { z-index:     0; }
+browser-backdrop browser-backdrop-webview  { z-index:     1; }
+browser-backdrop browser-backdrop-tabs     { z-index:   128; }
+browser-backdrop browser-backdrop-help     { z-index:   255; }
+browser-sheet                              { z-index:   256; }
+browser-sheet browser-sheet-session        { z-index:   257; }
+browser-sheet browser-sheet-site           { z-index:   257; }
+browser-sheet browser-sheet-console        { z-index:   511; } /* only on ?debug=true */
+browser-menu                               { z-index:  1024; }
+browser-menu browser-menu-context          { z-index:  1025; }
 
 
 body {
@@ -55,7 +53,7 @@ body {
 	background: var(--layout-default-background);
 }
 
-header {
+browser-appbar {
 	display: block;
 	position: fixed;
 	width: auto;
@@ -67,7 +65,6 @@ header {
 	left: 0px;
 	margin: 0px;
 	padding: 0px;
-	z-index: 1024;
 	border: 0px solid transparent;
 	border-bottom: 1px solid #666666;
 	background: var(--layout-default-background);
@@ -75,13 +72,17 @@ header {
 	vertical-align: middle;
 }
 
-main {
+browser-backdrop {
 	display: block;
 	position: relative;
-	z-index: 1;
 }
 
-footer {
+browser-sheet {
+	display: block;
+	position: relative;
+}
+
+browser-menu {
 	display: block;
 	position: relative;
 }

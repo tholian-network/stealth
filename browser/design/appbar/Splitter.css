@@ -1,5 +1,5 @@
 
-browser-splitter {
+browser-appbar-splitter {
 	display: block;
 	position: absolute;
 	width: 100%;
@@ -19,16 +19,15 @@ browser-splitter {
 	pointer-events: none;
 	transition: 200ms opacity ease-out;
 	opacity: 0;
-	z-index: 3;
 }
 
-browser-splitter.active {
+browser-appbar-splitter.active {
 	pointer-events: all;
 	transition: 200ms opacity ease-out;
 	opacity: 1;
 }
 
-header button[data-key="splitter"] {
+browser-appbar button[data-key="splitter"] {
 	display: inline-block;
 	min-width: 32px;
 	margin: 0px;
@@ -52,11 +51,11 @@ header button[data-key="splitter"] {
 	cursor: pointer;
 }
 
-header button[data-key="splitter"].active {
+browser-appbar button[data-key="splitter"].active {
 	color: var(--element-active-color);
 }
 
-header button[data-key="splitter"]:before {
+browser-appbar button[data-key="splitter"]:before {
 	display: inline-block;
 	width: 100%;
 	font-family: 'icon';
@@ -66,7 +65,7 @@ header button[data-key="splitter"]:before {
 	content: '\e5d4';
 }
 
-browser-splitter > browser-mode {
+browser-appbar-splitter > browser-appbar-mode {
 	width: calc(100% - 128px - 96px);
 }
 
