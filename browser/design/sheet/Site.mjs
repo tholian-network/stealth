@@ -30,9 +30,6 @@ const Site = function(browser) {
 	});
 
 	this.element.on('show', () => {
-
-		console.log('show!');
-
 		this.element.state('active');
 	});
 

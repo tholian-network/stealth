@@ -116,7 +116,11 @@ const Settings = function(browser) {
 						this.sheets.site.emit('hide');
 					}
 
-					this.sheets.session.emit('show');
+					if (this.sheets.session.state() === 'active') {
+						this.sheets.session.emit('hide');
+					} else {
+						this.sheets.session.emit('show');
+					}
 
 				}
 
@@ -149,7 +153,11 @@ const Settings = function(browser) {
 						this.sheets.session.emit('hide');
 					}
 
-					this.sheets.site.emit('show');
+					if (this.sheets.site.state() === 'active') {
+						this.sheets.site.emit('hide');
+					} else {
+						this.sheets.site.emit('show');
+					}
 
 				}
 

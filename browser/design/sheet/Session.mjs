@@ -5,7 +5,7 @@ import { Widget  } from '../Widget.mjs';
 
 
 
-const Session = function(browser, widgets) {
+const Session = function(browser) {
 
 	this.element = new Element('browser-sheet-session', [
 		'<article>',
@@ -27,44 +27,32 @@ const Session = function(browser, widgets) {
 
 	this.element.on('show', () => {
 
-		let service = browser.client.services.session || null;
-		if (service !== null) {
+		browser.client.services.session.read({}, (session) => {
 
-			service.read({}, (session) => {
+			browser.client.services.session.query({
+				domain: '*'
+			}, (sessions) => {
 
-				service.query({
-					domain: '*'
-				}, (sessions) => {
+				// Make sure reference is to same Array
+				session = sessions.find((s) => s.domain === session.domain) || null;
 
-					// Make sure reference is to same Array
-					session = sessions.find((s) => s.domain === session.domain) || null;
+				this.session  = session.domain;
+				this.sessions = sessions;
 
-					this.session  = session.domain;
-					this.sessions = sessions;
-
-					console.info(session);
-					console.warn(sessions);
-
-				});
-
+				console.info(session);
+				console.warn(sessions);
 
 			});
 
-		}
+
+		});
 
 		this.element.state('active');
 
 	});
 
 	this.element.on('hide', () => {
-
-		let settings = widgets.settings || null;
-		if (settings !== null && settings.session !== null) {
-			settings.session.state('');
-		}
-
 		this.element.state('');
-
 	});
 
 

@@ -238,6 +238,24 @@ Widget.prototype = {
 
 		return false;
 
+	},
+
+	state: function(state) {
+
+		state = isString(state) ? state : null;
+
+
+		if (isElement(this.element) === true) {
+			return this.element.state(state);
+		}
+
+
+		if (state !== null) {
+			return false;
+		} else {
+			return null;
+		}
+
 	}
 
 };
