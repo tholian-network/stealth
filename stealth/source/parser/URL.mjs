@@ -1,6 +1,6 @@
 
-import { isArray, isBoolean, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                               } from './IP.mjs';
+import { isArray, isBoolean, isBuffer, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                         } from './IP.mjs';
 
 
 
@@ -359,49 +359,57 @@ const resolve_path = function(raw) {
 
 const URL = {
 
-	isDomain: function(abs, rel) {
+	isDomain: function(absolute, relative) {
 
-		let ref_abs = null;
-		if (isString(abs) === true) {
-			ref_abs = URL.parse(abs);
-		} else if (isObject(abs) === true) {
-			ref_abs = abs;
+		let url_absolute = null;
+
+		if (isString(absolute) === true) {
+			url_absolute = URL.parse(absolute);
+		} else if (URL.isURL(absolute) === true) {
+			url_absolute = absolute;
 		}
 
-		let ref_rel = null;
-		if (isString(rel) === true) {
-			ref_rel = URL.parse(rel);
-		} else if (isObject(rel) === true) {
-			ref_rel = rel;
+		let url_relative = null;
+
+		if (isString(relative) === true) {
+			url_relative = URL.parse(relative);
+		} else if (URL.isURL(relative) === true) {
+			url_relative = relative;
+		} else if (isObject(relative) === true) {
+			url_relative      = URL.parse();
+			url_relative.path = isString(relative.path) ? relative.path : '';
 		}
 
 
-		if (ref_abs !== null && ref_rel !== null) {
+		if (url_absolute !== null && url_relative !== null) {
 
-			if (ref_abs.protocol === 'stealth' && ref_rel.protocol === 'stealth') {
+			if (url_absolute.protocol === 'stealth' && url_relative.protocol === 'stealth') {
 
-				if (ref_abs.domain !== null && ref_rel.domain !== null) {
+				if (url_absolute.domain !== null && url_relative.domain !== null) {
 					return true;
 				}
 
-			} else {
+			} else if (url_absolute.protocol !== 'file') {
 
-				if (ref_abs.domain !== null && ref_rel.domain !== null) {
+				if (
+					isString(url_absolute.domain) === true
+					&& isString(url_relative.domain) === true
+				) {
 
-					if (ref_abs.domain === ref_rel.domain) {
+					if (url_absolute.domain === url_relative.domain) {
 
-						if (ref_abs.subdomain !== null && ref_rel.subdomain !== null) {
+						if (url_absolute.subdomain !== null && url_relative.subdomain !== null) {
 
-							let tmp_abs = ref_abs.subdomain.split('.').reverse();
-							let tmp_rel = ref_rel.subdomain.split('.').reverse();
+							let chunks_absolute = url_absolute.subdomain.split('.').reverse();
+							let chunks_relative = url_relative.subdomain.split('.').reverse();
 
-							if (tmp_rel.length >= tmp_abs.length) {
+							if (chunks_relative.length >= chunks_absolute.length) {
 
 								let check = true;
 
-								for (let t = 0, tl = Math.min(tmp_rel.length, tmp_abs.length); t < tl; t++) {
+								for (let c = 0, cl = Math.min(chunks_relative.length, chunks_absolute.length); c < cl; c++) {
 
-									if (tmp_rel[t] !== tmp_abs[t]) {
+									if (chunks_relative[c] !== chunks_absolute[c]) {
 										check = false;
 										break;
 									}
@@ -412,11 +420,11 @@ const URL = {
 
 							}
 
-						} else if (ref_abs.subdomain === null && ref_rel.subdomain !== null) {
+						} else if (url_absolute.subdomain === null && url_relative.subdomain !== null) {
 
 							return true;
 
-						} else if (ref_abs.subdomain === null && ref_rel.subdomain === null) {
+						} else if (url_absolute.subdomain === null && url_relative.subdomain === null) {
 
 							return true;
 
@@ -424,9 +432,12 @@ const URL = {
 
 					}
 
-				} else if (ref_abs.host !== null && ref_rel.host !== null) {
+				} else if (
+					isString(url_absolute.host) === true
+					&& isString(url_relative.host) === true
+				) {
 
-					if (ref_abs.host === ref_rel.host) {
+					if (url_absolute.host === url_relative.host) {
 						return true;
 					}
 
@@ -441,28 +452,19 @@ const URL = {
 
 	},
 
-	isURL: function(ref) {
+	isURL: function(payload) {
 
-		ref = isObject(ref) ? ref : null;
+		payload = isObject(payload) ? payload : null;
 
 
-		if (ref !== null) {
+		if (payload !== null) {
 
-			let protocol  = ref.protocol  || null;
-			let domain    = ref.domain    || null;
-			let hash      = ref.hash      || null;
-			let host      = ref.host      || null;
-			let mime      = ref.mime      || null;
-			let path      = ref.path      || null;
-			let port      = ref.port      || null;
-			let query     = ref.query     || null;
-			let subdomain = ref.subdomain || null;
-
+			let protocol = payload.protocol || null;
 			if (protocol === 'file') {
 
 				if (
-					(isMIME(mime) === true || mime === null)
-					&& isString(path) === true
+					(isMIME(payload.mime) === true || payload.mime === null)
+					&& isString(payload.path) === true
 				) {
 					return true;
 				}
@@ -478,47 +480,52 @@ const URL = {
 			) {
 
 				if (
-					isString(domain) === true
-					&& (isString(subdomain) === true || subdomain === null)
+					isString(payload.domain) === true
+					&& (isString(payload.subdomain) === true || payload.subdomain === null)
 				) {
 
 					if (
-						(isString(hash) === true || hash === null)
-						&& host === null
-						&& (isMIME(mime) === true || mime === null)
-						&& isString(path) === true
-						&& isNumber(port) === true
-						&& (isString(query) === true || query === null)
+						(isString(payload.hash) === true || payload.hash === null)
+						&& payload.host === null
+						&& (isMIME(payload.mime) === true || payload.mime === null)
+						&& isString(payload.path) === true
+						&& isNumber(payload.port) === true
+						&& (isString(payload.query) === true || payload.query === null)
 					) {
 						return true;
 					}
 
-				} else if (isString(host) === true) {
+				} else if (
+					isString(payload.host) === true
+				) {
 
 					if (
-						domain === null
-						&& subdomain === null
-						&& (isString(hash) === true || hash === null)
-						&& (isMIME(mime) === true || mime === null)
-						&& isString(path) === true
-						&& isNumber(port) === true
-						&& (isString(query) === true || query === null)
+						payload.domain === null
+						&& payload.subdomain === null
+						&& (isString(payload.hash) === true || payload.hash === null)
+						&& (isMIME(payload.mime) === true || payload.mime === null)
+						&& isString(payload.path) === true
+						&& isNumber(payload.port) === true
+						&& (isString(payload.query) === true || payload.query === null)
 					) {
 						return true;
 					}
 
 				}
 
-			} else if (protocol === 'stealth') {
+			} else if (
+				protocol === 'stealth'
+			) {
 
 				if (
-					isString(domain) === true
-					&& (isString(hash) === true || hash === null)
-					&& (isMIME(mime) === true || mime === null)
-					&& (isString(query) === true || query === null)
+					isString(payload.domain) === true
+					&& (isString(payload.hash) === true || payload.hash === null)
+					&& (isMIME(payload.mime) === true || payload.mime === null)
+					&& (isString(payload.query) === true || payload.query === null)
 				) {
 					return true;
 				}
+
 
 			}
 
@@ -529,12 +536,17 @@ const URL = {
 
 	},
 
-	parse: function(url) {
+	parse: function(buf_or_str) {
 
-		url = isString(url) ? url : '';
+		let raw = null;
+
+		if (isBuffer(buf_or_str) === true) {
+			raw = buf_or_str.toString('utf8');
+		} else if (isString(buf_or_str) === true) {
+			raw = buf_or_str;
+		}
 
 
-		let protocol  = null;
 		let domain    = null;
 		let hash      = null;
 		let host      = null;
@@ -542,279 +554,285 @@ const URL = {
 		let mime      = null;
 		let path      = null;
 		let port      = null;
+		let protocol  = null;
 		let query     = null;
 		let subdomain = null;
 
+		if (raw !== null) {
 
-		let tmp1 = url.split('?')[0] || '';
-		let tmp2 = url.split('?')[1] || '';
+			let prefix = raw.split('?')[0] || '';
+			let suffix = raw.split('?')[1] || '';
 
-		if (url.startsWith('stealth:')) {
+			if (prefix.startsWith('stealth:')) {
 
-			protocol = 'stealth';
-			domain   = tmp1.substr(protocol.length + 1).split('/')[0];
-			path     = '/' + tmp1.substr(protocol.length + 1).split('/').slice(1).join('/');
-			query    = tmp2 !== '' ? tmp2 : null;
+				protocol = 'stealth';
+				domain   = prefix.substr(protocol.length + 1).split('/')[0];
+				path     = '/' + prefix.substr(protocol.length + 1).split('/').slice(1).join('/');
+				query    = suffix !== '' ? suffix : null;
 
-		} else if (url.startsWith('file://')) {
+			} else if (prefix.startsWith('file://')) {
 
-			protocol = 'file';
-			path     = '/' + tmp1.substr(protocol.length + 3).split('/').slice(1).join('/');
-			query    = tmp2 !== '' ? tmp2 : null;
+				protocol = 'file';
+				path     = '/' + prefix.substr(protocol.length + 3).split('/').slice(1).join('/');
+				query    = suffix !== '' ? suffix : null;
 
-		} else if (url.startsWith('//')) {
+			} else if (prefix.startsWith('//')) {
 
-			protocol = 'https';
-			domain   = tmp1.substr(2).split('/')[0];
-			path     = '/' + tmp1.substr(2).split('/').slice(1).join('/');
-			query    = tmp2 !== '' ? tmp2 : null;
+				protocol = 'https';
+				domain   = prefix.substr(2).split('/')[0];
+				path     = '/' + prefix.substr(2).split('/').slice(1).join('/');
+				query    = suffix !== '' ? suffix : null;
 
-		} else if (url.startsWith('/')) {
+			} else if (prefix.startsWith('/')) {
 
-			protocol = 'file';
-			domain   = null;
-			host     = null;
-			path     = tmp1;
-			query    = tmp2 !== '' ? tmp2 : null;
+				protocol = 'file';
+				domain   = null;
+				host     = null;
+				path     = prefix;
+				query    = suffix !== '' ? suffix : null;
 
-		} else if (url.startsWith('..')) {
+			} else if (prefix.startsWith('..')) {
 
-			path     = tmp1;
-			query    = tmp2 !== '' ? tmp2 : null;
+				path     = prefix;
+				query    = suffix !== '' ? suffix : null;
 
-		} else if (url.startsWith('.')) {
+			} else if (prefix.startsWith('.')) {
 
-			path     = tmp1;
-			query    = tmp2 !== '' ? tmp2 : null;
+				path     = prefix;
+				query    = suffix !== '' ? suffix : null;
 
-		} else if (url.includes('://')) {
+			} else if (prefix.includes('://')) {
 
-			protocol = tmp1.substr(0, tmp1.indexOf('://'));
-			domain   = tmp1.substr(protocol.length + 3).split('/')[0];
-			path     = '/' + tmp1.substr(protocol.length + 3).split('/').slice(1).join('/');
-			query    = tmp2 !== '' ? tmp2 : null;
+				protocol = prefix.substr(0, prefix.indexOf('://'));
+				domain   = prefix.substr(protocol.length + 3).split('/')[0];
+				path     = '/' + prefix.substr(protocol.length + 3).split('/').slice(1).join('/');
+				query    = suffix !== '' ? suffix : null;
 
-		} else if (url.startsWith('?')) {
+			} else if (prefix.startsWith('?')) {
 
-			query    = tmp2 !== '' ? tmp2 : null;
+				query    = suffix !== '' ? suffix : null;
 
-		} else if (url.startsWith('#')) {
+			} else if (prefix.startsWith('#')) {
 
-			hash     = url.split('#').slice(1).join('#');
+				hash     = prefix.split('#').slice(1).join('#');
 
-		} else {
+			} else {
 
-			domain   = tmp1.split('/')[0];
-			path     = '/' + tmp1.split('/').slice(1).join('/');
+				domain   = prefix.split('/')[0];
+				path     = '/' + prefix.split('/').slice(1).join('/');
+				query    = suffix !== '' ? suffix : null;
 
-		}
-
-
-		if (domain !== null && /^([a-zA-z0-9.:-]+)$/.test(domain) === false) {
-			domain = null;
-		}
-
-		if (path !== null && path.includes('#')) {
-			hash = path.split('#').slice(1).join('#');
-			path = path.split('#').shift();
-		}
-
-		if (query !== null && query.includes('#')) {
-			hash  = query.split('#').slice(1).join('#');
-			query = query.split('#').shift();
-		}
-
-
-		let check_ipv6 = false;
-		let check_ipv4 = false;
-
-		if (domain !== null && domain.includes(':')) {
-			check_ipv6 = domain.split(':').length > 2;
-		}
-
-		if (domain !== null && domain.includes('.')) {
-			check_ipv4 = /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/g.test(domain.split(':')[0]);
-		}
-
-		if (check_ipv6 === true) {
-
-			if (domain.startsWith('[')) {
-				domain = domain.substr(1);
 			}
 
-			if (domain.includes(']:')) {
-
-				let tmp1 = domain.split(']:');
-				let tmp2 = parseInt(tmp1[1], 10);
-
-				domain = tmp1[0];
-
-				if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
-					port = tmp2;
-				}
-
-			} else if (domain.includes(']')) {
-				domain = domain.split(']').join('');
-			}
-
-
-			let ip = IP.parse(domain);
-			if (ip.type === 'v6') {
-
+			if (domain !== null && /^([a-zA-z0-9.:-]+)$/.test(domain) === false) {
 				domain = null;
-				host   = ip.ip;
-				hosts.push(ip);
-
 			}
 
-		} else if (check_ipv4 === true) {
 
-			if (domain.includes('[')) {
-				domain = domain.split('[').join('');
+			if (path !== null && path.includes('#')) {
+				hash = path.split('#').slice(1).join('#');
+				path = path.split('#').shift();
 			}
 
-			if (domain.includes(']')) {
-				domain = domain.split(']').join('');
+			if (query !== null && query.includes('#')) {
+				hash  = query.split('#').slice(1).join('#');
+				query = query.split('#').shift();
 			}
 
-			if (domain.includes(':')) {
 
-				let tmp1 = domain.split(':');
-				let tmp2 = parseInt(tmp1[1], 10);
+			let check_ipv6 = false;
+			let check_ipv4 = false;
 
-				domain = tmp1[0];
+			if (domain !== null && domain.includes(':')) {
+				check_ipv6 = domain.split(':').length > 2;
+			}
 
-				if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
-					port = tmp2;
+			if (domain !== null && domain.includes('.')) {
+				check_ipv4 = /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/g.test(domain.split(':')[0]);
+			}
+
+			if (check_ipv6 === true) {
+
+				if (domain.startsWith('[')) {
+					domain = domain.substr(1);
 				}
 
-			}
+				if (domain.includes(']:')) {
 
+					let tmp1 = domain.split(']:');
+					let tmp2 = parseInt(tmp1[1], 10);
 
-			let ip = IP.parse(domain);
-			if (ip.type === 'v4') {
+					domain = tmp1[0];
 
-				domain = null;
-				host   = ip.ip;
-				hosts.push(ip);
+					if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
+						port = tmp2;
+					}
 
-			}
-
-		} else if (domain !== null && domain.includes('.')) {
-
-			if (domain.includes(':')) {
-
-				let tmp1 = domain.split(':');
-				let tmp2 = parseInt(tmp1[1], 10);
-
-				domain = tmp1[0];
-
-				if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
-					port = tmp2;
+				} else if (domain.includes(']')) {
+					domain = domain.split(']').join('');
 				}
 
-			}
+
+				let ip = IP.parse(domain);
+				if (ip.type === 'v6') {
+
+					domain = null;
+					host   = '[' + ip.ip + ']';
+					hosts.push(ip);
+
+				}
+
+			} else if (check_ipv4 === true) {
+
+				if (domain.includes('[')) {
+					domain = domain.split('[').join('');
+				}
+
+				if (domain.includes(']')) {
+					domain = domain.split(']').join('');
+				}
+
+				if (domain.includes(':')) {
+
+					let tmp1 = domain.split(':');
+					let tmp2 = parseInt(tmp1[1], 10);
+
+					domain = tmp1[0];
+
+					if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
+						port = tmp2;
+					}
+
+				}
 
 
-			let tmp_tld = domain.split('.').slice(-2).join('.');
-			let tmp_sub = domain.split('.').slice(0, -2);
+				let ip = IP.parse(domain);
+				if (ip.type === 'v4') {
 
-			if (TOPLEVELDOMAINS.includes(tmp_tld) === true && tmp_sub.length > 0) {
+					domain = null;
+					host   = ip.ip;
+					hosts.push(ip);
 
-				domain = tmp_sub.pop() + '.' + tmp_tld;
+				}
 
-				if (tmp_sub.length > 0) {
+			} else if (domain !== null && domain.includes('.')) {
+
+				if (domain.includes(':')) {
+
+					let tmp1 = domain.split(':');
+					let tmp2 = parseInt(tmp1[1], 10);
+
+					domain = tmp1[0];
+
+					if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
+						port = tmp2;
+					}
+
+				}
+
+
+				let tmp_tld = domain.split('.').slice(-2).join('.');
+				let tmp_sub = domain.split('.').slice(0, -2);
+
+				if (TOPLEVELDOMAINS.includes(tmp_tld) === true && tmp_sub.length > 0) {
+
+					domain = tmp_sub.pop() + '.' + tmp_tld;
+
+					if (tmp_sub.length > 0) {
+						subdomain = tmp_sub.join('.');
+					} else {
+						subdomain = null;
+					}
+
+				} else if (tmp_sub.length > 0) {
+					domain    = tmp_tld;
 					subdomain = tmp_sub.join('.');
 				} else {
+					domain    = tmp_tld;
 					subdomain = null;
 				}
 
-			} else if (tmp_sub.length > 0) {
-				domain    = tmp_tld;
-				subdomain = tmp_sub.join('.');
-			} else {
-				domain    = tmp_tld;
-				subdomain = null;
-			}
-
-			if (domain.startsWith('-')) {
-				domain = null;
-			}
-
-		} else if (domain !== null) {
-
-			if (domain.includes(':')) {
-
-				let tmp1 = domain.split(':');
-				let tmp2 = parseInt(tmp1[1], 10);
-
-				domain = tmp1[0];
-
-				if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
-					port = tmp2;
+				if (domain.startsWith('-')) {
+					domain = null;
 				}
 
-				if (domain === 'localhost') {
-					hosts.push(IP.parse('127.0.0.1'));
-					hosts.push(IP.parse('::1'));
-				}
+			} else if (domain !== null) {
 
-			} else {
+				if (domain.includes(':')) {
 
-				if (domain === 'localhost') {
-					hosts.push(IP.parse('127.0.0.1'));
-					hosts.push(IP.parse('::1'));
+					let tmp1 = domain.split(':');
+					let tmp2 = parseInt(tmp1[1], 10);
+
+					domain = tmp1[0];
+
+					if (Number.isNaN(tmp2) === false && tmp2 > 0 && tmp2 < 65535) {
+						port = tmp2;
+					}
+
+					if (domain === 'localhost') {
+						hosts.push(IP.parse('127.0.0.1'));
+						hosts.push(IP.parse('::1'));
+					}
+
+				} else {
+
+					if (domain === 'localhost') {
+						hosts.push(IP.parse('127.0.0.1'));
+						hosts.push(IP.parse('::1'));
+					}
+
 				}
 
 			}
 
-		}
 
+			if (path !== null && path.includes('.')) {
 
-		if (path !== null && path.includes('.')) {
+				let ext  = path.split('.').pop();
+				let type = MIME.find((m) => m.ext === ext) || null;
 
-			let ext  = path.split('.').pop();
-			let type = MIME.find((m) => m.ext === ext) || null;
+				if (type !== null) {
+					mime = Object.assign({}, type);
+				} else {
+					mime = Object.assign({}, DEFAULT);
+				}
 
-			if (type !== null) {
-				mime = Object.assign({}, type);
 			} else {
-				mime = Object.assign({}, DEFAULT);
+
+				// assume text/html by default
+				let type = MIME.find((m) => m.ext === 'html') || null;
+
+				if (type !== null) {
+					mime = Object.assign({}, type);
+				} else {
+					mime = Object.assign({}, DEFAULT);
+				}
+
 			}
 
-		} else {
 
-			// assume text/html by default
-			let type = MIME.find((m) => m.ext === 'html') || null;
+			if (protocol !== null && port === null) {
 
-			if (type !== null) {
-				mime = Object.assign({}, type);
-			} else {
-				mime = Object.assign({}, DEFAULT);
-			}
+				if (protocol === 'file') {
+					// Do nothing
+				} else if (protocol === 'ftps') {
+					port = 990;
+				} else if (protocol === 'ftp') {
+					port = 21;
+				} else if (protocol === 'https') {
+					port = 443;
+				} else if (protocol === 'http') {
+					port = 80;
+				} else if (protocol === 'wss') {
+					port = 443;
+				} else if (protocol === 'ws') {
+					port = 80;
+				} else if (protocol === 'socks') {
+					port = 1080;
+				} else if (protocol === 'stealth') {
+					// Do nothing
+				}
 
-		}
-
-		if (protocol !== null && port === null) {
-
-			if (protocol === 'file') {
-				// Do nothing
-			} else if (protocol === 'ftps') {
-				port = 990;
-			} else if (protocol === 'ftp') {
-				port = 21;
-			} else if (protocol === 'https') {
-				port = 443;
-			} else if (protocol === 'http') {
-				port = 80;
-			} else if (protocol === 'wss') {
-				port = 443;
-			} else if (protocol === 'ws') {
-				port = 80;
-			} else if (protocol === 'socks') {
-				port = 1080;
-			} else if (protocol === 'stealth') {
-				// Do nothing
 			}
 
 		}
@@ -831,7 +849,9 @@ const URL = {
 			protocol:  protocol,
 			query:     query,
 			subdomain: subdomain,
-			url:       URL.render({
+
+			// Browser API
+			link:      URL.render({
 				domain:    domain,
 				host:      host,
 				path:      path,
@@ -852,112 +872,111 @@ const URL = {
 
 	},
 
-	render: function(ref) {
+	render: function(url) {
 
-		ref = isObject(ref) ? ref : null;
+		url = isObject(url) ? url : null;
 
 
-		if (ref !== null) {
+		if (url !== null) {
 
-			let url = '';
+			let link = '';
 
-			if (ref.protocol !== null) {
+			if (isString(url.protocol) === true) {
 
-				if (ref.protocol === 'stealth') {
-					url += ref.protocol + ':';
+				if (url.protocol === 'stealth') {
+					link += url.protocol + ':';
 				} else {
-					url += ref.protocol + '://';
+					link += url.protocol + '://';
 				}
 
 			}
 
-			if (ref.domain !== null) {
+			if (isString(url.domain) === true) {
 
-				if (ref.subdomain !== null) {
-					url += ref.subdomain + '.' + ref.domain;
+				if (isString(url.subdomain) === true) {
+					link += url.subdomain + '.' + url.domain;
 				} else {
-					url += ref.domain;
+					link += url.domain;
 				}
 
-			} else if (ref.host !== null) {
+			} else if (isString(url.host) === true) {
 
-				if (ref.host.includes(':')) {
-					url += '[' + ref.host + ']';
-				} else {
-					url += ref.host;
-				}
+				link += url.host;
 
 			}
 
 
-			if (ref.protocol === 'file') {
+			if (isString(url.protocol) === true) {
 
-				// Do nothing
+				if (url.protocol === 'file') {
 
-			} else if (ref.protocol === 'ftps') {
+					// Do nothing
 
-				if (ref.port !== 990) {
-					url += ':' + ref.port;
-				}
+				} else if (url.protocol === 'ftps') {
 
-			} else if (ref.protocol === 'ftp') {
+					if (url.port !== 990) {
+						link += ':' + url.port;
+					}
 
-				if (ref.port !== 21) {
-					url += ':' + ref.port;
-				}
+				} else if (url.protocol === 'ftp') {
 
-			} else if (ref.protocol === 'https') {
+					if (url.port !== 21) {
+						link += ':' + url.port;
+					}
 
-				if (ref.port !== 443) {
-					url += ':' + ref.port;
-				}
+				} else if (url.protocol === 'https') {
 
-			} else if (ref.protocol === 'http') {
+					if (url.port !== 443) {
+						link += ':' + url.port;
+					}
 
-				if (ref.port !== 80) {
-					url += ':' + ref.port;
-				}
+				} else if (url.protocol === 'http') {
 
-			} else if (ref.protocol === 'wss') {
+					if (url.port !== 80) {
+						link += ':' + url.port;
+					}
 
-				if (ref.port !== 443) {
-					url += ':' + ref.port;
-				}
+				} else if (url.protocol === 'wss') {
 
-			} else if (ref.protocol === 'ws') {
+					if (url.port !== 443) {
+						link += ':' + url.port;
+					}
 
-				if (ref.port !== 80) {
-					url += ':' + ref.port;
-				}
+				} else if (url.protocol === 'ws') {
 
-			} else if (ref.protocol === 'socks') {
+					if (url.port !== 80) {
+						link += ':' + url.port;
+					}
 
-				if (ref.port !== 1080) {
-					url += ':' + ref.port;
-				}
+				} else if (url.protocol === 'socks') {
 
-			} else if (ref.protocol === 'stealth') {
+					if (url.port !== 1080) {
+						link += ':' + url.port;
+					}
 
-				// Do nothing
+				} else if (url.protocol === 'stealth') {
 
-			} else if (ref.port !== null) {
-				url += ':' + ref.port;
-			}
+					// Do nothing
 
-
-			if (ref.protocol !== 'stealth') {
-
-				if (ref.path !== null) {
-					url += ref.path;
+				} else if (url.port !== null) {
+					link += ':' + url.port;
 				}
 
 			}
 
-			if (ref.query !== null) {
-				url += '?' + ref.query;
+			if (url.protocol !== 'stealth') {
+
+				if (isString(url.path) === true) {
+					link += url.path;
+				}
+
 			}
 
-			return url;
+			if (isString(url.query) === true) {
+				link += '?' + url.query;
+			}
+
+			return link;
 
 		}
 
@@ -966,30 +985,25 @@ const URL = {
 
 	},
 
-	resolve: function(abs, rel) {
+	resolve: function(absolute, relative) {
 
-		let ref_abs = null;
-		if (isString(abs) === true) {
-			ref_abs = URL.parse(abs);
-		} else if (isObject(abs) === true) {
-			ref_abs = abs;
-			abs     = abs.url;
+		let url_absolute = null;
+
+		if (isString(absolute) === true) {
+			url_absolute = URL.parse(absolute);
+		} else if (URL.isURL(absolute) === true) {
+			url_absolute = absolute;
 		}
 
-		let ref_rel = null;
-		if (isString(rel) === true) {
-			ref_rel = URL.parse(rel);
-		} else if (isObject(rel) === true) {
+		let url_relative = null;
 
-			ref_rel = rel;
-			rel     = ref_rel.path;
-
-			// address bar: google.com/what/ever.html
-			// content src: folder/what/ever.html
-			if (ref_rel.domain !== null) {
-				rel = ref_rel.url;
-			}
-
+		if (isString(relative) === true) {
+			url_relative = URL.parse(relative);
+		} else if (URL.isURL(relative) === true) {
+			url_relative = relative;
+		} else if (isObject(relative) === true) {
+			url_relative      = URL.parse();
+			url_relative.path = isString(relative.path) ? relative.path : '';
 		}
 
 
@@ -1004,143 +1018,149 @@ const URL = {
 		let query     = null;
 		let subdomain = null;
 
-		if (ref_abs !== null && ref_rel !== null) {
+		if (url_absolute !== null && url_relative !== null) {
 
-			if (rel.startsWith('stealth:')) {
+			if (url_relative.protocol === 'stealth') {
 
-				domain    = ref_rel.domain;
-				hash      = ref_rel.hash;
-				host      = ref_rel.host;
-				hosts     = ref_rel.hosts;
-				mime      = ref_rel.mime;
-				path      = ref_rel.path;
-				port      = ref_rel.port;
-				protocol  = ref_rel.protocol;
-				query     = ref_rel.query;
-				subdomain = ref_rel.subdomain;
+				domain    = url_relative.domain;
+				hash      = url_relative.hash;
+				host      = url_relative.host;
+				hosts     = url_relative.hosts;
+				mime      = url_relative.mime;
+				path      = url_relative.path;
+				port      = url_relative.port;
+				protocol  = url_relative.protocol;
+				query     = url_relative.query;
+				subdomain = url_relative.subdomain;
 
-			} else if (rel.startsWith('../')) {
+			} else if (url_relative.path.startsWith('../')) {
 
-				domain    = ref_abs.domain;
-				host      = ref_abs.host;
-				hosts     = ref_abs.hosts;
-				port      = ref_abs.port;
-				protocol  = ref_abs.protocol;
-				subdomain = ref_abs.subdomain;
+				domain    = url_absolute.domain;
+				host      = url_absolute.host;
+				hosts     = url_absolute.hosts;
+				port      = url_absolute.port;
+				protocol  = url_absolute.protocol;
+				subdomain = url_absolute.subdomain;
 
-				hash      = ref_rel.hash;
-				mime      = ref_rel.mime;
-				query     = ref_rel.query;
+				hash      = url_relative.hash;
+				mime      = url_relative.mime;
+				query     = url_relative.query;
 
-				let is_folder = ref_abs.path.endsWith('/');
+				let is_folder = url_absolute.path.endsWith('/');
 				if (is_folder === true) {
-					path = resolve_path(ref_abs.path + ref_rel.path);
+					path = resolve_path(url_absolute.path + url_relative.path);
 				} else {
-					path = resolve_path(ref_abs.path.split('/').slice(0, -1).join('/') + '/' + ref_rel.path);
+					path = resolve_path(url_absolute.path.split('/').slice(0, -1).join('/') + '/' + url_relative.path);
 				}
 
-			} else if (rel.startsWith('./')) {
+			} else if (url_relative.path.startsWith('./')) {
 
-				domain    = ref_abs.domain;
-				host      = ref_abs.host;
-				hosts     = ref_abs.hosts;
-				port      = ref_abs.port;
-				protocol  = ref_abs.protocol;
-				subdomain = ref_abs.subdomain;
+				domain    = url_absolute.domain;
+				host      = url_absolute.host;
+				hosts     = url_absolute.hosts;
+				port      = url_absolute.port;
+				protocol  = url_absolute.protocol;
+				subdomain = url_absolute.subdomain;
 
-				hash      = ref_rel.hash;
-				mime      = ref_rel.mime;
-				query     = ref_rel.query;
+				hash      = url_relative.hash;
+				mime      = url_relative.mime;
+				query     = url_relative.query;
 
-				let is_folder = ref_abs.path.endsWith('/');
+				let is_folder = url_absolute.path.endsWith('/');
 				if (is_folder === true) {
-					path = resolve_path(ref_abs.path + ref_rel.path);
+					path = resolve_path(url_absolute.path + url_relative.path);
 				} else {
-					path = resolve_path(ref_abs.path.split('/').slice(0, -1).join('/') + '/' + ref_rel.path);
+					path = resolve_path(url_absolute.path.split('/').slice(0, -1).join('/') + '/' + url_relative.path);
 				}
 
-			} else if (rel.startsWith('//')) {
+			} else if (isString(relative) && relative.startsWith('//')) {
 
-				if (ref_abs.protocol === 'file') {
-					ref_rel = URL.parse(ref_abs.protocol + ':/' + rel);
-				} else if (ref_abs.protocol === 'stealth') {
-					ref_rel = URL.parse(ref_abs.protocol + ':' + rel.substr(2));
+				domain    = url_relative.domain;
+				host      = url_relative.host;
+				hosts     = url_relative.hosts;
+
+				if (url_absolute.protocol !== 'file') {
+					protocol = url_absolute.protocol;
 				} else {
-					ref_rel = URL.parse(ref_abs.protocol + ':' + rel);
+					protocol = url_relative.protocol;
 				}
 
-				domain    = ref_rel.domain;
-				hash      = ref_rel.hash;
-				host      = ref_rel.host;
-				hosts     = ref_rel.hosts;
-				mime      = ref_rel.mime;
-				port      = ref_rel.port;
-				path      = resolve_path(ref_rel.path);
-				protocol  = ref_rel.protocol;
-				subdomain = ref_rel.subdomain;
-				query     = ref_rel.query;
+				if (url_relative.protocol === 'https' && url_relative.port === 443) {
 
-			} else if (rel.startsWith('/')) {
+					if (protocol === 'file') {
+						// Do nothing
+					} else if (protocol === 'ftps') {
+						port = 990;
+					} else if (protocol === 'ftp') {
+						port = 21;
+					} else if (protocol === 'https') {
+						port = 443;
+					} else if (protocol === 'http') {
+						port = 80;
+					} else if (protocol === 'wss') {
+						port = 443;
+					} else if (protocol === 'ws') {
+						port = 80;
+					} else if (protocol === 'socks') {
+						port = 1080;
+					} else if (protocol === 'stealth') {
+						// Do nothing
+					}
 
-				domain    = ref_abs.domain;
-				host      = ref_abs.host;
-				hosts     = ref_abs.hosts;
-				port      = ref_abs.port;
-				protocol  = ref_abs.protocol;
-				subdomain = ref_abs.subdomain;
-
-				hash      = ref_rel.hash;
-				mime      = ref_rel.mime;
-				path      = resolve_path(ref_rel.path);
-				query     = ref_rel.query;
-
-			} else if (rel.includes('://')) {
-
-				domain    = ref_rel.domain;
-				hash      = ref_rel.hash;
-				host      = ref_rel.host;
-				hosts     = ref_rel.hosts;
-				mime      = ref_rel.mime;
-				port      = ref_rel.port;
-				path      = resolve_path(ref_rel.path);
-				protocol  = ref_rel.protocol;
-				subdomain = ref_rel.subdomain;
-				query     = ref_rel.query;
-
-			} else {
-
-				domain    = ref_abs.domain;
-				host      = ref_abs.host;
-				hosts     = ref_abs.hosts;
-				port      = ref_abs.port;
-				protocol  = ref_abs.protocol;
-				subdomain = ref_abs.subdomain;
-
-				hash      = ref_rel.hash;
-				mime      = ref_rel.mime;
-				query     = ref_rel.query;
-
-				let is_folder = ref_abs.path.endsWith('/');
-				if (is_folder === true) {
-					path = resolve_path(ref_abs.path + ref_rel.path);
 				} else {
-					path = resolve_path(ref_abs.path.split('/').slice(0, -1).join('/') + '/' + ref_rel.path);
+
+					port = url_relative.port;
+
 				}
+
+				subdomain = url_relative.subdomain;
+
+				hash      = url_relative.hash;
+				mime      = url_relative.mime;
+				path      = resolve_path(url_relative.path);
+				query     = url_relative.query;
+
+			} else if (isString(relative) && relative.startsWith('/')) {
+
+				domain    = url_absolute.domain;
+				host      = url_absolute.host;
+				hosts     = url_absolute.hosts;
+				port      = url_absolute.port;
+				protocol  = url_absolute.protocol;
+				subdomain = url_absolute.subdomain;
+
+				hash      = url_relative.hash;
+				mime      = url_relative.mime;
+				path      = resolve_path(url_relative.path);
+				query     = url_relative.query;
+
+			} else if (url_relative.protocol !== null) {
+
+				domain    = url_relative.domain;
+				hash      = url_relative.hash;
+				host      = url_relative.host;
+				hosts     = url_relative.hosts;
+				mime      = url_relative.mime;
+				path      = resolve_path(url_relative.path);
+				port      = url_relative.port;
+				protocol  = url_relative.protocol;
+				query     = url_relative.query;
+				subdomain = url_relative.subdomain;
 
 			}
 
-		} else if (ref_abs !== null) {
+		} else if (url_absolute !== null) {
 
-			domain    = ref_abs.domain;
-			hash      = ref_abs.hash;
-			host      = ref_abs.host;
-			hosts     = ref_abs.hosts;
-			mime      = ref_abs.mime;
-			path      = resolve_path(ref_abs.path);
-			port      = ref_abs.port;
-			protocol  = ref_abs.protocol;
-			query     = ref_abs.query;
-			subdomain = ref_abs.subdomain;
+			domain    = url_absolute.domain;
+			hash      = url_absolute.hash;
+			host      = url_absolute.host;
+			hosts     = url_absolute.hosts;
+			mime      = url_absolute.mime;
+			path      = resolve_path(url_absolute.path);
+			port      = url_absolute.port;
+			protocol  = url_absolute.protocol;
+			query     = url_absolute.query;
+			subdomain = url_absolute.subdomain;
 
 		}
 
@@ -1156,7 +1176,9 @@ const URL = {
 			protocol:  protocol,
 			query:     query,
 			subdomain: subdomain,
-			url:       URL.render({
+
+			// Browser API
+			link:      URL.render({
 				domain:    domain,
 				host:      host,
 				path:      path,
@@ -1282,6 +1304,72 @@ const URL = {
 
 
 		return [];
+
+	},
+
+	toDomain: function(payload) {
+
+		payload = isObject(payload) ? payload : null;
+
+
+		if (payload !== null) {
+
+			let domain = null;
+
+			if (isString(payload.domain) === true) {
+
+				if (isString(payload.subdomain) === true) {
+					domain = payload.subdomain + '.' + payload.domain;
+				} else {
+					domain = payload.domain;
+				}
+
+			}
+
+			return domain;
+
+		}
+
+
+		return null;
+
+	},
+
+	toHost: function(payload) {
+
+		payload = isObject(payload) ? payload : null;
+
+
+		if (payload !== null) {
+
+			let host = null;
+
+			if (isString(payload.host) === true) {
+
+				host = payload.host;
+
+			} else if (isArray(payload.hosts) === true) {
+
+				let hosts = IP.sort(payload.hosts);
+				if (hosts.length > 0) {
+
+					let ip = hosts[0];
+					if (ip.type === 'v4') {
+						host = ip.ip;
+					} else if (ip.type === 'v6') {
+						host = '[' + ip.ip + ']';
+					}
+
+				}
+
+			}
+
+			return host;
+
+		}
+
+
+		return null;
 
 	}
 

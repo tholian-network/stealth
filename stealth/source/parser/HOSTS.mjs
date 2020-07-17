@@ -5,163 +5,6 @@ import { URL                                   } from './URL.mjs';
 
 
 
-const parse_payload = function(payload) {
-
-	let hosts = [];
-	let lines = payload.toString('utf8').split('\n').map((raw) => {
-
-		let chunk = raw.trim();
-		if (
-			chunk.length > 0
-			&& chunk !== '#'
-			&& chunk[0] !== '!'
-		) {
-
-			if (chunk.includes('#')) {
-				chunk = chunk.split('#')[0].trim();
-			}
-
-			if (chunk.length > 0) {
-				return chunk;
-			}
-
-		}
-
-		return null;
-
-	}).filter((chunk) => chunk !== null);
-
-	if (lines.length > 0) {
-
-		let map = {};
-
-		for (let l = 0, ll = lines.length; l < ll; l++) {
-
-			let domains = [];
-			let ip      = null;
-
-			let line = lines[l];
-			if (line.includes('\t')) {
-
-				let tmp = line.split('\t');
-				for (let t = 0, tl = tmp.length; t < tl; t++) {
-
-					let chunk = tmp[t].trim();
-					if (chunk !== '' && t === 0) {
-
-						ip = chunk;
-
-					} else if (
-						chunk !== ''
-						&& chunk !== 'localhost'
-						&& chunk !== 'localhost.localdomain'
-						&& chunk !== 'ipv6-localhost'
-						&& chunk !== 'ipv6-localhost.localdomain'
-					) {
-
-						domains.push(chunk);
-
-					}
-
-				}
-
-			} else {
-
-				let tmp = line.split(' ');
-				if (tmp.length > 1) {
-
-					for (let t = 0, tl = tmp.length; t < tl; t++) {
-
-						let chunk = tmp[t].trim();
-						if (chunk !== '' && t === 0) {
-
-							ip = chunk;
-
-						} else if (
-							chunk !== ''
-							&& chunk !== 'localhost'
-							&& chunk !== 'localhost.localdomain'
-							&& chunk !== 'ipv6-localhost'
-							&& chunk !== 'ipv6-localhost.localdomain'
-						) {
-
-							domains.push(chunk);
-
-						}
-
-					}
-
-				} else {
-
-					let chunk = tmp[0];
-					if (chunk.includes('.')) {
-
-						// Allow third-party domain lists that
-						// are not in /etc/hosts format
-						ip = '0.0.0.0';
-						domains.push(tmp[0]);
-
-					}
-
-				}
-
-			}
-
-
-			if (ip !== null && domains.length > 0) {
-
-				// RFC1122
-				if (ip === '0.0.0.0') {
-					ip = '127.0.0.1';
-				}
-
-				for (let d = 0, dl = domains.length; d < dl; d++) {
-
-					let domain = domains[d];
-
-					let entry = map[domain] || null;
-					if (entry === null) {
-						entry = map[domain] = [];
-					}
-
-					if (entry.includes(ip) === false) {
-						entry.push(ip);
-					}
-
-				}
-
-			}
-
-		}
-
-		for (let fqdn in map) {
-
-			let ips = map[fqdn].map((v) => IP.parse(v)).filter((ip) => ip.type !== null);
-			if (ips.length > 0) {
-
-				let url    = URL.parse(fqdn);
-				let domain = URL.toDomain(url);
-				if (domain !== null) {
-
-					hosts.push({
-						domain: domain,
-						hosts:  ips
-					});
-
-				}
-
-			}
-
-		}
-
-	}
-
-	return hosts;
-
-};
-
-
-
 const HOSTS = {
 
 	isHost: function(payload) {
@@ -216,17 +59,172 @@ const HOSTS = {
 
 	},
 
-	parse: function(buffer) {
+	parse: function(buf_or_str) {
 
-		buffer = isBuffer(buffer) ? buffer : null;
+		let raw = null;
 
-
-		if (buffer !== null) {
-			return parse_payload(buffer);
+		if (isBuffer(buf_or_str) === true) {
+			raw = buf_or_str.toString('utf8');
+		} else if (isString(buf_or_str) === true) {
+			raw = buf_or_str;
 		}
 
 
-		return null;
+		let hosts = [];
+
+		if (raw !== null) {
+
+			let lines = raw.split('\n').map((raw) => {
+
+				let chunk = raw.trim();
+				if (
+					chunk.length > 0
+					&& chunk !== '#'
+					&& chunk[0] !== '!'
+				) {
+
+					if (chunk.includes('#')) {
+						chunk = chunk.split('#')[0].trim();
+					}
+
+					if (chunk.length > 0) {
+						return chunk;
+					}
+
+				}
+
+				return null;
+
+			}).filter((chunk) => chunk !== null);
+
+			if (lines.length > 0) {
+
+				let map = {};
+
+				for (let l = 0, ll = lines.length; l < ll; l++) {
+
+					let domains = [];
+					let ip      = null;
+
+					let line = lines[l];
+					if (line.includes('\t')) {
+
+						let tmp = line.split('\t');
+						for (let t = 0, tl = tmp.length; t < tl; t++) {
+
+							let chunk = tmp[t].trim();
+							if (chunk !== '' && t === 0) {
+
+								ip = chunk;
+
+							} else if (
+								chunk !== ''
+								&& chunk !== 'localhost'
+								&& chunk !== 'localhost.localdomain'
+								&& chunk !== 'ipv6-localhost'
+								&& chunk !== 'ipv6-localhost.localdomain'
+							) {
+
+								domains.push(chunk);
+
+							}
+
+						}
+
+					} else {
+
+						let tmp = line.split(' ');
+						if (tmp.length > 1) {
+
+							for (let t = 0, tl = tmp.length; t < tl; t++) {
+
+								let chunk = tmp[t].trim();
+								if (chunk !== '' && t === 0) {
+
+									ip = chunk;
+
+								} else if (
+									chunk !== ''
+									&& chunk !== 'localhost'
+									&& chunk !== 'localhost.localdomain'
+									&& chunk !== 'ipv6-localhost'
+									&& chunk !== 'ipv6-localhost.localdomain'
+								) {
+
+									domains.push(chunk);
+
+								}
+
+							}
+
+						} else {
+
+							let chunk = tmp[0];
+							if (chunk.includes('.')) {
+
+								// Allow third-party domain lists that
+								// are not in /etc/hosts format
+								ip = '0.0.0.0';
+								domains.push(tmp[0]);
+
+							}
+
+						}
+
+					}
+
+
+					if (ip !== null && domains.length > 0) {
+
+						// RFC1122
+						if (ip === '0.0.0.0') {
+							ip = '127.0.0.1';
+						}
+
+						for (let d = 0, dl = domains.length; d < dl; d++) {
+
+							let domain = domains[d];
+
+							let entry = map[domain] || null;
+							if (entry === null) {
+								entry = map[domain] = [];
+							}
+
+							if (entry.includes(ip) === false) {
+								entry.push(ip);
+							}
+
+						}
+
+					}
+
+				}
+
+				for (let fqdn in map) {
+
+					let ips = map[fqdn].map((v) => IP.parse(v)).filter((ip) => ip.type !== null);
+					if (ips.length > 0) {
+
+						let url    = URL.parse(fqdn);
+						let domain = URL.toDomain(url);
+						if (domain !== null) {
+
+							hosts.push({
+								domain: domain,
+								hosts:  ips
+							});
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+		return hosts;
 
 	},
 

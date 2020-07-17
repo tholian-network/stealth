@@ -5,17 +5,52 @@ import { Request, isRequest                       } from '../../stealth/source/R
 import { connect, disconnect                      } from './Server.mjs';
 
 
+const mock_events = (request) => {
+
+	let events = {
+		start:    false,
+		stop:     false,
+		cache:    false,
+		stash:    false,
+		block:    false,
+		mode:     false,
+		connect:  false,
+		download: false,
+		optimize: false,
+		response: false,
+		redirect: false,
+		error:    false
+	};
+
+	request.once('start',    () => { events.start    = true; });
+	request.once('stop',     () => { events.stop     = true; });
+	request.once('cache',    () => { events.cache    = true; });
+	request.once('stash',    () => { events.stash    = true; });
+	request.once('block',    () => { events.block    = true; });
+	request.once('mode',     () => { events.mode     = true; });
+	request.once('connect',  () => { events.connect  = true; });
+	request.once('download', () => { events.download = true; });
+	request.once('optimize', () => { events.optimize = true; });
+	request.once('response', () => { events.response = true; });
+	request.once('redirect', () => { events.redirect = true; });
+	request.once('error',    () => { events.error    = true; });
+
+	return events;
+
+};
 
 before(connect);
 
 describe('new Request()', function(assert) {
 
+	let mode    = EXAMPLE.toMode('https://example.com/index.html');
 	let request = new Request({
-		mode: EXAMPLE.mode('https://example.com/index.html'),
-		ref:  EXAMPLE.ref('https://example.com/index.html')
+		mode: mode,
+		url:  EXAMPLE.toURL('https://example.com/index.html')
 	}, this.server);
 
-	assert(request.ref.url, 'https://example.com/index.html');
+	assert(request.mode,     mode);
+	assert(request.url.link, 'https://example.com/index.html');
 
 	assert(Request.isRequest(request), true);
 	assert(isRequest(request),         true);
@@ -24,7 +59,7 @@ describe('new Request()', function(assert) {
 
 describe('Request.from()', function(assert) {
 
-	let mode    = EXAMPLE.mode('https://example.com/does-not-exist.html');
+	let mode    = EXAMPLE.toMode('https://example.com/does-not-exist.html');
 	let request = Request.from({
 		type: 'Request',
 		data: {
@@ -46,8 +81,8 @@ describe('Request.from()', function(assert) {
 	assert(request.get('useragent'), 'Some User/Agent 13.37');
 	assert(request.get('webview'),   true);
 
-	assert(request.mode, mode);
-	assert(request.url,  'https://example.com/does-not-exist.html');
+	assert(request.mode,     mode);
+	assert(request.url.link, 'https://example.com/does-not-exist.html');
 
 });
 
@@ -73,7 +108,7 @@ describe('isRequest()', function(assert) {
 
 describe('Request.prototype.toJSON()', function(assert) {
 
-	let mode    = EXAMPLE.mode('https://example.com/does-not-exist.html');
+	let mode    = EXAMPLE.toMode('https://example.com/does-not-exist.html');
 	let request = Request.from({
 		type: 'Request',
 		data: {
@@ -172,44 +207,44 @@ describe('Request.prototype.set()', function(assert) {
 describe('Request.prototype.start()', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.mode('https://example.com/index.html'),
-		ref:  EXAMPLE.ref('https://example.com/index.html')
+		mode: EXAMPLE.toMode('https://example.com/index.html'),
+		url:  EXAMPLE.toURL('https://example.com/index.html')
 	}, this.server);
-
-	request.once('start', () => {
-		assert(true);
-	});
-
-	request.once('cache', () => {
-		assert(true);
-	});
-
-	request.once('stash', () => {
-		assert(true);
-	});
-
-	request.once('block', () => {
-		assert(true);
-	});
-
-	request.once('mode', () => {
-		assert(true);
-	});
-
-	request.once('connect', () => {
-		assert(true);
-	});
-
-	request.once('download', () => {
-		assert(true);
-	});
-
-	request.once('optimize', () => {
-		assert(true);
-	});
+	let events  = mock_events(request);
 
 	request.once('response', () => {
-		assert(true);
+
+		setTimeout(() => {
+
+			assert(events, {
+				start:    true,
+				stop:     false,
+				cache:    true,
+				stash:    true,
+				block:    true,
+				mode:     true,
+				connect:  true,
+				download: true,
+				optimize: true,
+				response: true,
+				redirect: false,
+				error:    false
+			});
+
+			assert(isNumber(request.timeline.start),    true);
+			assert(isNumber(request.timeline.cache),    true);
+			assert(isNumber(request.timeline.stash),    true);
+			assert(isNumber(request.timeline.block),    true);
+			assert(isNumber(request.timeline.mode),     true);
+			assert(isNumber(request.timeline.connect),  true);
+			assert(isNumber(request.timeline.download), true);
+			assert(isNumber(request.timeline.optimize), true);
+			assert(isNumber(request.timeline.response), true);
+			assert(request.timeline.redirect,           null);
+			assert(request.timeline.error,              null);
+
+		}, 0);
+
 	});
 
 	assert(request.start(), true);
@@ -219,47 +254,41 @@ describe('Request.prototype.start()', function(assert) {
 describe('Request.prototype.start()/cache', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.mode('https://example.com/index.html'),
-		ref:  EXAMPLE.ref('https://example.com/index.html')
+		mode: EXAMPLE.toMode('https://example.com/index.html'),
+		url:  EXAMPLE.toURL('https://example.com/index.html')
 	}, this.server);
+	let events  = mock_events(request);
 
+	setTimeout(() => {
 
-	let events = {
-		cache:    false,
-		stash:    false,
-		connect:  false,
-		download: false
-	};
+		assert(events, {
+			start:    true,
+			stop:     false,
+			cache:    true,
+			stash:    false,
+			block:    false,
+			mode:     false,
+			connect:  false,
+			download: false,
+			optimize: true,
+			response: true,
+			redirect: false,
+			error:    false
+		});
 
-	request.once('cache', () => {
-		events.cache = true;
-	});
+		assert(isNumber(request.timeline.start),    true);
+		assert(isNumber(request.timeline.cache),    true);
+		assert(request.timeline.stash,              null);
+		assert(request.timeline.block,              null);
+		assert(request.timeline.mode,               null);
+		assert(request.timeline.connect,            null);
+		assert(request.timeline.download,           null);
+		assert(isNumber(request.timeline.optimize), true);
+		assert(isNumber(request.timeline.response), true);
+		assert(request.timeline.redirect,           null);
+		assert(request.timeline.error,              null);
 
-	request.once('stash', () => {
-		events.stash = true;
-	});
-
-	request.once('connect', () => {
-		events.connect = true;
-	});
-
-	request.once('download', () => {
-		events.download = true;
-	});
-
-	request.once('response', () => {
-
-		assert(events.cache,    true);
-		assert(events.stash,    false);
-		assert(events.connect,  false);
-		assert(events.download, false);
-
-		assert(isNumber(request.timeline.cache), true);
-		assert(request.timeline.stash,           null);
-		assert(request.timeline.connect,         null);
-		assert(request.timeline.download,        null);
-
-	});
+	}, 500);
 
 	assert(request.start(), true);
 
@@ -291,8 +320,8 @@ describe('Redirect.prototype.save()', function(assert) {
 describe('Request.prototype.start()/redirect', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.mode('https://example.com/redirect'),
-		ref:  EXAMPLE.ref('https://example.com/redirect')
+		mode: EXAMPLE.toMode('https://example.com/redirect'),
+		url:  EXAMPLE.toURL('https://example.com/redirect')
 	}, this.server);
 
 
@@ -336,60 +365,45 @@ describe('Cache.prototype.remove()', function(assert) {
 describe('Request.prototype.stop()', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.mode('https://example.com/index.html'),
-		ref:  EXAMPLE.ref('https://example.com/index.html')
+		mode: EXAMPLE.toMode('https://example.com/index.html'),
+		url:  EXAMPLE.toURL('https://example.com/index.html')
 	}, this.server);
+	let events  = mock_events(request);
 
-
-	let events = {
-		cache:    false,
-		stash:    false,
-		connect:  false,
-		download: false,
-		error:    false,
-		redirect: false,
-		response: false
-	};
-
-	request.once('cache', () => {
-		events.cache = true;
-	});
-
-	request.once('stash', () => {
-		events.stash = true;
-	});
 
 	request.once('connect', () => {
-		events.connect = true;
 		assert(request.stop(), true);
 	});
 
-	request.once('download', () => {
-		events.download = true;
-	});
-
-	request.once('error', () => {
-		events.error = true;
-	});
-
-	request.once('redirect', () => {
-		events.redirect = true;
-	});
-
-	request.once('response', () => {
-		events.response = true;
-	});
 
 	setTimeout(() => {
 
-		assert(events.cache,    true);
-		assert(events.stash,    true);
-		assert(events.connect,  true);
-		assert(events.download, true);
+		assert(events, {
+			start:    true,
+			stop:     true,
+			cache:    true,
+			stash:    true,
+			block:    true,
+			mode:     true,
+			connect:  true,
+			download: true,
+			optimize: false,
+			response: false,
+			redirect: false,
+			error:    false
+		});
 
-		assert(events.error,    false);
-		assert(events.redirect, false);
-		assert(events.response, false);
+		assert(isNumber(request.timeline.start),    true);
+		assert(isNumber(request.timeline.cache),    true);
+		assert(isNumber(request.timeline.stash),    true);
+		assert(isNumber(request.timeline.block),    true);
+		assert(isNumber(request.timeline.mode),     true);
+		assert(isNumber(request.timeline.connect),  true);
+		assert(isNumber(request.timeline.download), true);
+		assert(request.timeline.optimize,           null);
+		assert(request.timeline.response,           null);
+		assert(request.timeline.redirect,           null);
+		assert(request.timeline.error,              null);
 
 	}, 500);
 

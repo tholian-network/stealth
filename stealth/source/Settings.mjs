@@ -51,7 +51,7 @@ const init = function(callback) {
 			let tmp = null;
 
 			try {
-				tmp = fs.readFileSync(path.resolve(ENVIRONMENT.hosts), 'utf8');
+				tmp = fs.readFileSync(path.resolve(ENVIRONMENT.hosts));
 			} catch (err) {
 				tmp = null;
 			}

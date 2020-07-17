@@ -1,8 +1,10 @@
 
 import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { isServer                               } from './Server.mjs';
-import { URL                                    } from './parser/URL.mjs';
-import { Downloader                             } from './request/Downloader.mjs';
+import { isServer                               } from '../source/Server.mjs';
+import { HTTP                                   } from '../source/connection/HTTP.mjs';
+import { HTTPS                                  } from '../source/connection/HTTPS.mjs';
+import { SOCKS                                  } from '../source/connection/SOCKS.mjs';
+import { URL                                    } from '../source/parser/URL.mjs';
 
 
 
@@ -30,6 +32,220 @@ const isMode = function(payload) {
 export const isRequest = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Request]';
 };
+
+
+
+const Download = function(url) {
+
+	this.connection = null;
+	this.url        = url;
+
+	this.__state = {
+		bandwidth: {
+			index:    0,
+			length:   0,
+			timeline: new Array(30).fill(null)
+		},
+		interval: null
+	};
+
+
+	Emitter.call(this);
+
+};
+
+Download.prototype = Object.assign({}, Emitter.prototype, {
+
+	[Symbol.toStringTag]: 'Download',
+
+	toJSON: function() {
+
+		let data = {
+			bandwidth:  this.bandwidth(),
+			connection: null,
+			percentage: '???.??%',
+			url:        URL.render(this.url)
+		};
+
+		if (this.connection !== null) {
+			data.connection = this.connection.toJSON();
+		}
+
+		if (this.connection !== null) {
+
+			if (this.connection.fragment.length !== null) {
+				data.percentage = ((this.connection.fragment.payload.length / this.connection.fragment.length) * 100).toFixed(2) + '%';
+			}
+
+		}
+
+		return {
+			'type': 'Download',
+			'data': data
+		};
+
+	},
+
+	bandwidth: function() {
+
+		if (this.connection !== null) {
+
+			let timeline = this.__state.bandwidth.timeline;
+			if (timeline.includes(null) === false) {
+				return timeline.reduce((a, b) => a + b, 0) / timeline.length;
+			}
+
+		}
+
+
+		return Infinity;
+
+	},
+
+	start: function() {
+
+		if (this.connection === null) {
+
+			let proxy = this.url.proxy || null;
+			if (proxy !== null) {
+
+				this.connection = SOCKS.connect(this.url);
+
+			} else if (this.url.protocol === 'https') {
+
+				this.connection = HTTPS.connect(this.url);
+
+			} else if (this.url.protocol === 'http') {
+
+				this.connection = HTTP.connect(this.url);
+
+			}
+
+			if (this.connection !== null) {
+
+				this.connection.on('error',    (...args) => this.emit('error',    args));
+				this.connection.on('progress', (...args) => this.emit('progress', args));
+				this.connection.on('redirect', (...args) => this.emit('redirect', args));
+				this.connection.on('response', (...args) => this.emit('response', args));
+				this.connection.on('timeout',  (...args) => this.emit('timeout',  args));
+
+				this.connection.once('@connect', () => {
+
+					this.__state.interval = setInterval(() => {
+
+						let old_length = this.__state.bandwidth.length;
+						let new_length = this.connection.fragment.length;
+						let new_index  = this.__state.bandwidth.index++;
+
+						this.__state.bandwidth.timeline[new_index] = new_length - old_length;
+						this.__state.bandwidth.index %= this.__state.bandwidth.timeline.length;
+
+
+						let bandwidth = this.bandwidth();
+						if (bandwidth < 0.01) {
+
+							if (this.connection !== null) {
+								this.connection.disconnect();
+							}
+
+						}
+
+					}, 1000);
+
+
+					let hostname = null;
+					let domain   = URL.toDomain(this.url);
+					let host     = URL.toHost(this.url);
+
+					if (domain !== null) {
+						hostname = domain;
+					} else if (host !== null) {
+						hostname = host;
+					}
+
+
+					let headers = {
+						'@method': 'GET',
+						'@url':    this.url.path + (this.url.query !== null ? ('?' + this.url.query) : ''),
+						'host':    hostname,
+						'range':   'bytes=0-'
+					};
+
+					if (this.url.headers !== null) {
+
+						let accept = this.url.headers['accept'] || null;
+						if (accept !== null) {
+							headers['accept'] = accept;
+						}
+
+						let useragent = this.url.headers['user-agent'] || null;
+						if (useragent !== null) {
+							headers['user-agent'] = useragent;
+						}
+
+						let tmp1 = this.url.headers['@status']       || null;
+						let tmp2 = this.url.headers['content-range'] || null;
+
+						if (
+							tmp1 === '206 Partial Content'
+							&& tmp2 !== null
+							&& this.url.payload !== null
+						) {
+							headers['range'] = 'bytes=' + this.url.payload.length + '-';
+						}
+
+					}
+
+
+					if (this.url.protocol === 'https') {
+
+						HTTPS.send(this.connection, {
+							headers: headers
+						});
+
+					} else if (this.url.protocol === 'http') {
+
+						HTTP.send(this.connection, {
+							headers: headers
+						});
+
+					}
+
+				});
+
+				this.connection.once('@disconnect', () => {
+
+					if (this.__state.interval !== null) {
+						clearInterval(this.__state.interval);
+						this.__state.interval = null;
+					}
+
+				});
+
+				return true;
+
+			} else {
+
+				this.emit('error', [{ type: 'request' }]);
+
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	stop: function() {
+
+		if (this.connection !== null) {
+			this.connection.disconnect();
+		}
+
+	}
+
+});
 
 
 
@@ -66,7 +282,6 @@ const Request = function(data, server) {
 	} else {
 		this.server = null;
 	}
-
 
 
 	this.download = null;
@@ -161,7 +376,7 @@ const Request = function(data, server) {
 
 					if (response.payload !== null) {
 						this.response = response.payload;
-						this.emit('response', [ this.response ]);
+						this.emit('optimize');
 					} else {
 						this.emit('stash');
 					}
@@ -341,6 +556,9 @@ const Request = function(data, server) {
 
 	this.on('download', () => {
 
+		this.timeline.download = Date.now();
+
+
 		let useragent = this.get('useragent');
 		if (useragent !== null) {
 
@@ -373,150 +591,158 @@ const Request = function(data, server) {
 		}
 
 
-		Downloader.check(this.url, this.mode, (result) => {
+		if (this.url.protocol === 'https' || this.url.protocol === 'http') {
 
-			if (result === true) {
+			this.download = new Download(this.url);
 
-				Downloader.download(this.url, this.mode, (download) => {
+			this.download.on('progress', (partial, progress) => {
 
-					this.timeline.download = Date.now();
+				if (this.server !== null) {
+					this.server.services.stash.save(Object.assign({}, this.url, partial), () => {
+						this.emit('progress', [ partial, progress ]);
+					});
+				}
 
-					if (download !== null) {
+			});
 
-						this.download = download;
+			this.download.once('timeout', (partial) => {
 
-						download.on('progress', (partial, progress) => {
+				this.download.off('progress');
+				this.download.off('error');
+				this.download.off('redirect');
+				this.download.off('response');
+				this.download = null;
 
-							if (this.server !== null) {
-								this.server.services.stash.save(Object.assign({}, this.url, partial), () => {
-									this.emit('progress', [ partial, progress ]);
-								});
-							}
 
-						});
+				if (partial !== null) {
 
-						download.on('timeout', (partial) => {
+					this.retries++;
 
-							if (partial !== null) {
+					if (this.retries < 10) {
 
-								this.retries++;
+						if (this.server !== null) {
 
-								if (this.retries < 10) {
+							this.server.services.stash.save(Object.assign({}, this.url, partial), (result) => {
 
-									if (this.server !== null) {
-
-										this.server.services.stash.save(Object.assign({}, this.url, partial), (result) => {
-
-											if (result === true) {
-												this.url.headers = partial.headers;
-												this.url.payload = partial.payload;
-											}
-
-											this.emit('download');
-
-										});
-
-									} else {
-										this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
-									}
-
-								} else {
-									this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
+								if (result === true) {
+									this.url.headers = partial.headers;
+									this.url.payload = partial.payload;
 								}
 
-							} else {
-								this.emit('error', [{ type: 'request', cause: 'socket-timeout' }]);
-							}
+								this.emit('download');
 
-						});
+							});
 
-						download.on('error', (error) => {
-
-							this.download = null;
-
-							if (error.type === 'stash') {
-
-								if (this.server !== null) {
-
-									this.server.services.stash.remove(this.url, () => {
-
-										this.url.headers = null;
-										this.url.payload = null;
-
-										this.emit('download');
-
-									});
-
-								} else {
-									this.emit('error', [ error ]);
-								}
-
-							} else {
-								this.emit('error', [ error ]);
-							}
-
-						});
-
-						download.on('redirect', (response) => {
-
-							this.download = null;
-
-							if (this.server !== null) {
-
-								this.server.services.stash.remove(this.url, () => {
-
-									let location = response.headers['location'] || null;
-									if (location !== null) {
-										this.emit('redirect', [ response, false ]);
-									} else {
-										this.emit('error', [{ type: 'request', cause: 'headers-location' }]);
-									}
-
-								});
-
-							} else {
-								this.emit('redirect', [ response, false ]);
-							}
-
-						});
-
-						download.on('response', (response) => {
-
-							this.download = null;
-
-							if (this.server !== null) {
-
-								this.server.services.stash.remove(this.url, () => {
-									this.url.headers = null;
-									this.url.payload = null;
-								});
-
-							}
-
-							this.response = response;
-							this.emit('optimize');
-
-						});
-
-						download.start();
+						} else {
+							this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
+						}
 
 					} else {
-						this.emit('error', [{ code: 403 }]);
+						this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
 					}
 
-				});
+				} else {
+					this.emit('error', [{ type: 'request', cause: 'socket-timeout' }]);
+				}
 
-			} else {
-				this.emit('error', [{ code: 403 }]);
-			}
+			});
 
-		});
+			this.download.once('error', (error) => {
+
+				this.download.off('progress');
+				this.download.off('timeout');
+				this.download.off('redirect');
+				this.download.off('response');
+				this.download = null;
+
+
+				if (error.type === 'stash') {
+
+					if (this.server !== null) {
+
+						this.server.services.stash.remove(this.url, () => {
+
+							this.url.headers = null;
+							this.url.payload = null;
+
+							this.emit('download');
+
+						});
+
+					} else {
+						this.emit('error', [ error ]);
+					}
+
+				} else {
+					this.emit('error', [ error ]);
+				}
+
+			});
+
+			this.download.once('redirect', (response) => {
+
+				this.download.off('progress');
+				this.download.off('timeout');
+				this.download.off('error');
+				this.download.off('response');
+				this.download = null;
+
+
+				if (this.server !== null) {
+
+					this.server.services.stash.remove(this.url, () => {
+
+						let location = response.headers['location'] || null;
+						if (location !== null) {
+							this.emit('redirect', [ response, false ]);
+						} else {
+							this.emit('error', [{ type: 'request', cause: 'headers-location' }]);
+						}
+
+					});
+
+				} else {
+					this.emit('redirect', [ response, false ]);
+				}
+
+			});
+
+			this.download.once('response', (response) => {
+
+				this.download.off('progress');
+				this.download.off('timeout');
+				this.download.off('error');
+				this.download.off('redirect');
+				this.download = null;
+
+
+				if (this.server !== null) {
+
+					this.server.services.stash.remove(this.url, () => {
+						this.url.headers = null;
+						this.url.payload = null;
+					});
+
+				}
+
+				this.response = response;
+				this.emit('optimize');
+
+			});
+
+			this.download.start();
+
+		} else {
+			this.emit('error', [{ code: 403 }]);
+		}
 
 	});
 
 	this.on('optimize', () => {
 
-		/* IGNORE OPTIMIZE EVENT FOR NAO */
+		this.timeline.optimize = Date.now();
+
+		/* TODO: Implement Optimizer integration */
 
 		this.emit('response', [ this.response ]);
 
@@ -603,9 +829,9 @@ Request.from = function(json) {
 			if (isString(data.url) === true) {
 
 				let request = new Request({
-					id:   isString(data.id)  ? data.id   : null,
-					mode: isMode(data.mode)  ? data.mode : null,
-					url:  isString(data.url) ? data.url  : null
+					id:   isString(data.id)  ? data.id             : null,
+					mode: isMode(data.mode)  ? data.mode           : null,
+					url:  isString(data.url) ? URL.parse(data.url) : null
 				});
 
 				if (isObject(data.flags) === true) {

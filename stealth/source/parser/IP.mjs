@@ -1,5 +1,5 @@
 
-import { isArray, isObject, isString } from '../../extern/base.mjs';
+import { isArray, isBuffer, isObject, isString } from '../../extern/base.mjs';
 
 
 
@@ -226,20 +226,20 @@ const validate_ipv6 = function(ipv6) {
 
 const IP = {
 
-	isIP: function(ref) {
+	isIP: function(payload) {
 
-		ref = isObject(ref) ? ref : null;
+		payload = isObject(payload) ? payload : null;
 
 
-		if (ref !== null) {
+		if (payload !== null) {
 
-			let scope = ref.scope || null;
+			let scope = payload.scope || null;
 			if (scope === 'private' || scope === 'public') {
 
-				let type = ref.type || null;
+				let type = payload.type || null;
 				if (type === 'v4' || type === 'v6') {
 
-					let ip = ref.ip || '';
+					let ip = payload.ip || '';
 					if (ip.includes(':')) {
 
 						let check = validate_ipv6(ip);
@@ -267,55 +267,65 @@ const IP = {
 
 	},
 
-	parse: function(blob) {
+	parse: function(buf_or_str) {
 
-		blob = isString(blob) ? blob : '';
+		let raw = null;
+
+		if (isBuffer(buf_or_str) === true) {
+			raw = buf_or_str.toString('utf8');
+		} else if (isString(buf_or_str) === true) {
+			raw = buf_or_str;
+		}
 
 
 		let ip    = null;
 		let scope = null;
 		let type  = null;
 
+		if (raw !== null) {
 
-		if (blob.startsWith('::ffff:')) {
-			blob = blob.substr(7);
-		}
+			if (raw.startsWith('::ffff:')) {
+				raw = raw.substr(7);
+			}
 
-		if (blob.includes(':')) {
+			if (raw.includes(':')) {
 
-			let check = validate_ipv6(blob);
-			if (check !== null) {
+				let check = validate_ipv6(raw);
+				if (check !== null) {
 
-				ip   = check;
-				type = 'v6';
+					ip   = check;
+					type = 'v6';
 
-				let subnet = PRIVATE_V6.find((prefix) => check.startsWith(prefix)) || null;
-				if (subnet !== null) {
-					scope = 'private';
-				} else {
-					scope = 'public';
+					let subnet = PRIVATE_V6.find((prefix) => check.startsWith(prefix)) || null;
+					if (subnet !== null) {
+						scope = 'private';
+					} else {
+						scope = 'public';
+					}
+
+				}
+
+			} else if (raw.includes('.')) {
+
+				let check = validate_ipv4(raw);
+				if (check !== null) {
+
+					ip   = check;
+					type = 'v4';
+
+					let subnet = PRIVATE_V4.find((prefix) => check.startsWith(prefix)) || null;
+					if (subnet !== null) {
+						scope = 'private';
+					} else {
+						scope = 'public';
+					}
+
 				}
 
 			}
 
-		} else if (blob.includes('.')) {
-
-			let check = validate_ipv4(blob);
-			if (check !== null) {
-
-				ip   = check;
-				type = 'v4';
-
-				let subnet = PRIVATE_V4.find((prefix) => check.startsWith(prefix)) || null;
-				if (subnet !== null) {
-					scope = 'private';
-				} else {
-					scope = 'public';
-				}
-
-			}
-
 		}
+
 
 		return {
 			ip:    ip,
@@ -325,18 +335,18 @@ const IP = {
 
 	},
 
-	render: function(ref) {
+	render: function(ip) {
 
-		ref = isObject(ref) ? ref : null;
+		ip = isObject(ip) ? ip : null;
 
 
-		if (ref !== null) {
+		if (ip !== null) {
 
-			let type = ref.type || null;
+			let type = ip.type || null;
 			if (type === 'v4') {
-				return render_ipv4(ref.ip);
+				return render_ipv4(ip.ip);
 			} else if (type === 'v6') {
-				return render_ipv6(ref.ip);
+				return render_ipv6(ip.ip);
 			}
 
 		}

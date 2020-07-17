@@ -135,16 +135,32 @@ export const Emitter = (function(global) {
 
 		},
 
-		has: function(event) {
+		has: function(event, callback) {
 
-			event = isString(event) ? event : null;
+			event    = isString(event)      ? event    : null;
+			callback = isFunction(callback) ? callback : null;
 
 
 			if (event !== null) {
 
 				let events = this.__events[event] || null;
-				if (isArray(events) === true && events.length > 0) {
-					return true;
+				if (events !== null) {
+
+					if (callback !== null) {
+
+						let check = events.filter((e) => e.callback === callback);
+						if (check.length > 0) {
+							return true;
+						}
+
+					} else {
+
+						if (events.length > 0) {
+							return true;
+						}
+
+					}
+
 				}
 
 			}
@@ -160,7 +176,7 @@ export const Emitter = (function(global) {
 			callback = isFunction(callback) ? callback : null;
 
 
-			if (event !== null) {
+			if (event !== null && callback !== null) {
 
 				let events = this.__events[event] || null;
 				if (events === null) {
@@ -215,7 +231,7 @@ export const Emitter = (function(global) {
 			callback = isFunction(callback) ? callback : null;
 
 
-			if (event !== null) {
+			if (event !== null && callback !== null) {
 
 				let events = this.__events[event] || null;
 				if (events === null) {

@@ -124,7 +124,11 @@ const upgrade_http = function(socket, url) {
 
 		if (request !== null) {
 
-			request.on('error', (err) => {
+			request.once('error', (err) => {
+
+				request.off('redirect');
+				request.off('response');
+
 
 				let type = err.type || null;
 				if (type !== null) {
@@ -152,7 +156,11 @@ const upgrade_http = function(socket, url) {
 
 			});
 
-			request.on('redirect', (response) => {
+			request.once('redirect', (response) => {
+
+				request.off('error');
+				request.off('response');
+
 
 				let url = response.headers['location'] || '';
 
@@ -190,7 +198,11 @@ const upgrade_http = function(socket, url) {
 
 			});
 
-			request.on('response', (response) => {
+			request.once('response', (response) => {
+
+				request.off('error');
+				request.off('redirect');
+
 
 				// TODO: Replace URLs inside HTML and CSS with "/stealth/tab:" prefix
 

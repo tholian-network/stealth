@@ -36,7 +36,6 @@ import parser_IP          from './parser/IP.mjs';
 import parser_UA          from './parser/UA.mjs';
 import parser_URL         from './parser/URL.mjs';
 import peer_Cache         from './peer/Cache.mjs';
-import request_Downloader from './request/Downloader.mjs';
 import server_Beacon      from './server/Beacon.mjs';
 import server_Blocker     from './server/Blocker.mjs';
 import server_Cache       from './server/Cache.mjs';
@@ -83,7 +82,6 @@ export default {
 
 		// Requests
 		Request,
-		request_Downloader,
 
 		// Stealth
 		Session,

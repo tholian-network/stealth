@@ -135,7 +135,8 @@ describe('Emitter.prototype.emit()/Error', function(assert) {
 
 describe('Emitter.prototype.has()', function(assert) {
 
-	let emitter = new Emitter();
+	let callback = () => {};
+	let emitter  = new Emitter();
 
 	emitter.on('foo', () => {
 		return { result: 'foo' };
@@ -145,17 +146,23 @@ describe('Emitter.prototype.has()', function(assert) {
 		return { result: 'qux' };
 	});
 
-	assert(emitter.has('foo'), true);
-	assert(emitter.has('bar'), false);
-	assert(emitter.has('qux'), true);
+	emitter.on('doo', callback);
+
+
+	assert(emitter.has('foo'),           true);
+	assert(emitter.has('bar'),           false);
+	assert(emitter.has('qux'),           true);
+	assert(emitter.has('doo', callback), true);
 
 	assert(emitter.emit('foo'), { result: 'foo' });
 	assert(emitter.emit('bar'), null);
 	assert(emitter.emit('qux'), { result: 'qux' });
+	assert(emitter.emit('doo'), null);
 
-	assert(emitter.has('foo'), true);
-	assert(emitter.has('bar'), false);
-	assert(emitter.has('qux'), false);
+	assert(emitter.has('foo'),           true);
+	assert(emitter.has('bar'),           false);
+	assert(emitter.has('qux'),           false);
+	assert(emitter.has('doo', callback), true);
 
 });
 
