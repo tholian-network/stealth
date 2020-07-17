@@ -11,27 +11,21 @@ const update = function(tab) {
 	if (tab !== null) {
 
 		this.input.state('');
-		this.input.value(tab.ref);
+		this.input.value(tab.url);
 
-		this.protocol.attr('title', tab.ref.protocol);
-		this.protocol.value(tab.ref.protocol);
+		this.protocol.attr('title', tab.url.protocol);
+		this.protocol.value(tab.url.protocol);
 		this.protocol.erase();
 
 
 		let chunks = [ this.protocol ];
-		let domain = tab.ref.domain || null;
-		let host   = tab.ref.host   || null;
+		let domain = URL.toDomain(tab.url);
+		let host   = URL.toHost(tab.url);
 
 		if (domain !== null) {
 
-			let subdomain = tab.ref.subdomain || null;
-			if (subdomain !== null) {
-				domain = subdomain + '.' + domain;
-			}
-
-
-			let port     = tab.ref.port     || null;
-			let protocol = tab.ref.protocol || null;
+			let port     = tab.url.port     || null;
+			let protocol = tab.url.protocol || null;
 
 			if (protocol === 'file') {
 				// Do nothing
@@ -57,13 +51,8 @@ const update = function(tab) {
 
 		} else if (host !== null) {
 
-			if (host.includes(':')) {
-				host = '[' + host + ']';
-			}
-
-
-			let port     = tab.ref.port     || null;
-			let protocol = tab.ref.protocol || null;
+			let port     = tab.url.port     || null;
+			let protocol = tab.url.protocol || null;
 
 			if (protocol === 'file') {
 				// Do nothing
@@ -89,18 +78,16 @@ const update = function(tab) {
 
 		}
 
-		let path = tab.ref.path || '/';
-		if (path !== '/') {
-			path.split('/').forEach((chunk) => {
+		if (tab.url.path !== '/') {
+			tab.url.path.split('/').forEach((chunk) => {
 				if (chunk !== '') {
 					chunks.push(new Element('li', '/' + chunk));
 				}
 			});
 		}
 
-		let query = tab.ref.query || null;
-		if (query !== null) {
-			chunks.push(new Element('li', '?' + query));
+		if (tab.url.query !== null) {
+			chunks.push(new Element('li', '?' + tab.url.query));
 		}
 
 		this.output.value(chunks);
@@ -127,11 +114,11 @@ const Address = function(browser) {
 
 	this.element = new Element('browser-appbar-address', [
 		'<ul><li data-key="protocol" data-val="stealth"></li></ul>',
-		'<input type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">'
+		'<input data-key="url" type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">'
 	].join(''));
 
 	this.protocol = this.element.query('[data-key="protocol"]');
-	this.input    = this.element.query('input');
+	this.input    = this.element.query('[data-key="url"]');
 	this.output   = this.element.query('ul');
 
 
@@ -145,28 +132,30 @@ const Address = function(browser) {
 
 				context.read((clipped) => {
 
-					let ref = URL.parse(clipped);
-					if (ref.protocol === 'https' || ref.protocol === 'http') {
+					let url = URL.parse(clipped);
+					if (url.protocol === 'https' || url.protocol === 'http') {
 
 						context.value([{
 							label: 'open',
 							value: clipped,
 						}, {
 							label: 'copy',
-							value: browser.tab.url
+							value: browser.tab.url.link
 						}, {
 							label:    'paste',
 							value:    clipped,
 							callback: (browser, value) => {
 
-								if (isString(value)) {
+								if (isString(value) === true) {
 
-									let ref = URL.parse(value.trim());
-									if (ref.protocol === 'https' || ref.protocol === 'http') {
+									let url = URL.parse(value.trim());
+									if (url.protocol === 'https' || url.protocol === 'http') {
+
 										this.input.state('active');
-										this.input.value(ref);
-										this.input.node.setSelectionRange(0, ref.url.length);
+										this.input.value(url);
+										this.input.node.setSelectionRange(0, url.link.length);
 										this.input.emit('focus');
+
 									}
 
 								}
@@ -178,7 +167,7 @@ const Address = function(browser) {
 
 						context.value([{
 							label: 'copy',
-							value: browser.tab.url
+							value: browser.tab.url.link
 						}]);
 
 					}
@@ -203,45 +192,45 @@ const Address = function(browser) {
 
 	this.input.on('blur', () => {
 
-		let url = this.input.node.value.trim();
-		if (url === '') {
+		let link = this.input.node.value.trim();
+
+		if (link === '') {
 
 			update.call(this, browser.tab);
 
 		} else if (
-			url.includes(' ') === true
-			&& url.startsWith('stealth:search') === false
+			link.includes(' ') === true
+			&& link.startsWith('stealth:search') === false
 		) {
 
-			url = 'stealth:search?query=' + encodeURIComponent(url);
+			link = 'stealth:search?query=' + encodeURIComponent(link);
 			this.input.state('');
 
-		} else if (url.endsWith('://')) {
+		} else if (link.endsWith('://')) {
 
 			update.call(this, browser.tab);
-			url = '';
+			link = '';
 
-		} else if (url === 'stealth:') {
+		} else if (link === 'stealth:') {
 
 			this.input.state('');
 			this.input.value('stealth:welcome');
-			url = 'stealth:welcome';
+			link = 'stealth:welcome';
 
-		} else if (url.startsWith('stealth:') || url.includes('://')) {
+		} else if (link.startsWith('stealth:') || link.includes('://')) {
 
 			this.input.state('');
 
 		} else {
 
 			this.input.state('');
-			this.input.value('https://' + url);
-			url = 'https://' + url;
+			this.input.value('https://' + link);
+			link = 'https://' + link;
 
 		}
 
-
-		if (url !== '') {
-			browser.navigate(url);
+		if (link !== '') {
+			browser.navigate(link);
 		}
 
 	});
@@ -285,20 +274,17 @@ const Address = function(browser) {
 
 		if (index !== -1) {
 
-			let ref = this.input.value();
-			let url = ref.url;
-
+			let url    = this.input.value();
 			let values = items.map((item) => item.value());
 			let before = values.slice(0, index).join('');
 
-			if (ref.protocol === 'stealth') {
-				before = ref.protocol + ':' + before;
-			} else if (ref.protocol !== null) {
-				before = ref.protocol + '://' + before;
+			if (url.protocol === 'stealth') {
+				before = url.protocol + ':' + before;
+			} else if (url.protocol !== null) {
+				before = url.protocol + '://' + before;
 			}
 
-
-			let offset = url.indexOf(before) + before.length;
+			let offset = url.link.indexOf(before) + before.length;
 
 			this.input.state('active');
 			this.input.node.setSelectionRange(offset, offset + values[index].length);

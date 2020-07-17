@@ -25,6 +25,57 @@ export const isWidget = function(obj) {
 
 };
 
+const get_value = function(element) {
+
+	let value = null;
+
+	if (isElement(element) === true) {
+
+		value = element.value();
+
+	} else if (isObject(element) === true) {
+
+		value = {};
+
+		Object.keys(element).forEach((key) => {
+			value[key] = get_value(element[key]);
+		});
+
+	}
+
+	return value;
+
+};
+
+const set_value = function(element, value) {
+
+	value = value !== undefined ? value : null;
+
+
+	let result = false;
+
+	if (isElement(element) === true) {
+
+		result = element.value(value);
+
+	} else if (isObject(element) === true && isObject(value) === true) {
+
+		let check = [];
+
+		Object.keys(element).forEach((key) => {
+			check.push(set_value(element[key], value[key]));
+		});
+
+		if (check.includes(false) === false) {
+			result = true;
+		}
+
+	}
+
+	return result;
+
+};
+
 
 
 const Widget = function() {
@@ -254,6 +305,32 @@ Widget.prototype = {
 			return false;
 		} else {
 			return null;
+		}
+
+	},
+
+	value: function(value) {
+
+		value = isObject(value) ? value : null;
+
+
+		if (value !== null) {
+
+			let result = set_value(this.model, value);
+			if (result === true) {
+				return true;
+			} else {
+				return false;
+			}
+
+		} else {
+
+			if (isObject(this.model) === true) {
+				return get_value(this.model);
+			} else {
+				return null;
+			}
+
 		}
 
 	}

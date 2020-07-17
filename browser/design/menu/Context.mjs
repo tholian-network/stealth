@@ -130,13 +130,13 @@ const ACTIONS = [{
 
 		if (URL.isURL(value) === true) {
 
-			browser.download(value.url);
+			browser.download(value.link);
 
 		} else if (isString(value) === true) {
 
-			let ref = URL.parse(value.trim());
-			if (ref.protocol !== null) {
-				browser.download(ref.url);
+			let url = URL.parse(value.trim());
+			if (url.protocol !== null) {
+				browser.download(url.link);
 			}
 
 		}
@@ -155,13 +155,13 @@ const ACTIONS = [{
 
 		if (URL.isURL(value) === true) {
 
-			browser.navigate(value.url);
+			browser.navigate(value.link);
 
 		} else if (isString(value) === true) {
 
-			let ref = URL.parse(value.trim());
-			if (ref.protocol !== null) {
-				browser.navigate(ref.url);
+			let url = URL.parse(value.trim());
+			if (url.protocol !== null) {
+				browser.navigate(url.link);
 			}
 
 		}

@@ -1,7 +1,7 @@
 
 import { Emitter, isArray, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { DNS                                              } from '../protocol/DNS.mjs';
-import { IP                                               } from '../parser/IP.mjs';
+import { DNS                                              } from '../../source/connection/DNS.mjs';
+import { IP                                               } from '../../source/parser/IP.mjs';
 
 
 

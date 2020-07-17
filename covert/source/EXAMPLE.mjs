@@ -65,45 +65,6 @@ const FILE = Buffer.from([
 
 const EXAMPLE = {
 
-	config: function(url) {
-
-		url = isString(url) ? url : 'https://example.com/index.html';
-
-
-		let ref = URL.parse(url);
-		let cfg = {
-			domain: null,
-			mode:   {
-				text:  false,
-				image: false,
-				audio: false,
-				video: false,
-				other: false
-			}
-		};
-
-		if (ref.domain !== null) {
-
-			if (ref.subdomain !== null) {
-				cfg.domain = ref.subdomain + '.' + ref.domain;
-			} else {
-				cfg.domain = ref.domain;
-			}
-
-		} else if (ref.host !== null) {
-
-			cfg.domain = ref.host;
-
-		}
-
-		if (ref.mime !== null) {
-			cfg.mode[ref.mime.type] = true;
-		}
-
-		return cfg;
-
-	},
-
 	file: FILE,
 
 	hosts: [
@@ -114,73 +75,73 @@ const EXAMPLE = {
 	ipv4: IP.parse('93.184.216.34'),
 	ipv6: IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946'),
 
+	toMode: function(link) {
 
-	ref: function(url) {
-
-		url = isString(url) ? url : 'https://example.com/index.html';
+		link = isString(link) ? link : 'https://example.com/index.html';
 
 
-		let ref = URL.parse(url);
-
-		if (ref.domain !== null) {
-
-			if (ref.domain === 'example.com') {
-
-				ref.hosts = EXAMPLE.hosts;
-
-			} else if (ref.domain === 'websocket.org' && ref.subdomain === 'echo') {
-
-				ref.hosts = [
-					IP.parse('174.129.224.73')
-				];
-
+		let url  = URL.parse(link);
+		let mode = {
+			domain: null,
+			mode:   {
+				text:  false,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
 			}
+		};
 
-		} else if (ref.host !== null) {
+		let domain = URL.toDomain(url);
+		let host   = URL.toHost(url);
 
-			ref.hosts = [
-				IP.parse(ref.host)
-			];
-
+		if (domain !== null) {
+			mode.domain = domain;
+		} else if (host !== null) {
+			mode.domain = host;
 		}
 
-		return ref;
+		if (url.mime !== null) {
+			mode.mode[url.mime.type] = true;
+		}
+
+		return mode;
 
 	},
 
-	sketch: function(file) {
+	toSketch: function(file) {
 
 		file = isString(file) ? file : null;
 
 
 		if (file !== null) {
 
-			let resolved = path.resolve(ENVIRONMENT.root + '/covert/sketch', file);
+			let link = path.resolve(ENVIRONMENT.root + '/covert/sketch', file);
 
 			let stat = null;
 			try {
-				stat = fs.lstatSync(resolved);
+				stat = fs.lstatSync(link);
 			} catch (err) {
 				stat = null;
 			}
 
 			if (stat !== null && stat.isFile() === true) {
 
-				let ref = URL.parse(resolved);
-				if (ref !== null) {
+				let url = URL.parse(link);
+				if (url !== null) {
 
 					let payload = null;
 					try {
-						payload = fs.readFileSync(resolved);
+						payload = fs.readFileSync(link);
 					} catch (err) {
 						payload = null;
 					}
 
 					if (payload !== null) {
-						ref.payload = payload;
+						url.payload = payload;
 					}
 
-					return ref;
+					return url;
 
 				}
 
@@ -189,6 +150,48 @@ const EXAMPLE = {
 		}
 
 		return null;
+
+	},
+
+	toURL: function(link) {
+
+		link = isString(link) ? link : 'https://example.com/index.html';
+
+
+		let url    = URL.parse(link);
+		let domain = URL.toDomain(url);
+		let host   = URL.toHost(url);
+
+		if (domain !== null) {
+
+			if (domain === 'localhost') {
+
+				url.hosts = [
+					IP.parse('127.0.0.1'),
+					IP.parse('::1')
+				];
+
+			} else if (domain === 'example.com') {
+
+				url.hosts = EXAMPLE.hosts;
+
+			} else if (domain === 'echo.websocket.org') {
+
+				url.hosts = [
+					IP.parse('174.129.224.73')
+				];
+
+			}
+
+		} else if (host !== null) {
+
+			url.hosts = [
+				IP.parse(host)
+			];
+
+		}
+
+		return url;
 
 	}
 

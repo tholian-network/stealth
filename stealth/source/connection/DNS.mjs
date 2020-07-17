@@ -1,11 +1,44 @@
 
-import { isArray, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
-import { IP                                      } from '../parser/IP.mjs';
-import { HTTPS                                   } from './HTTPS.mjs';
+import { isArray, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                } from '../parser/IP.mjs';
+import { HTTPS                                             } from './HTTPS.mjs';
 
 
 
 let DNS_RONIN = 0;
+
+const isQuery = function(payload) {
+
+	if (
+		isObject(payload)
+		&& isString(payload.domain)
+		&& (isString(payload.subdomain) || payload.subdomain === null)
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
+
+const toDomain = function(payload) {
+
+	let domain = null;
+
+	if (isString(payload.domain) === true) {
+
+		if (isString(payload.subdomain) === true) {
+			domain = payload.subdomain + '.' + payload.domain;
+		} else {
+			domain = payload.domain;
+		}
+
+	}
+
+	return domain;
+
+};
 
 const parse = function(payload) {
 
@@ -49,15 +82,15 @@ const parse = function(payload) {
 
 };
 
-const query = function(ref, name, type, callback) {
+const resolve = function(url, domain, type, callback) {
 
-	ref.host      = null;
-	ref.subdomain = null;
-	ref.headers   = null;
-	ref.payload   = null;
+	url.host      = null;
+	url.subdomain = null;
+	url.headers   = null;
+	url.payload   = null;
 
 
-	let connection = HTTPS.connect(ref);
+	let connection = HTTPS.connect(url);
 	if (connection !== null) {
 
 		connection.on('@connect', () => {
@@ -65,9 +98,9 @@ const query = function(ref, name, type, callback) {
 			HTTPS.send(connection, {
 				headers: {
 					'@method': 'GET',
-					'@url':    ref.path + '?name=' + name + '&type=' + type,
+					'@url':    url.path + '?name=' + domain + '&type=' + type,
 					'accept':  'application/dns-json',
-					'host':    ref.domain
+					'host':    url.domain
 				}
 			});
 
@@ -217,33 +250,32 @@ const DNS = {
 		AAAA: 28
 	},
 
-	resolve: function(ref, callback) {
+	resolve: function(query, callback) {
 
-		ref      = isObject(ref)        ? ref      : null;
+		query    = isQuery(query)       ? query    : null;
 		callback = isFunction(callback) ? callback : null;
 
 
-		if (ref !== null && callback !== null) {
+		if (query !== null && callback !== null) {
 
-			let domain = ref.domain || null;
-			let server = null;
+			let domain     = toDomain(query);
+			let server_url = null;
 
 			if (DNS.SERVER === null) {
 
-				server = DNS.SERVERS[DNS_RONIN];
+				server_url = DNS.SERVERS[DNS_RONIN];
 
 				DNS_RONIN += 1;
 				DNS_RONIN %= DNS.SERVERS.length;
 
 			} else if (DNS.SERVERS.includes(DNS.SERVER) === true) {
 
-				server = DNS.SERVER;
+				server_url = DNS.SERVER;
 
 			} else {
 
 				DNS.SERVER = null;
-
-				server = DNS.SERVERS[DNS_RONIN];
+				server_url = DNS.SERVERS[DNS_RONIN];
 
 				DNS_RONIN += 1;
 				DNS_RONIN %= DNS.SERVERS.length;
@@ -251,17 +283,11 @@ const DNS = {
 			}
 
 
-			if (domain !== null && server !== null) {
+			if (domain !== null && server_url !== null) {
 
-				let subdomain = ref.subdomain || null;
-				if (subdomain !== null) {
-					domain = subdomain + '.' + domain;
-				}
+				resolve(server_url, domain, 'A', (hosts_v4) => {
 
-
-				query(server, domain, 'A', (hosts_v4) => {
-
-					query(server, domain, 'AAAA', (hosts_v6) => {
+					resolve(server_url, domain, 'AAAA', (hosts_v6) => {
 
 						let hosts = [];
 

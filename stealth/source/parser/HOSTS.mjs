@@ -138,17 +138,17 @@ const parse_payload = function(payload) {
 				let ips = map[fqdn].map((v) => IP.parse(v)).filter((ip) => ip.type !== null);
 				if (ips.length > 0) {
 
-					let ref = URL.parse(fqdn);
-					if (ref.domain !== null) {
+					let url = URL.parse(fqdn);
+					if (url.domain !== null) {
 
-						if (ref.subdomain !== null) {
+						if (url.subdomain !== null) {
 							hosts.push({
-								domain: ref.subdomain + '.' + ref.domain,
+								domain: url.subdomain + '.' + url.domain,
 								hosts:  ips
 							});
 						} else {
 							hosts.push({
-								domain: ref.domain,
+								domain: url.domain,
 								hosts:  ips
 							});
 						}
@@ -171,23 +171,23 @@ const parse_payload = function(payload) {
 
 const HOSTS = {
 
-	isHost: function(ref) {
+	isHost: function(payload) {
 
-		ref = isObject(ref) ? ref : null;
+		payload = isObject(payload) ? payload : null;
 
 
-		if (ref !== null) {
+		if (payload !== null) {
 
-			if (isString(ref.domain) === true) {
+			if (isString(payload.domain) === true) {
 
-				let tmp = URL.parse(ref.domain);
-				if (tmp.domain !== null) {
+				let url = URL.parse(payload.domain);
+				if (url.domain !== null) {
 
-					if (tmp.subdomain !== null) {
+					if (url.subdomain !== null) {
 
-						if (ref.domain === tmp.subdomain + '.' + tmp.domain) {
+						if (payload.domain === url.subdomain + '.' + url.domain) {
 
-							let check = ref.hosts.map((ip) => IP.isIP(ip) === true);
+							let check = payload.hosts.map((ip) => IP.isIP(ip) === true);
 							if (check.includes(false) === false) {
 								return true;
 							}
@@ -196,9 +196,9 @@ const HOSTS = {
 
 					} else {
 
-						if (ref.domain === tmp.domain) {
+						if (payload.domain === url.domain) {
 
-							let check = ref.hosts.map((ip) => IP.isIP(ip) === true);
+							let check = payload.hosts.map((ip) => IP.isIP(ip) === true);
 							if (check.includes(false) === false) {
 								return true;
 							}
@@ -302,30 +302,30 @@ const HOSTS = {
 
 			return array.filter((host) => HOSTS.isHost(host)).sort((a, b) => {
 
-				let ref_a = URL.parse(a.domain);
-				let ref_b = URL.parse(b.domain);
+				let url_a = URL.parse(a.domain);
+				let url_b = URL.parse(b.domain);
 
-				if (ref_a.domain !== null && ref_b.domain !== null) {
+				if (url_a.domain !== null && url_b.domain !== null) {
 
-					if (ref_a.domain < ref_b.domain) return -1;
-					if (ref_b.domain < ref_a.domain) return  1;
+					if (url_a.domain < url_b.domain) return -1;
+					if (url_b.domain < url_a.domain) return  1;
 
-					if (ref_a.subdomain !== null && ref_b.subdomain !== null) {
+					if (url_a.subdomain !== null && url_b.subdomain !== null) {
 
-						if (ref_a.subdomain < ref_b.subdomain) return -1;
-						if (ref_b.subdomain < ref_a.subdomain) return  1;
+						if (url_a.subdomain < url_b.subdomain) return -1;
+						if (url_b.subdomain < url_a.subdomain) return  1;
 
 					} else {
 
-						if (ref_a.subdomain !== null) return  1;
-						if (ref_b.subdomain !== null) return -1;
+						if (url_a.subdomain !== null) return  1;
+						if (url_b.subdomain !== null) return -1;
 
 					}
 
 				} else {
 
-					if (ref_a.domain !== null) return -1;
-					if (ref_b.domain !== null) return  1;
+					if (url_a.domain !== null) return -1;
+					if (url_b.domain !== null) return  1;
 
 				}
 

@@ -92,7 +92,6 @@ const Client = function(settings, browser) {
 
 
 	this.address  = null;
-	this.ref      = null;
 	this.browser  = browser;
 	this.services = {
 		beacon:   new Beacon(this),
@@ -106,6 +105,7 @@ const Client = function(settings, browser) {
 		settings: new Settings(this),
 		stash:    new Stash(this)
 	};
+	this.url      = null;
 
 	this.__state = {
 		connected: false,
@@ -122,13 +122,45 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Client',
 
+	toJSON: function() {
+
+		let data = {
+			url:      URL.render(this.url),
+			services: Object.keys(this.services),
+			state:    {
+				connected:  false,
+				connection: null
+			}
+		};
+
+		if (this.__state.connected === true) {
+			data.state.connected = true;
+		}
+
+		if (this.__state.socket !== null) {
+			data.state.connection = {
+				'type': 'Connection',
+				'data': {
+					local:  this.__state.socket[Symbol.for('local')]  || null,
+					remote: this.__state.socket[Symbol.for('remote')] || null
+				}
+			};
+		}
+
+		return {
+			'type': 'Client',
+			'data': data
+		};
+
+	},
+
 	connect: function() {
 
 		if (this.__state.connected === false) {
 
 			let host  = isString(this._settings.host) ? this._settings.host : ENVIRONMENT.hostname;
-			let ref   = URL.parse('ws://' + host + ':65432');
-			let hosts = ref.hosts.sort((a, b) => {
+			let url   = URL.parse('ws://' + host + ':65432');
+			let hosts = url.hosts.sort((a, b) => {
 
 				if (a.scope === 'private' && b.scope === 'private') {
 
@@ -149,165 +181,171 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
-			if (ref.domain === ENVIRONMENT.hostname || hosts.length > 0) {
 
-				let server = ref.domain;
+			if (host !== ENVIRONMENT.hostname) {
 
-				// Ensure same websocket remote address as the iframe requests
-				if (ref.domain !== ENVIRONMENT.hostname && hosts.length > 0) {
+				let check = hosts.find((ip) => ip.scope === 'private') || null;
+				if (check === null) {
 
-					let check = hosts.find((ip) => ip.scope === 'private') || null;
-					if (check === null) {
-
-						if (ENVIRONMENT.secure === true) {
-							ref = URL.parse('wss://' + ENVIRONMENT.hostname + ':65432');
-						} else {
-							ref = URL.parse('ws://' + ENVIRONMENT.hostname + ':65432');
-						}
-
-					}
-
-					let host = hosts[0];
-					if (host.type === 'v4') {
-						server = host.ip;
-					} else if (host.type === 'v6') {
-						server = '[' + host.ip + ']';
+					if (ENVIRONMENT.secure === true) {
+						url = URL.parse('wss://' + ENVIRONMENT.hostname + ':65432');
+					} else {
+						url = URL.parse('ws://' + ENVIRONMENT.hostname + ':65432');
 					}
 
 				}
 
-				this.ref = ref;
+			}
 
 
-				let socket = null;
+			let server = null;
 
-				try {
-					socket = new WebSocket(ref.protocol + '://' + server + ':' + ref.port, [ 'stealth' ]);
-				} catch (err) {
-					socket = null;
+			if (url.domain !== null) {
+
+				if (url.subdomain !== null) {
+					server = url.subdomain + '.' + url.domain;
+				} else {
+					server = url.domain;
 				}
 
-
-				if (socket !== null) {
-
-					socket.onmessage = (e) => {
-
-						let response = receive(e.data);
-						if (response !== null) {
-
-							// Special case: Deserialize Buffer instances
-							if (isObject(response.payload) === true) {
-
-								let tmp_headers = response.payload.headers || null;
-								let tmp_payload = response.payload.payload || null;
-
-								if (tmp_headers !== null && tmp_payload !== null) {
-
-									if (tmp_payload.type === 'Buffer') {
-										response.payload.payload = Buffer.from(tmp_payload.data);
-									}
-
-								}
-
-							}
+			} else if (url.host !== null) {
+				server = url.host;
+			}
 
 
-							let event   = response.headers.event   || null;
-							let service = response.headers.service || null;
-							let method  = response.headers.method  || null;
+			this.url = url;
 
-							if (service !== null && event !== null) {
 
-								let instance = this.services[service] || null;
-								if (instance !== null && instance.has(event) === true) {
+			let socket = null;
 
-									let request = instance.emit(event, [ response.payload ]);
-									if (request !== null) {
-										send(socket, request);
-									}
+			try {
+				socket = new WebSocket(url.protocol + '://' + server + ':' + url.port, [ 'stealth' ]);
+			} catch (err) {
+				socket = null;
+			}
 
-								} else {
 
-									let request = this.emit('response', [ response ]);
-									if (request !== null) {
-										send(socket, request);
-									}
+			if (socket !== null) {
 
-								}
+				socket[Symbol.for('local')]  = ENVIRONMENT.hostname;
+				socket[Symbol.for('remote')] = server;
 
-							} else if (service !== null && method !== null) {
+				socket.onmessage = (e) => {
 
-								let instance = this.services[service] || null;
-								if (instance !== null && isFunction(instance[method]) === true) {
+					let response = receive(e.data);
+					if (response !== null) {
 
-									instance[method](response.payload, (request) => {
+						// Special case: Deserialize Buffer instances
+						if (isObject(response.payload) === true) {
 
-										if (request !== null) {
-											send(socket, request);
-										}
+							let tmp_headers = response.payload.headers || null;
+							let tmp_payload = response.payload.payload || null;
 
-									});
+							if (tmp_headers !== null && tmp_payload !== null) {
 
-								} else {
-
-									let request = this.emit('response', [ response ]);
-									if (request !== null) {
-										send(socket, request);
-									}
-
+								if (tmp_payload.type === 'Buffer') {
+									response.payload.payload = Buffer.from(tmp_payload.data);
 								}
 
 							}
 
 						}
 
-					};
 
-					socket.onclose = () => {
-						this.disconnect();
-					};
+						let event   = response.headers.event   || null;
+						let service = response.headers.service || null;
+						let method  = response.headers.method  || null;
 
-					socket.ontimeout = () => {
-						this.disconnect();
-					};
+						if (service !== null && event !== null) {
 
-					socket.onerror = (event) => {
+							let instance = this.services[service] || null;
+							if (instance !== null && instance.has(event) === true) {
 
-						if (isErrorEvent(event) === true) {
+								let request = instance.emit(event, [ response.payload ]);
+								if (request !== null) {
+									send(socket, request);
+								}
 
-							console.error('Client: Socket Error');
-							console.error(event.error);
+							} else {
 
-							this.__state.connected = false;
-							this.__state.socket    = null;
+								let request = this.emit('response', [ response ]);
+								if (request !== null) {
+									send(socket, request);
+								}
 
-							this.emit('disconnect');
+							}
 
-						} else if (isEvent(event) === true) {
+						} else if (service !== null && method !== null) {
 
-							this.__state.connected = false;
-							this.__state.socket    = null;
+							let instance = this.services[service] || null;
+							if (instance !== null && isFunction(instance[method]) === true) {
 
-							this.emit('disconnect');
+								instance[method](response.payload, (request) => {
 
-						} else {
-							this.disconnect();
+									if (request !== null) {
+										send(socket, request);
+									}
+
+								});
+
+							} else {
+
+								let request = this.emit('response', [ response ]);
+								if (request !== null) {
+									send(socket, request);
+								}
+
+							}
+
 						}
 
-					};
+					}
 
-					socket.onopen = () => {
+				};
 
-						this.__state.connected = true;
-						this.__state.socket    = socket;
+				socket.onclose = () => {
+					this.disconnect();
+				};
 
-						this.emit('connect');
+				socket.ontimeout = () => {
+					this.disconnect();
+				};
 
-					};
+				socket.onerror = (event) => {
 
-					return true;
+					if (isErrorEvent(event) === true) {
 
-				}
+						console.error('Client: Socket Error');
+						console.error(event.error);
+
+						this.__state.connected = false;
+						this.__state.socket    = null;
+
+						this.emit('disconnect');
+
+					} else if (isEvent(event) === true) {
+
+						this.__state.connected = false;
+						this.__state.socket    = null;
+
+						this.emit('disconnect');
+
+					} else {
+						this.disconnect();
+					}
+
+				};
+
+				socket.onopen = () => {
+
+					this.__state.connected = true;
+					this.__state.socket    = socket;
+
+					this.emit('connect');
+
+				};
+
+				return true;
 
 			}
 

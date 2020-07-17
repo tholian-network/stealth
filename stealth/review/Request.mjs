@@ -11,8 +11,8 @@ before(connect);
 describe('new Request()', function(assert) {
 
 	let request = new Request({
-		ref:    EXAMPLE.ref('https://example.com/index.html'),
-		config: EXAMPLE.config('https://example.com/index.html')
+		mode: EXAMPLE.mode('https://example.com/index.html'),
+		ref:  EXAMPLE.ref('https://example.com/index.html')
 	}, this.server);
 
 	assert(request.ref.url, 'https://example.com/index.html');
@@ -24,12 +24,12 @@ describe('new Request()', function(assert) {
 
 describe('Request.from()', function(assert) {
 
-	let config  = EXAMPLE.config('https://example.com/does-not-exist.html');
+	let mode    = EXAMPLE.mode('https://example.com/does-not-exist.html');
 	let request = Request.from({
 		type: 'Request',
 		data: {
-			url: 'https://example.com/does-not-exist.html',
-			config: config,
+			mode:  mode,
+			url:   'https://example.com/does-not-exist.html',
 			flags: {
 				connect:   false,
 				proxy:     true,
@@ -46,8 +46,8 @@ describe('Request.from()', function(assert) {
 	assert(request.get('useragent'), 'Some User/Agent 13.37');
 	assert(request.get('webview'),   true);
 
-	assert(request.url,    'https://example.com/does-not-exist.html');
-	assert(request.config, config);
+	assert(request.mode, mode);
+	assert(request.url,  'https://example.com/does-not-exist.html');
 
 });
 
@@ -73,12 +73,12 @@ describe('isRequest()', function(assert) {
 
 describe('Request.prototype.toJSON()', function(assert) {
 
-	let config  = EXAMPLE.config('https://example.com/does-not-exist.html');
+	let mode    = EXAMPLE.mode('https://example.com/does-not-exist.html');
 	let request = Request.from({
 		type: 'Request',
 		data: {
-			url: 'https://example.com/does-not-exist.html',
-			config: config,
+			mode:  mode,
+			url:   'https://example.com/does-not-exist.html',
 			flags: {
 				webview: true
 			}
@@ -89,10 +89,10 @@ describe('Request.prototype.toJSON()', function(assert) {
 
 	assert(json.type, 'Request');
 	assert(json.data, {
-		url: 'https://example.com/does-not-exist.html',
-		config: config,
+		mode:     mode,
+		url:      'https://example.com/does-not-exist.html',
 		download: null,
-		flags: {
+		flags:    {
 			connect:   true,
 			proxy:     false,
 			refresh:   false,
@@ -172,8 +172,8 @@ describe('Request.prototype.set()', function(assert) {
 describe('Request.prototype.start()', function(assert) {
 
 	let request = new Request({
-		ref:    EXAMPLE.ref('https://example.com/index.html'),
-		config: EXAMPLE.config('https://example.com/index.html')
+		mode: EXAMPLE.mode('https://example.com/index.html'),
+		ref:  EXAMPLE.ref('https://example.com/index.html')
 	}, this.server);
 
 	request.once('start', () => {
@@ -219,8 +219,8 @@ describe('Request.prototype.start()', function(assert) {
 describe('Request.prototype.start()/cache', function(assert) {
 
 	let request = new Request({
-		ref:    EXAMPLE.ref('https://example.com/index.html'),
-		config: EXAMPLE.config('https://example.com/index.html')
+		mode: EXAMPLE.mode('https://example.com/index.html'),
+		ref:  EXAMPLE.ref('https://example.com/index.html')
 	}, this.server);
 
 
@@ -291,8 +291,8 @@ describe('Redirect.prototype.save()', function(assert) {
 describe('Request.prototype.start()/redirect', function(assert) {
 
 	let request = new Request({
-		ref:    EXAMPLE.ref('https://example.com/redirect'),
-		config: EXAMPLE.config('https://example.com/redirect')
+		mode: EXAMPLE.mode('https://example.com/redirect'),
+		ref:  EXAMPLE.ref('https://example.com/redirect')
 	}, this.server);
 
 
@@ -336,8 +336,8 @@ describe('Cache.prototype.remove()', function(assert) {
 describe('Request.prototype.stop()', function(assert) {
 
 	let request = new Request({
-		ref:    EXAMPLE.ref('https://example.com/index.html'),
-		config: EXAMPLE.config('https://example.com/index.html')
+		mode: EXAMPLE.mode('https://example.com/index.html'),
+		ref:  EXAMPLE.ref('https://example.com/index.html')
 	}, this.server);
 
 

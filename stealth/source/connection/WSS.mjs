@@ -2,7 +2,9 @@
 import tls from 'tls';
 
 import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
-import { WS                                    } from './WS.mjs';
+import { WS                                    } from '../../source/connection/WS.mjs';
+import { IP                                    } from '../../source/parser/IP.mjs';
+import { URL                                   } from '../../source/parser/URL.mjs';
 
 
 
@@ -12,26 +14,7 @@ const lookup = function(host, options, callback) {
 	callback = isFunction(callback) ? callback : function() {};
 
 
-	let results = this.hosts.sort((a, b) => {
-
-		if (a.scope === 'private' && b.scope === 'private') {
-
-			if (a.type === 'v4' && b.type === 'v4') return 0;
-			if (a.type === 'v4') return -1;
-			if (b.type === 'v4') return  1;
-
-		}
-
-		if (a.scope === 'private') return -1;
-		if (b.scope === 'private') return  1;
-
-		if (a.type === 'v4' && b.type === 'v4') return 0;
-		if (a.type === 'v4') return -1;
-		if (b.type === 'v4') return  1;
-
-		return 0;
-
-	}).filter((ip) => {
+	let results = IP.sort(this.hosts).filter((ip) => {
 
 		if (options.family === 4) {
 			return ip.type === 'v4';
@@ -183,56 +166,25 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 const WSS = {
 
-	connect: function(ref, connection) {
+	connect: function(url, connection) {
 
-		ref        = isObject(ref)            ? ref                         : null;
-		connection = isConnection(connection) ? Connection.from(connection) : new Connection();
+		url        = isObject(url)            ? Object.assign(URL.parse(), url) : null;
+		connection = isConnection(connection) ? Connection.from(connection)     : new Connection();
 
 
-		if (ref !== null) {
+		if (url !== null) {
 
-			let hosts = ref.hosts.sort((a, b) => {
-
-				if (a.scope === 'private' && b.scope === 'private') {
-
-					if (a.type === 'v4' && b.type === 'v4') return 0;
-					if (a.type === 'v4') return -1;
-					if (b.type === 'v4') return  1;
-
-				}
-
-				if (a.scope === 'private') return -1;
-				if (b.scope === 'private') return  1;
-
-				if (a.type === 'v4' && b.type === 'v4') return 0;
-				if (a.type === 'v4') return -1;
-				if (b.type === 'v4') return  1;
-
-				return 0;
-
-			});
-
+			let hosts = IP.sort(url.hosts);
 			if (hosts.length > 0) {
 
 				let hostname = hosts[0].ip;
+				let domain   = URL.toDomain(url);
+				let host     = URL.toHost(url);
 
-				if (ref.host !== null) {
-
-					let check = hosts.find((h) => h.ip === ref.host) || null;
-					if (check !== null) {
-						hostname = check.ip;
-					}
-
-				}
-
-				if (ref.domain !== null) {
-
-					if (ref.subdomain !== null) {
-						hostname = ref.subdomain + '.' + ref.domain;
-					} else {
-						hostname = ref.domain;
-					}
-
+				if (domain !== null) {
+					hostname = domain;
+				} else if (host !== null) {
+					hostname = host;
 				}
 
 
@@ -243,17 +195,17 @@ const WSS = {
 
 						socket = tls.connect({
 							host:           hostname,
-							port:           ref.port || 443,
+							port:           url.port || 443,
 							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
 							secureProtocol: 'TLS_method',
 							servername:     hostname,
-							lookup:         lookup.bind(ref)
+							lookup:         lookup.bind(url)
 						}, () => {
 
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								WS.connect(ref, connection);
+								WS.connect(url, connection);
 
 							} else {
 
@@ -274,18 +226,18 @@ const WSS = {
 
 						socket = tls.connect({
 							host:           hostname,
-							port:           ref.port || 443,
+							port:           url.port || 443,
 							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
 							secureProtocol: 'TLS_method',
 							servername:     hostname,
-							lookup:         lookup.bind(ref),
+							lookup:         lookup.bind(url),
 							socket:         connection.socket || null
 						}, () => {
 
 							if (socket.authorized === true) {
 
 								connection.socket = socket;
-								WS.connect(ref, connection);
+								WS.connect(url, connection);
 
 							} else {
 

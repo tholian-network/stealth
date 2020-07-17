@@ -16,12 +16,12 @@ export const isStealth = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Stealth]';
 };
 
-const get_config = function(url) {
+const toMode = function(url) {
 
-	url = isString(url) ? url : null;
+	url = URL.isURL(url) ? url : null;
 
 
-	let config = {
+	let mode = {
 		domain: null,
 		mode:   {
 			text:  false,
@@ -34,21 +34,10 @@ const get_config = function(url) {
 
 	if (url !== null) {
 
-		let ref     = URL.parse(url);
-		let rdomain = ref.domain || null;
-		if (rdomain !== null) {
+		let search = URL.toDomain(url);
+		if (search !== null) {
 
-			let rsubdomain = ref.subdomain || null;
-			if (rsubdomain !== null) {
-				rdomain = rsubdomain + '.' + rdomain;
-			}
-
-		}
-
-
-		if (rdomain !== null) {
-
-			let modes = this.settings.modes.filter((m) => rdomain.endsWith(m.domain));
+			let modes = this.settings.modes.filter((m) => URL.isDomain(m.domain, search));
 			if (modes.length > 1) {
 
 				return modes.sort((a, b) => {
@@ -61,26 +50,17 @@ const get_config = function(url) {
 
 				return modes[0];
 
+			} else {
+
+				mode.domain = search;
+
 			}
 
 		}
 
 	}
 
-	return config;
-
-};
-
-const remove_request = function(request) {
-
-	for (let r = 0; r < this.requests.length; r++) {
-
-		if (this.requests[r] === request) {
-			this.requests.splice(r, 1);
-			r--;
-		}
-
-	}
+	return mode;
 
 };
 
@@ -335,19 +315,19 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	open: function(url) {
+	open: function(link) {
 
-		url = isString(url) ? url : null;
+		link = isString(link) ? link : null;
 
 
-		let ref = URL.parse(url);
-		if (URL.isURL(ref) === true) {
+		let url = URL.parse(link);
+		if (URL.isURL(url) === true) {
 
 			let request = null;
 
 			for (let s = 0, sl = this.settings.sessions.length; s < sl; s++) {
 
-				let cached = this.settings.sessions[s].get(ref.url);
+				let cached = this.settings.sessions[s].get(url.link);
 				if (cached !== null) {
 					request = cached;
 					break;
@@ -356,35 +336,25 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			if (request === null) {
-
-				for (let r = 0, rl = this.requests.length; r < rl; r++) {
-
-					let cached = this.requests[r];
-					if (cached.url === ref.url) {
-						request = cached;
-						break;
-					}
-
-				}
-
+				request = this.requests.find((r) => r.url.link === url.link) || null;
 			}
 
 			if (request === null) {
 
 				if (this.settings.internet.connection === 'i2p') {
-					ref.proxy = { host: '127.0.0.1', port: 4444 };
+					url.proxy = { host: '127.0.0.1', port: 4444 };
 				} else if (this.settings.internet.connection === 'tor') {
-					ref.proxy = { host: '127.0.0.1', port: 9050 };
+					url.proxy = { host: '127.0.0.1', port: 9050 };
 				}
 
 				request = new Request({
-					config: get_config.call(this, ref.url),
-					ref:    ref
+					mode: toMode.call(this, url),
+					url:  url
 				}, this.server);
 
-				request.on('error',    () => remove_request.call(this, request));
-				request.on('redirect', () => remove_request.call(this, request));
-				request.on('response', () => remove_request.call(this, request));
+				request.on('error',    () => this.requests.remove(request));
+				request.on('redirect', () => this.requests.remove(request));
+				request.on('response', () => this.requests.remove(request));
 
 				// Allow non-scheduled cached requests
 				// Disallow non-scheduled networked requests

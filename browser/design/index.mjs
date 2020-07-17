@@ -122,15 +122,10 @@ export const dispatch = (window, browser) => {
 			let tabindex = 1;
 
 			[
-				widgets.appbar['history'].buttons.back,
-				widgets.appbar['history'].buttons.next,
-				widgets.appbar['history'].buttons.action,
-				widgets.appbar['history'].buttons.open,
-				widgets.appbar['address'].input,
-				...widgets.appbar['mode'].buttons,
-				widgets.appbar['settings'].buttons.site,
-				widgets.appbar['settings'].buttons.session,
-				widgets.appbar['settings'].buttons.browser
+				...widgets.appbar['history'].query('button'),
+				widgets.appbar['address'].query('input'),
+				...widgets.appbar['mode'].query('button'),
+				...widgets.appbar['settings'].query('button')
 			].filter((v) => v !== null).forEach((element) => {
 				element.attr('tabindex', tabindex++);
 			});

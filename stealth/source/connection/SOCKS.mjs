@@ -2,12 +2,12 @@
 import net from 'net';
 
 import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { HTTP                                                                                    } from './HTTP.mjs';
-import { HTTPS                                                                                   } from './HTTPS.mjs';
-import { WS                                                                                      } from './WS.mjs';
-import { WSS                                                                                     } from './WSS.mjs';
-import { IP                                                                                      } from '../parser/IP.mjs';
-import { URL                                                                                     } from '../parser/URL.mjs';
+import { HTTP                                                                                    } from '../../source/connection/HTTP.mjs';
+import { HTTPS                                                                                   } from '../../source/connection/HTTPS.mjs';
+import { WS                                                                                      } from '../../source/connection/WS.mjs';
+import { WSS                                                                                     } from '../../source/connection/WSS.mjs';
+import { IP                                                                                      } from '../../source/parser/IP.mjs';
+import { URL                                                                                     } from '../../source/parser/URL.mjs';
 
 
 
@@ -62,37 +62,17 @@ const upgrade_response = (connection) => {
 
 };
 
-const encode_payload = function(ref) {
+const encode_payload = function(payload) {
 
-	ref = isPayload(ref) ? ref : null;
+	payload = isPayload(payload) ? payload : null;
 
 
-	if (ref !== null) {
+	if (payload !== null) {
 
-		if (IP.isIP(ref.hosts[0]) === true) {
+		if (IP.isIP(payload.hosts[0]) === true) {
 
 			let data = [];
-			let host = ref.hosts.sort((a, b) => {
-
-				if (a.scope === 'private' && b.scope === 'private') {
-
-					if (a.type === 'v4' && b.type === 'v4') return 0;
-					if (a.type === 'v4') return -1;
-					if (b.type === 'v4') return  1;
-
-				}
-
-				if (a.scope === 'private') return -1;
-				if (b.scope === 'private') return  1;
-
-				if (a.type === 'v4' && b.type === 'v4') return 0;
-				if (a.type === 'v4') return -1;
-				if (b.type === 'v4') return  1;
-
-				return 0;
-
-			})[0];
-
+			let host = IP.sort(payload.hosts)[0];
 			if (host.type === 'v4') {
 
 				data.push(0x01);
@@ -110,18 +90,18 @@ const encode_payload = function(ref) {
 
 			}
 
-			data.push(ref.port >>> 8);
-			data.push(ref.port & 0xff);
+			data.push(payload.port >>> 8);
+			data.push(payload.port & 0xff);
 
 			return data;
 
-		} else if (ref.domain !== null) {
+		} else if (payload.domain !== null) {
 
 			let data = [];
 
-			if (ref.subdomain !== null) {
+			if (payload.subdomain !== null) {
 
-				let tmp = Buffer.from(ref.subdomain + '.' + ref.domain, 'utf8');
+				let tmp = Buffer.from(payload.subdomain + '.' + payload.domain, 'utf8');
 
 				data.push(tmp.length);
 				tmp.forEach((v) => {
@@ -130,7 +110,7 @@ const encode_payload = function(ref) {
 
 			} else {
 
-				let tmp = Buffer.from(ref.domain, 'utf8');
+				let tmp = Buffer.from(payload.domain, 'utf8');
 
 				data.push(tmp.length);
 				tmp.forEach((v) => {
@@ -139,8 +119,8 @@ const encode_payload = function(ref) {
 
 			}
 
-			data.push(ref.port >>> 8);
-			data.push(ref.port & 0xff);
+			data.push(payload.port >>> 8);
+			data.push(payload.port & 0xff);
 
 			return data;
 
@@ -441,7 +421,7 @@ const decode = function(connection, buffer) {
 
 };
 
-const onconnect = function(connection, ref) {
+const onconnect = function(connection, url) {
 
 	connection.socket.once('data', (data) => {
 
@@ -457,18 +437,18 @@ const onconnect = function(connection, ref) {
 
 							let tunnel = null;
 
-							if (ref.protocol === 'https') {
+							if (url.protocol === 'https') {
 								connection.protocol = 'https';
-								tunnel = HTTPS.connect(ref, connection);
-							} else if (ref.protocol === 'http') {
+								tunnel = HTTPS.connect(url, connection);
+							} else if (url.protocol === 'http') {
 								connection.protocol = 'http';
-								tunnel = HTTP.connect(ref, connection);
-							} else if (ref.protocol === 'wss') {
+								tunnel = HTTP.connect(url, connection);
+							} else if (url.protocol === 'wss') {
 								connection.protocol = 'wss';
-								tunnel = WSS.connect(ref, connection);
-							} else if (ref.protocol === 'ws') {
+								tunnel = WSS.connect(url, connection);
+							} else if (url.protocol === 'ws') {
 								connection.protocol = 'ws';
-								tunnel = WS.connect(ref, connection);
+								tunnel = WS.connect(url, connection);
 							}
 
 							if (tunnel !== null) {
@@ -493,7 +473,7 @@ const onconnect = function(connection, ref) {
 					headers: {
 						'@method': 'connect'
 					},
-					payload: ref
+					payload: url
 				});
 
 			} else {
@@ -515,7 +495,7 @@ const onconnect = function(connection, ref) {
 
 };
 
-const ondata = function(connection, ref, chunk) {
+const ondata = function(connection, url, chunk) {
 
 	if (connection.protocol === 'socks') {
 
@@ -551,7 +531,7 @@ const ondisconnect = function(connection) {
 
 };
 
-const onupgrade = function(connection, ref) {
+const onupgrade = function(connection, url) {
 
 	connection.socket.once('data', (data) => {
 
@@ -585,7 +565,7 @@ const onupgrade = function(connection, ref) {
 							} else {
 
 								connection.socket.on('data', (fragment) => {
-									ondata(connection, ref, fragment);
+									ondata(connection, url, fragment);
 								});
 
 							}
@@ -634,7 +614,7 @@ const onupgrade = function(connection, ref) {
 					});
 
 					connection.socket.on('data', (fragment) => {
-						ondata(connection, ref, fragment);
+						ondata(connection, url, fragment);
 					});
 
 					setTimeout(() => {
@@ -691,12 +671,12 @@ const isSocket = function(obj) {
 
 };
 
-const isUpgrade = function(ref) {
+const isUpgrade = function(url) {
 
 	if (
-		isObject(ref) === true
-		&& isObject(ref.headers) === true
-		&& (ref.headers['auth'] || []).includes('none')
+		isObject(url) === true
+		&& isObject(url.headers) === true
+		&& (url.headers['auth'] || []).includes('none')
 	) {
 		return true;
 	}
@@ -810,47 +790,27 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 const SOCKS = {
 
-	connect: function(ref, connection) {
+	connect: function(url, connection) {
 
-		ref        = isObject(ref)            ? ref                         : null;
-		connection = isConnection(connection) ? Connection.from(connection) : new Connection();
+		url        = isObject(url)            ? Object.assign(URL.parse(), url) : null;
+		connection = isConnection(connection) ? Connection.from(connection)     : new Connection();
 
 
-		if (ref !== null) {
+		if (url !== null) {
 
-			let hosts = ref.hosts.sort((a, b) => {
-
-				if (a.scope === 'private' && b.scope === 'private') {
-
-					if (a.type === 'v4' && b.type === 'v4') return 0;
-					if (a.type === 'v4') return -1;
-					if (b.type === 'v4') return  1;
-
-				}
-
-				if (a.scope === 'private') return -1;
-				if (b.scope === 'private') return  1;
-
-				if (a.type === 'v4' && b.type === 'v4') return 0;
-				if (a.type === 'v4') return -1;
-				if (b.type === 'v4') return  1;
-
-				return 0;
-
-			});
-
+			let hosts = IP.sort(url.hosts);
 			if (hosts.length > 0 && hosts[0].scope === 'public') {
 
-				let proxy = ref.proxy || null;
+				let proxy = url.proxy || null;
 				if (proxy === null) {
 
 					proxy = { host: null, port: null };
 
-					if (ref.protocol === 'socks') {
+					if (url.protocol === 'socks') {
 						proxy.host   = '127.0.0.1';
-						proxy.port   = ref.port || null;
-						ref.port     = 443;
-						ref.protocol = 'https';
+						proxy.port   = url.port || 1080;
+						url.port     = 443;
+						url.protocol = 'https';
 					} else {
 						proxy.host   = '127.0.0.1';
 						proxy.port   = 1080;
@@ -875,7 +835,7 @@ const SOCKS = {
 							socket.allowHalfOpen = true;
 
 							connection.socket = socket;
-							onconnect(connection, ref);
+							onconnect(connection, url);
 
 						});
 
@@ -891,7 +851,7 @@ const SOCKS = {
 					socket.allowHalfOpen = true;
 
 					setTimeout(() => {
-						onconnect(connection, ref);
+						onconnect(connection, url);
 					}, 0);
 
 				}
@@ -907,7 +867,7 @@ const SOCKS = {
 					// This is wrong, onconnect() reflects the network
 					// flow for connection.type = 'client'
 					// socket.on('data', (fragment) => {
-					// 	ondata(connection, ref, fragment);
+					// 	ondata(connection, url, fragment);
 					// });
 
 					socket.on('timeout', () => {
@@ -925,7 +885,7 @@ const SOCKS = {
 
 						if (connection.socket !== null) {
 
-							ondisconnect(connection, ref);
+							ondisconnect(connection, url);
 							connection.socket = null;
 
 						}
@@ -936,7 +896,7 @@ const SOCKS = {
 
 						if (connection.socket !== null) {
 
-							ondisconnect(connection, ref);
+							ondisconnect(connection, url);
 							connection.socket = null;
 
 						}
@@ -956,14 +916,14 @@ const SOCKS = {
 
 			} else if (hosts.length > 0 && hosts[0].scope === 'private') {
 
-				if (ref.protocol === 'https') {
-					return HTTPS.connect(ref, connection);
-				} else if (ref.protocol === 'http') {
-					return HTTP.connect(ref, connection);
-				} else if (ref.protocol === 'wss') {
-					return WSS.connect(ref, connection);
-				} else if (ref.protocol === 'ws') {
-					return WS.connect(ref, connection);
+				if (url.protocol === 'https') {
+					return HTTPS.connect(url, connection);
+				} else if (url.protocol === 'http') {
+					return HTTP.connect(url, connection);
+				} else if (url.protocol === 'wss') {
+					return WSS.connect(url, connection);
+				} else if (url.protocol === 'ws') {
+					return WS.connect(url, connection);
 				} else {
 
 					connection.socket = null;
@@ -1168,9 +1128,9 @@ const SOCKS = {
 
 	},
 
-	upgrade: function(tunnel, ref) {
+	upgrade: function(tunnel, url) {
 
-		ref = isUpgrade(ref) ? ref : null;
+		url = isUpgrade(url) ? Object.assign(URL.parse(), url) : null;
 
 
 		let connection = null;
@@ -1184,7 +1144,7 @@ const SOCKS = {
 
 		if (connection !== null) {
 
-			if (ref !== null) {
+			if (url !== null) {
 
 				connection.socket.setNoDelay(true);
 				connection.socket.setKeepAlive(true, 0);
@@ -1210,7 +1170,7 @@ const SOCKS = {
 
 					if (connection.socket !== null) {
 
-						ondisconnect(connection, ref);
+						ondisconnect(connection, url);
 						connection.socket = null;
 
 					}
@@ -1221,14 +1181,14 @@ const SOCKS = {
 
 					if (connection.socket !== null) {
 
-						ondisconnect(connection, ref);
+						ondisconnect(connection, url);
 						connection.socket = null;
 
 					}
 
 				});
 
-				onupgrade(connection, ref);
+				onupgrade(connection, url);
 
 			} else {
 

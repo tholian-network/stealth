@@ -7,50 +7,50 @@ import { URL                 } from '../../source/parser/URL.mjs';
 
 
 
-const get_src = function(id, ref, refresh) {
+const toSrc = function(id, url, refresh) {
 
 	id      = isString(id)       ? id      : null;
-	ref     = URL.isURL(ref)     ? ref     : null;
+	url     = URL.isURL(url)     ? url     : null;
 	refresh = isBoolean(refresh) ? refresh : false;
 
 
 	let src = null;
 
-	if (ref !== null) {
+	if (url !== null) {
 
-		let mime = ref.mime || null;
+		let mime = url.mime || null;
 		if (mime !== null) {
 
 			if (mime.type === 'audio' || mime.type === 'video') {
 
-				src = '/browser/internal/media.html?url=' + encodeURIComponent(ref.url);
+				src = '/browser/internal/media.html?url=' + encodeURIComponent(url.link);
 
-			} else if (ref.protocol === 'stealth') {
+			} else if (url.protocol === 'stealth') {
 
-				src = '/browser/internal/' + ref.domain + '.html';
+				src = '/browser/internal/' + url.domain + '.html';
 
-				if (ref.query !== null) {
-					src += '?' + ref.query;
+				if (url.query !== null) {
+					src += '?' + url.query;
 				}
 
-			} else if (ref.protocol === 'https' || ref.protocol === 'http') {
+			} else if (url.protocol === 'https' || url.protocol === 'http') {
 
 				if (id !== null) {
 
 					if (refresh === true) {
-						src = '/stealth/:' + id + ',refresh,webview:/' + ref.url;
+						src = '/stealth/:' + id + ',refresh,webview:/' + url.link;
 					} else {
-						src = '/stealth/:' + id + ',webview:/' + ref.url;
+						src = '/stealth/:' + id + ',webview:/' + url.link;
 					}
 
 				}
 
 			} else {
-				src = '/browser/internal/fix-request.html?url=' + encodeURIComponent(ref.url);
+				src = '/browser/internal/fix-request.html?url=' + encodeURIComponent(url.link);
 			}
 
 		} else {
-			src = '/browser/internal/fix-request.html?url=' + encodeURIComponent(ref.url);
+			src = '/browser/internal/fix-request.html?url=' + encodeURIComponent(url.link);
 		}
 
 	}
@@ -74,22 +74,19 @@ const update_theme = function(theme) {
 
 const update = function(tab, refresh) {
 
-	let ref = tab.ref;
-	let id  = tab.id;
-	let src = get_src(id, ref, refresh);
-
+	let src = toSrc(tab.id, tab.url, refresh);
 	if (src !== null) {
 
 		if (refresh === true) {
 
-			this.ref = ref;
+			this.url = tab.url;
 			this.webview.attr('src', src);
 
 		} else {
 
 			if (this.webview.attr('src') !== src) {
 
-				this.ref = ref;
+				this.url = tab.url;
 				this.webview.attr('src', src);
 
 			}
@@ -108,7 +105,7 @@ const Webview = function(browser) {
 		'<iframe sandbox="allow-scripts allow-same-origin" src="/browser/internal/welcome.html"></iframe>'
 	]);
 
-	this.ref     = URL.parse('stealth:welcome');
+	this.url     = URL.parse('stealth:welcome');
 	this.webview = this.element.query('iframe');
 	this.window  = this.webview.node.contentWindow || null;
 
@@ -118,7 +115,7 @@ const Webview = function(browser) {
 		let window = this.webview.node.contentWindow || null;
 		if (window !== null) {
 
-			if (this.ref.protocol === 'stealth') {
+			if (this.url.protocol === 'stealth') {
 				// TODO: Reintegrate this
 				// dispatch(window, browser);
 			}

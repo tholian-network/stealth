@@ -8,7 +8,7 @@ const update = function(tab) {
 
 	if (tab !== null) {
 
-		if (tab.ref.protocol === 'stealth' && tab.ref.domain === 'settings') {
+		if (tab.url.protocol === 'stealth' && tab.url.domain === 'settings') {
 
 			this.buttons.browser.state('disabled');
 			this.buttons.browser.state('active');
@@ -20,7 +20,7 @@ const update = function(tab) {
 
 		}
 
-		if (tab.ref.protocol === 'stealth') {
+		if (tab.url.protocol === 'stealth') {
 
 			this.buttons.session.state('disabled');
 			this.buttons.site.state('disabled');
@@ -110,7 +110,7 @@ const Settings = function(browser) {
 
 			this.buttons.session.on('click', () => {
 
-				if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
+				if (browser.tab !== null && browser.tab.url.protocol !== 'stealth') {
 
 					if (this.sheets.site !== null) {
 						this.sheets.site.emit('hide');
@@ -147,7 +147,7 @@ const Settings = function(browser) {
 
 			this.buttons.site.on('click', () => {
 
-				if (browser.tab !== null && browser.tab.ref.protocol !== 'stealth') {
+				if (browser.tab !== null && browser.tab.url.protocol !== 'stealth') {
 
 					if (this.sheets.session !== null) {
 						this.sheets.session.emit('hide');

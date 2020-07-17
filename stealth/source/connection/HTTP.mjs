@@ -3,6 +3,8 @@ import net  from 'net';
 import zlib from 'zlib';
 
 import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                                   } from '../../source/parser/IP.mjs';
+import { URL                                                                  } from '../../source/parser/URL.mjs';
 
 
 
@@ -43,7 +45,7 @@ const encode_gzip = function(payload) {
 
 
 
-const onconnect = function(connection, ref) {
+const onconnect = function(connection, url) {
 
 	let fragment = connection.fragment;
 
@@ -56,9 +58,9 @@ const onconnect = function(connection, ref) {
 	fragment.start    = 0;
 
 
-	if (ref.headers !== null) {
+	if (url.headers !== null) {
 
-		let tmp0 = ref.headers['content-length'] || null;
+		let tmp0 = url.headers['content-length'] || null;
 		if (tmp0 !== null) {
 
 			let num = parseInt(tmp0, 10);
@@ -69,14 +71,14 @@ const onconnect = function(connection, ref) {
 		}
 
 
-		let tmp1 = ref.headers['@status']       || null;
-		let tmp2 = ref.headers['content-range'] || null;
+		let tmp1 = url.headers['@status']       || null;
+		let tmp2 = url.headers['content-range'] || null;
 		if (tmp1 === '206 Partial Content' && tmp2 !== null) {
 
-			if (ref.payload !== null) {
+			if (url.payload !== null) {
 				fragment.partial = true;
-				fragment.payload = Buffer.from(ref.payload);
-				fragment.start   = ref.payload.length;
+				fragment.payload = Buffer.from(url.payload);
+				fragment.start   = url.payload.length;
 			} else {
 				fragment.partial = true;
 				fragment.payload = Buffer.from('', 'utf8');
@@ -92,7 +94,7 @@ const onconnect = function(connection, ref) {
 
 	connection.socket.on('data', (fragment) => {
 
-		ondata(connection, ref, fragment);
+		ondata(connection, url, fragment);
 		timeout = Date.now();
 
 	});
@@ -102,7 +104,7 @@ const onconnect = function(connection, ref) {
 		if (fragment.length === null) {
 
 			if ((Date.now() - timeout) > 1000) {
-				ondisconnect(connection, ref);
+				ondisconnect(connection, url);
 			}
 
 		}
@@ -117,7 +119,7 @@ const onconnect = function(connection, ref) {
 
 };
 
-const ondata = function(connection, ref, chunk) {
+const ondata = function(connection, url, chunk) {
 
 	let fragment = connection.fragment;
 	if (fragment.mode === 'headers') {
@@ -135,7 +137,7 @@ const ondata = function(connection, ref, chunk) {
 			HTTP.receive(connection, fragment.headers, (frame) => {
 
 				fragment.mode = 'payload';
-				ref.headers   = frame.headers;
+				url.headers   = frame.headers;
 
 
 				let tmp0 = frame.headers['content-length'] || null;
@@ -225,14 +227,14 @@ const ondata = function(connection, ref, chunk) {
 					if (fragment.length !== null && fragment.length === fragment.payload.length) {
 
 						connection.emit('request', [{
-							headers: ref.headers,
+							headers: url.headers,
 							payload: fragment.payload
 						}]);
 
 					} else if (fragment.length === null) {
 
 						connection.emit('request', [{
-							headers: ref.headers,
+							headers: url.headers,
 							payload: fragment.payload
 						}]);
 
@@ -250,7 +252,7 @@ const ondata = function(connection, ref, chunk) {
 
 
 		connection.emit('progress', [{
-			headers: ref.headers,
+			headers: url.headers,
 			payload: fragment.payload
 		}, {
 			bytes:  fragment.payload.length,
@@ -269,14 +271,14 @@ const ondata = function(connection, ref, chunk) {
 			if (fragment.length !== null && fragment.length === fragment.payload.length) {
 
 				connection.emit('request', [{
-					headers: ref.headers,
+					headers: url.headers,
 					payload: fragment.payload
 				}]);
 
 			} else if (fragment.length === null) {
 
 				connection.emit('request', [{
-					headers: ref.headers,
+					headers: url.headers,
 					payload: fragment.payload
 				}]);
 
@@ -288,7 +290,7 @@ const ondata = function(connection, ref, chunk) {
 
 };
 
-const ondisconnect = function(connection, ref) {
+const ondisconnect = function(connection, url) {
 
 	let fragment = connection.fragment;
 
@@ -299,7 +301,7 @@ const ondisconnect = function(connection, ref) {
 
 			HTTP.receive(connection, fragment.headers, (frame) => {
 
-				ref.headers = frame.headers;
+				url.headers = frame.headers;
 
 				if (frame.payload !== null) {
 
@@ -318,9 +320,9 @@ const ondisconnect = function(connection, ref) {
 
 	if (connection.type === 'client') {
 
-		if (ref.headers !== null) {
+		if (url.headers !== null) {
 
-			let code = (ref.headers['@status'] || '500').split(' ').shift();
+			let code = (url.headers['@status'] || '500').split(' ').shift();
 			if (code === '200' || code === '204' || code === '205' || code === '206') {
 
 				if (fragment.length === null || fragment.length === fragment.payload.length) {
@@ -335,7 +337,7 @@ const ondisconnect = function(connection, ref) {
 
 
 					connection.emit('response', [{
-						headers: ref.headers,
+						headers: url.headers,
 						payload: fragment.payload
 					}]);
 
@@ -344,7 +346,7 @@ const ondisconnect = function(connection, ref) {
 					if (fragment.partial === true) {
 
 						connection.emit('timeout', [{
-							headers: ref.headers,
+							headers: url.headers,
 							payload: fragment.payload
 						}]);
 
@@ -358,9 +360,9 @@ const ondisconnect = function(connection, ref) {
 
 			} else if (code === '301' || code === '307' || code === '308') {
 
-				let tmp = ref.headers['location'] || null;
+				let tmp = url.headers['location'] || null;
 				if (tmp !== null) {
-					connection.emit('redirect', [{ headers: ref.headers }]);
+					connection.emit('redirect', [{ headers: url.headers }]);
 				} else {
 					connection.emit('error', [{ code: code, type: 'request', cause: 'headers-location' }]);
 				}
@@ -384,12 +386,12 @@ const ondisconnect = function(connection, ref) {
 
 };
 
-const onupgrade = function(connection, ref) {
+const onupgrade = function(connection, url) {
 
 	connection.type = 'server';
 
 	connection.socket.on('data', (fragment) => {
-		ondata(connection, ref, fragment);
+		ondata(connection, url, fragment);
 	});
 
 	connection.socket.resume();
@@ -414,6 +416,17 @@ const isSocket = function(obj) {
 	}
 
 	return false;
+
+};
+
+const isUpgrade = function(url) {
+
+	if (
+		isObject(url) === true
+		&& isObject(url.headers) === true
+	) {
+		return true;
+	}
 
 };
 
@@ -535,35 +548,15 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 const HTTP = {
 
-	connect: function(ref, connection) {
+	connect: function(url, connection) {
 
-		ref        = isObject(ref)            ? ref                         : null;
-		connection = isConnection(connection) ? Connection.from(connection) : new Connection();
+		url        = isObject(url)            ? Object.assign(URL.parse(), url) : null;
+		connection = isConnection(connection) ? Connection.from(connection)     : new Connection();
 
 
-		if (ref !== null) {
+		if (url !== null) {
 
-			let hosts = ref.hosts.sort((a, b) => {
-
-				if (a.scope === 'private' && b.scope === 'private') {
-
-					if (a.type === 'v4' && b.type === 'v4') return 0;
-					if (a.type === 'v4') return -1;
-					if (b.type === 'v4') return  1;
-
-				}
-
-				if (a.scope === 'private') return -1;
-				if (b.scope === 'private') return  1;
-
-				if (a.type === 'v4' && b.type === 'v4') return 0;
-				if (a.type === 'v4') return -1;
-				if (b.type === 'v4') return  1;
-
-				return 0;
-
-			});
-
+			let hosts = IP.sort(url.hosts);
 			if (hosts.length > 0) {
 
 				if (connection.socket === null) {
@@ -572,14 +565,14 @@ const HTTP = {
 
 						connection.socket = net.connect({
 							host: hosts[0].ip,
-							port: ref.port || 80,
+							port: url.port || 80,
 						}, () => {
 
 							connection.socket.setNoDelay(true);
 							connection.socket.setKeepAlive(false, 0);
 							connection.socket.allowHalfOpen = false;
 
-							onconnect(connection, ref);
+							onconnect(connection, url);
 
 						});
 
@@ -594,7 +587,7 @@ const HTTP = {
 					connection.socket.allowHalfOpen = false;
 
 					setTimeout(() => {
-						onconnect(connection, ref);
+						onconnect(connection, url);
 					}, 0);
 
 				}
@@ -617,7 +610,7 @@ const HTTP = {
 							if (fragment.partial === true) {
 
 								connection.emit('timeout', [{
-									headers: ref.headers,
+									headers: url.headers,
 									payload: fragment.payload
 								}]);
 
@@ -633,7 +626,7 @@ const HTTP = {
 
 						if (connection.socket !== null) {
 
-							ondisconnect(connection, ref);
+							ondisconnect(connection, url);
 							connection.socket = null;
 
 						}
@@ -644,7 +637,7 @@ const HTTP = {
 
 						if (connection.socket !== null) {
 
-							ondisconnect(connection, ref);
+							ondisconnect(connection, url);
 							connection.socket = null;
 
 						}
@@ -903,9 +896,9 @@ const HTTP = {
 
 	},
 
-	upgrade: function(tunnel, ref) {
+	upgrade: function(tunnel, url) {
 
-		ref = isObject(ref) ? ref : { headers: {} };
+		url = isUpgrade(url) ? Object.assign(URL.parse(), url) : Object.assign(URL.parse(), { headers: {} });
 
 
 		let connection = null;
@@ -938,7 +931,7 @@ const HTTP = {
 					if (fragment.partial === true) {
 
 						connection.emit('timeout', [{
-							headers: ref.headers,
+							headers: url.headers,
 							payload: fragment.payload
 						}]);
 
@@ -954,7 +947,7 @@ const HTTP = {
 
 				if (connection.socket !== null) {
 
-					ondisconnect(connection, ref);
+					ondisconnect(connection, url);
 					connection.socket = null;
 
 				}
@@ -965,14 +958,14 @@ const HTTP = {
 
 				if (connection.socket !== null) {
 
-					ondisconnect(connection, ref);
+					ondisconnect(connection, url);
 					connection.socket = null;
 
 				}
 
 			});
 
-			onupgrade(connection, ref);
+			onupgrade(connection, url);
 
 			return connection;
 

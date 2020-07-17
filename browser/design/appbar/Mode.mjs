@@ -4,86 +4,30 @@ import { Widget  } from '../Widget.mjs';
 
 
 
-const toConfig = function(tab) {
-
-	if (tab !== null) {
-
-		let protocol = tab.ref.protocol || null;
-		if (protocol !== 'file' && protocol !== 'stealth') {
-
-			let config = {
-				domain: null,
-				mode: {
-					text:  false,
-					image: false,
-					audio: false,
-					video: false,
-					other: false
-				}
-			};
-
-			this.buttons.forEach((button) => {
-
-				let key = button.attr('data-key');
-				if (key !== null) {
-					config.mode[key] = button.value() === true;
-				}
-
-			});
-
-			if (tab.ref.domain !== null) {
-
-				if (tab.ref.subdomain !== null) {
-					config.domain = tab.ref.subdomain + '.' + tab.ref.domain;
-				} else {
-					config.domain = tab.ref.domain;
-				}
-
-			}
-
-			return config;
-
-		}
-
-	}
-
-
-	return null;
-
-};
-
 const update = function(tab) {
 
 	if (tab !== null) {
 
-		let protocol = tab.ref.protocol || null;
-		if (protocol === 'stealth') {
+		if (tab.url.protocol === 'stealth') {
 
-			this.buttons.forEach((button) => {
+			Object.values(this.model.mode).forEach((button) => {
 				button.state('disabled');
 				button.value(true);
 			});
 
 		} else {
 
-			this.buttons.forEach((button) => {
+			Object.values(this.model.mode).forEach((button) => {
 				button.state('enabled');
 			});
 
 		}
 
-		Object.keys(tab.config.mode).forEach((key) => {
-
-			let button = this.buttons.find((b) => b.attr('data-key') === key) || null;
-			if (button !== null) {
-				button.value(tab.config.mode[key]);
-			}
-
-		});
+		this.value(tab.mode);
 
 	} else {
 
-		this.buttons.forEach((button) => {
+		Object.values(this.model.mode).forEach((button) => {
 			button.state('disabled');
 			button.value(false);
 		});
@@ -97,14 +41,24 @@ const update = function(tab) {
 const Mode = function(browser) {
 
 	this.element = new Element('browser-appbar-mode', [
-		'<button data-key="text" data-val="false" title="Allow/Disallow Text on current Site"></button>',
-		'<button data-key="image" data-val="false" title="Allow/Disallow Image on current Site"></button>',
-		'<button data-key="audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>',
-		'<button data-key="video" data-val="false" title="Allow/Disallow Video on current Site"></button>',
-		'<button data-key="other" data-val="false" title="Allow/Disallow Other on current Site"></button>'
+		'<input type="hidden" data-key="domain" data-val="welcome"/>',
+		'<button data-key="mode.text" data-val="false" title="Allow/Disallow Text on current Site"></button>',
+		'<button data-key="mode.image" data-val="false" title="Allow/Disallow Image on current Site"></button>',
+		'<button data-key="mode.audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>',
+		'<button data-key="mode.video" data-val="false" title="Allow/Disallow Video on current Site"></button>',
+		'<button data-key="mode.other" data-val="false" title="Allow/Disallow Other on current Site"></button>'
 	].join(''));
 
-	this.buttons = this.element.query('[data-key]');
+	this.model = {
+		domain: this.element.query('[data-key="domain"]'),
+		mode: {
+			text:  this.element.query('[data-key="mode.text"]'),
+			image: this.element.query('[data-key="mode.image"]'),
+			audio: this.element.query('[data-key="mode.audio"]'),
+			video: this.element.query('[data-key="mode.video"]'),
+			other: this.element.query('[data-key="mode.other"]')
+		}
+	};
 
 
 	this.element.on('contextmenu', (e) => {
@@ -114,7 +68,8 @@ const Mode = function(browser) {
 
 	});
 
-	this.buttons.forEach((button) => {
+
+	Object.values(this.model.mode).forEach((button) => {
 
 		button.on('click', () => {
 
@@ -125,9 +80,20 @@ const Mode = function(browser) {
 				button.value(true);
 			}
 
-			let config = toConfig.call(this, browser.tab);
-			if (config !== null) {
-				browser.set(config);
+			if (browser.tab !== null) {
+
+				if (
+					browser.tab.url.protocol !== 'file'
+					&& browser.tab.url.protocol !== 'stealth'
+				) {
+
+					let mode = this.value();
+					if (mode !== null) {
+						browser.setMode(mode);
+					}
+
+				}
+
 			}
 
 		});

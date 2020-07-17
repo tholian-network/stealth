@@ -3,7 +3,7 @@ import net from 'net';
 
 import { Buffer, isFunction        } from '../../../base/index.mjs';
 import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
-import { WSS                       } from '../../../stealth/source/protocol/WSS.mjs';
+import { WS                        } from '../../../stealth/source/connection/WS.mjs';
 
 
 
@@ -60,13 +60,13 @@ const mock_frame = (type) => {
 
 
 
-describe('WSS.connect()', function(assert) {
+describe('WS.connect()', function(assert) {
 
-	assert(isFunction(WSS.connect), true);
+	assert(isFunction(WS.connect), true);
 
 
-	let ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
-	let connection = WSS.connect(ref);
+	let url        = EXAMPLE.toURL('ws://echo.websocket.org:80');
+	let connection = WS.connect(url);
 
 	connection.once('@connect', () => {
 
@@ -84,20 +84,20 @@ describe('WSS.connect()', function(assert) {
 
 });
 
-describe('WSS.disconnect()', function(assert) {
+describe('WS.disconnect()', function(assert) {
 
-	assert(isFunction(WSS.disconnect), true);
+	assert(isFunction(WS.disconnect), true);
 
 
-	let ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
-	let connection = WSS.connect(ref);
+	let url        = EXAMPLE.toURL('ws://echo.websocket.org:80');
+	let connection = WS.connect(url);
 
 	connection.once('@connect', () => {
 
 		assert(true);
 
 		setTimeout(() => {
-			assert(WSS.disconnect(connection), true);
+			assert(WS.disconnect(connection), true);
 		}, 0);
 
 	});
@@ -108,17 +108,17 @@ describe('WSS.disconnect()', function(assert) {
 
 });
 
-describe('WSS.receive()/client', function(assert) {
+describe('WS.receive()/client', function(assert) {
 
-	assert(isFunction(WSS.receive), true);
+	assert(isFunction(WS.receive), true);
 
 
-	let ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
-	let connection = WSS.connect(ref);
+	let url        = EXAMPLE.toURL('ws://echo.websocket.org:80');
+	let connection = WS.connect(url);
 
 	connection.once('@connect', () => {
 
-		WSS.receive(connection, mock_frame('client'), (request) => {
+		WS.receive(connection, mock_frame('client'), (request) => {
 
 			assert(request, {
 				headers: {
@@ -137,9 +137,9 @@ describe('WSS.receive()/client', function(assert) {
 
 });
 
-describe('WSS.receive()/server', function(assert) {
+describe('WS.receive()/server', function(assert) {
 
-	assert(isFunction(WSS.receive), true);
+	assert(isFunction(WS.receive), true);
 
 
 	let nonce = Buffer.alloc(16);
@@ -147,7 +147,7 @@ describe('WSS.receive()/server', function(assert) {
 		nonce[n] = Math.round(Math.random() * 0xff);
 	}
 
-	let connection = WSS.upgrade(new net.Socket(), {
+	let connection = WS.upgrade(new net.Socket(), {
 		headers: {
 			'connection':             'upgrade',
 			'upgrade':                'websocket',
@@ -158,7 +158,7 @@ describe('WSS.receive()/server', function(assert) {
 
 	connection.once('@connect', () => {
 
-		WSS.receive(connection, mock_frame('server'), (response) => {
+		WS.receive(connection, mock_frame('server'), (response) => {
 
 			assert(response, {
 				headers: {
@@ -177,15 +177,15 @@ describe('WSS.receive()/server', function(assert) {
 
 });
 
-describe('WSS.send()', function(assert) {
+describe('WS.send()', function(assert) {
 
-	assert(isFunction(WSS.send), true);
+	assert(isFunction(WS.send), true);
 
 
-	let ref        = EXAMPLE.ref('wss://echo.websocket.org:443');
-	let connection = WSS.connect(ref);
+	let url        = EXAMPLE.toURL('ws://echo.websocket.org:80');
+	let connection = WS.connect(url);
 
-	connection.on('response', (response) => {
+	connection.once('response', (response) => {
 
 		assert(response, {
 			headers: {
@@ -200,7 +200,7 @@ describe('WSS.send()', function(assert) {
 
 	connection.once('@connect', () => {
 
-		WSS.send(connection, {
+		WS.send(connection, {
 			headers: {
 				service: 'service',
 				event:   'event',
@@ -217,8 +217,86 @@ describe('WSS.send()', function(assert) {
 
 });
 
+describe('WS.upgrade()', function(assert) {
 
-export default finish('stealth/protocol/WSS', {
+	let server = new net.Server({
+		allowHalfOpen:  true,
+		pauseOnConnect: true
+	});
+
+	server.once('connection', (socket) => {
+
+		let connection = WS.upgrade(socket);
+
+		connection.once('@connect', () => {
+			assert(true);
+		});
+
+		connection.once('request', (request) => {
+
+			assert(request, {
+				headers: {
+					service: 'service',
+					event:   'event',
+					method:  'method'
+				},
+				payload: Buffer.from('payload', 'utf8')
+			});
+
+		});
+
+		connection.once('@disconnect', () => {
+			assert(true);
+		});
+
+		socket.resume();
+
+	});
+
+	server.listen(13337, null);
+
+
+	let url        = EXAMPLE.toURL('ws://localhost:13337');
+	let connection = WS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			WS.send(connection, {
+				headers: {
+					service: 'service',
+					event:   'event',
+					method:  'method'
+				},
+				payload: Buffer.from('payload', 'utf8')
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			assert(WS.disconnect(connection), true);
+		}, 500);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+	setTimeout(() => {
+		server.close();
+		assert(true);
+	}, 1000);
+
+});
+
+
+export default finish('stealth/connection/WS', {
 	internet: true
 });
 

@@ -7,10 +7,10 @@ import { isStealth                              } from './Stealth.mjs';
 import { Request                                } from './Request.mjs';
 import { IP                                     } from './parser/IP.mjs';
 import { URL                                    } from './parser/URL.mjs';
-import { DNS                                    } from './protocol/DNS.mjs';
-import { HTTP                                   } from './protocol/HTTP.mjs';
-import { SOCKS                                  } from './protocol/SOCKS.mjs';
-import { WS                                     } from './protocol/WS.mjs';
+import { DNS                                    } from './connection/DNS.mjs';
+import { HTTP                                   } from './connection/HTTP.mjs';
+import { SOCKS                                  } from './connection/SOCKS.mjs';
+import { WS                                     } from './connection/WS.mjs';
 import { REDIRECT                               } from './other/REDIRECT.mjs';
 import { ROUTER                                 } from './other/ROUTER.mjs';
 import { Beacon                                 } from './server/Beacon.mjs';
@@ -30,9 +30,9 @@ export const isServer = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Server]';
 };
 
-const upgrade_http = function(socket, ref) {
+const upgrade_http = function(socket, url) {
 
-	let connection = HTTP.upgrade(socket, ref);
+	let connection = HTTP.upgrade(socket, url);
 	if (connection !== null) {
 
 		connection.once('@connect', () => {
@@ -53,19 +53,19 @@ const upgrade_http = function(socket, ref) {
 		});
 
 
-		let url   = (ref.headers['@url'] || '');
+		let link  = (url.headers['@url'] || '');
 		let flags = [];
 		let tab   = null;
 
-		if (url.startsWith('https://') || url.startsWith('http://')) {
+		if (link.startsWith('https://') || link.startsWith('http://')) {
 
 			flags.push('proxy');
 
-		} else if (url.startsWith('/stealth/')) {
+		} else if (link.startsWith('/stealth/')) {
 
-			if (url.startsWith('/stealth/:')) {
+			if (link.startsWith('/stealth/:')) {
 
-				let tmp = url.substr(9).split('/').shift();
+				let tmp = link.substr(9).split('/').shift();
 				if (tmp.startsWith(':') && tmp.endsWith(':')) {
 
 					tmp = tmp.substr(1, tmp.length - 2);
@@ -73,24 +73,24 @@ const upgrade_http = function(socket, ref) {
 					if (tmp.includes(',')) {
 						tab   = tmp.split(',').shift();
 						flags = tmp.split(',').slice(1);
-						url   = url.substr(9).split('/').slice(1).join('/');
+						link  = link.substr(9).split('/').slice(1).join('/');
 					} else {
 
 						let num = parseInt(tmp, 10);
 						if (Number.isNaN(num) === false) {
-							tab = tmp;
-							url = url.substr(9).split('/').slice(1).join('/');
+							tab  = tmp;
+							link = link.substr(9).split('/').slice(1).join('/');
 						} else {
 							flags.push(tmp);
-							url = url.substr(9).split('/').slice(1).join('/');
+							link = link.substr(9).split('/').slice(1).join('/');
 						}
 
 					}
 
 				}
 
-			} else if (url.startsWith('/stealth/')) {
-				url = url.substr(9);
+			} else if (link.startsWith('/stealth/')) {
+				link = link.substr(9);
 			}
 
 		}
@@ -101,14 +101,13 @@ const upgrade_http = function(socket, ref) {
 
 		if (this.stealth !== null) {
 
-			session = this.stealth.track(null, ref.headers);
-			request = this.stealth.open(url);
+			session = this.stealth.track(null, url.headers);
+			request = this.stealth.open(link);
 
 		} else {
 
 			request = new Request({
-				url:    url,
-				config: {
+				mode: {
 					mode: {
 						text:  true,
 						image: true,
@@ -116,7 +115,8 @@ const upgrade_http = function(socket, ref) {
 						video: true,
 						other: true
 					}
-				}
+				},
+				url:  URL.parse(link)
 			}, this);
 
 		}
@@ -130,8 +130,8 @@ const upgrade_http = function(socket, ref) {
 				if (type !== null) {
 
 					ROUTER.error({
-						headers: ref.headers   || {},
-						url:     url           || null,
+						url:     link,
+						headers: url.headers   || {},
 						err:     err           || null,
 						flags:   request.flags || {}
 					}, (response) => {
@@ -258,9 +258,9 @@ const upgrade_http = function(socket, ref) {
 
 };
 
-const upgrade_socks = function(socket, ref) {
+const upgrade_socks = function(socket, url) {
 
-	let connection = SOCKS.upgrade(socket, ref);
+	let connection = SOCKS.upgrade(socket, url);
 	if (connection !== null) {
 
 		connection.once('@connect', () => {
@@ -282,52 +282,43 @@ const upgrade_socks = function(socket, ref) {
 
 		connection.once('@connect-tunnel', (request, callback) => {
 
-			let domain = null;
-			let host   = null;
-
-			let ref = request.payload;
-			if (ref.domain !== null) {
-
-				if (ref.subdomain !== null) {
-					domain = ref.subdomain + '.' + ref.domain;
-				} else {
-					domain = ref.domain;
-				}
-
-			} else if (ref.host !== null) {
-				host = ref.host;
-			}
-
+			let url    = request.payload;
+			let domain = URL.toDomain(url);
+			let host   = URL.toHost(url);
 
 			if (domain !== null) {
 
-				this.services.blocker.read(ref, (response) => {
+				this.services.blocker.read({
+					domain: domain
+				}, (response) => {
 
 					if (response.payload === null) {
 
-						DNS.resolve(ref, (response) => {
+						DNS.resolve({
+							domain: domain
+						}, (response) => {
 
 							if (response.payload !== null) {
 
-								ref.hosts = response.payload.hosts;
+								url.hosts = response.payload.hosts;
 
 
 								let socket = null;
 
 								try {
 									socket = net.connect({
-										host: ref.hosts[0].ip,
-										port: ref.port
+										host: url.hosts[0].ip,
+										port: url.port
 									}, () => {
 
-										let reply = null;
-										if (ref.hosts[0].type === 'v4') {
-											reply = ref.hosts[0].ip + ':' + ref.port;
-										} else if (ref.hosts[0].type === 'v6') {
-											reply = '[' + ref.hosts[0].ip + ']:' + ref.port;
-										}
+										let host = URL.toHost(url);
+										let port = url.port || null;
 
-										callback('success', URL.parse(reply), socket);
+										if (host !== null && port !== null) {
+											callback('success', URL.parse(host + ':' + port), socket);
+										} else {
+											callback('error-host', null);
+										}
 
 									});
 								} catch (err) {
@@ -350,9 +341,12 @@ const upgrade_socks = function(socket, ref) {
 
 				});
 
+
 			} else if (host !== null) {
 
-				this.services.blocker.read(ref, (response) => {
+				this.services.blocker.read({
+					host: host
+				}, (response) => {
 
 					if (response.payload === null) {
 
@@ -360,18 +354,18 @@ const upgrade_socks = function(socket, ref) {
 
 						try {
 							socket = net.connect({
-								host: ref.hosts[0].ip,
-								port: ref.port
+								host: url.hosts[0].ip,
+								port: url.port
 							}, () => {
 
-								let reply = null;
-								if (ref.hosts[0].type === 'v4') {
-									reply = ref.hosts[0].ip + ':' + ref.port;
-								} else if (ref.hosts[0].type === 'v6') {
-									reply = '[' + ref.hosts[0].ip + ']:' + ref.port;
-								}
+								let host = URL.toHost(url);
+								let port = url.port || null;
 
-								callback('success', URL.parse(reply), socket);
+								if (host !== null && port !== null) {
+									callback('success', URL.parse(host + ':' + port), socket);
+								} else {
+									callback('error-host', null);
+								}
 
 							});
 						} catch (err) {
@@ -402,15 +396,15 @@ const upgrade_socks = function(socket, ref) {
 
 };
 
-const upgrade_ws = function(socket, ref) {
+const upgrade_ws = function(socket, url) {
 
-	let connection = WS.upgrade(socket, ref);
+	let connection = WS.upgrade(socket, url);
 	if (connection !== null) {
 
 		connection.once('@connect', () => {
 
 			if (this.stealth !== null) {
-				connection.session = this.stealth.track(null, ref.headers);
+				connection.session = this.stealth.track(null, url.headers);
 			}
 
 			if (this.connections.includes(connection) === false) {

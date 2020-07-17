@@ -793,8 +793,8 @@ Settings.prototype = {
 
 
 		return {
-			type: 'Settings',
-			data: data
+			'type': 'Settings',
+			'data': data
 		};
 
 	},

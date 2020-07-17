@@ -4,12 +4,12 @@ import net from 'net';
 import { Buffer, isBuffer, isFunction, isObject                       } from '../../../base/index.mjs';
 import { after, before, describe, finish, EXAMPLE                     } from '../../../covert/index.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
-import { HTTP                                                         } from '../../../stealth/source/protocol/HTTP.mjs';
-import { HTTPS                                                        } from '../../../stealth/source/protocol/HTTPS.mjs';
-import { SOCKS                                                        } from '../../../stealth/source/protocol/SOCKS.mjs';
+import { HTTP                                                         } from '../../../stealth/source/connection/HTTP.mjs';
+import { HTTPS                                                        } from '../../../stealth/source/connection/HTTPS.mjs';
+import { SOCKS                                                        } from '../../../stealth/source/connection/SOCKS.mjs';
 import { URL                                                          } from '../../../stealth/source/parser/URL.mjs';
-import { WS                                                           } from '../../../stealth/source/protocol/WS.mjs';
-import { WSS                                                          } from '../../../stealth/source/protocol/WSS.mjs';
+import { WS                                                           } from '../../../stealth/source/connection/WS.mjs';
+import { WSS                                                          } from '../../../stealth/source/connection/WSS.mjs';
 
 
 
@@ -20,8 +20,8 @@ describe('SOCKS.connect()', function(assert) {
 	assert(isFunction(SOCKS.connect), true);
 
 
-	let ref        = Object.assign(EXAMPLE.ref('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
-	let connection = SOCKS.connect(ref);
+	let url        = Object.assign(EXAMPLE.toURL('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let connection = SOCKS.connect(url);
 
 	connection.once('@connect', () => {
 		assert(true);
@@ -48,8 +48,8 @@ describe('SOCKS.disconnect()', function(assert) {
 	assert(isFunction(SOCKS.disconnect), true);
 
 
-	let ref        = Object.assign(EXAMPLE.ref('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
-	let connection = SOCKS.connect(ref);
+	let url        = Object.assign(EXAMPLE.toURL('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let connection = SOCKS.connect(url);
 
 	connection.once('@connect', () => {
 		assert(true);
@@ -71,17 +71,14 @@ describe('SOCKS.disconnect()', function(assert) {
 
 });
 
-// TODO: SOCKS.receive()/client
-// TODO: SOCKS.receive()/server
-
 describe('SOCKS.connect()/http', function(assert) {
 
 	assert(isFunction(SOCKS.connect), true);
 	assert(isFunction(HTTP.send),     true);
 
 
-	let ref        = Object.assign(EXAMPLE.ref('http://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
-	let connection = SOCKS.connect(ref);
+	let url        = Object.assign(EXAMPLE.toURL('http://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
 
@@ -128,8 +125,8 @@ describe('SOCKS.connect()/https', function(assert) {
 	assert(isFunction(HTTPS.send),    true);
 
 
-	let ref        = Object.assign(EXAMPLE.ref('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
-	let connection = SOCKS.connect(ref);
+	let url        = Object.assign(EXAMPLE.toURL('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
 
@@ -176,8 +173,8 @@ describe('SOCKS.connect()/ws', function(assert) {
 	assert(isFunction(WS.send),       true);
 
 
-	let ref        = Object.assign(EXAMPLE.ref('ws://echo.websocket.org:80'), { proxy: { host: '127.0.0.1', port: 65432 }});
-	let connection = SOCKS.connect(ref);
+	let url        = Object.assign(EXAMPLE.toURL('ws://echo.websocket.org:80'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
 
@@ -221,8 +218,8 @@ describe('SOCKS.connect()/wss', function(assert) {
 	assert(isFunction(WSS.send),      true);
 
 
-	let ref        = Object.assign(EXAMPLE.ref('wss://echo.websocket.org:443'), { proxy: { host: '127.0.0.1', port: 65432 }});
-	let connection = SOCKS.connect(ref);
+	let url        = Object.assign(EXAMPLE.toURL('wss://echo.websocket.org:443'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
 
@@ -277,21 +274,21 @@ describe('SOCKS.upgrade()', function(assert) {
 
 		connection.once('@connect-tunnel', (request, callback) => {
 
-			let ref = request.payload;
+			let url = request.payload;
 
 			socket = net.connect({
-				host: ref.hosts[0].ip,
-				port: ref.port
+				host: url.hosts[0].ip,
+				port: url.port
 			}, () => {
 
-				let reply = null;
-				if (ref.hosts[0].type === 'v4') {
-					reply = ref.hosts[0].ip + ':' + ref.port;
-				} else if (ref.hosts[0].type === 'v6') {
-					reply = '[' + ref.hosts[0].ip + ']:' + ref.port;
-				}
+				let host = URL.toHost(url);
+				let port = url.port || null;
 
-				callback('success', URL.parse(reply), socket);
+				if (host !== null && port !== null) {
+					callback('success', URL.parse(host + ':' + port), socket);
+				} else {
+					callback('error-host', null);
+				}
 
 			});
 
@@ -308,8 +305,8 @@ describe('SOCKS.upgrade()', function(assert) {
 	server.listen(13337, null);
 
 
-	let ref        = Object.assign(EXAMPLE.ref('http://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 13337 }});
-	let connection = SOCKS.connect(ref);
+	let url        = Object.assign(EXAMPLE.toURL('http://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 13337 }});
+	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
 
@@ -362,7 +359,7 @@ describe('SOCKS.upgrade()', function(assert) {
 after(disconnect_stealth);
 
 
-export default finish('stealth/protocol/SOCKS', {
+export default finish('stealth/connection/SOCKS', {
 	internet: true
 });
 

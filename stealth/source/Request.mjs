@@ -3,34 +3,23 @@ import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
 import { isServer                               } from './Server.mjs';
 import { URL                                    } from './parser/URL.mjs';
 import { Downloader                             } from './request/Downloader.mjs';
-import { Optimizer                              } from './request/Optimizer.mjs';
 
 
 
 // Embedded for Cross-Platform Compatibility
-const isConfig = function(config) {
+const isMode = function(payload) {
 
-	if (isObject(config) === true) {
-
-		if (
-			(isString(config.domain) === true || config.domain === null)
-			&& isObject(config.mode) === true
-		) {
-
-			if (
-				isBoolean(config.mode.text) === true
-				&& isBoolean(config.mode.image) === true
-				&& isBoolean(config.mode.audio) === true
-				&& isBoolean(config.mode.video) === true
-				&& isBoolean(config.mode.other) === true
-			) {
-
-				return true;
-
-			}
-
-		}
-
+	if (
+		isObject(payload) === true
+		&& (isString(payload.domain) === true || payload.domain === null)
+		&& isObject(payload.mode) === true
+		&& isBoolean(payload.mode.text) === true
+		&& isBoolean(payload.mode.image) === true
+		&& isBoolean(payload.mode.audio) === true
+		&& isBoolean(payload.mode.video) === true
+		&& isBoolean(payload.mode.other) === true
+	) {
+		return true;
 	}
 
 
@@ -50,10 +39,10 @@ const Request = function(data, server) {
 	server = isServer(server) ? server : null;
 
 
-	if (isConfig(data.config) === true) {
-		this.config = data.config;
+	if (isMode(data.mode) === true) {
+		this.mode = data.mode;
 	} else {
-		this.config = {
+		this.mode = {
 			domain: null,
 			mode:   {
 				text:  false,
@@ -65,14 +54,9 @@ const Request = function(data, server) {
 		};
 	}
 
-	if (URL.isURL(data.ref) === true) {
-		this.ref = data.ref;
-		this.url = this.ref.url;
-	} else if (isString(data.url) === true) {
-		this.ref = URL.parse(data.url);
-		this.url = this.ref.url;
+	if (URL.isURL(data.url) === true) {
+		this.url = data.url;
 	} else {
-		this.ref = null;
 		this.url = null;
 	}
 
@@ -124,7 +108,7 @@ const Request = function(data, server) {
 
 		if (this.server !== null) {
 
-			this.server.services.redirect.read(this.ref, (redirect) => {
+			this.server.services.redirect.read(this.url, (redirect) => {
 
 				let payload = redirect.payload || null;
 				if (payload !== null) {
@@ -171,7 +155,7 @@ const Request = function(data, server) {
 
 			if (this.server !== null) {
 
-				this.server.services.cache.read(this.ref, (response) => {
+				this.server.services.cache.read(this.url, (response) => {
 
 					this.timeline.cache = Date.now();
 
@@ -205,7 +189,7 @@ const Request = function(data, server) {
 
 			if (this.server !== null) {
 
-				this.server.services.stash.read(this.ref, (response) => {
+				this.server.services.stash.read(this.url, (response) => {
 
 					this.timeline.stash = Date.now();
 
@@ -218,13 +202,13 @@ const Request = function(data, server) {
 							delete response.payload.headers['method'];
 
 							if (Object.keys(response.payload.headers).length > 0) {
-								this.ref.headers = response.payload.headers;
+								this.url.headers = response.payload.headers;
 							}
 
 						}
 
 						if (response.payload.payload !== null) {
-							this.ref.payload = response.payload.payload;
+							this.url.payload = response.payload.payload;
 						}
 
 					}
@@ -251,19 +235,19 @@ const Request = function(data, server) {
 		if (this.server !== null) {
 
 			this.server.services.blocker.read({
-				domain:    this.ref.domain,
-				subdomain: this.ref.subdomain,
-				host:      this.ref.host
+				domain:    this.url.domain,
+				subdomain: this.url.subdomain,
+				host:      this.url.host
 			}, (response) => {
 
 				if (response.payload !== null) {
 
-					// Always Block, no matter the User's Config
-					this.config.mode.text  = false;
-					this.config.mode.image = false;
-					this.config.mode.audio = false;
-					this.config.mode.video = false;
-					this.config.mode.other = false;
+					// Always Block, no matter the User's Mode
+					this.mode.mode.text  = false;
+					this.mode.mode.image = false;
+					this.mode.mode.audio = false;
+					this.mode.mode.video = false;
+					this.mode.mode.other = false;
 
 					this.emit('error', [{ code: 403 }]);
 
@@ -281,8 +265,8 @@ const Request = function(data, server) {
 
 	this.on('mode', () => {
 
-		let mime    = this.ref.mime;
-		let allowed = this.config.mode[mime.type] === true;
+		let mime    = this.url.mime;
+		let allowed = this.mode.mode[mime.type] === true;
 
 		this.timeline.mode = Date.now();
 
@@ -304,7 +288,7 @@ const Request = function(data, server) {
 
 	this.on('connect', () => {
 
-		if (this.ref.hosts.length > 0) {
+		if (this.url.hosts.length > 0) {
 
 			this.timeline.connect = Date.now();
 			this.emit('download');
@@ -316,24 +300,24 @@ const Request = function(data, server) {
 			if (this.server !== null) {
 
 				this.server.services.host.read({
-					domain:    this.ref.domain,
-					subdomain: this.ref.subdomain
+					domain:    this.url.domain,
+					subdomain: this.url.subdomain
 				}, (response) => {
 
 					if (response.payload !== null) {
 
 						response.payload.hosts.forEach((host) => {
 
-							let check = this.ref.hosts.find((h) => h.ip === host.ip) || null;
+							let check = this.url.hosts.find((h) => h.ip === host.ip) || null;
 							if (check === null) {
-								this.ref.hosts.push(host);
+								this.url.hosts.push(host);
 							}
 
 						});
 
 					}
 
-					if (this.ref.hosts.length > 0) {
+					if (this.url.hosts.length > 0) {
 						this.emit('download');
 					} else {
 						this.emit('error', [{ type: 'host' }]);
@@ -343,7 +327,7 @@ const Request = function(data, server) {
 
 			} else {
 
-				if (this.ref.hosts.length > 0) {
+				if (this.url.hosts.length > 0) {
 					this.emit('download');
 				} else {
 					this.emit('error', [{ type: 'host' }]);
@@ -360,28 +344,28 @@ const Request = function(data, server) {
 		let useragent = this.get('useragent');
 		if (useragent !== null) {
 
-			if (this.ref.headers === null) {
-				this.ref.headers = {};
+			if (this.url.headers === null) {
+				this.url.headers = {};
 			}
 
-			if (this.ref.mime !== null) {
-				this.ref.headers['accept'] = this.ref.mime.format;
+			if (this.url.mime !== null) {
+				this.url.headers['accept'] = this.url.mime.format;
 			} else {
-				this.ref.headers['accept'] = '*/*';
+				this.url.headers['accept'] = '*/*';
 			}
 
-			this.ref.headers['user-agent'] = useragent;
+			this.url.headers['user-agent'] = useragent;
 
 		} else {
 
-			if (this.ref.headers !== null) {
+			if (this.url.headers !== null) {
 
-				if (this.ref.headers['user-agent'] !== undefined) {
-					delete this.ref.headers['user-agent'];
+				if (this.url.headers['user-agent'] !== undefined) {
+					delete this.url.headers['user-agent'];
 				}
 
-				if (this.ref.headers['accept'] !== undefined) {
-					delete this.ref.headers['accept'];
+				if (this.url.headers['accept'] !== undefined) {
+					delete this.url.headers['accept'];
 				}
 
 			}
@@ -389,11 +373,11 @@ const Request = function(data, server) {
 		}
 
 
-		Downloader.check(this.ref, this.config, (result) => {
+		Downloader.check(this.url, this.mode, (result) => {
 
 			if (result === true) {
 
-				Downloader.download(this.ref, this.config, (download) => {
+				Downloader.download(this.url, this.mode, (download) => {
 
 					this.timeline.download = Date.now();
 
@@ -404,7 +388,7 @@ const Request = function(data, server) {
 						download.on('progress', (partial, progress) => {
 
 							if (this.server !== null) {
-								this.server.services.stash.save(Object.assign({}, this.ref, partial), () => {
+								this.server.services.stash.save(Object.assign({}, this.url, partial), () => {
 									this.emit('progress', [ partial, progress ]);
 								});
 							}
@@ -421,11 +405,11 @@ const Request = function(data, server) {
 
 									if (this.server !== null) {
 
-										this.server.services.stash.save(Object.assign({}, this.ref, partial), (result) => {
+										this.server.services.stash.save(Object.assign({}, this.url, partial), (result) => {
 
 											if (result === true) {
-												this.ref.headers = partial.headers;
-												this.ref.payload = partial.payload;
+												this.url.headers = partial.headers;
+												this.url.payload = partial.payload;
 											}
 
 											this.emit('download');
@@ -454,10 +438,10 @@ const Request = function(data, server) {
 
 								if (this.server !== null) {
 
-									this.server.services.stash.remove(this.ref, () => {
+									this.server.services.stash.remove(this.url, () => {
 
-										this.ref.headers = null;
-										this.ref.payload = null;
+										this.url.headers = null;
+										this.url.payload = null;
 
 										this.emit('download');
 
@@ -479,7 +463,7 @@ const Request = function(data, server) {
 
 							if (this.server !== null) {
 
-								this.server.services.stash.remove(this.ref, () => {
+								this.server.services.stash.remove(this.url, () => {
 
 									let location = response.headers['location'] || null;
 									if (location !== null) {
@@ -502,9 +486,9 @@ const Request = function(data, server) {
 
 							if (this.server !== null) {
 
-								this.server.services.stash.remove(this.ref, () => {
-									this.ref.headers = null;
-									this.ref.payload = null;
+								this.server.services.stash.remove(this.url, () => {
+									this.url.headers = null;
+									this.url.payload = null;
 								});
 
 							}
@@ -536,35 +520,6 @@ const Request = function(data, server) {
 
 		this.emit('response', [ this.response ]);
 
-		// let url = URL.render(this.ref);
-		// let ref = URL.parse(url);
-
-		// ref.headers = this.response.headers;
-		// ref.payload = this.response.payload;
-
-
-		// Optimizer.check(ref, this.config, (result) => {
-
-		// 	this.timeline.optimize = Date.now();
-
-		// 	if (result === true) {
-
-		// 		Optimizer.optimize(ref, this.config, (response) => {
-
-		// 			if (response !== null) {
-		// 				this.emit('response', [ response ]);
-		// 			} else {
-		// 				this.emit('response', [ this.response ]);
-		// 			}
-
-		// 		});
-
-		// 	} else {
-		// 		this.emit('response', [ this.response ]);
-		// 	}
-
-		// });
-
 	});
 
 	this.on('redirect', (response, ignore) => {
@@ -584,7 +539,7 @@ const Request = function(data, server) {
 			if (location !== null) {
 
 				if (this.server !== null) {
-					this.server.services.redirect.save(Object.assign({}, this.ref, {
+					this.server.services.redirect.save(Object.assign({}, this.url, {
 						location: location
 					}), () => {});
 				}
@@ -607,15 +562,15 @@ const Request = function(data, server) {
 
 			if (this.server !== null) {
 
-				this.server.services.cache.save(Object.assign({}, this.ref, response), (result) => {
+				this.server.services.cache.save(Object.assign({}, this.url, response), (result) => {
 
 					if (result === true) {
 
-						this.server.services.stash.remove(this.ref, (result) => {
+						this.server.services.stash.remove(this.url, (result) => {
 
 							if (result === true) {
-								this.ref.headers = null;
-								this.ref.payload = null;
+								this.url.headers = null;
+								this.url.payload = null;
 							}
 
 						});
@@ -648,9 +603,9 @@ Request.from = function(json) {
 			if (isString(data.url) === true) {
 
 				let request = new Request({
-					id:     isString(data.id)      ? data.id     : null,
-					url:    isString(data.url)     ? data.url    : null,
-					config: isConfig(data.config)  ? data.config : null
+					id:   isString(data.id)  ? data.id   : null,
+					mode: isMode(data.mode)  ? data.mode : null,
+					url:  isString(data.url) ? data.url  : null
 				});
 
 				if (isObject(data.flags) === true) {
@@ -686,8 +641,8 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
-			url:      this.url,
-			config:   this.config,
+			mode:     this.mode,
+			url:      URL.render(this.url),
 			download: null,
 			flags:    Object.assign({}, this.flags),
 			timeline: Object.assign({}, this.timeline),
@@ -700,8 +655,8 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 		return {
-			type: 'Request',
-			data: data
+			'type': 'Request',
+			'data': data
 		};
 
 	},

@@ -70,9 +70,9 @@ const show_help = () => {
 	console.log('Examples:');
 	console.log('');
 	console.log('    covert check stealth/client/* --debug=true');
-	console.log('    covert scan stealth/protocol/*;');
-	console.log('    covert time stealth/protocol/DNS --network=2G;');
-	console.log('    covert watch stealth/protocol/DNS stealth/protocol/HTTPS;');
+	console.log('    covert scan stealth/connection/*;');
+	console.log('    covert time stealth/connection/DNS --network=2G;');
+	console.log('    covert watch stealth/connection/DNS stealth/connection/HTTPS;');
 	console.log('');
 
 };

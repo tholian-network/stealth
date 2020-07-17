@@ -12,8 +12,8 @@ import { Session                                 } from './client/Session.mjs';
 import { Settings                                } from './client/Settings.mjs';
 import { Stash                                   } from './client/Stash.mjs';
 import { URL                                     } from './parser/URL.mjs';
-import { WS                                      } from './protocol/WS.mjs';
-import { WSS                                     } from './protocol/WSS.mjs';
+import { WS                                      } from './connection/WS.mjs';
+import { WSS                                     } from './connection/WSS.mjs';
 
 
 
@@ -34,7 +34,6 @@ const Client = function(settings, stealth) {
 
 
 	this.address    = null;
-	this.ref        = null;
 	this.services   = {
 		beacon:   new Beacon(this),
 		blocker:  new Blocker(this),
@@ -48,6 +47,7 @@ const Client = function(settings, stealth) {
 		stash:    new Stash(this)
 	};
 	this.stealth    = stealth;
+	this.url        = null;
 
 	this.__state = {
 		connected:  false,
@@ -67,13 +67,39 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Client',
 
+	toJSON: function() {
+
+		let data = {
+			url:      URL.render(this.url),
+			services: Object.keys(this.services),
+			state:    {
+				connected:  false,
+				connection: null
+			}
+		};
+
+		if (this.__state.connected === true) {
+			data.state.connected = true;
+		}
+
+		if (this.__state.connection !== null) {
+			data.state.connection = this.__state.connection.toJSON();
+		}
+
+		return {
+			'type': 'Client',
+			'data': data
+		};
+
+	},
+
 	connect: function() {
 
 		if (this.__state.connected === false) {
 
 			let host  = isString(this._settings.host) ? this._settings.host : 'localhost';
-			let ref   = URL.parse('ws://' + host + ':65432');
-			let hosts = ref.hosts.sort((a, b) => {
+			let url   = URL.parse('ws://' + host + ':65432');
+			let hosts = url.hosts.sort((a, b) => {
 
 				if (a.scope === 'private' && b.scope === 'private') {
 
@@ -94,111 +120,112 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
+
 			if (hosts.length > 0) {
 
 				let check = hosts.find((ip) => ip.scope === 'private') || null;
 				if (check === null) {
-					ref = URL.parse('wss://' + host + ':65432');
+					url = URL.parse('wss://' + host + ':65432');
 				}
 
-
-				this.ref = ref;
-
-
-				let connection = null;
-				if (ref.protocol === 'wss') {
-					connection = WSS.connect(this.ref);
-				} else if (ref.protocol === 'ws') {
-					connection = WS.connect(this.ref);
-				}
+			}
 
 
-				if (connection !== null) {
+			this.url = url;
 
-					connection.on('@connect', () => {
 
-						if (connection.socket !== null) {
-							this.address = connection.socket.remoteAddress || null;
-						}
+			let connection = null;
+			if (url.protocol === 'wss') {
+				connection = WSS.connect(this.url);
+			} else if (url.protocol === 'ws') {
+				connection = WS.connect(this.url);
+			}
 
-						this.__state.connected  = true;
-						this.__state.connection = connection;
 
-						this.emit('connect');
+			if (connection !== null) {
 
-					});
+				connection.on('@connect', () => {
 
-					connection.on('response', (response) => {
+					if (connection.socket !== null) {
+						this.address = connection.socket.remoteAddress || null;
+					}
 
-						if (response !== null) {
+					this.__state.connected  = true;
+					this.__state.connection = connection;
 
-							let event   = response.headers.event   || null;
-							let method  = response.headers.method  || null;
-							let service = response.headers.service || null;
+					this.emit('connect');
 
-							if (service !== null && event !== null) {
+				});
 
-								let instance = this.services[service] || null;
-								if (instance !== null && instance.has(event) === true) {
+				connection.on('response', (response) => {
 
-									let request = instance.emit(event, [ response.payload ]);
-									if (request !== null) {
+					if (response !== null) {
 
-										if (ref.protocol === 'wss') {
-											WSS.send(connection, request);
-										} else if (ref.protocol === 'ws') {
-											WS.send(connection, request);
-										}
+						let event   = response.headers.event   || null;
+						let method  = response.headers.method  || null;
+						let service = response.headers.service || null;
 
-									}
+						if (service !== null && event !== null) {
 
-								} else {
+							let instance = this.services[service] || null;
+							if (instance !== null && instance.has(event) === true) {
 
-									let request = this.emit('response', [ response ]);
-									if (request !== null) {
+								let request = instance.emit(event, [ response.payload ]);
+								if (request !== null) {
 
-										if (ref.protocol === 'wss') {
-											WSS.send(connection, request);
-										} else if (ref.protocol === 'ws') {
-											WS.send(connection, request);
-										}
-
+									if (url.protocol === 'wss') {
+										WSS.send(connection, request);
+									} else if (url.protocol === 'ws') {
+										WS.send(connection, request);
 									}
 
 								}
 
-							} else if (service !== null && method !== null) {
+							} else {
 
-								let instance = this.services[service] || null;
-								if (instance !== null && isFunction(instance[method]) === true) {
+								let request = this.emit('response', [ response ]);
+								if (request !== null) {
 
-									instance[method](response.payload, (request) => {
+									if (url.protocol === 'wss') {
+										WSS.send(connection, request);
+									} else if (url.protocol === 'ws') {
+										WS.send(connection, request);
+									}
 
-										if (request !== null) {
+								}
 
-											if (ref.protocol === 'wss') {
-												WSS.send(connection, request);
-											} else if (ref.protocol === 'ws') {
-												WS.send(connection, request);
-											}
+							}
 
-										}
+						} else if (service !== null && method !== null) {
 
-									});
+							let instance = this.services[service] || null;
+							if (instance !== null && isFunction(instance[method]) === true) {
 
-								} else {
+								instance[method](response.payload, (request) => {
 
-									let request = this.emit('response', [ response ]);
 									if (request !== null) {
 
-										if (request !== null) {
+										if (url.protocol === 'wss') {
+											WSS.send(connection, request);
+										} else if (url.protocol === 'ws') {
+											WS.send(connection, request);
+										}
 
-											if (ref.protocol === 'wss') {
-												WSS.send(connection, request);
-											} else if (ref.protocol === 'ws') {
-												WS.send(connection, request);
-											}
+									}
 
+								});
+
+							} else {
+
+								let request = this.emit('response', [ response ]);
+								if (request !== null) {
+
+									if (request !== null) {
+
+										if (url.protocol === 'wss') {
+											WSS.send(connection, request);
+										} else if (url.protocol === 'ws') {
+											WS.send(connection, request);
 										}
 
 									}
@@ -209,19 +236,19 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 						}
 
-					});
+					}
 
-					connection.on('timeout', () => {
-						this.disconnect();
-					});
+				});
 
-					connection.on('@disconnect', () => {
-						this.disconnect();
-					});
+				connection.on('timeout', () => {
+					this.disconnect();
+				});
 
-					return true;
+				connection.on('@disconnect', () => {
+					this.disconnect();
+				});
 
-				}
+				return true;
 
 			}
 
@@ -283,11 +310,11 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 		if (data !== null) {
 
 			let connection = this.__state.connection || null;
-			if (connection !== null && this.ref !== null) {
+			if (connection !== null && this.url !== null) {
 
-				if (this.ref.protocol === 'wss') {
+				if (this.url.protocol === 'wss') {
 					WSS.send(connection, data);
-				} else if (this.ref.protocol === 'ws') {
+				} else if (this.url.protocol === 'ws') {
 					WS.send(connection, data);
 				}
 

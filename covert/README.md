@@ -29,9 +29,9 @@ pacman -S --needed iproute2 kmod net-tools sudo
 Additionally, the following ports have to be allowed in the Firewall to
 transmit and receive of both UDP/TCP data:
 
-- `80` (`--internet=true`) for [stealth/protocol/HTTP](../stealth/review/protocol/HTTP.mjs) and [stealth/protocol/WS](../stealth/review/protocol/WS.mjs).
-- `443` (`--internet=true`) for [stealth/protocol/HTTPS](../stealth/review/protocol/HTTPS.mjs) and [stealth/protocol/WSS](../stealth/review/protocol/WSS.mjs).
-- `13337` (`--internet=true`) for [stealth/protocol/HTTP](../stealth/review/protocol/HTTP.mjs) and [stealth/protocol/WS](../stealth/review/protocol/WS.mjs).
+- `80` (`--internet=true`) for [stealth/connection/HTTP](../stealth/review/connection/HTTP.mjs) and [stealth/connection/WS](../stealth/review/connection/WS.mjs).
+- `443` (`--internet=true`) for [stealth/connection/HTTPS](../stealth/review/connection/HTTPS.mjs) and [stealth/connection/WSS](../stealth/review/connection/WSS.mjs).
+- `13337` (`--internet=true`) for [stealth/connection/HTTP](../stealth/review/connection/HTTP.mjs) and [stealth/connection/WS](../stealth/review/connection/WS.mjs).
 - `65432` for [stealth/Client](../stealth/review/Client.mjs) and [stealth/Server](../stealth/review/Server.mjs).
 
 
@@ -43,7 +43,7 @@ transmit and receive of both UDP/TCP data:
   `process.stdout` data. The default value is `false`.
 
 - `--internet` is a boolean flag to toggle the inclusion of network
-  protocol tests against the internet or online reference test suites.
+  tests against the internet or online reference test suites.
   The default value is `true`.
 
 - `--network` is a string flag to emulate a traffic-controlled internet

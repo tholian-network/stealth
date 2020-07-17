@@ -10,27 +10,19 @@ export const isBrowser = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Browser]';
 };
 
-export const isConfig = function(config) {
+export const isMode = function(payload) {
 
-	if (isObject(config) === true) {
-
-		if (
-			(isString(config.domain) === true || config.domain === null)
-			&& isObject(config.mode) === true
-		) {
-
-			if (
-				isBoolean(config.mode.text) === true
-				&& isBoolean(config.mode.image) === true
-				&& isBoolean(config.mode.audio) === true
-				&& isBoolean(config.mode.video) === true
-				&& isBoolean(config.mode.other) === true
-			) {
-				return true;
-			}
-
-		}
-
+	if (
+		isObject(payload) === true
+		&& (isString(payload.domain) === true || payload.domain === null)
+		&& isObject(payload.mode) === true
+		&& isBoolean(payload.mode.text) === true
+		&& isBoolean(payload.mode.image) === true
+		&& isBoolean(payload.mode.audio) === true
+		&& isBoolean(payload.mode.video) === true
+		&& isBoolean(payload.mode.other) === true
+	) {
+		return true;
 	}
 
 
@@ -38,7 +30,66 @@ export const isConfig = function(config) {
 
 };
 
-const on_mode_change = function(config) {
+const toMode = function(url) {
+
+	url = URL.isURL(url) ? url : null;
+
+
+	let mode = {
+		domain: null,
+		mode:   {
+			text:  false,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	};
+
+	if (url !== null) {
+
+		let search = URL.toDomain(url);
+
+		if (url.protocol === 'stealth') {
+
+			mode.domain     = search;
+			mode.mode.text  = true;
+			mode.mode.image = true;
+			mode.mode.audio = true;
+			mode.mode.video = true;
+			mode.mode.other = true;
+
+		} else if (search !== null) {
+
+			let modes = this.settings.modes.filter((m) => URL.isDomain(m.domain, search));
+			if (modes.length > 1) {
+
+				return modes.sort((a, b) => {
+					if (a.domain.length > b.domain.length) return -1;
+					if (b.domain.length > a.domain.length) return  1;
+					return 0;
+				})[0];
+
+			} else if (modes.length === 1) {
+
+				return modes[0];
+
+			} else {
+
+				mode.domain = search;
+
+			}
+
+		}
+
+	}
+
+	return mode;
+
+};
+
+
+const on_mode_change = function(mode) {
 
 	this.tabs.forEach((tab) => {
 
@@ -46,16 +97,16 @@ const on_mode_change = function(config) {
 
 		tab.history.forEach((entry) => {
 
-			if (entry.config.domain === config.domain) {
-				entry.config = config;
-				changed = true;
+			if (entry.mode.domain === mode.domain) {
+				entry.mode = mode;
+				changed    = true;
 			}
 
 		});
 
-		if (tab.config.domain === config.domain) {
-			tab.config = config;
-			changed = true;
+		if (tab.mode.domain === mode.domain) {
+			tab.mode = mode;
+			changed  = true;
 		}
 
 		if (changed === true && this.tab === tab) {
@@ -132,8 +183,8 @@ const Browser = function(settings) {
 
 			this.settings['modes'] = response['modes'];
 
-			this.settings['modes'].forEach((config) => {
-				on_mode_change.call(this, config);
+			this.settings['modes'].forEach((mode) => {
+				on_mode_change.call(this, mode);
 			});
 
 		}
@@ -168,7 +219,7 @@ const Browser = function(settings) {
 
 
 Browser.isBrowser = isBrowser;
-Browser.isConfig  = isConfig;
+Browser.isMode    = isMode;
 
 
 Browser.prototype = Object.assign({}, Emitter.prototype, {
@@ -296,21 +347,23 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	download: function(url) {
+	download: function(link) {
 
-		url = isString(url) ? url : null;
+		link = isString(link) ? link : null;
 
 
-		if (url !== null) {
+		if (link !== null) {
 
-			let ref = URL.parse(url);
-			if (ref.domain !== null || ref.host !== null) {
+			let url    = URL.parse(link);
+			let domain = URL.toDomain(url);
+
+			if (domain !== null) {
 
 				if (this.__state.connected === true) {
 
 					setTimeout(() => {
 
-						this.client.services.session.download(ref, (response) => {
+						this.client.services.session.download(url, (response) => {
 							this.emit('download', [ response ]);
 						});
 
@@ -326,77 +379,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		return false;
-
-	},
-
-	get: function(url) {
-
-		url = isString(url) ? url : null;
-
-
-		let config = {
-			domain: null,
-			mode:   {
-				text:  false,
-				image: false,
-				audio: false,
-				video: false,
-				other: false
-			}
-		};
-
-		if (url !== null) {
-
-			let domain = null;
-
-			let ref = URL.parse(url);
-			if (ref.domain !== null) {
-
-				if (ref.subdomain !== null) {
-					domain = ref.subdomain + '.' + ref.domain;
-				} else {
-					domain = ref.domain;
-				}
-
-			} else if (ref.host !== null) {
-				domain = ref.host;
-			}
-
-			if (ref.protocol === 'stealth') {
-
-				config.domain     = domain;
-				config.mode.text  = true;
-				config.mode.image = true;
-				config.mode.audio = true;
-				config.mode.video = true;
-				config.mode.other = true;
-
-			} else if (domain !== null) {
-
-				let modes = this.settings.modes.filter((m) => URL.isDomain(m.domain, domain));
-				if (modes.length > 1) {
-
-					return modes.sort((a, b) => {
-						if (a.domain.length > b.domain.length) return -1;
-						if (b.domain.length > a.domain.length) return  1;
-						return 0;
-					})[0];
-
-				} else if (modes.length === 1) {
-
-					return modes[0];
-
-				} else {
-
-					config.domain = domain;
-
-				}
-
-			}
-
-		}
-
-		return config;
 
 	},
 
@@ -418,16 +400,16 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	navigate: function(url) {
+	navigate: function(link) {
 
-		url = isString(url) ? url : null;
+		link = isString(link) ? link : null;
 
 
-		if (url !== null) {
+		if (link !== null) {
 
 			if (this.tab !== null) {
 
-				let result = this.tab.navigate(url, this.get(url));
+				let result = this.tab.navigate(link, toMode.call(this, URL.parse(link)));
 				if (result === true) {
 
 					this.refresh();
@@ -436,7 +418,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				} else {
 
-					let tab = this.open(url);
+					let tab = this.open(link);
 					if (tab !== null) {
 
 						if (this.tab !== tab) {
@@ -449,9 +431,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				}
 
-			} else if (url.startsWith('./') === false && url.startsWith('../') === false) {
+			} else if (link.startsWith('./') === false && link.startsWith('../') === false) {
 
-				let tab = this.open(url, this.get(url));
+				let tab = this.open(link);
 				if (tab !== null) {
 
 					if (this.tab !== tab) {
@@ -491,21 +473,20 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	open: function(url) {
+	open: function(link) {
 
-		url = isString(url) ? url : null;
+		link = isString(link) ? link : null;
 
 
-		if (url !== null) {
+		if (link !== null) {
 
-			let ref = URL.parse(url);
-			let tab = this.tabs.find((t) => t.url === ref.url) || null;
+			let url = URL.parse(link);
+			let tab = this.tabs.find((t) => t.url.link === url.link) || null;
 			if (tab === null) {
 
 				tab = new Tab({
-					config: this.get(ref.url),
-					ref:    ref,
-					url:    ref.url
+					mode: toMode.call(this, url),
+					url:  url
 				});
 
 				this.tabs.push(tab);
@@ -600,24 +581,24 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	set: function(config) {
+	setMode: function(mode) {
 
-		config = isConfig(config) ? config : null;
+		mode = isMode(mode) ? mode : null;
 
 
-		if (config !== null) {
+		if (mode !== null) {
 
-			if (config.domain !== null) {
+			if (mode.domain !== null) {
 
-				let tmp1 = this.get(config.domain);
+				let tmp1 = toMode.call(this, URL.parse(mode.domain));
 				let tmp2 = {
-					domain: config.domain,
+					domain: mode.domain,
 					mode:   {
-						text:  config.mode.text,
-						image: config.mode.image,
-						audio: config.mode.audio,
-						video: config.mode.video,
-						other: config.mode.other
+						text:  mode.mode.text,
+						image: mode.mode.image,
+						audio: mode.mode.audio,
+						video: mode.mode.video,
+						other: mode.mode.other
 					}
 				};
 
@@ -633,27 +614,27 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 					});
 
 					if (diff === true) {
-						config = tmp1;
+						mode = tmp1;
 					}
 
 				} else if (URL.isDomain(tmp1.domain, tmp2.domain)) {
 
-					config = tmp2;
+					mode = tmp2;
 
 				} else {
 
-					config = null;
+					mode = null;
 
 				}
 
-				if (config !== null) {
+				if (mode !== null) {
 
-					if (this.settings.modes.includes(config) === false) {
-						this.settings.modes.push(config);
-						this.client.services.mode.save(config, () => {});
+					if (this.settings.modes.includes(mode) === false) {
+						this.settings.modes.push(mode);
+						this.client.services.mode.save(mode, () => {});
 					}
 
-					on_mode_change.call(this, config);
+					on_mode_change.call(this, mode);
 
 				}
 

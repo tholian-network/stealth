@@ -4,6 +4,7 @@ import { describe, finish, EXAMPLE } from '../../covert/index.mjs';
 import { Request                   } from '../../stealth/source/Request.mjs';
 import { Session, isSession        } from '../../stealth/source/Session.mjs';
 import { isTab                     } from '../../stealth/source/Tab.mjs';
+import { URL                       } from '../../stealth/source/parser/URL.mjs';
 
 
 
@@ -47,7 +48,8 @@ describe('Session.from()', function(assert) {
 				data: {
 					id: '1337',
 					history: [{
-						config: {
+						link: 'https://example.com/index.html',
+						mode: {
 							domain: 'example.com',
 							mode: {
 								text:  true,
@@ -57,8 +59,7 @@ describe('Session.from()', function(assert) {
 								other: true
 							}
 						},
-						time: Date.now(),
-						url: 'https://example.com/index.html'
+						time: Date.now()
 					}]
 				}
 			}]
@@ -77,9 +78,9 @@ describe('Session.from()', function(assert) {
 	assert(isArray(session.tabs),  true);
 	assert(isTab(session.tabs[0]), true);
 
-	assert(session.tabs[0].id,     '1337');
-	assert(session.tabs[0].url,    'stealth:welcome');
-	assert(session.tabs[0].config, {
+	assert(session.tabs[0].id,   '1337');
+	assert(session.tabs[0].url,  URL.parse('stealth:welcome'));
+	assert(session.tabs[0].mode, {
 		domain: 'welcome',
 		mode: {
 			text:  true,
@@ -90,9 +91,9 @@ describe('Session.from()', function(assert) {
 		}
 	});
 
-	assert(session.tabs[0].history.length,    1);
-	assert(session.tabs[0].history[0].url,    'https://example.com/index.html');
-	assert(session.tabs[0].history[0].config, {
+	assert(session.tabs[0].history.length,  1);
+	assert(session.tabs[0].history[0].link, 'https://example.com/index.html');
+	assert(session.tabs[0].history[0].mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -123,7 +124,8 @@ describe('Session.merge()', function(assert) {
 				data: {
 					id: '1337',
 					history: [{
-						config: {
+						link: 'https://example.com/index.html',
+						mode: {
 							domain: 'example.com',
 							mode: {
 								text:  true,
@@ -133,8 +135,7 @@ describe('Session.merge()', function(assert) {
 								other: true
 							}
 						},
-						time: Date.now(),
-						url: 'https://example.com/index.html'
+						time: Date.now()
 					}]
 				}
 			}]
@@ -155,9 +156,9 @@ describe('Session.merge()', function(assert) {
 	assert(session1.tabs.length, 1);
 	assert(session1.tabs[0].id,  '1337');
 
-	assert(session1.tabs[0].history.length,    1);
-	assert(session1.tabs[0].history[0].url,    'https://example.com/index.html');
-	assert(session1.tabs[0].history[0].config, {
+	assert(session1.tabs[0].history.length,  1);
+	assert(session1.tabs[0].history[0].link, 'https://example.com/index.html');
+	assert(session1.tabs[0].history[0].mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -207,7 +208,8 @@ describe('Session.prototype.toJSON()', function(assert) {
 				data: {
 					id: '1337',
 					history: [{
-						config: {
+						link: 'https://example.com/index.html',
+						mode: {
 							domain: 'example.com',
 							mode: {
 								text:  true,
@@ -217,8 +219,7 @@ describe('Session.prototype.toJSON()', function(assert) {
 								other: true
 							}
 						},
-						time: Date.now(),
-						url: 'https://example.com/index.html'
+						time: Date.now()
 					}]
 				}
 			}],
@@ -241,7 +242,7 @@ describe('Session.prototype.toJSON()', function(assert) {
 			type: 'Tab',
 			data: {
 				id: '1337',
-				config: {
+				mode: {
 					domain: 'welcome',
 					mode: {
 						text:  true,
@@ -252,7 +253,8 @@ describe('Session.prototype.toJSON()', function(assert) {
 					}
 				},
 				history: [{
-					config: {
+					link: 'https://example.com/index.html',
+					mode: {
 						domain: 'example.com',
 						mode: {
 							text:  true,
@@ -262,8 +264,7 @@ describe('Session.prototype.toJSON()', function(assert) {
 							other: true
 						}
 					},
-					time: Date.now(),
-					url: 'https://example.com/index.html'
+					time: Date.now()
 				}],
 				requests: [],
 				url: 'stealth:welcome'
@@ -291,7 +292,8 @@ describe('Session.prototype.destroy()', function(assert) {
 				data: {
 					id: '1337',
 					history: [{
-						config: {
+						link: 'https://example.com/index.html',
+						mode: {
 							domain: 'example.com',
 							mode: {
 								text:  true,
@@ -301,8 +303,7 @@ describe('Session.prototype.destroy()', function(assert) {
 								other: true
 							}
 						},
-						time: Date.now(),
-						url: 'https://example.com/index.html'
+						time: Date.now()
 					}]
 				}
 			}],
@@ -353,8 +354,8 @@ describe('Session.prototype.get()', function(assert) {
 	let request = Request.from({
 		type: 'Request',
 		data: {
-			url: 'https://example.com/does-not-exist.html',
-			config: EXAMPLE.config('https://example.com/does-not-exist.html'),
+			url:   'https://example.com/does-not-exist.html',
+			mode:  EXAMPLE.toMode('https://example.com/does-not-exist.html'),
 			flags: {
 				connect:   false,
 				proxy:     true,
@@ -380,7 +381,8 @@ describe('Session.prototype.get()', function(assert) {
 				data: {
 					id: '1337',
 					history: [{
-						config: {
+						link: 'https://example.com/index.html',
+						mode: {
 							domain: 'example.com',
 							mode: {
 								text:  true,
@@ -390,8 +392,7 @@ describe('Session.prototype.get()', function(assert) {
 								other: true
 							}
 						},
-						time: Date.now(),
-						url: 'https://example.com/index.html'
+						time: Date.now()
 					}]
 				}
 			}],
@@ -414,8 +415,8 @@ describe('Session.prototype.track()', function(assert) {
 	let request = Request.from({
 		type: 'Request',
 		data: {
-			url: 'https://example.com/does-not-exist.html',
-			config: EXAMPLE.config('https://example.com/does-not-exist.html'),
+			url:   'https://example.com/does-not-exist.html',
+			mode:  EXAMPLE.toMode('https://example.com/does-not-exist.html'),
 			flags: {
 				connect:   false,
 				proxy:     true,
@@ -467,8 +468,8 @@ describe('Session.prototype.untrack()', function(assert) {
 	let request = Request.from({
 		type: 'Request',
 		data: {
-			url: 'https://example.com/does-not-exist.html',
-			config: EXAMPLE.config('https://example.com/does-not-exist.html'),
+			url:   'https://example.com/does-not-exist.html',
+			mode:  EXAMPLE.toMode('https://example.com/does-not-exist.html'),
 			flags: {
 				connect:   false,
 				proxy:     true,

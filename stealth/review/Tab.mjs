@@ -12,7 +12,7 @@ const mock_tab_with_history = () => {
 		type: 'Tab',
 		data: {
 			url: 'https://example.com/index.html',
-			config: {
+			mode: {
 				domain: 'example.com',
 				mode: {
 					text:  true,
@@ -27,27 +27,27 @@ const mock_tab_with_history = () => {
 	};
 
 	json.data.history.push({
-		config: json.data.config,
-		time:   Date.now() - (1000 * 60 * 60 * 24) - 1000,
-		url:    'https://example.com/a-day-ago/before.html'
+		link: 'https://example.com/a-day-ago/before.html',
+		mode: json.data.mode,
+		time: Date.now() - (1000 * 60 * 60 * 24) - 1000
 	});
 
 	json.data.history.push({
-		config: json.data.config,
-		time:   Date.now() - (1000 * 60 * 60 * 24) + 1000,
-		url:    'https://example.com/a-day-ago/after.html'
+		link: 'https://example.com/a-day-ago/after.html',
+		mode: json.data.mode,
+		time: Date.now() - (1000 * 60 * 60 * 24) + 1000
 	});
 
 	json.data.history.push({
-		config: json.data.config,
-		time:   Date.now() - (1000 * 60 * 60 * 24 * 7) - 1000,
-		url:    'https://example.com/a-week-ago/before.html'
+		link: 'https://example.com/a-week-ago/before.html',
+		mode: json.data.mode,
+		time: Date.now() - (1000 * 60 * 60 * 24 * 7) - 1000
 	});
 
 	json.data.history.push({
-		config: json.data.config,
-		time:   Date.now() - (1000 * 60 * 60 * 24 * 7) + 1000,
-		url:    'https://example.com/a-week-ago/after.html'
+		link: 'https://example.com/a-week-ago/after.html',
+		mode: json.data.mode,
+		time: Date.now() - (1000 * 60 * 60 * 24 * 7) + 1000
 	});
 
 	return json;
@@ -58,11 +58,11 @@ const mock_tab_with_history = () => {
 describe('new Tab()', function(assert) {
 
 	let tab1 = new Tab({
-		url: 'https://example.com/index.html'
+		url: URL.parse('https://example.com/index.html')
 	});
 
 	let tab2 = new Tab({
-		config: {
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -72,25 +72,11 @@ describe('new Tab()', function(assert) {
 				other: false
 			}
 		},
-		url: 'https://example.com/second.html'
+		url: URL.parse('https://example.com/second.html')
 	});
 
 	let tab3 = new Tab({
-		config: {
-			domain: 'example.com',
-			mode: {
-				text:  true,
-				image: true,
-				audio: false,
-				video: false,
-				other: false
-			}
-		},
-		ref: URL.parse('https://example.com/third.html')
-	});
-
-	let tab4 = new Tab({
-		config: {
+		mode: {
 			domain: null,
 			mode: {
 				text:  true,
@@ -100,11 +86,11 @@ describe('new Tab()', function(assert) {
 				other: false
 			}
 		},
-		ref: URL.parse('https://example.com/fourth.html')
+		url: URL.parse('https://example.com/third.html')
 	});
 
-	assert(tab1.url,    'https://example.com/index.html');
-	assert(tab1.config, {
+	assert(tab1.url,  URL.parse('https://example.com/index.html'));
+	assert(tab1.mode, {
 		domain: 'example.com',
 		mode: {
 			text:  false,
@@ -115,9 +101,9 @@ describe('new Tab()', function(assert) {
 		}
 	});
 
-	assert(tab1.history.length,    1);
-	assert(tab1.history[0].url,    'https://example.com/index.html');
-	assert(tab1.history[0].config, {
+	assert(tab1.history.length,  1);
+	assert(tab1.history[0].link, 'https://example.com/index.html');
+	assert(tab1.history[0].mode, {
 		domain: 'example.com',
 		mode: {
 			text:  false,
@@ -131,8 +117,8 @@ describe('new Tab()', function(assert) {
 	assert(Tab.isTab(tab1), true);
 	assert(isTab(tab1),     true);
 
-	assert(tab2.url,    'https://example.com/second.html');
-	assert(tab2.config, {
+	assert(tab2.url,  URL.parse('https://example.com/second.html'));
+	assert(tab2.mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -143,9 +129,9 @@ describe('new Tab()', function(assert) {
 		}
 	});
 
-	assert(tab2.history.length,    1);
-	assert(tab2.history[0].url,    'https://example.com/second.html');
-	assert(tab2.history[0].config, {
+	assert(tab2.history.length,  1);
+	assert(tab2.history[0].link, 'https://example.com/second.html');
+	assert(tab2.history[0].mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -159,26 +145,26 @@ describe('new Tab()', function(assert) {
 	assert(Tab.isTab(tab2), true);
 	assert(isTab(tab2),     true);
 
-	assert(tab3.url,    'https://example.com/third.html');
-	assert(tab3.config, {
+	assert(tab3.url,  URL.parse('https://example.com/third.html'));
+	assert(tab3.mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
 			image: true,
-			audio: false,
+			audio: true,
 			video: false,
 			other: false
 		}
 	});
 
-	assert(tab3.history.length,    1);
-	assert(tab3.history[0].url,    'https://example.com/third.html');
-	assert(tab3.history[0].config, {
+	assert(tab3.history.length,  1);
+	assert(tab3.history[0].link, 'https://example.com/third.html');
+	assert(tab3.history[0].mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
 			image: true,
-			audio: false,
+			audio: true,
 			video: false,
 			other: false
 		}
@@ -186,34 +172,6 @@ describe('new Tab()', function(assert) {
 
 	assert(Tab.isTab(tab3), true);
 	assert(isTab(tab3),     true);
-
-	assert(tab4.url,    'https://example.com/fourth.html');
-	assert(tab4.config, {
-		domain: 'example.com',
-		mode: {
-			text:  true,
-			image: true,
-			audio: true,
-			video: false,
-			other: false
-		}
-	});
-
-	assert(tab4.history.length,    1);
-	assert(tab4.history[0].url,    'https://example.com/fourth.html');
-	assert(tab4.history[0].config, {
-		domain: 'example.com',
-		mode: {
-			text:  true,
-			image: true,
-			audio: true,
-			video: false,
-			other: false
-		}
-	});
-
-	assert(Tab.isTab(tab4), true);
-	assert(isTab(tab4),     true);
 
 });
 
@@ -224,7 +182,8 @@ describe('Tab.from()', function(assert) {
 		data: {
 			id: '1337',
 			history: [{
-				config: {
+				link: 'https://example.com/index.html',
+				mode: {
 					domain: 'example.com',
 					mode: {
 						text:  true,
@@ -234,15 +193,14 @@ describe('Tab.from()', function(assert) {
 						other: true
 					}
 				},
-				time: Date.now(),
-				url: 'https://example.com/index.html'
+				time: Date.now()
 			}]
 		}
 	});
 
-	assert(tab.id,     '1337');
-	assert(tab.url,    'stealth:welcome');
-	assert(tab.config, {
+	assert(tab.id,   '1337');
+	assert(tab.url,  URL.parse('stealth:welcome'));
+	assert(tab.mode, {
 		domain: 'welcome',
 		mode: {
 			text:  true,
@@ -253,9 +211,9 @@ describe('Tab.from()', function(assert) {
 		}
 	});
 
-	assert(tab.history.length,    1);
-	assert(tab.history[0].url,    'https://example.com/index.html');
-	assert(tab.history[0].config, {
+	assert(tab.history.length,  1);
+	assert(tab.history[0].link, 'https://example.com/index.html');
+	assert(tab.history[0].mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -299,7 +257,8 @@ describe('Tab.merge()', function(assert) {
 		data: {
 			id: '1337',
 			history: [{
-				config: {
+				link: 'https://example.com/index.html',
+				mode: {
 					domain: 'example.com',
 					mode: {
 						text:  true,
@@ -309,17 +268,16 @@ describe('Tab.merge()', function(assert) {
 						other: true
 					}
 				},
-				time: Date.now(),
-				url: 'https://example.com/index.html'
+				time: Date.now()
 			}]
 		}
 	});
 
 	Tab.merge(tab1, tab2);
 
-	assert(tab1.id,     '1337');
-	assert(tab1.url,    'stealth:welcome');
-	assert(tab1.config, {
+	assert(tab1.id,   '1337');
+	assert(tab1.url,  URL.parse('stealth:welcome'));
+	assert(tab1.mode, {
 		domain: 'welcome',
 		mode: {
 			text:  true,
@@ -330,9 +288,9 @@ describe('Tab.merge()', function(assert) {
 		}
 	});
 
-	assert(tab1.history.length,    1);
-	assert(tab1.history[0].url,    'https://example.com/index.html');
-	assert(tab1.history[0].config, {
+	assert(tab1.history.length,  1);
+	assert(tab1.history[0].link, 'https://example.com/index.html');
+	assert(tab1.history[0].mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -354,7 +312,7 @@ describe('Tab.prototype.toJSON()', function(assert) {
 		type: 'Tab',
 		data: {
 			id: '1337',
-			config: {
+			mode: {
 				domain: 'example.com',
 				mode: {
 					text:  true,
@@ -365,7 +323,8 @@ describe('Tab.prototype.toJSON()', function(assert) {
 				}
 			},
 			history: [{
-				config: {
+				link: 'https://example.com/index.html',
+				mode: {
 					domain: 'example.com',
 					mode: {
 						text:  true,
@@ -375,8 +334,7 @@ describe('Tab.prototype.toJSON()', function(assert) {
 						other: true
 					}
 				},
-				time: Date.now(),
-				url: 'https://example.com/index.html'
+				time: Date.now()
 			}],
 			url: 'https://example.com/second.html'
 		}
@@ -387,7 +345,7 @@ describe('Tab.prototype.toJSON()', function(assert) {
 	assert(json.type, 'Tab');
 	assert(json.data, {
 		id: '1337',
-		config: {
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -398,7 +356,8 @@ describe('Tab.prototype.toJSON()', function(assert) {
 			}
 		},
 		history: [{
-			config: {
+			link: 'https://example.com/index.html',
+			mode: {
 				domain: 'example.com',
 				mode: {
 					text:  true,
@@ -408,10 +367,10 @@ describe('Tab.prototype.toJSON()', function(assert) {
 					other: true
 				}
 			},
-			time: Date.now(),
-			url: 'https://example.com/index.html'
+			time: Date.now()
 		}, {
-			config: {
+			link: 'https://example.com/second.html',
+			mode: {
 				domain: 'example.com',
 				mode: {
 					text:  true,
@@ -421,8 +380,7 @@ describe('Tab.prototype.toJSON()', function(assert) {
 					other: true
 				}
 			},
-			time: Date.now(),
-			url: 'https://example.com/second.html'
+			time: Date.now()
 		}],
 		requests: [],
 		url: 'https://example.com/second.html'
@@ -433,8 +391,7 @@ describe('Tab.prototype.toJSON()', function(assert) {
 describe('Tab.prototype.back()', function(assert) {
 
 	let tab = new Tab({
-		url: 'https://example.com/index.html',
-		config: {
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -443,15 +400,16 @@ describe('Tab.prototype.back()', function(assert) {
 				video: false,
 				other: true
 			}
-		}
+		},
+		url: URL.parse('https://example.com/index.html')
 	});
 
 	assert(tab.navigate('https://two.example.com/'),   true);
 	assert(tab.navigate('https://three.example.com/'), true);
 
 	assert(tab.back(), true);
-	assert(tab.url,    'https://two.example.com/');
-	assert(tab.config, {
+	assert(tab.url,    URL.parse('https://two.example.com/'));
+	assert(tab.mode,   {
 		domain: 'two.example.com',
 		mode: {
 			text:  true,
@@ -463,8 +421,8 @@ describe('Tab.prototype.back()', function(assert) {
 	});
 
 	assert(tab.back(), true);
-	assert(tab.url,    'https://example.com/index.html');
-	assert(tab.config, {
+	assert(tab.url,    URL.parse('https://example.com/index.html'));
+	assert(tab.mode,   {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -476,8 +434,8 @@ describe('Tab.prototype.back()', function(assert) {
 	});
 
 	assert(tab.back(), false);
-	assert(tab.url,    'https://example.com/index.html');
-	assert(tab.config, {
+	assert(tab.url,    URL.parse('https://example.com/index.html'));
+	assert(tab.mode,   {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -493,8 +451,7 @@ describe('Tab.prototype.back()', function(assert) {
 describe('Tab.prototype.can()', function(assert) {
 
 	let tab = new Tab({
-		url: 'https://example.com/index.html',
-		config: {
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -503,7 +460,8 @@ describe('Tab.prototype.can()', function(assert) {
 				video: false,
 				other: true
 			}
-		}
+		},
+		url: URL.parse('https://example.com/index.html')
 	});
 
 	assert(tab.can('back'),  false);
@@ -537,7 +495,7 @@ describe('Tab.prototype.can()', function(assert) {
 
 	let request = new Request({
 		blockers: [],
-		config:   {
+		mode:     {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -547,7 +505,7 @@ describe('Tab.prototype.can()', function(assert) {
 				other: false
 			}
 		},
-		url: 'https://example.com/not-yet-downloaded.html'
+		url: URL.parse('https://example.com/not-yet-downloaded.html')
 	});
 
 	assert(tab.track(request),   true);
@@ -563,8 +521,7 @@ describe('Tab.prototype.can()', function(assert) {
 describe('Tab.prototype.destroy()', function(assert) {
 
 	let tab = new Tab({
-		url: 'https://example.com/index.html',
-		config: {
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -573,26 +530,27 @@ describe('Tab.prototype.destroy()', function(assert) {
 				video: false,
 				other: true
 			}
-		}
+		},
+		url: URL.parse('https://example.com/index.html')
 	});
 
-	assert(tab.url,            'https://example.com/index.html');
-	assert(tab.history.length, 1);
-	assert(tab.history[0].url, 'https://example.com/index.html');
+	assert(tab.url,             URL.parse('https://example.com/index.html'));
+	assert(tab.history.length,  1);
+	assert(tab.history[0].link, 'https://example.com/index.html');
 
 	assert(tab.navigate('https://example.com/second.html'), true);
 	assert(tab.navigate('https://example.com/third.html'),  true);
 
-	assert(tab.url,            'https://example.com/third.html');
-	assert(tab.history.length, 3);
-	assert(tab.history[0].url, 'https://example.com/index.html');
-	assert(tab.history[1].url, 'https://example.com/second.html');
-	assert(tab.history[2].url, 'https://example.com/third.html');
+	assert(tab.url,             URL.parse('https://example.com/third.html'));
+	assert(tab.history.length,  3);
+	assert(tab.history[0].link, 'https://example.com/index.html');
+	assert(tab.history[1].link, 'https://example.com/second.html');
+	assert(tab.history[2].link, 'https://example.com/third.html');
 
 	tab.destroy();
 
-	assert(tab.url,    'stealth:welcome');
-	assert(tab.config, {
+	assert(tab.url,  URL.parse('stealth:welcome'));
+	assert(tab.mode, {
 		domain: 'welcome',
 		mode: {
 			text:  true,
@@ -602,8 +560,8 @@ describe('Tab.prototype.destroy()', function(assert) {
 			other: true
 		}
 	});
-	assert(tab.history.length, 1);
-	assert(tab.history[0].url, 'stealth:welcome');
+	assert(tab.history.length,  1);
+	assert(tab.history[0].link, 'stealth:welcome');
 
 });
 
@@ -621,32 +579,32 @@ describe('Tab.prototype.forget()', function(assert) {
 	assert(tab4.forget('week'),    true);
 	assert(tab5.forget('forever'), true);
 
-	assert(tab1.history.length, 5);
-	assert(tab1.history[0].url, 'https://example.com/a-week-ago/before.html');
-	assert(tab1.history[1].url, 'https://example.com/a-week-ago/after.html');
-	assert(tab1.history[2].url, 'https://example.com/a-day-ago/before.html');
-	assert(tab1.history[3].url, 'https://example.com/a-day-ago/after.html');
-	assert(tab1.history[4].url, 'https://example.com/index.html');
+	assert(tab1.history.length,  5);
+	assert(tab1.history[0].link, 'https://example.com/a-week-ago/before.html');
+	assert(tab1.history[1].link, 'https://example.com/a-week-ago/after.html');
+	assert(tab1.history[2].link, 'https://example.com/a-day-ago/before.html');
+	assert(tab1.history[3].link, 'https://example.com/a-day-ago/after.html');
+	assert(tab1.history[4].link, 'https://example.com/index.html');
 
-	assert(tab2.history.length, 1);
-	assert(tab2.history[0].url, 'https://example.com/index.html');
+	assert(tab2.history.length,  1);
+	assert(tab2.history[0].link, 'https://example.com/index.html');
 
-	assert(tab3.history.length, 2);
-	assert(tab3.history[0].url, 'https://example.com/a-day-ago/after.html');
-	assert(tab3.history[1].url, 'https://example.com/index.html');
+	assert(tab3.history.length,  2);
+	assert(tab3.history[0].link, 'https://example.com/a-day-ago/after.html');
+	assert(tab3.history[1].link, 'https://example.com/index.html');
 
-	assert(tab4.history.length, 4);
-	assert(tab4.history[0].url, 'https://example.com/a-week-ago/after.html');
-	assert(tab4.history[1].url, 'https://example.com/a-day-ago/before.html');
-	assert(tab4.history[2].url, 'https://example.com/a-day-ago/after.html');
-	assert(tab4.history[3].url, 'https://example.com/index.html');
+	assert(tab4.history.length,  4);
+	assert(tab4.history[0].link, 'https://example.com/a-week-ago/after.html');
+	assert(tab4.history[1].link, 'https://example.com/a-day-ago/before.html');
+	assert(tab4.history[2].link, 'https://example.com/a-day-ago/after.html');
+	assert(tab4.history[3].link, 'https://example.com/index.html');
 
-	assert(tab5.history.length, 5);
-	assert(tab5.history[0].url, 'https://example.com/a-week-ago/before.html');
-	assert(tab5.history[1].url, 'https://example.com/a-week-ago/after.html');
-	assert(tab5.history[2].url, 'https://example.com/a-day-ago/before.html');
-	assert(tab5.history[3].url, 'https://example.com/a-day-ago/after.html');
-	assert(tab5.history[4].url, 'https://example.com/index.html');
+	assert(tab5.history.length,  5);
+	assert(tab5.history[0].link, 'https://example.com/a-week-ago/before.html');
+	assert(tab5.history[1].link, 'https://example.com/a-week-ago/after.html');
+	assert(tab5.history[2].link, 'https://example.com/a-day-ago/before.html');
+	assert(tab5.history[3].link, 'https://example.com/a-day-ago/after.html');
+	assert(tab5.history[4].link, 'https://example.com/index.html');
 
 });
 
@@ -655,7 +613,7 @@ describe('Tab.prototype.includes()', function(assert) {
 	let tab     = new Tab({ url: 'https://example.com' });
 	let request = new Request({
 		blockers: [],
-		config:   {
+		mode:     {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -679,8 +637,8 @@ describe('Tab.prototype.includes()', function(assert) {
 describe('Tab.prototype.navigate()', function(assert) {
 
 	let tab1 = new Tab({
-		url: 'https://example.com/index.html',
-		config: {
+		url:  URL.parse('https://example.com/index.html'),
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -694,8 +652,8 @@ describe('Tab.prototype.navigate()', function(assert) {
 	let tab2 = new Tab();
 
 	assert(tab1.navigate('https://two.example.com/second.html'), true);
-	assert(tab1.url,    'https://two.example.com/second.html');
-	assert(tab1.config, {
+	assert(tab1.url,  URL.parse('https://two.example.com/second.html'));
+	assert(tab1.mode, {
 		domain: 'two.example.com',
 		mode: {
 			text:  true,
@@ -707,8 +665,8 @@ describe('Tab.prototype.navigate()', function(assert) {
 	});
 
 	assert(tab1.navigate('https://three.example.com/third.html', null), true);
-	assert(tab1.url,    'https://three.example.com/third.html');
-	assert(tab1.config, {
+	assert(tab1.url,  URL.parse('https://three.example.com/third.html'));
+	assert(tab1.mode, {
 		domain: 'three.example.com',
 		mode: {
 			text:  true,
@@ -720,8 +678,8 @@ describe('Tab.prototype.navigate()', function(assert) {
 	});
 
 	assert(tab2.navigate('stealth:settings', null), true);
-	assert(tab2.url,    'stealth:settings');
-	assert(tab2.config, {
+	assert(tab2.url,  URL.parse('stealth:settings'));
+	assert(tab2.mode, {
 		domain: 'settings',
 		mode: {
 			text:  true,
@@ -733,8 +691,8 @@ describe('Tab.prototype.navigate()', function(assert) {
 	});
 
 	assert(tab2.navigate('stealth:welcome', null), true);
-	assert(tab2.url,    'stealth:welcome');
-	assert(tab2.config, {
+	assert(tab2.url,  URL.parse('stealth:welcome'));
+	assert(tab2.mode, {
 		domain: 'welcome',
 		mode: {
 			text:  true,
@@ -746,8 +704,8 @@ describe('Tab.prototype.navigate()', function(assert) {
 	});
 
 	assert(tab2.navigate('http://1.3.3.7/index.html', null), true);
-	assert(tab2.url,    'http://1.3.3.7/index.html');
-	assert(tab2.config, {
+	assert(tab2.url,  URL.parse('http://1.3.3.7/index.html'));
+	assert(tab2.mode, {
 		domain: '1.3.3.7',
 		mode: {
 			text:  false,
@@ -763,8 +721,8 @@ describe('Tab.prototype.navigate()', function(assert) {
 describe('Tab.prototype.next()', function(assert) {
 
 	let tab = new Tab({
-		url: 'https://example.com/index.html',
-		config: {
+		url:  URL.parse('https://example.com/index.html'),
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -784,8 +742,8 @@ describe('Tab.prototype.next()', function(assert) {
 	assert(tab.back(), false);
 
 	assert(tab.next(), true);
-	assert(tab.url,    'https://two.example.com/');
-	assert(tab.config, {
+	assert(tab.url,  URL.parse('https://two.example.com/'));
+	assert(tab.mode, {
 		domain: 'two.example.com',
 		mode: {
 			text:  true,
@@ -797,8 +755,8 @@ describe('Tab.prototype.next()', function(assert) {
 	});
 
 	assert(tab.next(), true);
-	assert(tab.url,    'https://three.example.com/');
-	assert(tab.config, {
+	assert(tab.url,  URL.parse('https://three.example.com/'));
+	assert(tab.mode, {
 		domain: 'three.example.com',
 		mode: {
 			text:  true,
@@ -814,8 +772,8 @@ describe('Tab.prototype.next()', function(assert) {
 describe('Tab.prototype.pause()', function(assert) {
 
 	let tab = new Tab({
-		url: 'https://example.com/index.html',
-		config: {
+		url:  URL.parse('https://example.com/index.html'),
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -829,8 +787,8 @@ describe('Tab.prototype.pause()', function(assert) {
 
 	let request = new Request({
 		blockers: [],
-		config:   tab.config,
-		url:      'https://example.com/not-yet-downloaded.html'
+		mode:     tab.mode,
+		url:      URL.parse('https://example.com/not-yet-downloaded.html')
 	});
 
 	assert(tab.pause(),        false);
@@ -852,8 +810,8 @@ describe('Tab.prototype.pause()', function(assert) {
 describe('Tab.prototype.track()', function(assert) {
 
 	let tab = new Tab({
-		url: 'https://example.com/index.html',
-		config: {
+		url:   URL.parse('https://example.com/index.html'),
+		modes: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -867,8 +825,8 @@ describe('Tab.prototype.track()', function(assert) {
 
 	let request = new Request({
 		blockers: [],
-		config:   tab.config,
-		url:      'https://example.com/not-yet-downloaded.html'
+		mode:     tab.mode,
+		url:      URL.parse('https://example.com/not-yet-downloaded.html')
 	});
 
 	assert(tab.track(null),      false);
@@ -881,8 +839,8 @@ describe('Tab.prototype.track()', function(assert) {
 describe('Tab.prototype.untrack()', function(assert) {
 
 	let tab = new Tab({
-		url: 'https://example.com/index.html',
-		config: {
+		url:  URL.parse('https://example.com/index.html'),
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -896,8 +854,8 @@ describe('Tab.prototype.untrack()', function(assert) {
 
 	let request = new Request({
 		blockers: [],
-		config:   tab.config,
-		url:      'https://example.com/not-yet-downloaded.html'
+		mode:     tab.mode,
+		url:      URL.parse('https://example.com/not-yet-downloaded.html')
 	});
 
 	assert(tab.track(request),   true);

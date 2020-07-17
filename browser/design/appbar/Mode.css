@@ -63,11 +63,15 @@ browser-appbar-mode button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
-browser-appbar-mode button[data-key="text"]:before  { content: '\e06f'; }
-browser-appbar-mode button[data-key="image"]:before { content: '\e432'; }
-browser-appbar-mode button[data-key="audio"]:before { content: '\e049'; }
-browser-appbar-mode button[data-key="video"]:before { content: '\e404'; }
-browser-appbar-mode button[data-key="other"]:before { content: '\e048'; }
-browser-appbar-mode button[data-val="true"]         { color: var(--element-active-color); }
-browser-appbar-mode button[data-val="true"]:hover   { color: var(--element-active-color); }
+browser-appbar-mode input[data-key="domain"] {
+	display: none;
+}
+
+browser-appbar-mode button[data-key="mode.text"]:before  { content: '\e06f'; }
+browser-appbar-mode button[data-key="mode.image"]:before { content: '\e432'; }
+browser-appbar-mode button[data-key="mode.audio"]:before { content: '\e049'; }
+browser-appbar-mode button[data-key="mode.video"]:before { content: '\e404'; }
+browser-appbar-mode button[data-key="mode.other"]:before { content: '\e048'; }
+browser-appbar-mode button[data-val="true"]              { color: var(--element-active-color); }
+browser-appbar-mode button[data-val="true"]:hover        { color: var(--element-active-color); }
 

@@ -3,17 +3,17 @@ import net from 'net';
 
 import { Buffer, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
 import { describe, finish, EXAMPLE              } from '../../../covert/index.mjs';
-import { HTTPS                                  } from '../../../stealth/source/protocol/HTTPS.mjs';
+import { HTTP                                   } from '../../../stealth/source/connection/HTTP.mjs';
 
 
 
-describe('HTTPS.connect()', function(assert) {
+describe('HTTP.connect()', function(assert) {
 
-	assert(isFunction(HTTPS.connect), true);
+	assert(isFunction(HTTP.connect), true);
 
 
-	let ref        = EXAMPLE.ref('https://example.com/index.html');
-	let connection = HTTPS.connect(ref);
+	let url        = EXAMPLE.toURL('http://example.com:80/index.html');
+	let connection = HTTP.connect(url);
 
 	connection.once('@connect', () => {
 
@@ -31,20 +31,20 @@ describe('HTTPS.connect()', function(assert) {
 
 });
 
-describe('HTTPS.disconnect()', function(assert) {
+describe('HTTP.disconnect()', function(assert) {
 
-	assert(isFunction(HTTPS.disconnect), true);
+	assert(isFunction(HTTP.disconnect), true);
 
 
-	let ref        = EXAMPLE.ref('https://example.com/index.html');
-	let connection = HTTPS.connect(ref);
+	let url        = EXAMPLE.toURL('http://example.com:80/index.html');
+	let connection = HTTP.connect(url);
 
 	connection.once('@connect', () => {
 
 		assert(true);
 
 		setTimeout(() => {
-			assert(HTTPS.disconnect(connection), true);
+			assert(HTTP.disconnect(connection), true);
 		}, 0);
 
 	});
@@ -55,17 +55,17 @@ describe('HTTPS.disconnect()', function(assert) {
 
 });
 
-describe('HTTPS.receive()/client', function(assert) {
+describe('HTTP.receive()/client', function(assert) {
 
-	assert(isFunction(HTTPS.receive), true);
+	assert(isFunction(HTTP.receive), true);
 
 
-	let ref        = EXAMPLE.ref('https://example.com');
-	let connection = HTTPS.connect(ref);
+	let url        = EXAMPLE.toURL('http://example.com:80');
+	let connection = HTTP.connect(url);
 
 	connection.once('@connect', () => {
 
-		HTTPS.receive(connection, Buffer.from([
+		HTTP.receive(connection, Buffer.from([
 			'HTTP/1.1 200 OK',
 			'Content-Encoding: identity',
 			'Cache-Control: max-age=604800',
@@ -108,16 +108,16 @@ describe('HTTPS.receive()/client', function(assert) {
 
 });
 
-describe('HTTPS.receive()/server', function(assert) {
+describe('HTTP.receive()/server', function(assert) {
 
-	assert(isFunction(HTTPS.receive), true);
+	assert(isFunction(HTTP.receive), true);
 
 
-	let connection = HTTPS.upgrade(new net.Socket(), {});
+	let connection = HTTP.upgrade(new net.Socket(), {});
 
 	connection.once('@connect', () => {
 
-		HTTPS.receive(connection, Buffer.from([
+		HTTP.receive(connection, Buffer.from([
 			'GET /index.html HTTP/1.1',
 			'Host: example.com',
 			'Accept-Encoding: gzip',
@@ -144,13 +144,13 @@ describe('HTTPS.receive()/server', function(assert) {
 
 });
 
-describe('HTTPS.send()', function(assert) {
+describe('HTTP.send()', function(assert) {
 
-	assert(isFunction(HTTPS.send), true);
+	assert(isFunction(HTTP.send), true);
 
 
-	let ref        = EXAMPLE.ref('https://example.com/index.html');
-	let connection = HTTPS.connect(ref);
+	let url        = EXAMPLE.toURL('http://example.com:80/index.html');
+	let connection = HTTP.connect(url);
 
 	connection.once('response', (response) => {
 
@@ -169,7 +169,7 @@ describe('HTTPS.send()', function(assert) {
 
 	connection.once('@connect', () => {
 
-		HTTPS.send(connection, {
+		HTTP.send(connection, {
 			headers: {
 				'@method':         'GET',
 				'@url':            '/index.html',
@@ -187,8 +187,88 @@ describe('HTTPS.send()', function(assert) {
 
 });
 
+describe('HTTP.upgrade()', function(assert) {
 
-export default finish('stealth/protocol/HTTPS', {
+	let server = new net.Server({
+		allowHalfOpen:  true,
+		pauseOnConnect: true
+	});
+
+	server.once('connection', (socket) => {
+
+		let connection = HTTP.upgrade(socket);
+
+		connection.once('@connect', () => {
+			assert(true);
+		});
+
+		connection.once('request', (request) => {
+
+			assert(request, {
+				headers: {
+					'@method':         'GET',
+					'@url':            '/index.html',
+					'host':            'example.com',
+					'accept-encoding': 'gzip'
+				},
+				payload: null
+			});
+
+		});
+
+		connection.once('@disconnect', () => {
+			assert(true);
+		});
+
+		socket.resume();
+
+	});
+
+	server.listen(13337, null);
+
+
+	let url        = EXAMPLE.toURL('http://localhost:13337');
+	let connection = HTTP.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			HTTP.send(connection, {
+				headers: {
+					'@method':         'GET',
+					'@url':            '/index.html',
+					'host':            'example.com',
+					'accept-encoding': 'gzip'
+				},
+				payload: null
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			assert(HTTP.disconnect(connection), true);
+		}, 500);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+	setTimeout(() => {
+		server.close();
+		assert(true);
+	}, 1000);
+
+});
+
+
+export default finish('stealth/connection/HTTP', {
 	internet: true
 });
 

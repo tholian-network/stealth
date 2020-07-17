@@ -55,14 +55,13 @@ Redirect.isRedirect = function(payload) {
 		&& isString(payload.location) === true
 	) {
 
-		let ref = URL.parse(payload.location);
-		if (
-			(ref.domain !== null || ref.host !== null)
-			&& (ref.protocol === 'https' || ref.protocol === 'http')
-		) {
-			return true;
-		} else if (payload.location.startsWith('/')) {
-			return true;
+		let url = URL.parse(payload.location);
+		if (url.protocol === 'https' || url.protocol === 'http') {
+
+			if (isString(url.domain) === true || isString(url.host) === true) {
+				return true;
+			}
+
 		}
 
 	}
@@ -93,10 +92,10 @@ Redirect.toRedirect = function(payload) {
 
 		if (domain !== null && isString(payload.path) === true && isString(payload.location) === true) {
 
-			let ref = URL.parse(payload.location);
+			let url = URL.parse(payload.location);
 			if (
-				(ref.domain !== null || ref.host !== null)
-				&& (ref.protocol === 'https' || ref.protocol === 'http')
+				(url.domain !== null || url.host !== null)
+				&& (url.protocol === 'https' || url.protocol === 'http')
 			) {
 
 				return {

@@ -26,11 +26,11 @@ are executed.
 As Covert also includes peer-to-peer tests for end-to-end network services, it
 requires the host machine to be reachable under at least two different IPs.
 
-If the host machine has no internet connection, some network-protocol
-related tests will fail, such as
-[/stealth/protocol/DNS](/stealth/review/protocol/DNS.mjs),
-[/stealth/protocol/HTTPS](/stealth/review/protocol/HTTPS.mjs),
-[/stealth/protocol/HTTP](/stealth/review/protocol/HTTP.mjs),
+If the host machine has no internet connection, some network-related tests
+will fail, such as
+[/stealth/connection/DNS](/stealth/review/connection/DNS.mjs),
+[/stealth/connection/HTTPS](/stealth/review/connection/HTTPS.mjs),
+[/stealth/connection/HTTP](/stealth/review/connection/HTTP.mjs),
 or [/stealth/client/Host](/stealth/review/client/Host.mjs).
 
 As the only failsafe way to do this (without requiring two network cards or

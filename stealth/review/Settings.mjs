@@ -57,12 +57,12 @@ describe('Settings.from()', function(assert) {
 	let settings = Settings.from({
 		type: 'Settings',
 		data: {
-			internet: {
+			'internet': {
 				connection: 'mobile',
 				history:    'forever',
 				useragent:  'spider-desktop'
 			},
-			hosts: [{
+			'hosts': [{
 				domain: 'covert.localdomain',
 				hosts: [{
 					ip:    '127.0.0.1',
@@ -70,7 +70,7 @@ describe('Settings.from()', function(assert) {
 					type:  'v4'
 				}]
 			}],
-			modes: [{
+			'modes': [{
 				domain: 'covert.localdomain',
 				mode: {
 					text:  true,
@@ -80,37 +80,41 @@ describe('Settings.from()', function(assert) {
 					other: true
 				}
 			}],
-			peers: [{
+			'peers': [{
 				domain:     'covert.localdomain',
 				connection: 'mobile'
 			}],
-			profile: sandbox,
-			redirects: [{
+			'profile': sandbox,
+			'redirects': [{
 				domain:   'covert.localdomain',
 				path:     '/redirect',
 				location: 'https://covert.localdomain/location.html'
 			}],
-			sessions: [{
+			'sessions': [{
 				type: 'Session',
 				data: {
 					domain:  'covert-two.localdomain',
 					warning: 1
 				}
 			}],
-			vendor: null
+			'vendor': null
 		}
 	});
 
-	assert(settings.profile, sandbox);
-	assert(settings.vendor,  null);
+	assert(settings['profile'], sandbox);
+	assert(settings['vendor'],  null);
 
-	assert(settings.internet, {
+	assert(settings['interface'], {
+		theme: 'dark'
+	});
+
+	assert(settings['internet'], {
 		connection: 'mobile',
 		history:    'forever',
 		useragent:  'spider-desktop'
 	});
 
-	assert(settings.hosts, [{
+	assert(settings['hosts'], [{
 		domain: 'covert.localdomain',
 		hosts: [{
 			ip:    '127.0.0.1',
@@ -119,7 +123,7 @@ describe('Settings.from()', function(assert) {
 		}]
 	}]);
 
-	assert(settings.modes, [{
+	assert(settings['modes'], [{
 		domain: 'covert.localdomain',
 		mode: {
 			text:  true,
@@ -130,20 +134,20 @@ describe('Settings.from()', function(assert) {
 		}
 	}]);
 
-	assert(settings.peers, [{
+	assert(settings['peers'], [{
 		domain:     'covert.localdomain',
 		connection: 'mobile'
 	}]);
 
-	assert(settings.redirects, [{
+	assert(settings['redirects'], [{
 		domain:   'covert.localdomain',
 		path:     '/redirect',
 		location: 'https://covert.localdomain/location.html'
 	}]);
 
-	assert(settings.sessions.length,     1);
-	assert(settings.sessions[0].domain,  'covert-two.localdomain');
-	assert(settings.sessions[0].warning, 1);
+	assert(settings['sessions'].length,     1);
+	assert(settings['sessions'][0].domain,  'covert-two.localdomain');
+	assert(settings['sessions'][0].warning, 1);
 
 });
 
@@ -173,12 +177,15 @@ describe('Settings.prototype.toJSON()', function(assert) {
 	let settings = Settings.from({
 		type: 'Settings',
 		data: {
-			internet: {
+			'interface': {
+				theme: 'light'
+			},
+			'internet': {
 				connection: 'mobile',
 				history:    'forever',
 				useragent:  'spider-desktop'
 			},
-			hosts: [{
+			'hosts': [{
 				domain: 'covert.localdomain',
 				hosts: [{
 					ip:    '127.0.0.1',
@@ -186,7 +193,7 @@ describe('Settings.prototype.toJSON()', function(assert) {
 					type:  'v4'
 				}]
 			}],
-			modes: [{
+			'modes': [{
 				domain: 'covert.localdomain',
 				mode: {
 					text:  true,
@@ -196,24 +203,24 @@ describe('Settings.prototype.toJSON()', function(assert) {
 					other: true
 				}
 			}],
-			peers: [{
+			'peers': [{
 				domain:     'covert.localdomain',
 				connection: 'mobile'
 			}],
-			profile: sandbox,
-			redirects: [{
+			'profile': sandbox,
+			'redirects': [{
 				domain:   'covert.localdomain',
 				path:     '/redirect',
 				location: 'https://covert.localdomain/location.html'
 			}],
-			sessions: [{
+			'sessions': [{
 				type: 'Session',
 				data: {
 					domain:  'covert-two.localdomain',
 					warning: 1
 				}
 			}],
-			vendor: null
+			'vendor': null
 		}
 	});
 
@@ -221,12 +228,15 @@ describe('Settings.prototype.toJSON()', function(assert) {
 
 	assert(json.type, 'Settings');
 	assert(json.data, {
-		internet: {
+		'interface': {
+			theme: 'light'
+		},
+		'internet': {
 			connection: 'mobile',
 			history:    'forever',
 			useragent:  'spider-desktop'
 		},
-		beacons:  [{
+		'beacons':  [{
 			domain: 'covert.localdomain',
 			path:   '/news/*',
 			beacons: [{
@@ -235,8 +245,8 @@ describe('Settings.prototype.toJSON()', function(assert) {
 				mode:   'text'
 			}]
 		}],
-		blockers: null,
-		hosts: [{
+		'blockers': null,
+		'hosts': [{
 			domain: 'covert.localdomain',
 			hosts: [{
 				ip:    '127.0.0.1',
@@ -244,7 +254,7 @@ describe('Settings.prototype.toJSON()', function(assert) {
 				type:  'v4'
 			}]
 		}],
-		modes: [{
+		'modes': [{
 			domain: 'covert.localdomain',
 			mode: {
 				text:  true,
@@ -254,13 +264,13 @@ describe('Settings.prototype.toJSON()', function(assert) {
 				other: true
 			}
 		}],
-		peers: [{
+		'peers': [{
 			domain:     'covert.localdomain',
 			connection: 'mobile'
 		}],
-		profile: sandbox,
-		redirects: null,
-		sessions: [{
+		'profile': sandbox,
+		'redirects': null,
+		'sessions': [{
 			type: 'Session',
 			data: {
 				agent:   null,
@@ -269,7 +279,7 @@ describe('Settings.prototype.toJSON()', function(assert) {
 				warning: 1
 			}
 		}],
-		vendor: null
+		'vendor': null
 	});
 
 });
@@ -280,12 +290,15 @@ describe('Settings.prototype.read()', function(assert) {
 	let settings = Settings.from({
 		type: 'Settings',
 		data: {
-			internet: {
+			'interface': {
+				theme: 'light'
+			},
+			'internet': {
 				connection: 'mobile',
 				history:    'forever',
 				useragent:  'spider-desktop'
 			},
-			beacons: [{
+			'beacons': [{
 				domain: 'covert.localdomain',
 				path:   '/news/*',
 				beacons: [{
@@ -294,10 +307,10 @@ describe('Settings.prototype.read()', function(assert) {
 					mode:   'text'
 				}]
 			}],
-			blockers: [{
+			'blockers': [{
 				domain: 'malicious.example.com'
 			}],
-			hosts: [{
+			'hosts': [{
 				domain: 'covert.localdomain',
 				hosts: [{
 					ip:    '127.0.0.1',
@@ -305,7 +318,7 @@ describe('Settings.prototype.read()', function(assert) {
 					type:  'v4'
 				}]
 			}],
-			modes: [{
+			'modes': [{
 				domain: 'covert.localdomain',
 				mode: {
 					text:  true,
@@ -315,24 +328,24 @@ describe('Settings.prototype.read()', function(assert) {
 					other: true
 				}
 			}],
-			peers: [{
+			'peers': [{
 				domain:     'covert.localdomain',
 				connection: 'mobile'
 			}],
-			profile: sandbox,
-			redirects: [{
+			'profile': sandbox,
+			'redirects': [{
 				domain:   'covert.localdomain',
 				path:     '/redirect',
 				location: 'https://covert.localdomain/location.html'
 			}],
-			sessions: [{
+			'sessions': [{
 				type: 'Session',
 				data: {
 					domain:  'covert-two.localdomain',
 					warning: 1
 				}
 			}],
-			vendor: null
+			'vendor': null
 		}
 	});
 
@@ -341,6 +354,10 @@ describe('Settings.prototype.read()', function(assert) {
 	});
 
 	setTimeout(() => {
+
+		assert(read_file(sandbox + '/interface.json'), {
+			theme: 'light'
+		});
 
 		assert(read_file(sandbox + '/internet.json'), {
 			connection: 'mobile',
@@ -422,6 +439,10 @@ describe('Settings.prototype.save()', function(assert) {
 
 	setTimeout(() => {
 
+		assert(read_file(sandbox + '/interface.json'), {
+			theme: 'dark'
+		});
+
 		assert(read_file(sandbox + '/internet.json'), {
 			connection: 'mobile',
 			history:    'stealth',
@@ -443,13 +464,17 @@ describe('Settings.prototype.save()', function(assert) {
 
 	setTimeout(() => {
 
-		settings.internet = {
+		settings['interface'] = {
+			theme: 'light'
+		};
+
+		settings['internet'] = {
 			connection: 'mobile',
 			history:    'forever',
 			useragent:  'spider-desktop'
 		};
 
-		settings.beacons = [{
+		settings['beacons'] = [{
 			domain: 'covert.localdomain',
 			path:   '/news/*',
 			beacons: [{
@@ -459,11 +484,11 @@ describe('Settings.prototype.save()', function(assert) {
 			}]
 		}];
 
-		settings.blockers = [{
+		settings['blockers'] = [{
 			domain: 'malicious.example.com'
 		}];
 
-		settings.hosts = [{
+		settings['hosts'] = [{
 			domain: 'covert.localdomain',
 			hosts: [{
 				ip:    '127.0.0.1',
@@ -472,7 +497,7 @@ describe('Settings.prototype.save()', function(assert) {
 			}]
 		}];
 
-		settings.modes = [{
+		settings['modes'] = [{
 			domain: 'covert.localdomain',
 			mode: {
 				text:  true,
@@ -483,18 +508,18 @@ describe('Settings.prototype.save()', function(assert) {
 			}
 		}];
 
-		settings.peers = [{
+		settings['peers'] = [{
 			domain:     'covert.localdomain',
 			connection: 'mobile'
 		}];
 
-		settings.redirects = [{
+		settings['redirects'] = [{
 			domain:   'covert.localdomain',
 			path:     '/redirect',
 			location: 'https://covert.localdomain/location.html'
 		}];
 
-		settings.sessions = [{
+		settings['sessions'] = [{
 			type: 'Session',
 			data: {
 				domain:  'covert-two.localdomain',
@@ -509,6 +534,10 @@ describe('Settings.prototype.save()', function(assert) {
 	}, 200);
 
 	setTimeout(() => {
+
+		assert(read_file(sandbox + '/interface.json'), {
+			theme: 'light'
+		});
 
 		assert(read_file(sandbox + '/internet.json'), {
 			connection: 'mobile',

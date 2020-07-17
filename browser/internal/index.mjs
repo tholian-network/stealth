@@ -250,7 +250,7 @@ const rotate_through_modes = function(browser, buttons) {
 
 			if (browser !== null && browser.tab !== null) {
 				browser.set({
-					domain: browser.tab.config.domain,
+					domain: browser.tab.mode.domain,
 					mode: {
 						text:  false,
 						image: false,

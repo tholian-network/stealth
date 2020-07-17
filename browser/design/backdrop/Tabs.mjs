@@ -5,35 +5,6 @@ import { URL     } from '../../source/parser/URL.mjs';
 
 
 
-const sort_by_domain = function(a, b) {
-
-	if (a.ref.protocol === 'stealth' && b.ref.protocol !== 'stealth') return  1;
-	if (b.ref.protocol === 'stealth' && a.ref.protocol !== 'stealth') return -1;
-
-	if (a.ref.domain < b.ref.domain) return -1;
-	if (b.ref.domain < a.ref.domain) return  1;
-
-	if (a.ref.subdomain !== null && b.ref.subdomain !== null) {
-		if (a.ref.subdomain < b.ref.subdomain) return -1;
-		if (b.ref.subdomain < a.ref.subdomain) return  1;
-	}
-
-	if (a.ref.subdomain !== null && b.ref.subdomain === null) return  1;
-	if (b.ref.subdomain !== null && a.ref.subdomain === null) return -1;
-
-	return 0;
-
-};
-
-const sort_by_id = function(a, b) {
-
-	if (a.id < b.id) return -1;
-	if (b.id < a.id) return  1;
-
-	return 0;
-
-};
-
 const update_area = function() {
 
 	let area = this.element.area();
@@ -67,26 +38,55 @@ const update = function(tab, tabs) {
 	if (tabs.length > 1) {
 
 		if (this.__state.sorting === 'domain') {
-			tabs = tabs.sort(sort_by_domain);
+
+			tabs = tabs.sort((a, b) => {
+
+				if (a.url.protocol === 'stealth' && b.url.protocol !== 'stealth') return  1;
+				if (b.url.protocol === 'stealth' && a.url.protocol !== 'stealth') return -1;
+
+				if (a.url.domain < b.url.domain) return -1;
+				if (b.url.domain < a.url.domain) return  1;
+
+				if (a.url.subdomain !== null && b.url.subdomain !== null) {
+					if (a.url.subdomain < b.url.subdomain) return -1;
+					if (b.url.subdomain < a.url.subdomain) return  1;
+				}
+
+				if (a.url.subdomain !== null && b.url.subdomain === null) return  1;
+				if (b.url.subdomain !== null && a.url.subdomain === null) return -1;
+
+				return 0;
+
+			});
+
 		} else if (this.__state.sorting === 'id') {
-			tabs = tabs.sort(sort_by_id);
+
+			tabs = tabs.sort((a, b) => {
+
+				if (a.id < b.id) return -1;
+				if (b.id < a.id) return  1;
+
+				return 0;
+
+			});
+
 		}
 
 
 		let buttons = tabs.map((tab) => {
 
 			let button = new Element('button', URL.render({
-				domain:    tab.ref.domain,
+				domain:    tab.url.domain,
 				hash:      null,
-				host:      tab.ref.host,
+				host:      tab.url.host,
 				path:      null,
 				port:      null,
 				protocol:  null,
 				query:     null,
-				subdomain: tab.ref.subdomain
+				subdomain: tab.url.subdomain
 			}), false);
 
-			button.attr('title',   tab.ref.url);
+			button.attr('title',   tab.url.link);
 			button.attr('data-id', tab.id);
 
 			return button;
@@ -252,7 +252,7 @@ const Tabs = function(browser) {
 
 				actions.push({
 					icon:     'refresh',
-					label:    'sort by tab id',
+					label:    'sort by id',
 					value:    'id',
 					callback: (browser, value) => {
 						this.__state.sorting = value;

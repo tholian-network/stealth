@@ -18,6 +18,12 @@ import client_Redirect    from './client/Redirect.mjs';
 import client_Session     from './client/Session.mjs';
 import client_Settings    from './client/Settings.mjs';
 import client_Stash       from './client/Stash.mjs';
+import connection_DNS     from './connection/DNS.mjs';
+import connection_HTTP    from './connection/HTTP.mjs';
+import connection_HTTPS   from './connection/HTTPS.mjs';
+import connection_SOCKS   from './connection/SOCKS.mjs';
+import connection_WS      from './connection/WS.mjs';
+import connection_WSS     from './connection/WSS.mjs';
 import optimizer_CSS      from './optimizer/CSS.mjs';
 import other_ERROR        from './other/ERROR.mjs';
 import other_FILE         from './other/FILE.mjs';
@@ -30,14 +36,7 @@ import parser_IP          from './parser/IP.mjs';
 import parser_UA          from './parser/UA.mjs';
 import parser_URL         from './parser/URL.mjs';
 import peer_Cache         from './peer/Cache.mjs';
-import protocol_DNS       from './protocol/DNS.mjs';
-import protocol_HTTP      from './protocol/HTTP.mjs';
-import protocol_HTTPS     from './protocol/HTTPS.mjs';
-import protocol_SOCKS     from './protocol/SOCKS.mjs';
-import protocol_WS        from './protocol/WS.mjs';
-import protocol_WSS       from './protocol/WSS.mjs';
 import request_Downloader from './request/Downloader.mjs';
-import request_Optimizer  from './request/Optimizer.mjs';
 import server_Beacon      from './server/Beacon.mjs';
 import server_Blocker     from './server/Blocker.mjs';
 import server_Cache       from './server/Cache.mjs';
@@ -74,18 +73,17 @@ export default {
 		// Optimizers
 		optimizer_CSS,
 
-		// Network Protocols
-		protocol_DNS,
-		protocol_HTTP,
-		protocol_HTTPS,
-		protocol_SOCKS,
-		protocol_WS,
-		protocol_WSS,
+		// Network
+		connection_DNS,
+		connection_HTTP,
+		connection_HTTPS,
+		connection_SOCKS,
+		connection_WS,
+		connection_WSS,
 
 		// Requests
 		Request,
 		request_Downloader,
-		request_Optimizer,
 
 		// Stealth
 		Session,

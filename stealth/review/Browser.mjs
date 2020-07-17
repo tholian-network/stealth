@@ -1,7 +1,7 @@
 
 import { isBuffer, isObject                                           } from '../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../covert/index.mjs';
-import { Browser, isBrowser, isConfig                                 } from '../../stealth/source/Browser.mjs';
+import { Browser, isBrowser, isMode                                   } from '../../stealth/source/Browser.mjs';
 import { Request                                                      } from '../../stealth/source/Request.mjs';
 import { isTab                                                        } from '../../stealth/source/Tab.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from './Stealth.mjs';
@@ -85,20 +85,20 @@ describe('isBrowser()', function(assert) {
 
 });
 
-describe('Browser.isConfig()', function(assert) {
+describe('Browser.isMode()', function(assert) {
 
-	let cfg1 = {
+	let mode1 = {
 		domain: null
 	};
 
-	let cfg2 = {
+	let mode2 = {
 		domain: 'example.com',
 		mode: {
 			text: false
 		}
 	};
 
-	let cfg3 = {
+	let mode3 = {
 		domain: null,
 		mode: {
 			text:  true,
@@ -109,7 +109,7 @@ describe('Browser.isConfig()', function(assert) {
 		}
 	};
 
-	let cfg4 = {
+	let mode4 = {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -120,29 +120,29 @@ describe('Browser.isConfig()', function(assert) {
 		}
 	};
 
-	assert(typeof Browser.isConfig, 'function');
+	assert(typeof Browser.isMode, 'function');
 
-	assert(Browser.isConfig(cfg1), false);
-	assert(Browser.isConfig(cfg2), false);
-	assert(Browser.isConfig(cfg3), true);
-	assert(Browser.isConfig(cfg4), true);
+	assert(Browser.isMode(mode1), false);
+	assert(Browser.isMode(mode2), false);
+	assert(Browser.isMode(mode3), true);
+	assert(Browser.isMode(mode4), true);
 
 });
 
-describe('isConfig()', function(assert) {
+describe('isMode()', function(assert) {
 
-	let cfg1 = {
+	let mode1 = {
 		domain: null
 	};
 
-	let cfg2 = {
+	let mode2 = {
 		domain: 'example.com',
 		mode: {
 			text: false
 		}
 	};
 
-	let cfg3 = {
+	let mode3 = {
 		domain: null,
 		mode: {
 			text:  true,
@@ -153,7 +153,7 @@ describe('isConfig()', function(assert) {
 		}
 	};
 
-	let cfg4 = {
+	let mode4 = {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -164,12 +164,12 @@ describe('isConfig()', function(assert) {
 		}
 	};
 
-	assert(typeof isConfig, 'function');
+	assert(typeof isMode, 'function');
 
-	assert(isConfig(cfg1), false);
-	assert(isConfig(cfg2), false);
-	assert(isConfig(cfg3), true);
-	assert(isConfig(cfg4), true);
+	assert(isMode(mode1), false);
+	assert(isMode(mode2), false);
+	assert(isMode(mode3), true);
+	assert(isMode(mode4), true);
 
 });
 
@@ -204,17 +204,17 @@ describe('Browser.prototype.back()', function(assert) {
 	assert(this.browser.navigate('https://two.example.com/'),   true);
 	assert(this.browser.navigate('https://three.example.com/'), true);
 
-	assert(this.browser.back(),            true);
-	assert(this.browser.tab.url,           'https://two.example.com/');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.back(),          true);
+	assert(this.browser.tab.url,         'https://two.example.com/');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
-	assert(this.browser.back(),            true);
-	assert(this.browser.tab.url,           'https://example.com/');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.back(),          true);
+	assert(this.browser.tab.url,         'https://example.com/');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
-	assert(this.browser.back(),            false);
-	assert(this.browser.tab.url,           'https://example.com/');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.back(),          false);
+	assert(this.browser.tab.url,         'https://example.com/');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.tab.navigate('https://example.com'), true);
 	assert(this.browser.tab.forget('stealth'),               true);
@@ -340,32 +340,32 @@ describe('Browser.prototype.get()', function(assert) {
 		}
 	}];
 
-	let cfg1 = this.browser.get('cookie.engineer');
-	let cfg2 = this.browser.get('tholian.network');
-	let cfg3 = this.browser.get('example.com');
+	let mode1 = this.browser.get('cookie.engineer');
+	let mode2 = this.browser.get('tholian.network');
+	let mode3 = this.browser.get('example.com');
 
-	assert(cfg1.domain,     'cookie.engineer');
-	assert(cfg1.mode.text,  false);
-	assert(cfg1.mode.image, false);
-	assert(cfg1.mode.audio, false);
-	assert(cfg1.mode.video, false);
-	assert(cfg1.mode.other, false);
+	assert(mode1.domain,     'cookie.engineer');
+	assert(mode1.mode.text,  false);
+	assert(mode1.mode.image, false);
+	assert(mode1.mode.audio, false);
+	assert(mode1.mode.video, false);
+	assert(mode1.mode.other, false);
 
-	assert(cfg2.domain,     'tholian.network');
-	assert(cfg2.mode.text,  false);
-	assert(cfg2.mode.image, false);
-	assert(cfg2.mode.audio, false);
-	assert(cfg2.mode.video, false);
-	assert(cfg2.mode.other, false);
+	assert(mode2.domain,     'tholian.network');
+	assert(mode2.mode.text,  false);
+	assert(mode2.mode.image, false);
+	assert(mode2.mode.audio, false);
+	assert(mode2.mode.video, false);
+	assert(mode2.mode.other, false);
 
-	assert(cfg3.domain,     'example.com');
-	assert(cfg3.mode.text,  true);
-	assert(cfg3.mode.image, false);
-	assert(cfg3.mode.audio, false);
-	assert(cfg3.mode.video, false);
-	assert(cfg3.mode.other, false);
+	assert(mode3.domain,     'example.com');
+	assert(mode3.mode.text,  true);
+	assert(mode3.mode.image, false);
+	assert(mode3.mode.audio, false);
+	assert(mode3.mode.video, false);
+	assert(mode3.mode.other, false);
 
-	assert(this.browser.settings.modes.includes(cfg3), true);
+	assert(this.browser.settings.modes.includes(mode3), true);
 
 });
 
@@ -395,7 +395,7 @@ describe('Browser.prototype.navigate()', function(assert) {
 
 	assert(this.browser.navigate('https://two.example.com/second.html'), true);
 
-	assert(this.browser.tab.config, {
+	assert(this.browser.tab.mode, {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -430,7 +430,7 @@ describe('Browser.prototype.navigate()', function(assert) {
 
 	assert(this.browser.navigate('https://two.example.com/third.html'), true);
 
-	assert(this.browser.tab.config, {
+	assert(this.browser.tab.mode, {
 		domain: 'two.example.com',
 		mode: {
 			text:  true,
@@ -490,29 +490,29 @@ describe('Browser.prototype.next()', function(assert) {
 	assert(this.browser.navigate('https://two.example.com/second.html'),  true);
 	assert(this.browser.navigate('https://three.example.com/third.html'), true);
 
-	assert(this.browser.back(),            true);
-	assert(this.browser.tab.url,           'https://two.example.com/second.html');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.back(),          true);
+	assert(this.browser.tab.url,         'https://two.example.com/second.html');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
-	assert(this.browser.back(),            true);
-	assert(this.browser.tab.url,           'https://example.com/');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.back(),          true);
+	assert(this.browser.tab.url,         'https://example.com/');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
-	assert(this.browser.back(),            false);
-	assert(this.browser.tab.url,           'https://example.com/');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.back(),          false);
+	assert(this.browser.tab.url,         'https://example.com/');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
-	assert(this.browser.next(),            true);
-	assert(this.browser.tab.url,           'https://two.example.com/second.html');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.next(),          true);
+	assert(this.browser.tab.url,         'https://two.example.com/second.html');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
-	assert(this.browser.next(),            true);
-	assert(this.browser.tab.url,           'https://three.example.com/third.html');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.next(),          true);
+	assert(this.browser.tab.url,         'https://three.example.com/third.html');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
-	assert(this.browser.next(),            false);
-	assert(this.browser.tab.url,           'https://three.example.com/third.html');
-	assert(this.browser.tab.config.domain, 'example.com');
+	assert(this.browser.next(),          false);
+	assert(this.browser.tab.url,         'https://three.example.com/third.html');
+	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.tab.navigate('https://example.com'), true);
 	assert(this.browser.tab.forget('stealth'),               true);
@@ -569,7 +569,7 @@ describe('Browser.prototype.pause()', function(assert) {
 	assert(this.browser.tab,            this.tab);
 
 	let request = new Request({
-		config: {
+		mode: {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -659,42 +659,42 @@ describe('Browser.prototype.set()', function(assert) {
 		}
 	}];
 
-	let cfg1 = this.browser.get('cookie.engineer');
-	let cfg2 = this.browser.get('tholian.network');
-	let cfg3 = this.browser.get('example.com');
+	let mode1 = this.browser.get('cookie.engineer');
+	let mode2 = this.browser.get('tholian.network');
+	let mode3 = this.browser.get('example.com');
 
-	assert(cfg1.domain,     'cookie.engineer');
-	assert(cfg1.mode.text,  false);
-	assert(cfg1.mode.image, false);
-	assert(cfg1.mode.audio, false);
-	assert(cfg1.mode.video, false);
-	assert(cfg1.mode.other, false);
+	assert(mode1.domain,     'cookie.engineer');
+	assert(mode1.mode.text,  false);
+	assert(mode1.mode.image, false);
+	assert(mode1.mode.audio, false);
+	assert(mode1.mode.video, false);
+	assert(mode1.mode.other, false);
 
-	assert(cfg2.domain,     'tholian.network');
-	assert(cfg2.mode.text,  false);
-	assert(cfg2.mode.image, false);
-	assert(cfg2.mode.audio, false);
-	assert(cfg2.mode.video, false);
-	assert(cfg2.mode.other, false);
+	assert(mode2.domain,     'tholian.network');
+	assert(mode2.mode.text,  false);
+	assert(mode2.mode.image, false);
+	assert(mode2.mode.audio, false);
+	assert(mode2.mode.video, false);
+	assert(mode2.mode.other, false);
 
-	assert(cfg3.domain,     'example.com');
-	assert(cfg3.mode.text,  true);
-	assert(cfg3.mode.image, false);
-	assert(cfg3.mode.audio, false);
-	assert(cfg3.mode.video, false);
-	assert(cfg3.mode.other, false);
+	assert(mode3.domain,     'example.com');
+	assert(mode3.mode.text,  true);
+	assert(mode3.mode.image, false);
+	assert(mode3.mode.audio, false);
+	assert(mode3.mode.video, false);
+	assert(mode3.mode.other, false);
 
-	assert(this.browser.set(cfg1), true);
-	assert(this.browser.set(cfg2), true);
-	assert(this.browser.set(cfg3), true);
+	assert(this.browser.set(mode1), true);
+	assert(this.browser.set(mode2), true);
+	assert(this.browser.set(mode3), true);
 
-	assert(this.browser.get('cookie.engineer'), cfg1);
-	assert(this.browser.get('tholian.network'), cfg2);
-	assert(this.browser.get('example.com'),     cfg3);
+	assert(this.browser.get('cookie.engineer'), mode1);
+	assert(this.browser.get('tholian.network'), mode2);
+	assert(this.browser.get('example.com'),     mode3);
 
-	assert(this.browser.settings.modes.includes(cfg1), true);
-	assert(this.browser.settings.modes.includes(cfg2), true);
-	assert(this.browser.settings.modes.includes(cfg3), true);
+	assert(this.browser.settings.modes.includes(mode1), true);
+	assert(this.browser.settings.modes.includes(mode2), true);
+	assert(this.browser.settings.modes.includes(mode3), true);
 
 });
 

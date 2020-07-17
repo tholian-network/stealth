@@ -1,31 +1,25 @@
 
+// TODO: move history[].url to history[].link
+
 import { isArray, isBoolean, isNumber, isObject, isString } from '../extern/base.mjs';
 import { URL                                              } from './parser/URL.mjs';
 
 
 
 // Embedded for Cross-Platform Compatibility
-const isConfig = function(config) {
+const isMode = function(payload) {
 
-	if (isObject(config) === true) {
-
-		if (
-			(isString(config.domain) === true || config.domain === null)
-			&& isObject(config.mode) === true
-		) {
-
-			if (
-				isBoolean(config.mode.text) === true
-				&& isBoolean(config.mode.image) === true
-				&& isBoolean(config.mode.audio) === true
-				&& isBoolean(config.mode.video) === true
-				&& isBoolean(config.mode.other) === true
-			) {
-				return true;
-			}
-
-		}
-
+	if (
+		isObject(payload) === true
+		&& (isString(payload.domain) === true || payload.domain === null)
+		&& isObject(payload.mode) === true
+		&& isBoolean(payload.mode.text) === true
+		&& isBoolean(payload.mode.image) === true
+		&& isBoolean(payload.mode.audio) === true
+		&& isBoolean(payload.mode.video) === true
+		&& isBoolean(payload.mode.other) === true
+	) {
+		return true;
 	}
 
 
@@ -42,19 +36,19 @@ export const isTab = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Tab]';
 };
 
-const search = function(url) {
+const search = function(link) {
 
-	url = isString(url) ? url : null;
+	link = isString(link) ? link : null;
 
 
-	if (url !== null) {
+	if (link !== null) {
 
 		let found = null;
 
-		for (let h = 0, hl = this.history.length; h < hl; h++) {
+		for (let h = this.history.length - 1; h >= 0; h--) {
 
 			let event = this.history[h];
-			if (event.url === url) {
+			if (event.link === link) {
 				found = event;
 				break;
 			}
@@ -81,7 +75,7 @@ const Tab = function(data) {
 
 	this.id       = settings.id || ('' + CURRENT_ID++);
 	this.history  = [];
-	this.config   = {
+	this.mode     = {
 		domain: 'welcome',
 		mode: {
 			text:  true,
@@ -91,33 +85,22 @@ const Tab = function(data) {
 			other: true
 		}
 	};
-	this.ref      = URL.parse('stealth:welcome');
+	this.url      = URL.parse('stealth:welcome');
 	this.requests = [];
-	this.url      = 'stealth:welcome';
 
 
-	let cfg = isConfig(settings.config) ? settings.config : null;
-	let ref = URL.isURL(settings.ref)   ? settings.ref    : null;
-	if (ref === null && isString(settings.url) === true) {
-		ref = URL.parse(settings.url);
+	let mode = isMode(settings.mode)   ? settings.mode : null;
+	let url  = URL.isURL(settings.url) ? settings.url  : null;
+
+	if (URL.isURL(url) === true) {
+		this.navigate(url.link, mode);
 	}
 
-	if (URL.isURL(ref) === true) {
-		this.navigate(ref.url, cfg);
-	}
+	if (this.mode.domain === null) {
 
-	if (this.config.domain === null) {
-
-		if (this.ref.domain !== null) {
-
-			if (this.ref.subdomain !== null) {
-				this.config.domain = this.ref.subdomain + '.' + this.ref.domain;
-			} else {
-				this.config.domain = this.ref.domain;
-			}
-
-		} else if (this.ref.host !== null) {
-			this.config.domain = this.ref.host;
+		let domain = URL.toDomain(url);
+		if (domain !== null) {
+			this.mode.domain = domain;
 		}
 
 	}
@@ -150,9 +133,9 @@ Tab.from = function(json) {
 				data.history.forEach((event) => {
 
 					if (
-						isConfig(event.config) === true
+						isString(event.link) === true
+						&& isMode(event.mode) === true
 						&& isNumber(event.time) === true
-						&& isString(event.url) === true
 					) {
 						filtered.push(event);
 					}
@@ -173,8 +156,8 @@ Tab.from = function(json) {
 				// Do nothing
 			}
 
-			if (isString(data.url) === true && isConfig(data.config) === true) {
-				tab.navigate(data.url, data.config);
+			if (isString(data.url) === true && isMode(data.mode) === true) {
+				tab.navigate(data.url, data.mode);
 			}
 
 			return tab;
@@ -209,9 +192,9 @@ Tab.merge = function(target, source) {
 			source.history.forEach((event) => {
 
 				if (
-					isConfig(event.config) === true
+					isString(event.link) === true
+					&& isMode(event.mode) === true
 					&& isNumber(event.time) === true
-					&& isString(event.url) === true
 				) {
 					target.history.push(event);
 				}
@@ -232,8 +215,8 @@ Tab.merge = function(target, source) {
 
 		}
 
-		if (isString(source.url) === true && isConfig(source.config) === true) {
-			target.navigate(source.url, source.config);
+		if (isString(source.url) === true && isMode(source.mode) === true) {
+			target.navigate(source.url, source.mode);
 		}
 
 	}
@@ -252,36 +235,36 @@ Tab.prototype = {
 
 		let data = {
 			id: this.id,
-			config: {
-				domain: this.config.domain,
+			mode: {
+				domain: this.mode.domain,
 				mode: {
-					text:  this.config.mode.text,
-					image: this.config.mode.image,
-					audio: this.config.mode.audio,
-					video: this.config.mode.video,
-					other: this.config.mode.other
+					text:  this.mode.mode.text,
+					image: this.mode.mode.image,
+					audio: this.mode.mode.audio,
+					video: this.mode.mode.video,
+					other: this.mode.mode.other
 				}
 			},
 			history: this.history.map((event) => ({
-				config: event.config,
-				time:   event.time,
-				url:    event.url
+				link: event.link,
+				mode: event.mode,
+				time: event.time
 			})),
 			requests: this.requests.map((request) => request.toJSON()),
-			url:      this.url
+			url:      URL.render(this.url)
 		};
 
 
 		return {
-			type: 'Tab',
-			data: data
+			'type': 'Tab',
+			'data': data
 		};
 
 	},
 
 	back: function() {
 
-		let event = search.call(this, this.url);
+		let event = search.call(this, this.url.link);
 		if (event !== null) {
 
 			let index = this.history.indexOf(event);
@@ -290,9 +273,8 @@ Tab.prototype = {
 				let tmp = this.history[index - 1] || null;
 				if (tmp !== null) {
 
-					this.config = tmp.config;
-					this.ref    = URL.parse(tmp.url);
-					this.url    = this.ref.url;
+					this.mode = tmp.mode;
+					this.url  = URL.parse(tmp.link);
 
 					return true;
 
@@ -314,7 +296,7 @@ Tab.prototype = {
 
 		if (action === 'back') {
 
-			let event = search.call(this, this.url);
+			let event = search.call(this, this.url.link);
 			if (event !== null) {
 
 				let index = this.history.indexOf(event);
@@ -326,7 +308,7 @@ Tab.prototype = {
 
 		} else if (action === 'next') {
 
-			let event = search.call(this, this.url);
+			let event = search.call(this, this.url.link);
 			if (event !== null) {
 
 				let index = this.history.indexOf(event);
@@ -395,9 +377,9 @@ Tab.prototype = {
 
 			if (this.history.length === 0 && this.url !== null) {
 				this.history.push({
-					config: this.config,
-					time:   Date.now(),
-					url:    this.url
+					link: this.url.link,
+					mode: this.mode,
+					time: Date.now()
 				});
 			}
 
@@ -434,7 +416,7 @@ Tab.prototype = {
 			request.stop();
 		});
 
-		this.config = {
+		this.mode = {
 			domain: 'welcome',
 			mode: {
 				text:  true,
@@ -446,41 +428,40 @@ Tab.prototype = {
 		};
 
 		this.history  = [];
-		this.ref      = URL.parse('stealth:welcome');
+		this.url      = URL.parse('stealth:welcome');
 		this.requests = [];
-		this.url      = 'stealth:welcome';
 
 		this.history.push({
-			config: this.config,
-			time:   Date.now(),
-			url:    this.url
+			mode: this.mode,
+			time: Date.now(),
+			link: this.url.link
 		});
 
 	},
 
-	navigate: function(url, config) {
+	navigate: function(link, mode) {
 
-		url    = isString(url)    ? url    : null;
-		config = isConfig(config) ? config : null;
+		link = isString(link) ? link : null;
+		mode = isMode(mode)   ? mode : null;
 
 
-		if (url !== null) {
+		if (link !== null) {
 
-			if (url.includes('./') || url.includes('../')) {
-				url = URL.resolve(this.url, url).url;
+			if (link.includes('./') || link.includes('../')) {
+				link = URL.resolve(this.url, link).link;
 			}
 
 
-			if (this.url !== url) {
+			let url = URL.parse(link);
+			if (url.link !== this.url.link) {
 
-				let ref = URL.parse(url);
 				if (
-					ref.domain === this.ref.domain
-					|| (ref.protocol === 'stealth' && this.ref.protocol === 'stealth')
-					|| this.url === 'stealth:welcome'
+					url.domain === this.url.domain
+					|| (url.protocol === 'stealth' && this.url.protocol === 'stealth')
+					|| this.url.link === 'stealth:welcome'
 				) {
 
-					let event1 = search.call(this, this.url);
+					let event1 = search.call(this, this.url.link);
 					if (event1 !== null) {
 
 						let index1 = this.history.indexOf(event1);
@@ -490,7 +471,7 @@ Tab.prototype = {
 
 					}
 
-					let event2 = search.call(this, url);
+					let event2 = search.call(this, url.link);
 					if (event2 !== null) {
 
 						let index2 = this.history.indexOf(event2);
@@ -501,31 +482,27 @@ Tab.prototype = {
 					}
 
 
-					if (config !== null) {
+					if (mode !== null) {
 
-						this.config = config;
+						this.mode = mode;
 
 					} else {
 
-						let domain = null;
+						let domain     = null;
+						let tmp_domain = URL.toDomain(url);
+						let tmp_host   = URL.toHost(url);
 
-						if (ref.domain !== null) {
-
-							if (ref.subdomain !== null) {
-								domain = ref.subdomain + '.' + ref.domain;
-							} else {
-								domain = ref.domain;
-							}
-
-						} else if (ref.host !== null) {
-							domain = ref.host;
+						if (tmp_domain !== null) {
+							domain = tmp_domain;
+						} else if (tmp_host !== null) {
+							domain = tmp_host;
 						}
 
 						if (domain !== null) {
 
-							if (ref.protocol === 'stealth') {
+							if (url.protocol === 'stealth') {
 
-								this.config = {
+								this.mode = {
 									domain: domain,
 									mode: {
 										text:  true,
@@ -536,22 +513,22 @@ Tab.prototype = {
 									}
 								};
 
-							} else if (this.url !== 'stealth:welcome') {
+							} else if (this.url.link !== 'stealth:welcome') {
 
-								this.config = {
+								this.mode = {
 									domain: domain,
 									mode: {
-										text:  this.config.mode.text,
-										image: this.config.mode.image,
-										audio: this.config.mode.audio,
-										video: this.config.mode.video,
-										other: this.config.mode.other
+										text:  this.mode.mode.text,
+										image: this.mode.mode.image,
+										audio: this.mode.mode.audio,
+										video: this.mode.mode.video,
+										other: this.mode.mode.other
 									}
 								};
 
 							} else {
 
-								this.config = {
+								this.mode = {
 									domain: domain,
 									mode: {
 										text:  false,
@@ -572,13 +549,12 @@ Tab.prototype = {
 
 					}
 
-					this.ref = ref;
-					this.url = this.ref.url;
+					this.url = url;
 
 					this.history.push({
-						config: this.config,
-						time:   Date.now(),
-						url:    this.ref.url
+						link: this.url.link,
+						mode: this.mode,
+						time: Date.now(),
 					});
 
 					return true;
@@ -596,7 +572,7 @@ Tab.prototype = {
 
 	next: function() {
 
-		let event = search.call(this, this.url);
+		let event = search.call(this, this.url.link);
 		if (event !== null) {
 
 			let index = this.history.indexOf(event);
@@ -605,9 +581,8 @@ Tab.prototype = {
 				let tmp = this.history[index + 1] || null;
 				if (tmp !== null) {
 
-					this.config = tmp.config;
-					this.ref    = URL.parse(tmp.url);
-					this.url    = this.ref.url;
+					this.mode = tmp.mode;
+					this.url  = URL.parse(tmp.link);
 
 					return true;
 

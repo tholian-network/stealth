@@ -184,8 +184,8 @@ Session.prototype = {
 		};
 
 		return {
-			type: 'Session',
-			data: data
+			'type': 'Session',
+			'data': data
 		};
 
 	},
@@ -301,7 +301,11 @@ Session.prototype = {
 			}
 
 			if (request.get('webview') === true) {
-				tab.navigate(request.url);
+
+				if (request.url !== null) {
+					tab.navigate(request.url.link);
+				}
+
 			}
 
 			if (tab.includes(request)) {

@@ -1,7 +1,7 @@
 
 import { isFunction                } from '../../../base/index.mjs';
 import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
-import { DNS                       } from '../../../stealth/source/protocol/DNS.mjs';
+import { DNS                       } from '../../../stealth/source/connection/DNS.mjs';
 
 
 
@@ -98,7 +98,7 @@ describe('DNS.resolve()/quad9', function(assert) {
 });
 
 
-export default finish('stealth/protocol/DNS', {
+export default finish('stealth/connection/DNS', {
 	internet: true
 });
 
