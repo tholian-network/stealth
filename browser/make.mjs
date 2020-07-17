@@ -175,7 +175,7 @@ const read = (url) => {
 	let buffer = null;
 
 	try {
-		buffer = fs.readFileSync(path.resolve(url), 'utf8');
+		buffer = fs.readFileSync(path.resolve(url));
 	} catch(err) {
 		buffer = null;
 	}
@@ -291,7 +291,7 @@ const write = (url, buffer) => {
 	let result = false;
 
 	try {
-		fs.writeFileSync(path.resolve(url), buffer, 'utf8');
+		fs.writeFileSync(path.resolve(url), buffer);
 		result = true;
 	} catch (err) {
 		result = false;
@@ -404,10 +404,11 @@ export const build = (target) => {
 		}
 
 
-		let service = read(target + '/service.js');
-		if (service !== null) {
+		let buffer = read(target + '/service.js');
+		if (buffer !== null) {
 
-			let files = walk(target).map((url) => {
+			let service = buffer.toString('utf8');
+			let files   = walk(target).map((url) => {
 				return url.substr(target.length + 1);
 			}).sort((a, b) => {
 				if (a < b) return -1;
@@ -424,7 +425,7 @@ export const build = (target) => {
 					service = service.substr(0, index0) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + service.substr(index1);
 				}
 
-				results.push(write(target + '/service.js', service));
+				results.push(write(target + '/service.js', Buffer.from(service, 'utf8')));
 
 			}
 

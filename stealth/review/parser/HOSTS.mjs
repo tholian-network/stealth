@@ -1,12 +1,12 @@
 
-import { isArray, isString                        } from '../../../base/index.mjs';
+import { Buffer, isArray, isString                } from '../../../base/index.mjs';
 import { after, before, describe, finish, EXAMPLE } from '../../../covert/index.mjs';
 import { HOSTS                                    } from '../../../stealth/source/parser/HOSTS.mjs';
 
 
 
-const BLOCK = EXAMPLE.sketch('hosts/block.txt');
-const POSIX = EXAMPLE.sketch('hosts/posix.txt');
+const BLOCK = EXAMPLE.toSketch('hosts/block.txt');
+const POSIX = EXAMPLE.toSketch('hosts/posix.txt');
 
 const find_domain = (data, domain) => {
 
@@ -24,8 +24,8 @@ const find_domain = (data, domain) => {
 
 before('prepare', function(assert) {
 
-	this.block = HOSTS.parse(BLOCK.payload.toString('utf8'));
-	this.posix = HOSTS.parse(POSIX.payload.toString('utf8'));
+	this.block = HOSTS.parse(BLOCK.payload);
+	this.posix = HOSTS.parse(POSIX.payload);
 
 	assert(this.block !== null);
 	assert(this.posix !== null);
@@ -115,9 +115,9 @@ describe('HOSTS.render()/block', function(assert) {
 describe('HOSTS.sort()/block', function(assert) {
 
 	let sorted = HOSTS.sort([
-		HOSTS.parse('malicious.example.com')[0],
-		HOSTS.parse('ad.example.com')[0],
-		HOSTS.parse('tracker.example.com')[0]
+		HOSTS.parse(Buffer.from('malicious.example.com', 'utf8'))[0],
+		HOSTS.parse(Buffer.from('ad.example.com', 'utf8'))[0],
+		HOSTS.parse(Buffer.from('tracker.example.com', 'utf8'))[0]
 	]);
 
 	assert(isArray(sorted), true);
@@ -238,13 +238,13 @@ describe('HOSTS.render()/posix', function(assert) {
 describe('HOSTS.sort()/posix', function(assert) {
 
 	let sorted = HOSTS.sort([
-		HOSTS.parse('192.168.1.1\trouter')[0],
-		HOSTS.parse('192.168.1.1\trouter.localdomain')[0],
-		HOSTS.parse('192.168.1.2\tmachine')[0],
-		HOSTS.parse('93.184.216.34\texample.com')[0],
-		HOSTS.parse('2606:2800:220:1:248:1893:25c8:1946\texample.com')[0],
-		HOSTS.parse('93.184.216.34\twww.example.com')[0],
-		HOSTS.parse('2606:2800:220:1:248:1893:25c8:1946\twww.example.com')[0]
+		HOSTS.parse(Buffer.from('192.168.1.1\trouter', 'utf8'))[0],
+		HOSTS.parse(Buffer.from('192.168.1.1\trouter.localdomain', 'utf8'))[0],
+		HOSTS.parse(Buffer.from('192.168.1.2\tmachine', 'utf8'))[0],
+		HOSTS.parse(Buffer.from('93.184.216.34\texample.com', 'utf8'))[0],
+		HOSTS.parse(Buffer.from('2606:2800:220:1:248:1893:25c8:1946\texample.com', 'utf8'))[0],
+		HOSTS.parse(Buffer.from('93.184.216.34\twww.example.com', 'utf8'))[0],
+		HOSTS.parse(Buffer.from('2606:2800:220:1:248:1893:25c8:1946\twww.example.com', 'utf8'))[0]
 	]);
 
 	assert(isArray(sorted), true);
