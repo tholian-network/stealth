@@ -2,6 +2,7 @@
 import { console, isArray, isNumber, isObject, isString } from '../extern/base.mjs';
 import { IP                                             } from './parser/IP.mjs';
 import { UA                                             } from './parser/UA.mjs';
+import { URL                                            } from './parser/URL.mjs';
 import { isRequest                                      } from './Request.mjs';
 import { isStealth                                      } from './Stealth.mjs';
 import { Tab                                            } from './Tab.mjs';
@@ -196,7 +197,7 @@ Session.prototype = {
 
 			tab.requests.forEach((request) => {
 
-				console.log('Session "' + this.domain + '" tab #' + tab.id + ' remains "' + request.url + '".');
+				console.log('Session "' + this.domain + '" tab #' + tab.id + ' remains "' + request.url.link + '".');
 				request.off('progress');
 
 			});
@@ -257,27 +258,32 @@ Session.prototype = {
 
 	},
 
-	get: function(url) {
+	get: function(link) {
 
-		url = isString(url) ? url : null;
+		link = isString(link) ? link : null;
 
 
-		if (url !== null) {
+		if (link !== null) {
 
-			let found = null;
+			let url = URL.parse(link);
+			if (URL.isURL(url) === true) {
 
-			for (let t = 0, tl = this.tabs.length; t < tl; t++) {
+				let found = null;
 
-				let tab = this.tabs[t];
-				let req = tab.requests.find((request) => request.url === url) || null;
-				if (req !== null) {
-					found = req;
-					break;
+				for (let t = 0, tl = this.tabs.length; t < tl; t++) {
+
+					let tab     = this.tabs[t];
+					let request = tab.requests.find((r) => r.url.link === url.link) || null;
+					if (request !== null) {
+						found = request;
+						break;
+					}
+
 				}
 
-			}
+				return found;
 
-			return found;
+			}
 
 		}
 
@@ -301,14 +307,10 @@ Session.prototype = {
 			}
 
 			if (request.get('webview') === true) {
-
-				if (request.url !== null) {
-					tab.navigate(request.url.link);
-				}
-
+				tab.navigate(request.url.link);
 			}
 
-			if (tab.includes(request)) {
+			if (tab.includes(request) === false) {
 
 				request.once('start', () => {
 
@@ -326,11 +328,11 @@ Session.prototype = {
 				});
 
 				request.once('connect', () => {
-					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url + '".');
+					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url.link + '".');
 				});
 
 				request.on('progress', (response, progress) => {
-					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url + '" (' + progress.bytes + '/' + progress.length + ').');
+					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url.link + '" (' + progress.bytes + '/' + progress.length + ').');
 				});
 
 				request.once('error',    () => remove_request.call(this, request));

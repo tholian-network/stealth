@@ -60,12 +60,13 @@ const show_help = () => {
 	console.log('');
 	console.log('Available Flags:');
 	console.log('');
-	console.log('    Flag       | Default | Values         | Description                                          ');
-	console.log('    -----------|---------|----------------|------------------------------------------------------');
-	console.log('    --debug    | false   | true, false    | Enable/Disable debug messages. Defaulted with false. ');
-	console.log('    --internet | true    | true, false    | Enable/Disable internet usage. Defaulted with true.  ');
-	console.log('    --network  | null    | 1G, 2G, 3G, 4G | Simulate network behaviour. Defaulted with null.     ');
-	console.log('    --timeout  | 10s     | (Number)s      | Override test completion timeout. Defaulted with 10s.');
+	console.log('    Flag       | Default | Values         | Description                                                          ');
+	console.log('    -----------|---------|----------------|----------------------------------------------------------------------');
+	console.log('    --debug    | false   | true, false    | Enable/Disable debug messages. Defaulted with false.                 ');
+	console.log('    --inspect  | null    | (Name)         | Enable/Disable inspector to debug a single test. Defaulted with null.');
+	console.log('    --internet | true    | true, false    | Enable/Disable internet usage. Defaulted with true.                  ');
+	console.log('    --network  | null    | 1G, 2G, 3G, 4G | Simulate network behaviour. Defaulted with null.                     ');
+	console.log('    --timeout  | 10s     | (Number)s      | Override test completion timeout. Defaulted with 10s.                ');
 	console.log('');
 	console.log('Examples:');
 	console.log('');
@@ -73,6 +74,7 @@ const show_help = () => {
 	console.log('    covert scan stealth/connection/*;');
 	console.log('    covert time stealth/connection/DNS --network=2G;');
 	console.log('    covert watch stealth/connection/DNS stealth/connection/HTTPS;');
+	console.log('    covert scan stealth/Session --debug=true --inspect=Session.prototype.get();');
 	console.log('');
 
 };
@@ -82,10 +84,9 @@ const show_help = () => {
 if (ENVIRONMENT.action === 'check') {
 
 	let linter = new Linter({
-		action:   ENVIRONMENT.action         || null,
-		debug:    ENVIRONMENT.flags.debug    || false,
-		internet: ENVIRONMENT.flags.internet || null,
-		patterns: ENVIRONMENT.patterns       || [],
+		action:   ENVIRONMENT.action      || null,
+		debug:    ENVIRONMENT.flags.debug || false,
+		patterns: ENVIRONMENT.patterns    || [],
 		reviews:  REVIEWS,
 		sources:  SOURCES
 	});
@@ -108,6 +109,7 @@ if (ENVIRONMENT.action === 'check') {
 	let covert = new Covert({
 		action:   ENVIRONMENT.action         || null,
 		debug:    ENVIRONMENT.flags.debug    || false,
+		inspect:  ENVIRONMENT.flags.inspect  || null,
 		internet: ENVIRONMENT.flags.internet || null,
 		network:  ENVIRONMENT.flags.network  || null,
 		patterns: ENVIRONMENT.patterns       || [],
@@ -174,6 +176,7 @@ if (ENVIRONMENT.action === 'check') {
 	let covert = new Covert({
 		action:   ENVIRONMENT.action         || null,
 		debug:    ENVIRONMENT.flags.debug    || false,
+		inspect:  ENVIRONMENT.flags.inspect  || null,
 		internet: ENVIRONMENT.flags.internet || null,
 		network:  ENVIRONMENT.flags.network  || null,
 		patterns: ENVIRONMENT.patterns       || [],

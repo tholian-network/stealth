@@ -33,6 +33,63 @@ Review.prototype = {
 
 	[Symbol.toStringTag]: 'Review',
 
+	toJSON: function() {
+
+		let data = {
+			id:     this.id,
+			after:  [],
+			before: [],
+			errors: [],
+			state:  null,
+			tests:  []
+		};
+
+		if (this.after.length > 0) {
+
+			data.after = this.after.map((test) => ({
+				name:     test.name,
+				results:  test.results.toJSON(),
+				timeline: test.timeline.toJSON()
+			}));
+
+		}
+
+		if (this.before.length > 0) {
+
+			data.before = this.before.map((test) => ({
+				name:     test.name,
+				results:  test.results.toJSON(),
+				timeline: test.timeline.toJSON()
+			}));
+
+		}
+
+		if (this.errors.length > 0) {
+			data.errors = this.errors.slice();
+		}
+
+		if (this.state !== null) {
+			data.state = this.state;
+		}
+
+		if (this.tests.length > 0) {
+
+			data.tests = this.tests.map((test) => ({
+				name:     test.name,
+				results:  test.results.toJSON(),
+				timeline: test.timeline.toJSON()
+			}));
+
+		}
+
+
+		return {
+			'type': 'Review',
+			'data': data
+		};
+
+	},
+
 	flatten: function() {
 
 		let array = [];

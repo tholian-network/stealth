@@ -129,6 +129,7 @@ const console_sandbox = function() {
 const init = function(settings) {
 
 	let action   = isString(settings.action)    ? settings.action   : null;
+	let inspect  = isString(settings.inspect)   ? settings.inspect  : null;
 	let internet = isBoolean(settings.internet) ? settings.internet : false;
 	let timeout  = isString(settings.timeout)   ? settings.timeout  : null;
 	let include  = {};
@@ -199,6 +200,32 @@ const init = function(settings) {
 			if (review.flags.internet === true) {
 				include[review.id] = false;
 			}
+
+		});
+
+	}
+
+
+	// --inspect defaulted with null
+	if (inspect !== null) {
+
+		filtered = true;
+
+
+		settings.reviews.forEach((review) => {
+
+			let found = review.tests.find((test) => test.name === inspect) || null;
+			if (found === null) {
+				include[review.id] = false;
+			}
+
+		});
+
+		settings.reviews.forEach((review) => {
+
+			review.tests = review.tests.filter((test) => {
+				return test.name === inspect;
+			});
 
 		});
 
@@ -597,6 +624,7 @@ const Covert = function(settings) {
 
 	this._settings = Object.freeze(Object.assign({
 		action:   null, // 'scan', 'time' or 'watch'
+		inspect:  null,
 		internet: true,
 		patterns: [],
 		reviews:  [],

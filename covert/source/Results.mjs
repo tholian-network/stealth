@@ -342,6 +342,15 @@ Results.prototype = {
 
 	[Symbol.toStringTag]: 'Results',
 
+	toJSON: function() {
+
+		return {
+			'type': 'Results',
+			'data': this.data.slice()
+		};
+
+	},
+
 	assert: function(result, expect) {
 
 		result = result !== undefined ? result : undefined;

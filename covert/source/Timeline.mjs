@@ -104,6 +104,15 @@ Timeline.prototype = {
 
 	[Symbol.toStringTag]: 'Timeline',
 
+	toJSON: function() {
+
+		return {
+			'type': 'Timeline',
+			'data': this.data.slice()
+		};
+
+	},
+
 	complete: function() {
 
 		if (this.index < this.data.length) {

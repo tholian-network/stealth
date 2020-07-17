@@ -28,6 +28,7 @@ const flags = (() => {
 
 	let flags = {
 		debug:    false,
+		inspect:  null,
 		internet: true,
 		network:  null,
 		timeout:  null
