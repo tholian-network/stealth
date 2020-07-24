@@ -183,7 +183,7 @@ const TOPLEVELDOMAINS = [
 
 
 const DEFAULT = {
-	ext:    null,
+	ext:    'bin',
 	type:   'other',
 	binary: true,
 	format: 'application/octet-stream'
@@ -277,15 +277,16 @@ const MIME = [
 	{ ext: 'webm', type: 'video', binary: true, format: 'video/webm'      },
 
 	// other
-	{ ext: '7z',   type: 'other', binary: true, format: 'application/x-7z-compressed'  },
-	{ ext: 'bz',   type: 'other', binary: true, format: 'application/x-bzip'           },
-	{ ext: 'bz2',  type: 'other', binary: true, format: 'application/x-bzip2'          },
-	{ ext: 'epub', type: 'other', binary: true, format: 'application/epub+zip'         },
-	{ ext: 'gz',   type: 'other', binary: true, format: 'application/x-gzip'           },
-	{ ext: 'jar',  type: 'other', binary: true, format: 'application/jar-archive'      },
-	{ ext: 'rar',  type: 'other', binary: true, format: 'application/x-rar-compressed' },
-	{ ext: 'tar',  type: 'other', binary: true, format: 'application/x-tar'            },
-	{ ext: 'zip',  type: 'other', binary: true, format: 'application/zip'              }
+	{ ext: '7z',   type: 'other', binary: true, format: 'application/x-7z-compressed'       },
+	{ ext: 'bz',   type: 'other', binary: true, format: 'application/x-bzip'                },
+	{ ext: 'bz2',  type: 'other', binary: true, format: 'application/x-bzip2'               },
+	{ ext: 'epub', type: 'other', binary: true, format: 'application/epub+zip'              },
+	{ ext: 'gz',   type: 'other', binary: true, format: 'application/x-gzip'                },
+	{ ext: 'jar',  type: 'other', binary: true, format: 'application/jar-archive'           },
+	{ ext: 'pac',  type: 'other', binary: true, format: 'application/x-ns-proxy-autoconfig' },
+	{ ext: 'rar',  type: 'other', binary: true, format: 'application/x-rar-compressed'      },
+	{ ext: 'tar',  type: 'other', binary: true, format: 'application/x-tar'                 },
+	{ ext: 'zip',  type: 'other', binary: true, format: 'application/zip'                   }
 
 ];
 
