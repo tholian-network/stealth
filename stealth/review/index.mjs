@@ -25,11 +25,6 @@ import connection_SOCKS   from './connection/SOCKS.mjs';
 import connection_WS      from './connection/WS.mjs';
 import connection_WSS     from './connection/WSS.mjs';
 import optimizer_CSS      from './optimizer/CSS.mjs';
-import other_ERROR        from './other/ERROR.mjs';
-import other_FILE         from './other/FILE.mjs';
-import other_PAC          from './other/PAC.mjs';
-import other_REDIRECT     from './other/REDIRECT.mjs';
-import other_ROUTER       from './other/ROUTER.mjs';
 import parser_CSS         from './parser/CSS.mjs';
 import parser_HOSTS       from './parser/HOSTS.mjs';
 import parser_IP          from './parser/IP.mjs';
@@ -43,6 +38,7 @@ import server_Host        from './server/Host.mjs';
 import server_Mode        from './server/Mode.mjs';
 import server_Peer        from './server/Peer.mjs';
 import server_Redirect    from './server/Redirect.mjs';
+import server_ROUTER      from './server/ROUTER.mjs';
 import server_Session     from './server/Session.mjs';
 import server_Settings    from './server/Settings.mjs';
 import server_Stash       from './server/Stash.mjs';
@@ -61,13 +57,6 @@ export default {
 		parser_IP,
 		parser_UA,
 		parser_URL,
-
-		// Server Modules
-		other_ERROR,
-		other_FILE,
-		other_PAC,
-		other_REDIRECT,
-		other_ROUTER,
 
 		// Optimizers
 		optimizer_CSS,
@@ -93,6 +82,7 @@ export default {
 		Browser,
 
 		// Network Services
+		server_ROUTER,
 		server_Beacon,
 		server_Blocker,
 		server_Cache,

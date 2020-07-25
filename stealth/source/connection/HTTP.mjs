@@ -202,7 +202,7 @@ const ondata = function(connection, url, chunk) {
 
 					} else if (tmp4 === '416') {
 
-						connection.emit('error', [{ type: 'stash' }]);
+						connection.emit('error', [{ type: 'request', cause: 'headers-payload' }]);
 
 					} else {
 
@@ -355,7 +355,7 @@ const ondisconnect = function(connection, url) {
 					}
 
 				} else {
-					connection.emit('error', [{ type: 'stash' }]);
+					connection.emit('error', [{ type: 'request', cause: 'headers-payload' }]);
 				}
 
 			} else if (code === '301' || code === '307' || code === '308') {
@@ -364,7 +364,7 @@ const ondisconnect = function(connection, url) {
 				if (tmp !== null) {
 					connection.emit('redirect', [{ headers: url.headers }]);
 				} else {
-					connection.emit('error', [{ code: code, type: 'request', cause: 'headers-location' }]);
+					connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
 				}
 
 			} else if (code.startsWith('4') && code.length === 3) {

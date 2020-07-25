@@ -11,8 +11,7 @@ import { DNS                                    } from './connection/DNS.mjs';
 import { HTTP                                   } from './connection/HTTP.mjs';
 import { SOCKS                                  } from './connection/SOCKS.mjs';
 import { WS                                     } from './connection/WS.mjs';
-import { REDIRECT                               } from './other/REDIRECT.mjs';
-import { ROUTER                                 } from './other/ROUTER.mjs';
+import { ROUTER                                 } from './server/ROUTER.mjs';
 import { Beacon                                 } from './server/Beacon.mjs';
 import { Blocker                                } from './server/Blocker.mjs';
 import { Cache                                  } from './server/Cache.mjs';
@@ -116,7 +115,7 @@ const upgrade_http = function(socket, url) {
 						other: true
 					}
 				},
-				url:  URL.parse(link)
+				url: URL.parse(link)
 			}, this);
 
 		}
@@ -128,31 +127,64 @@ const upgrade_http = function(socket, url) {
 
 				request.off('redirect');
 				request.off('response');
+				request.stop();
 
 
-				let type = err.type || null;
-				if (type !== null) {
+				if (request.get('webview') === true) {
 
-					ROUTER.error({
-						url:     link,
-						headers: url.headers   || {},
-						err:     err           || null,
-						flags:   request.flags || {}
-					}, (response) => {
-						HTTP.send(connection, response);
-					});
+					if (
+						err.type === 'host'
+						|| err.type === 'mode'
+						|| err.type === 'request'
+					) {
+
+						ROUTER.error(Object.assign(err, {
+							url: link
+						}), (response) => {
+							HTTP.send(connection, response);
+						});
+
+					} else {
+
+						ROUTER.error({ code: 403 }, (response) => {
+							HTTP.send(connection, response);
+						});
+
+					}
+
+				} else if (request.get('proxy') === true) {
+
+					if (
+						err.type === 'host'
+						|| err.type === 'mode'
+						|| err.type === 'request'
+					) {
+
+						ROUTER.error(Object.assign(err, {
+							url: link
+						}), (response) => {
+
+							response.headers['location'] = 'http://' + url.headers['host'] + ':65432' + response.headers['location'];
+
+							HTTP.send(connection, response);
+
+						});
+
+					} else {
+
+						ROUTER.error({ code: 403 }, (response) => {
+							HTTP.send(connection, response);
+						});
+
+					}
 
 				} else {
 
-					ROUTER.error({
-						err: err
-					}, (response) => {
+					ROUTER.error({ code: 403 }, (response) => {
 						HTTP.send(connection, response);
 					});
 
 				}
-
-				request.stop();
 
 			});
 
@@ -160,41 +192,43 @@ const upgrade_http = function(socket, url) {
 
 				request.off('error');
 				request.off('response');
+				request.stop();
 
 
-				let url = response.headers['location'] || '';
+				let hostname = null;
+				let redirect = null;
 
-				if (request.flags.webview === true) {
+				let domain = URL.toDomain(url);
+				let host   = URL.toHost(url);
 
-					let path = '/stealth/' + url;
+				if (domain !== null) {
+					hostname = domain;
+				} else if (host !== null) {
+					hostname = host;
+				}
+
+
+				if (request.get('webview') === true) {
+
 					if (tab !== null) {
-						path = '/stealth/:' + tab + ',webview:/' + url;
+						redirect = URL.parse('http://' + hostname + ':65432/stealth/:' + tab + ',webview:/' + response.headers['location']);
+					} else {
+						redirect = URL.parse('http://' + hostname + ':65432/stealth/' + response.headers['location']);
 					}
-
-					REDIRECT.send({
-						code: 301,
-						path: path
-					}, (response) => {
-						HTTP.send(connection, response);
-					});
 
 				} else {
 
-					let path = '/stealth/' + url;
 					if (tab !== null) {
-						path = '/stealth/:' + tab + ':/' + url;
+						redirect = URL.parse('http://' + hostname + ':65432/stealth/:' + tab + ':/' + response.headers['location']);
+					} else {
+						redirect = URL.parse('http://' + hostname + ':65432/stealth/' + response.headers['location']);
 					}
-
-					REDIRECT.send({
-						code: 301,
-						path: path
-					}, (response) => {
-						HTTP.send(connection, response);
-					});
 
 				}
 
-				request.stop();
+				ROUTER.send(redirect, (response) => {
+					HTTP.send(connection, response);
+				});
 
 			});
 
@@ -202,9 +236,30 @@ const upgrade_http = function(socket, url) {
 
 				request.off('error');
 				request.off('redirect');
+				request.stop();
 
 
-				// TODO: Replace URLs inside HTML and CSS with "/stealth/tab:" prefix
+				if (url.mime.ext === 'css') {
+
+					if (request.get('webview') === true) {
+						// TODO: Replace URLs inside response payload with "/stealth/" prefix
+					}
+
+				} else if (url.mime.ext === 'html') {
+
+					if (request.get('webview') === true) {
+
+						if (tab !== null) {
+							// TODO: Replace CSS and asset URLs in response payload with "/stealth/:" + tab + ":/" prefix
+							// TODO: Replace href with "/stealth/:" + tab + ",webview:/" prefix
+						} else {
+							// TODO: Replace CSS and asset URLs in response payload with "/stealth/" prefix
+							// TODO: Replace href with "/stealth/" prefix
+						}
+
+					}
+
+				}
 
 				if (response !== null && response.payload !== null) {
 
@@ -218,17 +273,11 @@ const upgrade_http = function(socket, url) {
 
 				} else {
 
-					ROUTER.error({
-						err: {
-							code: 404
-						}
-					}, (response) => {
+					ROUTER.error({ code: 404 }, (response) => {
 						HTTP.send(connection, response);
 					});
 
 				}
-
-				request.stop();
 
 			});
 
@@ -252,11 +301,7 @@ const upgrade_http = function(socket, url) {
 
 		} else {
 
-			ROUTER.error({
-				err: {
-					code: 404
-				}
-			}, (response) => {
+			ROUTER.error({ code: 404 }, (response) => {
 				HTTP.send(connection, response);
 			});
 
@@ -607,7 +652,7 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 							request.headers['@remote'] = socket.remoteAddress || null;
 
 
-							let url  = (request.headers['@url'] || '');
+							let link = (request.headers['@url'] || '');
 							let tmp1 = (request.headers['connection'] || '').toLowerCase();
 							let tmp2 = (request.headers['upgrade'] || '').toLowerCase();
 
@@ -615,13 +660,22 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 								upgrade_ws.call(this, socket, request);
 
-							} else if (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('/stealth')) {
+							} else if (link.startsWith('https://') || link.startsWith('http://') || link.startsWith('/stealth')) {
 
 								upgrade_http.call(this, socket, request);
 
-							} else {
+							} else if (isString(request.headers['@url']) === true) {
 
-								ROUTER.send(request, (response) => {
+								if (isString(request.headers['host']) === false) {
+									request.headers['host'] = ENVIRONMENT.hostname + ':65432';
+								}
+
+								ROUTER.send(Object.assign(URL.parse('http://' + request.headers['host'] + request.headers['@url']), {
+									headers: {
+										'@local':  request.headers['@local'],
+										'@remote': request.headers['@remote']
+									}
+								}), (response) => {
 
 									let connection = HTTP.upgrade(socket);
 									if (connection !== null) {
@@ -631,6 +685,10 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 									}
 
 								});
+
+							} else {
+
+								socket.end();
 
 							}
 

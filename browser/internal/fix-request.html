@@ -17,10 +17,6 @@
 			<p data-key="cause" data-val="socket-proxy">
 				The configured Proxy does not support anonymous <code>SOCKS5</code> tunnels.
 			</p>
-			<p data-key="cause" data-val="socket-trust">
-				The socket encryption could not be verified. Please double-check your
-				backyard and windows, the Feds or some Blackhat might be listening.
-			</p>
 			<p data-key="cause" data-val="socket-stability">
 				The socket connection is too unstable to resume the download.
 				Please check the stability of your internet connection.
@@ -29,8 +25,12 @@
 				The socket connection timed out and the server is too outdated to
 				resume downloads once they've timed out.
 			</p>
-			<p data-key="cause" data-val="headers-location">
-				The server redirects to an invalid location.
+			<p data-key="cause" data-val="socket-trust">
+				The socket encryption could not be verified. Please double-check your
+				backyard and windows, the Feds or some Blackhat might be listening.
+			</p>
+			<p data-key="cause" data-val="headers-payload">
+				The server responded with an invalid payload.
 			</p>
 			<p data-key="cause" data-val="headers-status">
 				The server responded with an invalid status code <code data-key="code">200</code>.

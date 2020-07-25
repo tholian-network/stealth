@@ -226,7 +226,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 			} else {
 
-				this.emit('error', [{ type: 'request' }]);
+				this.emit('error', [{ type: 'block' }]);
 
 			}
 
@@ -464,7 +464,7 @@ const Request = function(data, server) {
 					this.mode.mode.video = false;
 					this.mode.mode.other = false;
 
-					this.emit('error', [{ code: 403 }]);
+					this.emit('error', [{ type: 'block' }]);
 
 				} else {
 					this.emit('mode');
@@ -495,8 +495,6 @@ const Request = function(data, server) {
 
 		} else if (this.flags.webview === true) {
 			this.emit('error', [{ type: 'mode' }]);
-		} else {
-			this.emit('error', [{ code: 403 }]);
 		}
 
 	});
@@ -656,22 +654,16 @@ const Request = function(data, server) {
 				this.download = null;
 
 
-				if (error.type === 'stash') {
+				if (this.server !== null) {
 
-					if (this.server !== null) {
+					this.server.services.stash.remove(this.url, () => {
 
-						this.server.services.stash.remove(this.url, () => {
+						this.url.headers = null;
+						this.url.payload = null;
 
-							this.url.headers = null;
-							this.url.payload = null;
+						this.emit('download');
 
-							this.emit('download');
-
-						});
-
-					} else {
-						this.emit('error', [ error ]);
-					}
+					});
 
 				} else {
 					this.emit('error', [ error ]);
@@ -691,14 +683,7 @@ const Request = function(data, server) {
 				if (this.server !== null) {
 
 					this.server.services.stash.remove(this.url, () => {
-
-						let location = response.headers['location'] || null;
-						if (location !== null) {
-							this.emit('redirect', [ response, false ]);
-						} else {
-							this.emit('error', [{ type: 'request', cause: 'headers-location' }]);
-						}
-
+						this.emit('redirect', [ response, false ]);
 					});
 
 				} else {
@@ -733,7 +718,7 @@ const Request = function(data, server) {
 			this.download.start();
 
 		} else {
-			this.emit('error', [{ code: 403 }]);
+			this.emit('error', [{ type: 'block' }]);
 		}
 
 	});
