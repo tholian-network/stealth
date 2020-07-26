@@ -156,11 +156,18 @@ Widget.prototype = {
 	toJSON: function() {
 
 		let data = {
-			element: null
+			element: null,
+			model:   null,
+			state:   null
 		};
 
 		if (isElement(this.element) === true) {
 			data.element = this.element.toJSON();
+			data.state   = this.element.state();
+		}
+
+		if (isObject(this.model) === true) {
+			data.model = get_value(this.model);
 		}
 
 		return {

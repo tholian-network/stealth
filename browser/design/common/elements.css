@@ -1,0 +1,99 @@
+
+button {
+	display: inline-block;
+	min-width: 32px;
+	margin: 0px;
+	padding: 0px;
+	line-height: 32px;
+	height: 32px;
+	color: var(--element-default-color);
+	font-size: 24px;
+	text-align: center;
+	background: var(--element-default-background);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+button.active {
+	color: var(--element-active-color);
+}
+
+button:before {
+	display: inline-block;
+	width: 100%;
+	font-family: 'icon';
+	text-align: center;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+button[disabled],
+button[disabled]:hover {
+	color: var(--element-disable-color);
+	border: 1px solid transparent;
+	background: var(--element-disable-background);
+	cursor: not-allowed;
+}
+
+button:focus,
+button:hover {
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: var(--element-focus-background);
+	outline: none;
+}
+
+button::-moz-focus-inner {
+	border: 0px solid transparent;
+}
+
+
+
+textarea {
+	display: inline-block;
+	margin: 0px;
+	padding: 0px;
+	line-height: 32px;
+	min-height: 32px;
+	color: var(--layout-default-color);
+	font-size: 24px;
+	text-align: left;
+	background: var(--layout-default-background);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: text;
+}
+
+textarea.active {
+	color: var(--element-active-color);
+}
+
+textarea[disabled],
+textarea[disabled]:hover {
+	color: var(--element-disable-color);
+	border: 1px solid transparent;
+	background: var(--element-disable-background);
+	cursor: not-allowed;
+}
+
+textarea:focus,
+textarea:hover {
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: var(--element-focus-background);
+	outline: none;
+}
+

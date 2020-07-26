@@ -1,9 +1,9 @@
 
-import { Element             } from '../Element.mjs';
-import { Widget              } from '../Widget.mjs';
-import { isBoolean, isString } from '../../extern/base.mjs';
-// import { dispatch            } from '../../internal/index.mjs';
-import { URL                 } from '../../source/parser/URL.mjs';
+import { Element                      } from '../Element.mjs';
+import { Widget                       } from '../Widget.mjs';
+import { console, isBoolean, isString } from '../../extern/base.mjs';
+// import { dispatch                     } from '../../internal/index.mjs';
+import { URL                          } from '../../source/parser/URL.mjs';
 
 
 
@@ -109,11 +109,14 @@ const Webview = function(browser) {
 	this.webview = this.element.query('iframe');
 	this.window  = this.webview.node.contentWindow || null;
 
-
 	this.webview.on('load', () => {
 
 		let window = this.webview.node.contentWindow || null;
 		if (window !== null) {
+
+			window.onerror = (err) => {
+				console.error(err);
+			};
 
 			if (this.url.protocol === 'stealth') {
 				// TODO: Reintegrate this

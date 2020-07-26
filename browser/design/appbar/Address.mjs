@@ -121,6 +121,10 @@ const Address = function(browser) {
 	this.input    = this.element.query('[data-key="url"]');
 	this.output   = this.element.query('ul');
 
+	this.output.value([
+		this.protocol,
+		new Element('li', 'welcome')
+	]);
 
 	this.element.on('contextmenu', (e) => {
 

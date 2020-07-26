@@ -1,0 +1,29 @@
+
+@import url("../design/common/index.css");
+@import url("../design/common/theme.css");
+@import url("../design/common/elements.css");
+
+@import url("../design/card/Host.css");
+
+
+
+body > article {
+	display: block;
+	width: 512px;
+	margin: 32px auto;
+}
+
+body > article h3 {
+	font-family: 'museo';
+	font-size: 32px;
+}
+
+body > article p {
+	font-family: 'museo';
+	font-size: 16px;
+}
+
+body > browser-card-host {
+	margin: 0px auto;
+}
+

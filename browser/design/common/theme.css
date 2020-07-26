@@ -2,6 +2,9 @@
 body,
 body[data-theme="dark"] {
 
+	color: #ffffff;
+	background: #000000;
+
 	--layout-default-color: #ffffff;
 	--layout-default-background: #000000;
 
@@ -35,6 +38,9 @@ body[data-theme="dark"] {
 }
 
 body[data-theme="light"] {
+
+	color: #111111;
+	background: #eeeeee;
 
 	--layout-default-color: #111111;
 	--layout-default-background: #eeeeee;
