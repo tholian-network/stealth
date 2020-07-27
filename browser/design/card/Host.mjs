@@ -38,7 +38,7 @@ const Host = function(browser, actions) {
 
 	this.element = new Element('browser-card-host', [
 		'<h3 data-key="domain">Domain</h3>',
-		'<button data-action="expand"></button>',
+		'<button data-action="toggle"></button>',
 		'<article>',
 		actions.includes('save') ? '<textarea data-key="hosts" data-map="IP"></textarea>' : '<span data-key="hosts" data-map="IP"></span>',
 		'\t<div>',
@@ -50,7 +50,7 @@ const Host = function(browser, actions) {
 	]);
 
 	this.buttons = {
-		expand:  this.element.query('button[data-action="expand"]'),
+		toggle:  this.element.query('button[data-action="toggle"]'),
 		refresh: this.element.query('button[data-action="refresh"]'),
 		remove:  this.element.query('button[data-action="remove"]'),
 		save:    this.element.query('button[data-action="save"]')
@@ -64,17 +64,40 @@ const Host = function(browser, actions) {
 	Widget.call(this);
 
 
-	this.buttons.expand.on('click', () => {
+	this.element.on('show', () => {
 
-		if (this.element.state() === 'expand') {
-			this.buttons.expand.state('');
-			this.element.state('');
-		} else {
-			this.buttons.expand.state('active');
-			this.element.state('expand');
+		this.element.state('active');
+
+		if (this.buttons.toggle !== null) {
+			this.buttons.toggle.state('active');
 		}
 
 	});
+
+	this.element.on('hide', () => {
+
+		this.element.state('');
+
+		if (this.buttons.toggle !== null) {
+			this.buttons.toggle.state('');
+		}
+
+	});
+
+
+	if (this.buttons.toggle !== null) {
+
+		this.buttons.toggle.on('click', () => {
+
+			if (this.element.state() === 'active') {
+				this.element.emit('hide');
+			} else {
+				this.element.emit('show');
+			}
+
+		});
+
+	}
 
 	if (this.buttons.refresh !== null) {
 

@@ -22,20 +22,15 @@
 		<meta name="viewport" content="initial-scale=1, user-scalable=no">
 		<!-- Browser UI -->
 		<link rel="stylesheet" href="design/index.css">
-		<link rel="stylesheet" href="internal/theme.css">
 	</head>
 	<body data-theme="dark">
-
-		<header></header>
-		<main></main>
-		<footer></footer>
 		<!-- Browser PWA -->
 		<script type="module">
 			import { console                       } from './extern/base.mjs';
 			import { ENVIRONMENT                   } from './source/ENVIRONMENT.mjs';
 			import { Browser                       } from './source/Browser.mjs';
 			import { dispatch as dispatch_design   } from './design/index.mjs';
-			import { dispatch as dispatch_internal } from './internal/index.mjs';
+			// import { dispatch as dispatch_internal } from './internal/index.mjs';
 
 
 			window.onerror = (err) => {
@@ -53,7 +48,7 @@
 
 			setTimeout(() => {
 				dispatch_design(window, browser);
-				dispatch_internal(window, browser);
+				// dispatch_internal(window, browser);
 			}, 100);
 
 			setTimeout(() => {
@@ -100,11 +95,10 @@
 
 					[
 						// 'stealth:settings'
-						// 'stealth:fix-host?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-						// 'stealth:fix-mode?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-						// 'stealth:fix-filter?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-						// 'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=socket-stability&code=403'
-						'https://cookie.engineer/index.html'
+						'stealth:welcome',
+						'stealth:fix-host?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+						'stealth:fix-mode?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
+						'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=headers-status&code=403'
 					].map((url) => {
 						return browser.open(url);
 					}).forEach((tab) => {

@@ -1,0 +1,30 @@
+
+@import url("../design/common/index.css");
+@import url("../design/common/theme.css");
+@import url("../design/common/elements.css");
+@import url("../design/common/layout.css");
+
+
+
+body > article button[data-key="mode.text"]:before  { content: '\e06f'; }
+body > article button[data-key="mode.image"]:before { content: '\e432'; }
+body > article button[data-key="mode.audio"]:before { content: '\e049'; }
+body > article button[data-key="mode.video"]:before { content: '\e404'; }
+body > article button[data-key="mode.other"]:before { content: '\e048'; }
+
+body > article button,
+body > article button[disabled],
+body > article button[disabled]:hover {
+	color: var(--element-active-color);
+}
+
+body > article table td:nth-of-type(1) {
+	width: 64px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+body > article table td:nth-of-type(2) {
+	text-align: left;
+}
+

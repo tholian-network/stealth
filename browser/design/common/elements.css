@@ -1,4 +1,57 @@
 
+::selection {
+	color: var(--element-select-color);
+	border-radius: 4px;
+	background: var(--element-select-background);
+	cursor: text;
+}
+
+::-moz-selection {
+	color: var(--element-select-color);
+	border-radius: 4px;
+	background: var(--element-select-background);
+	cursor: text;
+}
+
+::-webkit-scrollbar {
+	width: 16px;
+	border: 0px solid transparent;
+	background: var(--scrollbar-default-background);
+}
+
+::-webkit-scrollbar-thumb {
+	width: 16px;
+	border: 0px solid transparent;
+	border-radius: 2px;
+	background: var(--scrollbar-default-color);
+}
+
+
+
+a {
+	padding: 0px 2px;
+	color: var(--link-default-color);
+	border: 1px solid transparent;
+	border-radius: 2px;
+	background: var(--link-default-background);
+	box-sizing: border-box;
+	text-decoration: underline;
+	transition: 200ms all ease-out;
+	vertical-align: middle;
+	outline: none;
+	cursor: pointer;
+}
+
+a:focus,
+a:hover {
+	color: var(--link-focus-color);
+	border: 1px solid var(--link-focus-color);
+	background: var(--link-focus-background);
+	outline: none;
+}
+
+
+
 button {
 	display: inline-block;
 	min-width: 32px;
@@ -17,6 +70,7 @@ button {
 	appearance: none;
 	-moz-appearance: none;
 	-webkit-appearance: none;
+	vertical-align: middle;
 	outline: none;
 	cursor: pointer;
 }

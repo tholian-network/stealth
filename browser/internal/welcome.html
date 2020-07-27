@@ -3,18 +3,18 @@
 	<head>
 		<meta charset="utf-8">
 		<title>stealth:welcome</title>
-		<link rel="stylesheet" href="welcome/index.css">
+		<link rel="stylesheet" href="welcome.css">
 	</head>
-	<body>
-		<article id="welcome-modes">
+	<body data-page="welcome">
+		<article>
 			<h3>Site Modes</h3>
 			<p>
-				Stealth respects so-called Site Modes. These Site Modes influence what
-				type of content and media is requested from from that particular domain.
+				Stealth uses so-called Site Modes. Site Modes influence what type of
+				content and media is requested from from that particular domain.
 			</p>
 			<p>
-				By default, Stealth will not request anything to ensure maximum control
-				over your privacy and security.
+				By default, Stealth will not request anything to ensure maximum
+				control over your privacy and security.
 			</p>
 			<table>
 				<thead>
@@ -26,129 +26,118 @@
 				<tbody>
 					<tr>
 						<td><button data-key="mode.text" disabled></button></td>
-						<td>Allow/Disallow to request Texts</td>
+						<td>Allow/Disallow Texts</td>
 					</tr>
 					<tr>
 						<td><button data-key="mode.image" disabled></button></td>
-						<td>Allow/Disallow to request Images</td>
+						<td>Allow/Disallow Images</td>
 					</tr>
 					<tr>
 						<td><button data-key="mode.audio" disabled></button></td>
-						<td>Allow/Disallow to request Audios</td>
+						<td>Allow/Disallow Audios</td>
 					</tr>
 					<tr>
 						<td><button data-key="mode.video" disabled></button></td>
-						<td>Allow/Disallow to request Videos</td>
+						<td>Allow/Disallow Videos</td>
 					</tr>
 					<tr>
 						<td><button data-key="mode.other" disabled></button></td>
-						<td>Allow/Disallow to request Downloads</td>
+						<td>Allow/Disallow Downloads</td>
 					</tr>
 				</tbody>
 			</table>
 		</article>
-		<article id="welcome-shortcuts">
+		<article>
 			<h3>Keyboard Shortcuts</h3>
 			<p>
-				Stealth has the keyboard shortcuts mapped in the graphical order
-				the buttons appear on the header bar, from left to right; with
-				exceptions to the shortcuts for tab control. Convenience shortcuts
-				are also integrated, for people that come from other Web Browsers
-				with a too strong muscle memory.
+				Keyboard Shortcuts are mapped in the graphical order in which the
+				Widgets appear on the App Bar, from left to right, with exceptions
+				to the shortcuts for Tab interaction.
+			</p>
+			<p>
+				Convenience shortcuts from other Browsers are also integrated,
+				for people with a too strong muscle memory.
 			</p>
 			<table>
 				<thead>
 					<tr>
 						<th>Key</th>
-						<th>Shortcut</th>
 						<th>Behaviour</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<td>[ESC]</td>
-						<td></td>
+						<td>[Esc]</td>
 						<td>Hide Context Menu, Unfocus Address, Hide Sidebars</td>
 					</tr>
 					<tr>
+						<td>3x&nbsp;[Esc]</td>
+						<td>Show Help Overlay</td>
+					</tr>
+					<tr>
 						<td>[F1]</td>
-						<td></td>
 						<td>Visit earlier Site</td>
 					</tr>
 					<tr>
 						<td>[F2]</td>
-						<td></td>
 						<td>Visit later Site</td>
 					</tr>
 					<tr>
-						<td>[F3]</td>
-						<td>[Ctrl] + [R]</td>
+						<td title="Alternative shortcut is [Ctrl] + [R]">[F3]</td>
 						<td>Refresh/Pause current Tab</td>
 					</tr>
 					<tr>
-						<td>[F4]</td>
-						<td>[Ctrl] + [T]</td>
+						<td title="Alternative shortcut is [Ctrl] + [T]">[F4]</td>
 						<td>Open new Tab</td>
 					</tr>
 					<tr>
-						<td>[F5]</td>
-						<td>[Ctrl] + [E]</td>
+						<td title="Alternative shortcut is [Ctrl] + [E]">[F5]</td>
 						<td>Edit current Tab URL</td>
 					</tr>
 					<tr>
-						<td>[F6]</td>
-						<td>[Ctrl] + [W]</td>
+						<td title="Alternative shortcut is [Ctrl] + [W]">[F6]</td>
 						<td>Kill current Tab</td>
 					</tr>
 					<tr>
-						<td>[F7]</td>
-						<td>[Ctrl] + [Page Up]</td>
+						<td title="Alternative shortcut is [Ctrl] + [Page Up]">[F7]</td>
 						<td>Show previous Tab</td>
 					</tr>
 					<tr>
-						<td>[F8]</td>
-						<td>[Ctrl] + [Page Down]</td>
+						<td title="Alternative shortcut is [Ctrl] + [Page Down]">[F8]</td>
 						<td>Show next Tab</td>
 					</tr>
 					<tr>
 						<td>[F9]</td>
-						<td></td>
 						<td>Toggle through Site Modes</td>
 					</tr>
 					<tr>
 						<td>[F10]</td>
-						<td></td>
 						<td>(reserved)</td>
 					</tr>
 					<tr>
-						<td>[F11]</td>
-						<td>[Ctrl] + [Backspace]</td>
+						<td title="Alternative Shortcut: [Ctrl] + [Backspace]">[F11]</td>
 						<td>Toggle through Beacon/Session/Site Settings</td>
 					</tr>
 					<tr>
 						<td>[F12]</td>
-						<td></td>
 						<td>Open Browser Settings</td>
 					</tr>
 					<tr>
-						<td></td>
-						<td>[Shift] + [Tab]</td>
+						<td>[Shift]<br>+<br>[Tab]</td>
 						<td>Navigate to previous Button, Input or Link</td>
 					</tr>
 					<tr>
 						<td>[Tab]</td>
-						<td></td>
 						<td>Navigate to next Button, Input or Link</td>
 					</tr>
 					<tr>
-						<td></td>
-						<td>[Ctrl] + [Space]</td>
+						<td>[Ctrl]<br>+<br>[Space]</td>
 						<td>Toggle Context Menu</td>
 					</tr>
 				</tbody>
 			</table>
 		</article>
-		<article id="welcome-pages">
+		<article>
 			<h3>Internal Pages</h3>
 			<table>
 				<thead>
@@ -165,10 +154,6 @@
 					<tr>
 						<td><a href="stealth:history">stealth:history</a></td>
 						<td>History Manager</td>
-					</tr>
-					<tr>
-						<td><a href="stealth:cache">stealth:cache</a></td>
-						<td>Cache Manager</td>
 					</tr>
 					<tr>
 						<td><a href="stealth:media">stealth:media</a></td>
@@ -198,7 +183,8 @@
 			</table>
 		</article>
 		<footer>
-			Stealth is an <a href="https://github.com/Artificial-Engineering/stealth">Open Source</a> Project by <a href="https://artificial.engineering">Artificial Engineering</a>.
+			Stealth is an <a href="https://github.com/tholian-network/stealth">Open Source</a> Project by <a href="https://tholian.network">Tholian&reg; Network</a>.
+			Tholian is a registered trademark under European Law.
 		</footer>
 	</body>
 </html>

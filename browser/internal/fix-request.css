@@ -4,11 +4,16 @@
 @import url("../design/common/elements.css");
 @import url("../design/common/layout.css");
 
-@import url("../design/card/Host.css");
+@import url("./fix-request/Archive.css");
+@import url("./fix-request/Peers.css");
 
 
 
-body > browser-card-host {
+body > fix-request-archive {
+	margin: 64px auto 0px auto;
+}
+
+body > fix-request-peers {
 	margin: 64px auto 0px auto;
 }
 

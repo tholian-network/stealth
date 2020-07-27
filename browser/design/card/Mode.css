@@ -1,0 +1,92 @@
+
+browser-card-mode {
+	all: unset;
+}
+
+browser-card-mode {
+	display: block;
+	position: relative;
+	width: 640px;
+	margin: 0px;
+	padding: 16px;
+	background: var(--element-active-background);
+	border: 1px solid var(--element-focus-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+}
+
+browser-card-mode > h3 {
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	font-family: 'vera-mono';
+	font-size: 24px;
+	font-weight: normal;
+	line-height: 32px;
+	vertical-align: middle;
+}
+
+browser-card-mode > button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-mode > button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-mode > button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+browser-card-mode > article {
+	display: block;
+	width: 100%;
+	height: 0px;
+	overflow: hidden;
+}
+
+browser-card-mode > article > div {
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-card-mode > article > div > button {
+	margin-left: 16px;
+}
+
+browser-card-mode.active > h3 {
+	padding: 0px 0px 32px 0px;
+}
+
+browser-card-mode.active > article {
+	height: auto;
+	text-align: center;
+}
+
+browser-card-mode.active > article > div {
+	margin: 32px 0px 0px 0px;
+}
+
+browser-card-mode button[data-key="mode.text"]:before  { content: '\e06f'; }
+browser-card-mode button[data-key="mode.image"]:before { content: '\e432'; }
+browser-card-mode button[data-key="mode.audio"]:before { content: '\e049'; }
+browser-card-mode button[data-key="mode.video"]:before { content: '\e404'; }
+browser-card-mode button[data-key="mode.other"]:before { content: '\e048'; }
+browser-card-mode button[data-action="remove"]:before  { content: '\e14c'; }
+browser-card-mode button[data-action="save"]:before    { content: '\e876'; }
+browser-card-mode button[data-val="true"]              { color: var(--element-active-color); }
+browser-card-mode button[data-val="true"]:hover        { color: var(--element-active-color); }
+
+browser-card-mode.active > article > button {
+	margin: 0px 8px;
+}
+

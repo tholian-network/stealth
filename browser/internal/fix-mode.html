@@ -3,35 +3,26 @@
 	<head>
 		<meta charset="utf-8">
 		<title>stealth:fix-mode</title>
-		<link rel="stylesheet" href="fix-mode/index.css">
+		<link rel="stylesheet" href="fix-mode.css">
 	</head>
-	<body>
-		<article id="fix-mode">
+	<body data-page="fix-mode">
+		<article>
 			<h3>Fix Mode</h3>
-			<code data-key="url">https://example.com/index.html</code>
 			<p>
-				Stealth could not request the entered URL for this domain,
-				as the Mode did not allow it.
+				Stealth could not request the entered URL, because the
+				Site Mode did not allow it.
 			</p>
 			<p>
 				Please verify the correctness of the allowed Media Types.
 			</p>
-			<table id="sites-modes">
-				<thead>
-					<tr>
-						<th>Domain</th>
-						<th>Mode</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
 		</article>
-		<article id="help">
+		<article id="did-you-know">
 			<h3>Did you know?</h3>
-			<div>In order to load above URL, the Media Type <button data-key="mode.text" disabled></button> has to be allowed.</div>
+			<p>
+				Allow <button data-key="mode.text" disabled></button> to unblock the requested URL.
+			</p>
 		</article>
-		<script type="module" src="fix-mode/index.mjs"></script>
+		<script type="module" src="fix-mode.mjs"></script>
 	</body>
 </html>
 

@@ -3,10 +3,10 @@
 	<head>
 		<meta charset="utf-8">
 		<title>stealth:fix-host</title>
-		<link rel="stylesheet" href="./index.css">
+		<link rel="stylesheet" href="fix-host.css">
 	</head>
-	<body>
-		<article id="hosts">
+	<body data-page="fix-host">
+		<article>
 			<h3>Fix Host</h3>
 			<p>
 				Stealth could not connect to the cached hosts for this domain.
@@ -16,27 +16,7 @@
 				If they are incorrect, set them manually.
 			</p>
 		</article>
-		<script type="module">
-			import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
-			import { Host        } from '../design/card/Host.mjs';
-			import { URL         } from '../source/parser/URL.mjs';
-
-			let domain  = URL.toDomain(ENVIRONMENT.url);
-			let browser = window.parent.BROWSER || null;
-			if (browser !== null && domain !== null) {
-
-				let host    = browser.settings.hosts.find((h) => h.domain === domain) || { domain: domain };
-				let article = Element.query('article');
-				let widget  = new Host(browser, [ 'refresh', 'save' ]);
-
-				if (article !== null && widget !== null) {
-					widget.render(article);
-					widget.value(host);
-				}
-
-			}
-		</script>
-		<script type="module" src="fix-host/index.mjs"></script>
+		<script type="module" src="fix-host.mjs"></script>
 	</body>
 </html>
 

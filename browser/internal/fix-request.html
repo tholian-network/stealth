@@ -3,16 +3,15 @@
 	<head>
 		<meta charset="utf-8">
 		<title>stealth:fix-request</title>
-		<link rel="stylesheet" href="fix-request/index.css">
+		<link rel="stylesheet" href="fix-request.css">
 	</head>
-	<body>
+	<body data-page="fix-request">
 		<article>
 			<h3>Fix Request</h3>
-			<code data-key="url">https://example.com/index.html</code>
 			<p>
-				Stealth could not request the entered URL for this domain,
-				because either the internet connection broke down or because
-				the server is a <abbr title="also known as being an idiot">teapot</abbr>.
+				Stealth could not request the entered URL, because either
+				the internet connection broke down or because the server
+				is a <abbr title="also known as being an idiot">teapot</abbr>.
 			</p>
 			<p data-key="cause" data-val="socket-proxy">
 				The configured Proxy does not support anonymous <code>SOCKS5</code> tunnels.
@@ -22,8 +21,8 @@
 				Please check the stability of your internet connection.
 			</p>
 			<p data-key="cause" data-val="socket-timeout">
-				The socket connection timed out and the server is too outdated to
-				resume downloads once they've timed out.
+				The socket connection timed out and the server is too outdated
+				to resume downloads once they've timed out.
 			</p>
 			<p data-key="cause" data-val="socket-trust">
 				The socket encryption could not be verified. Please double-check your
@@ -36,21 +35,19 @@
 				The server responded with an invalid status code <code data-key="code">200</code>.
 			</p>
 		</article>
-		<article id="peers">
+		<article>
 			<h3>Download via Peers</h3>
-			<table>
-				<thead>
-					<tr>
-						<th>Domain</th>
-						<th>Connection</th>
-						<th>Cache</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
+			<p>
+				TODO: Peer Download
+			</p>
 		</article>
-		<script type="module" src="fix-request/index.mjs"></script>
+		<article>
+			<h3>Download via Web Archive</h3>
+			<p>
+				TODO: Web Archive Download
+			</p>
+		</article>
+		<script type="module" src="fix-request.mjs"></script>
 	</body>
 </html>
 

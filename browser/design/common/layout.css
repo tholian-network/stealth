@@ -1,0 +1,97 @@
+
+::selection {
+	color: var(--element-select-color);
+	border-radius: 4px;
+	background: var(--element-select-background);
+	cursor: text;
+}
+
+::-moz-selection {
+	color: var(--element-select-color);
+	border-radius: 4px;
+	background: var(--element-select-background);
+	cursor: text;
+}
+
+::-webkit-scrollbar {
+	width: 16px;
+	border: 0px solid transparent;
+	background: var(--scrollbar-default-background);
+}
+
+::-webkit-scrollbar-thumb {
+	width: 16px;
+	border: 0px solid transparent;
+	border-radius: 2px;
+	background: var(--scrollbar-default-color);
+}
+
+
+
+body {
+	margin: 0px;
+	padding: 0px;
+}
+
+body > article {
+	display: block;
+	font-family: 'museo';
+	width: 640px;
+	margin: 64px auto 0px auto;
+	padding: 16px;
+	background: var(--element-active-background);
+	border: 1px solid #666666;
+	border-radius: 8px;
+	box-sizing: border-box;
+}
+
+body > article h3 {
+	font-family: 'museo';
+	font-size: 32px;
+	margin: 0px 0px 32px 0px;
+	padding: 0px;
+	border-bottom: 1px solid #666666;
+}
+
+body > article p {
+	font-family: 'museo';
+	font-size: 24px;
+	text-align: justify;
+}
+
+body > article table {
+	width: 100%;
+	font-family: 'museo';
+	text-align: center;
+}
+
+body > article p + table {
+	margin-top: 32px;
+}
+
+body > article table th {
+	padding: 8px;
+	font-size: 24px;
+	line-height: 32px;
+	font-weight: bold;
+	text-align: center;
+}
+
+body > article table td {
+	padding: 8px;
+	font-size: 24px;
+	line-height: 32px;
+	border-top: 1px solid #666666;
+}
+
+body > footer {
+	display: block;
+	width: 100%;
+	margin: 128px 0px 0px 0px;
+	padding: 16px;
+	font-family: 'museo';
+	text-align: center;
+	font-size: 16px;
+	box-sizing: border-box;
+}
+

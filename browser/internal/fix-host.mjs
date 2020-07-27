@@ -16,8 +16,14 @@ if (browser !== null && domain !== null) {
 	let widget = new Host(browser, [ 'refresh', 'save' ]);
 
 	if (body !== null && widget !== null) {
+
 		widget.render(body);
 		widget.value(host);
+
+		setTimeout(() => {
+			widget.emit('show');
+		}, 0);
+
 	}
 
 }
