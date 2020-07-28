@@ -9,12 +9,16 @@ const toDomain = function(payload) {
 
 	let domain = null;
 
-	if (isString(payload.domain) === true) {
+	if (isObject(payload) === true) {
 
-		if (isString(payload.subdomain) === true) {
-			domain = payload.subdomain + '.' + payload.domain;
-		} else {
-			domain = payload.domain;
+		if (isString(payload.domain) === true) {
+
+			if (isString(payload.subdomain) === true) {
+				domain = payload.subdomain + '.' + payload.domain;
+			} else {
+				domain = payload.domain;
+			}
+
 		}
 
 	}
@@ -25,21 +29,25 @@ const toDomain = function(payload) {
 
 const toQuery = function(payload) {
 
-	if (isString(payload.domain) === true) {
+	if (isObject(payload) === true) {
 
-		if (isString(payload.subdomain) === true) {
+		if (isString(payload.domain) === true) {
 
-			return {
-				domain:    payload.domain,
-				subdomain: payload.subdomain
-			};
+			if (isString(payload.subdomain) === true) {
 
-		} else {
+				return {
+					domain:    payload.domain,
+					subdomain: payload.subdomain
+				};
 
-			return {
-				domain:    payload.domain,
-				subdomain: null
-			};
+			} else {
+
+				return {
+					domain:    payload.domain,
+					subdomain: null
+				};
+
+			}
 
 		}
 
@@ -53,11 +61,15 @@ const toIP = function(payload) {
 
 	let ip = null;
 
-	if (isString(payload.host) === true) {
+	if (isObject(payload) === true) {
 
-		let value = IP.parse(payload.host);
-		if (IP.isIP(value) === true) {
-			ip = value;
+		if (isString(payload.host) === true) {
+
+			let value = IP.parse(payload.host);
+			if (IP.isIP(value) === true) {
+				ip = value;
+			}
+
 		}
 
 	}

@@ -671,6 +671,11 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.socket !== null) {
 
+			this.socket.removeAllListeners('data');
+			this.socket.removeAllListeners('timeout');
+			this.socket.removeAllListeners('error');
+			this.socket.removeAllListeners('end');
+
 			this.socket.destroy();
 			this.socket = null;
 

@@ -25,6 +25,10 @@ const update = (browser, host) => {
 			other[key] = host[key];
 		});
 
+	} else {
+
+		browser.settings.hosts.push(host);
+
 	}
 
 };
@@ -33,27 +37,27 @@ const update = (browser, host) => {
 
 const Host = function(browser, actions) {
 
-	actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
-
-
+	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
 	this.element = new Element('browser-card-host', [
-		'<h3 data-key="domain">Domain</h3>',
+		'<h3 data-key="domain">example.com</h3>',
 		'<button data-action="toggle"></button>',
-		'<article>',
-		actions.includes('save') ? '<textarea data-key="hosts" data-map="IP"></textarea>' : '<span data-key="hosts" data-map="IP"></span>',
-		'\t<div>',
-		actions.includes('refresh') ? '\t\t<button data-action="refresh" title="refresh"></button>' : '',
-		actions.includes('remove')  ? '\t\t<button data-action="remove" title="remove"></button>'   : '',
-		actions.includes('save')    ? '\t\t<button data-action="save" title="save"></button>'       : '',
-		'\t</div>',
-		'</article>',
+		'<browser-card-host-article>',
+		'<textarea data-key="hosts" data-map="IP"></textarea>',
+		'</browser-card-host-article>',
+		'<browser-card-host-footer>',
+		'<button data-action="create" title="create"></button>',
+		'<button data-action="refresh" title="refresh"></button>',
+		'<button data-action="remove" title="remove"></button>',
+		'<button data-action="save" title="save"></button>',
+		'</browser-card-host-footer>'
 	]);
 
 	this.buttons = {
-		toggle:  this.element.query('button[data-action="toggle"]'),
+		create:  this.element.query('button[data-action="create"]'),
 		refresh: this.element.query('button[data-action="refresh"]'),
 		remove:  this.element.query('button[data-action="remove"]'),
-		save:    this.element.query('button[data-action="save"]')
+		save:    this.element.query('button[data-action="save"]'),
+		toggle:  this.element.query('button[data-action="toggle"]')
 	};
 
 	this.model = {
@@ -84,16 +88,150 @@ const Host = function(browser, actions) {
 
 	});
 
+	this.element.on('update', () => {
 
-	if (this.buttons.toggle !== null) {
+		this.buttons.create.erase();
+		this.buttons.refresh.erase();
+		this.buttons.remove.erase();
+		this.buttons.save.erase();
 
-		this.buttons.toggle.on('click', () => {
 
-			if (this.element.state() === 'active') {
-				this.element.emit('hide');
-			} else {
-				this.element.emit('show');
+		let article = this.element.query('browser-card-host-article');
+		let footer  = this.element.query('browser-card-host-footer');
+		let h3      = this.element.query('h3');
+
+		if (this.actions.includes('create')) {
+
+			if (this.model.domain.type === 'h3') {
+
+				let input = new Element('input');
+
+				input.attr('type',     'text');
+				input.attr('data-key', 'domain');
+				h3.attr('data-key',    '');
+
+				input.value(h3.value());
+				h3.value('');
+
+				input.render(h3);
+
+				this.model.domain = input;
+
 			}
+
+		} else {
+
+			if (this.model.domain.type === 'input') {
+
+				let input = this.model.domain;
+
+				h3.attr('data-key', 'domain');
+				h3.value(input.value());
+
+				input.erase();
+
+				this.model.domain = h3;
+
+			}
+
+		}
+
+
+		if (this.actions.includes('create') || this.actions.includes('save')) {
+
+			if (this.model.hosts.type === 'span') {
+
+				let span     = this.model.hosts;
+				let textarea = new Element('textarea');
+
+				textarea.attr('data-key', 'hosts');
+				textarea.attr('data-map', 'IP');
+
+				span.erase();
+
+				textarea.value(span.value());
+				textarea.render(article);
+
+				this.model.hosts = textarea;
+
+			}
+
+		} else {
+
+			if (this.model.hosts.type === 'textarea') {
+
+				let span     = new Element('span');
+				let textarea = this.model.hosts;
+
+				span.attr('data-key', 'hosts');
+				span.attr('data-map', 'IP');
+
+				textarea.erase();
+
+				span.value(textarea.value());
+				span.render(article);
+
+				this.model.hosts = span;
+
+			}
+
+		}
+
+
+		if (this.actions.includes('create')) {
+
+			if (this.actions.includes('refresh')) {
+				this.buttons.refresh.render(footer);
+			}
+
+			this.buttons.create.render(footer);
+
+		} else if (this.actions.includes('save')) {
+
+			if (this.actions.includes('refresh')) {
+				this.buttons.refresh.render(footer);
+			}
+
+			if (this.actions.includes('remove')) {
+				this.buttons.remove.render(footer);
+			}
+
+			this.buttons.save.render(footer);
+
+		}
+
+	});
+
+	if (this.buttons.create !== null) {
+
+		this.buttons.create.on('click', () => {
+
+			browser.client.services['host'].save(this.value(), (result) => {
+
+				if (result === true) {
+					update(browser, this.value());
+				}
+
+			});
+
+			if (
+				this.actions.includes('create') === true
+				&& this.actions.includes('save') === false
+			) {
+
+				this.actions = this.actions.map((action) => {
+
+					if (action === 'create') {
+						return 'save';
+					} else {
+						return action;
+					}
+
+				});
+
+			}
+
+			this.element.emit('update');
 
 		});
 
@@ -105,8 +243,31 @@ const Host = function(browser, actions) {
 
 			browser.client.services['host'].refresh(this.value(), (host) => {
 
-				update(browser, host);
-				this.value(host);
+				if (host !== null) {
+
+					if (
+						this.actions.includes('create') === true
+						&& this.actions.includes('save') === false
+					) {
+
+						this.actions = this.actions.map((action) => {
+
+							if (action === 'create') {
+								return 'save';
+							} else {
+								return action;
+							}
+
+						});
+
+					}
+
+					this.element.emit('update');
+
+					update(browser, host);
+					this.value(host);
+
+				}
 
 			});
 
@@ -146,6 +307,22 @@ const Host = function(browser, actions) {
 		});
 
 	}
+
+	if (this.buttons.toggle !== null) {
+
+		this.buttons.toggle.on('click', () => {
+
+			if (this.element.state() === 'active') {
+				this.element.emit('hide');
+			} else {
+				this.element.emit('show');
+			}
+
+		});
+
+	}
+
+	this.element.emit('update');
 
 };
 

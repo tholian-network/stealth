@@ -179,7 +179,7 @@ const Element = function(type, content) {
 
 		if (isString(content) === true) {
 
-			this.node.innerHTML = content.trim().split('\n').join('');
+			this.node.innerHTML = content.trim().split('\n').map((c) => c.trim()).join('');
 
 		} else if (isHTMLElement(content) === true) {
 
@@ -210,7 +210,7 @@ const Element = function(type, content) {
 			} else if (strings.length > 0) {
 
 				this.node.innerHTML = strings.map((str) => {
-					return str.trim().split('\n').join('');
+					return str.trim().split('\n').map((c) => c.trim()).join('');
 				}).join('');
 
 			}

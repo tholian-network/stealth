@@ -25,6 +25,10 @@ const update = (browser, mode) => {
 			other[key] = mode[key];
 		});
 
+	} else {
+
+		browser.settings.modes.push(mode);
+
 	}
 
 };
@@ -33,37 +37,29 @@ const update = (browser, mode) => {
 
 const Mode = function(browser, actions) {
 
-	actions = isArray(actions) ? actions : [ 'remove', 'save' ];
-
-
+	this.actions = isArray(actions) ? actions : [ 'remove', 'save' ];
 	this.element = new Element('browser-card-mode', [
-		'<h3 data-key="domain">Domain</h3>',
+		'<h3 data-key="domain">example.com</h3>',
 		'<button data-action="toggle"></button>',
-		'<article>',
-		actions.includes('save') ? ([
-			'<button data-key="mode.text" data-val="false"></button>',
-			'<button data-key="mode.image" data-val="false"></button>',
-			'<button data-key="mode.audio" data-val="false"></button>',
-			'<button data-key="mode.video" data-val="false"></button>',
-			'<button data-key="mode.other" data-val="false"></button>'
-		].join('')) : ([
-			'<button data-key="mode.text" data-val="false" disabled></button>',
-			'<button data-key="mode.image" data-val="false" disabled></button>',
-			'<button data-key="mode.audio" data-val="false" disabled></button>',
-			'<button data-key="mode.video" data-val="false" disabled></button>',
-			'<button data-key="mode.other" data-val="false" disabled></button>'
-		].join('')),
-		'\t<div>',
-		actions.includes('remove') ? '\t\t<button data-action="remove" title="remove"></button>' : '',
-		actions.includes('save')   ? '\t\t<button data-action="save" title="save"></button>'     : '',
-		'\t</div>',
-		'</article>',
+		'<browser-card-mode-article>',
+		'<button data-key="mode.text" data-val="false" disabled></button>',
+		'<button data-key="mode.image" data-val="false" disabled></button>',
+		'<button data-key="mode.audio" data-val="false" disabled></button>',
+		'<button data-key="mode.video" data-val="false" disabled></button>',
+		'<button data-key="mode.other" data-val="false" disabled></button>',
+		'</browser-card-mode-article>',
+		'<browser-card-mode-footer>',
+		'<button data-action="create" title="create"></button>',
+		'<button data-action="remove" title="remove"></button>',
+		'<button data-action="save" title="save"></button>',
+		'</browser-card-mode-footer>'
 	]);
 
 	this.buttons = {
-		toggle: this.element.query('button[data-action="toggle"]'),
-		remove: this.element.query('button[data-action="remove"]'),
-		save:   this.element.query('button[data-action="save"]')
+		create: this.element.query('[data-action="create"]'),
+		remove: this.element.query('[data-action="remove"]'),
+		save:   this.element.query('[data-action="save"]'),
+		toggle: this.element.query('[data-action="toggle"]')
 	};
 
 	this.model = {
@@ -100,6 +96,83 @@ const Mode = function(browser, actions) {
 
 	});
 
+	this.element.on('update', () => {
+
+		this.buttons.create.erase();
+		this.buttons.remove.erase();
+		this.buttons.save.erase();
+
+
+		let footer = this.element.query('browser-card-mode-footer');
+		let h3     = this.element.query('h3');
+
+		if (this.actions.includes('create')) {
+
+			if (this.model.domain.type === 'h3') {
+
+				let input = new Element('input');
+
+				input.attr('type',     'text');
+				input.attr('data-key', 'domain');
+				h3.attr('data-key',    '');
+
+				input.value(h3.value());
+				h3.value('');
+
+				input.render(h3);
+
+				this.model.domain = input;
+
+			}
+
+		} else {
+
+			if (this.model.domain.type === 'input') {
+
+				let input = this.model.domain;
+
+				h3.attr('data-key', 'domain');
+				h3.value(input.value());
+
+				input.erase();
+
+				this.model.domain = h3;
+
+			}
+
+		}
+
+		if (this.actions.includes('create') || this.actions.includes('save')) {
+
+			Object.values(this.model.mode).forEach((button) => {
+				button.state('enabled');
+			});
+
+		} else {
+
+			Object.values(this.model.mode).forEach((button) => {
+				button.state('disabled');
+			});
+
+		}
+
+
+		if (this.actions.includes('create')) {
+
+			this.buttons.create.render(footer);
+
+		} else if (this.actions.includes('save')) {
+
+			if (this.actions.includes('remove')) {
+				this.buttons.remove.render(footer);
+			}
+
+			this.buttons.save.render(footer);
+
+		}
+
+	});
+
 	Object.values(this.model.mode).forEach((button) => {
 
 		button.on('click', () => {
@@ -114,16 +187,20 @@ const Mode = function(browser, actions) {
 
 	});
 
+	if (this.buttons.create !== null) {
 
-	if (this.buttons.toggle !== null) {
+		this.buttons.create.on('click', () => {
 
-		this.buttons.toggle.on('click', () => {
+			browser.client.services['mode'].save(this.value(), (result) => {
 
-			if (this.element.state() === 'active') {
-				this.element.emit('hide');
-			} else {
-				this.element.emit('show');
-			}
+				if (result === true) {
+					update(browser, this.value());
+				}
+
+			});
+
+			this.actions = [ 'remove', 'save' ];
+			this.element.emit('update');
 
 		});
 
@@ -161,6 +238,22 @@ const Mode = function(browser, actions) {
 		});
 
 	}
+
+	if (this.buttons.toggle !== null) {
+
+		this.buttons.toggle.on('click', () => {
+
+			if (this.element.state() === 'active') {
+				this.element.emit('hide');
+			} else {
+				this.element.emit('show');
+			}
+
+		});
+
+	}
+
+	this.element.emit('update');
 
 };
 

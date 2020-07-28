@@ -28,6 +28,7 @@
 		<script type="module">
 			import { console                       } from './extern/base.mjs';
 			import { ENVIRONMENT                   } from './source/ENVIRONMENT.mjs';
+			import { URL                           } from './source/parser/URL.mjs';
 			import { Browser                       } from './source/Browser.mjs';
 			import { dispatch as dispatch_design   } from './design/index.mjs';
 			// import { dispatch as dispatch_internal } from './internal/index.mjs';
@@ -56,6 +57,42 @@
 				if (ENVIRONMENT.flags.debug === true) {
 
 					console.info('Browser: Debug Mode active');
+
+					if (URL.isURL(ENVIRONMENT.flags.url) === true) {
+
+						browser.once('connect', () => {
+
+							let tab = browser.open('stealth:debug?url=' + encodeURIComponent(ENVIRONMENT.flags.url.link));
+							if (tab !== null) {
+								browser.show(tab);
+							}
+
+						});
+
+					} else {
+
+						browser.once('connect', () => {
+
+							let url = 'https://cookie.engineer/index.html';
+
+							[
+								'stealth:settings',
+								'stealth:welcome',
+								'stealth:fix-host?url=' + encodeURIComponent(url),
+								'stealth:fix-mode?url=' + encodeURIComponent(url),
+								'stealth:fix-request?url=' + encodeURIComponent(url) + '&cause=headers-status&code=403',
+								'stealth:debug?url=' + encodeURIComponent(url),
+							].map((url) => {
+								return browser.open(url);
+							}).filter((tab) => {
+								return tab !== null;
+							}).forEach((tab) => {
+								browser.show(tab);
+							});
+
+						});
+
+					}
 
 				} else {
 
@@ -88,22 +125,6 @@
 
 					console.log('Browser: Reconnecting to ws://' + ENVIRONMENT.hostname + ':65432 after ' + (browser.__state.reconnect * 30) + ' seconds ...');
 					browser.reconnect();
-
-				});
-
-				browser.once('connect', () => {
-
-					[
-						// 'stealth:settings'
-						'stealth:welcome',
-						'stealth:fix-host?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-						'stealth:fix-mode?url=' + encodeURIComponent('https://cookie.engineer/index.html'),
-						'stealth:fix-request?url=' + encodeURIComponent('https://cookie.engineer/index.html') + '&cause=headers-status&code=403'
-					].map((url) => {
-						return browser.open(url);
-					}).forEach((tab) => {
-						browser.show(tab);
-					});
 
 				});
 

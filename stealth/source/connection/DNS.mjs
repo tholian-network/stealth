@@ -93,7 +93,34 @@ const resolve = function(url, domain, type, callback) {
 	let connection = HTTPS.connect(url);
 	if (connection !== null) {
 
-		connection.on('@connect', () => {
+		connection.once('@connect', () => {
+
+			connection.once('response', (response) => {
+
+				connection.off('redirect');
+				connection.off('timeout');
+
+				callback(parse(response.payload));
+
+			});
+
+			connection.once('redirect', () => {
+
+				connection.off('response');
+				connection.off('timeout');
+
+				callback(null);
+
+			});
+
+			connection.once('timeout', () => {
+
+				connection.off('redirect');
+				connection.off('response');
+
+				callback(null);
+
+			});
 
 			HTTPS.send(connection, {
 				headers: {
@@ -106,16 +133,28 @@ const resolve = function(url, domain, type, callback) {
 
 		});
 
-		connection.on('response', (response) => {
-			callback(parse(response.payload));
+		connection.once('error', () => {
+
+			connection.off('@connect');
+			connection.off('@disconnect');
+
+			connection.off('redirect');
+			connection.off('response');
+			connection.off('timeout');
+
+			callback(null);
+
 		});
 
-		connection.on('error', () => {
-			callback(null);
-		});
+		connection.once('@disconnect', () => {
 
-		connection.on('redirect', () => {
-			callback(null);
+			connection.off('@connect');
+			connection.off('@disconnect');
+
+			connection.off('redirect');
+			connection.off('response');
+			connection.off('timeout');
+
 		});
 
 	}

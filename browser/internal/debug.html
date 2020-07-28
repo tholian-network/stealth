@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>stealth:debug</title>
+		<style>
+
+			@import url("../design/common/index.css");
+			@import url("../design/common/theme.css");
+			@import url("../design/common/elements.css");
+			@import url("../design/common/layout.css");
+
+			@import url("../design/card/Beacon.css");
+			@import url("../design/card/Host.css");
+			@import url("../design/card/Mode.css");
+
+
+
+			body > browser-card-host,
+			body > browser-card-mode,
+			body > browser-card-beacon {
+				margin: 64px auto 0px auto;
+			}
+
+		</style>
+	</head>
+	<body data-page="debug">
+		<article>
+			<h3>Debug</h3>
+			<p>
+				<code data-key="domain">example.com</code>
+			</p>
+			<p>
+				This Page shows detailed information about a given URL,
+				with the idea that all domain-specific Settings (including
+				the ones for other paths) are shown.
+			</p>
+		</article>
+		<script type="module" src="debug.mjs"></script>
+	</body>
+</html>
+

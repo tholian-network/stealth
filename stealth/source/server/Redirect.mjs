@@ -8,16 +8,20 @@ const toDomain = function(payload) {
 
 	let domain = null;
 
-	if (isString(payload.domain) === true) {
+	if (isObject(payload) === true) {
 
-		if (isString(payload.subdomain) === true) {
-			domain = payload.subdomain + '.' + payload.domain;
-		} else {
-			domain = payload.domain;
+		if (isString(payload.domain) === true) {
+
+			if (isString(payload.subdomain) === true) {
+				domain = payload.subdomain + '.' + payload.domain;
+			} else {
+				domain = payload.domain;
+			}
+
+		} else if (isString(payload.host) === true) {
+			domain = payload.host;
 		}
 
-	} else if (isString(payload.host) === true) {
-		domain = payload.host;
 	}
 
 	return domain;
@@ -28,8 +32,12 @@ const toPath = function(payload) {
 
 	let path = null;
 
-	if (isString(payload.path) === true) {
-		path = payload.path;
+	if (isObject(payload) === true) {
+
+		if (isString(payload.path) === true) {
+			path = payload.path;
+		}
+
 	}
 
 	return path;

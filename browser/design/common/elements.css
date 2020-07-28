@@ -110,6 +110,54 @@ button::-moz-focus-inner {
 
 
 
+input[type="text"] {
+	display: inline-block;
+	margin: 0px;
+	padding: 0px;
+	height: 32px;
+	line-height: 32px;
+	color: var(--layout-default-color);
+	font-family: 'vera-mono';
+	font-size: 24px;
+	text-align: left;
+	background: var(--element-default-background);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	vertical-align: top;
+	transition: 200ms all ease-out;
+	appearance: none;
+	outline: none;
+	cursor: text;
+}
+
+input[type="text"].active {
+	color: var(--element-active-color);
+}
+
+input[type="text"][disabled],
+input[type="text"][disabled]:hover {
+	color: var(--element-disable-color);
+	border: 1px solid transparent;
+	background: var(--element-disable-background);
+	cursor: not-allowed;
+}
+
+input[type="text"]:focus,
+input[type="text"]:hover {
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background: var(--element-focus-background);
+	outline: none;
+}
+
+input[type="text"]::selection {
+	color: var(--element-select-color);
+	background: var(--element-select-background);
+	cursor: text;
+}
+
+
+
 textarea {
 	display: inline-block;
 	margin: 0px;
@@ -149,5 +197,11 @@ textarea:hover {
 	border: 1px solid var(--element-focus-color);
 	background: var(--element-focus-background);
 	outline: none;
+}
+
+textarea::selection {
+	color: var(--element-select-color);
+	background: var(--element-select-background);
+	cursor: text;
 }
 

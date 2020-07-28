@@ -3,7 +3,22 @@
 	<head>
 		<meta charset="utf-8">
 		<title>stealth:fix-host</title>
-		<link rel="stylesheet" href="fix-host.css">
+		<style>
+
+			@import url("../design/common/index.css");
+			@import url("../design/common/theme.css");
+			@import url("../design/common/elements.css");
+			@import url("../design/common/layout.css");
+
+			@import url("../design/card/Host.css");
+
+
+
+			body > browser-card-host {
+				margin: 64px auto 0px auto;
+			}
+
+		</style>
 	</head>
 	<body data-page="fix-host">
 		<article>
@@ -16,7 +31,38 @@
 				If they are incorrect, set them manually.
 			</p>
 		</article>
-		<script type="module" src="fix-host.mjs"></script>
+		<script type="module">
+
+			import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
+			import { Element     } from '../design/Element.mjs';
+			import { Host        } from '../design/card/Host.mjs';
+			import { URL         } from '../source/parser/URL.mjs';
+
+
+
+			let domain  = URL.toDomain(ENVIRONMENT.flags.url);
+			let browser = window.parent.BROWSER || null;
+
+			if (browser !== null && domain !== null) {
+
+				let host   = browser.settings.hosts.find((h) => h.domain === domain) || { domain: domain };
+				let body   = Element.query('body');
+				let widget = new Host(browser, [ 'refresh', 'save' ]);
+
+				if (body !== null && widget !== null) {
+
+					widget.render(body);
+					widget.value(host);
+
+					setTimeout(() => {
+						widget.emit('show');
+					}, 0);
+
+				}
+
+			}
+
+		</script>
 	</body>
 </html>
 

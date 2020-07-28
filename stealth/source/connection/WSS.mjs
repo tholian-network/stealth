@@ -261,22 +261,15 @@ const WSS = {
 
 					socket.on('error', (err) => {
 
-						if (connection.socket !== null) {
+						let code  = (err.code || '');
+						let error = { type: 'request' };
 
-							connection.socket = null;
-
-							let code = (err.code || '');
-							if (code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
-								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-							} else if (code === 'ERR_TLS_HANDSHAKE_TIMEOUT') {
-								connection.emit('timeout', [ null ]);
-							} else if (code.startsWith('ERR_TLS')) {
-								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
-							} else {
-								WS.disconnect(connection);
-							}
-
+						if (code.startsWith('ERR_TLS')) {
+							error = { type: 'request', cause: 'socket-trust' };
 						}
+
+						connection.emit('error', [ error ]);
+						WS.disconnect(connection);
 
 					});
 
