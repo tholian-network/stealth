@@ -81,6 +81,35 @@ browser-card-beacon button[data-action="toggle"].active:before {
 	transition: 200ms transform ease-out;
 }
 
+browser-card-beacon-article browser-card-beacon-beacon {
+	display: block;
+	margin: 0px;
+	padding: 0px 0px 32px 0px;
+	text-align: center;
+}
+
+browser-card-beacon-article browser-card-beacon-beacon:last-of-type {
+	padding: 0px;
+}
+
+browser-card-beacon-beacon button {
+	margin: 0px 8px;
+}
+
+browser-card-beacon-beacon button[data-key="mode.text"]:before  { content: '\e06f'; }
+browser-card-beacon-beacon button[data-key="mode.image"]:before { content: '\e432'; }
+browser-card-beacon-beacon button[data-key="mode.audio"]:before { content: '\e049'; }
+browser-card-beacon-beacon button[data-key="mode.video"]:before { content: '\e404'; }
+browser-card-beacon-beacon button[data-key="mode.other"]:before { content: '\e048'; }
+browser-card-beacon-beacon button[data-val="true"]              { color: var(--element-active-color); }
+browser-card-beacon-beacon button[data-val="true"]:hover        { color: var(--element-active-color); }
+
+browser-card-beacon-beacon input[type="text"] {
+	display: block;
+	width: 100%;
+	text-align: left;
+}
+
 browser-card-beacon-footer button {
 	margin-left: 16px;
 }

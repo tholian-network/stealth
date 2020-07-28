@@ -3,8 +3,8 @@ browser-sheet-console {
 	position: fixed;
 	top: auto;
 	right: auto;
-	bottom: 0px;
-	left: 0px;
+	bottom: 1px;
+	left: 1px;
 }
 
 browser-sheet-console button {

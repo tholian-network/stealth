@@ -65,7 +65,8 @@ Beacon.isBeacon = function(payload) {
 		let check = payload.beacons.filter((beacon) => {
 
 			if (
-				isString(beacon.label) === true
+				isObject(beacon) === true
+				&& isString(beacon.label) === true
 				&& isArray(beacon.select) === true
 				&& isObject(beacon.mode) === true
 				&& isBoolean(beacon.mode.text) === true
@@ -121,7 +122,8 @@ Beacon.toBeacon = function(payload) {
 			let check = payload.beacons.filter((beacon) => {
 
 				if (
-					isString(beacon.label) === true
+					isObject(beacon) === true
+					&& isString(beacon.label) === true
 					&& isArray(beacon.select) === true
 					&& isObject(beacon.mode) === true
 				) {

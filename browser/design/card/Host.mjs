@@ -39,16 +39,16 @@ const Host = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
 	this.element = new Element('browser-card-host', [
-		'<h3 data-key="domain">example.com</h3>',
-		'<button data-action="toggle"></button>',
+		'<h3 title="Domain" data-key="domain">example.com</h3>',
+		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
 		'<browser-card-host-article>',
-		'<textarea data-key="hosts" data-map="IP"></textarea>',
+		'<textarea title="List of IPv4/IPv6 addresses" data-key="hosts" data-map="IP"></textarea>',
 		'</browser-card-host-article>',
 		'<browser-card-host-footer>',
-		'<button data-action="create" title="create"></button>',
-		'<button data-action="refresh" title="refresh"></button>',
-		'<button data-action="remove" title="remove"></button>',
-		'<button data-action="save" title="save"></button>',
+		'<button title="Create Host" data-action="create"></button>',
+		'<button title="Refresh Host" data-action="refresh"></button>',
+		'<button title="Remove Host" data-action="remove"></button>',
+		'<button title="Save Host" data-action="save"></button>',
 		'</browser-card-host-footer>'
 	]);
 
@@ -144,6 +144,7 @@ const Host = function(browser, actions) {
 				let span     = this.model.hosts;
 				let textarea = new Element('textarea');
 
+				textarea.attr('title',    'List of IPv4/IPv6 addresses');
 				textarea.attr('data-key', 'hosts');
 				textarea.attr('data-map', 'IP');
 
@@ -163,6 +164,7 @@ const Host = function(browser, actions) {
 				let span     = new Element('span');
 				let textarea = this.model.hosts;
 
+				span.attr('title',    'List of IPv4/IPv6 addresses');
 				span.attr('data-key', 'hosts');
 				span.attr('data-map', 'IP');
 

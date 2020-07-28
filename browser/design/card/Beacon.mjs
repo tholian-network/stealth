@@ -1,7 +1,30 @@
 
-import { Element } from '../Element.mjs';
-import { Widget  } from '../Widget.mjs';
-import { isArray } from '../../extern/base.mjs';
+import { Element                                } from '../Element.mjs';
+import { Widget                                 } from '../Widget.mjs';
+import { isArray, isBoolean, isObject, isString } from '../../extern/base.mjs';
+
+
+
+const isBeacon = function(beacon) {
+
+	if (
+		isObject(beacon) === true
+		&& isString(beacon.label) === true
+		&& isArray(beacon.select) === true
+		&& isObject(beacon.mode) === true
+		&& isBoolean(beacon.mode.text) === true
+		&& isBoolean(beacon.mode.image) === true
+		&& isBoolean(beacon.mode.audio) === true
+		&& isBoolean(beacon.mode.video) === true
+		&& isBoolean(beacon.mode.other) === true
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
 
 
 
@@ -9,18 +32,17 @@ const Beacon = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'remove', 'save' ];
 	this.element = new Element('browser-card-beacon', [
-		'<h3>',
+		'<h3 title="Domain and Path">',
 		'<span data-key="domain">example.com</span>',
 		'<span data-key="path">/</span>',
 		'</h3>',
-		'<button data-action="toggle"></button>',
+		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
 		'<browser-card-beacon-article>',
-		// TODO: List of beacons[] with label, select input and mode {}
 		'</browser-card-beacon-article>',
 		'<browser-card-beacon-footer>',
-		'<button data-action="create" title="create"></button>',
-		'<button data-action="remove" title="remove"></button>',
-		'<button data-action="save" title="save"></button>',
+		'<button title="Create Beacon" data-action="create"></button>',
+		'<button title="Remove Beacon" data-action="remove"></button>',
+		'<button title="Save Beacon" data-action="save"></button>',
 		'</browser-card-beacon-footer>'
 	]);
 
@@ -112,7 +134,65 @@ const Beacon = function(browser, actions) {
 };
 
 
-Beacon.prototype = Object.assign({}, Widget.prototype);
+Beacon.prototype = Object.assign({}, Widget.prototype, {
+
+	value: function(value) {
+
+		value = isObject(value) ? value : null;
+
+
+		if (value !== null) {
+
+			if (isArray(value.beacons) === true) {
+
+				value.beacons = value.beacons.filter((b) => isBeacon(b));
+
+
+				let article = this.element.query('browser-card-beacon-article');
+
+
+				this.model.beacons = value.beacons.map(() => {
+
+					let element = new Element('browser-card-beacon-beacon', [
+						'<input title="Label" type="text" data-key="label"/>',
+						'<input title="List of Selectors" type="text" data-key="select" data-map="CSV"/>',
+						'<button title="Allow/Disallow Text Content" data-key="mode.text" data-val="false"></button>',
+						'<button title="Allow/Disallow Image Content" data-key="mode.image" data-val="false"></button>',
+						'<button title="Allow/Disallow Audio Content" data-key="mode.audio" data-val="false"></button>',
+						'<button title="Allow/Disallow Video Content" data-key="mode.video" data-val="false"></button>',
+						'<button title="Allow/Disallow Other Content" data-key="mode.other" data-val="false"></button>',
+					]);
+
+					element.render(article);
+
+
+					return {
+						label:  element.query('[data-key="label"]'),
+						select: element.query('[data-key="select"]'),
+						mode:   {
+							text:  element.query('[data-key="mode.text"]'),
+							image: element.query('[data-key="mode.image"]'),
+							audio: element.query('[data-key="mode.audio"]'),
+							video: element.query('[data-key="mode.video"]'),
+							other: element.query('[data-key="mode.other"]')
+						}
+					};
+
+				});
+
+			}
+
+			return Widget.prototype.value.call(this, value);
+
+		} else {
+
+			return Widget.prototype.value.call(this);
+
+		}
+
+	}
+
+});
 
 
 export { Beacon };

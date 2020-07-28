@@ -39,19 +39,19 @@ const Mode = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'remove', 'save' ];
 	this.element = new Element('browser-card-mode', [
-		'<h3 data-key="domain">example.com</h3>',
-		'<button data-action="toggle"></button>',
+		'<h3 title="Domain" data-key="domain">example.com</h3>',
+		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
 		'<browser-card-mode-article>',
-		'<button data-key="mode.text" data-val="false" disabled></button>',
-		'<button data-key="mode.image" data-val="false" disabled></button>',
-		'<button data-key="mode.audio" data-val="false" disabled></button>',
-		'<button data-key="mode.video" data-val="false" disabled></button>',
-		'<button data-key="mode.other" data-val="false" disabled></button>',
+		'<button title="Allow/Disallow Text" data-key="mode.text" data-val="false" disabled></button>',
+		'<button title="Allow/Disallow Image" data-key="mode.image" data-val="false" disabled></button>',
+		'<button title="Allow/Disallow Audio" data-key="mode.audio" data-val="false" disabled></button>',
+		'<button title="Allow/Disallow Video" data-key="mode.video" data-val="false" disabled></button>',
+		'<button title="Allow/Disallow Other" data-key="mode.other" data-val="false" disabled></button>',
 		'</browser-card-mode-article>',
 		'<browser-card-mode-footer>',
-		'<button data-action="create" title="create"></button>',
-		'<button data-action="remove" title="remove"></button>',
-		'<button data-action="save" title="save"></button>',
+		'<button title="Create Mode" data-action="create"></button>',
+		'<button title="Remove Mode" data-action="remove"></button>',
+		'<button title="Save Mode" data-action="save"></button>',
 		'</browser-card-mode-footer>'
 	]);
 

@@ -12,6 +12,7 @@ const Console = function(/* browser */) {
 		this.button
 	]);
 
+	this.button.attr('title', 'Toggle visibility of Developer Console');
 
 	this.button.on('click', () => {
 

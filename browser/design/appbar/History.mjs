@@ -28,10 +28,10 @@ const update = function(tab) {
 const History = function(browser) {
 
 	this.element = new Element('browser-appbar-history', [
-		'<button data-key="back" title="Visit earlier Site" disabled></button>',
-		'<button data-key="next" title="Visit later Site" disabled></button>',
-		'<button data-key="action" data-val="refresh" title="Refresh/Pause current Tab" disabled></button>',
-		'<button data-key="open" title="Open Tab" disabled></button>'
+		'<button title="Visit earlier Site in Tab History" data-key="back" disabled></button>',
+		'<button title="Visit later Site in Tab History" data-key="next" disabled></button>',
+		'<button title="Refresh/Pause current Tab" data-key="action" data-val="refresh" disabled></button>',
+		'<button title="Open new Tab" data-key="open" disabled></button>'
 	].join(''));
 
 	this.buttons = {

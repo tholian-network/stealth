@@ -33,6 +33,14 @@ const get_value = function(element) {
 
 		value = element.value();
 
+	} else if (isArray(element) === true) {
+
+		value = [];
+
+		element.forEach((other, e) => {
+			value.push(get_value(element[e]));
+		});
+
 	} else if (isObject(element) === true) {
 
 		value = {};
@@ -57,6 +65,18 @@ const set_value = function(element, value) {
 	if (isElement(element) === true) {
 
 		result = element.value(value);
+
+	} else if (isArray(element) === true && isArray(value) === true) {
+
+		let check = [];
+
+		element.forEach((other, e) => {
+			check.push(set_value(element[e], value[e]));
+		});
+
+		if (check.includes(false) === false) {
+			result = true;
+		}
 
 	} else if (isObject(element) === true && isObject(value) === true) {
 
@@ -323,9 +343,8 @@ Widget.prototype = {
 
 		if (value !== null) {
 
-			let result = set_value(this.model, value);
-			if (result === true) {
-				return true;
+			if (isObject(this.model) === true) {
+				return set_value(this.model, value);
 			} else {
 				return false;
 			}
