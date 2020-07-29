@@ -28,6 +28,50 @@ describe('isArray()', function(assert) {
 
 });
 
+describe('Array.prototype.remove()', function(assert) {
+
+	let array1 = [ 1, 3, 3, 7 ];
+	let array2 = new Array(1, 3, 3, 7);
+
+	assert(array1.remove(3), array1);
+	assert(array2.remove(3), array1);
+
+	assert(array1, [ 1, 7 ]);
+	assert(array2, new Array(1, 7));
+
+});
+
+describe('Array.prototype.removeEvery()', function(assert) {
+
+	let array1 = [
+		{ num: 1, str: 'one'   },
+		{ num: 3, str: 'three' },
+		{ num: 3, str: 'three' },
+		{ num: 7, str: 'seven' }
+	];
+
+	let array2 = [
+		{ num: 1, str: 'one'   },
+		{ num: 3, str: 'three' },
+		{ num: 3, str: 'three' },
+		{ num: 7, str: 'seven' }
+	];
+
+	assert(array1.removeEvery((cell) => cell.num === 3),       array1);
+	assert(array2.removeEvery((cell) => cell.str === 'three'), array1);
+
+	assert(array1, [
+		{ num: 1, str: 'one'   },
+		{ num: 7, str: 'seven' }
+	]);
+
+	assert(array2, [
+		{ num: 1, str: 'one'   },
+		{ num: 7, str: 'seven' }
+	]);
+
+});
+
 describe('Array.prototype.toString()', function(assert) {
 
 	let array1 = [ 1, 3, 3, 7 ];

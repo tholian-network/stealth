@@ -1,8 +1,8 @@
 
-import { Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { ENVIRONMENT                                                  } from '../ENVIRONMENT.mjs';
-import { IP                                                           } from '../parser/IP.mjs';
-import { Client, isClient                                             } from '../Client.mjs';
+import { console, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { ENVIRONMENT                                                           } from '../ENVIRONMENT.mjs';
+import { IP                                                                    } from '../parser/IP.mjs';
+import { Client, isClient                                                      } from '../Client.mjs';
 
 
 
@@ -79,6 +79,7 @@ const connect_client = function(hosts, callback) {
 		success = true;
 
 		if (this.stealth.peers.includes(client) === false) {
+			console.info('Peer Service: Connected to ' + client._settings.host);
 			this.stealth.peers.push(client);
 		}
 
@@ -90,6 +91,7 @@ const connect_client = function(hosts, callback) {
 
 		let index = this.stealth.peers.indexOf(client);
 		if (index !== -1) {
+			console.error('Peer Service: Disconnected from ' + client._settings.host);
 			this.stealth.peers.splice(index, 1);
 		}
 
@@ -121,9 +123,9 @@ const connect_peer = function(hosts, callback) {
 			if (client === null) {
 
 				let peer = this.stealth.peers.find((p) => p.address === host.ip) || null;
-				if (isClient(peer)) {
+				if (isClient(peer) === true) {
 
-					if (peer.is('connected')) {
+					if (peer.is('connected') === true) {
 
 						client = peer;
 
@@ -142,8 +144,13 @@ const connect_peer = function(hosts, callback) {
 
 		});
 
-		if (isClient(client) && client.is('connected')) {
+		if (
+			isClient(client) === true
+			&& client.is('connected') === true
+		) {
+
 			callback(client);
+
 		} else {
 			connect_client.call(this, hosts, callback);
 		}
@@ -434,7 +441,15 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 				};
 			}
 
+			if (peer === null) {
+				peer = {
+					domain:     domain,
+					connection: 'offline'
+				};
+			}
+
 		}
+
 
 		if (host !== null && peer !== null) {
 
@@ -461,6 +476,76 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 								},
 								payload: peer
 							});
+
+						}
+
+					});
+
+				} else {
+
+					if (callback !== null) {
+
+						callback({
+							headers: {
+								service: 'peer',
+								event:   'refresh'
+							},
+							payload: null
+						});
+
+					}
+
+				}
+
+			});
+
+		} else if (peer !== null) {
+
+			this.stealth.services.host.refresh(payload, (host) => {
+
+				if (host !== null) {
+
+					connect_peer.call(this, IP.sort(host.hosts), (client) => {
+
+						if (client !== null) {
+
+							client.services.peer.info(null, (response) => {
+
+								if (response !== null) {
+
+									if (CONNECTION.includes(response.connection)) {
+										peer.connection = response.connection;
+									}
+
+								}
+
+								if (callback !== null) {
+
+									callback({
+										headers: {
+											service: 'peer',
+											event:   'refresh'
+										},
+										payload: peer
+									});
+
+								}
+
+							});
+
+						} else {
+
+							if (callback !== null) {
+
+								callback({
+									headers: {
+										service: 'peer',
+										event:   'refresh'
+									},
+									payload: null
+								});
+
+							}
 
 						}
 

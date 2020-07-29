@@ -5,21 +5,21 @@ import { isArray } from '../../extern/base.mjs';
 
 
 
-const Host = function(browser, actions) {
+const Peer = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
-	this.element = new Element('browser-card-host', [
+	this.element = new Element('browser-card-peer', [
 		'<h3 title="Domain" data-key="domain">example.com</h3>',
 		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
-		'<browser-card-host-article>',
-		'<textarea title="List of IPv4/IPv6 addresses" data-key="hosts" data-map="IP"></textarea>',
-		'</browser-card-host-article>',
-		'<browser-card-host-footer>',
-		'<button title="Create Host" data-action="create"></button>',
-		'<button title="Refresh Host" data-action="refresh"></button>',
-		'<button title="Remove Host" data-action="remove"></button>',
-		'<button title="Save Host" data-action="save"></button>',
-		'</browser-card-host-footer>'
+		'<browser-card-peer-article>',
+		'<span>Connection:</span><button data-key="connection" data-val="offline" disabled></button>',
+		'</browser-card-peer-article>',
+		'<browser-card-peer-footer>',
+		'<button title="Create Peer" data-action="create"></button>',
+		'<button title="Refresh Peer" data-action="refresh"></button>',
+		'<button title="Remove Peer" data-action="remove"></button>',
+		'<button title="Save Peer" data-action="save"></button>',
+		'</browser-card-peer-footer>'
 	]);
 
 	this.buttons = {
@@ -31,8 +31,8 @@ const Host = function(browser, actions) {
 	};
 
 	this.model = {
-		domain: this.element.query('[data-key="domain"]'),
-		hosts:  this.element.query('[data-key="hosts"]')
+		domain:     this.element.query('[data-key="domain"]'),
+		connection: this.element.query('[data-key="connection"]')
 	};
 
 	Widget.call(this);
@@ -66,9 +66,8 @@ const Host = function(browser, actions) {
 		this.buttons.save.erase();
 
 
-		let article = this.element.query('browser-card-host-article');
-		let footer  = this.element.query('browser-card-host-footer');
-		let h3      = this.element.query('h3');
+		let footer = this.element.query('browser-card-peer-footer');
+		let h3     = this.element.query('h3');
 
 		if (this.actions.includes('create')) {
 
@@ -107,49 +106,6 @@ const Host = function(browser, actions) {
 		}
 
 
-		if (this.actions.includes('create') || this.actions.includes('save')) {
-
-			if (this.model.hosts.type === 'span') {
-
-				let span     = this.model.hosts;
-				let textarea = new Element('textarea');
-
-				textarea.attr('title',    'List of IPv4/IPv6 addresses');
-				textarea.attr('data-key', 'hosts');
-				textarea.attr('data-map', 'IP');
-
-				span.erase();
-
-				textarea.value(span.value());
-				textarea.render(article);
-
-				this.model.hosts = textarea;
-
-			}
-
-		} else {
-
-			if (this.model.hosts.type === 'textarea') {
-
-				let span     = new Element('span');
-				let textarea = this.model.hosts;
-
-				span.attr('title',    'List of IPv4/IPv6 addresses');
-				span.attr('data-key', 'hosts');
-				span.attr('data-map', 'IP');
-
-				textarea.erase();
-
-				span.value(textarea.value());
-				span.render(article);
-
-				this.model.hosts = span;
-
-			}
-
-		}
-
-
 		if (this.actions.includes('create')) {
 
 			if (this.actions.includes('refresh')) {
@@ -180,12 +136,14 @@ const Host = function(browser, actions) {
 
 			let value = this.value();
 
-			browser.client.services['host'].save(value, (result) => {
+			browser.client.services['peer'].refresh(value, (peer) => {
 
-				if (result === true) {
+				if (peer !== null) {
 
-					browser.settings['hosts'].removeEvery((h) => h.domain === value.domain);
-					browser.settings['hosts'].push(value);
+					browser.settings['peers'].removeEvery((p) => p.domain === value.domain);
+					browser.settings['peers'].push(value);
+
+					this.value(peer);
 
 
 					if (this.actions.includes('create') === true) {
@@ -197,6 +155,11 @@ const Host = function(browser, actions) {
 					}
 
 					this.element.emit('update');
+
+				} else {
+
+					value['connection'] = 'offline';
+					this.value(value);
 
 				}
 
@@ -210,14 +173,16 @@ const Host = function(browser, actions) {
 
 		this.buttons.refresh.on('click', () => {
 
-			browser.client.services['host'].refresh(this.value(), (value) => {
+			let value = this.value();
 
-				if (value !== null) {
+			browser.client.services['peer'].refresh(value, (peer) => {
 
-					browser.settings['hosts'].removeEvery((h) => h.domain === value.domain);
-					browser.settings['hosts'].push(value);
+				if (peer !== null) {
 
-					this.value(value);
+					browser.settings['peers'].removeEvery((m) => m.domain === value.domain);
+					browser.settings['peers'].push(value);
+
+					this.value(peer);
 
 
 					if (this.actions.includes('create') === true) {
@@ -229,6 +194,11 @@ const Host = function(browser, actions) {
 					}
 
 					this.element.emit('update');
+
+				} else {
+
+					value['connection'] = 'offline';
+					this.value(value);
 
 				}
 
@@ -244,11 +214,11 @@ const Host = function(browser, actions) {
 
 			let value = this.value();
 
-			browser.client.services['host'].remove(value, (result) => {
+			browser.client.services['peer'].remove(value, (result) => {
 
 				if (result === true) {
 
-					browser.settings['hosts'].removeEvery((h) => h.domain === value.domain);
+					browser.settings['peers'].removeEvery((h) => h.domain === value.domain);
 					this.element.erase();
 
 				}
@@ -265,12 +235,12 @@ const Host = function(browser, actions) {
 
 			let value = this.value();
 
-			browser.client.services['host'].save(value, (result) => {
+			browser.client.services['peer'].save(value, (result) => {
 
 				if (result === true) {
 
-					browser.settings['hosts'].removeEvery((h) => h.domain === value.domain);
-					browser.settings['hosts'].push(value);
+					browser.settings['peers'].removeEvery((h) => h.domain === value.domain);
+					browser.settings['peers'].push(value);
 
 				}
 
@@ -299,8 +269,8 @@ const Host = function(browser, actions) {
 };
 
 
-Host.prototype = Object.assign({}, Widget.prototype);
+Peer.prototype = Object.assign({}, Widget.prototype);
 
 
-export { Host };
+export { Peer };
 

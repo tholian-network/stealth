@@ -331,7 +331,12 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 						this.emit('disconnect');
 
 					} else {
-						this.disconnect();
+
+						let result = this.disconnect();
+						if (result === false) {
+							this.emit('disconnect');
+						}
+
 					}
 
 				};

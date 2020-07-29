@@ -83,6 +83,80 @@ const Beacon = function(browser, actions) {
 	});
 
 
+	if (this.buttons.create !== null) {
+
+		this.buttons.create.on('click', () => {
+
+			let value = this.value();
+
+			browser.client.services['beacon'].save(value, (result) => {
+
+				if (result === true) {
+
+					browser.settings['beacons'].removeEvery((b) => b.domain === value.domain && b.path === value.path);
+					browser.settings['beacons'].push(value);
+
+					if (this.actions.includes('create') === true) {
+						this.actions.remove('create');
+					}
+
+					if (this.actions.includes('save') === false) {
+						this.actions.push('save');
+					}
+
+					this.element.emit('update');
+
+				}
+
+			});
+
+
+		});
+
+	}
+
+	if (this.buttons.remove !== null) {
+
+		this.buttons.remove.on('click', () => {
+
+			let value = this.value();
+
+			browser.client.services['beacon'].remove(value, (result) => {
+
+				if (result === true) {
+
+					browser.settings['beacons'].removeEvery((b) => b.domain === value.domain && b.path === value.path);
+					this.element.erase();
+
+				}
+
+			});
+
+		});
+
+	}
+
+	if (this.buttons.save !== null) {
+
+		this.buttons.save.on('click', () => {
+
+			let value = this.value();
+
+			browser.client.services['beacon'].save(value, (result) => {
+
+				if (result === true) {
+
+					browser.settings['beacons'].removeEvery((b) => b.domain === value.domain && b.path === value.path);
+					browser.settings['beacons'].push(value);
+
+				}
+
+			});
+
+		});
+
+	}
+
 	if (this.buttons.toggle !== null) {
 
 		this.buttons.toggle.on('click', () => {
@@ -97,39 +171,7 @@ const Beacon = function(browser, actions) {
 
 	}
 
-	if (this.buttons.remove !== null) {
-
-		this.buttons.remove.on('click', () => {
-
-			browser.client.services['beacon'].remove(this.value(), (result) => {
-
-				if (result === true) {
-					// remove(browser, this.value());
-					this.element.erase();
-				}
-
-			});
-
-		});
-
-	}
-
-	if (this.buttons.save !== null) {
-
-		this.buttons.save.on('click', () => {
-
-			browser.client.services['beacon'].save(this.value(), (result) => {
-
-				if (result === true) {
-					// update(browser, this.value());
-				}
-
-			});
-
-		});
-
-	}
-
+	this.element.emit('update');
 
 };
 

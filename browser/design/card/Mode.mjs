@@ -5,36 +5,6 @@ import { isArray } from '../../extern/base.mjs';
 
 
 
-const remove = (browser, mode) => {
-
-	let other = browser.settings.modes.find((m) => m.domain === mode.domain) || null;
-	if (other !== null) {
-		browser.settings.modes.remove(other);
-	}
-
-};
-
-const update = (browser, mode) => {
-
-	let other = browser.settings.modes.find((m) => m.domain === mode.domain) || null;
-	if (other !== null) {
-
-		Object.keys(mode).filter((key) => {
-			return key !== 'domain';
-		}).forEach((key) => {
-			other[key] = mode[key];
-		});
-
-	} else {
-
-		browser.settings.modes.push(mode);
-
-	}
-
-};
-
-
-
 const Mode = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'remove', 'save' ];
@@ -191,16 +161,28 @@ const Mode = function(browser, actions) {
 
 		this.buttons.create.on('click', () => {
 
-			browser.client.services['mode'].save(this.value(), (result) => {
+			let value = this.value();
+
+			browser.client.services['mode'].save(value, (result) => {
 
 				if (result === true) {
-					update(browser, this.value());
+
+					browser.settings['modes'].removeEvery((m) => m.domain === value.domain);
+					browser.settings['modes'].push(value);
+
+					if (this.actions.includes('create') === true) {
+						this.actions.remove('create');
+					}
+
+					if (this.actions.includes('save') === false) {
+						this.actions.push('save');
+					}
+
+					this.element.emit('update');
+
 				}
 
 			});
-
-			this.actions = [ 'remove', 'save' ];
-			this.element.emit('update');
 
 		});
 
@@ -210,11 +192,15 @@ const Mode = function(browser, actions) {
 
 		this.buttons.remove.on('click', () => {
 
-			browser.client.services['mode'].remove(this.value(), (result) => {
+			let value = this.value();
+
+			browser.client.services['mode'].remove(value, (result) => {
 
 				if (result === true) {
-					remove(browser, this.value());
+
+					browser.settings['modes'].removeEvery((m) => m.domain === value.domain);
 					this.element.erase();
+
 				}
 
 			});
@@ -227,10 +213,15 @@ const Mode = function(browser, actions) {
 
 		this.buttons.save.on('click', () => {
 
-			browser.client.services['mode'].save(this.value(), (result) => {
+			let value = this.value();
+
+			browser.client.services['mode'].save(value, (result) => {
 
 				if (result === true) {
-					update(browser, this.value());
+
+					browser.settings['modes'].removeEvery((m) => m.domain === value.domain);
+					browser.settings['modes'].push(value);
+
 				}
 
 			});

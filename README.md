@@ -1,20 +1,16 @@
 
 # Stealth - Secure, Peer-to-Peer, Private and Automateable Web Browser/Scraper/Proxy
 
-Stealth is a different kind of Web Browser that aims to achieve increased privacy, increased
-automation, intelligent understanding of the web and efficient bandwidth usage, no matter the
-cost.
+Tholian&reg; Stealth is the Web Browser/Scraper/Proxy for Automation and the Web of Knowledge.
+
+Its design goals are increased Privacy, increased Automation, adaptive Semantic Understanding
+and efficient bandwidth usage, no matter the cost.
 
 It is built by a former contributor to both Chromium and Firefox, and is built out of personal
 opinion on how Web Browsers should try to understand the Semantic Web.
 
 Stealth empowers its Users, not Website Developers that could (,will ,and did) abuse technologies
 to compromise the freedom and rights of Web Browser End-Users.
-
-Stealth also focusses on Privacy in the sense of "Real Privacy" that does not trust any website
-or any URL by default. Everything has to be whitelisted by `Site Modes` that decide what content
-is loaded. Regularly visited Sites can be audited and and their Semantic Knowledge can be extracted
-via `Site Beacons`, fully automatically.
 
 
 ## Downloads / Releases
@@ -120,17 +116,16 @@ is how to get started as quickly as possible:
 - (Only MacOS) Alternatively Install `Safari` version `12+`.
 - (Only Linux) Alternatively Install `electron` version `8+`.
 - (Only Linux) Alternatively Install `gjs` and `WebKit2 GTK` version `4+`.
-- (Only Linux) Alternatively Install `qmlscene` and `Qt5 WebView` version `5+` and `Qt5 QuickControls` version `2+`.
 
 ```bash
-git clone https://github.com/cookiengineer/stealth.git;
+git clone https://github.com/tholian-network/stealth.git;
 cd ./stealth;
 
 # Make everything
 node ./make.mjs;
 
-# Start Stealth Service
-node ./stealth/stealth.mjs;
+# Start Stealth Service (optional debug flag)
+node ./stealth/stealth.mjs --debug=true;
 
 # Open as Progressive Web App
 node ./browser/browser.mjs;
@@ -170,5 +165,5 @@ Web Scraping, Web Filtering or Web Intelligence purposes.
 A Commercial License will be available for purchase once Stealth reaches the `X0`
 milestone and is released to the public.
 
-For the time being, assume `All Rights Reserved` and `(c) 2019-* Cookie Engineer` for Commercial Usage.
+For the time being, assume `All Rights Reserved` and `(c) 2019-* Tholian(r) Network` for Commercial Usage.
 

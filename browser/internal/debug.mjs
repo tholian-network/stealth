@@ -5,6 +5,7 @@ import { Element     } from '../design/Element.mjs';
 import { Beacon      } from '../design/card/Beacon.mjs';
 import { Host        } from '../design/card/Host.mjs';
 import { Mode        } from '../design/card/Mode.mjs';
+import { Peer        } from '../design/card/Peer.mjs';
 import { URL         } from '../source/parser/URL.mjs';
 
 
@@ -127,9 +128,38 @@ if (body !== null && browser !== null && domain !== null) {
 
 	}
 
+	let peer = browser.settings.peers.find((p) => p.domain === domain) || null;
+	if (peer !== null) {
+
+		let widget = new Peer(browser);
+
+		widget.render(body);
+		widget.value(peer);
+
+		setTimeout(() => {
+			widget.emit('show');
+		}, 0);
+
+	} else {
+
+		let widget = new Peer(browser, [ 'create', 'refresh' ]);
+
+		widget.render(body);
+		widget.value({
+			domain:     domain,
+			connection: 'offline'
+		});
+
+		setTimeout(() => {
+			widget.emit('show');
+		}, 0);
+
+	}
+
 
 	console.log('Host',    host);
 	console.log('Mode',    mode);
+	console.log('Peer',    peer);
 	console.log('Beacons', beacons);
 
 }

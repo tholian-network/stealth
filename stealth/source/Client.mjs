@@ -240,6 +240,15 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				});
 
+				connection.on('error', () => {
+
+					let result = this.disconnect();
+					if (result === false) {
+						this.emit('disconnect');
+					}
+
+				});
+
 				connection.on('timeout', () => {
 					this.disconnect();
 				});
