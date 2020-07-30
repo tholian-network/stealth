@@ -125,6 +125,7 @@ input[type="text"] {
 	border-radius: 4px;
 	vertical-align: top;
 	transition: 200ms all ease-out;
+	box-sizing: border-box;
 	appearance: none;
 	outline: none;
 	cursor: text;
@@ -136,7 +137,7 @@ input[type="text"].active {
 
 input[type="text"][disabled],
 input[type="text"][disabled]:hover {
-	color: var(--element-disable-color);
+	color: var(--layout-default-color);
 	border: 1px solid transparent;
 	background: var(--element-disable-background);
 	cursor: not-allowed;
@@ -185,7 +186,7 @@ textarea.active {
 
 textarea[disabled],
 textarea[disabled]:hover {
-	color: var(--element-disable-color);
+	color: var(--layout-default-color);
 	border: 1px solid transparent;
 	background: var(--element-disable-background);
 	cursor: not-allowed;

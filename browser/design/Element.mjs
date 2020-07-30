@@ -939,32 +939,40 @@ Element.prototype = {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => IP.render(v)).join('\n');
+							this.node.setAttribute('rows', value.length);
 						} else {
 							this.node.value = IP.render(value);
+							this.node.setAttribute('rows', 1);
 						}
 
 					} else if (map === 'UA') {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => UA.render(v)).join('\n');
+							this.node.setAttribute('rows', value.length);
 						} else {
 							this.node.value = UA.render(value);
+							this.node.setAttribute('rows', 1);
 						}
 
 					} else if (map === 'URL') {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => URL.render(v)).join('\n');
+							this.node.setAttribute('rows', value.length);
 						} else {
 							this.node.value = URL.render(value);
+							this.node.setAttribute('rows', 1);
 						}
 
 					} else {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => render_value(v)).join('\n');
+							this.node.setAttribute('rows', value.length);
 						} else {
 							this.node.value = value !== null ? render_value(value) : null;
+							this.node.setAttribute('rows', 1);
 						}
 
 					}

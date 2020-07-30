@@ -13,6 +13,7 @@ browser-card-mode {
 	border: 1px solid var(--element-focus-color);
 	border-radius: 8px;
 	box-sizing: border-box;
+	cursor: default;
 }
 
 browser-card-mode-article {
@@ -21,6 +22,7 @@ browser-card-mode-article {
 	height: 0px;
 	text-align: center;
 	overflow: hidden;
+	transition: 200ms all ease-out;
 }
 
 browser-card-mode.active browser-card-mode-article {

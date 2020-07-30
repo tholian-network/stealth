@@ -13,6 +13,7 @@ browser-card-host {
 	border: 1px solid var(--element-focus-color);
 	border-radius: 8px;
 	box-sizing: border-box;
+	cursor: default;
 }
 
 browser-card-host-article {
@@ -20,6 +21,7 @@ browser-card-host-article {
 	width: 100%;
 	height: 0px;
 	overflow: hidden;
+	transition: 200ms all ease-out;
 }
 
 browser-card-host.active browser-card-host-article {
@@ -81,28 +83,12 @@ browser-card-host button[data-action="toggle"].active:before {
 	transition: 200ms transform ease-out;
 }
 
-browser-card-host-article span {
-	display: block;
-	width: 100%;
-	height: 0px;
-	transition: 200ms all ease-out;
-}
-
-browser-card-host.active browser-card-host-article span {
-	height: auto;
-}
-
 browser-card-host-article textarea {
 	display: block;
 	width: 100%;
-	height: 0px;
+	height: auto;
 	background: transparent;
-	transition: 200ms all ease-out;
 	resize: vertical;
-}
-
-browser-card-host.active browser-card-host-article textarea {
-	height: calc(128px + 2px);
 }
 
 browser-card-host-footer button {

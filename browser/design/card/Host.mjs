@@ -9,7 +9,7 @@ const Host = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
 	this.element = new Element('browser-card-host', [
-		'<h3 title="Domain" data-key="domain">example.com</h3>',
+		'<h3><input title="Domain" type="text" data-key="domain" disabled="true"/></h3>',
 		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
 		'<browser-card-host-article>',
 		'<textarea title="List of IPv4/IPv6 addresses" data-key="hosts" data-map="IP"></textarea>',
@@ -37,6 +37,15 @@ const Host = function(browser, actions) {
 
 	Widget.call(this);
 
+
+	this.model.hosts.on('keyup', () => {
+
+		let node = this.model.hosts.node;
+		if (node.scrollHeight > node.clientHeight) {
+			node.style.height = node.scrollHeight + 2 + 'px';
+		}
+
+	});
 
 	this.element.on('show', () => {
 
@@ -66,110 +75,32 @@ const Host = function(browser, actions) {
 		this.buttons.save.erase();
 
 
-		let article = this.element.query('browser-card-host-article');
-		let footer  = this.element.query('browser-card-host-footer');
-		let h3      = this.element.query('h3');
-
 		if (this.actions.includes('create')) {
-
-			if (this.model.domain.type === 'h3') {
-
-				let input = new Element('input');
-
-				input.attr('type',     'text');
-				input.attr('data-key', 'domain');
-				h3.attr('data-key',    '');
-
-				input.value(h3.value());
-				h3.value('');
-
-				input.render(h3);
-
-				this.model.domain = input;
-
-			}
-
-		} else {
-
-			if (this.model.domain.type === 'input') {
-
-				let input = this.model.domain;
-
-				h3.attr('data-key', 'domain');
-				h3.value(input.value());
-
-				input.erase();
-
-				this.model.domain = h3;
-
-			}
-
-		}
-
-
-		if (this.actions.includes('create') || this.actions.includes('save')) {
-
-			if (this.model.hosts.type === 'span') {
-
-				let span     = this.model.hosts;
-				let textarea = new Element('textarea');
-
-				textarea.attr('title',    'List of IPv4/IPv6 addresses');
-				textarea.attr('data-key', 'hosts');
-				textarea.attr('data-map', 'IP');
-
-				span.erase();
-
-				textarea.value(span.value());
-				textarea.render(article);
-
-				this.model.hosts = textarea;
-
-			}
-
-		} else {
-
-			if (this.model.hosts.type === 'textarea') {
-
-				let span     = new Element('span');
-				let textarea = this.model.hosts;
-
-				span.attr('title',    'List of IPv4/IPv6 addresses');
-				span.attr('data-key', 'hosts');
-				span.attr('data-map', 'IP');
-
-				textarea.erase();
-
-				span.value(textarea.value());
-				span.render(article);
-
-				this.model.hosts = span;
-
-			}
-
-		}
-
-
-		if (this.actions.includes('create')) {
-
-			if (this.actions.includes('refresh')) {
-				this.buttons.refresh.render(footer);
-			}
-
-			this.buttons.create.render(footer);
-
+			this.model.domain.state('enabled');
+			this.model.hosts.state('enabled');
 		} else if (this.actions.includes('save')) {
+			this.model.domain.state('disabled');
+			this.model.hosts.state('enabled');
+		} else {
+			this.model.domain.state('disabled');
+			this.model.hosts.state('disabled');
+		}
 
-			if (this.actions.includes('refresh')) {
-				this.buttons.refresh.render(footer);
-			}
 
-			if (this.actions.includes('remove')) {
-				this.buttons.remove.render(footer);
-			}
+		let footer = this.element.query('browser-card-host-footer');
 
+		if (this.actions.includes('refresh')) {
+			this.buttons.refresh.render(footer);
+		}
+
+		if (this.actions.includes('remove')) {
+			this.buttons.remove.render(footer);
+		}
+
+		if (this.actions.includes('create')) {
+			this.buttons.create.render(footer);
+		} else if (this.actions.includes('save')) {
 			this.buttons.save.render(footer);
-
 		}
 
 	});

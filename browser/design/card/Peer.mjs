@@ -9,7 +9,7 @@ const Peer = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
 	this.element = new Element('browser-card-peer', [
-		'<h3 title="Domain" data-key="domain">example.com</h3>',
+		'<h3><input title="Domain" type="text" data-key="domain"/></h3>',
 		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
 		'<browser-card-peer-article>',
 		'<span>Connection:</span><button data-key="connection" data-val="offline" disabled></button>',
@@ -66,66 +66,32 @@ const Peer = function(browser, actions) {
 		this.buttons.save.erase();
 
 
-		let footer = this.element.query('browser-card-peer-footer');
-		let h3     = this.element.query('h3');
-
 		if (this.actions.includes('create')) {
-
-			if (this.model.domain.type === 'h3') {
-
-				let input = new Element('input');
-
-				input.attr('type',     'text');
-				input.attr('data-key', 'domain');
-				h3.attr('data-key',    '');
-
-				input.value(h3.value());
-				h3.value('');
-
-				input.render(h3);
-
-				this.model.domain = input;
-
-			}
-
+			this.model.domain.state('enabled');
+			this.model.connection.state('disabled');
+		} else if (this.actions.includes('save')) {
+			this.model.domain.state('disabled');
+			this.model.connection.state('disabled');
 		} else {
-
-			if (this.model.domain.type === 'input') {
-
-				let input = this.model.domain;
-
-				h3.attr('data-key', 'domain');
-				h3.value(input.value());
-
-				input.erase();
-
-				this.model.domain = h3;
-
-			}
-
+			this.model.domain.state('disabled');
+			this.model.connection.state('disabled');
 		}
 
 
+		let footer = this.element.query('browser-card-peer-footer');
+
+		if (this.actions.includes('refresh')) {
+			this.buttons.refresh.render(footer);
+		}
+
+		if (this.actions.includes('remove')) {
+			this.buttons.remove.render(footer);
+		}
+
 		if (this.actions.includes('create')) {
-
-			if (this.actions.includes('refresh')) {
-				this.buttons.refresh.render(footer);
-			}
-
 			this.buttons.create.render(footer);
-
 		} else if (this.actions.includes('save')) {
-
-			if (this.actions.includes('refresh')) {
-				this.buttons.refresh.render(footer);
-			}
-
-			if (this.actions.includes('remove')) {
-				this.buttons.remove.render(footer);
-			}
-
 			this.buttons.save.render(footer);
-
 		}
 
 	});

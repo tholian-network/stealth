@@ -13,6 +13,7 @@ browser-card-peer {
 	border: 1px solid var(--element-focus-color);
 	border-radius: 8px;
 	box-sizing: border-box;
+	cursor: default;
 }
 
 browser-card-peer-article {
@@ -21,6 +22,7 @@ browser-card-peer-article {
 	height: 0px;
 	text-align: center;
 	overflow: hidden;
+	transition: 200ms all ease-out;
 }
 
 browser-card-peer.active browser-card-peer-article {
