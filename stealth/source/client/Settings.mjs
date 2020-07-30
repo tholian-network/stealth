@@ -13,6 +13,28 @@ const Settings = function(client) {
 
 Settings.prototype = Object.assign({}, Emitter.prototype, {
 
+	info: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (callback !== null) {
+
+			this.once('info', (response) => callback(response));
+
+			this.client.send({
+				headers: {
+					service: 'settings',
+					method:  'info'
+				},
+				payload: payload
+			});
+
+		}
+
+	},
+
 	read: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;

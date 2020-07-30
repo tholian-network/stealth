@@ -89,6 +89,31 @@ const Settings = function(stealth) {
 
 Settings.prototype = Object.assign({}, Emitter.prototype, {
 
+	info: function(payload, callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
+
+		let response = {
+			profile: this.stealth.settings.profile,
+			vendor:  this.stealth.settings.vendor
+		};
+
+
+		if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'settings',
+					event:   'info'
+				},
+				payload: response
+			});
+
+		}
+
+	},
+
 	read: function(payload, callback) {
 
 		payload  = isObject(payload)    ? readify(payload) : null;

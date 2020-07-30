@@ -72,6 +72,27 @@ const update_theme = function(theme) {
 
 };
 
+const update_title = function(tab) {
+
+	if (tab !== null) {
+
+		if (this.window !== null) {
+
+			let title = this.window.document.querySelector('title');
+			if (title !== null) {
+				window.document.title = 'Stealth Browser #' + tab.id + ' - ' + title.innerText.trim();
+			}
+
+		}
+
+	} else {
+
+		window.document.title = 'Stealth Browser';
+
+	}
+
+};
+
 const update = function(tab, refresh) {
 
 	let src = toSrc(tab.id, tab.url, refresh);
@@ -131,6 +152,7 @@ const Webview = function(browser) {
 
 	this.webview.on('load', () => {
 		update_theme.call(this, browser.settings['interface'].theme);
+		update_title.call(this, browser.tab);
 	});
 
 

@@ -15,6 +15,30 @@ describe('new Settings()', function(assert) {
 
 });
 
+describe('Settings.prototype.info()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.settings.info), true);
+
+	let defaults = this.stealth.settings.toJSON().data;
+
+	this.server.services.settings.info(null, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'settings',
+				event:   'info'
+			},
+			payload: {
+				profile: defaults.profile,
+				vendor:  defaults.vendor
+			}
+		});
+
+	});
+
+});
+
 describe('Settings.prototype.read()/all', function(assert) {
 
 	assert(this.server !== null);

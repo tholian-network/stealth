@@ -57,8 +57,11 @@ describe('Array.prototype.removeEvery()', function(assert) {
 		{ num: 7, str: 'seven' }
 	];
 
-	assert(array1.removeEvery((cell) => cell.num === 3),       array1);
-	assert(array2.removeEvery((cell) => cell.str === 'three'), array1);
+	let return1 = array1.removeEvery((cell) => cell.num === 3);
+	let return2 = array2.removeEvery((cell) => cell.str === 'three');
+
+	assert(return1, array1);
+	assert(return2, array2);
 
 	assert(array1, [
 		{ num: 1, str: 'one'   },
