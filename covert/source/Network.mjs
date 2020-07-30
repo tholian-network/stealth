@@ -1,9 +1,10 @@
 
 import { execSync } from 'child_process';
+import net          from 'net';
 import os           from 'os';
 
-import { console, isString } from '../extern/base.mjs';
-import { IP                } from '../../stealth/source/parser/IP.mjs';
+import { console, isFunction, isNumber, isString } from '../extern/base.mjs';
+import { IP                                      } from '../../stealth/source/parser/IP.mjs';
 
 
 
@@ -219,6 +220,58 @@ const Network = function(settings) {
 Network.prototype = {
 
 	[Symbol.toStringTag]: 'Network',
+
+	check: function(port, callback) {
+
+		port     = isNumber(port)       ? port     : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (
+			port !== null
+			&& port > 0x0000
+			&& port < 0xffff
+			&& callback !== null
+		) {
+
+			let socket = new net.Socket();
+			let status = null;
+
+			socket.on('connect', () => {
+				status = 'used';
+				socket.destroy();
+			});
+
+			socket.on('timeout', () => {
+				status = 'free';
+				socket.destroy();
+			});
+
+			socket.on('error', (err) => {
+
+				if (err.code === 'ECONNREFUSED') {
+					status = 'free';
+				} else {
+					status = 'used';
+				}
+
+			});
+
+			socket.on('close', () => {
+
+				if (status === 'free') {
+					callback(true);
+				} else {
+					callback(false);
+				}
+
+			});
+
+			socket.connect(port, '127.0.0.1');
+
+		}
+
+	},
 
 	connect: function() {
 

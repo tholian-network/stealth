@@ -262,42 +262,50 @@ const update_review = async function(review) {
 
 			if (isFunction(exported) === true) {
 
-				let custom = exported.prototype[Symbol.toStringTag] || null;
+				let custom  = null;
+				let statics = [];
+				let methods = [];
 
-				let statics = Object.keys(exported).filter((key) => {
+
+				statics = Object.keys(exported).filter((key) => {
 					return isFunction(exported[key]) === true;
 				}).map((key) => {
 					return name + '.' + key + '()';
 				});
 
-				let methods = Object.keys(exported.prototype).filter((key) => {
+				if (exported.prototype !== undefined && exported.prototype !== null) {
 
-					if (name !== 'Emitter') {
+					custom  = exported.prototype[Symbol.toStringTag] || null;
+					methods = Object.keys(exported.prototype).filter((key) => {
 
-						if (isFunction(exported.prototype[key]) === true) {
+						if (name !== 'Emitter') {
 
-							if (isFunction(Emitter.prototype[key]) === true) {
+							if (isFunction(exported.prototype[key]) === true) {
 
-								if (exported.prototype[key].toString() !== Emitter.prototype[key].toString()) {
+								if (isFunction(Emitter.prototype[key]) === true) {
+
+									if (exported.prototype[key].toString() !== Emitter.prototype[key].toString()) {
+										return true;
+									}
+
+								} else {
 									return true;
 								}
 
-							} else {
-								return true;
 							}
 
+						} else {
+							return isFunction(exported.prototype[key]) === true;
 						}
 
-					} else {
-						return isFunction(exported.prototype[key]) === true;
-					}
 
+						return false;
 
-					return false;
+					}).map((key) => {
+						return name + '.prototype.' + key + '()';
+					});
 
-				}).map((key) => {
-					return name + '.prototype.' + key + '()';
-				});
+				}
 
 
 				if (statics.length > 0 || methods.length > 0) {
@@ -578,10 +586,14 @@ Linter.prototype = Object.assign({}, Emitter.prototype, {
 
 			return true;
 
+		} else {
+
+			console.error('Linter: No Review(s) match the patterns "' + this._settings.patterns.join('" or "') + '".');
+			this.emit('disconnect', [[]]);
+
+			return false;
+
 		}
-
-
-		return false;
 
 	},
 

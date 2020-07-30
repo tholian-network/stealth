@@ -91,18 +91,17 @@ if (ENVIRONMENT.action === 'check') {
 		sources:  SOURCES
 	});
 
-	linter.on('disconnect', () => {
-		process.exit(linter.destroy() || 0);
+	linter.on('disconnect', (reviews) => {
+
+		if (reviews.length > 0) {
+			process.exit(linter.destroy() || 0);
+		} else {
+			process.exit(1);
+		}
+
 	});
 
-	if (ENVIRONMENT.patterns.length > 0 && linter.reviews.length === 0) {
-
-		console.warn('Linter: No Review(s) matching the patterns "' + ENVIRONMENT.patterns.join('" or "') + '" found.');
-		process.exit(2);
-
-	} else {
-		linter.connect();
-	}
+	linter.connect();
 
 } else if (ENVIRONMENT.action === 'watch') {
 
@@ -134,20 +133,28 @@ if (ENVIRONMENT.action === 'check') {
 		setTimeout(() => covert.destroy(), 1000);
 	});
 
-	covert.on('disconnect', () => {
+	covert.on('disconnect', (reviews) => {
 
-		let stub = setInterval(() => {
-			// Do nothing
-		}, 500);
+		if (reviews.length > 0) {
 
-		covert.once('connect', () => {
+			let stub = setInterval(() => {
+				// Do nothing
+			}, 500);
 
-			if (stub !== null) {
-				clearInterval(stub);
-				stub = null;
-			}
+			covert.once('connect', () => {
 
-		});
+				if (stub !== null) {
+					clearInterval(stub);
+					stub = null;
+				}
+
+			});
+
+		} else {
+
+			process.exit(1);
+
+		}
 
 	});
 
@@ -162,14 +169,7 @@ if (ENVIRONMENT.action === 'check') {
 
 	});
 
-	if (ENVIRONMENT.patterns.length > 0 && covert.reviews.length === 0) {
-
-		console.warn('Covert: No Review(s) matching the patterns "' + ENVIRONMENT.patterns.join('" or "') + '" found.');
-		process.exit(2);
-
-	} else {
-		covert.connect();
-	}
+	covert.connect();
 
 } else if (ENVIRONMENT.action === 'scan' || ENVIRONMENT.action === 'time') {
 
@@ -185,18 +185,17 @@ if (ENVIRONMENT.action === 'check') {
 		timeout:  ENVIRONMENT.flags.timeout  || null
 	});
 
-	covert.on('disconnect', () => {
-		process.exit(covert.destroy() || 0);
+	covert.on('disconnect', (reviews) => {
+
+		if (reviews.length > 0) {
+			process.exit(covert.destroy() || 0);
+		} else {
+			process.exit(1);
+		}
+
 	});
 
-	if (ENVIRONMENT.patterns.length > 0 && covert.reviews.length === 0) {
-
-		console.warn('Covert: No Review(s) matching the patterns "' + ENVIRONMENT.patterns.join('" or "') + '" found.');
-		process.exit(2);
-
-	} else {
-		covert.connect();
-	}
+	covert.connect();
 
 } else {
 

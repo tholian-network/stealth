@@ -669,7 +669,7 @@ const Covert = function(settings) {
 					clearInterval(this.interval);
 					this.interval = null;
 
-					this.emit('disconnect', [ this.reviews ]);
+					this.disconnect();
 
 				} else {
 					this.emit('render', [ this.reviews ]);
@@ -847,14 +847,31 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 			this.__state.review = review;
 			this.__state.test   = test;
 
-			this.emit('connect', [ this.reviews ]);
+			this.network.check(65432, (result) => {
+
+				if (result === true) {
+
+					this.emit('connect', [ this.reviews ]);
+
+				} else {
+
+					console.error('Covert: Cannot bind to Network Port 65432.');
+					this.emit('disconnect', [[]]);
+
+				}
+
+			});
 
 			return true;
 
+		} else {
+
+			console.error('Covert: No Review(s) match the patterns "' + this._settings.patterns.join('" or "') + '".');
+			this.emit('disconnect', [[]]);
+
+			return false;
+
 		}
-
-
-		return false;
 
 	},
 
@@ -936,7 +953,12 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function() {
 
-		this.emit('disconnect', [ this.reviews ]);
+		if (this.__state.connected === true) {
+
+			this.__state.connected = false;
+			this.emit('disconnect', [ this.reviews ]);
+
+		}
 
 		return true;
 
