@@ -88,7 +88,6 @@ const toMode = function(url) {
 
 };
 
-
 const on_mode_change = function(mode) {
 
 	this.tabs.forEach((tab) => {

@@ -76,12 +76,12 @@
 							let url = 'https://cookie.engineer/index.html';
 
 							[
-								'stealth:settings',
 								'stealth:welcome',
 								'stealth:fix-host?url=' + encodeURIComponent(url),
 								'stealth:fix-mode?url=' + encodeURIComponent(url),
 								'stealth:fix-request?url=' + encodeURIComponent(url) + '&cause=headers-status&code=403',
 								'stealth:debug?url=' + encodeURIComponent(url),
+								'stealth:settings'
 							].map((url) => {
 								return browser.open(url);
 							}).filter((tab) => {

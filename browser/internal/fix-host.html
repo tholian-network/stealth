@@ -40,23 +40,21 @@
 
 
 
-			let domain  = URL.toDomain(ENVIRONMENT.flags.url);
 			let browser = window.parent.BROWSER || null;
+			let domain  = URL.toDomain(ENVIRONMENT.flags.url);
 
 			if (browser !== null && domain !== null) {
 
-				let host   = browser.settings.hosts.find((h) => h.domain === domain) || { domain: domain };
-				let body   = Element.query('body');
-				let widget = new Host(browser, [ 'refresh', 'save' ]);
+				let body = Element.query('body');
+				let host = browser.settings.hosts.find((h) => h.domain === domain) || { domain: domain };
 
-				if (body !== null && widget !== null) {
+				if (body !== null && host !== null) {
 
-					widget.render(body);
-					widget.value(host);
-
-					setTimeout(() => {
+					let widget = Host.from(host, [ 'refresh', 'save' ]);
+					if (widget !== null) {
+						widget.render(body);
 						widget.emit('show');
-					}, 0);
+					}
 
 				}
 

@@ -35,11 +35,23 @@ const get_value = function(element) {
 
 	} else if (isArray(element) === true) {
 
-		value = [];
+		let check = element.filter((e) => (e.type === 'input' && e.attr('type') === 'radio'));
+		if (check.length === element.length) {
 
-		element.forEach((other, e) => {
-			value.push(get_value(element[e]));
-		});
+			let active = element.find((other) => other.attr('checked') === true) || null;
+			if (active !== null) {
+				value = get_value(active);
+			}
+
+		} else {
+
+			value = [];
+
+			element.forEach((other, e) => {
+				value.push(get_value(element[e]));
+			});
+
+		}
 
 	} else if (isObject(element) === true) {
 
@@ -76,6 +88,24 @@ const set_value = function(element, value) {
 
 		if (check.includes(false) === false) {
 			result = true;
+		}
+
+	} else if (isArray(element) === true && isArray(value) === false) {
+
+		let check = element.filter((e) => (e.type === 'input' && e.attr('type') === 'radio'));
+		if (check.length === element.length) {
+
+			element.forEach((other) => {
+
+				let val = other.value();
+				if (val === value) {
+					other.attr('checked', true);
+				} else {
+					other.attr('checked', false);
+				}
+
+			});
+
 		}
 
 	} else if (isObject(element) === true && isObject(value) === true) {

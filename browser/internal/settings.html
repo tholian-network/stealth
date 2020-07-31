@@ -3,230 +3,43 @@
 	<head>
 		<meta charset="utf-8">
 		<title>stealth:settings</title>
-		<link rel="stylesheet" href="settings/index.css">
+		<style>
+
+			@import url("../design/common/index.css");
+			@import url("../design/common/theme.css");
+			@import url("../design/common/elements.css");
+			@import url("../design/common/layout.css");
+
+			@import url("../design/card/Interface.css");
+
+
+			body > browser-card-interface,
+			body > browser-card-internet {
+				margin: 64px auto 0px auto;
+			}
+
+			body > article q {
+				font-family: 'vera-mono';
+				color: var(--layout-default-color);
+				background: var(--layout-default-background);
+				border-radius: 4px;
+			}
+
+		</style>
 	</head>
-	<body>
-		<article id="interface">
-			<h3>Interface</h3>
-			<div id="interface-theme">
-				<div>
-					<input id="interface-theme-1" name="interface-theme" type="radio" value="dark">
-					<label for="interface-theme-1">Use dark theme.</label>
-				</div>
-				<div>
-					<input id="interface-theme-2" name="interface-theme" type="radio" value="light">
-					<label for="interface-theme-2">Use light theme.</label>
-				</div>
-			</div>
+	<body data-page="settings">
+		<article>
+			<h3>Browser Settings</h3>
+			<p>
+				This Internal Page allows you to configure all Settings
+				that are stored in your Profile folder.
+			</p>
+			<p>
+				On this machine, the Profile folder is located at:
+				<q data-key="profile">/home/$USER/Stealth</q>
+			</p>
 		</article>
-		<article id="internet">
-			<h3>Internet Connection</h3>
-			<p>
-				The Stealth Browser can connect to a website through direct internet access and peer-to-peer
-				via other machines that have internet access.
-				<br><br>
-				If this machine does not have internet access, select the peer-to-peer option. Remember to add
-				the machine with internet access to the list of known <a href="#peers">Peers</a>.
-			</p>
-			<div id="internet-connection">
-				<div>
-					<input id="internet-connection-1" name="internet-connection" type="radio" value="mobile">
-					<label for="internet-connection-1">This machine has mobile internet access.</label>
-				</div>
-				<div>
-					<input id="internet-connection-2" name="internet-connection" type="radio" value="broadband">
-					<label for="internet-connection-2">This machine has broadband internet access.</label>
-				</div>
-				<div>
-					<input id="internet-connection-3" name="internet-connection" type="radio" value="peer">
-					<label for="internet-connection-3">This machine has peer-to-peer internet access.</label>
-				</div>
-				<div>
-					<input id="internet-connection-4" name="internet-connection" type="radio" value="i2p">
-					<label for="internet-connection-4">This machine has proxied internet access via <abbr title="Invisible Internet Project">I2P</abbr>.</label>
-				</div>
-				<div>
-					<input id="internet-connection-5" name="internet-connection" type="radio" value="tor">
-					<label for="internet-connection-5">This machine has proxied internet access via <abbr title="The Onion Router">TOR</abbr>.</label>
-				</div>
-			</div>
-			<h3>Internet History</h3>
-			<p>
-				The Stealth Browser can remember the internet browsing history. The history is remembered
-				per Peer and is kept until the below condition is matched. It can be managed in detail at
-				<a href="stealth:history">stealth:history</a>.
-			</p>
-			<div id="internet-history">
-				<div>
-					<input id="internet-history-1" name="internet-history" type="radio" value="stealth">
-					<label for="internet-history-1">Fly undetected and remember nothing.</label>
-				</div>
-				<div>
-					<input id="internet-history-2" name="internet-history" type="radio" value="day">
-					<label for="internet-history-2">Remember history for the last day (24 hours).</label>
-				</div>
-				<div>
-					<input id="internet-history-3" name="internet-history" type="radio" value="week">
-					<label for="internet-history-3">Remember history for the last week (7 days).</label>
-				</div>
-				<div>
-					<input id="internet-history-4" name="internet-history" type="radio" value="forever">
-					<label for="internet-history-4">Remember history forever.</label>
-				</div>
-			</div>
-			<h3>Internet User-Agent</h3>
-			<p>
-				The Stealth Browser can emulate the User-Agent identifier of other Web Browsers to keep
-				websites working while still being undetected. The User-Agent identifier is regenerated
-				when a Tab is opened and it will be kept until the Tab is closed.
-			</p>
-			<div id="internet-useragent">
-				<div>
-					<input id="internet-useragent-1" name="internet-useragent" type="radio" value="stealth">
-					<label for="internet-useragent-1">Fly undetected and transmit nothing.</label>
-				</div>
-				<div>
-					<input id="internet-useragent-2" name="internet-useragent" type="radio" value="browser-mobile">
-					<label for="internet-useragent-2">Identify as random mobile browser.</label>
-				</div>
-				<div>
-					<input id="internet-useragent-3" name="internet-useragent" type="radio" value="browser-desktop">
-					<label for="internet-useragent-3">Identify as random desktop browser.</label>
-				</div>
-				<div>
-					<input id="internet-useragent-4" name="internet-useragent" type="radio" value="spider-mobile">
-					<label for="internet-useragent-4">Identify as random mobile <abbr title="Spider Bots are the scrapers behind search engines">spider bot</abbr>.</label>
-				</div>
-				<div>
-					<input id="internet-useragent-5" name="internet-useragent" type="radio" value="spider-desktop">
-					<label for="internet-useragent-5">Identify as random desktop <abbr title="Spider Bots are the scrapers behind search engines">spider bot</abbr>.</label>
-				</div>
-			</div>
-		</article>
-		<article id="hosts">
-			<h3>Hosts</h3>
-			<p>
-				The Stealth Browser has its own persistent <abbr title="Domain Name System">DNS</abbr> cache in
-				order to prevent tracking capabilities of Internet Service Providers when being online via public
-				Wi-Fi or 2G/3G/4G. Already cached websites and their resources will continue to work if their DNS
-				entries are deleted.
-			</p>
-			<div id="hosts-filter">
-				<input id="hosts-filter-search" type="text" placeholder="Search for Domain ...">
-				<label for="hosts-filter-search">0 out of 0 Hosts.</label>
-			</div>
-			<table>
-				<thead>
-					<tr>
-						<th>Domain</th>
-						<th>Hosts (IPv4/IPv6)</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-				<tfoot>
-					<tr>
-						<td><input data-key="domain" type="text" placeholder="Domain or Hostname"></td>
-						<td><textarea data-key="hosts" data-map="IP" placeholder="One IPv4/IPv6 per line"></textarea></td>
-						<td><button data-action="confirm"></button></td>
-					</tr>
-				</tfoot>
-			</table>
-		</article>
-		<article id="peers">
-			<h3>Peers</h3>
-			<p>
-				The Stealth Browser can share cached websites and resources among a list of
-				trusted Peers. The connection represents the type of internet access the
-				Peer has.
-				<br><br>
-				If a Peer is only reachable via a local hostname, remember to add its IP
-				to the <code>/etc/hosts</code> file (and restart Stealth afterwards) to
-				ensure a working connection. This ensures that Peers contain a valid
-				<a href="#hosts">Hosts</a> entry, even when the Stealth Profile is
-				deleted.
-			</p>
-			<div id="peers-filter">
-				<input id="peers-filter-search" type="text" placeholder="Search for Domain ...">
-				<label for="peers-filter-search">0 out of 0 Peers.</label>
-			</div>
-			<table>
-				<thead>
-					<tr>
-						<th>Domain</th>
-						<th>Connection</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-				<tfoot>
-					<tr>
-						<td><input data-key="domain" type="text" placeholder="Domain or Hostame"></td>
-						<td><button data-key="connection" data-val="offline" disabled></button></td>
-						<td><button data-action="refresh"></button></td>
-					</tr>
-				</tfoot>
-			</table>
-		</article>
-		<article id="sites">
-			<h3>Sites</h3>
-			<p>
-				The Stealth Browser does not request anything by default, and strictly follows
-				the concept of establishing trust by whitelisting specific resources, and it
-				does not trust anything by default.
-			</p>
-			<p>
-				Sites in Stealth are therefore configured in three ways:
-			</p>
-			<ul>
-				<li><a href="#sites-modes">Modes</a> - allow URLs by media type</li>
-				<li><a href="#sites-beacons">Beacons</a> - extract Knowledge by queries</li>
-			</ul>
-			<p>
-				If you do not trust a Site anymore, remove its Modes. The Cache continues to
-				persist and to work for this Stealth Service instance and all connected <a href="#peers">Peers</a>.
-			</p>
-			<div id="sites-filter">
-				<input id="sites-filter-search" type="text" placeholder="Search for Domain ...">
-				<label for="sites-filter-search">0 out of 0 Sites.</label>
-			</div>
-			<h3>Modes</h3>
-			<table id="sites-modes">
-				<thead>
-					<tr>
-						<th>Domain</th>
-						<th>Mode</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-				<tfoot>
-					<tr>
-						<td><input data-key="domain" type="text" placeholder="Domain"></td>
-						<td>
-							<button data-key="mode.text"  data-val="false" title="Allow/Disallow Text"></button>
-							<button data-key="mode.image" data-val="false" title="Allow/Disallow Image"></button>
-							<button data-key="mode.audio" data-val="false" title="Allow/Disallow Audio"></button>
-							<button data-key="mode.video" data-val="false" title="Allow/Disallow Video"></button>
-							<button data-key="mode.other" data-val="false" title="Allow/Disallow Other"></button>
-						</td>
-						<td><button data-action="confirm"></button></td>
-					</tr>
-				</tfoot>
-			</table>
-			<h3>Beacons</h3>
-			<table id="sites-beacons">
-				<thead>
-					<tr>
-						<th>Domain</th>
-						<th>Path</th>
-						<th>Beacons</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
-		</article>
-		<script type="module" src="settings/index.mjs"></script>
+		<script type="module" src="settings.mjs"></script>
 	</body>
 </html>
+

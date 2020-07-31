@@ -10,13 +10,23 @@ import { URL         } from '../source/parser/URL.mjs';
 
 
 
-let body    = Element.query('body');
-let domain  = URL.toDomain(ENVIRONMENT.flags.url);
+const render_widget = (widget) => {
+
+	let body = Element.query('body');
+
+	if (body !== null && widget !== null) {
+		widget.render(body);
+		widget.emit('show');
+	}
+
+};
+
 let browser = window.parent.BROWSER || null;
+let domain  = URL.toDomain(ENVIRONMENT.flags.url);
 
-if (body !== null && browser !== null && domain !== null) {
+if (browser !== null && domain !== null) {
 
-	let element = body.query('[data-key="domain"]');
+	let element = Element.query('[data-key="domain"]');
 	if (element !== null) {
 		element.value(domain);
 	}
@@ -24,54 +34,26 @@ if (body !== null && browser !== null && domain !== null) {
 	let host = browser.settings.hosts.find((h) => h.domain === domain) || null;
 	if (host !== null) {
 
-		let widget = new Host(browser);
-
-		widget.render(body);
-		widget.value(host);
-
-		setTimeout(() => {
-			widget.emit('show');
-		}, 0);
+		render_widget(Host.from(host));
 
 	} else {
 
-		let widget = new Host(browser, [ 'create', 'refresh' ]);
-
-		widget.render(body);
-		widget.value({
+		render_widget(Host.from({
 			domain: domain
-		});
-
-		setTimeout(() => {
-			widget.emit('show');
-		}, 0);
+		}, [ 'create', 'refresh' ]));
 
 	}
 
 	let mode = browser.settings.modes.find((m) => m.domain === domain) || null;
 	if (mode !== null) {
 
-		let widget = new Mode(browser);
-
-		widget.render(body);
-		widget.value(mode);
-
-		setTimeout(() => {
-			widget.emit('show');
-		}, 0);
+		render_widget(Mode.from(mode));
 
 	} else {
 
-		let widget = new Mode(browser, [ 'create' ]);
-
-		widget.render(body);
-		widget.value({
+		render_widget(Mode.from({
 			domain: domain
-		});
-
-		setTimeout(() => {
-			widget.emit('show');
-		}, 0);
+		}, [ 'create' ]));
 
 	}
 
@@ -79,80 +61,28 @@ if (body !== null && browser !== null && domain !== null) {
 	if (beacons.length > 0) {
 
 		beacons.forEach((beacon) => {
-
-			let widget = new Beacon(browser);
-
-			widget.render(body);
-			widget.value(beacon);
-
-			setTimeout(() => {
-				widget.emit('show');
-			}, 0);
-
+			render_widget(Beacon.from(beacon));
 		});
 
 	} else {
 
-		let widget = new Beacon(browser, [ 'create' ]);
-
-		widget.render(body);
-		widget.value({
-			domain: domain,
-			path:   '/blog/*',
-			beacons: [{
-				label:  'headline',
-				select: [ 'article h3' ],
-				mode:   {
-					text:  true,
-					image: false,
-					audio: false,
-					video: false,
-					other: false
-				}
-			}, {
-				label:  'content',
-				select: [ 'article p', 'article img' ],
-				mode:   {
-					text:  true,
-					image: true,
-					audio: false,
-					video: false,
-					other: false
-				}
-			}]
-		});
-
-		setTimeout(() => {
-			widget.emit('show');
-		}, 0);
+		render_widget(Beacon.from({
+			domain: domain
+		}, [ 'create' ]));
 
 	}
 
 	let peer = browser.settings.peers.find((p) => p.domain === domain) || null;
 	if (peer !== null) {
 
-		let widget = new Peer(browser);
-
-		widget.render(body);
-		widget.value(peer);
-
-		setTimeout(() => {
-			widget.emit('show');
-		}, 0);
+		render_widget(Peer.from(peer));
 
 	} else {
 
-		let widget = new Peer(browser, [ 'create', 'refresh' ]);
-
-		widget.render(body);
-		widget.value({
+		render_widget(Peer.from({
 			domain:     domain,
 			connection: 'offline'
-		});
-
-		setTimeout(() => {
-			widget.emit('show');
-		}, 0);
+		}, [ 'create', 'refresh' ]));
 
 	}
 

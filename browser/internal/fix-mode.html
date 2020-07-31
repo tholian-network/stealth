@@ -58,26 +58,23 @@
 
 
 
-			let domain  = URL.toDomain(ENVIRONMENT.flags.url);
 			let browser = window.parent.BROWSER || null;
+			let domain  = URL.toDomain(ENVIRONMENT.flags.url);
 
 			if (browser !== null && domain !== null) {
 
-				let mode   = browser.settings.modes.find((m) => m.domain === domain) || { domain: domain };
-				let body   = Element.query('body');
-				let widget = new Mode(browser, [ 'save' ]);
+				let body = Element.query('body');
+				let mode = browser.settings.modes.find((m) => m.domain === domain) || { domain: domain };
 
-				if (body !== null && widget !== null) {
+				if (body !== null && mode !== null) {
 
-					widget.render(body);
-					widget.value(mode);
-
-					setTimeout(() => {
+					let widget = Mode.from(mode, [ 'save' ]);
+					if (widget !== null) {
+						widget.render(body);
 						widget.emit('show');
-					}, 0);
+					}
 
 				}
-
 
 				let button = Element.query('article:nth-of-type(2) button');
 				if (button !== null) {

@@ -1,7 +1,7 @@
 
-import { Element } from '../Element.mjs';
-import { Widget  } from '../Widget.mjs';
-import { isArray } from '../../extern/base.mjs';
+import { Element           } from '../Element.mjs';
+import { Widget            } from '../Widget.mjs';
+import { isArray, isObject } from '../../extern/base.mjs';
 
 
 
@@ -231,6 +231,26 @@ const Peer = function(browser, actions) {
 	}
 
 	this.element.emit('update');
+
+};
+
+
+Peer.from = function(value, actions) {
+
+	value   = isObject(value)  ? value   : null;
+	actions = isArray(actions) ? actions : null;
+
+
+	let widget = null;
+
+	if (value !== null) {
+
+		widget = new Peer(window.parent.BROWSER || null, actions);
+		widget.value(value);
+
+	}
+
+	return widget;
 
 };
 

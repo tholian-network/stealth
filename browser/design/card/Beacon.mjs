@@ -176,6 +176,26 @@ const Beacon = function(browser, actions) {
 };
 
 
+Beacon.from = function(value, actions) {
+
+	value   = isObject(value)  ? value   : null;
+	actions = isArray(actions) ? actions : null;
+
+
+	let widget = null;
+
+	if (value !== null) {
+
+		widget = new Beacon(window.parent.BROWSER || null, actions);
+		widget.value(value);
+
+	}
+
+	return widget;
+
+};
+
+
 Beacon.prototype = Object.assign({}, Widget.prototype, {
 
 	value: function(value) {
