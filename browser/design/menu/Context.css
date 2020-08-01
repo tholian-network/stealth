@@ -14,7 +14,7 @@ browser-menu-context {
 	color: var(--element-default-color);
 	text-align: left;
 	background: var(--layout-default-background);
-	border: 1px solid #666666;
+	border: 1px solid var(--surface-default-color);
 	border-radius: 4px;
 	box-sizing: border-box;
 	transform: translate(-50%, -16px);

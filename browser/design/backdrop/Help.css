@@ -33,7 +33,7 @@ browser-backdrop-help button {
 	font-size: 16px;
 	text-align: center;
 	background: var(--layout-default-background);
-	border: 1px solid #666666;
+	border: 1px solid var(--surface-default-color);
 	border-radius: 4px;
 	box-sizing: border-box;
 	transform: translate(-50%, -50%);
@@ -82,8 +82,8 @@ browser-backdrop-help article {
 	font-family: 'museo';
 	font-size: 24px;
 	font-weight: normal;
-	background: var(--layout-default-background);
-	border: 1px solid #666666;
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
 	border-radius: 8px;
 	transform: translate(-50%, -50%);
 }

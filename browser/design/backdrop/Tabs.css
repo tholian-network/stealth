@@ -4,7 +4,7 @@ browser-backdrop-tabs {
 	position: fixed;
 	width: auto;
 	height: auto;
-	top: 40px;
+	top: 0px;
 	right: auto;
 	bottom: 0px;
 	left: 0px;
@@ -12,9 +12,9 @@ browser-backdrop-tabs {
 	padding: 0px;
 	color: var(--layout-default-color);
 	font-family: 'vera-mono';
-	background: var(--layout-default-background);
+	background: var(--surface-default-background);
 	border: 0px solid transparent;
-	border-right: 1px solid #666666;
+	border-right: 1px solid var(--surface-default-color);
 	transform: translate(-100%, 0%);
 	transition: 200ms transform ease-out;
 	user-select: none;

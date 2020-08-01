@@ -589,7 +589,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (mode.domain !== null) {
 
-				let tmp1 = toMode.call(this, URL.parse(mode.domain));
+				let tmp1 = toMode.call(this, URL.parse('https://' + mode.domain + '/'));
 				let tmp2 = {
 					domain: mode.domain,
 					mode:   {
@@ -600,6 +600,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 						other: mode.mode.other
 					}
 				};
+
 
 				if (tmp1.domain === tmp2.domain) {
 
@@ -626,13 +627,14 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				}
 
+
 				if (mode !== null) {
 
 					if (this.settings.modes.includes(mode) === false) {
 						this.settings.modes.push(mode);
-						this.client.services.mode.save(mode, () => {});
 					}
 
+					this.client.services.mode.save(mode, () => {});
 					on_mode_change.call(this, mode);
 
 				}

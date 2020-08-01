@@ -198,6 +198,7 @@ const upgrade_http = function(socket, url) {
 				let hostname = null;
 				let redirect = null;
 
+				let url    = URL.parse(link);
 				let domain = URL.toDomain(url);
 				let host   = URL.toHost(url);
 
@@ -239,6 +240,7 @@ const upgrade_http = function(socket, url) {
 				request.stop();
 
 
+				let url = URL.parse(link);
 				if (url.mime.ext === 'css') {
 
 					if (request.get('webview') === true) {
@@ -261,12 +263,13 @@ const upgrade_http = function(socket, url) {
 
 				}
 
+
 				if (response !== null && response.payload !== null) {
 
 					// Strip out all unnecessary HTTP headers
 					response.headers = {
-						'content-length': response.headers['content-length'],
-						'content-type':   response.headers['content-type']
+						'content-length': response.payload.length,
+						'content-type':   url.mime.format
 					};
 
 					HTTP.send(connection, response);

@@ -80,6 +80,7 @@ const Mode = function(browser) {
 				button.value(true);
 			}
 
+
 			if (browser.tab !== null) {
 
 				if (

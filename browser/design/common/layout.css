@@ -39,8 +39,8 @@ body > article {
 	width: 640px;
 	margin: 64px auto 0px auto;
 	padding: 16px;
-	background: var(--element-active-background);
-	border: 1px solid #666666;
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
 	border-radius: 8px;
 	box-sizing: border-box;
 }
@@ -50,7 +50,7 @@ body > article h3 {
 	font-size: 32px;
 	margin: 0px 0px 32px 0px;
 	padding: 0px;
-	border-bottom: 1px solid #666666;
+	border-bottom: 1px solid var(--surface-default-color);
 }
 
 body > article p {
@@ -81,7 +81,7 @@ body > article table td {
 	padding: 8px;
 	font-size: 24px;
 	line-height: 32px;
-	border-top: 1px solid #666666;
+	border-top: 1px solid var(--surface-default-color);
 }
 
 body > footer {

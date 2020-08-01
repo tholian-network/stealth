@@ -1,7 +1,4 @@
 
-// TODO: theme=dark
-// TODO: theme=light
-
 import { Element           } from '../Element.mjs';
 import { Widget            } from '../Widget.mjs';
 import { isArray, isObject } from '../../extern/base.mjs';
@@ -107,6 +104,7 @@ const Interface = function(browser, actions) {
 
 				if (result === true) {
 					browser.settings['interface'] = value;
+					browser.emit('theme', [ value['theme'] ]);
 				}
 
 			});

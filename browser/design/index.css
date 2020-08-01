@@ -60,7 +60,7 @@ browser-appbar {
 	display: block;
 	position: fixed;
 	width: auto;
-	height: 40px;
+	height: auto;
 	line-height: 32px;
 	top: 0px;
 	right: 0px;
@@ -69,8 +69,8 @@ browser-appbar {
 	margin: 0px;
 	padding: 0px;
 	border: 0px solid transparent;
-	border-bottom: 1px solid #666666;
-	background: var(--layout-default-background);
+	border-bottom: 1px solid var(--surface-default-color);
+	background: var(--surface-default-background);
 	box-sizing: border-box;
 	vertical-align: middle;
 }
@@ -78,6 +78,14 @@ browser-appbar {
 browser-backdrop {
 	display: block;
 	position: relative;
+}
+
+browser-backdrop-tabs {
+	top: calc(32px + 1px);
+}
+
+browser-backdrop-webview {
+	top: calc(32px + 1px);
 }
 
 browser-sheet {

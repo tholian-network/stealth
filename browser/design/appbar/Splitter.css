@@ -11,7 +11,7 @@ browser-appbar-splitter {
 	bottom: 0px;
 	right: 32px;
 	border: 0px solid transparent;
-	border-bottom: 1px solid #666666;
+	border-bottom: 1px solid var(--surface-default-color);
 	background: var(--layout-default-background);
 	box-sizing: border-box;
 	text-align: center;

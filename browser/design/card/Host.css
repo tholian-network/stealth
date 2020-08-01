@@ -9,8 +9,8 @@ browser-card-host {
 	width: 640px;
 	margin: 0px;
 	padding: 16px;
-	background: var(--element-active-background);
-	border: 1px solid var(--element-focus-color);
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
 	border-radius: 8px;
 	box-sizing: border-box;
 	cursor: default;

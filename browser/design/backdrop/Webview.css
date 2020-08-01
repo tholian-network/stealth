@@ -4,7 +4,7 @@ browser-backdrop-webview {
 	position: fixed;
 	width: auto;
 	height: auto;
-	top: 40px;
+	top: 0px;
 	right: 0px;
 	bottom: 0px;
 	left: 0px;

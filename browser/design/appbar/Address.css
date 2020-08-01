@@ -106,7 +106,6 @@ browser-appbar-address input {
 	right: auto;
 	margin: 0px;
 	padding: 0px;
-	padding-top: 1px; /* WTF, Blink, WTF */
 	color: var(--layout-default-color);
 	font-family: 'vera-mono';
 	font-size: 16px;
@@ -114,6 +113,8 @@ browser-appbar-address input {
 	background: var(--layout-default-background);
 	border: 1px solid transparent;
 	border-radius: 4px;
+	box-sizing: border-box;
+	vertical-align: middle;
 	transition: 200ms all ease-out;
 	opacity: 0;
 	-moz-appearance: none;
