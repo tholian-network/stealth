@@ -12,8 +12,11 @@ const flags = ((global) => {
 		url:   URL.parse()
 	};
 
-	let tmp1 = (global.location || {}).search || '';
+	let tmp1 = (global.location        || {}).search || '';
+	let tmp2 = (global.parent.location || {}).search || '';
 	if (tmp1.includes('debug')) {
+		flags.debug = true;
+	} else if (tmp2.includes('debug')) {
 		flags.debug = true;
 	}
 

@@ -1,9 +1,9 @@
 
 import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
 import { Element     } from '../design/Element.mjs';
+import { Widget      } from '../design/Widget.mjs';
 import { Interface   } from '../design/card/Interface.mjs';
-// import { Internet    } from '../design/card/Internet.mjs';
-import { URL         } from '../source/parser/URL.mjs';
+import { Internet    } from '../design/card/Internet.mjs';
 
 
 
@@ -24,13 +24,18 @@ const render_widget = (widget) => {
 let browser = window.parent.BROWSER || null;
 if (browser !== null) {
 
-	let profile = Element.query('[data-key="profile"]');
-	if (profile !== null) {
+	let elements = {};
+	let widgets  = {};
+
+
+	elements['profile'] = Element.query('[data-key="profile"]');
+
+	if (elements['profile'] !== null) {
 
 		browser.client.services['settings'].info(null, (response) => {
 
 			if (response.profile !== null) {
-				profile.value(response.profile);
+				elements['profile'].value(response.profile);
 			}
 
 		});
@@ -38,8 +43,22 @@ if (browser !== null) {
 	}
 
 
-	render_widget(Interface.from(browser.settings['interface']));
-	// render_widget(Internet.from(browser.settings['internet']));
+	widgets['interface'] = Interface.from(browser.settings['interface']);
+	widgets['internet']  = Internet.from(browser.settings['internet']);
+
+	render_widget(widgets['interface']);
+	render_widget(widgets['internet']);
+
+
+	if (ENVIRONMENT.flags.debug === true) {
+
+		window.ELEMENTS = elements;
+		window.WIDGETS  = widgets;
+
+		window.Element = Element;
+		window.Widget  = Widget;
+
+	}
 
 }
 

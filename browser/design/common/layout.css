@@ -54,6 +54,7 @@ body > article h3 {
 }
 
 body > article p {
+	margin: 0px 0px 32px 0px;
 	font-family: 'museo';
 	font-size: 24px;
 	text-align: justify;
@@ -66,7 +67,7 @@ body > article table {
 }
 
 body > article p + table {
-	margin-top: 32px;
+	margin-top: 64px;
 }
 
 body > article table th {
