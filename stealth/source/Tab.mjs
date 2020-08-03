@@ -1,6 +1,4 @@
 
-// TODO: move history[].url to history[].link
-
 import { isArray, isBoolean, isNumber, isObject, isString } from '../extern/base.mjs';
 import { URL                                              } from './parser/URL.mjs';
 

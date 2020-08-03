@@ -326,6 +326,7 @@ const Tabs = function(browser) {
 			this.element.state('active');
 		}
 
+		update.call(this, browser.tab, browser.tabs);
 		update_area.call(this);
 
 	});

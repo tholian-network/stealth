@@ -42,11 +42,11 @@ const Mode = function(browser) {
 
 	this.element = new Element('browser-appbar-mode', [
 		'<input type="hidden" data-key="domain" data-val="welcome"/>',
-		'<button data-key="mode.text" data-val="false" title="Allow/Disallow Text on current Site"></button>',
-		'<button data-key="mode.image" data-val="false" title="Allow/Disallow Image on current Site"></button>',
-		'<button data-key="mode.audio" data-val="false" title="Allow/Disallow Audio on current Site"></button>',
-		'<button data-key="mode.video" data-val="false" title="Allow/Disallow Video on current Site"></button>',
-		'<button data-key="mode.other" data-val="false" title="Allow/Disallow Other on current Site"></button>'
+		'<button data-key="mode.text" data-val="false" title="Allow/Disallow Text on current Site" disabled></button>',
+		'<button data-key="mode.image" data-val="false" title="Allow/Disallow Image on current Site" disabled></button>',
+		'<button data-key="mode.audio" data-val="false" title="Allow/Disallow Audio on current Site" disabled></button>',
+		'<button data-key="mode.video" data-val="false" title="Allow/Disallow Video on current Site" disabled></button>',
+		'<button data-key="mode.other" data-val="false" title="Allow/Disallow Other on current Site" disabled></button>'
 	].join(''));
 
 	this.model = {
@@ -103,7 +103,7 @@ const Mode = function(browser) {
 
 
 	browser.on('change',  () => update.call(this, browser.tab));
-	// browser.on('refresh') isn't necessary
+	browser.on('refresh', () => update.call(this, browser.tab));
 	browser.on('show',    () => update.call(this, browser.tab));
 
 

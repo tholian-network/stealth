@@ -34,6 +34,7 @@ browser-sheet-console button {
 browser-sheet-console button:hover,
 browser-sheet-console button.active {
 	color: var(--element-active-color);
+	border: 1px solid var(--element-focus-color);
 }
 
 browser-sheet-console button:before {

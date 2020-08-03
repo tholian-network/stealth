@@ -7,41 +7,35 @@ browser-card-mode {
 	display: block;
 	position: relative;
 	width: 640px;
+	max-height: 64px;
 	margin: 0px;
 	padding: 16px;
 	background: var(--surface-default-background);
 	border: 1px solid var(--surface-default-color);
 	border-radius: 8px;
 	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow: hidden;
 	cursor: default;
+}
+
+browser-card-mode.active {
+	max-height: unset;
 }
 
 browser-card-mode-article {
 	display: block;
 	width: 100%;
-	height: 0px;
-	text-align: center;
-	overflow: hidden;
-	transition: 200ms all ease-out;
-}
-
-browser-card-mode.active browser-card-mode-article {
 	height: auto;
+	text-align: center;
 }
 
 browser-card-mode-footer {
 	display: block;
-	height: 0px;
-	margin: 0px 0px 0px 0px;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
-	overflow: hidden;
-	transition: 200ms all ease-out;
-}
-
-browser-card-mode.active browser-card-mode-footer {
-	margin: 32px 0px 0px 0px;
-	height: 32px;
 }
 
 
@@ -49,19 +43,14 @@ browser-card-mode.active browser-card-mode-footer {
 browser-card-mode h3 {
 	display: block;
 	margin: 0px;
-	padding: 0px;
-	font-family: 'vera-mono';
-	font-size: 24px;
-	font-weight: normal;
+	padding: 0px 0px 16px 0px;
+}
+
+browser-card-mode h3 input[type="text"] {
+	font-family: 'crystalline';
+	font-size: 32px;
+	font-weight: 500;
 	line-height: 32px;
-	vertical-align: middle;
-}
-
-browser-card-mode.active h3 {
-	padding: 0px 0px 32px 0px;
-}
-
-browser-card-mode h3 > input {
 	width: calc(100% - 48px);
 }
 

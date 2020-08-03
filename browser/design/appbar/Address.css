@@ -32,6 +32,7 @@ browser-appbar-address ul {
 	padding: 0px;
 	color: var(--element-default-color);
 	background: var(--element-default-background);
+	user-select: none;
 	overflow: hidden;
 	z-index: 1;
 }
@@ -42,11 +43,12 @@ browser-appbar-address ul li {
 	height: calc(32px - 2px);
 	margin: 0px;
 	padding: 0px;
-	vertical-align: middle;
-	box-sizing: border-box;
+	line-height: calc(32px - 2px);
 	border: 0px solid transparent;
 	border-radius: 0px;
 	border-bottom: 2px solid transparent;
+	vertical-align: middle;
+	box-sizing: border-box;
 	transition: 200ms all ease-out;
 }
 

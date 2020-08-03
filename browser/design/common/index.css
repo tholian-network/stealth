@@ -8,8 +8,40 @@
 }
 
 @font-face {
+	font-family: 'crystalline';
+	src: url('crystalline-light.woff') format('woff');
+	font-variant: normal;
+	font-weight: 250;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'crystalline';
+	src: url('crystalline-regular.woff') format('woff');
+	font-variant: normal;
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'crystalline';
+	src: url('crystalline-medium.woff') format('woff');
+	font-variant: normal;
+	font-weight: 500;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'crystalline';
+	src: url('crystalline-bold.woff') format('woff');
+	font-variant: normal;
+	font-weight: 700;
+	font-style: normal;
+}
+
+@font-face {
 	font-family: 'museo';
-	src: url('museo.woff') format('woff');
+	src: url('museo-regular.woff') format('woff');
 	font-variant: normal;
 	font-weight: normal;
 	font-style: normal;
@@ -17,9 +49,9 @@
 
 @font-face {
 	font-family: 'museo';
-	src: url('museo-bold.woff') format('woff');
+	src: url('museo-medium.woff') format('woff');
 	font-variant: normal;
-	font-weight: bold;
+	font-weight: 500;
 	font-style: normal;
 }
 

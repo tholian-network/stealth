@@ -273,7 +273,7 @@ const Address = function(browser) {
 
 	this.output.on('click', (e) => {
 
-		let items = this.output.query('li').filter((item) => item !== this.protocol);
+		let items = this.output.query('li').slice(1);
 		let index = items.findIndex((item) => item.node === e.target);
 
 		if (index !== -1) {

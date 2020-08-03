@@ -76,12 +76,13 @@
 							let url = 'https://cookie.engineer/index.html';
 
 							[
-								'stealth:welcome',
-								'stealth:fix-host?url=' + encodeURIComponent(url),
-								'stealth:fix-mode?url=' + encodeURIComponent(url),
-								'stealth:fix-request?url=' + encodeURIComponent(url) + '&cause=headers-status&code=403',
-								'stealth:debug?url=' + encodeURIComponent(url),
-								'stealth:settings'
+								// 'stealth:welcome',
+								// 'stealth:fix-host?url=' + encodeURIComponent(url),
+								// 'stealth:fix-mode?url=' + encodeURIComponent(url),
+								// 'stealth:fix-request?url=' + encodeURIComponent(url) + '&cause=headers-status&code=403',
+								// 'stealth:debug?url=' + encodeURIComponent(url),
+								// 'stealth:settings'
+								'https://example.com/index.html'
 							].map((url) => {
 								return browser.open(url);
 							}).filter((tab) => {
@@ -95,6 +96,11 @@
 					}
 
 				} else {
+
+					browser.once('connect', () => {
+						browser.navigate('stealth:welcome');
+					});
+
 
 					let worker = (window.navigator || {}).serviceWorker || null;
 					if (worker !== null && typeof worker.register === 'function') {

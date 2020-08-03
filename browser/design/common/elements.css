@@ -184,7 +184,7 @@ input[type="text"] {
 	line-height: 32px;
 	color: var(--layout-default-color);
 	font-family: 'vera-mono';
-	font-size: 24px;
+	font-size: 16px;
 	text-align: left;
 	background: var(--element-default-background);
 	border: 1px solid transparent;
@@ -229,10 +229,11 @@ textarea {
 	display: inline-block;
 	margin: 0px;
 	padding: 0px;
-	line-height: 32px;
 	min-height: 32px;
+	line-height: 32px;
 	color: var(--layout-default-color);
-	font-size: 24px;
+	font-family: 'vera-mono';
+	font-size: 16px;
 	text-align: left;
 	background: var(--layout-default-background);
 	border: 1px solid transparent;

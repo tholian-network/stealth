@@ -19,11 +19,8 @@
 				margin: 64px auto 0px auto;
 			}
 
-			body > article q {
-				font-family: 'vera-mono';
-				color: var(--layout-default-color);
-				background: var(--layout-default-background);
-				border-radius: 4px;
+			body > *:last-of-type {
+				margin-bottom: 64px;
 			}
 
 		</style>
@@ -34,10 +31,10 @@
 			<p>
 				This Internal Page allows you to configure all Settings
 				that are stored in your Profile folder.
+				On this machine, the Stealth Profile folder is located at:
 			</p>
 			<p>
-				On this machine, the Profile folder is located at:
-				<q data-key="profile">/home/$USER/Stealth</q>
+				<code data-key="profile">/home/$USER/Stealth</code>
 			</p>
 		</article>
 		<script type="module" src="settings.mjs"></script>
