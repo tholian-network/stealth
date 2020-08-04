@@ -93,3 +93,13 @@ browser-card-mode-footer button[data-action="create"]:before  { content: '\e145'
 browser-card-mode-footer button[data-action="remove"]:before  { content: '\e14c'; }
 browser-card-mode-footer button[data-action="save"]:before    { content: '\e876'; }
 
+
+
+@media screen and (max-width: 640px) {
+
+	browser-card-mode {
+		width: auto;
+	}
+
+}
+

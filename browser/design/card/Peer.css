@@ -98,3 +98,13 @@ browser-card-peer-footer button[data-action="refresh"]:before { content: '\e5d5'
 browser-card-peer-footer button[data-action="remove"]:before  { content: '\e14c'; }
 browser-card-peer-footer button[data-action="save"]:before    { content: '\e876'; }
 
+
+
+@media screen and (max-width: 640px) {
+
+	browser-card-peer {
+		width: auto;
+	}
+
+}
+

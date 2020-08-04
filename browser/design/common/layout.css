@@ -114,3 +114,13 @@ body > footer {
 	box-sizing: border-box;
 }
 
+
+
+@media screen and (max-width: 640px) {
+
+	body > article {
+		width: auto;
+	}
+
+}
+

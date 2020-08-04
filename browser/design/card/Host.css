@@ -89,3 +89,13 @@ browser-card-host-footer button[data-action="refresh"]:before { content: '\e5d5'
 browser-card-host-footer button[data-action="remove"]:before  { content: '\e14c'; }
 browser-card-host-footer button[data-action="save"]:before    { content: '\e876'; }
 
+
+
+@media screen and (max-width: 640px) {
+
+	browser-card-host {
+		width: auto;
+	}
+
+}
+

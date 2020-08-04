@@ -12,7 +12,7 @@ browser-backdrop-tabs {
 	padding: 0px;
 	color: var(--layout-default-color);
 	font-family: 'vera-mono';
-	background: var(--surface-default-background);
+	background: var(--surface-default-foreground);
 	border: 0px solid transparent;
 	border-right: 1px solid var(--surface-default-color);
 	transform: translate(-100%, 0%);
@@ -123,6 +123,7 @@ browser-backdrop-tabs button[title^="stealth:"]:before { content: '\e8b8'; }
 
 	browser-backdrop-tabs {
 		right: 0px;
+		border: 0px solid transparent;
 	}
 
 }

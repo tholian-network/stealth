@@ -112,3 +112,13 @@ browser-card-beacon-footer button[data-action="refresh"]:before { content: '\e5d
 browser-card-beacon-footer button[data-action="remove"]:before  { content: '\e14c'; }
 browser-card-beacon-footer button[data-action="save"]:before    { content: '\e876'; }
 
+
+
+@media screen and (max-width: 640px) {
+
+	browser-card-beacon {
+		width: auto;
+	}
+
+}
+

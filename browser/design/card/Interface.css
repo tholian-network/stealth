@@ -101,3 +101,13 @@ browser-card-interface-article input[type="radio"][name="theme"][value="light"]:
 
 browser-card-interface-footer button[data-action="save"]:before { content: '\e876'; }
 
+
+
+@media screen and (max-width: 640px) {
+
+	browser-card-interface {
+		width: auto;
+	}
+
+}
+

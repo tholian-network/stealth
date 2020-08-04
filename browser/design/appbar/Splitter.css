@@ -4,7 +4,7 @@ browser-appbar-splitter {
 	position: absolute;
 	width: 100%;
 	width: calc(100% - 32px);
-	height: 40px;
+	height: 34px;
 	line-height: 32px;
 	top: 0px;
 	left: 0px;
@@ -12,7 +12,7 @@ browser-appbar-splitter {
 	right: 32px;
 	border: 0px solid transparent;
 	border-bottom: 1px solid var(--surface-default-color);
-	background: var(--layout-default-background);
+	background: var(--surface-default-foreground);
 	box-sizing: border-box;
 	text-align: center;
 	vertical-align: middle;

@@ -37,6 +37,7 @@ body[data-theme="dark"] {
 
 	--surface-default-color: #666666;
 	--surface-default-background: rgba(255, 255, 255, 0.10);
+	--surface-default-foreground: #1a1a1a;
 
 }
 
@@ -76,6 +77,8 @@ body[data-theme="light"] {
 	--scrollbar-default-background: transparent;
 
 	--surface-default-color: #666666;
-	--surface-default-background: rgba(102, 102, 102, 0.10);
+	--surface-default-background: rgba(0, 0, 0, 0.025);
+	--surface-default-foreground: #e8e8e8;
+
 }
 
