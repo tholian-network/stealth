@@ -3,7 +3,7 @@
 	"lang":             "en-us",
 	"short_name":       "Stealth",
 	"name":             "Stealth Browser",
-	"display":          "standalone",
+	"display":          "fullscreen",
 	"start_url":        "/browser/index.html",
 	"background_color": "#000000",
 	"theme_color":      "#000000",

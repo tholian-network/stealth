@@ -129,8 +129,15 @@ const Browser = function(settings) {
 		host: this._settings.host
 	}, this);
 	this.settings = {
-		'interface': { theme: 'dark' },
-		'internet':  { connection: 'mobile', history: 'stealth', useragent: 'stealth' },
+		'interface': {
+			theme:   'dark',
+			enforce: false
+		},
+		'internet':  {
+			connection: 'mobile',
+			history:    'stealth',
+			useragent:  'stealth'
+		},
 		'beacons':   [],
 		'blockers':  [],
 		'hosts':     [],

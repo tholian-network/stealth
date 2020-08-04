@@ -544,8 +544,15 @@ const setup = function(profile, callback) {
 
 const Settings = function(settings) {
 
-	this['interface'] = { theme: 'dark' };
-	this['internet']  = { connection: 'mobile', history: 'stealth', useragent: 'stealth' };
+	this['interface'] = {
+		theme:   'dark',
+		enforce: false
+	};
+	this['internet']  = {
+		connection: 'mobile',
+		history:    'stealth',
+		useragent:  'stealth'
+	};
 	this['beacons']   = [];
 	this['blockers']  = [];
 	this['hosts']     = [];

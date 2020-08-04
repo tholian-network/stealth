@@ -32,6 +32,8 @@ const ASSETS  = [
 	'design/card/Host.mjs',
 	'design/card/Interface.css',
 	'design/card/Interface.mjs',
+	'design/card/Internet.css',
+	'design/card/Internet.mjs',
 	'design/card/Mode.css',
 	'design/card/Mode.mjs',
 	'design/card/Peer.css',
@@ -45,6 +47,10 @@ const ASSETS  = [
 	'design/common/apple-touch-icon-76x76.png',
 	'design/common/apple-touch-icon.png',
 	'design/common/browserconfig.xml',
+	'design/common/crystalline-bold.woff',
+	'design/common/crystalline-light.woff',
+	'design/common/crystalline-medium.woff',
+	'design/common/crystalline-regular.woff',
 	'design/common/elements.css',
 	'design/common/favicon-16x16.png',
 	'design/common/favicon-32x32.png',
@@ -54,8 +60,8 @@ const ASSETS  = [
 	'design/common/index.css',
 	'design/common/layout.css',
 	'design/common/mstile-150x150.png',
-	'design/common/museo-bold.woff',
-	'design/common/museo.woff',
+	'design/common/museo-medium.woff',
+	'design/common/museo-regular.woff',
 	'design/common/safari-pinned-tab.svg',
 	'design/common/theme.css',
 	'design/common/vera-mono.woff',
@@ -121,7 +127,7 @@ const autofetch = (request) => {
 			let url = response.url || null;
 			if (url !== null) {
 
-				if (new URL(response.url).origin !== location.origin) {
+				if (new URL(response.url).origin !== window.location.origin) {
 
 					return response;
 
@@ -135,7 +141,9 @@ const autofetch = (request) => {
 				}
 
 			} else {
+
 				return response;
+
 			}
 
 		});

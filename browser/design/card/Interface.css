@@ -70,16 +70,23 @@ browser-card-interface button[data-action="toggle"].active:before {
 	transition: 200ms transform ease-out;
 }
 
+browser-card-interface-article p {
+	margin: 0px 0px 16px 0px;
+	font-family: 'museo';
+	font-size: 16px;
+	text-align: justify;
+}
+
 browser-card-interface-article ul {
 	display: block;
-	margin: 0px;
+	margin: 0px 0px 16px 0px;
 	padding: 0px;
 	list-style: none;
 }
 
 browser-card-interface-article ul li {
 	display: block;
-	width: 192px;
+	width: 368px;
 	margin: 0px auto;
 	padding: 0px;
 	line-height: 32px;
@@ -98,6 +105,9 @@ browser-card-interface-article label {
 
 browser-card-interface-article input[type="radio"][name="theme"][value="dark"]:before  { content: '\e1ad'; }
 browser-card-interface-article input[type="radio"][name="theme"][value="light"]:before { content: '\e1ac'; }
+
+browser-card-interface-article input[type="radio"][name="enforce"][value="false"]:before { content: '\e234'; }
+browser-card-interface-article input[type="radio"][name="enforce"][value="true"]:before  { content: '\e235'; }
 
 browser-card-interface-footer button[data-action="save"]:before { content: '\e876'; }
 

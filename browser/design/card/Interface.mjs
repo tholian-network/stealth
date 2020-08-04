@@ -7,23 +7,33 @@ import { isArray, isObject } from '../../extern/base.mjs';
 
 const Interface = function(browser, actions) {
 
-	let id1 = Date.now() + '-1';
-	let id2 = Date.now() + '-2';
-
+	let uid = Date.now();
 
 	this.actions = isArray(actions) ? actions : [ 'save' ];
 	this.element = new Element('browser-card-interface', [
 		'<h3>Interface</h3>',
 		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
 		'<browser-card-interface-article>',
+		'<p>Stealth can adapt the User Interface in a couple of different ways.</p>',
+		'<p>If the chosen Theme is enforced, it will lead to overriding all custom Site Designs.</p>',
 		'<ul>',
 		'<li>',
-		'<input id="browser-card-interface-theme-' + id1 + '" name="theme" type="radio" value="dark">',
-		'<label for="browser-card-interface-theme-' + id1 + '">Use dark theme.</label>',
+		'<input id="browser-card-interface-theme-' + uid + '-1" name="theme" type="radio" value="dark">',
+		'<label for="browser-card-interface-theme-' + uid + '-1">Use dark theme.</label>',
 		'</li>',
 		'<li>',
-		'<input id="browser-card-interface-theme-' + id2 + '" name="theme" type="radio" value="light">',
-		'<label for="browser-card-interface-theme-' + id2 + '">Use light theme.</label>',
+		'<input id="browser-card-interface-theme-' + uid + '-2" name="theme" type="radio" value="light">',
+		'<label for="browser-card-interface-theme-' + uid + '-2">Use light theme.</label>',
+		'</li>',
+		'</ul>',
+		'<ul>',
+		'<li>',
+		'<input id="browser-card-interface-enforce-' + uid + '-1" name="enforce" type="radio" value="false">',
+		'<label for="browser-card-interface-enforce-' + uid + '-1">Use Site Design provided by each URL.</label>',
+		'</li>',
+		'<li>',
+		'<input id="browser-card-interface-enforce-' + uid + '-2" name="enforce" type="radio" value="true">',
+		'<label for="browser-card-interface-enforce-' + uid + '-2">Override Site Design with chosen Theme.</label>',
 		'</li>',
 		'</ul>',
 		'</browser-card-interface-article>',
@@ -38,7 +48,8 @@ const Interface = function(browser, actions) {
 	};
 
 	this.model = {
-		theme: this.element.query('input[name="theme"]'),
+		theme:   this.element.query('input[name="theme"]'),
+		enforce: this.element.query('input[name="enforce"]')
 	};
 
 	Widget.call(this);
