@@ -158,24 +158,36 @@ const render_value = function(val) {
 
 const Element = function(type, content) {
 
-	type    = isString(type)     ? type    : null;
-	content = isContent(content) ? content : null;
-
-
-	if (type === null) {
-		return null;
-	}
-
-
-	this.node = global.document.createElement(type);
-	this.type = this.node.tagName.toLowerCase();
+	this.node = null;
+	this.type = null;
 
 	this.__events    = {};
 	this.__journal   = [];
 	this.__listeners = {};
 
 
-	if (content !== null) {
+	if (isHTMLElement(type) === true) {
+
+		this.node = type;
+		this.type = this.node.tagName.toLowerCase();
+
+		// XXX: Used with event.target, so don't push to ELEMENTS cache
+
+	} else if (isString(type) === true) {
+
+		this.node = global.document.createElement(type);
+		this.type = this.node.tagName.toLowerCase();
+
+		ELEMENTS.push(this);
+
+	} else {
+
+		return null;
+
+	}
+
+
+	if (isContent(content) === true) {
 
 		if (isString(content) === true) {
 
@@ -218,9 +230,6 @@ const Element = function(type, content) {
 		}
 
 	}
-
-
-	ELEMENTS.push(this);
 
 };
 
@@ -290,9 +299,11 @@ Element.toElement = function(node) {
 	if (node !== null) {
 
 		let element = ELEMENTS.find((e) => e.node === node) || null;
-		if (element !== null) {
-			return element;
+		if (element === null) {
+			element = new Element(node);
 		}
+
+		return element;
 
 	}
 
@@ -631,6 +642,27 @@ Element.prototype = {
 		if (parent !== null) {
 			parent.removeChild(this.node);
 		}
+
+	},
+
+	focus: function() {
+
+		if (
+			this.type === 'a'
+			|| this.type === 'button'
+			|| this.type === 'input'
+			|| this.type === 'textarea'
+			|| this.attr('tabindex') !== null
+		) {
+
+			this.node.focus();
+
+			return true;
+
+		}
+
+
+		return false;
 
 	},
 

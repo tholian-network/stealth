@@ -10,7 +10,6 @@ const isTab = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Tab]';
 };
 
-
 const global    = (typeof window !== 'undefined' ? window : this);
 const CLIPBOARD = ((navigator) => {
 
@@ -137,6 +136,51 @@ const ACTIONS = [{
 			let url = URL.parse(value.trim());
 			if (url.protocol !== null) {
 				browser.download(url.link);
+			}
+
+		}
+
+	}
+}, {
+	icon:     'focus',
+	label:    'focus',
+	callback: function(browser, value) {
+
+		if (isString(value) === true) {
+
+			let element = Element.query(value);
+			if (element !== null) {
+
+				element.node.scrollIntoView({
+					behavior: 'smooth',
+					block:    'center'
+				});
+
+
+				let interval = null;
+				let prev_val = window['scrollY'];
+
+				interval = setInterval(() => {
+
+					let curr_val = window['scrollY'];
+					if (curr_val === prev_val) {
+
+						if (interval !== null) {
+							clearInterval(interval);
+							interval = null;
+						}
+
+						let check = element.query('a, button, input, textarea, *[tabindex]');
+						if (check !== null) {
+							check.focus();
+						}
+
+					} else {
+						prev_val = curr_val;
+					}
+
+				}, 100);
+
 			}
 
 		}

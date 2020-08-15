@@ -143,16 +143,27 @@ const update = function(tab, tabs) {
 		}
 
 		this.buttons = buttons;
-		this.element.state('active');
 		this.element.value(this.buttons);
 		update_area.call(this);
 
 	} else {
 
 		this.buttons = [];
-		this.element.state('');
 		this.element.value('');
 		update_area.call(this);
+
+	}
+
+
+	if (this.__state.mobile === true) {
+
+		this.element.state('');
+
+	} else if (this.__state.mobile === false) {
+
+		if (this.buttons.length > 0) {
+			this.element.state('active');
+		}
 
 	}
 
@@ -320,10 +331,8 @@ const Tabs = function(browser) {
 
 		if (width < 640) {
 			this.__state.mobile = true;
-			this.element.state('');
 		} else {
 			this.__state.mobile = false;
-			this.element.state('active');
 		}
 
 		update.call(this, browser.tab, browser.tabs);

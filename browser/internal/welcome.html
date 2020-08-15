@@ -12,6 +12,31 @@
 
 
 
+			body > header {
+				display: block;
+				margin: 64px 0px 0px 0px;
+				padding: 0px;
+				text-align: center;
+			}
+
+			body > header h1 {
+				display: block;
+				margin: 0px;
+				padding: 0px;
+				font-family: 'crystalline';
+				font-size: 32px;
+				font-weight: 500;
+				line-height: 32px;
+				text-transform: uppercase;
+			}
+
+			body > header p {
+				margin: 16px 0px 16px 0px;
+				padding: 0px;
+				font-family: 'museo';
+				font-size: 16px;
+			}
+
 			body > article button[data-key="mode.text"]:before  { content: '\e06f'; }
 			body > article button[data-key="mode.image"]:before { content: '\e432'; }
 			body > article button[data-key="mode.audio"]:before { content: '\e049'; }
@@ -22,6 +47,10 @@
 			body > article button[disabled],
 			body > article button[disabled]:hover {
 				color: var(--element-active-color);
+			}
+
+			body > article code {
+				display: inline-block;
 			}
 
 			body > article table td:nth-of-type(1) {
@@ -38,6 +67,23 @@
 		</style>
 	</head>
 	<body data-page="welcome">
+		<header>
+			<img width="128" height="128" src="/browser/design/common/tholian.svg">
+			<h1>Tholian Network</h1>
+			<p>
+				<code>Be correct; we do not tolerate deceit.</code>
+			</p>
+		</header>
+		<article>
+			<h3>Welcome</h3>
+			<p>
+				Welcome to Stealth, the Browser that automates the Web of Knowledge.
+			</p>
+			<p>
+				This Internal Page will help you get started as quickly as possible.
+				If you need help, press 3x <code>[Esc]</code> in a row.
+			</p>
+		</article>
 		<article>
 			<h3>Site Modes</h3>
 			<p>
@@ -99,71 +145,71 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td>[Esc]</td>
+						<td><code>[Esc]</code></td>
 						<td>Hide Context Menu, Unfocus Address, Hide Sidebars</td>
 					</tr>
 					<tr>
-						<td>3x&nbsp;[Esc]</td>
+						<td>3x&nbsp;<code>[Esc]</code></td>
 						<td>Show Help Overlay</td>
 					</tr>
 					<tr>
-						<td>[F1]</td>
+						<td><code>[F1]</code></td>
 						<td>Visit earlier Site</td>
 					</tr>
 					<tr>
-						<td>[F2]</td>
+						<td><code>[F2]</code></td>
 						<td>Visit later Site</td>
 					</tr>
 					<tr>
-						<td title="Alternative shortcut is [Ctrl] + [R]">[F3]</td>
+						<td title="Alternative shortcut is [Ctrl] + [R]"><code>[F3]</code></td>
 						<td>Refresh/Pause current Tab</td>
 					</tr>
 					<tr>
-						<td title="Alternative shortcut is [Ctrl] + [T]">[F4]</td>
+						<td title="Alternative shortcut is [Ctrl] + [T]"><code>[F4]</code></td>
 						<td>Open new Tab</td>
 					</tr>
 					<tr>
-						<td title="Alternative shortcut is [Ctrl] + [E]">[F5]</td>
+						<td title="Alternative shortcut is [Ctrl] + [E]"><code>[F5]</code></td>
 						<td>Edit current Tab URL</td>
 					</tr>
 					<tr>
-						<td title="Alternative shortcut is [Ctrl] + [W]">[F6]</td>
+						<td title="Alternative shortcut is [Ctrl] + [W]"><code>[F6]</code></td>
 						<td>Kill current Tab</td>
 					</tr>
 					<tr>
-						<td title="Alternative shortcut is [Ctrl] + [Page Up]">[F7]</td>
+						<td title="Alternative shortcut is [Ctrl] + [Page Up]"><code>[F7]</code></td>
 						<td>Show previous Tab</td>
 					</tr>
 					<tr>
-						<td title="Alternative shortcut is [Ctrl] + [Page Down]">[F8]</td>
+						<td title="Alternative shortcut is [Ctrl] + [Page Down]"><code>[F8]</code></td>
 						<td>Show next Tab</td>
 					</tr>
 					<tr>
-						<td>[F9]</td>
+						<td><code>[F9]</code></td>
 						<td>Toggle through Site Modes</td>
 					</tr>
 					<tr>
-						<td>[F10]</td>
+						<td><code>[F10]</code></td>
 						<td>(reserved)</td>
 					</tr>
 					<tr>
-						<td title="Alternative Shortcut: [Ctrl] + [Backspace]">[F11]</td>
+						<td title="Alternative Shortcut: [Ctrl] + [Backspace]"><code>[F11]</code></td>
 						<td>Toggle through Beacon/Session/Site Settings</td>
 					</tr>
 					<tr>
-						<td>[F12]</td>
+						<td><code>[F12]</code></td>
 						<td>Open Browser Settings</td>
 					</tr>
 					<tr>
-						<td>[Shift]<br>+<br>[Tab]</td>
+						<td><code>[Shift]</code><br>+<br><code>[Tab]</code></td>
 						<td>Navigate to previous Button, Input or Link</td>
 					</tr>
 					<tr>
-						<td>[Tab]</td>
+						<td><code>[Tab]</code></td>
 						<td>Navigate to next Button, Input or Link</td>
 					</tr>
 					<tr>
-						<td>[Ctrl]<br>+<br>[Space]</td>
+						<td><code>[Ctrl]</code><br>+<br><code>[Space]</code></td>
 						<td>Toggle Context Menu</td>
 					</tr>
 				</tbody>

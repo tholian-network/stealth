@@ -1,38 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<title>Tholian Stealth</title>
+
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta http-equiv="Content-Security-Policy" content="worker-src 'self'; script-src 'self' 'unsafe-inline'; frame-src 'self'">
-		<title>Stealth Browser</title>
-
-		<link rel="apple-touch-icon" sizes="180x180" href="design/common/apple-touch-icon.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="design/common/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="design/common/favicon-16x16.png">
-		<link rel="manifest" href="index.webmanifest">
-		<link rel="mask-icon" href="design/common/safari-pinned-tab.svg" color="#000000">
-		<link rel="shortcut icon" href="design/common/favicon.ico">
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-		<meta name="apple-mobile-web-app-title" content="Stealth">
-		<meta name="mobile-web-app-capable" content="yes">
-		<meta name="application-name" content="Stealth">
-		<meta name="msapplication-TileColor" content="#000000">
-		<meta name="msapplication-config" content="design/common/browserconfig.xml">
+		<meta name="application-name" content="Tholian Stealth">
 		<meta name="theme-color" content="#000000">
 		<meta name="viewport" content="initial-scale=1, user-scalable=no">
+		<link rel="manifest" href="index.webmanifest">
+
+		<link rel="shortcut icon" href="design/common/stealth.ico">
+		<link rel="icon" type="image/svg+xml" sizes="any" href="design/common/stealth.svg">
+		<link rel="apple-touch-icon" sizes="180x180" href="design/common/stealth-apple.png">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="apple-mobile-web-app-title" content="Tholian Stealth">
+		<meta name="mobile-web-app-capable" content="yes">
+
 		<!-- Browser UI -->
 		<link rel="stylesheet" href="design/index.css">
 	</head>
 	<body data-theme="dark">
 		<!-- Browser PWA -->
 		<script type="module">
-			import { console                       } from './extern/base.mjs';
-			import { ENVIRONMENT                   } from './source/ENVIRONMENT.mjs';
-			import { URL                           } from './source/parser/URL.mjs';
-			import { Browser                       } from './source/Browser.mjs';
-			import { dispatch as dispatch_design   } from './design/index.mjs';
-			// import { dispatch as dispatch_internal } from './internal/index.mjs';
+			import { console     } from './extern/base.mjs';
+			import { ENVIRONMENT } from './source/ENVIRONMENT.mjs';
+			import { URL         } from './source/parser/URL.mjs';
+			import { Browser     } from './source/Browser.mjs';
+			import { dispatch    } from './design/index.mjs';
+
 
 
 			window.onerror = (err) => {
@@ -49,8 +48,7 @@
 			});
 
 			setTimeout(() => {
-				dispatch_design(window, browser);
-				// dispatch_internal(window, browser);
+				dispatch(window, browser, true);
 			}, 100);
 
 			setTimeout(() => {
@@ -83,7 +81,7 @@
 								// 'stealth:fix-request?url=' + encodeURIComponent(url) + '&cause=headers-status&code=403',
 								// 'stealth:debug?url=' + encodeURIComponent(url),
 								// 'stealth:settings'
-								'https://example.com/index.html'
+								// 'https://example.com/index.html'
 							].map((url) => {
 								return browser.open(url);
 							}).filter((tab) => {

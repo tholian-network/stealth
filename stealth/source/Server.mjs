@@ -675,6 +675,7 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 								ROUTER.send(Object.assign(URL.parse('http://' + request.headers['host'] + request.headers['@url']), {
 									headers: {
+										'@debug':  ENVIRONMENT.flags.debug,
 										'@local':  request.headers['@local'],
 										'@remote': request.headers['@remote']
 									}
