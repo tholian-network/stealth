@@ -55,6 +55,10 @@ export const isElement = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Element]';
 };
 
+const isWindow = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Window]';
+};
+
 const destroy_children = function() {
 
 	let children = Array.from(this.node.children);
@@ -237,16 +241,18 @@ const Element = function(type, content) {
 Element.isElement = isElement;
 
 
-Element.query = function(query) {
+Element.query = function(query, scope) {
 
 	query = isString(query) ? query : null;
+	scope = isWindow(scope) ? scope : global;
 
 
-	let found = null;
+	let document = scope['document'] || null;
+	let found    = null;
 
-	if (query !== null) {
+	if (document !== null && query !== null) {
 
-		let nodes = Array.from(global.document.querySelectorAll(query));
+		let nodes = Array.from(document.querySelectorAll(query));
 		if (nodes.length > 1) {
 
 			found = [];
@@ -254,18 +260,11 @@ Element.query = function(query) {
 			nodes.forEach((node) => {
 
 				let element = ELEMENTS.find((e) => e.node === node) || null;
-				if (element !== null) {
-
-					found.push(element);
-
-				} else {
-
-					element      = new Element(node.tagName.toLowerCase());
-					element.node = node;
-
-					found.push(element);
-
+				if (element === null) {
+					element = new Element(node);
 				}
+
+				found.push(element);
 
 			});
 
@@ -276,10 +275,7 @@ Element.query = function(query) {
 			}) || null;
 
 			if (found === null) {
-
-				found      = new Element(nodes[0].tagName.toLowerCase());
-				found.node = nodes[0];
-
+				found = new Element(nodes[0]);
 			}
 
 		}

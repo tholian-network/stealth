@@ -10,9 +10,9 @@ let DNS_RONIN = 0;
 const isQuery = function(payload) {
 
 	if (
-		isObject(payload)
-		&& isString(payload.domain)
-		&& (isString(payload.subdomain) || payload.subdomain === null)
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& (isString(payload.subdomain) === true || payload.subdomain === null)
 	) {
 		return true;
 	}

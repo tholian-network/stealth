@@ -148,7 +148,18 @@ const ACTIONS = [{
 
 		if (isString(value) === true) {
 
-			let element = Element.query(value);
+			let window  = global;
+			let webview = Widget.query('browser-backdrop-webview');
+			if (webview !== null) {
+
+				if (webview.window !== null) {
+					window = webview.window;
+				}
+
+			}
+
+
+			let element = Element.query(value, window);
 			if (element !== null) {
 
 				element.node.scrollIntoView({
@@ -171,7 +182,9 @@ const ACTIONS = [{
 						}
 
 						let check = element.query('a, button, input, textarea, *[tabindex]');
-						if (check !== null) {
+						if (isArray(check) === true) {
+							check[0].focus();
+						} else if (check !== null) {
 							check.focus();
 						}
 

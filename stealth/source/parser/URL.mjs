@@ -1074,7 +1074,7 @@ const URL = {
 					path = resolve_path(url_absolute.path.split('/').slice(0, -1).join('/') + '/' + url_relative.path);
 				}
 
-			} else if (isString(relative) && relative.startsWith('//')) {
+			} else if (isString(relative) === true && relative.startsWith('//')) {
 
 				domain    = url_relative.domain;
 				host      = url_relative.host;
@@ -1121,7 +1121,7 @@ const URL = {
 				path      = resolve_path(url_relative.path);
 				query     = url_relative.query;
 
-			} else if (isString(relative) && relative.startsWith('/')) {
+			} else if (isString(relative) === true && relative.startsWith('/')) {
 
 				domain    = url_absolute.domain;
 				host      = url_absolute.host;

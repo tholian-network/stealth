@@ -282,12 +282,20 @@ export const dispatch = (window, browser, reset) => {
 					if (element.type === 'a') {
 
 						let value = element.attr('href');
+						if (value.startsWith('#')) {
 
-						// TODO: Integrate scrollIntoView() for hash based href
-						// TODO: Fix href URLs if starting with http://
-						// TODO: Prefix href with https:// if starts with //
-						// TODO: resolve URLs if relative URL
-						console.log(value);
+							context.value([{
+								label: 'focus',
+								value: value
+							}]);
+
+							context.emit('click', [{ target: context.buttons[0].node }]);
+
+						} else {
+
+							browser.navigate(value);
+
+						}
 
 						e.preventDefault();
 						e.stopPropagation();
