@@ -12,7 +12,6 @@ import { Mode                } from './appbar/Mode.mjs';
 import { Settings            } from './appbar/Settings.mjs';
 import { Splitter            } from './appbar/Splitter.mjs';
 
-import { Help                } from './backdrop/Help.mjs';
 import { Tabs                } from './backdrop/Tabs.mjs';
 import { Webview             } from './backdrop/Webview.mjs';
 
@@ -21,6 +20,7 @@ import { Session             } from './sheet/Session.mjs';
 import { Site                } from './sheet/Site.mjs';
 
 import { Context             } from './menu/Context.mjs';
+import { Help                } from './menu/Help.mjs';
 
 
 
@@ -119,6 +119,54 @@ const on_context = function(browser, element) {
 
 	}
 
+};
+
+const on_key = function(browser, key) {
+
+	let handled = false;
+
+	let help = Widget.query('browser-menu-help');
+	if (help !== null && handled === false) {
+
+		if (help.state() === 'active') {
+			help.emit('key', [ key ]);
+			handled = true;
+		} else if (key.name === 'escape') {
+			help.emit('key', [ key ]);
+		}
+
+	}
+
+	let context = Widget.query('browser-menu-context');
+	if (context !== null && handled === false) {
+
+		if (context.state() === 'active') {
+			context.emit('key', [ key ]);
+			handled = true;
+		}
+
+	}
+
+	if (handled === false) {
+
+		if (key.name === 'escape') {
+
+			let focus = this['document'].activeElement || null;
+			if (focus !== null) {
+				focus.blur();
+			}
+
+			if (this === this.parent) {
+				this['document'].body.setAttribute('tabindex', 0);
+				this['document'].body.focus();
+				this['document'].body.setAttribute('tabindex', -1);
+			}
+
+		}
+
+	}
+
+	return handled;
 
 };
 
@@ -177,12 +225,12 @@ export const dispatch = (window, browser, reset) => {
 					splitter: new Splitter(browser)
 				},
 				backdrop: {
-					help:    new Help(browser),
 					tabs:    new Tabs(browser),
 					webview: new Webview(browser)
 				},
 				menu: {
-					context: new Context(browser)
+					context: new Context(browser),
+					help:    new Help(browser)
 				},
 				sheet: {
 					console: ENVIRONMENT.flags.debug === true ? new Console(browser) : null,
@@ -200,8 +248,6 @@ export const dispatch = (window, browser, reset) => {
 			widgets.backdrop['webview'].render(elements.backdrop);
 			widgets.backdrop['tabs'].render(elements.backdrop);
 
-			// TODO: Maybe Help should be a sheet?
-			widgets.backdrop['help'].render(elements.backdrop);
 
 			widgets.sheet['session'].render(elements.sheet);
 			widgets.sheet['site'].render(elements.sheet);
@@ -211,6 +257,7 @@ export const dispatch = (window, browser, reset) => {
 			}
 
 			widgets.menu['context'].render(elements.menu);
+			widgets.menu['help'].render(elements.menu);
 
 
 			let body = Element.query('body');
@@ -326,10 +373,54 @@ export const dispatch = (window, browser, reset) => {
 			};
 		}
 
+		let onkeydown = window['onkeydown'] || null;
+		if (onkeydown === null) {
+			onkeydown = window['onkeydown'] = (e) => {
+
+				let key = {
+					mods: [],
+					name: e.key.toLowerCase()
+				};
+
+				if (e.ctrlKey === true) {
+					key.mods.push('ctrl');
+				}
+
+				if (e.shiftKey === true) {
+					key.mods.push('shift');
+				}
+
+				let handled = on_key.call(window, browser, key);
+				if (handled === true) {
+
+					e.preventDefault();
+					e.stopPropagation();
+
+				}
+
+			};
+		}
+
 		let onresize = window['onresize'] || null;
 		if (onresize === null) {
 			onresize = window['onresize'] = () => {
 				on_resize.call(window, browser);
+			};
+		}
+
+		let onscroll = window['onscroll'] || null;
+		if (onscroll === null) {
+			onscroll = window['onscroll'] = () => {
+
+				let context = Widget.query('browser-menu-context');
+				if (context !== null) {
+
+					if (context.state() === 'active') {
+						context.emit('hide');
+					}
+
+				}
+
 			};
 		}
 

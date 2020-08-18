@@ -387,13 +387,25 @@ Element.prototype = {
 			}
 
 			if (x !== null) {
+
+				if (w !== null) {
+					x -= w / 2;
+				}
+
 				this.node.style['left'] = x + 'px';
+
 			} else {
 				this.node.style['left'] = '';
 			}
 
 			if (y !== null) {
+
+				if (h !== null) {
+					y -= h / 2;
+				}
+
 				this.node.style['top'] = y + 'px';
+
 			} else {
 				this.node.style['top'] = '';
 			}

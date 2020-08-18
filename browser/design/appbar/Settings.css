@@ -10,6 +10,7 @@ browser-appbar-settings {
 	text-align: center;
 	vertical-align: middle;
 	user-select: none;
+	-webkit-user-select: none;
 }
 
 browser-appbar-settings button {

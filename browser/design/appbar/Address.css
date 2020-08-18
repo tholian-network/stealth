@@ -33,6 +33,7 @@ browser-appbar-address ul {
 	color: var(--element-default-color);
 	background: var(--element-default-background);
 	user-select: none;
+	-webkit-user-select: none;
 	overflow: hidden;
 	z-index: 1;
 }
@@ -119,11 +120,9 @@ browser-appbar-address input {
 	vertical-align: middle;
 	transition: 200ms all ease-out;
 	opacity: 0;
-	-moz-appearance: none;
-	-ms-appearance: none;
-	-o-appearance: none;
-	-webkit-appearance: none;
 	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
 	outline: none;
 	overflow: hidden;
 	z-index: 0;

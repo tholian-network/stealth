@@ -114,7 +114,7 @@ const Address = function(browser) {
 
 	this.element = new Element('browser-appbar-address', [
 		'<ul><li data-key="protocol" data-val="stealth"></li></ul>',
-		'<input data-key="url" type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:welcome">'
+		'<input data-key="url" type="text" data-map="URL" placeholder="Enter URL or Search Query" spellcheck="false" value="stealth:blank">'
 	].join(''));
 
 	this.protocol = this.element.query('[data-key="protocol"]');
@@ -123,7 +123,7 @@ const Address = function(browser) {
 
 	this.output.value([
 		this.protocol,
-		new Element('li', 'welcome')
+		new Element('li', 'blank')
 	]);
 
 	this.element.on('contextmenu', (e) => {
@@ -218,8 +218,8 @@ const Address = function(browser) {
 		} else if (link === 'stealth:') {
 
 			this.input.state('');
-			this.input.value('stealth:welcome');
-			link = 'stealth:welcome';
+			this.input.value('stealth:blank');
+			link = 'stealth:blank';
 
 		} else if (link.startsWith('stealth:') || link.includes('://')) {
 

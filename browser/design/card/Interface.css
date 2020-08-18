@@ -70,6 +70,23 @@ browser-card-interface button[data-action="toggle"].active:before {
 	transition: 200ms transform ease-out;
 }
 
+browser-card-interface-article h4 {
+	display: block;
+	margin: 32px 0px 16px 0px;
+	padding: 0px 0px 0px 0px;
+	font-family: 'crystalline';
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 24px;
+	text-transform: uppercase;
+	vertical-align: middle;
+	border-bottom: 1px solid var(--surface-default-color);
+}
+
+browser-card-interface-article h4:nth-of-type(1) {
+	margin-top: 16px;
+}
+
 browser-card-interface-article p {
 	margin: 0px 0px 16px 0px;
 	font-family: 'museo';

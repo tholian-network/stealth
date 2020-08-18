@@ -1,0 +1,168 @@
+
+browser-menu-help {
+	all: unset;
+}
+
+browser-menu-help {
+	display: block;
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+	background: rgba(0,0,0,0.95);
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	opacity: 0;
+	pointer-events: none;
+	user-select: none;
+	-webkit-user-select: none;
+	overflow: hidden;
+	cursor: default;
+}
+
+browser-menu-help.active {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+browser-menu-help-header {
+	display: block;
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+	z-index: 1;
+}
+
+browser-menu-help-article {
+	display: block;
+	position: fixed;
+	width: 640px;
+	top: 50%;
+	right: auto;
+	bottom: auto;
+	left: 50%;
+	margin: 0px;
+	padding: 16px;
+	font-family: 'museo';
+	font-size: 16px;
+	color: var(--layout-default-color);
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+	transform: translate(-50%, -50%);
+	z-index: 2;
+}
+
+browser-menu-help-article h3 {
+	display: block;
+	margin: 0px 0px 16px 0px;
+	padding: 0px;
+	font-family: 'vera-mono';
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 32px;
+	text-transform: uppercase;
+	border-bottom: 1px solid var(--surface-default-color);
+}
+
+
+
+browser-menu-help-header button {
+	display: block;
+	position: fixed;
+	margin: 0px;
+	padding: 0px;
+	width: 32px;
+	height: 32px;
+	color: var(--layout-default-color);
+	font-family: 'vera-mono';
+	font-size: 16px;
+	line-height: 100%;
+	text-align: center;
+	background: var(--layout-default-background);
+	border: 1px solid var(--surface-default-color);
+	border-radius: 4px;
+	box-sizing: border-box;
+	overflow: hidden;
+	transition: 200ms all ease-out;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	vertical-align: middle;
+	outline: none;
+	cursor: pointer;
+}
+
+browser-menu-help-header button[disabled] {
+	display: none;
+}
+
+browser-menu-help-header button[title] {
+	cursor: help;
+}
+
+browser-menu-help-header button.active {
+	color: var(--element-active-color);
+	border: 1px solid var(--element-active-color);
+}
+
+browser-menu-help-article code {
+	display: inline-block;
+	margin: 0px;
+	padding: 4px;
+	font-family: 'vera-mono';
+	color: var(--layout-default-color);
+	background: var(--layout-default-background);
+	border-radius: 4px;
+}
+
+browser-menu-help-article table {
+	margin-top: 32px;
+	width: 100%;
+	text-align: center;
+}
+
+browser-menu-help-article table th {
+	margin: 0px;
+	padding: 0px;
+	font-family: 'crystalline';
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 32px;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+browser-menu-help-article table td {
+	margin: 0px;
+	padding: 8px 8px;
+	font-size: 16px;
+	line-height: 16px;
+	font-family: 'museo';
+	border-top: 1px solid var(--surface-default-color);
+}
+
+browser-menu-help-article table td:nth-of-type(1) {
+	width: 64px;
+	padding: 0px 8px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+browser-menu-help-article table td:nth-of-type(2) {
+	text-align: left;
+}
+
+browser-menu-help-article table tr.active {
+	color: var(--element-active-color);
+	background: var(--element-active-background);
+}
+

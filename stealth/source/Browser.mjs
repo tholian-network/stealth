@@ -131,7 +131,8 @@ const Browser = function(settings) {
 	this.settings = {
 		'interface': {
 			theme:   'dark',
-			enforce: false
+			enforce: false,
+			opentab: 'stealth:welcome'
 		},
 		'internet':  {
 			connection: 'mobile',
@@ -278,9 +279,9 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.tab = null;
 
-				let welcome = this.open('stealth:welcome');
-				if (welcome !== null) {
-					this.show(welcome);
+				let tab = this.open(this.settings['interface'].opentab);
+				if (tab !== null) {
+					this.show(tab);
 				}
 
 			}

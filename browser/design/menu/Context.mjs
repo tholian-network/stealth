@@ -307,7 +307,30 @@ const Context = function(browser) {
 
 		}
 
-		this.element.state('');
+		this.element.emit('hide');
+
+	});
+
+	this.element.on('key', (key) => {
+
+		if (key.name === 'tab') {
+
+			this.select(key.mods.includes('shift') ? 'prev' : 'next');
+
+		} else if (key.name === ' ' || key.name === 'enter') {
+
+			let select = this.__state.select;
+			if (select !== null) {
+				select.emit('click');
+			} else {
+				this.element.emit('hide');
+			}
+
+		} else if (key.name === 'escape') {
+
+			this.element.emit('hide');
+
+		}
 
 	});
 

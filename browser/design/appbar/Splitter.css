@@ -44,6 +44,7 @@ browser-appbar button[data-key="splitter"] {
 	transition: 200ms all ease-out;
 	vertical-align: middle;
 	user-select: none;
+	-webkit-user-select: none;
 	appearance: none;
 	-moz-appearance: none;
 	-webkit-appearance: none;

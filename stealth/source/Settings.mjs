@@ -546,7 +546,8 @@ const Settings = function(settings) {
 
 	this['interface'] = {
 		theme:   'dark',
-		enforce: false
+		enforce: false,
+		opentab: 'stealth:welcome'
 	};
 	this['internet']  = {
 		connection: 'mobile',

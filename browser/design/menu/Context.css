@@ -20,6 +20,7 @@ browser-menu-context {
 	transform: translate(-50%, -16px);
 	transition: 200ms opacity ease-out;
 	user-select: none;
+	-webkit-user-select: none;
 	pointer-events: none;
 	opacity: 0;
 }

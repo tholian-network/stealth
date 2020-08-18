@@ -68,7 +68,12 @@ const History = function(browser) {
 
 	this.buttons.open.state('enabled');
 	this.buttons.open.on('click', () => {
-		browser.navigate('stealth:welcome');
+
+		let tab = browser.open(browser.settings['interface'].opentab);
+		if (tab !== null) {
+			browser.show(tab);
+		}
+
 	});
 
 

@@ -12,6 +12,7 @@ browser-backdrop-webview {
 	padding: 0px;
 	transition: 200ms all ease-out;
 	user-select: none;
+	-webkit-user-select: none;
 	pointer-events: auto;
 }
 

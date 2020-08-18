@@ -144,7 +144,7 @@ input[type="radio"]:before {
 	height: 32px;
 	margin: 0px;
 	padding: 0px;
-	content: '\e5ca';
+	content: '\e5cc';
 	font-family: 'icon';
 	text-align: center;
 	speak: none;
@@ -193,6 +193,8 @@ input[type="text"] {
 	transition: 200ms all ease-out;
 	box-sizing: border-box;
 	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
 	outline: none;
 	cursor: text;
 }

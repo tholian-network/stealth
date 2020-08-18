@@ -14,8 +14,9 @@ const Interface = function(browser, actions) {
 		'<h3>Interface</h3>',
 		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
 		'<browser-card-interface-article>',
+		'<h4>Theme</h4>',
 		'<p>Stealth can adapt the User Interface in a couple of different ways.</p>',
-		'<p>If the chosen Theme is enforced, it will lead to overriding all custom Site Designs.</p>',
+		'<p>If the chosen Theme is enforced, it will lead to overriding all Site Designs.</p>',
 		'<ul>',
 		'<li>',
 		'<input id="browser-card-interface-theme-' + uid + '-1" name="theme" type="radio" value="dark">',
@@ -36,6 +37,26 @@ const Interface = function(browser, actions) {
 		'<label for="browser-card-interface-enforce-' + uid + '-2">Override Site Design with chosen Theme.</label>',
 		'</li>',
 		'</ul>',
+		'<h4>Open Tab</h4>',
+		'<p>Stealth can adapt the <q>Open Tab</q> behaviour, and the Internal Page that is displayed then.</p>',
+		'<ul>',
+		'<li>',
+		'<input id="browser-card-interface-opentab-' + uid + '-1" name="opentab" type="radio" value="stealth:welcome">',
+		'<label for="browser-card-interface-opentab-' + uid + '-1">Use <a href="stealth:welcome">stealth:welcome</a>.</label>',
+		'</li>',
+		'<li>',
+		'<input id="browser-card-interface-opentab-' + uid + '-2" name="opentab" type="radio" value="stealth:blank">',
+		'<label for="browser-card-interface-opentab-' + uid + '-2">Use <a href="stealth:blank">stealth:blank</a>.</label>',
+		'</li>',
+		'<li>',
+		'<input id="browser-card-interface-opentab-' + uid + '-3" name="opentab" type="radio" value="stealth:history">',
+		'<label for="browser-card-interface-opentab-' + uid + '-3">Use <a href="stealth:history">stealth:history</a>.</label>',
+		'</li>',
+		'<li>',
+		'<input id="browser-card-interface-opentab-' + uid + '-4" name="opentab" type="radio" value="stealth:search">',
+		'<label for="browser-card-interface-opentab-' + uid + '-4">Use <a href="stealth:search">stealth:search</a>.</label>',
+		'</li>',
+		'</ul>',
 		'</browser-card-interface-article>',
 		'<browser-card-interface-footer>',
 		'<button title="Save" data-action="save"></button>',
@@ -49,7 +70,8 @@ const Interface = function(browser, actions) {
 
 	this.model = {
 		theme:   this.element.query('input[name="theme"]'),
-		enforce: this.element.query('input[name="enforce"]')
+		enforce: this.element.query('input[name="enforce"]'),
+		opentab: this.element.query('input[name="opentab"]')
 	};
 
 	Widget.call(this);

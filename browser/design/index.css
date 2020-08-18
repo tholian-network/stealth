@@ -8,7 +8,6 @@
 @import url("./appbar/Settings.css");
 @import url("./appbar/Splitter.css");
 
-@import url("./backdrop/Help.css");
 @import url("./backdrop/Tabs.css");
 @import url("./backdrop/Webview.css");
 
@@ -19,6 +18,7 @@
 @import url("./sheet/Site.css");
 
 @import url("./menu/Context.css");
+@import url("./menu/Help.css");
 
 
 
@@ -39,13 +39,13 @@ browser-appbar browser-appbar-splitter     { z-index:   255; } /* only on mobile
 browser-backdrop                           { z-index:     0; }
 browser-backdrop browser-backdrop-webview  { z-index:     1; }
 browser-backdrop browser-backdrop-tabs     { z-index:   128; }
-browser-backdrop browser-backdrop-help     { z-index:   255; }
 browser-sheet                              { z-index:   256; }
 browser-sheet browser-sheet-session        { z-index:   257; }
 browser-sheet browser-sheet-site           { z-index:   257; }
 browser-sheet browser-sheet-console        { z-index:   511; } /* only on ?debug=true */
 browser-menu                               { z-index:  1024; }
 browser-menu browser-menu-context          { z-index:  1025; }
+browser-menu browser-menu-help             { z-index:  1026; }
 
 
 body {

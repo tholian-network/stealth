@@ -123,10 +123,10 @@ const update = function(tab, refresh) {
 const Webview = function(browser) {
 
 	this.element = new Element('browser-backdrop-webview', [
-		'<iframe sandbox="allow-scripts allow-same-origin" src="/browser/internal/welcome.html"></iframe>'
+		'<iframe sandbox="allow-scripts allow-same-origin" src="/browser/internal/blank.html"></iframe>'
 	]);
 
-	this.url     = URL.parse('stealth:welcome');
+	this.url     = URL.parse('stealth:blank');
 	this.webview = this.element.query('iframe');
 	this.window  = this.webview.node.contentWindow || null;
 

@@ -271,7 +271,7 @@ const ROUTER = {
 					headers: {
 						'@code':    301,
 						'@status':  '301 Moved Permanently',
-						'location': '/browser/design/common/favicon.ico'
+						'location': '/browser/design/common/stealth.ico'
 					},
 					payload: null
 				}));

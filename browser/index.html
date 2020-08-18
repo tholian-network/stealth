@@ -26,6 +26,7 @@
 	<body data-theme="dark">
 		<!-- Browser PWA -->
 		<script type="module">
+
 			import { console     } from './extern/base.mjs';
 			import { ENVIRONMENT } from './source/ENVIRONMENT.mjs';
 			import { URL         } from './source/parser/URL.mjs';
@@ -53,53 +54,24 @@
 
 			setTimeout(() => {
 
-				if (ENVIRONMENT.flags.debug === true) {
+				if (ENVIRONMENT.flags.debug === true && URL.isURL(ENVIRONMENT.flags.url) === true) {
 
 					console.info('Browser: Debug Mode active');
 
-					if (URL.isURL(ENVIRONMENT.flags.url) === true) {
-
-						browser.once('connect', () => {
-
-							let tab = browser.open('stealth:debug?url=' + encodeURIComponent(ENVIRONMENT.flags.url.link));
-							if (tab !== null) {
-								browser.show(tab);
-							}
-
-						});
-
-					} else {
-
-						browser.once('connect', () => {
-
-							let url = 'https://cookie.engineer/index.html';
-
-							[
-								// 'stealth:welcome',
-								// 'stealth:fix-host?url=' + encodeURIComponent(url),
-								// 'stealth:fix-mode?url=' + encodeURIComponent(url),
-								// 'stealth:fix-request?url=' + encodeURIComponent(url) + '&cause=headers-status&code=403',
-								// 'stealth:debug?url=' + encodeURIComponent(url),
-								// 'stealth:settings'
-								// 'https://example.com/index.html'
-							].map((url) => {
-								return browser.open(url);
-							}).filter((tab) => {
-								return tab !== null;
-							}).forEach((tab) => {
-								browser.show(tab);
-							});
-
-						});
-
-					}
-
-				} else {
-
 					browser.once('connect', () => {
-						browser.navigate('stealth:welcome');
+
+						let tab = browser.open('stealth:debug?url=' + encodeURIComponent(ENVIRONMENT.flags.url.link));
+						if (tab !== null) {
+							browser.show(tab);
+						}
+
 					});
 
+				} else if (ENVIRONMENT.flags.debug === true) {
+
+					console.info('Browser: Debug Mode active');
+
+				} else {
 
 					let worker = (window.navigator || {}).serviceWorker || null;
 					if (worker !== null && typeof worker.register === 'function') {
@@ -118,6 +90,18 @@
 
 			setTimeout(() => {
 
+				browser.once('connect', () => {
+
+					setTimeout(() => {
+
+						if (browser.tab === null) {
+							browser.show(browser.open(browser.settings['interface'].opentab));
+						}
+
+					}, 1000);
+
+				});
+
 				browser.on('connect', () => {
 					console.info('Browser: Connected to ws://' + ENVIRONMENT.hostname + ':65432.');
 				});
@@ -133,18 +117,16 @@
 
 				});
 
-				browser.connect();
-
-
-				if (typeof window.onbeforeunload !== 'undefined') {
-
-					window.onbeforeunload = () => {
+				let onbeforeunload = window['onbeforeunload'] || null;
+				if (onbeforeunload === null) {
+					onbeforeunload = window['onbeforeunload'] = () => {
 						browser.disconnect();
 					};
-
 				}
 
-			}, 200);
+				browser.connect();
+
+			}, 300);
 
 		</script>
 	</body>
