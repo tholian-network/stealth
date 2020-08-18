@@ -80,14 +80,14 @@ const update_title = function(tab) {
 
 			let title = this.window.document.querySelector('title');
 			if (title !== null) {
-				window.document.title = 'Stealth Browser #' + tab.id + ' - ' + title.innerText.trim();
+				window.document.title = 'Tholian Stealth #' + tab.id + ' - ' + title.innerText.trim();
 			}
 
 		}
 
 	} else {
 
-		window.document.title = 'Stealth Browser';
+		window.document.title = 'Tholian Stealth';
 
 	}
 

@@ -365,6 +365,10 @@ const Help = function(/* browser */) {
 	});
 
 
+	setTimeout(() => {
+		update.call(this);
+	}, 0);
+
 	Widget.call(this);
 
 };
