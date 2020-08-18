@@ -47,6 +47,50 @@ const History = function(browser) {
 		e.stopPropagation();
 	});
 
+	this.element.on('key', (key) => {
+
+		if (
+			key.name === 'f1'
+			|| (key.mods.includes('alt') && key.name === 'arrowleft')
+			|| (key.mods.includes('ctrl') && key.name === '[')
+		) {
+
+			if (this.buttons.back.state() !== 'disabled') {
+				this.buttons.back.emit('click');
+			}
+
+		} else if (
+			key.name === 'f2'
+			|| (key.mods.includes('alt') && key.name === 'arrowright')
+			|| (key.mods.includes('ctrl') && key.name === ']')
+		) {
+
+			if (this.buttons.next.state() !== 'disabled') {
+				this.buttons.next.emit('click');
+			}
+
+		} else if (
+			key.name === 'f3'
+			|| (key.mods.includes('ctrl') && key.name === 'r')
+		) {
+
+			if (this.buttons.action.state() !== 'disabled') {
+				this.buttons.action.emit('click');
+			}
+
+		} else if (
+			key.name === 'f4'
+			|| (key.mods.includes('ctrl') && key.name === 't')
+		) {
+
+			if (this.buttons.open.state() !== 'disabled') {
+				this.buttons.open.emit('click');
+			}
+
+		}
+
+	});
+
 	this.buttons.back.on('click', () => {
 		browser.back();
 	});

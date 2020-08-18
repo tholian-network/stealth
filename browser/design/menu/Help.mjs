@@ -8,11 +8,11 @@ import { isString } from '../../extern/base.mjs';
 const KEYMAP = [{
 	'key':      'f1',
 	'content':  'Visit earlier Site',
-	'title':    null
+	'title':    'or use [Alt] + [Arrow Left] or use [Ctrl] + [[]'
 }, {
 	'key':      'f2',
 	'content':  'Visit later Site',
-	'title':    null
+	'title':    'or use [Alt] + [Arrow Right] or use [Ctrl] + []]'
 }, {
 	'key':      'f3',
 	'content':  'Refresh/Pause current Tab',
@@ -134,13 +134,26 @@ const update = function() {
 
 		if (tabs.state() === 'active') {
 
-			this.buttons['f6'].state('enabled');
-			this.buttons['f7'].state('enabled');
-			this.buttons['f8'].state('enabled');
+			if (tabs.prev !== null) {
+				this.buttons['f6'].state('enabled');
+				this.buttons['f6'].area(tabs.prev.area());
+			} else {
+				this.buttons['f6'].state('disabled');
+			}
 
-			this.buttons['f6'].area(tabs.prev.area());
-			this.buttons['f7'].area(tabs.curr.area());
-			this.buttons['f8'].area(tabs.next.area());
+			if (tabs.curr !== null) {
+				this.buttons['f7'].state('enabled');
+				this.buttons['f7'].area(tabs.curr.area());
+			} else {
+				this.buttons['f7'].state('disabled');
+			}
+
+			if (tabs.next !== null) {
+				this.buttons['f8'].state('enabled');
+				this.buttons['f8'].area(tabs.next.area());
+			} else {
+				this.buttons['f8'].state('disabled');
+			}
 
 		} else {
 
@@ -309,12 +322,15 @@ const Help = function(/* browser */) {
 			this.__state.escapes = 0;
 
 			if (key.name === 'escape') {
+
 				this.element.emit('hide');
+
+			} else {
+
+				select.call(this, null);
+				select.call(this, key.name);
+
 			}
-
-
-			select.call(this, null);
-			select.call(this, key.name);
 
 		} else {
 

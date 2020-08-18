@@ -128,6 +128,10 @@ const on_key = function(browser, key) {
 	let help = Widget.query('browser-menu-help');
 	if (help !== null && handled === false) {
 
+		if (key.name !== 'escape') {
+			help.__state.escapes = 0;
+		}
+
 		if (help.state() === 'active') {
 			help.emit('key', [ key ]);
 			handled = true;
@@ -160,6 +164,109 @@ const on_key = function(browser, key) {
 				this['document'].body.setAttribute('tabindex', 0);
 				this['document'].body.focus();
 				this['document'].body.setAttribute('tabindex', -1);
+			}
+
+			let context = Widget.query('browser-menu-context');
+			if (context !== null) {
+				context.emit('hide');
+			}
+
+			let console = Widget.query('browser-sheet-console');
+			if (console !== null) {
+				console.emit('hide');
+			}
+
+			let session = Widget.query('browser-sheet-session');
+			if (session !== null) {
+				session.emit('hide');
+			}
+
+			let site = Widget.query('browser-sheet-site');
+			if (site !== null) {
+				site.emit('hide');
+			}
+
+			handled = true;
+
+		} else if (
+			key.name === 'f1'
+			|| key.name === 'f2'
+			|| key.name === 'f3'
+			|| key.name === 'f4'
+			|| (key.mods.includes('alt') && key.name === 'arrowleft')
+			|| (key.mods.includes('alt') && key.name === 'arrowright')
+			|| (key.mods.includes('ctrl') && key.name === '[')
+			|| (key.mods.includes('ctrl') && key.name === ']')
+			|| (key.mods.includes('ctrl') && key.name === 'r')
+			|| (key.mods.includes('ctrl') && key.name === 't')
+		) {
+
+			let history = Widget.query('browser-appbar-history');
+			if (history !== null) {
+				history.emit('key', [ key ]);
+				handled = true;
+			}
+
+		} else if (
+			key.name === 'f5'
+			|| (key.mods.includes('ctrl') && key.name === 'e')
+		) {
+
+			let address = Widget.query('browser-appbar-address');
+			if (address !== null) {
+				address.emit('key', [ key ]);
+				handled = true;
+			}
+
+		} else if (
+			key.name === 'f6'
+			|| key.name === 'f7'
+			|| key.name === 'f8'
+			|| (key.mods.includes('ctrl') && key.name === 'pageup')
+			|| (key.mods.includes('ctrl') && key.name === 'w')
+			|| (key.mods.includes('ctrl') && key.name === 'pagedown')
+		) {
+
+			let tabs = Widget.query('browser-backdrop-tabs');
+			if (tabs !== null) {
+				tabs.emit('key', [ key ]);
+				handled = true;
+			}
+
+		} else if (
+			key.name === 'f9'
+		) {
+
+			let mode = Widget.query('browser-appbar-mode');
+			if (mode !== null) {
+				mode.emit('key', [ key ]);
+				handled = true;
+			}
+
+		} else if (
+			key.name === 'f10'
+			|| key.name === 'f11'
+			|| key.name === 'f12'
+		) {
+
+			let settings = Widget.query('browser-appbar-settings');
+			if (settings !== null) {
+				settings.emit('key', [ key ]);
+				handled = true;
+			}
+
+		} else if (
+			key.mods.includes('ctrl') && key.name === ' '
+		) {
+
+			let active = this['document'].activeElement || null;
+			if (active !== null) {
+
+				let element = Element.toElement(active);
+				if (element !== null) {
+					on_context.call(this, browser, element);
+				}
+
 			}
 
 		}
@@ -381,6 +488,10 @@ export const dispatch = (window, browser, reset) => {
 					mods: [],
 					name: e.key.toLowerCase()
 				};
+
+				if (e.altKey === true) {
+					key.mods.push('alt');
+				}
 
 				if (e.ctrlKey === true) {
 					key.mods.push('ctrl');

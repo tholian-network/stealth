@@ -72,10 +72,23 @@ const Settings = function(browser) {
 		site:    null
 	};
 
+
 	this.element.on('contextmenu', (e) => {
 
 		e.preventDefault();
 		e.stopPropagation();
+
+	});
+
+	this.element.on('key', (key) => {
+
+		if (key.name === 'f10') {
+			this.buttons.site.emit('click');
+		} else if (key.name === 'f11') {
+			this.buttons.session.emit('click');
+		} else if (key.name === 'f12') {
+			this.buttons.browser.emit('click');
+		}
 
 	});
 
@@ -89,7 +102,12 @@ const Settings = function(browser) {
 			this.sheets.session.emit('hide');
 		}
 
-		browser.navigate('stealth:settings');
+		let tab = browser.tabs.find((t) => t.url.link === 'stealth:settings') || null;
+		if (tab !== null) {
+			browser.show(tab);
+		} else {
+			browser.navigate('stealth:settings');
+		}
 
 	});
 

@@ -194,6 +194,18 @@ const Address = function(browser) {
 
 	});
 
+	this.element.on('key', (key) => {
+
+		if (
+			key.name === 'f5'
+			|| (key.mods.includes('ctrl') && key.name === 'e')
+		) {
+			this.input.node.setSelectionRange(0, this.input.node.value.length);
+			this.input.emit('focus');
+		}
+
+	});
+
 	this.input.on('blur', () => {
 
 		let link = this.input.node.value.trim();

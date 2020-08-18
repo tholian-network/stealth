@@ -1,1 +1,19 @@
-[]
+[{
+	"domain": "radar.tholian.network",
+	"hosts": [
+		{
+			"ip": "93.95.228.18",
+			"scope": "public",
+			"type": "v4"
+		}
+	]
+}, {
+	"domain": "peers.tholian.network",
+	"hosts": [
+		{
+			"ip": "93.95.228.18",
+			"scope": "public",
+			"type": "v4"
+		}
+	]
+}]

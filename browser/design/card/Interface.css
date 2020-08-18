@@ -126,6 +126,11 @@ browser-card-interface-article input[type="radio"][name="theme"][value="light"]:
 browser-card-interface-article input[type="radio"][name="enforce"][value="false"]:before { content: '\e234'; }
 browser-card-interface-article input[type="radio"][name="enforce"][value="true"]:before  { content: '\e235'; }
 
+browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:blank"]:before   { content: '\e32a'; }
+browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:history"]:before { content: '\e889'; }
+browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:search"]:before  { content: '\e52e'; }
+browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:welcome"]:before { content: '\e80c'; }
+
 browser-card-interface-footer button[data-action="save"]:before { content: '\e876'; }
 
 

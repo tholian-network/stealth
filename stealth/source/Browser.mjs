@@ -588,6 +588,26 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	getMode: function(link) {
+
+		link = isString(link) ? link : null;
+
+
+		if (link !== null) {
+
+			let url  = URL.parse(link);
+			let mode = toMode.call(this, url);
+			if (mode !== null) {
+				return mode;
+			}
+
+		}
+
+
+		return null;
+
+	},
+
 	setMode: function(mode) {
 
 		mode = isMode(mode) ? mode : null;

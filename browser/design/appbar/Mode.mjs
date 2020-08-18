@@ -68,6 +68,54 @@ const Mode = function(browser) {
 
 	});
 
+	this.element.on('key', (key) => {
+
+		if (key.name === 'f9') {
+
+			let value = this.value();
+			if (
+				value.mode.text === true
+				&& value.mode.image === true
+				&& value.mode.audio === true
+				&& value.mode.video === true
+				&& value.mode.other === true
+			) {
+
+				this.model.mode.text.value(false);
+				this.model.mode.image.value(false);
+				this.model.mode.audio.value(false);
+				this.model.mode.video.value(false);
+				this.model.mode.other.value(false);
+
+				if (browser.tab !== null) {
+
+					if (
+						browser.tab.url.protocol !== 'file'
+						&& browser.tab.url.protocol !== 'stealth'
+					) {
+
+						let mode = this.value();
+						if (mode !== null) {
+							browser.setMode(mode);
+						}
+
+					}
+
+				}
+
+			} else {
+
+				let button = Object.values(this.model.mode).find((b) => b.value() === false) || null;
+				if (button !== null) {
+					button.emit('click');
+				}
+
+			}
+
+		}
+
+	});
+
 
 	Object.values(this.model.mode).forEach((button) => {
 

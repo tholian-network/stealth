@@ -312,11 +312,49 @@ const Tabs = function(browser) {
 			let button = this.buttons.find((b) => b === target) || null;
 			if (button !== null) {
 
-				let tab = browser.tabs.find((t) => t.id === '' + button.attr('data-id'));
+				let tab = browser.tabs.find((t) => t.id === '' + button.attr('data-id')) || null;
 				if (tab !== null) {
 					browser.close(tab);
 				}
 
+			}
+
+		}
+
+	});
+
+	this.element.on('key', (key) => {
+
+		if (
+			key.name === 'f6'
+			|| (key.mods.includes('ctrl') && key.name === 'pageup')
+		) {
+
+			if (this.prev !== null) {
+				this.prev.emit('click');
+			}
+
+		} else if (
+			key.name === 'f7'
+			|| (key.mods.includes('ctrl') && key.name === 'w')
+		) {
+
+			if (this.curr !== null) {
+
+				let tab = browser.tabs.find((t) => t.id === '' + this.curr.attr('data-id')) || null;
+				if (tab !== null) {
+					browser.close(tab);
+				}
+
+			}
+
+		} else if (
+			key.name === 'f8'
+			|| (key.mods.includes('ctrl') && key.name === 'pagedown')
+		) {
+
+			if (this.next !== null) {
+				this.next.emit('click');
 			}
 
 		}

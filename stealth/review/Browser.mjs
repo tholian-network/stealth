@@ -4,13 +4,14 @@ import { after, before, describe, finish                              } from '..
 import { Browser, isBrowser, isMode                                   } from '../../stealth/source/Browser.mjs';
 import { Request                                                      } from '../../stealth/source/Request.mjs';
 import { isTab                                                        } from '../../stealth/source/Tab.mjs';
+import { URL                                                          } from '../../stealth/source/parser/URL.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from './Stealth.mjs';
 
 
 
 before(connect_stealth);
 
-export const connect = describe('Browser.prototype.connect()', function(assert) {
+export const connect = before('Browser.prototype.connect()', function(assert) {
 
 	this.browser = new Browser({
 		host: '127.0.0.1'
@@ -21,7 +22,7 @@ export const connect = describe('Browser.prototype.connect()', function(assert) 
 
 	this.browser.once('connect', () => {
 
-		this.browser.set({
+		this.browser.setMode({
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -32,7 +33,7 @@ export const connect = describe('Browser.prototype.connect()', function(assert) 
 			}
 		});
 
-		assert(this.browser.get('example.com'), {
+		assert(this.browser.getMode('https://example.com'), {
 			domain: 'example.com',
 			mode: {
 				text:  true,
@@ -51,7 +52,9 @@ export const connect = describe('Browser.prototype.connect()', function(assert) 
 
 	});
 
-	this.browser.connect();
+	setTimeout(() => {
+		this.browser.connect();
+	}, 0);
 
 });
 
@@ -179,7 +182,7 @@ describe('Browser.prototype.back()', function(assert) {
 	assert(this.browser.tab,            this.tab);
 	assert(this.browser.show(this.tab), this.tab);
 
-	this.browser.set({
+	this.browser.setMode({
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -190,7 +193,7 @@ describe('Browser.prototype.back()', function(assert) {
 		}
 	});
 
-	assert(this.browser.get('example.com'), {
+	assert(this.browser.getMode('https://example.com'), {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -205,18 +208,18 @@ describe('Browser.prototype.back()', function(assert) {
 	assert(this.browser.navigate('https://three.example.com/'), true);
 
 	assert(this.browser.back(),          true);
-	assert(this.browser.tab.url,         'https://two.example.com/');
+	assert(this.browser.tab.url,         URL.parse('https://two.example.com/'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.back(),          true);
-	assert(this.browser.tab.url,         'https://example.com/');
+	assert(this.browser.tab.url,         URL.parse('https://example.com/'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.back(),          false);
-	assert(this.browser.tab.url,         'https://example.com/');
+	assert(this.browser.tab.url,         URL.parse('https://example.com/'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
-	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.navigate('https://example.com'), false);
 	assert(this.browser.tab.forget('stealth'),               true);
 
 });
@@ -226,7 +229,7 @@ describe('Browser.prototype.close()', function(assert) {
 	assert(this.browser.tab,                     this.tab);
 	assert(this.browser.tabs.length,             1);
 	assert(this.browser.close(this.browser.tab), true);
-	assert(this.browser.tab.url,                 'stealth:welcome');
+	assert(this.browser.tab.url,                 URL.parse('stealth:welcome'));
 	assert(this.browser.tabs.length,             1);
 
 	let tab1 = this.browser.open('https://example.com/one.html');
@@ -242,7 +245,7 @@ describe('Browser.prototype.close()', function(assert) {
 	let tab2 = this.browser.tab;
 
 	assert(this.browser.tab,         tab2);
-	assert(this.browser.tab.url,     'stealth:welcome');
+	assert(this.browser.tab.url,     URL.parse('stealth:welcome'));
 	assert(this.browser.tabs.length, 1);
 
 	assert(this.browser.show(this.tab), this.tab);
@@ -340,9 +343,9 @@ describe('Browser.prototype.get()', function(assert) {
 		}
 	}];
 
-	let mode1 = this.browser.get('cookie.engineer');
-	let mode2 = this.browser.get('tholian.network');
-	let mode3 = this.browser.get('example.com');
+	let mode1 = this.browser.getMode('https://cookie.engineer');
+	let mode2 = this.browser.getMode('https://tholian.network');
+	let mode3 = this.browser.getMode('https://example.com');
 
 	assert(mode1.domain,     'cookie.engineer');
 	assert(mode1.mode.text,  false);
@@ -382,7 +385,7 @@ describe('Browser.prototype.navigate()', function(assert) {
 
 	assert(this.browser.navigate('https://example.com/'), true);
 
-	this.browser.set({
+	this.browser.setMode({
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -406,7 +409,7 @@ describe('Browser.prototype.navigate()', function(assert) {
 		}
 	});
 
-	this.browser.set({
+	this.browser.setMode({
 		domain: 'two.example.com',
 		mode: {
 			text:  true,
@@ -417,7 +420,7 @@ describe('Browser.prototype.navigate()', function(assert) {
 		}
 	});
 
-	assert(this.browser.get('two.example.com'), {
+	assert(this.browser.getMode('https://two.example.com'), {
 		domain: 'two.example.com',
 		mode: {
 			text:  true,
@@ -465,7 +468,7 @@ describe('Browser.prototype.next()', function(assert) {
 
 	this.browser.settings.modes = [];
 
-	this.browser.set({
+	this.browser.setMode({
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -476,7 +479,7 @@ describe('Browser.prototype.next()', function(assert) {
 		}
 	});
 
-	assert(this.browser.get('example.com'), {
+	assert(this.browser.getMode('https://example.com'), {
 		domain: 'example.com',
 		mode: {
 			text:  true,
@@ -491,27 +494,27 @@ describe('Browser.prototype.next()', function(assert) {
 	assert(this.browser.navigate('https://three.example.com/third.html'), true);
 
 	assert(this.browser.back(),          true);
-	assert(this.browser.tab.url,         'https://two.example.com/second.html');
+	assert(this.browser.tab.url,         URL.parse('https://two.example.com/second.html'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.back(),          true);
-	assert(this.browser.tab.url,         'https://example.com/');
+	assert(this.browser.tab.url,         URL.parse('https://example.com/'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.back(),          false);
-	assert(this.browser.tab.url,         'https://example.com/');
+	assert(this.browser.tab.url,         URL.parse('https://example.com/'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.next(),          true);
-	assert(this.browser.tab.url,         'https://two.example.com/second.html');
+	assert(this.browser.tab.url,         URL.parse('https://two.example.com/second.html'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.next(),          true);
-	assert(this.browser.tab.url,         'https://three.example.com/third.html');
+	assert(this.browser.tab.url,         URL.parse('https://three.example.com/third.html'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.next(),          false);
-	assert(this.browser.tab.url,         'https://three.example.com/third.html');
+	assert(this.browser.tab.url,         URL.parse('https://three.example.com/third.html'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.tab.navigate('https://example.com'), true);
@@ -551,7 +554,7 @@ describe('Browser.prototype.open()', function(assert) {
 	assert(this.browser.close(tab3), true);
 	assert(this.browser.close(tab4), true);
 
-	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.navigate('https://example.com'), false);
 	assert(this.browser.tab.forget('stealth'),               true);
 
 });
@@ -601,7 +604,7 @@ describe('Browser.prototype.pause()', function(assert) {
 		assert(this.browser.tab,         this.tab);
 		assert(this.browser.tabs.length, 1);
 
-		assert(this.browser.tab.navigate('https://example.com'), true);
+		assert(this.browser.tab.navigate('https://example.com'), false);
 		assert(this.browser.tab.forget('stealth'),               true);
 
 	}, 200);
@@ -641,12 +644,12 @@ describe('Browser.prototype.refresh()', function(assert) {
 	assert(this.browser.tab,         this.tab);
 	assert(this.browser.tabs.length, 1);
 
-	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.navigate('https://example.com'), false);
 	assert(this.browser.tab.forget('stealth'),               true);
 
 });
 
-describe('Browser.prototype.set()', function(assert) {
+describe('Browser.prototype.setMode()', function(assert) {
 
 	this.browser.settings.modes = [{
 		domain: 'example.com',
@@ -659,9 +662,9 @@ describe('Browser.prototype.set()', function(assert) {
 		}
 	}];
 
-	let mode1 = this.browser.get('cookie.engineer');
-	let mode2 = this.browser.get('tholian.network');
-	let mode3 = this.browser.get('example.com');
+	let mode1 = this.browser.getMode('https://cookie.engineer');
+	let mode2 = this.browser.getMode('https://tholian.network');
+	let mode3 = this.browser.getMode('https://example.com');
 
 	assert(mode1.domain,     'cookie.engineer');
 	assert(mode1.mode.text,  false);
@@ -684,13 +687,13 @@ describe('Browser.prototype.set()', function(assert) {
 	assert(mode3.mode.video, false);
 	assert(mode3.mode.other, false);
 
-	assert(this.browser.set(mode1), true);
-	assert(this.browser.set(mode2), true);
-	assert(this.browser.set(mode3), true);
+	assert(this.browser.setMode(mode1), true);
+	assert(this.browser.setMode(mode2), true);
+	assert(this.browser.setMode(mode3), true);
 
-	assert(this.browser.get('cookie.engineer'), mode1);
-	assert(this.browser.get('tholian.network'), mode2);
-	assert(this.browser.get('example.com'),     mode3);
+	assert(this.browser.getMode('https://cookie.engineer'), mode1);
+	assert(this.browser.getMode('https://tholian.network'), mode2);
+	assert(this.browser.getMode('https://example.com'),     mode3);
 
 	assert(this.browser.settings.modes.includes(mode1), true);
 	assert(this.browser.settings.modes.includes(mode2), true);
@@ -730,7 +733,7 @@ describe('Browser.prototype.show()', function(assert) {
 	assert(this.browser.close(tab2), true);
 	assert(this.browser.tabs.length, 1);
 
-	assert(this.browser.tab.navigate('https://example.com'), true);
+	assert(this.browser.tab.navigate('https://example.com'), false);
 	assert(this.browser.tab.forget('stealth'),               true);
 
 });

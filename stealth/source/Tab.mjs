@@ -456,7 +456,7 @@ Tab.prototype = {
 				if (
 					url.domain === this.url.domain
 					|| (url.protocol === 'stealth' && this.url.protocol === 'stealth')
-					|| this.url.link === 'stealth:welcome'
+					|| this.url.protocol === 'stealth'
 				) {
 
 					let event1 = search.call(this, this.url.link);
@@ -511,7 +511,7 @@ Tab.prototype = {
 									}
 								};
 
-							} else if (this.url.link !== 'stealth:welcome') {
+							} else if (this.url.protocol !== 'stealth') {
 
 								this.mode = {
 									domain: domain,
