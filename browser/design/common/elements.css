@@ -88,6 +88,7 @@ button:before {
 	display: inline-block;
 	width: 100%;
 	font-family: 'icon';
+	font-weight: 400;
 	text-align: center;
 	speak: none;
 	-webkit-font-smoothing: antialiased;
@@ -146,6 +147,7 @@ input[type="radio"]:before {
 	padding: 0px;
 	content: '\e5cc';
 	font-family: 'icon';
+	font-weight: 400;
 	text-align: center;
 	speak: none;
 	-webkit-font-smoothing: antialiased;
@@ -185,6 +187,7 @@ input[type="text"] {
 	color: var(--layout-default-color);
 	font-family: 'vera-mono';
 	font-size: 16px;
+	font-weight: 400;
 	text-align: left;
 	background: var(--element-default-background);
 	border: 1px solid transparent;
@@ -201,6 +204,17 @@ input[type="text"] {
 
 input[type="text"].active {
 	color: var(--element-active-color);
+}
+
+input[type="text"][data-map].invalid,
+input[type="text"][data-map].invalid:focus,
+input[type="text"][data-map].invalid:hover,
+input[type="text"][pattern].invalid,
+input[type="text"][pattern].invalid:focus,
+input[type="text"][pattern].invalid:hover {
+	color: var(--element-invalid-color);
+	border: 1px solid var(--element-invalid-color);
+	background: var(--element-invalid-background);
 }
 
 input[type="text"][disabled],
@@ -236,6 +250,7 @@ textarea {
 	color: var(--layout-default-color);
 	font-family: 'vera-mono';
 	font-size: 16px;
+	font-weight: 400;
 	text-align: left;
 	background: var(--layout-default-background);
 	border: 1px solid transparent;
@@ -251,6 +266,17 @@ textarea {
 
 textarea.active {
 	color: var(--element-active-color);
+}
+
+textarea[data-map].invalid,
+textarea[data-map].invalid:focus,
+textarea[data-map].invalid:hover,
+textarea[pattern].invalid,
+textarea[pattern].invalid:focus,
+textarea[pattern].invalid:hover {
+	color: var(--element-invalid-color);
+	border: 1px solid var(--element-invalid-color);
+	background: var(--element-invalid-background);
 }
 
 textarea[disabled],

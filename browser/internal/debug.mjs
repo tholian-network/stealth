@@ -6,6 +6,7 @@ import { Beacon      } from '../design/card/Beacon.mjs';
 import { Host        } from '../design/card/Host.mjs';
 import { Mode        } from '../design/card/Mode.mjs';
 import { Peer        } from '../design/card/Peer.mjs';
+import { Redirect    } from '../design/card/Redirect.mjs';
 import { URL         } from '../source/parser/URL.mjs';
 
 
@@ -86,11 +87,27 @@ if (browser !== null && domain !== null) {
 
 	}
 
+	let redirects = browser.settings.redirects.find((r) => r.domain === domain) || [];
+	if (redirects.length > 0) {
 
-	console.log('Host',    host);
-	console.log('Mode',    mode);
-	console.log('Peer',    peer);
-	console.log('Beacons', beacons);
+		redirects.forEach((redirect) => {
+			render_widget(Redirect.from(redirect));
+		});
+
+	} else {
+
+		render_widget(Redirect.from({
+			domain: domain
+		}, [ 'create' ]));
+
+	}
+
+
+	console.log('Host',      host);
+	console.log('Mode',      mode);
+	console.log('Peer',      peer);
+	console.log('Beacons',   beacons);
+	console.log('Redirects', redirects);
 
 }
 

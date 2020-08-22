@@ -14,14 +14,20 @@
 			@import url("../design/card/Host.css");
 			@import url("../design/card/Mode.css");
 			@import url("../design/card/Peer.css");
+			@import url("../design/card/Redirect.css");
 
 
 
 			body > browser-card-host,
 			body > browser-card-mode,
 			body > browser-card-beacon,
-			body > browser-card-peer {
+			body > browser-card-peer,
+			body > browser-card-redirect {
 				margin: 64px auto 0px auto;
+			}
+
+			body > *:last-of-type {
+				margin-bottom: 64px;
 			}
 
 		</style>

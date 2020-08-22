@@ -1,0 +1,112 @@
+
+browser-card-redirect {
+	all: unset;
+}
+
+browser-card-redirect {
+	display: block;
+	position: relative;
+	width: 640px;
+	max-height: 64px;
+	margin: 0px;
+	padding: 16px;
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow: hidden;
+	cursor: default;
+}
+
+browser-card-redirect.active {
+	max-height: unset;
+}
+
+browser-card-redirect-article {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-redirect-footer {
+	display: block;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+
+
+browser-card-redirect h3 {
+	display: block;
+	margin: 0px;
+	padding: 0px 0px 16px 0px;
+}
+
+browser-card-redirect h3 input[type="text"] {
+	display: inline;
+	font-family: 'crystalline';
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 32px;
+	width: auto;
+}
+
+browser-card-redirect.active h3 input[type="text"] {
+	display: inline-block;
+	width: calc(100% - 48px);
+}
+
+browser-card-redirect.active h3 input[type="text"]:nth-of-type(2) {
+	display: block;
+	width: 100%;
+	margin-top: 16px;
+	font-family: 'vera-mono';
+	font-size: 16px;
+	font-weight: 400;
+}
+
+browser-card-redirect button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-redirect button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-redirect button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+browser-card-redirect-article input[type="text"] {
+	display: block;
+	width: 100%;
+}
+
+browser-card-redirect-footer button {
+	margin-left: 16px;
+}
+
+browser-card-redirect-footer button[data-action="create"]:before { content: '\e145'; }
+browser-card-redirect-footer button[data-action="remove"]:before { content: '\e14c'; }
+browser-card-redirect-footer button[data-action="save"]:before   { content: '\e876'; }
+
+
+
+@media screen and (max-width: 640px) {
+
+	browser-card-redirect {
+		width: auto;
+	}
+
+}
+

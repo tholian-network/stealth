@@ -111,9 +111,10 @@ browser-card-interface-article ul li {
 }
 
 browser-card-interface-article label {
-	font-family: 'museo';
 	margin: 0px 0px 0px 8px;
 	padding: 0px;
+	color: var(--element-default-color);
+	font-family: 'museo';
 	font-size: 16px;
 	line-height: 32px;
 	vertical-align: middle;
@@ -130,6 +131,15 @@ browser-card-interface-article input[type="radio"][name="opentab"][value="stealt
 browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:history"]:before { content: '\e889'; }
 browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:search"]:before  { content: '\e52e'; }
 browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:welcome"]:before { content: '\e80c'; }
+
+browser-card-interface-article input[type="radio"]:focus + label,
+browser-card-interface-article input[type="radio"]:hover + label {
+	color: var(--element-focus-color);
+}
+
+browser-card-interface-article input[type="radio"]:checked + label {
+	color: var(--element-active-color);
+}
 
 browser-card-interface-footer button[data-action="save"]:before { content: '\e876'; }
 

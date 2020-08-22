@@ -23,6 +23,9 @@ body[data-theme="dark"] {
 	--element-disable-color: #222222;
 	--element-disable-background: transparent;
 
+	--element-invalid-color: #ff2222;
+	--element-invalid-background: rgba(255, 34, 34, 0.20);
+
 	--element-focus-color: #ffffff;
 	--element-focus-background: rgba(255,255,255,0.20);
 
@@ -63,6 +66,9 @@ body[data-theme="light"] {
 
 	--element-disable-color: #dddddd;
 	--element-disable-background: transparent;
+
+	--element-invalid-color: #ff2222;
+	--element-invalid-background: rgba(255, 34, 34, 0.20);
 
 	--element-focus-color: #22ccff;
 	--element-focus-background: rgba(34,204,255,0.20);

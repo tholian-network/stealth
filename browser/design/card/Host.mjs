@@ -9,10 +9,10 @@ const Host = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
 	this.element = new Element('browser-card-host', [
-		'<h3><input title="Domain" type="text" data-key="domain" disabled="true"/></h3>',
+		'<h3><input title="Domain" type="text" data-key="domain" disabled/></h3>',
 		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
 		'<browser-card-host-article>',
-		'<textarea title="List of IPv4/IPv6 addresses" data-key="hosts" data-map="IP"></textarea>',
+		'<textarea title="List of IPv4/IPv6 addresses" data-key="hosts" data-map="IP" rows="4" disabled></textarea>',
 		'</browser-card-host-article>',
 		'<browser-card-host-footer>',
 		'<button title="Create Host" data-action="create"></button>',
@@ -39,12 +39,7 @@ const Host = function(browser, actions) {
 
 
 	this.model.hosts.on('keyup', () => {
-
-		let node = this.model.hosts.node;
-		if (node.scrollHeight > node.clientHeight) {
-			node.style.height = node.scrollHeight + 2 + 'px';
-		}
-
+		this.model.hosts.validate();
 	});
 
 	this.element.on('show', () => {

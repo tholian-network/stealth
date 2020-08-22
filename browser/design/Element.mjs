@@ -158,6 +158,33 @@ const render_value = function(val) {
 
 };
 
+const validate_value = function(value, pattern) {
+
+	value   = isString(value)   ? value   : render_value(value);
+	pattern = isString(pattern) ? pattern : null;
+
+
+	if (pattern !== null) {
+
+		if (pattern.startsWith('^') === false) {
+			pattern = '^' + pattern;
+		}
+
+		if (pattern.endsWith('$') === false) {
+			pattern = pattern + '$';
+		}
+
+		let regexp = new RegExp(pattern);
+		if (regexp.test(value) === true) {
+			return true;
+		}
+
+	}
+
+	return false;
+
+};
+
 
 
 const Element = function(type, content) {
@@ -460,7 +487,13 @@ Element.prototype = {
 			if (val !== undefined) {
 
 				let attributes = Object.keys(this.node.attributes).map((a) => this.node.attributes[a].name);
-				if (attributes.includes(key)) {
+
+				if (key === 'required') {
+
+					// Not listed in node.attributes
+					this.node.setAttribute('required', val);
+
+				} else if (attributes.includes(key)) {
 
 					let san = render_value(val);
 					if (san.length === 0) {
@@ -489,7 +522,18 @@ Element.prototype = {
 			} else {
 
 				let attributes = Object.keys(this.node.attributes).map((a) => this.node.attributes[a].name);
-				if (attributes.includes(key)) {
+
+				if (key === 'required') {
+
+					// Not listed in node.attributes
+					let raw = this.node.getAttribute(key);
+					if (raw === 'true') {
+						return true;
+					} else if (raw === 'false') {
+						return false;
+					}
+
+				} else if (attributes.includes(key)) {
 
 					let raw = this.node.getAttribute(key);
 					if (isString(raw) === true) {
@@ -944,6 +988,46 @@ Element.prototype = {
 
 	},
 
+	validate: function() {
+
+		let value = this.value();
+
+		if (this.type === 'input') {
+
+			if (this.node.getAttribute('size') !== null) {
+
+				let min_bound = 1;
+
+				if (this.node.getAttribute('placeholder') !== null) {
+					min_bound = this.node.getAttribute('placeholder').length;
+				}
+
+				this.node.setAttribute('size', Math.max(min_bound, this.node.value.length));
+
+			}
+
+			if (value === null) {
+				this.state('invalid');
+			} else {
+				this.state('');
+			}
+
+		} else if (this.type === 'textarea') {
+
+			if (this.node.getAttribute('rows') !== null) {
+				this.node.setAttribute('rows', Math.max(1, this.node.value.split('\n').length));
+			}
+
+			if (value.length === 0) {
+				this.state('invalid');
+			} else {
+				this.state('');
+			}
+
+		}
+
+	},
+
 	value: function(value) {
 
 		value = value !== undefined ? value : undefined;
@@ -969,7 +1053,32 @@ Element.prototype = {
 					} else if (map === 'URL') {
 						this.node.value = URL.render(value);
 					} else {
-						this.node.value = value !== null ? render_value(value) : null;
+
+						let pattern = this.node.getAttribute('pattern');
+						if (pattern !== null) {
+
+							if (validate_value(value, pattern) === true) {
+								this.node.value = render_value(value);
+							} else {
+								this.node.value = null;
+							}
+
+						} else {
+							this.node.value = value !== null ? render_value(value) : null;
+						}
+
+					}
+
+					if (this.node.getAttribute('size') !== null) {
+
+						let min_bound = 1;
+
+						if (this.node.getAttribute('placeholder') !== null) {
+							min_bound = this.node.getAttribute('placeholder').length;
+						}
+
+						this.node.setAttribute('size', Math.max(min_bound, this.node.value.length));
+
 					}
 
 				} else if (type === 'textarea') {
@@ -979,42 +1088,58 @@ Element.prototype = {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => IP.render(v)).join('\n');
-							this.node.setAttribute('rows', value.length);
 						} else {
 							this.node.value = IP.render(value);
-							this.node.setAttribute('rows', 1);
 						}
 
 					} else if (map === 'UA') {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => UA.render(v)).join('\n');
-							this.node.setAttribute('rows', value.length);
 						} else {
 							this.node.value = UA.render(value);
-							this.node.setAttribute('rows', 1);
 						}
 
 					} else if (map === 'URL') {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => URL.render(v)).join('\n');
-							this.node.setAttribute('rows', value.length);
 						} else {
 							this.node.value = URL.render(value);
-							this.node.setAttribute('rows', 1);
 						}
 
 					} else {
 
-						if (isArray(value) === true) {
-							this.node.value = value.map((v) => render_value(v)).join('\n');
-							this.node.setAttribute('rows', value.length);
+						let pattern = this.node.getAttribute('pattern');
+						if (pattern !== null) {
+
+							if (isArray(value) === true) {
+								let validated = value.map((v) => render_value(v)).filter((v) => validate_value(v, pattern));
+								this.node.value = validated.join('\n');
+							} else {
+
+								if (validate_value(value, pattern) === true) {
+									this.node.value = render_value(value);
+								} else {
+									this.node.value = null;
+								}
+
+							}
+
 						} else {
-							this.node.value = value !== null ? render_value(value) : null;
-							this.node.setAttribute('rows', 1);
+
+							if (isArray(value) === true) {
+								this.node.value = value.map((v) => render_value(v)).join('\n');
+							} else {
+								this.node.value = value !== null ? render_value(value) : null;
+							}
+
 						}
 
+					}
+
+					if (this.node.getAttribute('rows') !== null) {
+						this.node.setAttribute('rows', Math.max(1, this.node.value.split('\n').length));
 					}
 
 				} else {
@@ -1141,7 +1266,22 @@ Element.prototype = {
 						}
 
 					} else {
-						return parse_value(val);
+
+						let pattern = this.node.getAttribute('pattern');
+						if (pattern !== null) {
+
+							if (validate_value(val, pattern) === true) {
+								return parse_value(val);
+							} else {
+								return null;
+							}
+
+						} else {
+
+							return parse_value(val);
+
+						}
+
 					}
 
 				} else if (type === 'textarea') {
@@ -1187,9 +1327,26 @@ Element.prototype = {
 
 					} else {
 
-						return val.split('\n').map((v) => {
-							return parse_value(v.trim());
-						});
+						let pattern = this.node.getAttribute('pattern');
+						if (pattern !== null) {
+
+							return val.split('\n').map((v) => {
+								return v.trim();
+							}).filter((v) => {
+								return validate_value(v, pattern);
+							}).map((v) => {
+								return parse_value(v);
+							});
+
+						} else {
+
+							return val.split('\n').map((v) => {
+								return v.trim();
+							}).map((v) => {
+								return parse_value(v);
+							});
+
+						}
 
 					}
 

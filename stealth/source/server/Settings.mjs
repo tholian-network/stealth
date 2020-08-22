@@ -4,6 +4,7 @@ import { Beacon                                            } from './Beacon.mjs'
 import { Host                                              } from './Host.mjs';
 import { Mode                                              } from './Mode.mjs';
 import { Peer                                              } from './Peer.mjs';
+import { Redirect                                          } from './Redirect.mjs';
 
 
 
@@ -23,7 +24,7 @@ const readify = function(raw) {
 			payload['hosts']     = isBoolean(payload['hosts'])     ? payload['hosts']     : false;
 			payload['modes']     = isBoolean(payload['modes'])     ? payload['modes']     : false;
 			payload['peers']     = isBoolean(payload['peers'])     ? payload['peers']     : false;
-			payload['redirects'] = false; // cannot be read
+			payload['redirects'] = isBoolean(payload['redirects']) ? payload['redirects'] : false;
 			payload['sessions']  = isBoolean(payload['sessions'])  ? payload['sessions']  : false;
 
 			return payload;
@@ -50,7 +51,7 @@ const saveify = function(raw) {
 		payload['hosts']     = isArray(payload['hosts'])      ? payload['hosts']     : [];
 		payload['modes']     = isArray(payload['modes'])      ? payload['modes']     : [];
 		payload['peers']     = isArray(payload['peers'])      ? payload['peers']     : [];
-		payload['redirects'] = []; // cannot be saved
+		payload['redirects'] = isArray(payload['redirects'])  ? payload['redirects'] : [];
 		payload['sessions']  = []; // cannot be saved
 
 		if (isArray(payload['beacons']) === true) {
@@ -67,6 +68,10 @@ const saveify = function(raw) {
 
 		if (isArray(payload['peers']) === true) {
 			payload['peers'] = payload['peers'].filter((peer) => Peer.isPeer(peer));
+		}
+
+		if (isArray(payload['redirects']) === true) {
+			payload['redirects'] = payload['redirects'].filter((redirect) => Redirect.isRedirect(redirect));
 		}
 
 		return payload;
@@ -192,7 +197,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 							'hosts':     blob.data['hosts'],
 							'modes':     blob.data['modes'],
 							'peers':     blob.data['peers'],
-							'redirects': null,
+							'redirects': blob.data['redirects'],
 							'sessions':  blob.data['sessions']
 						};
 
@@ -292,6 +297,17 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 				settings['peers'].push(peer);
+
+			});
+
+			payload['redirects'].forEach((redirect) => {
+
+				let other = settings['redirects'].find((r) => r.domain === redirect.domain && r.path === redirect.path) || null;
+				if (other !== null) {
+					settings['redirects'].remove(other);
+				}
+
+				settings['redirects'].push(redirect);
 
 			});
 

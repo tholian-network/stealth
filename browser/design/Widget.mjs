@@ -126,6 +126,70 @@ const set_value = function(element, value) {
 
 };
 
+const validate_value = function(element, value) {
+
+	let result = true;
+
+	if (isElement(element) === true) {
+
+		if (element.attr('required') === true) {
+
+			if (value !== null) {
+				element.state('');
+			} else {
+				element.state('invalid');
+				result = false;
+			}
+
+		}
+
+	} else if (isArray(element) === true) {
+
+		let check = element.filter((e) => (e.type === 'input' && e.attr('type') === 'radio'));
+		if (check.length === element.length) {
+
+			let tmp = check.find((c) => c.attr('required') === true) || null;
+			if (tmp !== null) {
+
+				if (value !== null) {
+					check.forEach((c) => c.state(''));
+				} else {
+					check.forEach((c) => c.state('invalid'));
+					result = false;
+				}
+
+			}
+
+		} else {
+
+			element.forEach((other, e) => {
+
+				let check = validate_value(other, value[e]);
+				if (check !== true) {
+					result = false;
+				}
+
+			});
+
+		}
+
+	} else if (isObject(element) === true) {
+
+		Object.keys(element).forEach((key) => {
+
+			let check = validate_value(element[key], value[key]);
+			if (check !== true) {
+				result = false;
+			}
+
+		});
+
+	}
+
+	return result;
+
+};
+
 
 
 const Widget = function() {
@@ -363,6 +427,17 @@ Widget.prototype = {
 		} else {
 			return null;
 		}
+
+	},
+
+	validate: function() {
+
+		if (isObject(this.model) === true) {
+			return validate_value(this.model, get_value(this.model));
+		}
+
+
+		return false;
 
 	},
 

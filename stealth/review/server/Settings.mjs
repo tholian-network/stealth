@@ -304,6 +304,8 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.settings.read), true);
 
+	let defaults = this.stealth.settings.toJSON().data;
+
 	this.server.services.settings.read({
 		'redirects': true
 	}, (response) => {
@@ -321,7 +323,7 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 				'hosts':     null,
 				'modes':     null,
 				'peers':     null,
-				'redirects': null,
+				'redirects': defaults['redirects'],
 				'sessions':  null
 			}
 		});
@@ -370,7 +372,9 @@ describe('Settings.prototype.save()/all', function(assert) {
 
 	this.server.services.settings.save({
 		'interface': {
-			theme: 'light'
+			theme:   'light',
+			enforce: true,
+			opentab: 'stealth:search'
 		},
 		'internet': {
 			connection: 'mobile',
@@ -456,7 +460,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 		'hosts':     true,
 		'modes':     true,
 		'peers':     true,
-		'redirects': true, // private
+		'redirects': true,
 		'sessions':  true  // private
 	}, (response) => {
 
@@ -470,7 +474,9 @@ describe('Settings.prototype.read()/all', function(assert) {
 		});
 
 		assert(response.payload['interface'], {
-			theme: 'light'
+			theme:   'light',
+			enforce: true,
+			opentab: 'stealth:search'
 		});
 
 		assert(response.payload['internet'], {
@@ -536,7 +542,11 @@ describe('Settings.prototype.read()/all', function(assert) {
 			connection: 'mobile'
 		}]);
 
-		assert(response.payload['redirects'], null);
+		assert(response.payload['redirects'], [{
+			domain:   'covert.localdomain',
+			path:     '/redirect',
+			location: 'https://covert.localdomain/location.html'
+		}]);
 
 		assert(response.payload['sessions'], []);
 
@@ -551,7 +561,9 @@ describe('Settings.prototype.save()/interface', function(assert) {
 
 	this.server.services.settings.save({
 		'interface': {
-			theme: 'dark'
+			theme:   'dark',
+			enforce: false,
+			opentab: 'stealth:blank'
 		}
 	}, (response) => {
 
@@ -577,7 +589,9 @@ describe('Settings.prototype.read()/interface', function(assert) {
 	}, (response) => {
 
 		assert(response.payload['interface'], {
-			theme: 'dark'
+			theme:   'dark',
+			enforce: false,
+			opentab: 'stealth:blank'
 		});
 
 	});
@@ -976,10 +990,25 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 		'redirects': true // private
 	}, (response) => {
 
-		assert(isObject(response),            true);
-		assert(isObject(response.headers),    true);
-		assert(isObject(response.payload),    true);
-		assert(response.payload['redirects'], null);
+		assert(isObject(response),                     true);
+		assert(isObject(response.headers),             true);
+		assert(isObject(response.payload),             true);
+		assert(isArray(response.payload['redirects']), true);
+
+		let redirect1 = response.payload['redirects'].find((r) => r.domain === 'covert.localdomain') || null;
+		let redirect2 = response.payload['redirects'].find((r) => r.domain === 'covert-two.localdomain') || null;
+
+		assert(redirect1, {
+			domain:   'covert.localdomain',
+			path:     '/redirect',
+			location: 'https://covert.localdomain/location.html'
+		});
+
+		assert(redirect2, {
+			domain:   'covert-two.localdomain',
+			path:     '/redirect',
+			location: 'https://covert-two.localdomain/location.html'
+		});
 
 	});
 
