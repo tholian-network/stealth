@@ -87,7 +87,7 @@ if (browser !== null && domain !== null) {
 
 	}
 
-	let redirects = browser.settings.redirects.find((r) => r.domain === domain) || [];
+	let redirects = browser.settings.redirects.filter((r) => r.domain === domain) || [];
 	if (redirects.length > 0) {
 
 		redirects.forEach((redirect) => {

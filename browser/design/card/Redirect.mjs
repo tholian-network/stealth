@@ -257,6 +257,14 @@ Redirect.prototype = Object.assign({}, Widget.prototype, {
 
 		if (value !== null) {
 
+			if (isObject(value) === true) {
+
+				if (URL.isURL(value.location) === false) {
+					value.location = URL.parse(value.location);
+				}
+
+			}
+
 			return Widget.prototype.value.call(this, value);
 
 		} else {
