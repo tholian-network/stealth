@@ -14,9 +14,9 @@ const Redirect = function(browser, actions) {
 		'<input title="Domain" type="text" data-key="domain" placeholder="domain.tld" size="10" disabled/>',
 		'<input title="Path" type="text" data-key="path" pattern="/([A-Za-z0-9/._-]+)" placeholder="/path" size="5" disabled/>',
 		'</h3>',
-		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
+		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-redirect-article>',
-		'<input title="Target Location" type="text" data-key="location" data-map="URL" placeholder="https://target/location.html" disabled/>',
+		'<input title="Target Location" type="text" data-key="location" data-map="URL" placeholder="https://domain.tld/location.html" disabled/>',
 		'</browser-card-redirect-article>',
 		'<browser-card-redirect-footer>',
 		'<button title="Create Redirect" data-action="create"></button>',
@@ -97,7 +97,7 @@ const Redirect = function(browser, actions) {
 			this.model.domain.state('disabled');
 
 			this.model.path.attr('required', true);
-			this.model.path.state('enabled');
+			this.model.path.state('disabled');
 
 			this.model.location.attr('required', true);
 			this.model.location.state('enabled');
@@ -222,8 +222,6 @@ const Redirect = function(browser, actions) {
 	}
 
 	this.element.emit('update');
-
-	window.REDIRECT = this;
 
 };
 

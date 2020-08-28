@@ -42,7 +42,11 @@ const isContent = function(content) {
 
 	} else if (isArray(content) === true) {
 
-		let check = content.filter((c) => isElement(c) || isHTMLElement(c) || isString(c));
+		let check = content.filter((c) => (
+			isElement(c) === true
+			|| isHTMLElement(c) === true
+			|| isString(c) === true
+		));
 		if (check.length === content.length) {
 			return true;
 		}
@@ -230,9 +234,9 @@ const Element = function(type, content) {
 
 		} else if (isArray(content) === true) {
 
-			let elements = content.filter((c) => isElement(c));
-			let nodes    = content.filter((c) => isHTMLElement(c));
-			let strings  = content.filter((c) => isString(c));
+			let elements = content.filter((c) => isElement(c) === true);
+			let nodes    = content.filter((c) => isHTMLElement(c) === true);
+			let strings  = content.filter((c) => isString(c) === true);
 
 			if (elements.length > 0) {
 
@@ -1181,9 +1185,9 @@ Element.prototype = {
 
 						if (isArray(value) === true) {
 
-							let elements = value.filter((v) => isElement(v));
-							let nodes    = value.filter((v) => isHTMLElement(v));
-							let strings  = value.filter((v) => isString(v));
+							let elements = value.filter((v) => isElement(v) === true);
+							let nodes    = value.filter((v) => isHTMLElement(v) === true);
+							let strings  = value.filter((v) => isString(v) === true);
 
 							if (elements.length > 0) {
 
@@ -1298,7 +1302,7 @@ Element.prototype = {
 						}).map((v) => {
 							return IP.parse(v);
 						}).filter((ip) => {
-							return IP.isIP(ip);
+							return IP.isIP(ip) === true;
 						});
 
 					} else if (map === 'UA') {
@@ -1310,7 +1314,7 @@ Element.prototype = {
 						}).map((v) => {
 							return UA.parse(v);
 						}).filter((ua) => {
-							return UA.isUA(ua);
+							return UA.isUA(ua) === true;
 						});
 
 					} else if (map === 'URL') {
@@ -1322,7 +1326,7 @@ Element.prototype = {
 						}).map((v) => {
 							return URL.parse(v);
 						}).filter((url) => {
-							return URL.isURL(url);
+							return URL.isURL(url) === true;
 						});
 
 					} else {
@@ -1366,7 +1370,7 @@ Element.prototype = {
 							}).map((v) => {
 								return IP.parse(v);
 							}).filter((ip) => {
-								return IP.isIP(ip);
+								return IP.isIP(ip) === true;
 							});
 
 						} else {
@@ -1391,7 +1395,7 @@ Element.prototype = {
 							}).map((v) => {
 								return UA.parse(v);
 							}).filter((ua) => {
-								return UA.isUA(ua);
+								return UA.isUA(ua) === true;
 							});
 
 						} else {
@@ -1416,7 +1420,7 @@ Element.prototype = {
 							}).map((v) => {
 								return URL.parse(v);
 							}).filter((url) => {
-								return URL.isURL(url);
+								return URL.isURL(url) === true;
 							});
 
 						} else {

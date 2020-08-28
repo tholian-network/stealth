@@ -36,6 +36,8 @@ const ASSETS  = [
 	'design/card/Mode.mjs',
 	'design/card/Peer.css',
 	'design/card/Peer.mjs',
+	'design/card/Redirect.css',
+	'design/card/Redirect.mjs',
 	'design/common/crystalline-bold.woff',
 	'design/common/crystalline-light.woff',
 	'design/common/crystalline-medium.woff',

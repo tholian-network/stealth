@@ -32,7 +32,7 @@ const CLIPBOARD = ((navigator) => {
 
 				clipboard.readText().then((value) => {
 
-					if (isString(value)) {
+					if (isString(value) === true) {
 						callback(value);
 					} else {
 						callback(null);

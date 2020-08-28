@@ -47,7 +47,7 @@ const HOSTS = {
 
 		if (array !== null) {
 
-			let check = array.map((host) => HOSTS.isHost(host));
+			let check = array.map((host) => HOSTS.isHost(host) === true);
 			if (check.includes(false) === false) {
 				return true;
 			}
@@ -277,7 +277,7 @@ const HOSTS = {
 
 		if (array !== null) {
 
-			return array.filter((host) => HOSTS.isHost(host)).sort((a, b) => {
+			return array.filter((host) => HOSTS.isHost(host) === true).sort((a, b) => {
 
 				let url_a = URL.parse(a.domain);
 				let url_b = URL.parse(b.domain);

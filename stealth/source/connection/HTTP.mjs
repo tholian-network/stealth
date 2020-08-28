@@ -13,7 +13,7 @@ const decode_chunked = function(payload) {
 	let chunks = payload.toString('utf8').split('\r\n');
 	let target = Buffer.from('', 'utf8');
 
-	while (chunks.length > 0) {
+	while (chunks.length >= 2) {
 
 		let length = parseInt(chunks.shift(), 16);
 		let chunk  = chunks.shift();
