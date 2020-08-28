@@ -32,14 +32,20 @@ const on_context = function(browser, element) {
 	if (context !== null) {
 
 		let actions = [];
+		let base    = browser.tab.url;
 		let url     = null;
 
+		let webview = Widget.query('browser-backdrop-webview');
+		if (webview !== null) {
+			base = webview.toBaseURL();
+		}
+
 		if (type === 'a') {
-			url = URL.resolve(browser.tab.url, element.attr('href'));
+			url = URL.resolve(base, element.attr('href'));
 		} else if (type === 'img') {
-			url = URL.resolve(browser.tab.url, element.attr('src'));
+			url = URL.resolve(base, element.attr('src'));
 		} else if (type === 'audio' || type === 'video') {
-			url = URL.resolve(browser.tab.url, element.attr('src'));
+			url = URL.resolve(base, element.attr('src'));
 		}
 
 		if (URL.isURL(url) === true) {
@@ -70,6 +76,10 @@ const on_context = function(browser, element) {
 				}
 
 			}
+
+
+			// TODO: Fix this for stealth:... URLs to not use url.link but relative asset path
+
 
 			actions.push({
 				label: 'open',

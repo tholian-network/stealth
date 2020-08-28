@@ -3,6 +3,7 @@ import { Element                      } from '../Element.mjs';
 import { Widget                       } from '../Widget.mjs';
 import { console, isBoolean, isString } from '../../extern/base.mjs';
 import { dispatch                     } from '../../design/index.mjs';
+import { ENVIRONMENT                  } from '../../source/ENVIRONMENT.mjs';
 import { URL                          } from '../../source/parser/URL.mjs';
 
 
@@ -165,7 +166,44 @@ const Webview = function(browser) {
 };
 
 
-Webview.prototype = Object.assign({}, Widget.prototype);
+Webview.prototype = Object.assign({}, Widget.prototype, {
+
+	toBaseURL: function() {
+
+		let url = this.url;
+		if (url.protocol === 'stealth') {
+
+			let link = null;
+
+			if (ENVIRONMENT.secure === true) {
+				link = 'https://' + ENVIRONMENT.hostname + ':65432/browser/internal/' + url.domain + '.html';
+			} else {
+				link = 'http://' + ENVIRONMENT.hostname + ':65432/browser/internal/' + url.domain + '.html';
+			}
+
+			return URL.parse(link);
+
+		} else if (url.protocol === 'https' || url.protocol === 'http') {
+
+			return URL.parse(url.link);
+
+		} else {
+
+			let link = null;
+
+			if (ENVIRONMENT.secure === true) {
+				link = 'https://' + ENVIRONMENT.hostname + ':65432/browser/internal/fix-request.html';
+			} else {
+				link = 'http://' + ENVIRONMENT.hostname + ':65432/browser/internal/fix-request.html';
+			}
+
+			return URL.parse(link);
+
+		}
+
+	}
+
+});
 
 
 export { Webview };
