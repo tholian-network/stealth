@@ -6,7 +6,7 @@ browser-card-redirect {
 browser-card-redirect {
 	display: block;
 	position: relative;
-	width: 640px;
+	width: 800px;
 	max-height: 64px;
 	margin: 0px;
 	padding: 16px;
@@ -102,7 +102,7 @@ browser-card-redirect-footer button[data-action="save"]:before   { content: '\e8
 
 
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 800px) {
 
 	browser-card-redirect {
 		width: auto;

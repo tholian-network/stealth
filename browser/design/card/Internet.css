@@ -6,7 +6,7 @@ browser-card-internet {
 browser-card-internet {
 	display: block;
 	position: relative;
-	width: 640px;
+	width: 800px;
 	max-height: 64px;
 	margin: 0px;
 	padding: 16px;
@@ -141,7 +141,7 @@ browser-card-internet-footer button[data-action="save"]:before { content: '\e876
 
 
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 800px) {
 
 	browser-card-internet {
 		width: auto;

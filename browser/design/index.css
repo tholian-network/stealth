@@ -34,7 +34,7 @@ browser-appbar browser-appbar-history      { z-index: unset; }
 browser-appbar browser-appbar-address      { z-index: unset; }
 browser-appbar browser-appbar-mode         { z-index: unset; }
 browser-appbar browser-appbar-settings     { z-index: unset; }
-browser-appbar button[data-key="splitter"] { z-index: unset; } /* only on mobile */
+browser-appbar button[data-key="splitter"] { z-index:   256; } /* only on mobile */
 browser-appbar browser-appbar-splitter     { z-index:   255; } /* only on mobile */
 browser-backdrop                           { z-index:     0; }
 browser-backdrop browser-backdrop-webview  { z-index:     1; }
@@ -99,3 +99,12 @@ browser-menu {
 	position: relative;
 }
 
+
+
+@media screen and (max-width: 412px) {
+
+	browser-backdrop-tabs {
+		top: calc(64px + 1px);
+	}
+
+}

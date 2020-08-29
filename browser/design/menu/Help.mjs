@@ -94,65 +94,101 @@ const update = function() {
 
 	this.article.area({ x: null });
 
-
-	let history = Widget.query('browser-appbar-history');
-	if (history !== null) {
-
-		this.buttons['f1'].state('enabled');
-		this.buttons['f2'].state('enabled');
-		this.buttons['f3'].state('enabled');
-		this.buttons['f4'].state('enabled');
-
-		this.buttons['f1'].area(history.buttons.back.area());
-		this.buttons['f2'].area(history.buttons.next.area());
-		this.buttons['f3'].area(history.buttons.action.area());
-		this.buttons['f4'].area(history.buttons.open.area());
-
-	} else {
+	if (this.__state.mobile === true) {
 
 		this.buttons['f1'].state('disabled');
 		this.buttons['f2'].state('disabled');
 		this.buttons['f3'].state('disabled');
 		this.buttons['f4'].state('disabled');
 
-	}
+		let address = Widget.query('browser-appbar-address');
+		if (address !== null) {
 
-	let address = Widget.query('browser-appbar-address');
-	if (address !== null) {
+			this.buttons['f5'].state('enabled');
+			this.buttons['f5'].area(address.input.area());
 
-		this.buttons['f5'].state('enabled');
-		this.buttons['f5'].area(address.input.area());
+		} else {
+
+			this.buttons['f5'].state('disabled');
+
+		}
+
+		this.buttons['f6'].state('disabled');
+		this.buttons['f7'].state('disabled');
+		this.buttons['f8'].state('disabled');
+		this.buttons['f9'].state('disabled');
+		this.buttons['f10'].state('disabled');
+		this.buttons['f11'].state('disabled');
+		this.buttons['f12'].state('disabled');
 
 	} else {
 
-		this.buttons['f5'].state('disabled');
+		let history = Widget.query('browser-appbar-history');
+		if (history !== null) {
 
-	}
+			this.buttons['f1'].state('enabled');
+			this.buttons['f2'].state('enabled');
+			this.buttons['f3'].state('enabled');
+			this.buttons['f4'].state('enabled');
 
-	let tabs = Widget.query('browser-backdrop-tabs');
-	if (tabs !== null) {
+			this.buttons['f1'].area(history.buttons.back.area());
+			this.buttons['f2'].area(history.buttons.next.area());
+			this.buttons['f3'].area(history.buttons.action.area());
+			this.buttons['f4'].area(history.buttons.open.area());
 
-		if (tabs.state() === 'active') {
+		} else {
 
-			if (tabs.prev !== null) {
-				this.buttons['f6'].state('enabled');
-				this.buttons['f6'].area(tabs.prev.area());
+			this.buttons['f1'].state('disabled');
+			this.buttons['f2'].state('disabled');
+			this.buttons['f3'].state('disabled');
+			this.buttons['f4'].state('disabled');
+
+		}
+
+		let address = Widget.query('browser-appbar-address');
+		if (address !== null) {
+
+			this.buttons['f5'].state('enabled');
+			this.buttons['f5'].area(address.input.area());
+
+		} else {
+
+			this.buttons['f5'].state('disabled');
+
+		}
+
+		let tabs = Widget.query('browser-backdrop-tabs');
+		if (tabs !== null) {
+
+			if (tabs.state() === 'active') {
+
+				if (tabs.prev !== null) {
+					this.buttons['f6'].state('enabled');
+					this.buttons['f6'].area(tabs.prev.area());
+				} else {
+					this.buttons['f6'].state('disabled');
+				}
+
+				if (tabs.curr !== null) {
+					this.buttons['f7'].state('enabled');
+					this.buttons['f7'].area(tabs.curr.area());
+				} else {
+					this.buttons['f7'].state('disabled');
+				}
+
+				if (tabs.next !== null) {
+					this.buttons['f8'].state('enabled');
+					this.buttons['f8'].area(tabs.next.area());
+				} else {
+					this.buttons['f8'].state('disabled');
+				}
+
 			} else {
+
 				this.buttons['f6'].state('disabled');
-			}
-
-			if (tabs.curr !== null) {
-				this.buttons['f7'].state('enabled');
-				this.buttons['f7'].area(tabs.curr.area());
-			} else {
 				this.buttons['f7'].state('disabled');
-			}
-
-			if (tabs.next !== null) {
-				this.buttons['f8'].state('enabled');
-				this.buttons['f8'].area(tabs.next.area());
-			} else {
 				this.buttons['f8'].state('disabled');
+
 			}
 
 		} else {
@@ -163,42 +199,36 @@ const update = function() {
 
 		}
 
-	} else {
+		let mode = Widget.query('browser-appbar-mode');
+		if (mode !== null) {
 
-		this.buttons['f6'].state('disabled');
-		this.buttons['f7'].state('disabled');
-		this.buttons['f8'].state('disabled');
+			this.buttons['f9'].state('enabled');
+			this.buttons['f9'].area(mode.element.area());
 
-	}
+		} else {
 
-	let mode = Widget.query('browser-appbar-mode');
-	if (mode !== null) {
+			this.buttons['f9'].state('disabled');
 
-		this.buttons['f9'].state('enabled');
-		this.buttons['f9'].area(mode.element.area());
+		}
 
-	} else {
+		let settings = Widget.query('browser-appbar-settings');
+		if (settings !== null) {
 
-		this.buttons['f9'].state('disabled');
+			this.buttons['f10'].state('enabled');
+			this.buttons['f11'].state('enabled');
+			this.buttons['f12'].state('enabled');
 
-	}
+			this.buttons['f10'].area(settings.buttons.site.area());
+			this.buttons['f11'].area(settings.buttons.session.area());
+			this.buttons['f12'].area(settings.buttons.browser.area());
 
-	let settings = Widget.query('browser-appbar-settings');
-	if (settings !== null) {
+		} else {
 
-		this.buttons['f10'].state('enabled');
-		this.buttons['f11'].state('enabled');
-		this.buttons['f12'].state('enabled');
+			this.buttons['f10'].state('disabled');
+			this.buttons['f11'].state('disabled');
+			this.buttons['f12'].state('disabled');
 
-		this.buttons['f10'].area(settings.buttons.site.area());
-		this.buttons['f11'].area(settings.buttons.session.area());
-		this.buttons['f12'].area(settings.buttons.browser.area());
-
-	} else {
-
-		this.buttons['f10'].state('disabled');
-		this.buttons['f11'].state('disabled');
-		this.buttons['f12'].state('disabled');
+		}
 
 	}
 
@@ -315,6 +345,13 @@ const Help = function(/* browser */) {
 
 	});
 
+	this.element.on('hide', () => {
+
+		this.article.area({ x: null });
+		this.element.state('');
+
+	});
+
 	this.element.on('key', (key) => {
 
 		if (this.state() === 'active') {
@@ -347,6 +384,18 @@ const Help = function(/* browser */) {
 
 	});
 
+	this.element.on('resize', (width /*, height */) => {
+
+		if (width < 640) {
+			this.__state.mobile = true;
+		} else {
+			this.__state.mobile = false;
+		}
+
+		update.call(this);
+
+	});
+
 	this.element.on('show', () => {
 
 		this.element.state('active');
@@ -354,13 +403,6 @@ const Help = function(/* browser */) {
 		setTimeout(() => {
 			update.call(this);
 		}, 0);
-
-	});
-
-	this.element.on('hide', () => {
-
-		this.article.area({ x: null });
-		this.element.state('');
 
 	});
 

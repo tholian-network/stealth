@@ -35,7 +35,7 @@ body {
 
 body > article {
 	display: block;
-	width: 640px;
+	width: 800px;
 	margin: 64px auto 0px auto;
 	padding: 16px;
 	font-family: 'museo';
@@ -116,7 +116,7 @@ body > footer {
 
 
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 800px) {
 
 	body > article {
 		width: auto;

@@ -43,7 +43,7 @@ browser-menu-help-header {
 browser-menu-help-article {
 	display: block;
 	position: fixed;
-	width: 640px;
+	width: 512px;
 	top: 50%;
 	right: auto;
 	bottom: auto;
@@ -168,5 +168,21 @@ browser-menu-help-article table td:nth-of-type(2) {
 browser-menu-help-article table tr.active {
 	color: var(--element-active-color);
 	background: var(--element-active-background);
+}
+
+
+
+@media screen and (max-width: 640px) {
+
+	browser-menu-help-article {
+		width: auto;
+		height: auto;
+		top: 33px;
+		right: 0px;
+		bottom: 0px;
+		left: 0px;
+		transform: unset;
+	}
+
 }
 

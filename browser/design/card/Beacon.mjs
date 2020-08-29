@@ -32,12 +32,37 @@ const Beacon = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'remove', 'save' ];
 	this.element = new Element('browser-card-beacon', [
-		'<h3 title="Domain and Path">',
-		'<span data-key="domain">example.com</span>',
-		'<span data-key="path">/</span>',
+		'<h3>',
+		'<input title="Domain" type="text" data-key="domain" placeholder="domain.tld" size="10" disabled/>',
+		'<input title="Path" type="text" data-key="path" pattern="/([A-Za-z0-9/._-]+)" placeholder="/path" size="5" disabled/>',
 		'</h3>',
-		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
+		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-beacon-article>',
+		'<table>',
+		'<thead>',
+		'\t<tr>',
+		'\t\t<th>Label</th>',
+		'\t\t<th>Select</th>',
+		'\t\t<th>Mode</th>',
+		'\t\t<th></th>',
+		'\t</tr>',
+		'</thead>',
+		'<tbody></tbody>',
+		'<tfoot class="disabled">',
+		'\t<tr>',
+		'\t\t<td><input title="Label for Beacon" type="text" data-key="beacon.label" placeholder="Label" disabled/></td>',
+		'\t\t<td><textarea title="List of Selectors" data-key="beacon.select" rows="3" disabled></textarea></td>',
+		'\t\t<td>',
+		'\t\t\t<button title="Allow/Disallow Text" data-key="beacon.mode.text" data-val="false" disabled></button>',
+		'\t\t\t<button title="Allow/Disallow Image" data-key="beacon.mode.image" data-val="false" disabled></button>',
+		'\t\t\t<button title="Allow/Disallow Audio" data-key="beacon.mode.audio" data-val="false" disabled></button>',
+		'\t\t\t<button title="Allow/Disallow Video" data-key="beacon.mode.video" data-val="false" disabled></button>',
+		'\t\t\t<button title="Allow/Disallow Other" data-key="beacon.mode.other" data-val="false" disabled></button>',
+		'\t\t</td>',
+		'\t\t<td><button title="Append Beacon" data-action="append" disabled></button></td>',
+		'\t</tr>',
+		'</tfoot>',
+		'</table>',
 		'</browser-card-beacon-article>',
 		'<browser-card-beacon-footer>',
 		'<button title="Create Beacon" data-action="create"></button>',
@@ -47,10 +72,26 @@ const Beacon = function(browser, actions) {
 	]);
 
 	this.buttons = {
-		create: this.element.query('button[data-action="create"]'),
-		remove: this.element.query('button[data-action="remove"]'),
-		save:   this.element.query('button[data-action="save"]'),
-		toggle: this.element.query('button[data-action="toggle"]')
+		append:  this.element.query('button[data-action="append"]'),
+		create:  this.element.query('button[data-action="create"]'),
+		remove:  this.element.query('button[data-action="remove"]'),
+		save:    this.element.query('button[data-action="save"]'),
+		toggle:  this.element.query('button[data-action="toggle"]')
+	};
+
+	this.form = {
+		create: this.element.query('[data-action="append"]'),
+		model: {
+			label:  this.element.query('[data-key="beacon.label"]'),
+			select: this.element.query('[data-key="beacon.select"]'),
+			mode: {
+				text:  this.element.query('[data-key="beacon.mode.text"]'),
+				image: this.element.query('[data-key="beacon.mode.image"]'),
+				audio: this.element.query('[data-key="beacon.mode.audio"]'),
+				video: this.element.query('[data-key="beacon.mode.video"]'),
+				other: this.element.query('[data-key="beacon.mode.other"]')
+			}
+		}
 	};
 
 	this.model = {
@@ -61,6 +102,14 @@ const Beacon = function(browser, actions) {
 
 	Widget.call(this);
 
+
+	this.model.domain.on('keyup', () => {
+		this.model.domain.validate();
+	});
+
+	this.model.path.on('keyup', () => {
+		this.model.path.validate();
+	});
 
 	this.element.on('show', () => {
 
@@ -82,34 +131,84 @@ const Beacon = function(browser, actions) {
 
 	});
 
+	this.element.on('update', () => {
+
+		this.buttons.append.erase();
+		this.buttons.create.erase();
+		this.buttons.remove.erase();
+		this.buttons.save.erase();
+
+
+		if (this.actions.includes('create')) {
+
+			this.model.domain.attr('required', true);
+			this.model.domain.state('enabled');
+
+			this.model.path.attr('required', true);
+			this.model.path.state('enabled');
+
+			this.forms.beacon.state('enabled');
+			this.forms.beacon.query('button, input, textarea').forEach((element) => {
+				element.state('enabled');
+			});
+
+		} else if (this.actions.includes('save')) {
+
+			this.model.domain.attr('required', true);
+			this.model.domain.state('disabled');
+
+			this.model.path.attr('required', true);
+			this.model.path.state('disabled');
+
+			this.forms.beacon.state('enabled');
+			this.forms.beacon.query('button, input, textarea').forEach((element) => {
+				element.state('enabled');
+			});
+
+		} else {
+
+			this.model.domain.state('disabled');
+			this.model.path.state('disabled');
+
+			this.forms.beacon.state('disabled');
+			this.forms.beacon.query('button, input, textarea').forEach((element) => {
+				element.state('disabled');
+			});
+
+		}
+
+	});
 
 	if (this.buttons.create !== null) {
 
 		this.buttons.create.on('click', () => {
 
-			let value = this.value();
+			if (this.validate() === true) {
 
-			browser.client.services['beacon'].save(value, (result) => {
+				let value = this.value();
 
-				if (result === true) {
+				browser.client.services['beacon'].save(value, (result) => {
 
-					browser.settings['beacons'].removeEvery((b) => b.domain === value.domain && b.path === value.path);
-					browser.settings['beacons'].push(value);
+					if (result === true) {
 
-					if (this.actions.includes('create') === true) {
-						this.actions.remove('create');
+						browser.settings['beacons'].removeEvery((b) => b.domain === value.domain && b.path === value.path);
+						browser.settings['beacons'].push(value);
+
+						if (this.actions.includes('create') === true) {
+							this.actions.remove('create');
+						}
+
+						if (this.actions.includes('save') === false) {
+							this.actions.push('save');
+						}
+
+						this.element.emit('update');
+
 					}
 
-					if (this.actions.includes('save') === false) {
-						this.actions.push('save');
-					}
+				});
 
-					this.element.emit('update');
-
-				}
-
-			});
-
+			}
 
 		});
 
@@ -140,18 +239,22 @@ const Beacon = function(browser, actions) {
 
 		this.buttons.save.on('click', () => {
 
-			let value = this.value();
+			if (this.validate() === true) {
 
-			browser.client.services['beacon'].save(value, (result) => {
+				let value = this.value();
 
-				if (result === true) {
+				browser.client.services['beacon'].save(value, (result) => {
 
-					browser.settings['beacons'].removeEvery((b) => b.domain === value.domain && b.path === value.path);
-					browser.settings['beacons'].push(value);
+					if (result === true) {
 
-				}
+						browser.settings['beacons'].removeEvery((b) => b.domain === value.domain && b.path === value.path);
+						browser.settings['beacons'].push(value);
 
-			});
+					}
+
+				});
+
+			}
 
 		});
 
@@ -199,6 +302,8 @@ Beacon.from = function(value, actions) {
 Beacon.prototype = Object.assign({}, Widget.prototype, {
 
 	value: function(value) {
+
+		// TODO: This needs to be refactored
 
 		value = isObject(value) ? value : null;
 

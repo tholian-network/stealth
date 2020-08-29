@@ -294,8 +294,13 @@ const on_resize = function(/* browser */) {
 
 	if (width !== null && height !== null) {
 
+		let help     = Widget.query('browser-menu-help');
 		let splitter = Widget.query('browser-appbar-splitter');
 		let tabs     = Widget.query('browser-backdrop-tabs');
+
+		if (help !== null) {
+			help.emit('resize', [ width, height ]);
+		}
 
 		if (splitter !== null && tabs !== null) {
 			splitter.emit('resize', [ width, height ]);
@@ -419,6 +424,13 @@ export const dispatch = (window, browser, reset) => {
 				on_resize.call(window);
 			}, 200);
 
+			let onresize = window['onresize'] || null;
+			if (onresize === null) {
+				onresize = window['onresize'] = () => {
+					on_resize.call(window, browser);
+				};
+			}
+
 		}
 
 
@@ -519,13 +531,6 @@ export const dispatch = (window, browser, reset) => {
 
 				}
 
-			};
-		}
-
-		let onresize = window['onresize'] || null;
-		if (onresize === null) {
-			onresize = window['onresize'] = () => {
-				on_resize.call(window, browser);
 			};
 		}
 

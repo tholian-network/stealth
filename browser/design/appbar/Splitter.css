@@ -3,32 +3,32 @@ browser-appbar-splitter {
 	display: block;
 	position: absolute;
 	width: 100%;
-	width: calc(100% - 32px);
 	height: 34px;
 	line-height: 32px;
 	top: 0px;
-	left: 0px;
-	bottom: 0px;
 	right: 32px;
+	bottom: 0px;
+	left: 0px;
 	border: 0px solid transparent;
 	border-bottom: 1px solid var(--surface-default-color);
 	background: var(--surface-default-foreground);
 	box-sizing: border-box;
-	text-align: center;
+	text-align: left;
 	vertical-align: middle;
 	pointer-events: none;
-	transition: 200ms opacity ease-out;
+	transition: 200ms all ease-out;
 	opacity: 0;
 }
 
 browser-appbar-splitter.active {
 	pointer-events: all;
-	transition: 200ms opacity ease-out;
+	transition: 200ms all ease-out;
 	opacity: 1;
 }
 
 browser-appbar button[data-key="splitter"] {
 	display: inline-block;
+	position: relative;
 	min-width: 32px;
 	margin: 0px;
 	padding: 0px;
@@ -68,5 +68,48 @@ browser-appbar button[data-key="splitter"]:before {
 
 browser-appbar-splitter > browser-appbar-mode {
 	width: calc(100% - 128px - 96px);
+}
+
+
+
+@media screen and (max-width: 640px) {
+
+	browser-appbar-splitter {
+		width: calc(100% - 32px);
+	}
+
+}
+
+@media screen and (max-width: 412px) {
+
+	browser-appbar-splitter {
+		width: 100%;
+		height: 64px;
+		top: 0px;
+		right: 0px;
+		bottom: auto;
+		left: 0px;
+		transform: translate(0%, -100%);
+	}
+
+	browser-appbar-splitter.active {
+		transform: translate(0%, 0%);
+	}
+
+	browser-appbar-splitter > browser-appbar-settings {
+		width: calc(100% - 128px - 32px);
+		text-align: right;
+	}
+
+	browser-appbar-splitter > browser-appbar-mode {
+		display: block;
+		position: absolute;
+		width: 100%;
+		top: 32px;
+		right: 0px;
+		bottom: auto;
+		left: 0px;
+	}
+
 }
 

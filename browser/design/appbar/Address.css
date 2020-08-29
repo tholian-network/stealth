@@ -23,7 +23,7 @@ browser-appbar-history + browser-appbar-address {
 }
 
 browser-appbar-address ul {
-	display: inline-block;
+	display: block;
 	position: relative;
 	width: calc(100% - 64px);
 	height: 32px;
@@ -32,6 +32,7 @@ browser-appbar-address ul {
 	padding: 0px;
 	color: var(--element-default-color);
 	background: var(--element-default-background);
+	white-space: nowrap;
 	user-select: none;
 	-webkit-user-select: none;
 	overflow: hidden;
@@ -39,8 +40,9 @@ browser-appbar-address ul {
 }
 
 browser-appbar-address ul li {
-	display: inline-block;
+	display: inline;
 	list-style: none;
+	width: auto;
 	height: calc(32px - 2px);
 	margin: 0px;
 	padding: 0px;
@@ -49,6 +51,7 @@ browser-appbar-address ul li {
 	border-radius: 0px;
 	border-bottom: 2px solid transparent;
 	vertical-align: middle;
+	white-space: nowrap;
 	box-sizing: border-box;
 	transition: 200ms all ease-out;
 }
@@ -62,18 +65,19 @@ browser-appbar-address ul li:hover {
 }
 
 browser-appbar-address ul li[data-key="protocol"] {
+	display: inline-block;
 	width: 32px;
 	height: 32px;
 	color: var(--element-default-color);
 	font-size: 24px;
 	line-height: 32px;
+	cursor: help;
 }
 
 browser-appbar-address ul li[data-key="protocol"]:hover {
 	color: var(--element-default-color);
 	border-bottom: 2px solid transparent;
 	background: transparent;
-	cursor: default;
 }
 
 browser-appbar-address ul li[data-key="protocol"]:before {
@@ -96,7 +100,7 @@ browser-appbar-address ul li[data-key="protocol"][data-val="ws"]:before      { c
 browser-appbar-address ul li[data-key="protocol"][data-val="socks"]:before   { content: '\e32a'; }
 browser-appbar-address ul li[data-key="protocol"][data-val="stealth"]:before { content: '\e8b8'; }
 
-browser-appbar-address input {
+browser-appbar-address input[data-key="url"] {
 	display: block;
 	position: absolute;
 	width: 100%;
@@ -128,13 +132,13 @@ browser-appbar-address input {
 	z-index: 0;
 }
 
-browser-appbar-address input.active {
+browser-appbar-address input[data-key="url"].active {
 	transition: 200ms all ease-out;
 	opacity: 1;
 	z-index: 2;
 }
 
-browser-appbar-address input::selection {
+browser-appbar-address input[data-key="url"]::selection {
 	color: var(--element-select-color);
 	border-radius: 4px;
 	background: var(--element-select-background);
@@ -151,20 +155,14 @@ browser-appbar-address input::selection {
 
 	browser-appbar-history + browser-appbar-address {
 		width: calc(100% - 128px - 160px - 96px);
-		text-align: left;
 	}
 
 	browser-appbar-address ul {
 		width: auto;
 		margin: 0px 0px;
-		text-align: left;
 	}
 
-	browser-appbar-address ul li {
-		width: auto;
-	}
-
-	browser-appbar-address input {
+	browser-appbar-address input[data-key="url"] {
 		width: 100%;
 		left: 0px;
 	}
