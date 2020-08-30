@@ -262,6 +262,7 @@ const Address = function(browser) {
 
 		}
 
+		e.preventDefault();
 		e.stopPropagation();
 
 	});
@@ -302,9 +303,8 @@ const Address = function(browser) {
 
 			let offset = url.link.indexOf(before) + before.length;
 
-			this.input.state('active');
-			this.input.node.setSelectionRange(offset, offset + values[index].length);
 			this.input.emit('focus');
+			this.input.node.setSelectionRange(offset, offset + values[index].length);
 
 		}
 

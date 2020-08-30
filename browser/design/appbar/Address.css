@@ -32,6 +32,7 @@ browser-appbar-address ul {
 	padding: 0px;
 	color: var(--element-default-color);
 	background: var(--element-default-background);
+	background: var(--surface-default-foreground);
 	white-space: nowrap;
 	user-select: none;
 	-webkit-user-select: none;
@@ -103,14 +104,13 @@ browser-appbar-address ul li[data-key="protocol"][data-val="stealth"]:before { c
 browser-appbar-address input[data-key="url"] {
 	display: block;
 	position: absolute;
-	width: 100%;
 	width: calc(100% - 64px);
 	height: 32px;
 	line-height: 32px;
 	top: 0px;
-	left: 32px;
+	right: 32px;
 	bottom: auto;
-	right: auto;
+	left: 32px;
 	margin: 0px;
 	padding: 0px;
 	color: var(--layout-default-color);
@@ -123,12 +123,12 @@ browser-appbar-address input[data-key="url"] {
 	box-sizing: border-box;
 	vertical-align: middle;
 	transition: 200ms all ease-out;
-	opacity: 0;
 	appearance: none;
 	-moz-appearance: none;
 	-webkit-appearance: none;
 	outline: none;
 	overflow: hidden;
+	opacity: 0;
 	z-index: 0;
 }
 
@@ -165,6 +165,7 @@ browser-appbar-address input[data-key="url"]::selection {
 	browser-appbar-address input[data-key="url"] {
 		width: 100%;
 		left: 0px;
+		right: 0px;
 	}
 
 }

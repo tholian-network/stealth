@@ -85,13 +85,19 @@ const Splitter = function(/* browser */) {
 
 	this.element.on('resize', (width /*, height */) => {
 
+		let old_state = this.__state.mobile;
+		let new_state = old_state;
+
 		if (width < 640) {
-			this.__state.mobile = true;
+			new_state = true;
 		} else {
-			this.__state.mobile = false;
+			new_state = false;
 		}
 
-		update.call(this);
+		if (old_state !== new_state) {
+			this.__state.mobile = new_state;
+			update.call(this);
+		}
 
 	});
 
