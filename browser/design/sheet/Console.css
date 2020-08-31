@@ -1,4 +1,8 @@
 
+base-console base-console-line {
+	font-family: 'vera-mono' !important;
+}
+
 browser-sheet-console {
 	position: fixed;
 	top: auto;

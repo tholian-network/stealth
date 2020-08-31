@@ -47,6 +47,16 @@ a {
 	cursor: pointer;
 }
 
+a[disabled],
+a[disabled]:hover {
+	color: var(--element-disable-color);
+	border: 1px solid transparent;
+	background: var(--element-disable-background);
+	pointer-events: none;
+	user-select: none;
+	cursor: not-allowed;
+}
+
 a:focus,
 a:hover {
 	color: var(--link-focus-color);

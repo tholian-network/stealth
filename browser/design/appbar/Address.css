@@ -84,6 +84,7 @@ browser-appbar-address ul li[data-key="protocol"]:hover {
 browser-appbar-address ul li[data-key="protocol"]:before {
 	display: inline-block;
 	width: 100%;
+	height: 32px;
 	content: '\e157';
 	font-family: 'icon';
 	text-align: center;
@@ -99,7 +100,18 @@ browser-appbar-address ul li[data-key="protocol"][data-val="http"]:before    { c
 browser-appbar-address ul li[data-key="protocol"][data-val="wss"]:before     { content: '\e897'; }
 browser-appbar-address ul li[data-key="protocol"][data-val="ws"]:before      { content: '\e898'; }
 browser-appbar-address ul li[data-key="protocol"][data-val="socks"]:before   { content: '\e32a'; }
-browser-appbar-address ul li[data-key="protocol"][data-val="stealth"]:before { content: '\e8b8'; }
+
+browser-appbar-address ul li[data-key="protocol"][title="stealth:blank"]:before    { content: '\e32a'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:welcome"]:before  { content: '\e80c'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:debug"]:before    { content: '\e868'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:history"]:before  { content: '\e889'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:media"]:before    { content: '\e038'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:search"]:before   { content: '\e52e'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:settings"]:before { content: '\e8b8'; }
+
+browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-host"]:before    { content: '\e869'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-mode"]:before    { content: '\e869'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-request"]:before { content: '\e869'; }
 
 browser-appbar-address input[data-key="url"] {
 	display: block;

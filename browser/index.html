@@ -60,7 +60,7 @@
 
 					browser.once('connect', () => {
 
-						let tab = browser.open('stealth:debug?url=' + encodeURIComponent(ENVIRONMENT.flags.url.link));
+						let tab = browser.open('stealth:debug?url=' + ENVIRONMENT.flags.url.link);
 						if (tab !== null) {
 							browser.show(tab);
 						}

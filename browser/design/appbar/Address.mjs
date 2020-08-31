@@ -13,7 +13,12 @@ const update = function(tab) {
 		this.input.state('');
 		this.input.value(tab.url);
 
-		this.protocol.attr('title', tab.url.protocol);
+		if (tab.url.protocol === 'stealth') {
+			this.protocol.attr('title', tab.url.protocol + ':' + tab.url.domain);
+		} else {
+			this.protocol.attr('title', tab.url.protocol);
+		}
+
 		this.protocol.value(tab.url.protocol);
 		this.protocol.erase();
 

@@ -7,29 +7,41 @@ import { URL     } from '../../source/parser/URL.mjs';
 
 const update_area = function() {
 
-	let area = this.element.area();
-	if (area !== null) {
+	let area    = this.element.area();
+	let webview = Widget.query('browser-backdrop-webview');
 
-		let webview = Widget.query('browser-backdrop-webview');
+	if (this.element.state() === 'active') {
+
 		if (webview !== null) {
 
-			if (this.__state.mobile === false) {
+			if (this.__state.mobile === true) {
 
 				webview.area({
-					x: area.w > 1 ? area.w : null
+					x: null
 				});
 
 			} else {
 
 				webview.area({
-					x: null
+					x: area.w > 1 ? area.w : null
 				});
 
 			}
 
 		}
 
+	} else {
+
+		if (webview !== null) {
+
+			webview.area({
+				x: null
+			});
+
+		}
+
 	}
+
 
 };
 
@@ -144,13 +156,11 @@ const update = function(tab, tabs) {
 
 		this.buttons = buttons;
 		this.element.value(this.buttons);
-		update_area.call(this);
 
 	} else {
 
 		this.buttons = [];
 		this.element.value('');
-		update_area.call(this);
 
 	}
 
@@ -166,6 +176,9 @@ const update = function(tab, tabs) {
 		}
 
 	}
+
+
+	update_area.call(this);
 
 };
 
@@ -378,7 +391,6 @@ const Tabs = function(browser) {
 
 		if (old_state !== new_state) {
 			update.call(this, browser.tab, browser.tabs);
-			update_area.call(this);
 		}
 
 	});

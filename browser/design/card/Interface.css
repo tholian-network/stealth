@@ -129,6 +129,7 @@ browser-card-interface-article input[type="radio"][name="enforce"][value="true"]
 
 browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:blank"]:before   { content: '\e32a'; }
 browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:history"]:before { content: '\e889'; }
+browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:media"]:before   { content: '\e038'; }
 browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:search"]:before  { content: '\e52e'; }
 browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:welcome"]:before { content: '\e80c'; }
 

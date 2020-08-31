@@ -28,8 +28,20 @@
 				display: inline-block;
 			}
 
+			body > article table + table {
+				margin-top: 32px;
+			}
+
+			body > article table td.disabled {
+				color: var(--element-disable-color);
+			}
+
+			body > article table + table tr:nth-of-type(1) td {
+				border-top: 0px none;
+			}
+
 			body > article table td:nth-of-type(1) {
-				width: 64px;
+				width: 144px;
 				padding: 0px 8px;
 				text-align: center;
 				white-space: nowrap;
@@ -198,32 +210,36 @@
 						<td>Quickstart Guide</td>
 					</tr>
 					<tr>
-						<td><a href="stealth:history">stealth:history</a></td>
-						<td>History Manager</td>
+						<td><a href="stealth:history" disabled>stealth:history</a></td>
+						<td>History Manager (not implemented yet)</td>
 					</tr>
 					<tr>
-						<td><a href="stealth:media">stealth:media</a></td>
-						<td>Web Media Player</td>
+						<td><a href="stealth:media" disabled>stealth:media</a></td>
+						<td>Media Manager (not implemented yet)</td>
 					</tr>
 					<tr>
-						<td><a href="stealth:search">stealth:search</a></td>
-						<td>Offline + Online Search</td>
+						<td><a href="stealth:search" disabled>stealth:search</a></td>
+						<td>Offline + Online Search (not implemented yet)</td>
 					</tr>
 					<tr>
 						<td><a href="stealth:settings">stealth:settings</a></td>
 						<td>Stealth Settings</td>
 					</tr>
+				</tbody>
+			</table>
+			<table>
+				<tbody>
 					<tr>
 						<td><a href="stealth:fix-host">stealth:fix-host</a></td>
-						<td>Host Assistant</td>
+						<td>Fix Host Assistant</td>
 					</tr>
 					<tr>
 						<td><a href="stealth:fix-mode">stealth:fix-mode</a></td>
-						<td>Site Mode Assistant</td>
+						<td>Fix Mode Assistant</td>
 					</tr>
 					<tr>
 						<td><a href="stealth:fix-request">stealth:fix-request</a></td>
-						<td>Web Archive Assistant</td>
+						<td>Fix Request Assistant</td>
 					</tr>
 				</tbody>
 			</table>
