@@ -302,10 +302,12 @@ const Tabs = function(browser) {
 			if (actions.length > 0) {
 
 				context.value(actions);
+
 				context.area({
 					x: e.x,
 					y: e.y
 				});
+
 				context.emit('show');
 
 			}

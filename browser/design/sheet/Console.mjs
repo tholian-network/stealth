@@ -24,6 +24,41 @@ const Console = function(/* browser */) {
 
 	});
 
+	this.console.on('contextmenu', (e) => {
+
+		let context = Widget.query('browser-menu-context');
+		if (context !== null) {
+
+			let element = Element.toElement(e.target);
+			if (element.type === 'i') {
+				element = Element.toElement(e.target.parentNode);
+			}
+
+			if (element.type === 'base-console-line') {
+
+				let area = element.area();
+				if (area !== null) {
+
+					context.value([{
+						label: 'copy',
+						value: element.value()
+					}]);
+
+					context.area({
+						x: e.x,
+						y: e.y
+					});
+
+					context.emit('show');
+
+				}
+
+			}
+
+		}
+
+	});
+
 	this.element.on('show', () => {
 
 		if (this.console === null) {

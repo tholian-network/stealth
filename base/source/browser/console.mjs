@@ -189,8 +189,9 @@ export const console = (function(global) {
 
 			let line = global.document.createElement('base-console-line');
 
-			line.setAttribute('class', type);
 			line.innerHTML = message;
+			line.setAttribute('class',    type);
+			line.setAttribute('data-val', line.innerText);
 
 			element.appendChild(line);
 
