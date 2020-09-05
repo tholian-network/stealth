@@ -13,7 +13,7 @@ const WebKit = imports.gi.WebKit2;
 const FLAGS = (function() {
 
 	let flags = {
-		'user-data-dir': '/tmp/browser-electron'
+		'user-data-dir': '/tmp/browser-gjs'
 	};
 
 	Array.from(ARGV).forEach((arg) => {
@@ -118,6 +118,7 @@ settings.set_property('enable-fullscreen',          true);
 settings.set_property('enable-html5-database',      false);
 settings.set_property('enable-html5-local-storage', false);
 settings.set_property('enable-javascript',          true);
+settings.set_property('enable-page-cache',          false);
 settings.set_property('enable-plugins',             false);
 settings.set_property('enable-java',                false);
 settings.set_property('enable-smooth-scrolling',    true);
@@ -125,10 +126,11 @@ settings.set_property('enable-smooth-scrolling',    true);
 webview.set_settings(settings);
 webview.load_uri('http://localhost:65432/browser/index.html');
 inspector.attach();
+inspector.show();
 
 
 window.add(webview);
-window.set_size_request(1280, 960);
+window.set_size_request(800, 600);
 window.show_all();
 
 Gtk.main();

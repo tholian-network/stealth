@@ -8,7 +8,7 @@ browser-appbar-mode {
 	padding: 0px;
 	line-height: 32px;
 	text-align: center;
-	vertical-align: middle;
+	vertical-align: top;
 	white-space: nowrap;
 	user-select: none;
 	-webkit-user-select: none;

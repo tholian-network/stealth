@@ -10,7 +10,7 @@ browser-appbar-address {
 	font-family: 'vera-mono';
 	font-size: 16px;
 	text-align: center;
-	vertical-align: middle;
+	vertical-align: top;
 	overflow: hidden;
 }
 
@@ -31,8 +31,8 @@ browser-appbar-address ul {
 	margin: 0px 32px;
 	padding: 0px;
 	color: var(--element-default-color);
-	background: var(--element-default-background);
 	background: var(--surface-default-foreground);
+	vertical-align: top;
 	white-space: nowrap;
 	user-select: none;
 	-webkit-user-select: none;
@@ -44,14 +44,14 @@ browser-appbar-address ul li {
 	display: inline;
 	list-style: none;
 	width: auto;
-	height: calc(32px - 2px);
+	height: 32px;
 	margin: 0px;
 	padding: 0px;
-	line-height: calc(32px - 2px);
+	line-height: 32px;
 	border: 0px solid transparent;
 	border-radius: 0px;
 	border-bottom: 2px solid transparent;
-	vertical-align: middle;
+	vertical-align: top;
 	white-space: nowrap;
 	box-sizing: border-box;
 	transition: 200ms all ease-out;
@@ -67,11 +67,8 @@ browser-appbar-address ul li:hover {
 
 browser-appbar-address ul li[data-key="protocol"] {
 	display: inline-block;
-	width: 32px;
-	height: 32px;
 	color: var(--element-default-color);
 	font-size: 24px;
-	line-height: 32px;
 	cursor: help;
 }
 
@@ -83,7 +80,7 @@ browser-appbar-address ul li[data-key="protocol"]:hover {
 
 browser-appbar-address ul li[data-key="protocol"]:before {
 	display: inline-block;
-	width: 100%;
+	width: 32px;
 	height: 32px;
 	content: '\e157';
 	font-family: 'icon';

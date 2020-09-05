@@ -61,7 +61,7 @@ browser-appbar {
 	position: fixed;
 	width: auto;
 	height: auto;
-	height: 34px; /* no idea where 1.37px is coming from */
+	height: 33px;
 	line-height: 32px;
 	top: 0px;
 	right: 0px;
