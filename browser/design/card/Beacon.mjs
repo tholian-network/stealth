@@ -18,11 +18,88 @@ const isBeacon = function(beacon) {
 		&& isBoolean(beacon.mode.video) === true
 		&& isBoolean(beacon.mode.other) === true
 	) {
-		return true;
+
+		if (beacon.label.length > 3) {
+
+			let check = beacon.select.filter((s) => isString(s));
+			if (check.length === beacon.select.length) {
+				return true;
+			}
+
+		}
+
 	}
 
 
 	return false;
+
+};
+
+const toElementModel = function(beacon) {
+
+	beacon = isBeacon(beacon) ? beacon : null;
+
+
+	if (beacon !== null) {
+
+		let element = new Element('tr', [
+			'<td><code data-key="beacon.label"></code></td>',
+			'<td><code data-key="beacon.select"></code></td>',
+			'<td>',
+			'<button title="Allow/Disallow Text" data-key="beacon.mode.text" data-val="false" disabled></button>',
+			'<button title="Allow/Disallow Image" data-key="beacon.mode.image" data-val="false" disabled></button>',
+			'<button title="Allow/Disallow Audio" data-key="beacon.mode.audio" data-val="false" disabled></button>',
+			'<button title="Allow/Disallow Video" data-key="beacon.mode.video" data-val="false" disabled></button>',
+			'<button title="Allow/Disallow Other" data-key="beacon.mode.other" data-val="false" disabled></button>',
+			'</td>',
+			'<td><button title="Remove Beacon" data-action="beacon.remove"></button></td>'
+		]);
+
+		let model = {
+			label:  element.query('[data-key="beacon.label"]'),
+			select: element.query('[data-key="beacon.select"]'),
+			mode: {
+				text:  element.query('[data-key="beacon.mode.text"]'),
+				image: element.query('[data-key="beacon.mode.image"]'),
+				audio: element.query('[data-key="beacon.mode.audio"]'),
+				video: element.query('[data-key="beacon.mode.video"]'),
+				other: element.query('[data-key="beacon.mode.other"]')
+			}
+		};
+
+		model.label.value(beacon.label);
+		model.select.value(beacon.select);
+		Object.keys(model.mode).forEach((key) => {
+			model.mode[key].value(beacon.mode[key]);
+		});
+
+
+		let button = element.query('button[data-action="beacon.remove"]');
+		if (button !== null) {
+
+			button.on('click', () => {
+
+				let cache = this.model.beacons.find((b) => b.label.value() === beacon.label) || null;
+				if (cache !== null) {
+					this.model.beacons.remove(cache);
+				}
+
+				element.erase();
+
+			});
+
+		}
+
+
+		return {
+			element: element,
+			model:   model
+		};
+
+	}
+
+
+	return null;
 
 };
 
@@ -51,7 +128,7 @@ const Beacon = function(browser, actions) {
 		'<tfoot class="disabled">',
 		'\t<tr>',
 		'\t\t<td><input title="Label for Beacon" type="text" data-key="beacon.label" placeholder="Label" disabled/></td>',
-		'\t\t<td><textarea title="List of Selectors" data-key="beacon.select" rows="3" disabled></textarea></td>',
+		'\t\t<td><textarea title="List of Selectors" data-key="beacon.select" rows="1" disabled></textarea></td>',
 		'\t\t<td>',
 		'\t\t\t<button title="Allow/Disallow Text" data-key="beacon.mode.text" data-val="false" disabled></button>',
 		'\t\t\t<button title="Allow/Disallow Image" data-key="beacon.mode.image" data-val="false" disabled></button>',
@@ -59,7 +136,7 @@ const Beacon = function(browser, actions) {
 		'\t\t\t<button title="Allow/Disallow Video" data-key="beacon.mode.video" data-val="false" disabled></button>',
 		'\t\t\t<button title="Allow/Disallow Other" data-key="beacon.mode.other" data-val="false" disabled></button>',
 		'\t\t</td>',
-		'\t\t<td><button title="Append Beacon" data-action="append" disabled></button></td>',
+		'\t\t<td><button title="Create Beacon" data-action="beacon.create" disabled></button></td>',
 		'\t</tr>',
 		'</tfoot>',
 		'</table>',
@@ -72,15 +149,17 @@ const Beacon = function(browser, actions) {
 	]);
 
 	this.buttons = {
-		append:  this.element.query('button[data-action="append"]'),
-		create:  this.element.query('button[data-action="create"]'),
-		remove:  this.element.query('button[data-action="remove"]'),
-		save:    this.element.query('button[data-action="save"]'),
-		toggle:  this.element.query('button[data-action="toggle"]')
+		create: this.element.query('button[data-action="create"]'),
+		remove: this.element.query('button[data-action="remove"]'),
+		save:   this.element.query('button[data-action="save"]'),
+		toggle: this.element.query('button[data-action="toggle"]')
 	};
 
-	this.form = {
-		create: this.element.query('[data-action="append"]'),
+	this.beacon = {
+		buttons: {
+			create: this.element.query('button[data-action="beacon.create"]')
+		},
+		element: this.element.query('table tfoot'),
 		model: {
 			label:  this.element.query('[data-key="beacon.label"]'),
 			select: this.element.query('[data-key="beacon.select"]'),
@@ -95,8 +174,8 @@ const Beacon = function(browser, actions) {
 	};
 
 	this.model = {
-		domain: this.element.query('[data-key="domain"]'),
-		path:   this.element.query('[data-key="path"]'),
+		domain:  this.element.query('[data-key="domain"]'),
+		path:    this.element.query('[data-key="path"]'),
 		beacons: []
 	};
 
@@ -109,6 +188,14 @@ const Beacon = function(browser, actions) {
 
 	this.model.path.on('keyup', () => {
 		this.model.path.validate();
+	});
+
+	this.beacon.model.label.on('keyup', () => {
+		this.beacon.model.label.validate();
+	});
+
+	this.beacon.model.select.on('keyup', () => {
+		this.beacon.model.select.validate();
 	});
 
 	this.element.on('show', () => {
@@ -133,7 +220,6 @@ const Beacon = function(browser, actions) {
 
 	this.element.on('update', () => {
 
-		this.buttons.append.erase();
 		this.buttons.create.erase();
 		this.buttons.remove.erase();
 		this.buttons.save.erase();
@@ -147,8 +233,9 @@ const Beacon = function(browser, actions) {
 			this.model.path.attr('required', true);
 			this.model.path.state('enabled');
 
-			this.forms.beacon.state('enabled');
-			this.forms.beacon.query('button, input, textarea').forEach((element) => {
+			this.beacon.buttons.create.state('enabled');
+			this.beacon.element.state('enabled');
+			this.beacon.element.query('button, input, textarea').forEach((element) => {
 				element.state('enabled');
 			});
 
@@ -160,8 +247,9 @@ const Beacon = function(browser, actions) {
 			this.model.path.attr('required', true);
 			this.model.path.state('disabled');
 
-			this.forms.beacon.state('enabled');
-			this.forms.beacon.query('button, input, textarea').forEach((element) => {
+			this.beacon.buttons.create.state('enabled');
+			this.beacon.element.state('enabled');
+			this.beacon.element.query('button, input, textarea').forEach((element) => {
 				element.state('enabled');
 			});
 
@@ -170,14 +258,87 @@ const Beacon = function(browser, actions) {
 			this.model.domain.state('disabled');
 			this.model.path.state('disabled');
 
-			this.forms.beacon.state('disabled');
-			this.forms.beacon.query('button, input, textarea').forEach((element) => {
+			this.beacon.buttons.create.state('disabled');
+			this.beacon.element.state('disabled');
+			this.beacon.element.query('button, input, textarea').forEach((element) => {
 				element.state('disabled');
 			});
 
 		}
 
+
+		let footer = this.element.query('browser-card-beacon-footer');
+
+		if (this.actions.includes('remove')) {
+			this.buttons.remove.render(footer);
+		}
+
+		if (this.actions.includes('create')) {
+			this.buttons.create.render(footer);
+		} else if (this.actions.includes('save')) {
+			this.buttons.save.render(footer);
+		}
+
 	});
+
+	if (this.beacon.buttons.create !== null) {
+
+		this.beacon.buttons.create.on('click', () => {
+
+			let beacon = this.value.call(this.beacon);
+			let value  = this.value();
+
+			if (beacon !== null && value !== null) {
+
+				if (value.beacons === null) {
+					value.beacons = [];
+				}
+
+				let cache = value.beacons.find((b) => b.label === beacon.label) || null;
+				if (cache !== null) {
+
+					cache.select     = beacon.select;
+					cache.mode.text  = beacon.mode.text;
+					cache.mode.image = beacon.mode.image;
+					cache.mode.audio = beacon.mode.audio;
+					cache.mode.video = beacon.mode.video;
+					cache.mode.other = beacon.mode.other;
+
+				} else {
+
+					value.beacons.push(beacon);
+
+				}
+
+				this.value(value);
+
+				this.beacon.model.label.value('');
+				this.beacon.model.select.value('');
+				this.beacon.model.select.attr('rows', 1);
+				Object.values(this.beacon.model.mode).forEach((button) => {
+					button.value(false);
+				});
+
+			}
+
+		});
+
+	}
+
+	Object.values(this.beacon.model.mode).forEach((button) => {
+
+		button.on('click', () => {
+
+			if (button.value() === true) {
+				button.value(false);
+			} else {
+				button.value(true);
+			}
+
+		});
+
+	});
+
 
 	if (this.buttons.create !== null) {
 
@@ -303,8 +464,6 @@ Beacon.prototype = Object.assign({}, Widget.prototype, {
 
 	value: function(value) {
 
-		// TODO: This needs to be refactored
-
 		value = isObject(value) ? value : null;
 
 
@@ -315,37 +474,22 @@ Beacon.prototype = Object.assign({}, Widget.prototype, {
 				value.beacons = value.beacons.filter((b) => isBeacon(b));
 
 
-				let article = this.element.query('browser-card-beacon-article');
+				let table = this.element.query('table tbody');
+				if (table !== null) {
 
+					table.query('tr', true).forEach((row) => row.erase());
+					this.model.beacons = [];
 
-				this.model.beacons = value.beacons.map(() => {
+					value.beacons.map((b) => toElementModel.call(this, b)).forEach((beacon) => {
 
-					let element = new Element('browser-card-beacon-beacon', [
-						'<input title="Label" type="text" data-key="label"/>',
-						'<input title="List of Selectors" type="text" data-key="select" data-map="CSV"/>',
-						'<button title="Allow/Disallow Text Content" data-key="mode.text" data-val="false"></button>',
-						'<button title="Allow/Disallow Image Content" data-key="mode.image" data-val="false"></button>',
-						'<button title="Allow/Disallow Audio Content" data-key="mode.audio" data-val="false"></button>',
-						'<button title="Allow/Disallow Video Content" data-key="mode.video" data-val="false"></button>',
-						'<button title="Allow/Disallow Other Content" data-key="mode.other" data-val="false"></button>',
-					]);
-
-					element.render(article);
-
-
-					return {
-						label:  element.query('[data-key="label"]'),
-						select: element.query('[data-key="select"]'),
-						mode:   {
-							text:  element.query('[data-key="mode.text"]'),
-							image: element.query('[data-key="mode.image"]'),
-							audio: element.query('[data-key="mode.audio"]'),
-							video: element.query('[data-key="mode.video"]'),
-							other: element.query('[data-key="mode.other"]')
+						if (beacon !== null) {
+							beacon.element.render(table);
+							this.model.beacons.push(beacon.model);
 						}
-					};
 
-				});
+					});
+
+				}
 
 			}
 

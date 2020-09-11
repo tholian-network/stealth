@@ -37,10 +37,11 @@ a {
 	padding: 0px 2px;
 	color: var(--link-default-color);
 	border: 1px solid transparent;
+	border-bottom: 1px solid var(--link-default-color);
 	border-radius: 2px;
 	background: var(--link-default-background);
 	box-sizing: border-box;
-	text-decoration: underline;
+	text-decoration: none;
 	transition: 200ms all ease-out;
 	vertical-align: middle;
 	outline: none;
@@ -51,6 +52,7 @@ a[disabled],
 a[disabled]:hover {
 	color: var(--element-disable-color);
 	border: 1px solid transparent;
+	border-bottom: 1px solid var(--element-disable-color);
 	background: var(--element-disable-background);
 	pointer-events: none;
 	user-select: none;

@@ -87,6 +87,14 @@ browser-card-beacon button[data-action="toggle"].active:before {
 	transition: 200ms transform ease-out;
 }
 
+browser-card-beacon-article button[data-action="beacon.create"]:before { content: '\e145'; }
+browser-card-beacon-article button[data-action="beacon.remove"]:before { content: '\e14c'; }
+
+browser-card-beacon-article code {
+	display: block;
+	white-space: pre;
+}
+
 browser-card-beacon-article table {
 	width: 100%;
 }
@@ -123,6 +131,12 @@ browser-card-beacon-article table button[data-key="beacon.mode.video"]:before { 
 browser-card-beacon-article table button[data-key="beacon.mode.other"]:before { content: '\e048'; }
 browser-card-beacon-article table button[data-val="true"]                     { color: var(--element-active-color); }
 browser-card-beacon-article table button[data-val="true"]:hover               { color: var(--element-active-color); }
+
+browser-card-beacon-article textarea {
+	height: auto;
+	background: transparent;
+	resize: vertical;
+}
 
 browser-card-beacon-footer button {
 	margin-left: 16px;

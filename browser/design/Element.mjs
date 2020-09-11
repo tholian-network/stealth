@@ -272,10 +272,11 @@ const Element = function(type, content) {
 Element.isElement = isElement;
 
 
-Element.query = function(query, scope) {
+Element.query = function(query, scope, multiple) {
 
-	query = isString(query) ? query : null;
-	scope = isWindow(scope) ? scope : global;
+	query    = isString(query)     ? query    : null;
+	scope    = isWindow(scope)     ? scope    : global;
+	multiple = isBoolean(multiple) ? multiple : false;
 
 
 	let document = scope['document'] || null;
@@ -284,7 +285,7 @@ Element.query = function(query, scope) {
 	if (document !== null && query !== null) {
 
 		let nodes = Array.from(document.querySelectorAll(query));
-		if (nodes.length > 1) {
+		if (nodes.length > 1 || multiple === true) {
 
 			found = [];
 
@@ -871,9 +872,10 @@ Element.prototype = {
 
 	},
 
-	query: function(query) {
+	query: function(query, multiple) {
 
-		query = isString(query) ? query : null;
+		query    = isString(query)     ? query    : null;
+		multiple = isBoolean(multiple) ? multiple : false;
 
 
 		let found = null;
@@ -881,7 +883,7 @@ Element.prototype = {
 		if (query !== null) {
 
 			let nodes = Array.from(this.node.querySelectorAll(query));
-			if (nodes.length > 1) {
+			if (nodes.length > 1 || multiple === true) {
 
 				found = [];
 
@@ -1207,7 +1209,7 @@ Element.prototype = {
 
 							} else if (strings.length > 0) {
 
-								this.node.innerHTML = strings.join('');
+								this.node.innerHTML = strings.join('\n');
 
 							} else {
 
