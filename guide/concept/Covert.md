@@ -131,7 +131,7 @@ export default {
 
 ```javascript
 import { before, after, describe, finish } from '../../../covert/index.mjs';
-import { Example                         } from '../../source/namespace/Example.mjs';
+import { Example                         } from '../../../project/source/namespace/Example.mjs';
 
 
 

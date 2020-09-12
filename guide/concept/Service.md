@@ -19,6 +19,14 @@ the otherwise empty `headers` and `payload` property on the reference.
 For detailed usage, take a look at the [stealth/client](/stealth/review/client)
 Reviews that explain all typical API usage scenarios.
 
+The client-side and server-side Reviews can be run via Covert like this:
+
+```bash
+cd ./path/to/stealth;
+
+node covert/covert.mjs scan stealth/client/* stealth/server/*;
+```
+
 
 ## WebSocket API (WS/13)
 

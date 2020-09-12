@@ -1,7 +1,7 @@
 
 # Stealth - Secure, Peer-to-Peer, Private and Automateable Web Browser/Scraper/Proxy
 
-Tholian&reg; Stealth is the Web Browser/Scraper/Proxy for Automation and the Web of Knowledge.
+Tholian&reg; Stealth is the automateable Web Browser for the Web of Knowledge.
 
 Its design goals are increased Privacy, increased Automation, adaptive Semantic Understanding
 and efficient bandwidth usage, no matter the cost.
@@ -22,13 +22,6 @@ However, due to the concept of using node.js and focussing on a privacy-oriented
 Stealth will initially be released for `MacOS` and `GNU/Linux`.
 
 (Download Links will be inserted here once the Stealth Releases are ready for the public)
-
-
-## Screenshots
-
-Detailed Screenshots are in the [/guide/screenshots](./guide/screenshots) folder.
-
-![stealth:settings](./guide/screenshots/preview/browser-welcome.png)
 
 
 ## Features
