@@ -10,7 +10,7 @@ const Mode = function(browser, actions) {
 	this.actions = isArray(actions) ? actions : [ 'remove', 'save' ];
 	this.element = new Element('browser-card-mode', [
 		'<h3><input title="Domain" type="text" data-key="domain" disabled="true"/></h3>',
-		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
+		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-mode-article>',
 		'<button title="Allow/Disallow Text" data-key="mode.text" data-val="false" disabled></button>',
 		'<button title="Allow/Disallow Image" data-key="mode.image" data-val="false" disabled></button>',

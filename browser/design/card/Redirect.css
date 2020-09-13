@@ -47,11 +47,11 @@ browser-card-redirect h3 {
 
 browser-card-redirect h3 input[type="text"] {
 	display: inline;
+	width: auto;
 	font-family: 'crystalline';
 	font-size: 32px;
 	font-weight: 500;
 	line-height: 32px;
-	width: auto;
 }
 
 browser-card-redirect.active h3 input[type="text"] {

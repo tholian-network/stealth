@@ -10,7 +10,7 @@ const Peer = function(browser, actions) {
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
 	this.element = new Element('browser-card-peer', [
 		'<h3><input title="Domain" type="text" data-key="domain"/></h3>',
-		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
+		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-peer-article>',
 		'<span>Connection:</span><button data-key="connection" data-val="offline" disabled></button>',
 		'</browser-card-peer-article>',

@@ -12,7 +12,7 @@ const Interface = function(browser, actions) {
 	this.actions = isArray(actions) ? actions : [ 'save' ];
 	this.element = new Element('browser-card-interface', [
 		'<h3>Interface</h3>',
-		'<button title="Toggle visibility of this card" data-action="toggle"></button>',
+		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-interface-article>',
 		'<h4>Theme</h4>',
 		'<p>Stealth can adapt the User Interface in a couple of different ways.</p>',

@@ -953,17 +953,23 @@ Element.prototype = {
 
 		if (state !== null) {
 
-			if (state === 'enabled' || state === 'disabled') {
+			let type = this.type;
+			if (type === 'button') {
 
-				let type = this.type;
-				if (type === 'button' || type === 'input' || type === 'textarea') {
+				if (state === 'disabled') {
+					this.node.setAttribute('disabled', true);
+				} else if (state === 'enabled') {
+					this.node.removeAttribute('disabled');
+				} else {
+					this.node.className = state;
+				}
 
-					if (state === 'disabled') {
-						this.node.setAttribute('disabled', true);
-					} else {
-						this.node.removeAttribute('disabled');
-					}
+			} else if (type === 'input' || type === 'textarea') {
 
+				if (state === 'disabled') {
+					this.node.setAttribute('disabled', true);
+				} else if (state === 'enabled') {
+					this.node.removeAttribute('disabled');
 				} else {
 					this.node.className = state;
 				}
@@ -977,11 +983,24 @@ Element.prototype = {
 		} else {
 
 			let type = this.type;
-			if (type === 'button' || type === 'input' || type === 'textarea') {
+			if (type === 'button') {
 
 				let state = this.node.getAttribute('disabled') || null;
 				if (state !== null) {
 					return 'disabled';
+				} else if (this.node.className !== '') {
+					return this.node.className;
+				} else {
+					return 'enabled';
+				}
+
+			} else if (type === 'input' || type === 'textarea') {
+
+				let state = this.node.getAttribute('disabled') || null;
+				if (state !== null) {
+					return 'disabled';
+				} else if (this.node.className !== '') {
+					return this.node.className;
 				} else {
 					return 'enabled';
 				}

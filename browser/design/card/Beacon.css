@@ -47,11 +47,11 @@ browser-card-beacon h3 {
 
 browser-card-beacon h3 input[type="text"] {
 	display: inline;
+	width: auto;
 	font-family: 'crystalline';
 	font-size: 32px;
 	font-weight: 500;
 	line-height: 32px;
-	width: auto;
 }
 
 browser-card-beacon.active h3 input[type="text"] {

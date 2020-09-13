@@ -1,0 +1,122 @@
+
+browser-card-sites {
+	all: unset;
+}
+
+browser-card-sites {
+	display: block;
+	position: relative;
+	width: 800px;
+	max-height: 64px;
+	margin: 0px;
+	padding: 16px;
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow: hidden;
+	cursor: default;
+}
+
+browser-card-sites.active {
+	max-height: unset;
+}
+
+browser-card-sites-article {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-sites-header {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-sites-footer {
+	display: block;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+
+
+browser-card-sites h3 {
+	display: block;
+	margin: 0px;
+	padding: 0px 0px 16px 0px;
+	font-family: 'crystalline';
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 32px;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
+
+browser-card-sites button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-sites button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-sites button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+browser-card-sites-header h4 {
+	display: block;
+	margin: 16px 0px 16px 0px;
+	padding: 0px 0px 0px 0px;
+	font-family: 'crystalline';
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 24px;
+	text-transform: uppercase;
+	vertical-align: middle;
+	border-bottom: 1px solid var(--surface-default-color);
+}
+
+browser-card-sites-header input[data-key="domain"] {
+	display: block;
+	width: 100%;
+	margin: 0px auto 16px auto;
+	text-align: center;
+}
+
+browser-card-sites-header p {
+	margin: 0px 0px 16px 0px;
+	font-family: 'museo';
+	font-size: 16px;
+	text-align: justify;
+}
+
+browser-card-sites-header p[data-key="results"] {
+	text-align: center;
+}
+
+browser-card-sites-footer button[data-action="refresh"]:before { content: '\e5d5'; }
+browser-card-sites-footer button[data-action="remove"]:before  { content: '\e14c'; }
+
+
+
+@media screen and (max-width: 800px) {
+
+	browser-card-sites {
+		width: auto;
+	}
+
+}
+

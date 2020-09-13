@@ -47,11 +47,11 @@ browser-card-mode h3 {
 }
 
 browser-card-mode h3 input[type="text"] {
+	width: calc(100% - 48px);
 	font-family: 'crystalline';
 	font-size: 32px;
 	font-weight: 500;
 	line-height: 32px;
-	width: calc(100% - 48px);
 }
 
 browser-card-mode button[data-action="toggle"] {
