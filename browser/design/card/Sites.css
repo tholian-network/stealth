@@ -1,4 +1,23 @@
 
+@import url("./Beacon.css");
+@import url("./Host.css");
+@import url("./Mode.css");
+@import url("./Peer.css");
+@import url("./Redirect.css");
+
+
+
+body,
+body[data-theme="dark"] {
+	--surface-nested-foreground: #313131;
+}
+
+body[data-theme="light"] {
+	--surface-nested-foreground: #e3e3e3;
+}
+
+
+
 browser-card-sites {
 	all: unset;
 }
@@ -45,7 +64,7 @@ browser-card-sites-footer {
 
 
 
-browser-card-sites h3 {
+browser-card-sites > h3 {
 	display: block;
 	margin: 0px;
 	padding: 0px 0px 16px 0px;
@@ -57,7 +76,7 @@ browser-card-sites h3 {
 	vertical-align: middle;
 }
 
-browser-card-sites button[data-action="toggle"] {
+browser-card-sites > button[data-action="toggle"] {
 	display: block;
 	position: absolute;
 	top: 16px;
@@ -66,12 +85,12 @@ browser-card-sites button[data-action="toggle"] {
 	left: auto;
 }
 
-browser-card-sites button[data-action="toggle"]:before {
+browser-card-sites > button[data-action="toggle"]:before {
 	content: '\e5c5';
 	transition: 200ms transform ease-out;
 }
 
-browser-card-sites button[data-action="toggle"].active:before {
+browser-card-sites > button[data-action="toggle"].active:before {
 	transform: rotate(180deg);
 	transition: 200ms transform ease-out;
 }
@@ -107,8 +126,74 @@ browser-card-sites-header p[data-key="results"] {
 	text-align: center;
 }
 
+browser-card-sites-article > h4 {
+	display: block;
+	position: relative;
+	height: 32px;
+	line-height: 32px;
+	margin: 16px 0px 16px 0px;
+	padding: 0px 0px 0px 0px;
+	font-family: 'crystalline';
+	font-size: 24px;
+	font-weight: 500;
+	text-transform: uppercase;
+	vertical-align: middle;
+	border-bottom: 1px solid var(--surface-default-color);
+}
+
+browser-card-sites-article > h4 button[data-action="remove"] {
+	display: block;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-sites-article > h4 button[data-action="remove"]:before {
+	content: '\e14c';
+}
+
+browser-card-sites-article > * {
+	width: 100%;
+	margin: 0px 0px 16px 0px;
+}
+
+browser-card-sites-article > * > h3 {
+	font-size: 24px;
+}
+
+browser-card-sites-article > * > h3:before {
+	display: inline;
+	margin: 0px 8px 0px 0px;
+	padding: 0px;
+	font-family: 'icon';
+	font-weight: 400;
+	text-align: center;
+	vertical-align: middle;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+browser-card-sites-article > * > button[data-action="toggle"] {
+	background: var(--surface-nested-foreground);
+}
+
+
+browser-card-sites-article > browser-card-beacon   > h3:before { content: '\e3e4'; }
+browser-card-sites-article > browser-card-host     > h3:before { content: '\e80d'; }
+browser-card-sites-article > browser-card-mode     > h3:before { content: '\e85b'; }
+browser-card-sites-article > browser-card-peer     > h3:before { content: '\e1e2'; }
+browser-card-sites-article > browser-card-redirect > h3:before { content: '\e52e'; }
+browser-card-sites-article > browser-card-session  > h3:before { content: '\e335'; }
+
+browser-card-sites-article > * > h3 input[type="text"] {
+	font-family: 'vera-mono';
+	font-weight: 400;
+	font-size: 16px;
+}
+
 browser-card-sites-footer button[data-action="refresh"]:before { content: '\e5d5'; }
-browser-card-sites-footer button[data-action="remove"]:before  { content: '\e14c'; }
 
 
 

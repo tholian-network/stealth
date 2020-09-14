@@ -39,13 +39,15 @@ browser-card-redirect-footer {
 
 
 
-browser-card-redirect h3 {
+browser-card-redirect > h3 {
 	display: block;
 	margin: 0px;
 	padding: 0px 0px 16px 0px;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
-browser-card-redirect h3 input[type="text"] {
+browser-card-redirect > h3 input[type="text"] {
 	display: inline;
 	width: auto;
 	font-family: 'crystalline';
@@ -54,12 +56,12 @@ browser-card-redirect h3 input[type="text"] {
 	line-height: 32px;
 }
 
-browser-card-redirect.active h3 input[type="text"] {
+browser-card-redirect.active > h3 input[type="text"] {
 	display: inline-block;
 	width: calc(100% - 48px);
 }
 
-browser-card-redirect.active h3 input[type="text"]:nth-of-type(2) {
+browser-card-redirect.active > h3 input[type="text"]:nth-of-type(2) {
 	display: block;
 	width: 100%;
 	margin-top: 16px;
@@ -68,7 +70,7 @@ browser-card-redirect.active h3 input[type="text"]:nth-of-type(2) {
 	font-weight: 400;
 }
 
-browser-card-redirect button[data-action="toggle"] {
+browser-card-redirect > button[data-action="toggle"] {
 	display: block;
 	position: absolute;
 	top: 16px;
@@ -77,12 +79,12 @@ browser-card-redirect button[data-action="toggle"] {
 	left: auto;
 }
 
-browser-card-redirect button[data-action="toggle"]:before {
+browser-card-redirect > button[data-action="toggle"]:before {
 	content: '\e5c5';
 	transition: 200ms transform ease-out;
 }
 
-browser-card-redirect button[data-action="toggle"].active:before {
+browser-card-redirect > button[data-action="toggle"].active:before {
 	transform: rotate(180deg);
 	transition: 200ms transform ease-out;
 }
