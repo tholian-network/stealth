@@ -61,14 +61,6 @@ if (browser !== null) {
 		window.Element = Element;
 		window.Widget  = Widget;
 
-
-		setTimeout(() => {
-
-			widgets['interface'].emit('hide');
-			widgets['internet'].emit('hide');
-
-		}, 200);
-
 	}
 
 }

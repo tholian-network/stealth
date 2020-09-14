@@ -238,8 +238,8 @@ const Sites = function(browser, allowed, actions) {
 		'<h3>Sites</h3>',
 		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-sites-header>',
-		'<h4>Sites Search</h4>',
-		'<p>As Stealth caches almost everything, sometimes things can get a little unexpected. Search here for Sites via their Domain in the local Stealth Profile:</p>',
+		'<h4>Site Settings</h4>',
+		'<p>As Stealth caches all Site Settings locally, things can get a little unexpected sometimes. Search here for Sites via their Domain in the local Stealth Profile:</p>',
 		'<input title="Domain" type="text" data-key="domain" pattern="([A-Za-z0-9._\\-*]+).([A-Za-z*]+)" placeholder="domain.tld" disabled/>',
 		'<p data-key="results">0 of 0 Beacons, 0 of 0 Hosts, 0 of 0 Modes, 0 of 0 Peers, 0 of 0 Redirects, 0 of 0 Sessions</p>',
 		'</browser-card-sites-header>',
@@ -262,9 +262,6 @@ const Sites = function(browser, allowed, actions) {
 	this.results = {};
 
 	Widget.call(this);
-
-
-	window._SITES = this;
 
 
 	this.model.domain.on('keyup', () => {
