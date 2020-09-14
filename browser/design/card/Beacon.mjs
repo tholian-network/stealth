@@ -111,7 +111,7 @@ const Beacon = function(browser, actions) {
 	this.element = new Element('browser-card-beacon', [
 		'<h3>',
 		'<input title="Domain" type="text" data-key="domain" placeholder="domain.tld" size="10" disabled/>',
-		'<input title="Path" type="text" data-key="path" pattern="/([A-Za-z0-9/._\\-*]+)" placeholder="/path" size="5" disabled/>',
+		'<input title="Path" type="text" data-key="path" pattern="/([A-Za-z0-9\\/._\\-*]+)" placeholder="/path" size="5" disabled/>',
 		'</h3>',
 		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-beacon-article>',
