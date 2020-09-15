@@ -140,9 +140,7 @@ const Webview = function(browser) {
 				console.error(err);
 			};
 
-			if (this.url.protocol === 'stealth') {
-				dispatch(window, browser);
-			}
+			dispatch(window, browser);
 
 		}
 

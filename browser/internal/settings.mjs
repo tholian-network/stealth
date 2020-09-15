@@ -4,7 +4,7 @@ import { Element     } from '../design/Element.mjs';
 import { Widget      } from '../design/Widget.mjs';
 import { Interface   } from '../design/card/Interface.mjs';
 import { Internet    } from '../design/card/Internet.mjs';
-import { Sites       } from '../design/card/Sites.mjs';
+import { Settings    } from '../design/card/Settings.mjs';
 
 
 
@@ -46,11 +46,11 @@ if (browser !== null) {
 
 	widgets['interface'] = Interface.from(browser.settings['interface']);
 	widgets['internet']  = Internet.from(browser.settings['internet']);
-	widgets['sites']     = Sites.from({ domain: '' }, [ 'beacons', 'hosts', 'modes', 'redirects' ]);
+	widgets['settings']  = Settings.from({ domain: '' }, [ 'beacons', 'hosts', 'modes', 'redirects' ]);
 
 	render_widget(widgets['interface']);
 	render_widget(widgets['internet']);
-	render_widget(widgets['sites']);
+	render_widget(widgets['settings']);
 
 
 	if (ENVIRONMENT.flags.debug === true) {

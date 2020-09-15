@@ -18,11 +18,11 @@ body[data-theme="light"] {
 
 
 
-browser-card-sites {
+browser-card-settings {
 	all: unset;
 }
 
-browser-card-sites {
+browser-card-settings {
 	display: block;
 	position: relative;
 	width: 800px;
@@ -38,23 +38,23 @@ browser-card-sites {
 	cursor: default;
 }
 
-browser-card-sites.active {
+browser-card-settings.active {
 	max-height: unset;
 }
 
-browser-card-sites-article {
+browser-card-settings-article {
 	display: block;
 	width: 100%;
 	height: auto;
 }
 
-browser-card-sites-header {
+browser-card-settings-header {
 	display: block;
 	width: 100%;
 	height: auto;
 }
 
-browser-card-sites-footer {
+browser-card-settings-footer {
 	display: block;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
@@ -64,7 +64,7 @@ browser-card-sites-footer {
 
 
 
-browser-card-sites > h3 {
+browser-card-settings > h3 {
 	display: block;
 	margin: 0px;
 	padding: 0px 0px 16px 0px;
@@ -76,7 +76,7 @@ browser-card-sites > h3 {
 	vertical-align: middle;
 }
 
-browser-card-sites > button[data-action="toggle"] {
+browser-card-settings > button[data-action="toggle"] {
 	display: block;
 	position: absolute;
 	top: 16px;
@@ -85,17 +85,17 @@ browser-card-sites > button[data-action="toggle"] {
 	left: auto;
 }
 
-browser-card-sites > button[data-action="toggle"]:before {
+browser-card-settings > button[data-action="toggle"]:before {
 	content: '\e5c5';
 	transition: 200ms transform ease-out;
 }
 
-browser-card-sites > button[data-action="toggle"].active:before {
+browser-card-settings > button[data-action="toggle"].active:before {
 	transform: rotate(180deg);
 	transition: 200ms transform ease-out;
 }
 
-browser-card-sites-header h4 {
+browser-card-settings-header h4 {
 	display: block;
 	margin: 16px 0px 16px 0px;
 	padding: 0px 0px 0px 0px;
@@ -108,25 +108,25 @@ browser-card-sites-header h4 {
 	border-bottom: 1px solid var(--surface-default-color);
 }
 
-browser-card-sites-header input[data-key="domain"] {
+browser-card-settings-header input[data-key="domain"] {
 	display: block;
 	width: 100%;
 	margin: 0px auto 16px auto;
 	text-align: center;
 }
 
-browser-card-sites-header p {
+browser-card-settings-header p {
 	margin: 0px 0px 16px 0px;
 	font-family: 'museo';
 	font-size: 16px;
 	text-align: justify;
 }
 
-browser-card-sites-header p[data-key="results"] {
+browser-card-settings-header p[data-key="results"] {
 	text-align: center;
 }
 
-browser-card-sites-article > h4 {
+browser-card-settings-article > h4 {
 	display: block;
 	position: relative;
 	height: 32px;
@@ -141,7 +141,7 @@ browser-card-sites-article > h4 {
 	border-bottom: 1px solid var(--surface-default-color);
 }
 
-browser-card-sites-article > h4 button[data-action="remove"] {
+browser-card-settings-article > h4 button[data-action="remove"] {
 	display: block;
 	position: absolute;
 	top: 0px;
@@ -150,20 +150,20 @@ browser-card-sites-article > h4 button[data-action="remove"] {
 	left: auto;
 }
 
-browser-card-sites-article > h4 button[data-action="remove"]:before {
+browser-card-settings-article > h4 button[data-action="remove"]:before {
 	content: '\e14c';
 }
 
-browser-card-sites-article > * {
+browser-card-settings-article > * {
 	width: 100%;
 	margin: 0px 0px 16px 0px;
 }
 
-browser-card-sites-article > * > h3 {
+browser-card-settings-article > * > h3 {
 	font-size: 24px;
 }
 
-browser-card-sites-article > * > h3:before {
+browser-card-settings-article > * > h3:before {
 	display: inline;
 	margin: 0px 8px 0px 0px;
 	padding: 0px;
@@ -175,31 +175,31 @@ browser-card-sites-article > * > h3:before {
 	-webkit-font-smoothing: antialiased;
 }
 
-browser-card-sites-article > * > button[data-action="toggle"] {
+browser-card-settings-article > * > button[data-action="toggle"] {
 	background: var(--surface-nested-foreground);
 }
 
 
-browser-card-sites-article > browser-card-beacon   > h3:before { content: '\e3e4'; }
-browser-card-sites-article > browser-card-host     > h3:before { content: '\e80d'; }
-browser-card-sites-article > browser-card-mode     > h3:before { content: '\e85b'; }
-browser-card-sites-article > browser-card-peer     > h3:before { content: '\e1e2'; }
-browser-card-sites-article > browser-card-redirect > h3:before { content: '\e52e'; }
-browser-card-sites-article > browser-card-session  > h3:before { content: '\e335'; }
+browser-card-settings-article > browser-card-beacon   > h3:before { content: '\e3e4'; }
+browser-card-settings-article > browser-card-host     > h3:before { content: '\e80d'; }
+browser-card-settings-article > browser-card-mode     > h3:before { content: '\e85b'; }
+browser-card-settings-article > browser-card-peer     > h3:before { content: '\e1e2'; }
+browser-card-settings-article > browser-card-redirect > h3:before { content: '\e52e'; }
+browser-card-settings-article > browser-card-session  > h3:before { content: '\e335'; }
 
-browser-card-sites-article > * > h3 input[type="text"] {
+browser-card-settings-article > * > h3 input[type="text"] {
 	font-family: 'vera-mono';
 	font-weight: 400;
 	font-size: 16px;
 }
 
-browser-card-sites-footer button[data-action="refresh"]:before { content: '\e5d5'; }
+browser-card-settings-footer button[data-action="refresh"]:before { content: '\e5d5'; }
 
 
 
 @media screen and (max-width: 800px) {
 
-	browser-card-sites {
+	browser-card-settings {
 		width: auto;
 	}
 

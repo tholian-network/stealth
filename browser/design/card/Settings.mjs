@@ -91,7 +91,7 @@ const update = function(browser) {
 	}
 
 
-	let article = this.element.query('browser-card-sites-article');
+	let article = this.element.query('browser-card-settings-article');
 	if (article !== null) {
 
 		article.query('*', true).forEach((element) => {
@@ -230,24 +230,24 @@ const update = function(browser) {
 
 
 
-const Sites = function(browser, allowed, actions) {
+const Settings = function(browser, allowed, actions) {
 
 	this.allowed = isArray(allowed) ? allowed : [ 'beacons', 'hosts', 'modes', 'peers', 'redirects', 'sessions' ];
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove' ];
-	this.element = new Element('browser-card-sites', [
-		'<h3>Sites</h3>',
+	this.element = new Element('browser-card-settings', [
+		'<h3>Settings</h3>',
 		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
-		'<browser-card-sites-header>',
+		'<browser-card-settings-header>',
 		'<h4>Site Settings</h4>',
-		'<p>As Stealth caches all Site Settings locally, things can get a little unexpected sometimes. Search here for Sites via their Domain in the local Stealth Profile:</p>',
+		'<p>As Stealth caches all Site Settings locally, things can get a little unexpected sometimes. Search here for Site Settings via their Domain in the local Stealth Profile:</p>',
 		'<input title="Domain" type="text" data-key="domain" pattern="([A-Za-z0-9._\\-*]+).([A-Za-z*]+)" placeholder="domain.tld" disabled/>',
 		'<p data-key="results">0 of 0 Beacons, 0 of 0 Hosts, 0 of 0 Modes, 0 of 0 Peers, 0 of 0 Redirects, 0 of 0 Sessions</p>',
-		'</browser-card-sites-header>',
-		'<browser-card-sites-article>',
-		'</browser-card-sites-article>',
-		'<browser-card-sites-footer>',
+		'</browser-card-settings-header>',
+		'<browser-card-settings-article>',
+		'</browser-card-settings-article>',
+		'<browser-card-settings-footer>',
 		'<button title="Refresh all results" data-action="refresh"></button>',
-		'</browser-card-sites-footer>'
+		'</browser-card-settings-footer>'
 	]);
 
 	this.buttons = {
@@ -306,7 +306,7 @@ const Sites = function(browser, allowed, actions) {
 		this.model.domain.state('enabled');
 
 
-		let footer = this.element.query('browser-card-sites-footer');
+		let footer = this.element.query('browser-card-settings-footer');
 
 		if (this.actions.includes('refresh')) {
 			this.buttons.refresh.render(footer);
@@ -351,7 +351,7 @@ const Sites = function(browser, allowed, actions) {
 };
 
 
-Sites.from = function(value, allowed, actions) {
+Settings.from = function(value, allowed, actions) {
 
 	value   = isObject(value)  ? value   : null;
 	allowed = isArray(allowed) ? allowed : null;
@@ -362,7 +362,7 @@ Sites.from = function(value, allowed, actions) {
 
 	if (value !== null) {
 
-		widget = new Sites(window.parent.BROWSER || null, allowed, actions);
+		widget = new Settings(window.parent.BROWSER || null, allowed, actions);
 		widget.value(value);
 
 	}
@@ -372,8 +372,8 @@ Sites.from = function(value, allowed, actions) {
 };
 
 
-Sites.prototype = Object.assign({}, Widget.prototype);
+Settings.prototype = Object.assign({}, Widget.prototype);
 
 
-export { Sites };
+export { Settings };
 
