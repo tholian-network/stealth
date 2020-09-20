@@ -1,9 +1,6 @@
 
 browser-card-mode {
 	all: unset;
-}
-
-browser-card-mode {
 	display: block;
 	position: relative;
 	width: 800px;
@@ -23,12 +20,61 @@ browser-card-mode.active {
 	max-height: unset;
 }
 
+browser-card-mode > h3 {
+	display: block;
+	margin: 0px;
+	padding: 0px 0px 16px 0px;
+}
+
+browser-card-mode > h3 input[type="text"] {
+	width: calc(100% - 48px);
+	font-family: 'crystalline';
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 32px;
+}
+
+browser-card-mode > button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-mode > button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-mode > button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+
+
 browser-card-mode-article {
 	display: block;
 	width: 100%;
 	height: auto;
 	text-align: center;
 }
+
+browser-card-mode-article > button {
+	margin: 0px 8px;
+}
+
+browser-card-mode-article > button[data-key="mode.text"]:before  { content: '\e06f'; }
+browser-card-mode-article > button[data-key="mode.image"]:before { content: '\e432'; }
+browser-card-mode-article > button[data-key="mode.audio"]:before { content: '\e049'; }
+browser-card-mode-article > button[data-key="mode.video"]:before { content: '\e404'; }
+browser-card-mode-article > button[data-key="mode.other"]:before { content: '\e048'; }
+browser-card-mode-article > button[data-val="true"]              { color: var(--element-active-color); }
+browser-card-mode-article > button[data-val="true"]:hover        { color: var(--element-active-color); }
+
+
 
 browser-card-mode-footer {
 	display: block;
@@ -38,60 +84,13 @@ browser-card-mode-footer {
 	text-align: right;
 }
 
-
-
-browser-card-mode h3 {
-	display: block;
-	margin: 0px;
-	padding: 0px 0px 16px 0px;
-}
-
-browser-card-mode h3 input[type="text"] {
-	width: calc(100% - 48px);
-	font-family: 'crystalline';
-	font-size: 32px;
-	font-weight: 500;
-	line-height: 32px;
-}
-
-browser-card-mode button[data-action="toggle"] {
-	display: block;
-	position: absolute;
-	top: 16px;
-	right: 16px;
-	bottom: auto;
-	left: auto;
-}
-
-browser-card-mode button[data-action="toggle"]:before {
-	content: '\e5c5';
-	transition: 200ms transform ease-out;
-}
-
-browser-card-mode button[data-action="toggle"].active:before {
-	transform: rotate(180deg);
-	transition: 200ms transform ease-out;
-}
-
-browser-card-mode-article button {
-	margin: 0px 8px;
-}
-
-browser-card-mode-article button[data-key="mode.text"]:before  { content: '\e06f'; }
-browser-card-mode-article button[data-key="mode.image"]:before { content: '\e432'; }
-browser-card-mode-article button[data-key="mode.audio"]:before { content: '\e049'; }
-browser-card-mode-article button[data-key="mode.video"]:before { content: '\e404'; }
-browser-card-mode-article button[data-key="mode.other"]:before { content: '\e048'; }
-browser-card-mode-article button[data-val="true"]              { color: var(--element-active-color); }
-browser-card-mode-article button[data-val="true"]:hover        { color: var(--element-active-color); }
-
-browser-card-mode-footer button {
+browser-card-mode-footer > button {
 	margin-left: 16px;
 }
 
-browser-card-mode-footer button[data-action="create"]:before  { content: '\e145'; }
-browser-card-mode-footer button[data-action="remove"]:before  { content: '\e14c'; }
-browser-card-mode-footer button[data-action="save"]:before    { content: '\e876'; }
+browser-card-mode-footer > button[data-action="create"]:before  { content: '\e145'; }
+browser-card-mode-footer > button[data-action="remove"]:before  { content: '\e14c'; }
+browser-card-mode-footer > button[data-action="save"]:before    { content: '\e876'; }
 
 
 

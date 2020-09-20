@@ -1,9 +1,6 @@
 
 browser-card-redirect {
 	all: unset;
-}
-
-browser-card-redirect {
 	display: block;
 	position: relative;
 	width: 800px;
@@ -22,22 +19,6 @@ browser-card-redirect {
 browser-card-redirect.active {
 	max-height: unset;
 }
-
-browser-card-redirect-article {
-	display: block;
-	width: 100%;
-	height: auto;
-}
-
-browser-card-redirect-footer {
-	display: block;
-	height: 32px;
-	margin: 16px 0px 0px 0px;
-	padding: 0px;
-	text-align: right;
-}
-
-
 
 browser-card-redirect > h3 {
 	display: block;
@@ -89,18 +70,36 @@ browser-card-redirect > button[data-action="toggle"].active:before {
 	transition: 200ms transform ease-out;
 }
 
-browser-card-redirect-article input[type="text"] {
+
+
+browser-card-redirect-article {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-redirect-article > input[type="text"] {
 	display: block;
 	width: 100%;
 }
 
-browser-card-redirect-footer button {
+
+
+browser-card-redirect-footer {
+	display: block;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-card-redirect-footer > button {
 	margin-left: 16px;
 }
 
-browser-card-redirect-footer button[data-action="create"]:before { content: '\e145'; }
-browser-card-redirect-footer button[data-action="remove"]:before { content: '\e14c'; }
-browser-card-redirect-footer button[data-action="save"]:before   { content: '\e876'; }
+browser-card-redirect-footer > button[data-action="create"]:before { content: '\e145'; }
+browser-card-redirect-footer > button[data-action="remove"]:before { content: '\e14c'; }
+browser-card-redirect-footer > button[data-action="save"]:before   { content: '\e876'; }
 
 
 

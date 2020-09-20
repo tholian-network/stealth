@@ -1,9 +1,6 @@
 
 browser-card-host {
 	all: unset;
-}
-
-browser-card-host {
 	display: block;
 	position: relative;
 	width: 800px;
@@ -23,11 +20,56 @@ browser-card-host.active {
 	max-height: unset;
 }
 
+browser-card-host > h3 {
+	display: block;
+	margin: 0px;
+	padding: 0px 0px 16px 0px;
+}
+
+browser-card-host > h3 input[type="text"] {
+	width: calc(100% - 48px);
+	font-family: 'crystalline';
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 32px;
+}
+
+browser-card-host > button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-host > button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-host > button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+
+
 browser-card-host-article {
 	display: block;
 	width: 100%;
 	height: auto;
 }
+
+browser-card-host-article > textarea {
+	display: block;
+	width: 100%;
+	height: auto;
+	background: transparent;
+	resize: vertical;
+}
+
+
 
 browser-card-host-footer {
 	display: block;
@@ -37,57 +79,14 @@ browser-card-host-footer {
 	text-align: right;
 }
 
-
-
-browser-card-host h3 {
-	display: block;
-	margin: 0px;
-	padding: 0px 0px 16px 0px;
-}
-
-browser-card-host h3 input[type="text"] {
-	width: calc(100% - 48px);
-	font-family: 'crystalline';
-	font-size: 32px;
-	font-weight: 500;
-	line-height: 32px;
-}
-
-browser-card-host button[data-action="toggle"] {
-	display: block;
-	position: absolute;
-	top: 16px;
-	right: 16px;
-	bottom: auto;
-	left: auto;
-}
-
-browser-card-host button[data-action="toggle"]:before {
-	content: '\e5c5';
-	transition: 200ms transform ease-out;
-}
-
-browser-card-host button[data-action="toggle"].active:before {
-	transform: rotate(180deg);
-	transition: 200ms transform ease-out;
-}
-
-browser-card-host-article textarea {
-	display: block;
-	width: 100%;
-	height: auto;
-	background: transparent;
-	resize: vertical;
-}
-
-browser-card-host-footer button {
+browser-card-host-footer > button {
 	margin-left: 16px;
 }
 
-browser-card-host-footer button[data-action="create"]:before  { content: '\e145'; }
-browser-card-host-footer button[data-action="refresh"]:before { content: '\e5d5'; }
-browser-card-host-footer button[data-action="remove"]:before  { content: '\e14c'; }
-browser-card-host-footer button[data-action="save"]:before    { content: '\e876'; }
+browser-card-host-footer > button[data-action="create"]:before  { content: '\e145'; }
+browser-card-host-footer > button[data-action="refresh"]:before { content: '\e5d5'; }
+browser-card-host-footer > button[data-action="remove"]:before  { content: '\e14c'; }
+browser-card-host-footer > button[data-action="save"]:before    { content: '\e876'; }
 
 
 

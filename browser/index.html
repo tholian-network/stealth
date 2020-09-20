@@ -71,6 +71,15 @@
 
 					console.info('Browser: Debug Mode active');
 
+					browser.once('connect', () => {
+
+						let tab = browser.open('stealth:debug');
+						if (tab !== null) {
+							browser.show(tab);
+						}
+
+					});
+
 				} else {
 
 					let worker = (window.navigator || {}).serviceWorker || null;

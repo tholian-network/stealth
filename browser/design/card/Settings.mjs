@@ -6,6 +6,7 @@ import { Host                        } from '../card/Host.mjs';
 import { Mode                        } from '../card/Mode.mjs';
 import { Peer                        } from '../card/Peer.mjs';
 import { Redirect                    } from '../card/Redirect.mjs';
+import { Session                     } from '../card/Session.mjs';
 import { isArray, isObject, isString } from '../../extern/base.mjs';
 
 
@@ -208,6 +209,20 @@ const update = function(browser) {
 						return Redirect.from(redirect, [ 'remove', 'save' ]);
 					} else {
 						return Redirect.from(redirect, [ 'save' ]);
+					}
+
+				}).forEach((card) => cards.push(card));
+
+			}
+
+			if (entry.sessions.length > 0) {
+
+				entry.sessions.map((redirect) => {
+
+					if (this.actions.includes('remove')) {
+						return Session.from(redirect, [ 'remove' ]);
+					} else {
+						return Session.from(redirect, []);
 					}
 
 				}).forEach((card) => cards.push(card));

@@ -38,6 +38,11 @@ const ASSETS  = [
 	'design/card/Peer.mjs',
 	'design/card/Redirect.css',
 	'design/card/Redirect.mjs',
+	'design/card/Session.css',
+	'design/card/Session.mjs',
+	'design/card/Settings.css',
+	'design/card/Settings.mjs',
+	'design/card/Tab.mjs',
 	'design/common/crystalline-bold.woff',
 	'design/common/crystalline-light.woff',
 	'design/common/crystalline-medium.woff',
@@ -119,7 +124,7 @@ const autofetch = (request) => {
 			let url = response.url || null;
 			if (url !== null) {
 
-				if (new URL(response.url).origin !== window.location.origin) {
+				if (new URL(response.url).origin !== self.location.origin) {
 
 					return response;
 

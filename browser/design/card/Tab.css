@@ -1,0 +1,161 @@
+
+browser-card-tab {
+	all: unset;
+	display: block;
+	position: relative;
+	width: 800px;
+	max-height: 64px;
+	margin: 0px;
+	padding: 16px;
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow: hidden;
+	cursor: default;
+}
+
+browser-card-tab.active {
+	max-height: unset;
+}
+
+browser-card-tab > h3 {
+	display: block;
+	width: calc(100% - 48px);
+	margin: 0px;
+	padding: 0px 0px 16px 0px;
+	font-family: 'crystalline';
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 32px;
+}
+
+browser-card-tab > button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-tab > button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-tab > button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+
+
+browser-card-tab-header {
+	display: block;
+	position: relative;
+	width: 100%;
+	height: 64px;
+	margin: 0px;
+	padding: 0px;
+	border: 1px solid var(--surface-default-color);
+	border-radius: 8px;
+	vertical-align: middle;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	cursor: default;
+}
+
+browser-card-tab-header > button {
+	display: inline-block;
+	position: absolute;
+	top: 0px;
+	right: auto;
+	bottom: auto;
+	left: auto;
+	width: 32px;
+	height: 32px;
+	border: 1px solid var(--element-default-color);
+	box-sizing: border-box;
+}
+
+browser-card-tab-header > button[title^="file:"]:before               { content: '\e84f'; }
+browser-card-tab-header > button[title^="ftps:"]:before               { content: '\e897'; }
+browser-card-tab-header > button[title^="ftp:"]:before                { content: '\e898'; }
+browser-card-tab-header > button[title^="https:"]:before              { content: '\e897'; }
+browser-card-tab-header > button[title^="http:"]:before               { content: '\e898'; }
+browser-card-tab-header > button[title^="wss:"]:before                { content: '\e897'; }
+browser-card-tab-header > button[title^="ws:"]:before                 { content: '\e898'; }
+browser-card-tab-header > button[title^="socks:"]:before              { content: '\e32a'; }
+browser-card-tab-header > button[title^="stealth:blank"]:before       { content: '\e32a'; }
+browser-card-tab-header > button[title^="stealth:welcome"]:before     { content: '\e80c'; }
+browser-card-tab-header > button[title^="stealth:debug"]:before       { content: '\e868'; }
+browser-card-tab-header > button[title^="stealth:history"]:before     { content: '\e889'; }
+browser-card-tab-header > button[title^="stealth:media"]:before       { content: '\e038'; }
+browser-card-tab-header > button[title^="stealth:search"]:before      { content: '\e52e'; }
+browser-card-tab-header > button[title^="stealth:settings"]:before    { content: '\e8b8'; }
+browser-card-tab-header > button[title^="stealth:fix-host"]:before    { content: '\e869'; }
+browser-card-tab-header > button[title^="stealth:fix-mode"]:before    { content: '\e869'; }
+browser-card-tab-header > button[title^="stealth:fix-request"]:before { content: '\e869'; }
+
+
+
+browser-card-tab-article {
+	display: block;
+	max-height: 0px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow: hidden;
+}
+
+browser-card-tab-article.active {
+	max-height: unset;
+}
+
+browser-card-tab-article > button[data-key="history.mode.text"]:before  { content: '\e06f'; }
+browser-card-tab-article > button[data-key="history.mode.image"]:before { content: '\e432'; }
+browser-card-tab-article > button[data-key="history.mode.audio"]:before { content: '\e049'; }
+browser-card-tab-article > button[data-key="history.mode.video"]:before { content: '\e404'; }
+browser-card-tab-article > button[data-key="history.mode.other"]:before { content: '\e048'; }
+browser-card-tab-article > button[data-val="true"]                      { color: var(--element-active-color); }
+browser-card-tab-article > button[data-val="true"]:hover                { color: var(--element-active-color); }
+
+browser-card-tab-article > code {
+	display: block;
+	margin: 0px;
+	padding: 4px;
+	font-family: 'vera-mono';
+	color: var(--layout-default-color);
+	background: var(--layout-default-background);
+	border-radius: 4px;
+}
+
+
+
+browser-card-tab-footer {
+	display: block;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-card-tab-footer > button {
+	margin-left: 16px;
+}
+
+browser-card-tab-footer > button[data-action="remove"]:before { content: '\e14c'; }
+
+
+
+@media screen and (max-width: 800px) {
+
+	browser-card-tab {
+		width: auto;
+	}
+
+}
+

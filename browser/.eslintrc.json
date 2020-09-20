@@ -31,7 +31,10 @@
 		"files": [ "service.js" ],
 		"rules": {
 			"no-control-regex": "off",
-			"no-console": "off"
+			"no-console": "off",
+			"no-restricted-globals": [
+				"error"
+			]
 		}
 	}, {
 		"files": [ "extern/base.mjs" ],

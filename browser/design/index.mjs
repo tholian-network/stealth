@@ -455,26 +455,32 @@ export const dispatch = (window, browser, reset) => {
 				if (e.button === 0) {
 
 					let element = Element.toElement(e.target);
-					if (element.type === 'a') {
+					if (element !== null) {
 
-						let value = element.attr('href');
-						if (value.startsWith('#')) {
+						if (element.type === 'a') {
 
-							context.value([{
-								label: 'focus',
-								value: value
-							}]);
+							let value = element.attr('href');
+							if (value.startsWith('#')) {
 
-							context.emit('click', [{ target: context.buttons[0].node }]);
+								context.value([{
+									label: 'focus',
+									value: value
+								}]);
 
-						} else {
+								context.emit('click', [{
+									target: context.buttons[0].node
+								}]);
 
-							browser.navigate(value);
+							} else {
+
+								browser.navigate(value);
+
+							}
+
+							e.preventDefault();
+							e.stopPropagation();
 
 						}
-
-						e.preventDefault();
-						e.stopPropagation();
 
 					}
 

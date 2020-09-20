@@ -127,8 +127,6 @@ const Stealth = function(settings) {
 					max_downloads = 8;
 				} else if (connection === 'peer') {
 					max_downloads = 2;
-				} else if (connection === 'i2p') {
-					max_downloads = 2;
 				} else if (connection === 'tor') {
 					max_downloads = 2;
 				}
@@ -341,9 +339,7 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (request === null) {
 
-				if (this.settings.internet.connection === 'i2p') {
-					url.proxy = { host: '127.0.0.1', port: 4444 };
-				} else if (this.settings.internet.connection === 'tor') {
+				if (this.settings.internet.connection === 'tor') {
 					url.proxy = { host: '127.0.0.1', port: 9050 };
 				}
 

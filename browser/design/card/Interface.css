@@ -1,9 +1,6 @@
 
 browser-card-interface {
 	all: unset;
-}
-
-browser-card-interface {
 	display: block;
 	position: relative;
 	width: 800px;
@@ -23,23 +20,7 @@ browser-card-interface.active {
 	max-height: unset;
 }
 
-browser-card-interface-article {
-	display: block;
-	width: 100%;
-	height: auto;
-}
-
-browser-card-interface-footer {
-	display: block;
-	height: 32px;
-	margin: 16px 0px 0px 0px;
-	padding: 0px;
-	text-align: right;
-}
-
-
-
-browser-card-interface h3 {
+browser-card-interface > h3 {
 	display: block;
 	margin: 0px;
 	padding: 0px 0px 16px 0px;
@@ -51,7 +32,7 @@ browser-card-interface h3 {
 	vertical-align: middle;
 }
 
-browser-card-interface button[data-action="toggle"] {
+browser-card-interface > button[data-action="toggle"] {
 	display: block;
 	position: absolute;
 	top: 16px;
@@ -60,17 +41,25 @@ browser-card-interface button[data-action="toggle"] {
 	left: auto;
 }
 
-browser-card-interface button[data-action="toggle"]:before {
+browser-card-interface > button[data-action="toggle"]:before {
 	content: '\e5c5';
 	transition: 200ms transform ease-out;
 }
 
-browser-card-interface button[data-action="toggle"].active:before {
+browser-card-interface > button[data-action="toggle"].active:before {
 	transform: rotate(180deg);
 	transition: 200ms transform ease-out;
 }
 
-browser-card-interface-article h4 {
+
+
+browser-card-interface-article {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-interface-article > h4 {
 	display: block;
 	margin: 32px 0px 16px 0px;
 	padding: 0px 0px 0px 0px;
@@ -83,25 +72,25 @@ browser-card-interface-article h4 {
 	border-bottom: 1px solid var(--surface-default-color);
 }
 
-browser-card-interface-article h4:nth-of-type(1) {
+browser-card-interface-article > h4:nth-of-type(1) {
 	margin-top: 16px;
 }
 
-browser-card-interface-article p {
+browser-card-interface-article > p {
 	margin: 0px 0px 16px 0px;
 	font-family: 'museo';
 	font-size: 16px;
 	text-align: justify;
 }
 
-browser-card-interface-article ul {
+browser-card-interface-article > ul {
 	display: block;
 	margin: 0px 0px 16px 0px;
 	padding: 0px;
 	list-style: none;
 }
 
-browser-card-interface-article ul li {
+browser-card-interface-article > ul li {
 	display: block;
 	width: 368px;
 	margin: 0px auto;
@@ -110,7 +99,7 @@ browser-card-interface-article ul li {
 	vertical-align: middle;
 }
 
-browser-card-interface-article label {
+browser-card-interface-article > ul li label {
 	margin: 0px 0px 0px 8px;
 	padding: 0px;
 	color: var(--element-default-color);
@@ -121,28 +110,36 @@ browser-card-interface-article label {
 	cursor: pointer;
 }
 
-browser-card-interface-article input[type="radio"][name="theme"][value="dark"]:before  { content: '\e1ad'; }
-browser-card-interface-article input[type="radio"][name="theme"][value="light"]:before { content: '\e1ac'; }
+browser-card-interface-article > ul li input[type="radio"][name="theme"][value="dark"]:before              { content: '\e1ad'; }
+browser-card-interface-article > ul li input[type="radio"][name="theme"][value="light"]:before             { content: '\e1ac'; }
+browser-card-interface-article > ul li input[type="radio"][name="enforce"][value="false"]:before           { content: '\e234'; }
+browser-card-interface-article > ul li input[type="radio"][name="enforce"][value="true"]:before            { content: '\e235'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:blank"]:before   { content: '\e32a'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:history"]:before { content: '\e889'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:media"]:before   { content: '\e038'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:search"]:before  { content: '\e52e'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:welcome"]:before { content: '\e80c'; }
 
-browser-card-interface-article input[type="radio"][name="enforce"][value="false"]:before { content: '\e234'; }
-browser-card-interface-article input[type="radio"][name="enforce"][value="true"]:before  { content: '\e235'; }
-
-browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:blank"]:before   { content: '\e32a'; }
-browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:history"]:before { content: '\e889'; }
-browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:media"]:before   { content: '\e038'; }
-browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:search"]:before  { content: '\e52e'; }
-browser-card-interface-article input[type="radio"][name="opentab"][value="stealth:welcome"]:before { content: '\e80c'; }
-
-browser-card-interface-article input[type="radio"]:focus + label,
-browser-card-interface-article input[type="radio"]:hover + label {
+browser-card-interface-article > ul li input[type="radio"]:focus + label,
+browser-card-interface-article > ul li input[type="radio"]:hover + label {
 	color: var(--element-focus-color);
 }
 
-browser-card-interface-article input[type="radio"]:checked + label {
+browser-card-interface-article > ul li input[type="radio"]:checked + label {
 	color: var(--element-active-color);
 }
 
-browser-card-interface-footer button[data-action="save"]:before { content: '\e876'; }
+
+
+browser-card-interface-footer {
+	display: block;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-card-interface-footer > button[data-action="save"]:before { content: '\e876'; }
 
 
 

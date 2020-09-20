@@ -6,7 +6,7 @@ import { Client, isClient                                                      }
 
 
 
-const CONNECTION = [ 'offline', 'mobile', 'broadband', 'peer', 'i2p', 'tor' ];
+const CONNECTION = [ 'offline', 'mobile', 'broadband', 'peer', 'tor' ];
 
 const toDomain = function(payload) {
 

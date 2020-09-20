@@ -231,6 +231,37 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
+	},
+
+	remove: function(payload, callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
+
+		let session = null;
+		let domain  = toDomain(payload);
+		if (domain !== null) {
+			session = this.stealth.settings.sessions.find((h) => h.domain === domain) || null;
+		}
+
+		if (session !== null) {
+			this.stealth.settings.sessions.remove(session);
+			this.stealth.settings.save();
+		}
+
+
+		if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'session',
+					event:   'remove'
+				},
+				payload: (domain !== null)
+			});
+
+		}
+
 	}
 
 });

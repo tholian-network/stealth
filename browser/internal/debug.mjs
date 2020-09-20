@@ -7,6 +7,7 @@ import { Host        } from '../design/card/Host.mjs';
 import { Mode        } from '../design/card/Mode.mjs';
 import { Peer        } from '../design/card/Peer.mjs';
 import { Redirect    } from '../design/card/Redirect.mjs';
+import { Tab         } from '../design/card/Tab.mjs';
 import { URL         } from '../source/parser/URL.mjs';
 
 
@@ -22,8 +23,18 @@ const render_widget = (widget) => {
 
 };
 
+
+
 let browser = window.parent.BROWSER || null;
 let domain  = URL.toDomain(ENVIRONMENT.flags.url);
+
+if (browser !== null) {
+
+	browser.tabs.forEach((tab) => {
+		render_widget(Tab.from(tab));
+	});
+
+}
 
 if (browser !== null && domain !== null) {
 

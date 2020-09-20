@@ -1,9 +1,6 @@
 
 browser-card-peer {
 	all: unset;
-}
-
-browser-card-peer {
 	display: block;
 	position: relative;
 	width: 800px;
@@ -23,12 +20,64 @@ browser-card-peer.active {
 	max-height: unset;
 }
 
+browser-card-peer > h3 {
+	display: block;
+	margin: 0px;
+	padding: 0px 0px 16px 0px;
+}
+
+browser-card-peer > h3 input[type="text"] {
+	width: calc(100% - 48px);
+	font-family: 'crystalline';
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 32px;
+}
+
+browser-card-peer > button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-peer > button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-peer > button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+
+
 browser-card-peer-article {
 	display: block;
 	width: 100%;
 	height: auto;
 	text-align: center;
 }
+
+browser-card-peer-article > button[data-key="connection"][data-val="offline"]:before   { color: var(--element-default-color); content: '\e8be'; }
+browser-card-peer-article > button[data-key="connection"][data-val="mobile"]:before    { color: var(--element-active-color);  content: '\e1b9'; }
+browser-card-peer-article > button[data-key="connection"][data-val="broadband"]:before { color: var(--element-active-color);  content: '\e1ba'; }
+browser-card-peer-article > button[data-key="connection"][data-val="peer"]:before      { color: var(--element-active-color);  content: '\e1e2'; }
+browser-card-peer-article > button[data-key="connection"][data-val="tor"]:before       { color: var(--element-active-color);  content: '\e32a'; }
+
+browser-card-peer-article > span {
+	display: inline-block;
+	margin: 0px 16px 0px 0px;
+	font-family: 'museo';
+	font-size: 16px;
+	line-height: 32px;
+	vertical-align: middle;
+}
+
+
 
 browser-card-peer-footer {
 	display: block;
@@ -38,65 +87,14 @@ browser-card-peer-footer {
 	text-align: right;
 }
 
-
-
-browser-card-peer h3 {
-	display: block;
-	margin: 0px;
-	padding: 0px 0px 16px 0px;
-}
-
-browser-card-peer h3 input[type="text"] {
-	width: calc(100% - 48px);
-	font-family: 'crystalline';
-	font-size: 32px;
-	font-weight: 500;
-	line-height: 32px;
-}
-
-browser-card-peer button[data-action="toggle"] {
-	display: block;
-	position: absolute;
-	top: 16px;
-	right: 16px;
-	bottom: auto;
-	left: auto;
-}
-
-browser-card-peer button[data-action="toggle"]:before {
-	content: '\e5c5';
-	transition: 200ms transform ease-out;
-}
-
-browser-card-peer button[data-action="toggle"].active:before {
-	transform: rotate(180deg);
-	transition: 200ms transform ease-out;
-}
-
-browser-card-peer-article button[data-key="connection"][data-val="offline"]:before   { color: var(--element-default-color); content: '\e8be'; }
-browser-card-peer-article button[data-key="connection"][data-val="mobile"]:before    { color: var(--element-active-color);  content: '\e1b9'; }
-browser-card-peer-article button[data-key="connection"][data-val="broadband"]:before { color: var(--element-active-color);  content: '\e1ba'; }
-browser-card-peer-article button[data-key="connection"][data-val="peer"]:before      { color: var(--element-active-color);  content: '\e1e2'; }
-browser-card-peer-article button[data-key="connection"][data-val="i2p"]:before       { color: var(--element-active-color);  content: '\e32a'; }
-browser-card-peer-article button[data-key="connection"][data-val="tor"]:before       { color: var(--element-active-color);  content: '\e32a'; }
-
-browser-card-peer-article span {
-	display: inline-block;
-	margin: 0px 16px 0px 0px;
-	font-family: 'museo';
-	font-size: 16px;
-	line-height: 32px;
-	vertical-align: middle;
-}
-
-browser-card-peer-footer button {
+browser-card-peer-footer > button {
 	margin-left: 16px;
 }
 
-browser-card-peer-footer button[data-action="create"]:before  { content: '\e145'; }
-browser-card-peer-footer button[data-action="refresh"]:before { content: '\e5d5'; }
-browser-card-peer-footer button[data-action="remove"]:before  { content: '\e14c'; }
-browser-card-peer-footer button[data-action="save"]:before    { content: '\e876'; }
+browser-card-peer-footer > button[data-action="create"]:before  { content: '\e145'; }
+browser-card-peer-footer > button[data-action="refresh"]:before { content: '\e5d5'; }
+browser-card-peer-footer > button[data-action="remove"]:before  { content: '\e14c'; }
+browser-card-peer-footer > button[data-action="save"]:before    { content: '\e876'; }
 
 
 

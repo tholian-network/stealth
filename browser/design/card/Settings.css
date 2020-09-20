@@ -4,6 +4,7 @@
 @import url("./Mode.css");
 @import url("./Peer.css");
 @import url("./Redirect.css");
+@import url("./Session.css");
 
 
 
@@ -20,9 +21,6 @@ body[data-theme="light"] {
 
 browser-card-settings {
 	all: unset;
-}
-
-browser-card-settings {
 	display: block;
 	position: relative;
 	width: 800px;
@@ -41,28 +39,6 @@ browser-card-settings {
 browser-card-settings.active {
 	max-height: unset;
 }
-
-browser-card-settings-article {
-	display: block;
-	width: 100%;
-	height: auto;
-}
-
-browser-card-settings-header {
-	display: block;
-	width: 100%;
-	height: auto;
-}
-
-browser-card-settings-footer {
-	display: block;
-	height: 32px;
-	margin: 16px 0px 0px 0px;
-	padding: 0px;
-	text-align: right;
-}
-
-
 
 browser-card-settings > h3 {
 	display: block;
@@ -95,7 +71,15 @@ browser-card-settings > button[data-action="toggle"].active:before {
 	transition: 200ms transform ease-out;
 }
 
-browser-card-settings-header h4 {
+
+
+browser-card-settings-header {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-settings-header > h4 {
 	display: block;
 	margin: 16px 0px 16px 0px;
 	padding: 0px 0px 0px 0px;
@@ -108,22 +92,30 @@ browser-card-settings-header h4 {
 	border-bottom: 1px solid var(--surface-default-color);
 }
 
-browser-card-settings-header input[data-key="domain"] {
+browser-card-settings-header > input[data-key="domain"] {
 	display: block;
 	width: 100%;
 	margin: 0px auto 16px auto;
 	text-align: center;
 }
 
-browser-card-settings-header p {
+browser-card-settings-header > p {
 	margin: 0px 0px 16px 0px;
 	font-family: 'museo';
 	font-size: 16px;
 	text-align: justify;
 }
 
-browser-card-settings-header p[data-key="results"] {
+browser-card-settings-header > p[data-key="results"] {
 	text-align: center;
+}
+
+
+
+browser-card-settings-article {
+	display: block;
+	width: 100%;
+	height: auto;
 }
 
 browser-card-settings-article > h4 {
@@ -193,7 +185,17 @@ browser-card-settings-article > * > h3 input[type="text"] {
 	font-size: 16px;
 }
 
-browser-card-settings-footer button[data-action="refresh"]:before { content: '\e5d5'; }
+
+
+browser-card-settings-footer {
+	display: block;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-card-settings-footer > button[data-action="refresh"]:before { content: '\e5d5'; }
 
 
 
