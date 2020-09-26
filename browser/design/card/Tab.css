@@ -56,50 +56,92 @@ browser-card-tab-header {
 	display: block;
 	position: relative;
 	width: 100%;
-	height: 64px;
-	margin: 0px;
+	margin: 16px 0px 32px 0px;
+	padding: 0px;
+	box-sizing: border-box;
+}
+
+browser-card-tab-header > button[data-action="back"] {
+	display: block;
+	position: absolute;
+	top: 17px;
+	right: auto;
+	bottom: auto;
+	left: 0px;
+}
+
+browser-card-tab-header > button[data-action="back"]:before {
+	content: '\e5c4';
+}
+
+browser-card-tab-header > button[data-action="next"] {
+	display: block;
+	position: absolute;
+	top: 17px;
+	right: 0px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-tab-header > button[data-action="next"]:before {
+	content: '\e5c8';
+}
+
+browser-card-tab-header-history {
+	display: block;
+	position: relative;
+	width: calc(100% - 64px);
+	height: calc(64px + 16px + 4px);
+	line-height: 64px;
+	margin: 0px auto;
 	padding: 0px;
 	border: 1px solid var(--surface-default-color);
 	border-radius: 8px;
 	vertical-align: middle;
+	white-space: nowrap;
 	box-sizing: border-box;
 	transition: 200ms all ease-out;
-	overflow-x: scroll;
+	overflow-x: auto;
 	overflow-y: hidden;
 	cursor: default;
 }
 
-browser-card-tab-header > button {
+browser-card-tab-header-history > button {
 	display: inline-block;
-	position: absolute;
-	top: 0px;
-	right: auto;
-	bottom: auto;
-	left: auto;
 	width: 32px;
 	height: 32px;
+	margin: 0px 0px 0px 16px;
+	padding: 0px;
 	border: 1px solid var(--element-default-color);
 	box-sizing: border-box;
 }
 
-browser-card-tab-header > button[title^="file:"]:before               { content: '\e84f'; }
-browser-card-tab-header > button[title^="ftps:"]:before               { content: '\e897'; }
-browser-card-tab-header > button[title^="ftp:"]:before                { content: '\e898'; }
-browser-card-tab-header > button[title^="https:"]:before              { content: '\e897'; }
-browser-card-tab-header > button[title^="http:"]:before               { content: '\e898'; }
-browser-card-tab-header > button[title^="wss:"]:before                { content: '\e897'; }
-browser-card-tab-header > button[title^="ws:"]:before                 { content: '\e898'; }
-browser-card-tab-header > button[title^="socks:"]:before              { content: '\e32a'; }
-browser-card-tab-header > button[title^="stealth:blank"]:before       { content: '\e32a'; }
-browser-card-tab-header > button[title^="stealth:welcome"]:before     { content: '\e80c'; }
-browser-card-tab-header > button[title^="stealth:debug"]:before       { content: '\e868'; }
-browser-card-tab-header > button[title^="stealth:history"]:before     { content: '\e889'; }
-browser-card-tab-header > button[title^="stealth:media"]:before       { content: '\e038'; }
-browser-card-tab-header > button[title^="stealth:search"]:before      { content: '\e52e'; }
-browser-card-tab-header > button[title^="stealth:settings"]:before    { content: '\e8b8'; }
-browser-card-tab-header > button[title^="stealth:fix-host"]:before    { content: '\e869'; }
-browser-card-tab-header > button[title^="stealth:fix-mode"]:before    { content: '\e869'; }
-browser-card-tab-header > button[title^="stealth:fix-request"]:before { content: '\e869'; }
+browser-card-tab-header-history > button:first-of-type {
+	margin-left: 0px;
+}
+
+browser-card-tab-header-history > button.active {
+	color: var(--element-active-color);
+}
+
+browser-card-tab-header-history > button[title^="file:"]:before               { content: '\e84f'; }
+browser-card-tab-header-history > button[title^="ftps:"]:before               { content: '\e897'; }
+browser-card-tab-header-history > button[title^="ftp:"]:before                { content: '\e898'; }
+browser-card-tab-header-history > button[title^="https:"]:before              { content: '\e897'; }
+browser-card-tab-header-history > button[title^="http:"]:before               { content: '\e898'; }
+browser-card-tab-header-history > button[title^="wss:"]:before                { content: '\e897'; }
+browser-card-tab-header-history > button[title^="ws:"]:before                 { content: '\e898'; }
+browser-card-tab-header-history > button[title^="socks:"]:before              { content: '\e32a'; }
+browser-card-tab-header-history > button[title^="stealth:blank"]:before       { content: '\e32a'; }
+browser-card-tab-header-history > button[title^="stealth:welcome"]:before     { content: '\e80c'; }
+browser-card-tab-header-history > button[title^="stealth:debug"]:before       { content: '\e868'; }
+browser-card-tab-header-history > button[title^="stealth:history"]:before     { content: '\e889'; }
+browser-card-tab-header-history > button[title^="stealth:media"]:before       { content: '\e038'; }
+browser-card-tab-header-history > button[title^="stealth:search"]:before      { content: '\e52e'; }
+browser-card-tab-header-history > button[title^="stealth:settings"]:before    { content: '\e8b8'; }
+browser-card-tab-header-history > button[title^="stealth:fix-host"]:before    { content: '\e869'; }
+browser-card-tab-header-history > button[title^="stealth:fix-mode"]:before    { content: '\e869'; }
+browser-card-tab-header-history > button[title^="stealth:fix-request"]:before { content: '\e869'; }
 
 
 

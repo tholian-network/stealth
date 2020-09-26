@@ -1,5 +1,6 @@
 
 import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '../extern/base.mjs';
+import { DATETIME                                                     } from '../source/parser/DATETIME.mjs';
 import { IP                                                           } from '../source/parser/IP.mjs';
 import { UA                                                           } from '../source/parser/UA.mjs';
 import { URL                                                          } from '../source/parser/URL.mjs';
@@ -1071,7 +1072,9 @@ Element.prototype = {
 				if (type === 'input') {
 
 					let map = this.node.getAttribute('data-map');
-					if (map === 'IP') {
+					if (map === 'DATETIME') {
+						this.node.value = DATETIME.render(value);
+					} else if (map === 'IP') {
 						this.node.value = IP.render(value);
 					} else if (map === 'UA') {
 						this.node.value = UA.render(value);
@@ -1109,7 +1112,15 @@ Element.prototype = {
 				} else if (type === 'textarea') {
 
 					let map = this.node.getAttribute('data-map');
-					if (map === 'IP') {
+					if (map === 'DATETIME') {
+
+						if (isArray(value) === true) {
+							this.node.value = value.map((v) => DATETIME.render(v)).join('\n');
+						} else {
+							this.node.value = DATETIME.render(value);
+						}
+
+					} else if (map === 'IP') {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => IP.render(v)).join('\n');
@@ -1170,7 +1181,17 @@ Element.prototype = {
 				} else {
 
 					let map = this.node.getAttribute('data-map');
-					if (map === 'IP') {
+					if (map === 'DATETIME') {
+
+						destroy_children.call(this);
+
+						if (isArray(value) === true) {
+							this.node.innerHTML = value.map((v) => DATETIME.render(v)).join('\n');
+						} else {
+							this.node.innerHTML = DATETIME.render(value);
+						}
+
+					} else if (map === 'IP') {
 
 						destroy_children.call(this);
 
@@ -1263,7 +1284,16 @@ Element.prototype = {
 					let map = this.node.getAttribute('data-map');
 					let val = (this.node.value).trim();
 
-					if (map === 'IP') {
+					if (map === 'DATETIME') {
+
+						let check = DATETIME.parse(val);
+						if (DATETIME.isDATETIME(check) === true) {
+							return check;
+						} else {
+							return null;
+						}
+
+					} else if (map === 'IP') {
 
 						let check = IP.parse(val);
 						if (IP.isIP(check) === true) {
@@ -1314,7 +1344,19 @@ Element.prototype = {
 					let map = this.node.getAttribute('data-map');
 					let val = (this.node.value).trim();
 
-					if (map === 'IP') {
+					if (map === 'DATETIME') {
+
+						return val.split('\n').map((v) => {
+							return v.trim();
+						}).filter((v) => {
+							return v !== '';
+						}).map((v) => {
+							return DATETIME.parse(v);
+						}).filter((date) => {
+							return DATETIME.isDATETIME(date) === true;
+						});
+
+					} else if (map === 'IP') {
 
 						return val.split('\n').map((v) => {
 							return v.trim();
@@ -1380,7 +1422,32 @@ Element.prototype = {
 					let map = this.node.getAttribute('data-map');
 					let val = (this.node.innerHTML).trim();
 
-					if (map === 'IP') {
+					if (map === 'DATETIME') {
+
+						if (val.includes('\n')) {
+
+							return val.split('\n').map((v) => {
+								return v.trim();
+							}).filter((v) => {
+								return v !== '';
+							}).map((v) => {
+								return DATETIME.parse(v);
+							}).filter((date) => {
+								return DATETIME.isDATETIME(date) === true;
+							});
+
+						} else {
+
+							let check = DATETIME.parse(val);
+							if (DATETIME.isDATETIME(check) === true) {
+								return check;
+							} else {
+								return null;
+							}
+
+						}
+
+					} else if (map === 'IP') {
 
 						if (val.includes('\n')) {
 
