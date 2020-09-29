@@ -26,6 +26,7 @@ import connection_WS      from './connection/WS.mjs';
 import connection_WSS     from './connection/WSS.mjs';
 import optimizer_CSS      from './optimizer/CSS.mjs';
 import parser_CSS         from './parser/CSS.mjs';
+import parser_DATETIME    from './parser/DATETIME.mjs';
 import parser_HOSTS       from './parser/HOSTS.mjs';
 import parser_IP          from './parser/IP.mjs';
 import parser_UA          from './parser/UA.mjs';
@@ -53,6 +54,7 @@ export default {
 
 		// Parsers
 		parser_CSS,
+		parser_DATETIME,
 		parser_HOSTS,
 		parser_IP,
 		parser_UA,

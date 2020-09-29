@@ -895,17 +895,17 @@ const SPIDER = {
 
 const UA = {
 
-	isUA: function(ref) {
+	isUA: function(payload) {
 
-		ref = isObject(ref) ? ref : null;
+		payload = isObject(payload) ? payload : null;
 
 
-		if (ref !== null) {
+		if (payload !== null) {
 
-			let engine   = ref.engine   || null;
-			let platform = ref.platform || null;
-			let system   = ref.system   || null;
-			let version  = ref.version  || null;
+			let engine   = payload.engine   || null;
+			let platform = payload.platform || null;
+			let system   = payload.system   || null;
+			let version  = payload.version  || null;
 
 			if (platform === 'browser') {
 
@@ -1004,12 +1004,12 @@ const UA = {
 
 	},
 
-	render: function(ref) {
+	render: function(ua) {
 
-		ref = isObject(ref) ? ref : null;
+		ua = isObject(ua) ? ua : null;
 
 
-		if (ref !== null) {
+		if (ua !== null) {
 
 			let useragent = null;
 			let data      = Object.assign({
@@ -1017,7 +1017,7 @@ const UA = {
 				platform: null,
 				system:   null,
 				version:  null
-			}, ref);
+			}, ua);
 
 
 			if (data.platform === null) {
