@@ -145,18 +145,8 @@ up an Issue and we'll be happy to talk about it :)
 
 ## License
 
-### Private Usage
-
-Private Usage of [Stealth](/stealth), including its [Browser](/browser/source) and
+Usage of [Stealth](/stealth), including its [Browser](/browser/source) and
 [Browser UI](/browser/design) is licensed under [GNU GPL 3](./LICENSE_GPL3.txt).
 
-### Commercial Usage
-
-Commercial Usage is meant for Businesses and Companies that use Stealth for Web Automation,
-Web Scraping, Web Filtering or Web Intelligence purposes.
-
-A Commercial License will be available for purchase once Stealth reaches the `X0`
-milestone and is released to the public.
-
-For the time being, assume `All Rights Reserved` and `(c) 2019-* Tholian(r) Network` for Commercial Usage.
+`(c) 2019-2020 Tholian(r) Network`
 
