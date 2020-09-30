@@ -82,7 +82,47 @@ const destroy_children = function() {
 
 };
 
-const parse_value = function(raw) {
+const filter_value = (value, parsify, verify, mapify) => {
+
+	value   = isString(value)     ? value   : null;
+	parsify = isFunction(parsify) ? parsify : (v) => v;
+	verify  = isFunction(verify)  ? verify  : (v) => (v !== undefined && v !== null);
+	mapify  = isFunction(mapify)  ? mapify  : (v) => v;
+
+
+	let data = parsify(value);
+
+	if (verify(data) === true) {
+		return mapify(data);
+	}
+
+	return null;
+
+};
+
+const filter_values = (values, parsify, verify, mapify) => {
+
+	values  = isArray(values)     ? values  : [];
+	parsify = isFunction(parsify) ? parsify : (v) => v;
+	verify  = isFunction(verify)  ? verify  : (v) => (v !== undefined && v !== null);
+	mapify  = isFunction(mapify)  ? mapify  : (v) => v;
+
+
+	return values.map((value) => {
+		return value.trim();
+	}).filter((value) => {
+		return value !== '';
+	}).map((value) => {
+		return parsify(value);
+	}).filter((value) => {
+		return verify(value);
+	}).map((value) => {
+		return mapify(value);
+	});
+
+};
+
+const parse_value = (raw) => {
 
 	raw = isString(raw) ? raw : (raw).toString();
 
@@ -141,7 +181,7 @@ const parse_value = function(raw) {
 
 };
 
-const render_value = function(val) {
+const render_value = (val) => {
 
 	let san = '';
 
@@ -163,7 +203,7 @@ const render_value = function(val) {
 
 };
 
-const validate_value = function(value, pattern) {
+const validate_value = (value, pattern) => {
 
 	value   = isString(value)   ? value   : render_value(value);
 	pattern = isString(pattern) ? pattern : null;
@@ -1072,7 +1112,7 @@ Element.prototype = {
 				if (type === 'input') {
 
 					let map = this.node.getAttribute('data-map');
-					if (map === 'DATETIME') {
+					if (map === 'DATETIME' || map === 'DATE' || map === 'TIME') {
 						this.node.value = DATETIME.render(value);
 					} else if (map === 'IP') {
 						this.node.value = IP.render(value);
@@ -1112,7 +1152,7 @@ Element.prototype = {
 				} else if (type === 'textarea') {
 
 					let map = this.node.getAttribute('data-map');
-					if (map === 'DATETIME') {
+					if (map === 'DATETIME' || map === 'DATE' || map === 'TIME') {
 
 						if (isArray(value) === true) {
 							this.node.value = value.map((v) => DATETIME.render(v)).join('\n');
@@ -1181,7 +1221,7 @@ Element.prototype = {
 				} else {
 
 					let map = this.node.getAttribute('data-map');
-					if (map === 'DATETIME') {
+					if (map === 'DATETIME' || map === 'DATE' || map === 'TIME') {
 
 						destroy_children.call(this);
 
@@ -1286,56 +1326,40 @@ Element.prototype = {
 
 					if (map === 'DATETIME') {
 
-						let check = DATETIME.parse(val);
-						if (DATETIME.isDATETIME(check) === true) {
-							return check;
-						} else {
-							return null;
-						}
+						return filter_value(val, DATETIME.parse, DATETIME.isDATETIME);
+
+					} else if (map === 'DATE') {
+
+						return filter_value(val, DATETIME.parse, DATETIME.isDATE);
+
+					} else if (map === 'TIME') {
+
+						return filter_value(val, DATETIME.parse, DATETIME.isTIME);
 
 					} else if (map === 'IP') {
 
-						let check = IP.parse(val);
-						if (IP.isIP(check) === true) {
-							return check;
-						} else {
-							return null;
-						}
+						return filter_value(val, IP.parse, IP.isIP);
 
 					} else if (map === 'UA') {
 
-						let check = UA.parse(val);
-						if (UA.isUA(check) === true) {
-							return check;
-						} else {
-							return null;
-						}
+						return filter_value(val, UA.parse, UA.isUA);
 
 					} else if (map === 'URL') {
 
-						let check = URL.parse(val);
-						if (URL.isURL(check) === true) {
-							return check;
-						} else {
-							return null;
-						}
+						return filter_value(val, URL.parse, URL.isURL);
 
 					} else {
 
-						let pattern = this.node.getAttribute('pattern');
-						if (pattern !== null) {
+						return filter_value(val, null, (value) => {
 
-							if (validate_value(val, pattern) === true) {
-								return parse_value(val);
+							let pattern = this.node.getAttribute('pattern');
+							if (pattern !== null) {
+								return validate_value(value, pattern);
 							} else {
-								return null;
+								return true;
 							}
 
-						} else {
-
-							return parse_value(val);
-
-						}
+						}, (value) => parse_value(value));
 
 					}
 
@@ -1346,74 +1370,40 @@ Element.prototype = {
 
 					if (map === 'DATETIME') {
 
-						return val.split('\n').map((v) => {
-							return v.trim();
-						}).filter((v) => {
-							return v !== '';
-						}).map((v) => {
-							return DATETIME.parse(v);
-						}).filter((date) => {
-							return DATETIME.isDATETIME(date) === true;
-						});
+						return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDATETIME);
+
+					} else if (map === 'DATE') {
+
+						return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDATE);
+
+					} else if (map === 'TIME') {
+
+						return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isTIME);
 
 					} else if (map === 'IP') {
 
-						return val.split('\n').map((v) => {
-							return v.trim();
-						}).filter((v) => {
-							return v !== '';
-						}).map((v) => {
-							return IP.parse(v);
-						}).filter((ip) => {
-							return IP.isIP(ip) === true;
-						});
+						return filter_values(val.split('\n'), IP.parse, IP.isIP);
 
 					} else if (map === 'UA') {
 
-						return val.split('\n').map((v) => {
-							return v.trim();
-						}).filter((v) => {
-							return v !== '';
-						}).map((v) => {
-							return UA.parse(v);
-						}).filter((ua) => {
-							return UA.isUA(ua) === true;
-						});
+						return filter_values(val.split('\n'), UA.parse, UA.isUA);
 
 					} else if (map === 'URL') {
 
-						return val.split('\n').map((v) => {
-							return v.trim();
-						}).filter((v) => {
-							return v !== '';
-						}).map((v) => {
-							return URL.parse(v);
-						}).filter((url) => {
-							return URL.isURL(url) === true;
-						});
+						return filter_values(val.split('\n'), URL.parse, URL.isURL);
 
 					} else {
 
-						let pattern = this.node.getAttribute('pattern');
-						if (pattern !== null) {
+						return filter_values(val.split('\n'), null, (value) => {
 
-							return val.split('\n').map((v) => {
-								return v.trim();
-							}).filter((v) => {
-								return validate_value(v, pattern);
-							}).map((v) => {
-								return parse_value(v);
-							});
+							let pattern = this.node.getAttribute('pattern');
+							if (pattern !== null) {
+								return validate_value(value, pattern);
+							} else {
+								return true;
+							}
 
-						} else {
-
-							return val.split('\n').map((v) => {
-								return v.trim();
-							}).map((v) => {
-								return parse_value(v);
-							});
-
-						}
+						}, (value) => parse_value(value));
 
 					}
 
@@ -1425,109 +1415,57 @@ Element.prototype = {
 					if (map === 'DATETIME') {
 
 						if (val.includes('\n')) {
-
-							return val.split('\n').map((v) => {
-								return v.trim();
-							}).filter((v) => {
-								return v !== '';
-							}).map((v) => {
-								return DATETIME.parse(v);
-							}).filter((date) => {
-								return DATETIME.isDATETIME(date) === true;
-							});
-
+							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDATETIME);
 						} else {
+							return filter_value(val, DATETIME.parse, DATETIME.isDATETIME);
+						}
 
-							let check = DATETIME.parse(val);
-							if (DATETIME.isDATETIME(check) === true) {
-								return check;
-							} else {
-								return null;
-							}
+					} else if (map === 'DATE') {
 
+						if (val.includes('\n')) {
+							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDATE);
+						} else {
+							return filter_value(val, DATETIME.parse, DATETIME.isDATE);
+						}
+
+					} else if (map === 'TIME') {
+
+						if (val.includes('\n')) {
+							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isTIME);
+						} else {
+							return filter_value(val, DATETIME.parse, DATETIME.isTIME);
 						}
 
 					} else if (map === 'IP') {
 
 						if (val.includes('\n')) {
-
-							return val.split('\n').map((v) => {
-								return v.trim();
-							}).filter((v) => {
-								return v !== '';
-							}).map((v) => {
-								return IP.parse(v);
-							}).filter((ip) => {
-								return IP.isIP(ip) === true;
-							});
-
+							return filter_values(val.split('\n'), IP.parse, IP.isIP);
 						} else {
-
-							let check = IP.parse(val);
-							if (IP.isIP(check) === true) {
-								return check;
-							} else {
-								return null;
-							}
-
+							return filter_value(val, IP.parse, IP.isIP);
 						}
 
 					} else if (map === 'UA') {
 
 						if (val.includes('\n')) {
-
-							return val.split('\n').map((v) => {
-								return v.trim();
-							}).filter((v) => {
-								return v !== '';
-							}).map((v) => {
-								return UA.parse(v);
-							}).filter((ua) => {
-								return UA.isUA(ua) === true;
-							});
-
+							return filter_values(val.split('\n'), UA.parse, UA.isUA);
 						} else {
-
-							let check = UA.parse(val);
-							if (UA.isUA(check) === true) {
-								return check;
-							} else {
-								return null;
-							}
-
+							return filter_value(val, UA.parse, UA.isUA);
 						}
 
 					} else if (map === 'URL') {
 
 						if (val.includes('\n')) {
-
-							return val.split('\n').map((v) => {
-								return v.trim();
-							}).filter((v) => {
-								return v !== '';
-							}).map((v) => {
-								return URL.parse(v);
-							}).filter((url) => {
-								return URL.isURL(url) === true;
-							});
-
+							return filter_values(val.split('\n'), URL.parse, URL.isURL);
 						} else {
-
-							let check = URL.parse(val);
-							if (URL.isURL(check) === true) {
-								return check;
-							} else {
-								return null;
-							}
-
+							return filter_value(val, URL.parse, URL.isURL);
 						}
 
 					} else {
 
 						if (val.includes('\n')) {
-							return val.split('\n').map((v) => parse_value(v));
+							return filter_values(val.split('\n'), null, null, (value) => parse_value(value));
 						} else {
-							return parse_value(val);
+							return filter_values(val, null, null, (value) => parse_value(value));
 						}
 
 					}

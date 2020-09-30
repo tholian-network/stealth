@@ -91,7 +91,7 @@ browser-card-tab-header-history {
 	display: block;
 	position: relative;
 	width: calc(100% - 64px);
-	height: calc(64px + 16px + 4px);
+	/* height: calc(64px + 16px + 4px); */
 	line-height: 64px;
 	margin: 0px auto;
 	padding: 0px;
@@ -100,6 +100,7 @@ browser-card-tab-header-history {
 	vertical-align: middle;
 	white-space: nowrap;
 	box-sizing: border-box;
+	text-align: center;
 	transition: 200ms all ease-out;
 	overflow-x: auto;
 	overflow-y: hidden;
@@ -110,14 +111,14 @@ browser-card-tab-header-history > button {
 	display: inline-block;
 	width: 32px;
 	height: 32px;
-	margin: 0px 0px 0px 16px;
+	margin: 16px 16px 16px 0px;
 	padding: 0px;
 	border: 1px solid var(--element-default-color);
 	box-sizing: border-box;
 }
 
 browser-card-tab-header-history > button:first-of-type {
-	margin-left: 0px;
+	margin-left: 16px;
 }
 
 browser-card-tab-header-history > button.active {
@@ -147,8 +148,12 @@ browser-card-tab-header-history > button[title^="stealth:fix-request"]:before { 
 
 browser-card-tab-article {
 	display: block;
+	margin: 0px auto;
+	padding: 0px;
+	width: 320px;
 	max-height: 0px;
 	box-sizing: border-box;
+	text-align: center;
 	transition: 200ms all ease-out;
 	overflow: hidden;
 }
@@ -165,7 +170,8 @@ browser-card-tab-article > button[data-key="history.mode.other"]:before { conten
 browser-card-tab-article > button[data-val="true"]                      { color: var(--element-active-color); }
 browser-card-tab-article > button[data-val="true"]:hover                { color: var(--element-active-color); }
 
-browser-card-tab-article > code {
+browser-card-tab-article > code,
+browser-card-tab-article > div code {
 	display: block;
 	margin: 0px;
 	padding: 4px;
@@ -173,6 +179,35 @@ browser-card-tab-article > code {
 	color: var(--layout-default-color);
 	background: var(--layout-default-background);
 	border-radius: 4px;
+}
+
+browser-card-tab-article > div {
+	margin: 0px 0px 0.5em 0px;
+}
+
+browser-card-tab-article > div:after {
+	display: block;
+	content: '';
+	clear: both;
+}
+
+browser-card-tab-article > div code[data-key="history.date"] {
+	display: inline-block;
+	float: left;
+	margin: 0px 1em 0px 0px;
+}
+
+browser-card-tab-article > div code[data-key="history.time"] {
+	display: inline-block;
+	float: right;
+	margin: 0px;
+}
+
+browser-card-tab-article > code[data-key="history.link"] {
+	display: block;
+	margin: 0px 0px 0.5em 0px;
+	text-align: left;
+	overflow: auto;
 }
 
 

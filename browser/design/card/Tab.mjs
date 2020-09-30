@@ -3,6 +3,7 @@ import { Element                                          } from '../Element.mjs
 import { Widget                                           } from '../Widget.mjs';
 import { isArray, isBoolean, isNumber, isObject, isString } from '../../extern/base.mjs';
 import { isTab                                            } from '../../source/Tab.mjs';
+import { DATETIME                                         } from '../../source/parser/DATETIME.mjs';
 
 
 
@@ -11,7 +12,8 @@ const isEvent = function(event) {
 	if (
 		isObject(event) === true
 		&& isString(event.link) === true
-		&& isNumber(event.time) === true
+		&& DATETIME.isDATE(event.date) === true
+		&& DATETIME.isTIME(event.time) === true
 		&& isObject(event.mode) === true
 		&& isString(event.mode.domain) === true
 		&& isBoolean(event.mode.mode.text) === true
@@ -25,6 +27,44 @@ const isEvent = function(event) {
 
 
 	return false;
+
+};
+
+const toEvent = function(event) {
+
+	if (isNumber(event.time) === true) {
+
+		let datetime = DATETIME.parse(event.time);
+		if (DATETIME.isDATETIME(datetime) === true) {
+
+			event.date = {
+				year:   datetime.year,
+				month:  datetime.month,
+				day:    datetime.day,
+				hour:   null,
+				minute: null,
+				second: null
+			};
+
+			event.time = {
+				year:   null,
+				month:  null,
+				day:    null,
+				hour:   datetime.hour,
+				minute: datetime.minute,
+				second: datetime.second
+			};
+
+		}
+
+	} else {
+
+		event.date = null;
+		event.time = null;
+
+	}
+
+	return event;
 
 };
 
@@ -75,8 +115,11 @@ const Tab = function(browser, actions) {
 		'\t<button title="Later Site" data-action="next"></button>',
 		'</browser-card-tab-header>',
 		'<browser-card-tab-article>',
+		'\t<div>',
+		'\t\t<code data-key="history.date" data-map="DATE">2021-02-01</code>',
+		'\t\t<code data-key="history.time" data-map="TIME">01:02:03</code>',
+		'\t</div>',
 		'\t<code data-key="history.link">stealth:welcome</code>',
-		'\t<code data-key="history.time" data-map="DATETIME">01.02.2021 13:37:00</code>',
 		'\t<button title="Allow/Disallow Text" data-key="history.mode.text" data-val="false" disabled></button>',
 		'\t<button title="Allow/Disallow Image" data-key="history.mode.image" data-val="false" disabled></button>',
 		'\t<button title="Allow/Disallow Audio" data-key="history.mode.audio" data-val="false" disabled></button>',
@@ -108,6 +151,7 @@ const Tab = function(browser, actions) {
 					other: this.element.query('[data-key="history.mode.other"]')
 				}
 			},
+			date: this.element.query('[data-key="history.date"]'),
 			time: this.element.query('[data-key="history.time"]')
 		}
 	};
@@ -323,7 +367,7 @@ Tab.prototype = Object.assign({}, Widget.prototype, {
 
 			if (isArray(value.history) === true) {
 
-				value.history = value.history.filter((h) => isEvent(h));
+				value.history = value.history.filter((h) => toEvent(h));
 
 
 				let history = this.element.query('browser-card-tab-header-history');
