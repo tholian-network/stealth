@@ -2,6 +2,7 @@
 import { describe, finish } from '../../covert/index.mjs';
 import { Request          } from '../../stealth/source/Request.mjs';
 import { Tab, isTab       } from '../../stealth/source/Tab.mjs';
+import { DATETIME         } from '../../stealth/source/parser/DATETIME.mjs';
 import { URL              } from '../../stealth/source/parser/URL.mjs';
 
 
@@ -26,28 +27,37 @@ const mock_tab_with_history = () => {
 		}
 	};
 
+	let datetime1 = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24) - 1000));
+	let datetime2 = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24) + 1000));
+	let datetime3 = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 7) - 1000));
+	let datetime4 = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 7) + 1000));
+
 	json.data.history.push({
+		date: DATETIME.render(DATETIME.toDate(datetime1)),
 		link: 'https://example.com/a-day-ago/before.html',
 		mode: json.data.mode,
-		time: Date.now() - (1000 * 60 * 60 * 24) - 1000
+		time: DATETIME.render(DATETIME.toTime(datetime1))
 	});
 
 	json.data.history.push({
+		date: DATETIME.render(DATETIME.toDate(datetime2)),
 		link: 'https://example.com/a-day-ago/after.html',
 		mode: json.data.mode,
-		time: Date.now() - (1000 * 60 * 60 * 24) + 1000
+		time: DATETIME.render(DATETIME.toTime(datetime2))
 	});
 
 	json.data.history.push({
+		date: DATETIME.render(DATETIME.toDate(datetime3)),
 		link: 'https://example.com/a-week-ago/before.html',
 		mode: json.data.mode,
-		time: Date.now() - (1000 * 60 * 60 * 24 * 7) - 1000
+		time: DATETIME.render(DATETIME.toTime(datetime3))
 	});
 
 	json.data.history.push({
+		date: DATETIME.render(DATETIME.toDate(datetime4)),
 		link: 'https://example.com/a-week-ago/after.html',
 		mode: json.data.mode,
-		time: Date.now() - (1000 * 60 * 60 * 24 * 7) + 1000
+		time: DATETIME.render(DATETIME.toTime(datetime4))
 	});
 
 	return json;
@@ -182,6 +192,7 @@ describe('Tab.from()', function(assert) {
 		data: {
 			id: '1337',
 			history: [{
+				date: '2020-01-01',
 				link: 'https://example.com/index.html',
 				mode: {
 					domain: 'example.com',
@@ -193,7 +204,7 @@ describe('Tab.from()', function(assert) {
 						other: true
 					}
 				},
-				time: Date.now()
+				time: '01:02:03'
 			}]
 		}
 	});
@@ -257,6 +268,7 @@ describe('Tab.merge()', function(assert) {
 		data: {
 			id: '1337',
 			history: [{
+				date: '2020-01-01',
 				link: 'https://example.com/index.html',
 				mode: {
 					domain: 'example.com',
@@ -268,7 +280,7 @@ describe('Tab.merge()', function(assert) {
 						other: true
 					}
 				},
-				time: Date.now()
+				time: '01:02:03'
 			}]
 		}
 	});
@@ -323,6 +335,7 @@ describe('Tab.prototype.toJSON()', function(assert) {
 				}
 			},
 			history: [{
+				date: '2020-01-01',
 				link: 'https://example.com/index.html',
 				mode: {
 					domain: 'example.com',
@@ -334,13 +347,14 @@ describe('Tab.prototype.toJSON()', function(assert) {
 						other: true
 					}
 				},
-				time: Date.now()
+				time: '01:02:03'
 			}],
 			url: 'https://example.com/second.html'
 		}
 	});
 
-	let json = tab.toJSON();
+	let datetime = DATETIME.parse(new Date());
+	let json     = tab.toJSON();
 
 	assert(json.type, 'Tab');
 	assert(json.data, {
@@ -356,6 +370,7 @@ describe('Tab.prototype.toJSON()', function(assert) {
 			}
 		},
 		history: [{
+			date: '2020-01-01',
 			link: 'https://example.com/index.html',
 			mode: {
 				domain: 'example.com',
@@ -367,8 +382,9 @@ describe('Tab.prototype.toJSON()', function(assert) {
 					other: true
 				}
 			},
-			time: Date.now()
+			time: '01:02:03'
 		}, {
+			date: DATETIME.render(DATETIME.toDate(datetime)),
 			link: 'https://example.com/second.html',
 			mode: {
 				domain: 'example.com',
@@ -380,7 +396,7 @@ describe('Tab.prototype.toJSON()', function(assert) {
 					other: true
 				}
 			},
-			time: Date.now()
+			time: DATETIME.render(DATETIME.toTime(datetime))
 		}],
 		requests: [],
 		url: 'https://example.com/second.html'

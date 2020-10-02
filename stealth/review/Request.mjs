@@ -1,7 +1,8 @@
 
-import { isFunction, isNumber                     } from '../../base/index.mjs';
+import { isFunction                               } from '../../base/index.mjs';
 import { after, before, describe, finish, EXAMPLE } from '../../covert/index.mjs';
 import { Request, isRequest                       } from '../../stealth/source/Request.mjs';
+import { DATETIME                                 } from '../../stealth/source/parser/DATETIME.mjs';
 import { connect, disconnect                      } from './Server.mjs';
 
 
@@ -231,17 +232,17 @@ describe('Request.prototype.start()', function(assert) {
 				error:    false
 			});
 
-			assert(isNumber(request.timeline.start),    true);
-			assert(isNumber(request.timeline.cache),    true);
-			assert(isNumber(request.timeline.stash),    true);
-			assert(isNumber(request.timeline.block),    true);
-			assert(isNumber(request.timeline.mode),     true);
-			assert(isNumber(request.timeline.connect),  true);
-			assert(isNumber(request.timeline.download), true);
-			assert(isNumber(request.timeline.optimize), true);
-			assert(isNumber(request.timeline.response), true);
-			assert(request.timeline.redirect,           null);
-			assert(request.timeline.error,              null);
+			assert(DATETIME.isDATETIME(request.timeline.start),    true);
+			assert(DATETIME.isDATETIME(request.timeline.cache),    true);
+			assert(DATETIME.isDATETIME(request.timeline.stash),    true);
+			assert(DATETIME.isDATETIME(request.timeline.block),    true);
+			assert(DATETIME.isDATETIME(request.timeline.mode),     true);
+			assert(DATETIME.isDATETIME(request.timeline.connect),  true);
+			assert(DATETIME.isDATETIME(request.timeline.download), true);
+			assert(DATETIME.isDATETIME(request.timeline.optimize), true);
+			assert(DATETIME.isDATETIME(request.timeline.response), true);
+			assert(request.timeline.redirect,                      null);
+			assert(request.timeline.error,                         null);
 
 		}, 0);
 
@@ -276,17 +277,17 @@ describe('Request.prototype.start()/cache', function(assert) {
 			error:    false
 		});
 
-		assert(isNumber(request.timeline.start),    true);
-		assert(isNumber(request.timeline.cache),    true);
-		assert(request.timeline.stash,              null);
-		assert(request.timeline.block,              null);
-		assert(request.timeline.mode,               null);
-		assert(request.timeline.connect,            null);
-		assert(request.timeline.download,           null);
-		assert(isNumber(request.timeline.optimize), true);
-		assert(isNumber(request.timeline.response), true);
-		assert(request.timeline.redirect,           null);
-		assert(request.timeline.error,              null);
+		assert(DATETIME.isDATETIME(request.timeline.start),    true);
+		assert(DATETIME.isDATETIME(request.timeline.cache),    true);
+		assert(request.timeline.stash,                         null);
+		assert(request.timeline.block,                         null);
+		assert(request.timeline.mode,                          null);
+		assert(request.timeline.connect,                       null);
+		assert(request.timeline.download,                      null);
+		assert(DATETIME.isDATETIME(request.timeline.optimize), true);
+		assert(DATETIME.isDATETIME(request.timeline.response), true);
+		assert(request.timeline.redirect,                      null);
+		assert(request.timeline.error,                         null);
 
 	}, 500);
 
@@ -393,17 +394,17 @@ describe('Request.prototype.stop()', function(assert) {
 			error:    false
 		});
 
-		assert(isNumber(request.timeline.start),    true);
-		assert(isNumber(request.timeline.cache),    true);
-		assert(isNumber(request.timeline.stash),    true);
-		assert(isNumber(request.timeline.block),    true);
-		assert(isNumber(request.timeline.mode),     true);
-		assert(isNumber(request.timeline.connect),  true);
-		assert(isNumber(request.timeline.download), true);
-		assert(request.timeline.optimize,           null);
-		assert(request.timeline.response,           null);
-		assert(request.timeline.redirect,           null);
-		assert(request.timeline.error,              null);
+		assert(DATETIME.isDATETIME(request.timeline.start),    true);
+		assert(DATETIME.isDATETIME(request.timeline.cache),    true);
+		assert(DATETIME.isDATETIME(request.timeline.stash),    true);
+		assert(DATETIME.isDATETIME(request.timeline.block),    true);
+		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
+		assert(DATETIME.isDATETIME(request.timeline.connect),  true);
+		assert(DATETIME.isDATETIME(request.timeline.download), true);
+		assert(request.timeline.optimize,                      null);
+		assert(request.timeline.response,                      null);
+		assert(request.timeline.redirect,                      null);
+		assert(request.timeline.error,                         null);
 
 	}, 500);
 
