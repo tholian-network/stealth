@@ -48,15 +48,15 @@ describe('HOSTS.isHost()/block', function(assert) {
 
 });
 
-describe('HOSTS.isHosts()/block', function(assert) {
+describe('HOSTS.isHOSTS()/block', function(assert) {
 
 	let domain1 = find_domain(this.block, 'malicious.example.com');
 	let domain2 = find_domain(this.block, 'ad.example.com');
 	let domain3 = find_domain(this.block, 'tracker.example.com');
 
-	let result1 = HOSTS.isHosts([ domain1 ]);
-	let result2 = HOSTS.isHosts([ domain1, domain2 ]);
-	let result3 = HOSTS.isHosts([ domain1, domain2, domain3 ]);
+	let result1 = HOSTS.isHOSTS([ domain1 ]);
+	let result2 = HOSTS.isHOSTS([ domain1, domain2 ]);
+	let result3 = HOSTS.isHOSTS([ domain1, domain2, domain3 ]);
 
 	assert(result1, true);
 	assert(result2, true);
@@ -167,15 +167,15 @@ describe('HOSTS.isHost()/posix', function(assert) {
 
 });
 
-describe('HOSTS.isHosts()/posix', function(assert) {
+describe('HOSTS.isHOSTS()/posix', function(assert) {
 
 	let domain1 = find_domain(this.posix, 'router');
 	let domain2 = find_domain(this.posix, 'router.localdomain');
 	let domain3 = find_domain(this.posix, 'machine');
 
-	let result1 = HOSTS.isHosts([ domain1 ]);
-	let result2 = HOSTS.isHosts([ domain1, domain2 ]);
-	let result3 = HOSTS.isHosts([ domain1, domain2, domain3 ]);
+	let result1 = HOSTS.isHOSTS([ domain1 ]);
+	let result2 = HOSTS.isHOSTS([ domain1, domain2 ]);
+	let result3 = HOSTS.isHOSTS([ domain1, domain2, domain3 ]);
 
 	assert(result1, true);
 	assert(result2, true);

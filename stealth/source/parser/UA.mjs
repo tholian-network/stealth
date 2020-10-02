@@ -895,6 +895,45 @@ const SPIDER = {
 
 const UA = {
 
+	compare: function(a, b) {
+
+		let is_ua_a = UA.isUA(a) === true;
+		let is_ua_b = UA.isUA(b) === true;
+
+		if (is_ua_a === true && is_ua_b === true) {
+
+			if (a.platform === 'browser' && b.platform === 'spider') return -1;
+			if (b.platform === 'browser' && a.platform === 'spider') return 1;
+
+			if (a.system === 'desktop' && b.system === 'mobile') return -1;
+			if (b.system === 'desktop' && a.system === 'mobile') return 1;
+
+			if (a.engine < b.engine) return -1;
+			if (b.engine < a.engine) return 1;
+
+			let a_ver = parseFloat(a.version);
+			let b_ver = parseFloat(b.version);
+
+			if (Number.isNaN(a_ver) === false && Number.isNaN(b_ver) === false) {
+
+				if (a_ver < b_ver) return -1;
+				if (b_ver < a_ver) return 1;
+
+			}
+
+			return 0;
+
+		} else if (is_ua_a === true) {
+			return -1;
+		} else if (is_ua_b === true) {
+			return 1;
+		}
+
+
+		return 0;
+
+	},
+
 	isUA: function(payload) {
 
 		payload = isObject(payload) ? payload : null;
@@ -1089,29 +1128,10 @@ const UA = {
 
 		if (array !== null) {
 
-			return array.filter((ua) => UA.isUA(ua) === true).sort((a, b) => {
-
-				if (a.platform === 'browser' && b.platform === 'spider') return -1;
-				if (b.platform === 'browser' && a.platform === 'spider') return  1;
-
-				if (a.system === 'desktop' && b.system === 'mobile') return -1;
-				if (b.system === 'desktop' && a.system === 'mobile') return  1;
-
-				if (a.engine < b.engine) return -1;
-				if (b.engine < a.engine) return  1;
-
-				let a_ver = parseFloat(a.version);
-				let b_ver = parseFloat(b.version);
-
-				if (Number.isNaN(a_ver) === false && Number.isNaN(b_ver) === false) {
-
-					if (a_ver < b_ver) return -1;
-					if (b_ver < a_ver) return  1;
-
-				}
-
-				return 0;
-
+			return array.filter((ua) => {
+				return UA.isUA(ua) === true;
+			}).sort((a, b) => {
+				return UA.compare(a, b);
 			});
 
 		}

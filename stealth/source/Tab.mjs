@@ -1,6 +1,7 @@
 
-import { isArray, isBoolean, isNumber, isObject, isString } from '../extern/base.mjs';
-import { URL                                              } from './parser/URL.mjs';
+import { isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
+import { DATETIME                               } from './parser/DATETIME.mjs';
+import { URL                                    } from './parser/URL.mjs';
 
 
 
@@ -126,24 +127,37 @@ Tab.from = function(json) {
 
 			if (isArray(data.history) === true) {
 
-				let filtered = [];
-
-				data.history.forEach((event) => {
+				data.history.map((event) => {
 
 					if (
-						isString(event.link) === true
+						isString(event.date) === true
+						&& isString(event.link) === true
 						&& isMode(event.mode) === true
-						&& isNumber(event.time) === true
+						&& isString(event.time) === true
 					) {
-						filtered.push(event);
+
+						return {
+							date: DATETIME.parse(event.date),
+							link: event.link,
+							mode: event.mode,
+							time: DATETIME.parse(event.time)
+						};
+
 					}
 
-				});
+					return null;
 
-				filtered.sort((a, b) => {
-					if (a.time < b.time) return -1;
-					if (b.time < a.time) return  1;
-					return 0;
+				}).filter((event) => {
+					return event !== null;
+				}).sort((a, b) => {
+
+					let by_date = DATETIME.compare(a.date, b.date);
+					if (by_date === 0) {
+						return DATETIME.compare(a.time, b.time);
+					} else {
+						return by_date;
+					}
+
 				}).forEach((event) => {
 					tab.history.push(event);
 				});
@@ -190,9 +204,10 @@ Tab.merge = function(target, source) {
 			source.history.forEach((event) => {
 
 				if (
-					isString(event.link) === true
+					DATETIME.isDate(event.date) === true
+					&& isString(event.link) === true
 					&& isMode(event.mode) === true
-					&& isNumber(event.time) === true
+					&& DATETIME.isTime(event.time) === true
 				) {
 					target.history.push(event);
 				}
@@ -244,9 +259,10 @@ Tab.prototype = {
 				}
 			},
 			history: this.history.map((event) => ({
+				date: DATETIME.render(event.date),
 				link: event.link,
 				mode: event.mode,
-				time: event.time
+				time: DATETIME.render(event.time)
 			})),
 			requests: this.requests.map((request) => request.toJSON()),
 			url:      URL.render(this.url)
@@ -351,21 +367,37 @@ Tab.prototype = {
 		let limit = null;
 
 		if (until === 'stealth') {
-			limit = Date.now();
+			limit = DATETIME.parse(new Date());
 		} else if (until === 'day') {
-			limit = Date.now() - (1000 * 60 * 60 * 24);
+			limit = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24)));
 		} else if (until === 'week') {
-			limit = Date.now() - (1000 * 60 * 60 * 24 * 7);
+			limit = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 7)));
 		} else if (until === 'forever') {
-			limit = 0;
+			limit = DATETIME.parse('1582-01-01 00:00:00');
 		}
 
 		if (limit !== null) {
 
 			for (let h = 0, hl = this.history.length; h < hl; h++) {
 
+				let clear = false;
 				let event = this.history[h];
-				if (event.time <= limit) {
+
+				let cmp_date = DATETIME.compare(event.date, DATETIME.toDate(limit));
+				if (cmp_date === -1) {
+
+					clear = true;
+
+				} else if (cmp_date === 0) {
+
+					let cmp_time = DATETIME.compare(event.time, DATETIME.toTime(limit));
+					if (cmp_time === -1) {
+						clear = true;
+					}
+
+				}
+
+				if (clear === true) {
 					this.history.splice(h, 1);
 					hl--;
 					h--;
@@ -374,11 +406,16 @@ Tab.prototype = {
 			}
 
 			if (this.history.length === 0 && this.url !== null) {
+
+				let datetime = DATETIME.parse(new Date());
+
 				this.history.push({
+					date: DATETIME.toDate(datetime),
 					link: this.url.link,
 					mode: this.mode,
-					time: Date.now()
+					time: DATETIME.toTime(datetime)
 				});
+
 			}
 
 			return true;
@@ -429,10 +466,14 @@ Tab.prototype = {
 		this.url      = URL.parse('stealth:welcome');
 		this.requests = [];
 
+
+		let datetime = DATETIME.parse(new Date());
+
 		this.history.push({
+			date: DATETIME.toDate(datetime),
+			link: this.url.link,
 			mode: this.mode,
-			time: Date.now(),
-			link: this.url.link
+			time: DATETIME.toTime(datetime)
 		});
 
 	},
@@ -549,11 +590,16 @@ Tab.prototype = {
 
 					this.url = url;
 
+
+					let datetime = DATETIME.parse(new Date());
+
 					this.history.push({
+						date: DATETIME.toDate(datetime),
 						link: this.url.link,
 						mode: this.mode,
-						time: Date.now(),
+						time: DATETIME.toTime(datetime)
 					});
+
 
 					return true;
 

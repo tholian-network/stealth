@@ -4,6 +4,7 @@ import { isServer                               } from '../source/Server.mjs';
 import { HTTP                                   } from '../source/connection/HTTP.mjs';
 import { HTTPS                                  } from '../source/connection/HTTPS.mjs';
 import { SOCKS                                  } from '../source/connection/SOCKS.mjs';
+import { DATETIME                               } from '../source/parser/DATETIME.mjs';
 import { URL                                    } from '../source/parser/URL.mjs';
 
 
@@ -319,7 +320,7 @@ const Request = function(data, server) {
 
 	this.on('start', () => {
 
-		this.timeline.start = Date.now();
+		this.timeline.start = DATETIME.parse(new Date());
 
 		if (this.server !== null) {
 
@@ -349,7 +350,7 @@ const Request = function(data, server) {
 
 	this.on('stop', () => {
 
-		this.timeline.stop = Date.now();
+		this.timeline.stop = DATETIME.parse(new Date());
 
 		if (this.download !== null) {
 
@@ -372,7 +373,7 @@ const Request = function(data, server) {
 
 				this.server.services.cache.read(this.url, (response) => {
 
-					this.timeline.cache = Date.now();
+					this.timeline.cache = DATETIME.parse(new Date());
 
 					if (response.payload !== null) {
 						this.response = response.payload;
@@ -385,7 +386,7 @@ const Request = function(data, server) {
 
 			} else {
 
-				this.timeline.cache = Date.now();
+				this.timeline.cache = DATETIME.parse(new Date());
 				this.emit('stash');
 
 			}
@@ -406,7 +407,7 @@ const Request = function(data, server) {
 
 				this.server.services.stash.read(this.url, (response) => {
 
-					this.timeline.stash = Date.now();
+					this.timeline.stash = DATETIME.parse(new Date());
 
 					if (response.payload !== null) {
 
@@ -434,7 +435,7 @@ const Request = function(data, server) {
 
 			} else {
 
-				this.timeline.stash = Date.now();
+				this.timeline.stash = DATETIME.parse(new Date());
 				this.emit('block');
 
 			}
@@ -445,7 +446,7 @@ const Request = function(data, server) {
 
 	this.on('block', () => {
 
-		this.timeline.block = Date.now();
+		this.timeline.block = DATETIME.parse(new Date());
 
 		if (this.server !== null) {
 
@@ -483,7 +484,7 @@ const Request = function(data, server) {
 		let mime    = this.url.mime;
 		let allowed = this.mode.mode[mime.type] === true;
 
-		this.timeline.mode = Date.now();
+		this.timeline.mode = DATETIME.parse(new Date());
 
 		if (allowed === true) {
 
@@ -503,12 +504,12 @@ const Request = function(data, server) {
 
 		if (this.url.hosts.length > 0) {
 
-			this.timeline.connect = Date.now();
+			this.timeline.connect = DATETIME.parse(new Date());
 			this.emit('download');
 
 		} else {
 
-			this.timeline.connect = Date.now();
+			this.timeline.connect = DATETIME.parse(new Date());
 
 			if (this.server !== null) {
 
@@ -554,7 +555,7 @@ const Request = function(data, server) {
 
 	this.on('download', () => {
 
-		this.timeline.download = Date.now();
+		this.timeline.download = DATETIME.parse(new Date());
 
 
 		let useragent = this.get('useragent');
@@ -725,7 +726,7 @@ const Request = function(data, server) {
 
 	this.on('optimize', () => {
 
-		this.timeline.optimize = Date.now();
+		this.timeline.optimize = DATETIME.parse(new Date());
 
 		/* TODO: Implement Optimizer integration */
 
@@ -744,7 +745,7 @@ const Request = function(data, server) {
 
 		} else if (response !== null && response.headers !== null) {
 
-			this.timeline.redirect = Date.now();
+			this.timeline.redirect = DATETIME.parse(new Date());
 
 			let location = response.headers['location'] || null;
 			if (location !== null) {
@@ -765,7 +766,7 @@ const Request = function(data, server) {
 
 		if (response !== null && response.payload !== null) {
 
-			this.timeline.response = Date.now();
+			this.timeline.response = DATETIME.parse(new Date());
 
 			if (this.response !== response) {
 				this.response = response;
@@ -856,10 +857,20 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 			url:      URL.render(this.url),
 			download: null,
 			flags:    Object.assign({}, this.flags),
-			timeline: Object.assign({}, this.timeline),
+			timeline: {},
 			events:   blob.data.events,
 			journal:  blob.data.journal
 		};
+
+		Object.keys(this.timeline).forEach((event) => {
+
+			if (this.timeline[event] !== null) {
+				data.timeline[event] = DATETIME.render(this.timeline[event]);
+			} else {
+				data.timeline[event] = null;
+			}
+
+		});
 
 		if (this.download !== null) {
 			data.download = this.download.toJSON();

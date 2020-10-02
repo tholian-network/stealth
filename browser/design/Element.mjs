@@ -1330,11 +1330,11 @@ Element.prototype = {
 
 					} else if (map === 'DATE') {
 
-						return filter_value(val, DATETIME.parse, DATETIME.isDATE);
+						return filter_value(val, DATETIME.parse, DATETIME.isDate);
 
 					} else if (map === 'TIME') {
 
-						return filter_value(val, DATETIME.parse, DATETIME.isTIME);
+						return filter_value(val, DATETIME.parse, DATETIME.isTime);
 
 					} else if (map === 'IP') {
 
@@ -1374,11 +1374,11 @@ Element.prototype = {
 
 					} else if (map === 'DATE') {
 
-						return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDATE);
+						return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDate);
 
 					} else if (map === 'TIME') {
 
-						return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isTIME);
+						return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isTime);
 
 					} else if (map === 'IP') {
 
@@ -1423,17 +1423,17 @@ Element.prototype = {
 					} else if (map === 'DATE') {
 
 						if (val.includes('\n')) {
-							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDATE);
+							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDate);
 						} else {
-							return filter_value(val, DATETIME.parse, DATETIME.isDATE);
+							return filter_value(val, DATETIME.parse, DATETIME.isDate);
 						}
 
 					} else if (map === 'TIME') {
 
 						if (val.includes('\n')) {
-							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isTIME);
+							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isTime);
 						} else {
-							return filter_value(val, DATETIME.parse, DATETIME.isTIME);
+							return filter_value(val, DATETIME.parse, DATETIME.isTime);
 						}
 
 					} else if (map === 'IP') {

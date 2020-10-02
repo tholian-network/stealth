@@ -7,6 +7,97 @@ import { URL                                   } from './URL.mjs';
 
 const HOSTS = {
 
+	compare: function(a, b) {
+
+		let is_host_a = HOSTS.isHost(a) === true;
+		let is_host_b = HOSTS.isHost(b) === true;
+
+		if (is_host_a === true && is_host_b === true) {
+
+			let url_a = URL.parse(a.domain);
+			let url_b = URL.parse(b.domain);
+
+			if (url_a.domain !== null && url_b.domain !== null) {
+
+				if (url_a.domain < url_b.domain) return -1;
+				if (url_b.domain < url_a.domain) return 1;
+
+				if (url_a.subdomain !== null && url_b.subdomain !== null) {
+
+					if (url_a.subdomain < url_b.subdomain) return -1;
+					if (url_b.subdomain < url_a.subdomain) return 1;
+
+				} else {
+
+					if (url_a.subdomain !== null) return 1;
+					if (url_b.subdomain !== null) return -1;
+
+				}
+
+			} else {
+
+				if (url_a.domain !== null) return -1;
+				if (url_b.domain !== null) return 1;
+
+			}
+
+
+			let a_private = a.hosts.filter((ip) => ip.scope === 'private');
+			let b_private = b.hosts.filter((ip) => ip.scope === 'private');
+
+			if (a_private.length > 0 && b_private.length === 0) return -1;
+			if (b_private.length > 0 && a_private.length === 0) return 1;
+
+			if (a_private.length > 0 && b_private.length > 0) {
+
+				let a_v4 = a.hosts.filter((ip) => ip.type === 'v4');
+				let b_v4 = b.hosts.filter((ip) => ip.type === 'v4');
+
+				if (a_v4.length > 0 && b_v4.length === 0) return -1;
+				if (b_v4.length > 0 && a_v4.length === 0) return 1;
+
+				let a_ip = IP.sort(a_v4)[0];
+				let b_ip = IP.sort(b_v4)[0];
+
+				if (a_ip.ip < b_ip.ip) return -1;
+				if (b_ip.ip < a_ip.ip) return 1;
+
+			}
+
+
+			let a_public = a.hosts.filter((ip) => ip.scope === 'public');
+			let b_public = b.hosts.filter((ip) => ip.scope === 'public');
+
+			if (a_public.length > 0 && b_public.length > 0) {
+
+				let a_v4 = a.hosts.filter((ip) => ip.type === 'v4');
+				let b_v4 = b.hosts.filter((ip) => ip.type === 'v4');
+
+				if (a_v4.length > 0 && b_v4.length === 0) return -1;
+				if (b_v4.length > 0 && a_v4.length === 0) return 1;
+
+				let a_ip = IP.sort(a_v4)[0];
+				let b_ip = IP.sort(b_v4)[0];
+
+				if (a_ip.ip < b_ip.ip) return -1;
+				if (b_ip.ip < a_ip.ip) return 1;
+
+			}
+
+
+			return 0;
+
+		} else if (is_host_a === true) {
+			return -1;
+		} else if (is_host_b === true) {
+			return 1;
+		}
+
+
+		return 0;
+
+	},
+
 	isHost: function(payload) {
 
 		payload = isObject(payload) ? payload : null;
@@ -40,7 +131,7 @@ const HOSTS = {
 
 	},
 
-	isHosts: function(array) {
+	isHOSTS: function(array) {
 
 		array = isArray(array) ? array : null;
 
@@ -277,81 +368,10 @@ const HOSTS = {
 
 		if (array !== null) {
 
-			return array.filter((host) => HOSTS.isHost(host) === true).sort((a, b) => {
-
-				let url_a = URL.parse(a.domain);
-				let url_b = URL.parse(b.domain);
-
-				if (url_a.domain !== null && url_b.domain !== null) {
-
-					if (url_a.domain < url_b.domain) return -1;
-					if (url_b.domain < url_a.domain) return  1;
-
-					if (url_a.subdomain !== null && url_b.subdomain !== null) {
-
-						if (url_a.subdomain < url_b.subdomain) return -1;
-						if (url_b.subdomain < url_a.subdomain) return  1;
-
-					} else {
-
-						if (url_a.subdomain !== null) return  1;
-						if (url_b.subdomain !== null) return -1;
-
-					}
-
-				} else {
-
-					if (url_a.domain !== null) return -1;
-					if (url_b.domain !== null) return  1;
-
-				}
-
-
-				let a_private = a.hosts.filter((ip) => ip.scope === 'private');
-				let b_private = b.hosts.filter((ip) => ip.scope === 'private');
-
-				if (a_private.length > 0 && b_private.length === 0) return -1;
-				if (b_private.length > 0 && a_private.length === 0) return  1;
-
-				if (a_private.length > 0 && b_private.length > 0) {
-
-					let a_v4 = a.hosts.filter((ip) => ip.type === 'v4');
-					let b_v4 = b.hosts.filter((ip) => ip.type === 'v4');
-
-					if (a_v4.length > 0 && b_v4.length === 0) return -1;
-					if (b_v4.length > 0 && a_v4.length === 0) return  1;
-
-					let a_ip = IP.sort(a_v4)[0];
-					let b_ip = IP.sort(b_v4)[0];
-
-					if (a_ip.ip < b_ip.ip) return -1;
-					if (b_ip.ip < a_ip.ip) return  1;
-
-				}
-
-
-				let a_public = a.hosts.filter((ip) => ip.scope === 'public');
-				let b_public = b.hosts.filter((ip) => ip.scope === 'public');
-
-				if (a_public.length > 0 && b_public.length > 0) {
-
-					let a_v4 = a.hosts.filter((ip) => ip.type === 'v4');
-					let b_v4 = b.hosts.filter((ip) => ip.type === 'v4');
-
-					if (a_v4.length > 0 && b_v4.length === 0) return -1;
-					if (b_v4.length > 0 && a_v4.length === 0) return  1;
-
-					let a_ip = IP.sort(a_v4)[0];
-					let b_ip = IP.sort(b_v4)[0];
-
-					if (a_ip.ip < b_ip.ip) return -1;
-					if (b_ip.ip < a_ip.ip) return  1;
-
-				}
-
-
-				return 0;
-
+			return array.filter((host) => {
+				return HOSTS.isHost(host) === true;
+			}).sort((a, b) => {
+				return HOSTS.compare(a, b);
 			});
 
 		}

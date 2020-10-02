@@ -73,7 +73,93 @@ const render_time = function(time) {
 
 const DATETIME = {
 
-	isDATE: function(payload) {
+	compare: function(a, b) {
+
+		let is_datetime_a = DATETIME.isDATETIME(a) === true || DATETIME.isDate(a) === true || DATETIME.isTime(a) === true;
+		let is_datetime_b = DATETIME.isDATETIME(b) === true || DATETIME.isDate(b) === true || DATETIME.isTime(b) === true;
+
+		if (is_datetime_a === true && is_datetime_b === true) {
+
+			if (a.year !== null && b.year !== null) {
+
+				if (a.year < b.year) return -1;
+				if (a.year > b.year) return 1;
+
+			} else if (a.year !== null) {
+				return -1;
+			} else if (b.year !== null) {
+				return 1;
+			}
+
+			if (a.month !== null && b.month !== null) {
+
+				if (a.month < b.month) return -1;
+				if (a.month > b.month) return 1;
+
+			} else if (a.month !== null) {
+				return -1;
+			} else if (b.month !== null) {
+				return 1;
+			}
+
+			if (a.day !== null && b.day !== null) {
+
+				if (a.day < b.day) return -1;
+				if (a.day > b.day) return 1;
+
+			} else if (a.day !== null) {
+				return -1;
+			} else if (b.day !== null) {
+				return 1;
+			}
+
+			if (a.hour !== null && b.hour !== null) {
+
+				if (a.hour < b.hour) return -1;
+				if (a.hour > b.hour) return 1;
+
+			} else if (a.hour !== null) {
+				return -1;
+			} else if (b.hour !== null) {
+				return 1;
+			}
+
+			if (a.minute !== null && b.minute !== null) {
+
+				if (a.minute < b.minute) return -1;
+				if (a.minute > b.minute) return 1;
+
+			} else if (a.minute !== null) {
+				return -1;
+			} else if (b.minute !== null) {
+				return 1;
+			}
+
+			if (a.second !== null && b.second !== null) {
+
+				if (a.second < b.second) return -1;
+				if (a.second > b.second) return 1;
+
+			} else if (a.second !== null) {
+				return -1;
+			} else if (b.second !== null) {
+				return 1;
+			}
+
+			return 0;
+
+		} else if (is_datetime_a === true) {
+			return -1;
+		} else if (is_datetime_b === true) {
+			return 1;
+		}
+
+
+		return 0;
+
+	},
+
+	isDate: function(payload) {
 
 		payload = isObject(payload) ? payload : null;
 
@@ -145,7 +231,7 @@ const DATETIME = {
 
 	},
 
-	isTIME: function(payload) {
+	isTime: function(payload) {
 
 		payload = isObject(payload) ? payload : null;
 
@@ -383,9 +469,9 @@ const DATETIME = {
 
 			if (DATETIME.isDATETIME(datetime) === true) {
 				return render_date(datetime) + ' ' + render_time(datetime);
-			} else if (DATETIME.isDATE(datetime) === true) {
+			} else if (DATETIME.isDate(datetime) === true) {
 				return render_date(datetime);
-			} else if (DATETIME.isTIME(datetime) === true) {
+			} else if (DATETIME.isTime(datetime) === true) {
 				return render_time(datetime);
 			}
 
@@ -406,85 +492,63 @@ const DATETIME = {
 			return array.filter((datetime) => {
 				return (
 					DATETIME.isDATETIME(datetime) === true
-					|| DATETIME.isDATE(datetime) === true
-					|| DATETIME.isTIME(datetime) === true
+					|| DATETIME.isDate(datetime) === true
+					|| DATETIME.isTime(datetime) === true
 				);
 			}).sort((a, b) => {
-
-				if (a.year !== null && b.year !== null) {
-
-					if (a.year < b.year) return -1;
-					if (a.year > b.year) return  1;
-
-				} else if (a.year !== null) {
-					return -1;
-				} else if (b.year !== null) {
-					return  1;
-				}
-
-				if (a.month !== null && b.month !== null) {
-
-					if (a.month < b.month) return -1;
-					if (a.month > b.month) return  1;
-
-				} else if (a.month !== null) {
-					return -1;
-				} else if (b.month !== null) {
-					return  1;
-				}
-
-				if (a.day !== null && b.day !== null) {
-
-					if (a.day < b.day) return -1;
-					if (a.day > b.day) return  1;
-
-				} else if (a.day !== null) {
-					return -1;
-				} else if (b.day !== null) {
-					return  1;
-				}
-
-				if (a.hour !== null && b.hour !== null) {
-
-					if (a.hour < b.hour) return -1;
-					if (a.hour > b.hour) return  1;
-
-				} else if (a.hour !== null) {
-					return -1;
-				} else if (b.hour !== null) {
-					return  1;
-				}
-
-				if (a.minute !== null && b.minute !== null) {
-
-					if (a.minute < b.minute) return -1;
-					if (a.minute > b.minute) return  1;
-
-				} else if (a.minute !== null) {
-					return -1;
-				} else if (b.minute !== null) {
-					return  1;
-				}
-
-				if (a.second !== null && b.second !== null) {
-
-					if (a.second < b.second) return -1;
-					if (a.second > b.second) return  1;
-
-				} else if (a.second !== null) {
-					return -1;
-				} else if (b.second !== null) {
-					return  1;
-				}
-
-				return 0;
-
+				return DATETIME.compare(a, b);
 			});
 
 		}
 
 
 		return [];
+
+	},
+
+	toDate: function(datetime) {
+
+		datetime = (DATETIME.isDATETIME(datetime) || DATETIME.isDate(datetime)) ? datetime : null;
+
+
+		if (datetime !== null) {
+
+			return {
+				year:   datetime.year,
+				month:  datetime.month,
+				day:    datetime.day,
+				hour:   null,
+				minute: null,
+				second: null
+			};
+
+		}
+
+
+		return null;
+
+	},
+
+	toTime: function(datetime) {
+
+		datetime = (DATETIME.isDATETIME(datetime) || DATETIME.isTime(datetime)) ? datetime : null;
+
+
+		if (datetime !== null) {
+
+			return {
+				year:   null,
+				month:  null,
+				day:    null,
+				hour:   datetime.hour,
+				minute: datetime.minute,
+				second: datetime.second
+			};
+
+		}
+
+
+		return null;
 
 	}
 

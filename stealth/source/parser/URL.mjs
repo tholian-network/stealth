@@ -360,6 +360,113 @@ const resolve_path = function(raw) {
 
 const URL = {
 
+	compare: function(a, b) {
+
+		let is_url_a = URL.isURL(a) === true;
+		let is_url_b = URL.isURL(b) === true;
+
+		if (is_url_a === true && is_url_b === true) {
+
+			if (a.protocol === 'stealth' && b.protocol !== 'stealth') return 1;
+			if (b.protocol === 'stealth' && a.protocol !== 'stealth') return -1;
+
+
+			if (a.protocol !== null && b.protocol !== null) {
+
+				if (a.protocol < b.protocol) return -1;
+				if (b.protocol < a.protocol) return 1;
+
+			} else {
+
+				if (a.protocol !== null) return -1;
+				if (b.protocol !== null) return 1;
+
+			}
+
+			if (a.host !== null && b.host !== null) {
+
+				if (a.host < b.host) return -1;
+				if (b.host < a.host) return 1;
+
+			} else {
+
+				if (a.host !== null) return -1;
+				if (b.host !== null) return 1;
+
+			}
+
+			if (a.domain !== null && b.domain !== null) {
+
+				if (a.domain < b.domain) return -1;
+				if (b.domain < a.domain) return 1;
+
+				if (a.subdomain !== null && b.subdomain !== null) {
+
+					if (a.subdomain < b.subdomain) return -1;
+					if (b.subdomain < a.subdomain) return 1;
+
+				} else {
+
+					if (a.subdomain !== null) return 1;
+					if (b.subdomain !== null) return -1;
+
+				}
+
+			} else {
+
+				if (a.domain !== null) return -1;
+				if (b.domain !== null) return 1;
+
+			}
+
+			if (a.port !== null && b.port !== null) {
+
+				if (a.port < b.port) return -1;
+				if (b.port < a.port) return 1;
+
+			} else {
+
+				if (a.port !== null) return -1;
+				if (b.port !== null) return 1;
+
+			}
+
+			if (a.path !== null && b.path !== null) {
+
+				if (a.path < b.path) return -1;
+				if (b.path < a.path) return 1;
+
+			} else {
+
+				if (a.path !== null) return -1;
+				if (b.path !== null) return 1;
+
+			}
+
+			if (a.query !== null && b.query !== null) {
+
+				if (a.query < b.query) return -1;
+				if (b.query < a.query) return 1;
+
+			} else {
+
+				if (a.query !== null) return 1;
+				if (b.query !== null) return -1;
+
+			}
+
+			return 0;
+		} else if (is_url_a === true) {
+			return -1;
+		} else if (is_url_b === true) {
+			return 1;
+		}
+
+
+		return 0;
+
+	},
+
 	isDomain: function(absolute, relative) {
 
 		let url_absolute = null;
@@ -1207,98 +1314,10 @@ const URL = {
 
 		if (array !== null) {
 
-			return array.filter((url) => URL.isURL(url) === true).sort((a, b) => {
-
-				if (a.protocol === 'stealth' && b.protocol !== 'stealth') return  1;
-				if (b.protocol === 'stealth' && a.protocol !== 'stealth') return -1;
-
-
-				if (a.protocol !== null && b.protocol !== null) {
-
-					if (a.protocol < b.protocol) return -1;
-					if (b.protocol < a.protocol) return  1;
-
-				} else {
-
-					if (a.protocol !== null) return -1;
-					if (b.protocol !== null) return  1;
-
-				}
-
-				if (a.host !== null && b.host !== null) {
-
-					if (a.host < b.host) return -1;
-					if (b.host < a.host) return  1;
-
-				} else {
-
-					if (a.host !== null) return -1;
-					if (b.host !== null) return  1;
-
-				}
-
-				if (a.domain !== null && b.domain !== null) {
-
-					if (a.domain < b.domain) return -1;
-					if (b.domain < a.domain) return  1;
-
-					if (a.subdomain !== null && b.subdomain !== null) {
-
-						if (a.subdomain < b.subdomain) return -1;
-						if (b.subdomain < a.subdomain) return  1;
-
-					} else {
-
-						if (a.subdomain !== null) return  1;
-						if (b.subdomain !== null) return -1;
-
-					}
-
-				} else {
-
-					if (a.domain !== null) return -1;
-					if (b.domain !== null) return  1;
-
-				}
-
-				if (a.port !== null && b.port !== null) {
-
-					if (a.port < b.port) return -1;
-					if (b.port < a.port) return  1;
-
-				} else {
-
-					if (a.port !== null) return -1;
-					if (b.port !== null) return  1;
-
-				}
-
-				if (a.path !== null && b.path !== null) {
-
-					if (a.path < b.path) return -1;
-					if (b.path < a.path) return  1;
-
-				} else {
-
-					if (a.path !== null) return -1;
-					if (b.path !== null) return  1;
-
-				}
-
-				if (a.query !== null && b.query !== null) {
-
-					if (a.query < b.query) return -1;
-					if (b.query < a.query) return  1;
-
-				} else {
-
-					if (a.query !== null) return  1;
-					if (b.query !== null) return -1;
-
-				}
-
-				return 0;
-
+			return array.filter((url) => {
+				return URL.isURL(url) === true;
+			}).sort((a, b) => {
+				return URL.compare(a, b);
 			});
 
 		}

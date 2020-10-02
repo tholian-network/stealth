@@ -63,7 +63,7 @@ const show_help = () => {
 	console.log('    Flag       | Default | Values         | Description                                                          ');
 	console.log('    -----------|---------|----------------|----------------------------------------------------------------------');
 	console.log('    --debug    | false   | true, false    | Enable/Disable debug messages. Defaulted with false.                 ');
-	console.log('    --inspect  | null    | (Name)         | Enable/Disable inspector to debug a single test. Defaulted with null.');
+	console.log('    --inspect  | null    | "(Test Name)"  | Enable/Disable inspector to debug a single test. Defaulted with null.');
 	console.log('    --internet | true    | true, false    | Enable/Disable internet usage. Defaulted with true.                  ');
 	console.log('    --network  | null    | 1G, 2G, 3G, 4G | Simulate network behaviour. Defaulted with null.                     ');
 	console.log('    --timeout  | 10s     | (Number)s      | Override test completion timeout. Defaulted with 10s.                ');
@@ -74,7 +74,7 @@ const show_help = () => {
 	console.log('    covert scan stealth/connection/*;');
 	console.log('    covert time stealth/connection/DNS --network=2G;');
 	console.log('    covert watch stealth/connection/DNS stealth/connection/HTTPS;');
-	console.log('    covert scan stealth/Session --debug=true --inspect=Session.prototype.get();');
+	console.log('    covert scan stealth/Session --debug=true --inspect="Session.prototype.get()";');
 	console.log('');
 
 };

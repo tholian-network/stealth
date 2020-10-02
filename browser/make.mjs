@@ -513,7 +513,7 @@ export const update = async (target) => {
 			})).forEach((file) => {
 
 				let hosts = HOSTS.parse(file.buffer);
-				if (hosts !== null) {
+				if (hosts.length > 0) {
 
 					hosts.forEach((host) => {
 

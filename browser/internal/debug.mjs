@@ -7,6 +7,7 @@ import { Host        } from '../design/card/Host.mjs';
 import { Mode        } from '../design/card/Mode.mjs';
 import { Peer        } from '../design/card/Peer.mjs';
 import { Redirect    } from '../design/card/Redirect.mjs';
+import { Session     } from '../design/card/Session.mjs';
 import { Tab         } from '../design/card/Tab.mjs';
 import { URL         } from '../source/parser/URL.mjs';
 
@@ -113,12 +114,22 @@ if (browser !== null && domain !== null) {
 
 	}
 
+	let sessions = browser.settings.sessions.filter((s) => s.domain === domain) || [];
+	if (sessions.length > 0) {
+
+		sessions.forEach((session) => {
+			render_widget(Session.from(session));
+		});
+
+	}
+
 
 	console.log('Host',      host);
 	console.log('Mode',      mode);
 	console.log('Peer',      peer);
 	console.log('Beacons',   beacons);
 	console.log('Redirects', redirects);
+	console.log('Sessions',  sessions);
 
 }
 

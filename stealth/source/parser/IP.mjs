@@ -226,6 +226,49 @@ const validate_ipv6 = function(ipv6) {
 
 const IP = {
 
+	compare: function(a, b) {
+
+		let is_ip_a = IP.isIP(a) === true;
+		let is_ip_b = IP.isIP(b) === true;
+
+		if (is_ip_a === true && is_ip_b === true) {
+
+			if (a.scope === 'private' && b.scope !== 'private') return -1;
+			if (b.scope === 'private' && a.scope !== 'private') return 1;
+
+			if (a.scope === 'private' && b.scope === 'private') {
+
+				if (a.type === 'v4' && b.type !== 'v4') return -1;
+				if (b.type === 'v4' && a.type !== 'v4') return 1;
+
+				if (a.ip < b.ip) return -1;
+				if (b.ip < a.ip) return 1;
+
+			}
+
+			if (a.scope === 'public' && b.scope === 'public') {
+
+				if (a.type === 'v4' && b.type !== 'v4') return -1;
+				if (b.type === 'v4' && a.type !== 'v4') return 1;
+
+				if (a.ip < b.ip) return -1;
+				if (b.ip < a.ip) return 1;
+
+			}
+
+			return 0;
+
+		} else if (is_ip_a === true) {
+			return -1;
+		} else if (is_ip_b === true) {
+			return 1;
+		}
+
+
+		return 0;
+
+	},
+
 	isIP: function(payload) {
 
 		payload = isObject(payload) ? payload : null;
@@ -363,33 +406,10 @@ const IP = {
 
 		if (array !== null) {
 
-			return array.filter((ip) => IP.isIP(ip) === true).sort((a, b) => {
-
-				if (a.scope === 'private' && b.scope !== 'private') return -1;
-				if (b.scope === 'private' && a.scope !== 'private') return  1;
-
-				if (a.scope === 'private' && b.scope === 'private') {
-
-					if (a.type === 'v4' && b.type !== 'v4') return -1;
-					if (b.type === 'v4' && a.type !== 'v4') return  1;
-
-					if (a.ip < b.ip) return -1;
-					if (b.ip < a.ip) return  1;
-
-				}
-
-				if (a.scope === 'public' && b.scope === 'public') {
-
-					if (a.type === 'v4' && b.type !== 'v4') return -1;
-					if (b.type === 'v4' && a.type !== 'v4') return  1;
-
-					if (a.ip < b.ip) return -1;
-					if (b.ip < a.ip) return  1;
-
-				}
-
-				return 0;
-
+			return array.filter((ip) => {
+				return IP.isIP(ip) === true;
+			}).sort((a, b) => {
+				return IP.compare(a, b);
 			});
 
 		}

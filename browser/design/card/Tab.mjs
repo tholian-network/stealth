@@ -1,9 +1,9 @@
 
-import { Element                                          } from '../Element.mjs';
-import { Widget                                           } from '../Widget.mjs';
-import { isArray, isBoolean, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { isTab                                            } from '../../source/Tab.mjs';
-import { DATETIME                                         } from '../../source/parser/DATETIME.mjs';
+import { Element                                } from '../Element.mjs';
+import { Widget                                 } from '../Widget.mjs';
+import { isArray, isBoolean, isObject, isString } from '../../extern/base.mjs';
+import { isTab                                  } from '../../source/Tab.mjs';
+import { DATETIME                               } from '../../source/parser/DATETIME.mjs';
 
 
 
@@ -11,9 +11,8 @@ const isEvent = function(event) {
 
 	if (
 		isObject(event) === true
+		&& DATETIME.isDate(event.date) === true
 		&& isString(event.link) === true
-		&& DATETIME.isDATE(event.date) === true
-		&& DATETIME.isTIME(event.time) === true
 		&& isObject(event.mode) === true
 		&& isString(event.mode.domain) === true
 		&& isBoolean(event.mode.mode.text) === true
@@ -21,50 +20,13 @@ const isEvent = function(event) {
 		&& isBoolean(event.mode.mode.audio) === true
 		&& isBoolean(event.mode.mode.video) === true
 		&& isBoolean(event.mode.mode.other) === true
+		&& DATETIME.isTime(event.time) === true
 	) {
 		return true;
 	}
 
 
 	return false;
-
-};
-
-const toEvent = function(event) {
-
-	if (isNumber(event.time) === true) {
-
-		let datetime = DATETIME.parse(event.time);
-		if (DATETIME.isDATETIME(datetime) === true) {
-
-			event.date = {
-				year:   datetime.year,
-				month:  datetime.month,
-				day:    datetime.day,
-				hour:   null,
-				minute: null,
-				second: null
-			};
-
-			event.time = {
-				year:   null,
-				month:  null,
-				day:    null,
-				hour:   datetime.hour,
-				minute: datetime.minute,
-				second: datetime.second
-			};
-
-		}
-
-	} else {
-
-		event.date = null;
-		event.time = null;
-
-	}
-
-	return event;
 
 };
 
@@ -141,6 +103,7 @@ const Tab = function(browser, actions) {
 	this.event = {
 		element: this.element.query('browser-card-tab-article'),
 		model: {
+			date: this.element.query('[data-key="history.date"]'),
 			link: this.element.query('[data-key="history.link"]'),
 			mode: {
 				mode: {
@@ -151,7 +114,6 @@ const Tab = function(browser, actions) {
 					other: this.element.query('[data-key="history.mode.other"]')
 				}
 			},
-			date: this.element.query('[data-key="history.date"]'),
 			time: this.element.query('[data-key="history.time"]')
 		}
 	};
@@ -367,7 +329,7 @@ Tab.prototype = Object.assign({}, Widget.prototype, {
 
 			if (isArray(value.history) === true) {
 
-				value.history = value.history.filter((h) => toEvent(h));
+				value.history = value.history.filter((h) => isEvent(h));
 
 
 				let history = this.element.query('browser-card-tab-header-history');
@@ -377,20 +339,7 @@ Tab.prototype = Object.assign({}, Widget.prototype, {
 					this.model.history = [];
 
 
-					let events = value.history.slice().reverse();
-					let deltas = events.map((event, e) => {
-
-						let current = Date.now();
-
-						if (e < events.length - 1) {
-							current = events[e + 1].time;
-						}
-
-						return ((current - event.time) / 1000) | 0;
-
-					});
-
-					events.map((event) => {
+					value.history.slice().reverse().map((event) => {
 
 						let object = toElementModel.call(this, event);
 						if (object !== null) {
@@ -415,44 +364,18 @@ Tab.prototype = Object.assign({}, Widget.prototype, {
 
 					});
 
+					if (this.__state.history.length > 0) {
 
-					setTimeout(() => {
+						setTimeout(() => {
 
-						let area = history.area();
-						if (area.w > 0 && area.h > 0) {
+							let map = this.__state.history[this.__state.history.length - 1] || null;
+							if (map !== null) {
+								this.select(map.event);
+							}
 
-							deltas.map((delta) => {
+						}, 250);
 
-								if (delta > 60) {
-
-									if (delta / 60 * 32 > area.w - 2) {
-										return area.w - 2;
-									} else {
-										return (delta / 60 * 32) | 0;
-									}
-
-								} else {
-									return 32;
-								}
-
-							}).forEach((width, e) => {
-
-								let map = this.__state.history[e] || null;
-								if (map !== null) {
-									map.element.area({
-										w: width
-									});
-								}
-
-							});
-
-						}
-
-					}, 0);
-
-					setTimeout(() => {
-						this.select(events[events.length - 1]);
-					}, 250);
+					}
 
 				}
 
