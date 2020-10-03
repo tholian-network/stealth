@@ -77,6 +77,33 @@ const show_help = () => {
 	console.log('    covert scan stealth/Session --debug=true --inspect="Session.prototype.get()";');
 	console.log('');
 
+
+	if (ENVIRONMENT.flags.debug === true) {
+
+		console.log('Available Reviews:');
+		console.log('');
+
+		let namespace = null;
+
+		REVIEWS.forEach((review) => {
+
+			let ns = review.id.split('/')[0];
+
+			console.log('    ' + review.id);
+
+			if (namespace === null) {
+				namespace = ns;
+			} else if (namespace !== ns) {
+				console.log('');
+				namespace = ns;
+			}
+
+		});
+
+		console.log('');
+
+	}
+
 };
 
 
