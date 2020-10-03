@@ -6,6 +6,7 @@ import { ENVIRONMENT                     } from '../../stealth/source/ENVIRONMEN
 import { Stealth, isStealth              } from '../../stealth/source/Stealth.mjs';
 import { isRequest                       } from '../../stealth/source/Request.mjs';
 import { Session, isSession              } from '../../stealth/source/Session.mjs';
+import { URL                             } from '../../stealth/source/parser/URL.mjs';
 
 
 
@@ -127,8 +128,8 @@ describe('Stealth.prototype.open()', function(assert) {
 	assert(isRequest(request3), true);
 
 	assert(request1,     null);
-	assert(request2.url, 'https://example.com/index.html');
-	assert(request3.url, 'https://example.com/index.html');
+	assert(request2.url, URL.parse('https://example.com/index.html'));
+	assert(request3.url, URL.parse('https://example.com/index.html'));
 
 	assert(request2, request3);
 

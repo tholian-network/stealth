@@ -105,7 +105,9 @@ describe('Settings.from()', function(assert) {
 	assert(settings['vendor'],  null);
 
 	assert(settings['interface'], {
-		theme: 'dark'
+		theme:   'dark',
+		enforce: false,
+		opentab: 'stealth:welcome'
 	});
 
 	assert(settings['internet'], {
@@ -178,13 +180,24 @@ describe('Settings.prototype.toJSON()', function(assert) {
 		type: 'Settings',
 		data: {
 			'interface': {
-				theme: 'light'
+				theme:   'light',
+				enforce: true,
+				opentab: 'stealth:blank'
 			},
 			'internet': {
 				connection: 'mobile',
 				history:    'forever',
 				useragent:  'spider-desktop'
 			},
+			'beacons':  [{
+				domain: 'covert.localdomain',
+				path:   '/news/*',
+				beacons: [{
+					label:  'headline',
+					select: [ '#header h1' ],
+					mode:   'text'
+				}]
+			}],
 			'hosts': [{
 				domain: 'covert.localdomain',
 				hosts: [{
@@ -229,7 +242,9 @@ describe('Settings.prototype.toJSON()', function(assert) {
 	assert(json.type, 'Settings');
 	assert(json.data, {
 		'interface': {
-			theme: 'light'
+			theme:   'light',
+			enforce: true,
+			opentab: 'stealth:blank'
 		},
 		'internet': {
 			connection: 'mobile',
@@ -291,7 +306,9 @@ describe('Settings.prototype.read()', function(assert) {
 		type: 'Settings',
 		data: {
 			'interface': {
-				theme: 'light'
+				theme:   'light',
+				enforce: true,
+				opentab: 'stealth:welcome'
 			},
 			'internet': {
 				connection: 'mobile',
@@ -356,7 +373,9 @@ describe('Settings.prototype.read()', function(assert) {
 	setTimeout(() => {
 
 		assert(read_file(sandbox + '/interface.json'), {
-			theme: 'light'
+			theme:   'light',
+			enforce: true,
+			opentab: 'stealth:welcome'
 		});
 
 		assert(read_file(sandbox + '/internet.json'), {
@@ -440,7 +459,9 @@ describe('Settings.prototype.save()', function(assert) {
 	setTimeout(() => {
 
 		assert(read_file(sandbox + '/interface.json'), {
-			theme: 'dark'
+			theme:   'dark',
+			enforce: false,
+			opentab: 'stealth:welcome'
 		});
 
 		assert(read_file(sandbox + '/internet.json'), {

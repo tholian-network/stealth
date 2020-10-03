@@ -130,7 +130,7 @@ const send_pac = (url, callback) => {
 		}
 
 
-		if (address !== null && hostname !== null && port !== null) {
+		if (hostname !== null && port !== null) {
 
 			let payload = Buffer.from([
 				'function FindProxyForURL(url, host) {',

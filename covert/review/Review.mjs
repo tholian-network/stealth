@@ -82,8 +82,8 @@ describe('new Review()', function(assert) {
 	let review = new Review();
 
 	assert(review.id !== null);
-	assert(review.after,  null);
-	assert(review.before, null);
+	assert(review.after,  []);
+	assert(review.before, []);
 	assert(review.errors, []);
 	assert(review.flags,  {});
 	assert(review.scope,  {});
