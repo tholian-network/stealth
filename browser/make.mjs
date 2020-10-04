@@ -363,7 +363,11 @@ export const build = (target) => {
 	target = isString(target) ? target : TARGET;
 
 
-	if (CACHE[target] !== true) {
+	if (CACHE[target] === true) {
+
+		return true;
+
+	} else if (CACHE[target] !== true) {
 
 		let results = [
 			build_base()
