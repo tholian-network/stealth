@@ -1,5 +1,7 @@
 
-/.github
+/.github/ISSUES
+/.github/TOKEN
+
 
 /node_modules
 /package-lock.json
