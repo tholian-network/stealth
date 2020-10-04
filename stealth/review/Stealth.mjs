@@ -108,7 +108,16 @@ describe('Stealth.prototype.destroy()', function(assert) {
 	this.stealth.once('disconnect', () => {
 
 		assert(this.stealth.is('connected'), false);
-		assert(this.stealth.connect(),       true);
+
+		setTimeout(() => {
+			assert(this.stealth.connect(), true);
+		}, 0);
+
+	});
+
+	this.stealth.once('connect', () => {
+
+		assert(this.stealth.is('connected'), true);
 
 	});
 

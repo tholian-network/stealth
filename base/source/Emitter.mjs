@@ -1,6 +1,44 @@
 
 export const Emitter = (function(global) {
 
+	const format = (num) => {
+
+		num = typeof num === 'number' ? num : 0;
+
+
+		let str = '' + num;
+
+		if (str.length < 2) {
+			str = '0' + str;
+		}
+
+		return str;
+
+	};
+
+	const render_date = (date) => {
+		return date.year + '-' + format(date.month) + '-' + format(date.day);
+	};
+
+	const render_time = (time) => {
+		return format(time.hour) + ':' + format(time.minute) + ':' + format(time.second | 0) + '.' + (time.second - (time.second | 0)).toFixed(3).substr(2);
+	};
+
+	const toDatetime = (date) => {
+
+		date = date instanceof Date ? date : new Date();
+
+		return {
+			year:   date.getFullYear(),
+			month:  date.getMonth() + 1,
+			day:    date.getDate(),
+			hour:   date.getHours(),
+			minute: date.getMinutes(),
+			second: date.getSeconds() + (date.getMilliseconds() / 1000)
+		};
+
+	};
+
 	const isArray = (obj) => {
 		return Object.prototype.toString.call(obj) === '[object Array]';
 	};
@@ -40,21 +78,12 @@ export const Emitter = (function(global) {
 
 			if (this.__journal.length > 0) {
 
-				this.__journal.sort((a, b) => {
-
-					if (a.time < b.time) return -1;
-					if (b.time < a.time) return  1;
-
-					if (a.event < b.event) return -1;
-					if (b.event < a.event) return  1;
-
-					return 0;
-
-				}).forEach((entry) => {
+				this.__journal.forEach((entry) => {
 
 					data.journal.push({
 						event: entry.event,
-						time:  entry.time
+						date:  render_date(entry.date),
+						time:  render_time(entry.time)
 					});
 
 				});
@@ -79,9 +108,26 @@ export const Emitter = (function(global) {
 				let events = this.__events[event] || null;
 				if (events !== null) {
 
+					let datetime = toDatetime();
+
 					this.__journal.push({
 						event: event,
-						time:  Date.now()
+						date: {
+							year:   datetime.year,
+							month:  datetime.month,
+							day:    datetime.day,
+							hour:   null,
+							minute: null,
+							second: null
+						},
+						time: {
+							year:   null,
+							month:  null,
+							day:    null,
+							hour:   datetime.hour,
+							minute: datetime.minute,
+							second: datetime.second
+						}
 					});
 
 
