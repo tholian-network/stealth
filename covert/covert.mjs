@@ -217,10 +217,19 @@ if (ENVIRONMENT.action === 'check') {
 
 	covert.on('disconnect', (reviews) => {
 
-		if (reviews.length > 0) {
-			process.exit(covert.destroy() || 0);
+		if (ENVIRONMENT.flags.report !== null) {
+
+			covert.destroy();
+			process.exit(0);
+
 		} else {
-			process.exit(1);
+
+			if (reviews.length > 0) {
+				process.exit(covert.destroy() || 0);
+			} else {
+				process.exit(1);
+			}
+
 		}
 
 	});
