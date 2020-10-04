@@ -627,6 +627,7 @@ const Covert = function(settings) {
 		inspect:  null,
 		internet: true,
 		patterns: [],
+		report:   null,
 		reviews:  [],
 		root:     ENVIRONMENT.root,
 		timeout:  null
@@ -759,6 +760,16 @@ const Covert = function(settings) {
 
 
 		this.renderer.render(reviews, 'complete');
+
+
+		if (this._settings.report !== null) {
+
+			let buffer = this.renderer.buffer(reviews, 'complete');
+			if (buffer !== null) {
+				this.filesystem.write(this._settings.report, buffer, 'utf8');
+			}
+
+		}
 
 		if (this.__state.connected === true) {
 

@@ -3,7 +3,7 @@ import fs   from 'fs';
 import path from 'path';
 
 
-import { Emitter, isBoolean, isString } from '../extern/base.mjs';
+import { Emitter, isBoolean, isBuffer, isString } from '../extern/base.mjs';
 
 
 
@@ -288,6 +288,37 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 					return true;
 
 				}
+
+			}
+
+		}
+
+
+		return false;
+
+	},
+
+	write: function(url, buf, enc) {
+
+		url = isString(url) ? url : null;
+		buf = isBuffer(buf) ? buf : null;
+		enc = isString(enc) ? enc : 'utf8';
+
+
+		if (url !== null) {
+
+			if (this.exists(path.dirname(url), 'folder') === true) {
+
+				let result = false;
+
+				try {
+					fs.writeFileSync(path.resolve(url), buf, enc);
+					result = true;
+				} catch (err) {
+					result = false;
+				}
+
+				return result;
 
 			}
 

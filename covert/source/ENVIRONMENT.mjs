@@ -31,6 +31,7 @@ const flags = (() => {
 		inspect:  null,
 		internet: true,
 		network:  null,
+		report:   null,
 		timeout:  null
 	};
 

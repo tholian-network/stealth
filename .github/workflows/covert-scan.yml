@@ -5,7 +5,7 @@ on: [push]
 
 jobs:
 
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
@@ -15,5 +15,10 @@ jobs:
         with:
           node-version: 14
       - run: npm install
-      - run: npm run test
+      - run: node ./make.mjs build
+      - run: node ./covert/covert.mjs scan --debug=true --report=.github/covert-scan.report
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Covert Report
+          path: .github/covert-scan.report
 

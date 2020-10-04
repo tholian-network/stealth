@@ -66,6 +66,7 @@ const show_help = () => {
 	console.log('    --inspect  | null    | "(Test Name)"  | Enable/Disable inspector to debug a single test. Defaulted with null.');
 	console.log('    --internet | true    | true, false    | Enable/Disable internet usage. Defaulted with true.                  ');
 	console.log('    --network  | null    | 1G, 2G, 3G, 4G | Simulate network behaviour. Defaulted with null.                     ');
+	console.log('    --report   | null    | "(File Path)"  | Save a copy of the Covert Report to a file. Defaulted with null.     ');
 	console.log('    --timeout  | 10s     | (Number)s      | Override test completion timeout. Defaulted with 10s.                ');
 	console.log('');
 	console.log('Examples:');
@@ -139,6 +140,7 @@ if (ENVIRONMENT.action === 'check') {
 		internet: ENVIRONMENT.flags.internet || null,
 		network:  ENVIRONMENT.flags.network  || null,
 		patterns: ENVIRONMENT.patterns       || [],
+		report:   ENVIRONMENT.flags.report   || null,
 		reviews:  REVIEWS,
 		sources:  SOURCES,
 		timeout:  ENVIRONMENT.flags.timeout  || null
@@ -207,6 +209,7 @@ if (ENVIRONMENT.action === 'check') {
 		internet: ENVIRONMENT.flags.internet || null,
 		network:  ENVIRONMENT.flags.network  || null,
 		patterns: ENVIRONMENT.patterns       || [],
+		report:   ENVIRONMENT.flags.report   || null,
 		reviews:  REVIEWS,
 		sources:  SOURCES,
 		timeout:  ENVIRONMENT.flags.timeout  || null

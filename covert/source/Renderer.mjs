@@ -1,11 +1,165 @@
 
-import { console, isArray, isBoolean, isString } from '../extern/base.mjs';
-import { isReview                              } from './Review.mjs';
+import { console, Buffer, isArray, isBoolean, isString } from '../extern/base.mjs';
+import { isReview                                      } from './Review.mjs';
 
 
 
 export const isRenderer = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Renderer]';
+};
+
+const buffer_errors = function(review) {
+
+	let lines = [];
+
+	if (review.state === null) {
+		lines.push('(?) ' + review.id);
+	} else if (review.state === 'okay') {
+		lines.push('    ' + review.id);
+	} else if (review.state === 'wait') {
+		lines.push('(?) ' + review.id);
+	} else if (review.state === 'fail') {
+		lines.push('(!) ' + review.id);
+	} else if (review.state === 'none') {
+		lines.push('(?) ' + review.id);
+	}
+
+	review.errors.forEach((error) => {
+
+		if (review.state === null) {
+			lines.push('(?) > ' + error);
+		} else if (review.state === 'okay') {
+			lines.push('    >  ' + error);
+		} else if (review.state === 'wait') {
+			lines.push('(?) >  ' + error);
+		} else if (review.state === 'fail') {
+			lines.push('(!) >  ' + error);
+		} else if (review.state === 'none') {
+			lines.push('(?) >  ' + error);
+		}
+
+	});
+
+	return lines.join('\n');
+
+};
+
+const buffer_summary = function(review) {
+
+	let lines = [];
+
+	if (review.state === 'okay') {
+
+		lines.push('    ' + review.id + ': okay.');
+
+	} else if (
+		review.state === null
+		|| review.state === 'wait'
+		|| review.state === 'fail'
+	) {
+
+		if (review.state === null) {
+			lines.push('(?) ' + review.id + ': running ...');
+		} else if (review.state === 'wait') {
+			lines.push('(?) ' + review.id + ': wait ...');
+		} else if (review.state === 'fail') {
+			lines.push('(!) ' + review.id + ': fail!');
+		}
+
+
+		let action = this._settings.action || null;
+		let tests  = review.flatten().filter((test) => test.state !== 'okay');
+		let div1   = indent(tests.map((test) => test.name));
+		let div2   = indent(tests.map((test) => test.results.render()));
+
+		tests.forEach((test) => {
+
+			let message = '>';
+
+			message += ' ' + test.name;
+			message += ' ' + div1(test.name);
+
+			if (action === 'scan') {
+
+				message += test.results.render();
+
+			} else if (action === 'time') {
+
+				message += test.timeline.render();
+
+			} else if (action === 'watch') {
+
+				let str1 = test.results.render();
+				let str2 = test.timeline.render();
+
+				message += str1;
+				message += div2(str1);
+				message += str2;
+
+			}
+
+			if (test.state === null) {
+				lines.push('(?) ' + message);
+			} else if (test.state === 'wait') {
+				lines.push('(?) ' + message);
+			} else if (test.state === 'fail') {
+				lines.push('(!) ' + message);
+			}
+
+			let errors = review.errors.filter((msg) => msg.startsWith(test.name));
+			if (errors.length > 0) {
+				errors.forEach((error) => {
+					error.split('\n').forEach((line) => {
+						lines.push('(!) > ' + line);
+					});
+				});
+			}
+
+			test.results.stack.forEach((entry, e) => {
+
+				if (entry !== null && entry.diff !== null) {
+
+					lines.push('(!)');
+
+					if (entry.assert !== null) {
+						lines.push('(!) > ' + test.name + div1(test.name) + ' ' + entry.assert + ' differs ...');
+					} else {
+						lines.push('(!) > ' + test.name + div1(test.name) + ' assert() #' + e + ' differs ...');
+					}
+
+					let diff0 = null;
+					try {
+						diff0 = JSON.stringify(entry.diff[0], null, '\t');
+					} catch (err) {
+						diff0 = null;
+					}
+
+					let diff1 = null;
+					try {
+						diff1 = JSON.stringify(entry.diff[1], null, '\t');
+					} catch (err) {
+						diff1 = null;
+					}
+
+					if (diff0 !== null && diff1 !== null) {
+
+						lines.push('(!) > asserted result:');
+						diff0.split('\n').forEach((line) => lines.push('(!) > ' + line));
+
+						lines.push('(!) > expected result:');
+						diff1.split('\n').forEach((line) => lines.push('(!) > ' + line));
+					}
+
+				}
+
+			});
+
+		});
+
+	}
+
+	return lines.join('\n');
+
 };
 
 const indent = (data) => {
@@ -494,6 +648,69 @@ Renderer.prototype = {
 
 	[Symbol.toStringTag]: 'Renderer',
 
+	buffer: function(data, mode) {
+
+		mode = isString(mode) ? mode : 'complete';
+
+
+		let outputs = [];
+
+		if (isArray(data) === true) {
+
+			let reviews = data;
+
+			if (reviews.length === 1) {
+
+				outputs.push(buffer_summary.call(this, reviews[0]));
+
+			} else {
+
+				let last_state = null;
+
+				reviews.forEach((review, r) => {
+
+					if (r > 0) {
+
+						if (review.state === null && last_state === null) {
+							outputs.push('');
+						} else if (review.state !== last_state) {
+							outputs.push('');
+						}
+
+					}
+
+
+					if (mode === 'complete') {
+						outputs.push(buffer_summary.call(this, review));
+					} else if (mode === 'errors') {
+						outputs.push(buffer_errors.call(this, review));
+					} else if (mode === 'summary') {
+						outputs.push(buffer_summary.call(this, review));
+					}
+
+
+					last_state = review.state;
+
+				});
+
+			}
+
+		} else if (isReview(data) === true) {
+
+			if (mode === 'complete') {
+				outputs.push(buffer_summary.call(this, data));
+			} else if (mode === 'errors') {
+				outputs.push(buffer_errors.call(this, data));
+			} else if (mode === 'summary') {
+				outputs.push(buffer_summary.call(this, data));
+			}
+
+		}
+
+		return Buffer.from(outputs.join('\n'), 'utf8');
+
+	},
+
 	render: function(data, mode) {
 
 		mode = isString(mode) ? mode : 'complete';
@@ -574,6 +791,7 @@ Renderer.prototype = {
 							render_summary.call(this, review);
 
 						}
+
 
 						last_state = review.state;
 
