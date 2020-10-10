@@ -48,6 +48,7 @@ describe('Session.from()', function(assert) {
 				data: {
 					id: '1337',
 					history: [{
+						date: '2020-12-31',
 						link: 'https://example.com/index.html',
 						mode: {
 							domain: 'example.com',
@@ -59,7 +60,7 @@ describe('Session.from()', function(assert) {
 								other: true
 							}
 						},
-						time: Date.now()
+						time: '01:02:03'
 					}]
 				}
 			}]
@@ -124,6 +125,7 @@ describe('Session.merge()', function(assert) {
 				data: {
 					id: '1337',
 					history: [{
+						date: '2020-12-31',
 						link: 'https://example.com/index.html',
 						mode: {
 							domain: 'example.com',
@@ -135,7 +137,7 @@ describe('Session.merge()', function(assert) {
 								other: true
 							}
 						},
-						time: Date.now()
+						time: '01:02:03'
 					}]
 				}
 			}]

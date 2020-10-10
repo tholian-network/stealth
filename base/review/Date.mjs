@@ -6,8 +6,8 @@ import { Date, isDate     } from '../source/Date.mjs';
 
 describe('Date.isDate()', function(assert) {
 
-	let date1 = new Date('01.02.20 13:37');
-	let date2 = new Date('01.02.20 13:37');
+	let date1 = new Date('01.02.20 13:37Z');
+	let date2 = new Date('2020-02-01T13:37:00Z');
 
 	assert(typeof Date.isDate, 'function');
 
@@ -16,10 +16,11 @@ describe('Date.isDate()', function(assert) {
 
 });
 
+
 describe('isDate()', function(assert) {
 
-	let date1 = new Date('01.02.20 13:37');
-	let date2 = new Date('01.02.20 13:37');
+	let date1 = new Date('01.02.20 13:37Z');
+	let date2 = new Date('2020-02-01T13:37:00Z');
 
 	assert(typeof isDate, 'function');
 
@@ -28,29 +29,29 @@ describe('isDate()', function(assert) {
 
 });
 
-describe('Date.prototype.toString()', function(assert) {
+describe('Date.prototype.toISOString()', function(assert) {
 
-	let date1 = new Date('01.02.20 13:37');
-	let date2 = new Date('01.02.20 13:37');
+	let date1 = new Date('02.01.2020 13:37Z');
+	let date2 = new Date('2020-02-01T13:37:00Z');
 
 	assert(Object.prototype.toString.call(date1), '[object Date]');
 	assert(Object.prototype.toString.call(date2), '[object Date]');
 
-	assert((date1).toString(), 'Thu Jan 02 2020 13:37:00 GMT+0100 (Central European Standard Time)');
-	assert((date2).toString(), 'Thu Jan 02 2020 13:37:00 GMT+0100 (Central European Standard Time)');
+	assert((date1).toISOString(), '2020-02-01T13:37:00.000Z');
+	assert((date2).toISOString(), '2020-02-01T13:37:00.000Z');
 
 });
 
 describe('Date.prototype.valueOf()', function(assert) {
 
-	let date1 = new Date('01.02.20 13:37');
-	let date2 = new Date('01.02.20 13:37');
+	let date1 = new Date('03.04.2020 13:37Z');
+	let date2 = new Date('2020-03-04T13:37:00Z');
 
-	assert((date1).valueOf(), 1577968620000);
-	assert((date2).valueOf(), 1577968620000);
+	assert((date1).valueOf(), 1583329020000);
+	assert((date2).valueOf(), 1583329020000);
 
-	assert(JSON.stringify(date1), '"2020-01-02T12:37:00.000Z"');
-	assert(JSON.stringify(date2), '"2020-01-02T12:37:00.000Z"');
+	assert(JSON.stringify(date1), '"2020-03-04T13:37:00.000Z"');
+	assert(JSON.stringify(date2), '"2020-03-04T13:37:00.000Z"');
 
 });
 

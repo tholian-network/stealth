@@ -1,5 +1,5 @@
 
-import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { Buffer, Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
 
 
 
@@ -87,7 +87,23 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			this.once('proxy', (response) => callback(response));
+			this.once('proxy', (response) => {
+
+				if (isObject(response) === true) {
+
+					if (isObject(response.payload) === true) {
+
+						if (response.payload.type === 'Buffer') {
+							response.payload = Buffer.from(response.payload.data);
+						}
+
+					}
+
+				}
+
+				callback(response);
+
+			});
 
 			this.client.send({
 				headers: {

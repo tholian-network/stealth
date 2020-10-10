@@ -32,53 +32,6 @@ describe('DATETIME.isDate()/leapyear', function(assert) {
 
 });
 
-describe('DATETIME.parse()/timestamp', function(assert) {
-
-	let date1 = DATETIME.parse(1600000000000);
-	let date2 = DATETIME.parse(-12219292800000);
-	let date3 = DATETIME.parse(11139552000000);
-
-	assert(date1, {
-		year:   2020,
-		month:  9,
-		day:    13,
-		hour:   14,
-		minute: 26,
-		second: 40
-	});
-
-	assert(date2, {
-		year:   1582,
-		month:  10,
-		day:    15,
-		hour:   0,
-		minute: 53,
-		second: 28
-	});
-
-	assert(date3, {
-		year:   2323,
-		month:  1,
-		day:    1,
-		hour:   1,
-		minute: 0,
-		second: 0
-	});
-
-});
-
-describe('DATETIME.isDATETIME()/timestamp', function(assert) {
-
-	let date1 = DATETIME.parse(1600000000000);
-	let date2 = DATETIME.parse(-12219292800000);
-	let date3 = DATETIME.parse(11139552000000);
-
-	assert(DATETIME.isDATETIME(date1), true);
-	assert(DATETIME.isDATETIME(date2), true);
-	assert(DATETIME.isDATETIME(date3), true);
-
-});
-
 describe('DATETIME.parse()/iso8601', function(assert) {
 
 	let date1 = DATETIME.parse('2020-09-13T12:26:40Z');
@@ -88,7 +41,7 @@ describe('DATETIME.parse()/iso8601', function(assert) {
 		year:   2020,
 		month:  9,
 		day:    13,
-		hour:   14,
+		hour:   12,
 		minute: 26,
 		second: 40
 	});
@@ -98,8 +51,8 @@ describe('DATETIME.parse()/iso8601', function(assert) {
 		month:  10,
 		day:    15,
 		hour:   0,
-		minute: 53,
-		second: 28
+		minute: 0,
+		second: 0
 	});
 
 });

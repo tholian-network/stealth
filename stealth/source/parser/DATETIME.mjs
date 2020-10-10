@@ -264,8 +264,6 @@ const DATETIME = {
 
 	parse: function(date_or_num_or_str) {
 
-		let raw = null;
-
 		let year   = null;
 		let month  = null;
 		let day    = null;
@@ -274,32 +272,29 @@ const DATETIME = {
 		let second = null;
 
 
-		if (
-			isDate(date_or_num_or_str) === true
-			|| isNumber(date_or_num_or_str) === true
-			|| (
-				isString(date_or_num_or_str)
-				&& date_or_num_or_str.includes('T')
-				&& date_or_num_or_str.endsWith('Z')
-			)
+		if (isDate(date_or_num_or_str) === true) {
+
+			year   = date_or_num_or_str.getUTCFullYear();
+			month  = date_or_num_or_str.getUTCMonth() + 1;
+			day    = date_or_num_or_str.getUTCDate();
+			hour   = date_or_num_or_str.getUTCHours();
+			minute = date_or_num_or_str.getUTCMinutes();
+			second = date_or_num_or_str.getUTCSeconds();
+
+		} else if (
+			isString(date_or_num_or_str)
+			&& date_or_num_or_str.includes('T')
+			&& date_or_num_or_str.endsWith('Z')
 		) {
 
-			if (isDate(date_or_num_or_str) === true) {
-				raw = date_or_num_or_str;
-			} else {
-				raw = new Date(date_or_num_or_str);
-			}
+			let date = new Date(date_or_num_or_str);
 
-			if (raw !== null) {
-
-				year   = raw.getFullYear();
-				month  = raw.getMonth() + 1;
-				day    = raw.getDate();
-				hour   = raw.getHours();
-				minute = raw.getMinutes();
-				second = raw.getSeconds();
-
-			}
+			year   = date.getUTCFullYear();
+			month  = date.getUTCMonth() + 1;
+			day    = date.getUTCDate();
+			hour   = date.getUTCHours();
+			minute = date.getUTCMinutes();
+			second = date.getUTCSeconds();
 
 		} else if (isString(date_or_num_or_str) === true) {
 
