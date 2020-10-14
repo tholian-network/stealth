@@ -33,26 +33,28 @@ const Client = function(settings, stealth) {
 	}, settings));
 
 
-	this.address    = null;
-	this.services   = {
-		beacon:   new Beacon(this),
-		blocker:  new Blocker(this),
-		cache:    new Cache(this),
-		host:     new Host(this),
-		mode:     new Mode(this),
-		peer:     new Peer(this),
-		redirect: new Redirect(this),
-		session:  new Session(this),
-		settings: new Settings(this),
-		stash:    new Stash(this)
-	};
-	this.stealth    = stealth;
-	this.url        = null;
+	this.address  = null;
+	this.browser  = null; // API compatibility
+	this.services = {};
+	this.stealth  = stealth;
+	this.url      = null;
 
 	this.__state = {
 		connected:  false,
 		connection: null
 	};
+
+
+	this.services['beacon']   = new Beacon(this);
+	this.services['blocker']  = new Blocker(this);
+	this.services['cache']    = new Cache(this);
+	this.services['host']     = new Host(this);
+	this.services['mode']     = new Mode(this);
+	this.services['peer']     = new Peer(this);
+	this.services['redirect'] = new Redirect(this);
+	this.services['session']  = new Session(this);
+	this.services['settings'] = new Settings(this);
+	this.services['stash']    = new Stash(this);
 
 
 	Emitter.call(this);
@@ -69,14 +71,24 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 	toJSON: function() {
 
+		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
-			url:      URL.render(this.url),
-			services: Object.keys(this.services),
+			browser:  null,
+			events:   blob.data.events,
+			journal:  blob.data.journal,
+			settings: Object.assign({}, this._settings),
+			services: {},
 			state:    {
 				connected:  false,
 				connection: null
-			}
+			},
+			stealth:  null,
+			url:      URL.render(this.url),
 		};
+
+		Object.keys(this.services).forEach((service) => {
+			data.services[service] = this.services[service].toJSON();
+		});
 
 		if (this.__state.connected === true) {
 			data.state.connected = true;

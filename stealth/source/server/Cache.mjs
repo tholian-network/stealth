@@ -263,6 +263,21 @@ Cache.toCache = function(payload) {
 
 Cache.prototype = Object.assign({}, Emitter.prototype, {
 
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			events:  blob.data.events,
+			journal: blob.data.journal
+		};
+
+		return {
+			'type': 'Cache Service',
+			'data': data
+		};
+
+	},
+
 	info: function(payload, callback) {
 
 		callback = isFunction(callback) ? callback : null;

@@ -55,6 +55,102 @@ describe('isServer()', function(assert) {
 
 });
 
+describe('Server.prototype.toJSON()', function(assert) {
+
+	let server = new Server({
+		host: '127.0.0.4'
+	}, this.stealth);
+
+	let json = server.toJSON();
+
+	assert(json.type, 'Server');
+	assert(json.data, {
+		events: [],
+		journal: [],
+		services: {
+			beacon: {
+				type: 'Beacon Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			blocker: {
+				type: 'Blocker Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			cache: {
+				type: 'Cache Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			host: {
+				type: 'Host Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			mode: {
+				type: 'Mode Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			peer: {
+				type: 'Peer Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			redirect: {
+				type: 'Redirect Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			session: {
+				type: 'Session Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			settings: {
+				type: 'Settings Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			stash: {
+				type: 'Stash Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			}
+		},
+		settings: {
+			host: '127.0.0.4'
+		},
+		stealth: null,
+		state: {
+			connected: false,
+			connections: []
+		}
+	});
+
+});
+
 export const disconnect = after('Server.prototype.disconnect()', function(assert) {
 
 	this.stealth.once('disconnect', () => {

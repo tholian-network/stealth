@@ -13,6 +13,21 @@ const Session = function(client) {
 
 Session.prototype = Object.assign({}, Emitter.prototype, {
 
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			events:  blob.data.events,
+			journal: blob.data.journal
+		};
+
+		return {
+			'type': 'Session Service',
+			'data': data
+		};
+
+	},
+
 	download: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;

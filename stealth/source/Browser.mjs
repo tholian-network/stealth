@@ -225,6 +225,35 @@ const Browser = function(settings) {
 };
 
 
+Browser.from = function(json) {
+
+	json = isObject(json) ? json : null;
+
+
+	if (json !== null) {
+
+		let type = json.type === 'Browser' ? json.type : null;
+		let data = isObject(json.data)     ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			let browser = new Browser({
+				debug: isBoolean(data.debug) ? data.debug : null,
+				host:  isString(data.host)   ? data.host  : null
+			});
+
+			return browser;
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
 Browser.isBrowser = isBrowser;
 Browser.isMode    = isMode;
 
@@ -232,6 +261,39 @@ Browser.isMode    = isMode;
 Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Browser',
+
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			client:   null,
+			events:   blob.data.events,
+			journal:  blob.data.journal,
+			settings: Object.assign({}, this._settings),
+			state:    {
+				connected: false,
+				reconnect: 0
+			}
+		};
+
+		if (this.client !== null) {
+			data.client = this.client.toJSON();
+		}
+
+		if (this.__state.connected === true) {
+			data.state.connected = true;
+		}
+
+		if (this.__state.reconnect > 0) {
+			data.state.reconnect = this.__state.reconnect;
+		}
+
+		return {
+			'type': 'Browser',
+			'data': data
+		};
+
+	},
 
 	back: function() {
 

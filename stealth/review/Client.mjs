@@ -53,6 +53,104 @@ describe('isClient()', function(assert) {
 
 });
 
+describe('Client.prototype.toJSON()', function(assert) {
+
+	let client = new Client({
+		host: '127.0.0.3'
+	});
+
+	let json = client.toJSON();
+
+	assert(json.type, 'Client');
+	assert(json.data, {
+		browser: null,
+		events: [],
+		journal: [],
+		settings: {
+			host: '127.0.0.3'
+		},
+		services: {
+			beacon: {
+				type: 'Beacon Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			blocker: {
+				type: 'Blocker Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			cache: {
+				type: 'Cache Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			host: {
+				type: 'Host Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			mode: {
+				type: 'Mode Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			peer: {
+				type: 'Peer Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			redirect: {
+				type: 'Redirect Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			session: {
+				type: 'Session Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			settings: {
+				type: 'Settings Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
+			stash: {
+				type: 'Stash Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			}
+		},
+		state: {
+			connected: false,
+			connection: null
+		},
+		stealth: null,
+		url:     null
+	});
+
+});
+
 describe('Client.prototype.is()', function(assert) {
 
 	assert(this.client.is('connected'), true);

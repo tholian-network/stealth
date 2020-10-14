@@ -17,6 +17,21 @@ describe('new Blocker()', function(assert) {
 
 });
 
+describe('Blocker.prototype.toJSON()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.blocker.toJSON), true);
+
+	assert(this.client.services.blocker.toJSON(), {
+		type: 'Blocker Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Blocker.prototype.read()/success', function(assert) {
 
 	assert(this.client !== null);

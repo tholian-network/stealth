@@ -73,7 +73,7 @@ node ./covert.mjs --internet=false; # Execute reviews in offline mode
 
 ## Quickstart
 
-- Install [node.js](https://nodejs.org/en/download) version `10+`.
+- Install [node.js](https://nodejs.org/en/download) version `12+`.
 
 ```bash
 cd /path/to/stealth;

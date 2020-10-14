@@ -171,6 +171,21 @@ Beacon.toBeacon = function(payload) {
 
 Beacon.prototype = Object.assign({}, Emitter.prototype, {
 
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			events:  blob.data.events,
+			journal: blob.data.journal
+		};
+
+		return {
+			'type': 'Beacon Service',
+			'data': data
+		};
+
+	},
+
 	query: function(payload, callback) {
 
 		callback = isFunction(callback) ? callback : null;

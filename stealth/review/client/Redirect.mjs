@@ -17,6 +17,21 @@ describe('new Redirect()', function(assert) {
 
 });
 
+describe('Redirect.prototype.toJSON()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.redirect.toJSON), true);
+
+	assert(this.client.services.redirect.toJSON(), {
+		type: 'Redirect Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Redirect.prototype.save()', function(assert) {
 
 	assert(this.client !== null);

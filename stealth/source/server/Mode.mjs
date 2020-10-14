@@ -101,6 +101,21 @@ Mode.toMode = function(payload) {
 
 Mode.prototype = Object.assign({}, Emitter.prototype, {
 
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			events:  blob.data.events,
+			journal: blob.data.journal
+		};
+
+		return {
+			'type': 'Mode Service',
+			'data': data
+		};
+
+	},
+
 	read: function(payload, callback) {
 
 		callback = isFunction(callback) ? callback : null;

@@ -57,6 +57,21 @@ const Peer = function(client) {
 
 Peer.prototype = Object.assign({}, Emitter.prototype, {
 
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			events:  blob.data.events,
+			journal: blob.data.journal
+		};
+
+		return {
+			'type': 'Peer Service',
+			'data': data
+		};
+
+	},
+
 	info: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;

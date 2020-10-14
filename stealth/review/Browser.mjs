@@ -72,6 +72,21 @@ describe('new Browser()', function(assert) {
 
 });
 
+describe('Browser.from()', function(assert) {
+
+	let browser = Browser.from({
+		type: 'Browser',
+		data: {
+			debug: true,
+			host:  '127.0.0.3'
+		}
+	});
+
+	assert(browser._settings.host,  '127.0.0.3');
+	assert(browser._settings.debug, true);
+
+});
+
 describe('Browser.isBrowser()', function(assert) {
 
 	assert(typeof Browser.isBrowser, 'function');
@@ -85,6 +100,37 @@ describe('isBrowser()', function(assert) {
 	assert(typeof isBrowser, 'function');
 
 	assert(isBrowser(this.browser), true);
+
+});
+
+describe('Browser.prototype.toJSON()', function(assert) {
+
+	let browser = Browser.from({
+		type: 'Browser',
+		data: {
+			debug: true,
+			host:  '127.0.0.3'
+		}
+	});
+
+	let json = browser.toJSON();
+
+	assert(json.type, 'Browser');
+	assert(json.data, {
+		client: browser.client.toJSON(),
+		events: [
+			'connect'
+		],
+		journal: [],
+		settings: {
+			debug: true,
+			host: '127.0.0.3'
+		},
+		state: {
+			connected: false,
+			reconnect: 0
+		}
+	});
 
 });
 
@@ -460,7 +506,7 @@ describe('Browser.prototype.navigate()', function(assert) {
 
 });
 
-describe('Browser.prototype.next()', function(assert) {
+describe('Browser.prototype.next()', function(assert, console) {
 
 	assert(this.browser !== null);
 	assert(this.browser.tab,            this.tab);
@@ -502,6 +548,11 @@ describe('Browser.prototype.next()', function(assert) {
 	assert(this.browser.tab.mode.domain, 'example.com');
 
 	assert(this.browser.back(),          false);
+
+	// TODO: This is wrong, should not be third!?!?
+	console.log(this.browser.tab.url);
+
+
 	assert(this.browser.tab.url,         URL.parse('https://example.com/'));
 	assert(this.browser.tab.mode.domain, 'example.com');
 

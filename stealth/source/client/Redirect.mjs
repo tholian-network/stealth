@@ -13,6 +13,21 @@ const Redirect = function(client) {
 
 Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			events:  blob.data.events,
+			journal: blob.data.journal
+		};
+
+		return {
+			'type': 'Redirect Service',
+			'data': data
+		};
+
+	},
+
 	read: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;

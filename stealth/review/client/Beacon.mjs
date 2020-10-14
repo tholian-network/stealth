@@ -17,6 +17,21 @@ describe('new Beacon()', function(assert) {
 
 });
 
+describe('Beacon.prototype.toJSON()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.beacon.toJSON), true);
+
+	assert(this.client.services.beacon.toJSON(), {
+		type: 'Beacon Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Beacon.prototype.save()', function(assert) {
 
 	assert(this.client !== null);

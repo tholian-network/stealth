@@ -17,6 +17,21 @@ describe('new Mode()', function(assert) {
 
 });
 
+describe('Mode.prototype.toJSON()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.mode.toJSON), true);
+
+	assert(this.client.services.mode.toJSON(), {
+		type: 'Mode Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Mode.prototype.save()', function(assert) {
 
 	assert(this.client !== null);

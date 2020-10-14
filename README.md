@@ -103,8 +103,7 @@ If you don't wanna deal with the native build toolchain, this
 is how to get started as quickly as possible:
 
 
-- Install [node.js](https://nodejs.org/en/download) version `10+`.
-
+- Install [node.js](https://nodejs.org/en/download) version `12+`.
 - Install [Ungoogled Chromium](https://github.com/Eloston/ungoogled-chromium/releases) version `70+`.
 - (Only MacOS) Alternatively Install `Safari` version `12+`.
 - (Only Linux) Alternatively Install `electron` version `8+`.

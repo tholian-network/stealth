@@ -13,6 +13,21 @@ const Host = function(client) {
 
 Host.prototype = Object.assign({}, Emitter.prototype, {
 
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			events:  blob.data.events,
+			journal: blob.data.journal
+		};
+
+		return {
+			'type': 'Host Service',
+			'data': data
+		};
+
+	},
+
 	read: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;

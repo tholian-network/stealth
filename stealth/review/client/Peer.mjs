@@ -18,6 +18,21 @@ describe('new Peer()', function(assert) {
 
 });
 
+describe('Peer.prototype.toJSON()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.peer.toJSON), true);
+
+	assert(this.client.services.peer.toJSON(), {
+		type: 'Peer Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Peer.prototype.save()', function(assert) {
 
 	assert(this.client !== null);

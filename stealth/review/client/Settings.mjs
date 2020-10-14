@@ -17,6 +17,21 @@ describe('new Settings()', function(assert) {
 
 });
 
+describe('Settings.prototype.toJSON()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.settings.toJSON), true);
+
+	assert(this.client.services.settings.toJSON(), {
+		type: 'Settings Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Settings.prototype.info()', function(assert) {
 
 	assert(this.client !== null);

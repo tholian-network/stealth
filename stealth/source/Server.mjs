@@ -36,17 +36,16 @@ const upgrade_http = function(socket, url) {
 
 		connection.once('@connect', () => {
 
-			if (this.connections.includes(connection) === false) {
-				this.connections.push(connection);
+			if (this.__state.connections.includes(connection) === false) {
+				this.__state.connections.push(connection);
 			}
 
 		});
 
 		connection.once('@disconnect', () => {
 
-			let index = this.connections.indexOf(connection);
-			if (index !== -1) {
-				this.connections.splice(index, 1);
+			if (this.__state.connections.includes(connection) === true) {
+				this.__state.connections.remove(connection);
 			}
 
 		});
@@ -325,17 +324,16 @@ const upgrade_socks = function(socket, url) {
 
 		connection.once('@connect', () => {
 
-			if (this.connections.includes(connection) === false) {
-				this.connections.push(connection);
+			if (this.__state.connections.includes(connection) === false) {
+				this.__state.connections.push(connection);
 			}
 
 		});
 
 		connection.once('@disconnect', () => {
 
-			let index = this.connections.indexOf(connection);
-			if (index !== -1) {
-				this.connections.splice(index, 1);
+			if (this.__state.connections.includes(connection) === true) {
+				this.__state.connections.remove(connection);
 			}
 
 		});
@@ -467,17 +465,16 @@ const upgrade_ws = function(socket, url) {
 				connection.session = this.stealth.track(null, url.headers);
 			}
 
-			if (this.connections.includes(connection) === false) {
-				this.connections.push(connection);
+			if (this.__state.connections.includes(connection) === false) {
+				this.__state.connections.push(connection);
 			}
 
 		});
 
 		connection.once('@disconnect', () => {
 
-			let index = this.connections.indexOf(connection);
-			if (index !== -1) {
-				this.connections.splice(index, 1);
+			if (this.__state.connections.includes(connection) === false) {
+				this.__state.connections.remove(connection);
 			}
 
 			if (this.stealth !== null) {
@@ -580,13 +577,13 @@ const Server = function(settings, stealth) {
 	}, settings));
 
 
-	this.connections = [];
-	this.services    = {};
-	this.stealth     = stealth;
+	this.services = {};
+	this.stealth  = stealth;
 
 	this.__state = {
-		connected: false,
-		server:    null
+		connected:   false,
+		connections: [],
+		server:      null
 	};
 
 
@@ -617,6 +614,44 @@ Server.isServer = isServer;
 Server.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Server',
+
+	toJSON: function() {
+
+		let blob = Emitter.prototype.toJSON.call(this);
+		let data = {
+			events:   blob.data.events,
+			journal:  blob.data.journal,
+			services: {},
+			settings: Object.assign({}, this._settings),
+			stealth:  null,
+			state:    {
+				connected:   false,
+				connections: []
+			}
+		};
+
+		Object.keys(this.services).forEach((service) => {
+			data.services[service] = this.services[service].toJSON();
+		});
+
+		if (this.__state.connected === true) {
+			data.state.connected = this.__state.connected;
+		}
+
+		if (this.__state.connections.length > 0) {
+
+			this.__state.connections.forEach((connection) => {
+				data.state.connections.push(connection.toJSON());
+			});
+
+		}
+
+		return {
+			'type': 'Server',
+			'data': data
+		};
+
+	},
 
 	connect: function() {
 
@@ -792,16 +827,16 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function() {
 
-		if (this.connections.length > 0) {
+		if (this.__state.connections.length > 0) {
 
-			for (let c = 0, cl = this.connections.length; c < cl; c++) {
+			for (let c = 0, cl = this.__state.connections.length; c < cl; c++) {
 
-				let connection = this.connections[c] || null;
+				let connection = this.__state.connections[c] || null;
 				if (connection !== null) {
 					connection.disconnect();
 				}
 
-				this.connections.splice(c, 1);
+				this.__state.connections.splice(c, 1);
 				cl--;
 				c--;
 
