@@ -168,6 +168,21 @@ describe('Session.prototype.read()', function(assert) {
 
 });
 
+describe('Session.prototype.remove()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.session.remove), true);
+
+	this.client.services.session.remove({
+		domain: ENVIRONMENT.hostname
+	}, (response) => {
+
+		assert(response, true);
+
+	});
+
+});
+
 after(disconnect_client);
 after(disconnect_stealth);
 

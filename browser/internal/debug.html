@@ -10,42 +10,65 @@
 			@import url("../design/common/elements.css");
 			@import url("../design/common/layout.css");
 
-			@import url("../design/card/Beacon.css");
-			@import url("../design/card/Host.css");
-			@import url("../design/card/Mode.css");
-			@import url("../design/card/Peer.css");
-			@import url("../design/card/Redirect.css");
-			@import url("../design/card/Tab.css");
+			@import url("../design/card/Settings.css");
+			@import url("../design/card/Session.css");
 
-
-
-			body > browser-card-beacon,
-			body > browser-card-host,
-			body > browser-card-mode,
-			body > browser-card-peer,
-			body > browser-card-redirect,
-			body > browser-card-tab {
-				margin: 64px auto 0px auto;
+			article {
+				all: unset;
+				display: block;
+				position: relative;
+				width: 800px;
+				margin: 32px auto;
+				padding: 16px;
+				background: var(--surface-default-background);
+				border: 1px solid var(--surface-default-color);
+				border-radius: 8px;
+				box-sizing: border-box;
+				transition: 200ms all ease-out;
+				overflow: hidden;
+				cursor: default;
 			}
 
-			body > *:last-of-type {
-				margin-bottom: 64px;
+			article > h3 {
+				display: block;
+				margin: 0px;
+				padding: 0px 0px 16px 0px;
+				font-family: 'crystalline';
+				font-size: 32px;
+				font-weight: 500;
+				line-height: 32px;
+				text-transform: uppercase;
+				vertical-align: middle;
+			}
+
+			article > h4 {
+				display: block;
+				margin: 16px 0px 16px 0px;
+				padding: 0px 0px 0px 0px;
+				font-family: 'crystalline';
+				font-size: 24px;
+				font-weight: 500;
+				line-height: 24px;
+				text-transform: uppercase;
+				vertical-align: middle;
+				border-bottom: 1px solid var(--surface-default-color);
+			}
+
+			section[data-inspect="site"] > browser-card-settings {
+				margin: 32px auto;
+			}
+
+			section[data-inspect="browser"] > article > browser-card-session,
+			section[data-inspect="browser"] > article > browser-card-tab {
+				width: 100%;
+				margin: 32px auto;
 			}
 
 		</style>
 	</head>
 	<body data-page="debug">
-		<article>
-			<h3>Debug</h3>
-			<p>
-				<code data-key="domain">example.com</code>
-			</p>
-			<p>
-				This Page shows detailed information about a given URL,
-				with the idea that all domain-specific Settings (including
-				the ones for other paths) are shown.
-			</p>
-		</article>
+		<section data-inspect="site"></section>
+		<section data-inspect="browser"></section>
 		<script type="module" src="debug.mjs"></script>
 	</body>
 </html>

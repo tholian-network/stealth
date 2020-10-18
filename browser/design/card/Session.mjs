@@ -1,41 +1,112 @@
 
-import { Element           } from '../Element.mjs';
-import { Widget            } from '../Widget.mjs';
-import { Tab               } from '../card/Tab.mjs';
-import { isArray, isObject } from '../../extern/base.mjs';
-import { isTab             } from '../../source/Tab.mjs';
-import { URL               } from '../../source/parser/URL.mjs';
+import { Element                               } from '../Element.mjs';
+import { Widget                                } from '../Widget.mjs';
+import { Tab as TabCard                        } from '../card/Tab.mjs';
+import { isArray, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { Tab, isTab                            } from '../../source/Tab.mjs';
 
 
 
-const toElementModel = function(tab) {
+const isSession = (object) => {
 
-	tab = isTab(tab) ? tab : null;
+	if (
+		isObject(object) === true
+		&& isString(object.type) === true
+		&& isObject(object.data) === true
+		&& object.type === 'Session'
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
+
+const toSession = (json) => {
+
+	json = isObject(json) ? json : null;
+
+
+	let session = {
+		agent:   null,
+		domain:  Date.now() + '.tholian.network',
+		stealth: null,
+		tabs:    [],
+		warning: 0
+	};
+
+
+	if (json !== null) {
+
+		let type = json.type === 'Session' ? json.type : null;
+		let data = isObject(json.data)     ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			if (isObject(data.agent) === true) {
+				session.agent = data.agent;
+			}
+
+			if (isString(data.domain) === true) {
+				session.domain = data.domain;
+			}
+
+			if (isNumber(data.warning) === true) {
+				session.warning = data.warning;
+			}
+
+			if (isArray(data.tabs) === true) {
+				session.tabs = data.tabs.map((data) => Tab.from(data)).filter((tab) => tab !== null);
+			}
+
+		}
+
+	}
+
+
+	return session;
+
+};
+
+
+const toMap = function(tab, session) {
+
+	tab     = isTab(tab)        ? tab     : null;
+	session = isObject(session) ? session : null;
 
 
 	if (tab !== null) {
 
-		let widget = Tab.from(tab);
-		let button = widget.query('button[data-action="remove"]');
-		if (button !== null) {
+		let widget = TabCard.from(tab);
+		if (widget !== null) {
 
-			button.on('click', () => {
+			widget.on('remove', () => {
 
-				let cache = this.model.tabs.find((t) => t.id.value() === tab.id) || null;
-				if (cache !== null) {
-					this.model.tabs.remove(cache);
+				if (isObject(session) === true) {
+
+					if (isArray(session.tabs) === true) {
+
+						if (session.tabs.includes(tab) === true) {
+							session.tabs.removeEvery((t) => t === tab);
+						}
+
+					}
+
 				}
 
-				widget.element.erase();
+				if (this.model.tabs.includes(widget.model) === true) {
+					this.model.tabs.remove(widget.model);
+				}
 
 			});
 
-		}
+			return {
+				element: widget.element,
+				model:   widget.model
+			};
 
-		return {
-			element: widget.element,
-			model:   widget.model
-		};
+		}
 
 	}
 
@@ -50,13 +121,12 @@ const Session = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'remove' ];
 	this.element = new Element('browser-card-session', [
-		'<h3 data-key="domain">Domain</h3>',
+		'<h3>Session #<span data-key="domain">0.tholian.network</h3>',
 		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
+		'<browser-card-session-header>',
+		'\t<code data-key="agent-engine">Engine</code> <code data-key="agent-version">13.37</code> on <code data-key="agent-system">System</code> has <code data-key="warning">0</code> warnings.',
+		'</browser-card-session-header>',
 		'<browser-card-session-article>',
-		'<p><code data-key="agent">User Agent</code> has <code data-key="warning">0</code> warnings.</p>',
-
-		// TODO: tabs and other details
-
 		'</browser-card-session-article>',
 		'<browser-card-session-footer>',
 		'<button title="Remove Session" data-action="remove"></button>',
@@ -69,11 +139,16 @@ const Session = function(browser, actions) {
 	};
 
 	this.model = {
-		agent:   this.element.query('[data-key="agent"]'),
+		agent:   {
+			engine:  this.element.query('[data-key="agent-engine"]'),
+			system:  this.element.query('[data-key="agent-system"]'),
+			version: this.element.query('[data-key="agent-version"]')
+		},
 		domain:  this.element.query('[data-key="domain"]'),
 		warning: this.element.query('[data-key="warning"]'),
 		tabs:    []
 	};
+
 
 	Widget.call(this);
 
@@ -121,7 +196,7 @@ const Session = function(browser, actions) {
 
 				if (result === true) {
 
-					browser.settings['sessions'].removeEvery((r) => r.domain === value.domain && r.path === value.path);
+					browser.settings['sessions'].removeEvery((r) => r.domain === value.domain);
 					this.element.erase();
 
 				}
@@ -153,7 +228,7 @@ const Session = function(browser, actions) {
 
 Session.from = function(value, actions) {
 
-	value   = isObject(value)  ? value   : null;
+	value   = isSession(value) ? value   : null;
 	actions = isArray(actions) ? actions : null;
 
 
@@ -171,7 +246,52 @@ Session.from = function(value, actions) {
 };
 
 
-Session.prototype = Object.assign({}, Widget.prototype);
+Session.prototype = Object.assign({}, Widget.prototype, {
+
+	value: function(value) {
+
+		value = isSession(value) ? toSession(value) : null;
+
+
+		if (value !== null) {
+
+			if (isArray(value.tabs) === true) {
+
+				let article = this.element.query('browser-card-session-article');
+				if (article !== null) {
+
+					article.query('browser-card-tab', true).forEach((tab) => tab.erase());
+					this.model.tabs = [];
+
+					value.tabs.map((tab) => {
+						return toMap.call(this, tab, value);
+					}).forEach((map) => {
+
+						if (map !== null) {
+							map.element.render(article);
+							this.model.tabs.push(map.model);
+						}
+
+					});
+
+				}
+
+			}
+
+			return Widget.prototype.value.call(this, value);
+
+		} else {
+
+			return Widget.prototype.value.call(this);
+
+		}
+
+	}
+
+});
+
+// TODO: Might be necessary to override value() method because
+// value({ type: Session, data: {}}) should work, too
 
 
 export { Session };

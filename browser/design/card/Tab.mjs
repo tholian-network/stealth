@@ -30,7 +30,7 @@ const isEvent = function(event) {
 
 };
 
-const toElementModel = function(event) {
+const toMap = function(event) {
 
 	event = isEvent(event) ? event : null;
 
@@ -52,6 +52,7 @@ const toElementModel = function(event) {
 		model.link.value(event.link);
 
 		return {
+			event:   event,
 			element: element,
 			model:   model
 		};
@@ -127,6 +128,7 @@ const Tab = function(browser, actions) {
 		history: [],
 		select:  null
 	};
+
 
 	Widget.call(this);
 
@@ -340,20 +342,7 @@ Tab.prototype = Object.assign({}, Widget.prototype, {
 
 
 					value.history.slice().reverse().map((event) => {
-
-						let object = toElementModel.call(this, event);
-						if (object !== null) {
-
-							return {
-								event:   event,
-								element: object.element,
-								model:   object.model,
-							};
-
-						}
-
-						return null;
-
+						return toMap.call(this, event);
 					}).forEach((map) => {
 
 						if (map !== null) {

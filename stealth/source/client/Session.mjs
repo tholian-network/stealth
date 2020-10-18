@@ -114,6 +114,30 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 			callback(null);
 		}
 
+	},
+
+	remove: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			this.once('remove', (response) => callback(response));
+
+			this.client.send({
+				headers: {
+					service: 'session',
+					method:  'remove'
+				},
+				payload: payload
+			});
+
+		} else if (callback !== null) {
+			callback(null);
+		}
+
 	}
 
 });

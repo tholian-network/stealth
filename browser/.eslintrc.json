@@ -32,9 +32,7 @@
 		"rules": {
 			"no-control-regex": "off",
 			"no-console": "off",
-			"no-restricted-globals": [
-				"error"
-			]
+			"no-restricted-globals": "off"
 		}
 	}, {
 		"files": [ "extern/base.mjs" ],

@@ -276,6 +276,7 @@ const Settings = function(browser, allowed, actions) {
 
 	this.results = {};
 
+
 	Widget.call(this);
 
 

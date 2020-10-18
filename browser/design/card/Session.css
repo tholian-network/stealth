@@ -55,3 +55,57 @@ browser-card-session > button[data-action="toggle"].active:before {
 	transition: 200ms transform ease-out;
 }
 
+
+
+browser-card-session-header {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin: 0px 0px 16px 0px;
+}
+
+browser-card-session-header > code {
+	display: inline-block;
+	margin: 0px;
+	padding: 4px;
+	font-family: 'vera-mono';
+	color: var(--layout-default-color);
+	background: var(--layout-default-background);
+	border-radius: 4px;
+}
+
+
+
+browser-card-session-article {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-session-article > browser-card-tab {
+	width: 100%;
+	margin: 0px 0px 16px 0px;
+}
+
+
+
+browser-card-session-footer {
+	display: block;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-card-session-footer > button[data-action="remove"]:before { content: '\e14c'; }
+
+
+
+@media screen and (max-width: 800px) {
+
+	browser-card-settings {
+		width: auto;
+	}
+
+}
+

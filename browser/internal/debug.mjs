@@ -1,135 +1,75 @@
 
-import { console     } from '../extern/base.mjs';
 import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
 import { Element     } from '../design/Element.mjs';
-import { Beacon      } from '../design/card/Beacon.mjs';
-import { Host        } from '../design/card/Host.mjs';
-import { Mode        } from '../design/card/Mode.mjs';
-import { Peer        } from '../design/card/Peer.mjs';
-import { Redirect    } from '../design/card/Redirect.mjs';
 import { Session     } from '../design/card/Session.mjs';
+import { Settings    } from '../design/card/Settings.mjs';
 import { Tab         } from '../design/card/Tab.mjs';
 import { URL         } from '../source/parser/URL.mjs';
 
 
 
-const render_widget = (widget) => {
-
-	let body = Element.query('body');
-
-	if (body !== null && widget !== null) {
-		widget.render(body);
-		widget.emit('show');
-	}
-
-};
-
-
-
 let browser = window.parent.BROWSER || null;
-let domain  = URL.toDomain(ENVIRONMENT.flags.url);
-
 if (browser !== null) {
 
-	browser.tabs.forEach((tab) => {
-		render_widget(Tab.from(tab));
-	});
+	let site_settings = Settings.from({ domain: '' }, [ 'beacons', 'hosts', 'modes', 'peers', 'redirects' ]);
+	if (site_settings !== null) {
 
-}
+		let domain = URL.toDomain(ENVIRONMENT.flags.url);
+		if (domain !== null) {
+			site_settings.value({ domain: domain });
+		}
 
-if (browser !== null && domain !== null) {
-
-	let element = Element.query('[data-key="domain"]');
-	if (element !== null) {
-		element.value(domain);
-	}
-
-	let host = browser.settings.hosts.find((h) => h.domain === domain) || null;
-	if (host !== null) {
-
-		render_widget(Host.from(host));
-
-	} else {
-
-		render_widget(Host.from({
-			domain: domain
-		}, [ 'create', 'refresh' ]));
-
-	}
-
-	let mode = browser.settings.modes.find((m) => m.domain === domain) || null;
-	if (mode !== null) {
-
-		render_widget(Mode.from(mode));
-
-	} else {
-
-		render_widget(Mode.from({
-			domain: domain
-		}, [ 'create' ]));
-
-	}
-
-	let beacons = browser.settings.beacons.filter((b) => b.domain === domain) || [];
-	if (beacons.length > 0) {
-
-		beacons.forEach((beacon) => {
-			render_widget(Beacon.from(beacon));
-		});
-
-	} else {
-
-		render_widget(Beacon.from({
-			domain: domain
-		}, [ 'create' ]));
-
-	}
-
-	let peer = browser.settings.peers.find((p) => p.domain === domain) || null;
-	if (peer !== null) {
-
-		render_widget(Peer.from(peer));
-
-	} else {
-
-		render_widget(Peer.from({
-			domain:     domain,
-			connection: 'offline'
-		}, [ 'create', 'refresh' ]));
-
-	}
-
-	let redirects = browser.settings.redirects.filter((r) => r.domain === domain) || [];
-	if (redirects.length > 0) {
-
-		redirects.forEach((redirect) => {
-			render_widget(Redirect.from(redirect));
-		});
-
-	} else {
-
-		render_widget(Redirect.from({
-			domain: domain
-		}, [ 'create' ]));
-
-	}
-
-	let sessions = browser.settings.sessions.filter((s) => s.domain === domain) || [];
-	if (sessions.length > 0) {
-
-		sessions.forEach((session) => {
-			render_widget(Session.from(session));
-		});
+		let section = Element.query('section[data-inspect="site"]');
+		if (section !== null) {
+			site_settings.render(section);
+			site_settings.emit('show');
+		}
 
 	}
 
 
-	console.log('Host',      host);
-	console.log('Mode',      mode);
-	console.log('Peer',      peer);
-	console.log('Beacons',   beacons);
-	console.log('Redirects', redirects);
-	console.log('Sessions',  sessions);
+	setTimeout(() => {
+
+		let article = new Element('article', [
+			'<h3>Browser</h3>'
+		]);
+
+		if (browser.settings.sessions.length > 0) {
+
+			new Element('h4', 'Browser Sessions').render(article);
+
+			browser.settings.sessions.forEach((data) => {
+
+				let card = Session.from(data);
+				if (card !== null) {
+					card.render(article);
+				}
+
+			});
+
+		}
+
+		if (browser.tabs.length > 0) {
+
+			new Element('h4', 'Browser Tabs').render(article);
+
+			browser.tabs.forEach((data) => {
+
+				let card = Tab.from(data);
+				if (card !== null) {
+					card.render(article);
+				}
+
+			});
+
+		}
+
+		let section = Element.query('section[data-inspect="browser"]');
+		if (section !== null) {
+			article.render(section);
+		}
+
+	}, 500);
 
 }
 

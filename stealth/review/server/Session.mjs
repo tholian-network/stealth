@@ -196,6 +196,27 @@ describe('Session.prototype.read()', function(assert) {
 
 });
 
+describe('Session.prototype.remove()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.session.remove), true);
+
+	this.server.services.session.remove({
+		domain: ENVIRONMENT.hostname
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'session',
+				event:   'remove'
+			},
+			payload: true
+		});
+
+	});
+
+});
+
 after(disconnect);
 
 

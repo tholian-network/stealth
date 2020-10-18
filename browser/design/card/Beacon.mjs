@@ -35,7 +35,7 @@ const isBeacon = function(beacon) {
 
 };
 
-const toElementModel = function(beacon) {
+const toMap = function(beacon) {
 
 	beacon = isBeacon(beacon) ? beacon : null;
 
@@ -92,6 +92,7 @@ const toElementModel = function(beacon) {
 
 
 		return {
+			beacon:  beacon,
 			element: element,
 			model:   model
 		};
@@ -480,11 +481,13 @@ Beacon.prototype = Object.assign({}, Widget.prototype, {
 					table.query('tr', true).forEach((row) => row.erase());
 					this.model.beacons = [];
 
-					value.beacons.map((b) => toElementModel.call(this, b)).forEach((beacon) => {
+					value.beacons.map((beacon) => {
+						return toMap.call(this, beacon);
+					}).forEach((map) => {
 
-						if (beacon !== null) {
-							beacon.element.render(table);
-							this.model.beacons.push(beacon.model);
+						if (map !== null) {
+							map.element.render(table);
+							this.model.beacons.push(map.model);
 						}
 
 					});
