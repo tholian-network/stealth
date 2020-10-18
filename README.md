@@ -12,6 +12,15 @@ opinion on how Web Browsers should try to understand the Semantic Web.
 Stealth empowers its Users, not Website Developers that could (,will ,and did) abuse technologies
 to compromise the freedom and rights of Web Browser End-Users.
 
+**Architecture Notes**:
+
+At this point in development, Stealth is implemented as a headless node.js Browser/Scraper/Proxy,
+which also serves its own HTML5-based Browser UI and can act as a Web Proxy via SOCKS or HTTP/S.
+At a later point in time, Stealth will probably use a forked Browser Engine with a reduced
+featureset (e.g. without WebRTC and without WebUSB), but currently it uses a Webview that's
+preinstalled on your target system. It is heavily recommended to use [Ungoogled Chromium](https://ungoogled-software.github.io)
+here if you run Stealth on a Desktop environment.
+
 
 ## Downloads / Releases
 
@@ -95,6 +104,14 @@ it to fit your needs.
 
 A User's Guide probably will arrive at a later point in time, as Stealth currently has no
 public release yet.
+
+
+## Public Chat
+
+Currently, there's a Telegram Chat available where most discussions happen. We love
+to discuss ideas and we embrace Knowledge.
+
+Telegram Chat: [t.me/tholian_beta](https://t.me/tholian_beta) or search for `Tholian Beta`.
 
 
 ## Quickstart
