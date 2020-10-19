@@ -10,6 +10,55 @@ import { URL                                                          } from '..
 const global   = (typeof window !== 'undefined' ? window : this);
 const ELEMENTS = [];
 
+const DOMEVENT = {
+
+	// Mouse
+	'click':       'click',
+	'contextmenu': null,
+	'dblclick':    null,
+	'mousedown':   null,
+	'mouseenter':  null,
+	'mouseleave':  null,
+	'mousemove':   null,
+	'mouseout':    null,
+	'mouseover':   null,
+	'mouseup':     null,
+
+	// Pointer
+	'pointercancel': null,
+	'pointerdown':   null,
+	'pointerenter':  null,
+	'pointerleave':  null,
+	'pointermove':   null,
+	'pointerout':    null,
+	'pointerover':   null,
+	'pointerup':     null,
+
+	// Focus
+	'blur':     'blur',
+	'change':   null,
+	'focus':    'focus',
+	'focusin':  null,
+	'focusout': null,
+	'input':    null,
+	'select':   'select',
+
+	// Keyboard
+	'keydown':  null,
+	'keypress': null,
+	'keyup':    null,
+
+	// Drag
+	'drag':      null,
+	'dragend':   null,
+	'dragenter': null,
+	'dragleave': null,
+	'dragover':  null,
+	'dragstart': null,
+	'drop':      null
+
+};
+
 const FakeEvent = function() {
 
 	this.x = 0;
@@ -636,22 +685,30 @@ Element.prototype = {
 
 		if (event !== null) {
 
-			// Delegate DOM Event correctly instead
-			let listener = this.__listeners[event] || null;
-			if (listener !== null && args.length === 0) {
+			if (
+				Object.keys(DOMEVENT).includes(event) === true
+				&& args.length === 0
+			) {
 
-				if (isFunction(this.node[event]) === true) {
+				let listener = this.__listeners[event] || null;
+				let trigger  = DOMEVENT[event] || null;
+				if (listener !== null && trigger !== null) {
 
-					this.node[event]();
+					if (isFunction(this.node[trigger]) === true) {
 
-					return null;
+						this.node[trigger]();
+
+						return null;
+
+					}
 
 				}
 
-				args = [ new FakeEvent() ];
+				if (args.length === 0) {
+					args = [ new FakeEvent() ];
+				}
 
 			}
-
 
 			let events = this.__events[event] || null;
 			if (events !== null) {
@@ -836,21 +893,29 @@ Element.prototype = {
 				events = this.__events[event] = [];
 			}
 
-			let listener = this.__listeners[event] || null;
-			if (listener === null) {
+			if (Object.keys(DOMEVENT).includes(event) === true) {
 
-				listener = this.__listeners[event] = function() {
+				let listener = this.__listeners[event] || null;
+				if (listener === null) {
 
-					let args = [];
-					for (let a = 0, al = arguments.length; a < al; a++) {
-						args.push(arguments[a]);
-					}
+					listener = this.__listeners[event] = function() {
 
-					this.emit(event, args);
+						let args = [];
+						for (let a = 0, al = arguments.length; a < al; a++) {
+							args.push(arguments[a]);
+						}
 
-				}.bind(this);
+						if (args.length === 0) {
+							args.push(new FakeEvent());
+						}
 
-				this.node.addEventListener(event, listener, true);
+						this.emit(event, args);
+
+					}.bind(this);
+
+					this.node.addEventListener(event, listener, true);
+
+				}
 
 			}
 
