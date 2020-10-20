@@ -2,8 +2,8 @@
 import { Element                                } from '../Element.mjs';
 import { Widget                                 } from '../Widget.mjs';
 import { isArray, isBoolean, isObject, isString } from '../../extern/base.mjs';
-import { isTab                                  } from '../../source/Tab.mjs';
 import { DATETIME                               } from '../../source/parser/DATETIME.mjs';
+import { Tab as Instance, isTab                 } from '../../source/Tab.mjs';
 
 
 
@@ -45,16 +45,10 @@ const toMap = function(event) {
 			this.select(event);
 		});
 
-		let model = {
-			link: { value: (v) => element.attr('title', v) }
-		};
-
-		model.link.value(event.link);
-
 		return {
 			event:   event,
 			element: element,
-			model:   model
+			model:   {}
 		};
 
 	}
@@ -121,8 +115,10 @@ const Tab = function(browser, actions) {
 
 	this.model = {
 		id:      this.element.query('[data-key="id"]'),
-		history: [],
+		history: []
 	};
+
+	window.TAB = this;
 
 	this.__state = {
 		history: [],
@@ -240,13 +236,20 @@ const Tab = function(browser, actions) {
 };
 
 
-Tab.from = function(value, actions) {
+Tab.from = function(json_or_instance, actions) {
 
-	value   = isTab(value)     ? value   : null;
+	let value  = null;
+	let widget = null;
+
+
+	if (isTab(json_or_instance) === true) {
+		value = json_or_instance;
+	} else if (isObject(json_or_instance) === true) {
+		value = Instance.from(json_or_instance);
+	}
+
 	actions = isArray(actions) ? actions : null;
 
-
-	let widget = null;
 
 	if (value !== null) {
 
@@ -254,6 +257,7 @@ Tab.from = function(value, actions) {
 		widget.value(value);
 
 	}
+
 
 	return widget;
 
@@ -281,11 +285,15 @@ Tab.prototype = Object.assign({}, Widget.prototype, {
 
 					map.element.state('active');
 
-					map.element.node.scrollIntoView({
-						behavior: 'smooth',
-						block:    'center',
-						inline:   'center'
-					});
+					if (this.state() === 'active') {
+
+						map.element.node.scrollIntoView({
+							behavior: 'smooth',
+							block:    'center',
+							inline:   'center'
+						});
+
+					}
 
 				}
 
@@ -331,15 +339,11 @@ Tab.prototype = Object.assign({}, Widget.prototype, {
 
 			if (isArray(value.history) === true) {
 
-				value.history = value.history.filter((h) => isEvent(h));
-
-
 				let history = this.element.query('browser-card-tab-header-history');
 				if (history !== null) {
 
 					history.query('button', true).forEach((button) => button.erase());
 					this.model.history = [];
-
 
 					value.history.slice().reverse().map((event) => {
 						return toMap.call(this, event);

@@ -1,99 +1,34 @@
 
-import { Element                               } from '../Element.mjs';
-import { Widget                                } from '../Widget.mjs';
-import { Tab as TabCard                        } from '../card/Tab.mjs';
-import { isArray, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { Tab, isTab                            } from '../../source/Tab.mjs';
+import { Element                        } from '../Element.mjs';
+import { Widget                         } from '../Widget.mjs';
+import { Tab                            } from '../card/Tab.mjs';
+import { isArray, isObject              } from '../../extern/base.mjs';
+import { Session as Instance, isSession } from '../../source/Session.mjs';
+import { isTab                          } from '../../source/Tab.mjs';
 
-
-
-const isSession = (object) => {
-
-	if (
-		isObject(object) === true
-		&& isString(object.type) === true
-		&& isObject(object.data) === true
-		&& object.type === 'Session'
-	) {
-		return true;
-	}
-
-
-	return false;
-
-};
-
-const toSession = (json) => {
-
-	json = isObject(json) ? json : null;
-
-
-	let session = {
-		agent:   null,
-		domain:  Date.now() + '.tholian.network',
-		stealth: null,
-		tabs:    [],
-		warning: 0
-	};
-
-
-	if (json !== null) {
-
-		let type = json.type === 'Session' ? json.type : null;
-		let data = isObject(json.data)     ? json.data : null;
-
-		if (type !== null && data !== null) {
-
-			if (isObject(data.agent) === true) {
-				session.agent = data.agent;
-			}
-
-			if (isString(data.domain) === true) {
-				session.domain = data.domain;
-			}
-
-			if (isNumber(data.warning) === true) {
-				session.warning = data.warning;
-			}
-
-			if (isArray(data.tabs) === true) {
-				session.tabs = data.tabs.map((data) => Tab.from(data)).filter((tab) => tab !== null);
-			}
-
-		}
-
-	}
-
-
-	return session;
-
-};
 
 
 const toMap = function(tab, session) {
 
-	tab     = isTab(tab)        ? tab     : null;
-	session = isObject(session) ? session : null;
+	tab     = isTab(tab)         ? tab     : null;
+	session = isSession(session) ? session : null;
 
 
 	if (tab !== null) {
 
-		let widget = TabCard.from(tab);
+		let widget = Tab.from(tab);
 		if (widget !== null) {
 
 			widget.on('remove', () => {
 
-				if (isObject(session) === true) {
+				if (isArray(session.tabs) === true) {
 
-					if (isArray(session.tabs) === true) {
-
-						if (session.tabs.includes(tab) === true) {
-							session.tabs.removeEvery((t) => t === tab);
-						}
-
+					if (session.tabs.includes(tab) === true) {
+						session.tabs.removeEvery((t) => t === tab);
 					}
 
 				}
+
 
 				if (this.model.tabs.includes(widget.model) === true) {
 					this.model.tabs.remove(widget.model);
@@ -226,13 +161,20 @@ const Session = function(browser, actions) {
 };
 
 
-Session.from = function(value, actions) {
+Session.from = function(json_or_instance, actions) {
 
-	value   = isSession(value) ? value   : null;
+	let value  = null;
+	let widget = null;
+
+
+	if (isSession(json_or_instance) === true) {
+		value = json_or_instance;
+	} else if (isObject(json_or_instance) === true) {
+		value = Instance.from(json_or_instance);
+	}
+
 	actions = isArray(actions) ? actions : null;
 
-
-	let widget = null;
 
 	if (value !== null) {
 
@@ -240,6 +182,7 @@ Session.from = function(value, actions) {
 		widget.value(value);
 
 	}
+
 
 	return widget;
 
@@ -250,7 +193,7 @@ Session.prototype = Object.assign({}, Widget.prototype, {
 
 	value: function(value) {
 
-		value = isSession(value) ? toSession(value) : null;
+		value = isSession(value) ? value : null;
 
 
 		if (value !== null) {
@@ -289,9 +232,6 @@ Session.prototype = Object.assign({}, Widget.prototype, {
 	}
 
 });
-
-// TODO: Might be necessary to override value() method because
-// value({ type: Session, data: {}}) should work, too
 
 
 export { Session };

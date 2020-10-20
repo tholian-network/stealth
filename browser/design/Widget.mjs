@@ -1,6 +1,6 @@
 
-import { isArray, isObject, isString } from '../extern/base.mjs';
-import { Element, isElement          } from './Element.mjs';
+import { isArray, isBoolean, isNumber, isObject, isString } from '../extern/base.mjs';
+import { Element, isElement                               } from './Element.mjs';
 
 
 
@@ -25,7 +25,7 @@ export const isWidget = function(obj) {
 
 };
 
-const get_value = function(element) {
+const getValue = function(element) {
 
 	let value = null;
 
@@ -40,7 +40,7 @@ const get_value = function(element) {
 
 			let active = element.find((other) => other.attr('checked') === true) || null;
 			if (active !== null) {
-				value = get_value(active);
+				value = getValue(active);
 			}
 
 		} else {
@@ -48,7 +48,7 @@ const get_value = function(element) {
 			value = [];
 
 			element.forEach((other, e) => {
-				value.push(get_value(element[e]));
+				value.push(getValue(element[e]));
 			});
 
 		}
@@ -58,8 +58,16 @@ const get_value = function(element) {
 		value = {};
 
 		Object.keys(element).forEach((key) => {
-			value[key] = get_value(element[key]);
+			value[key] = getValue(element[key]);
 		});
+
+	} else if (
+		isBoolean(element) === true
+		|| isNumber(element) === true
+		|| isString(element) === true
+	) {
+
+		value = element;
 
 	}
 
@@ -67,7 +75,7 @@ const get_value = function(element) {
 
 };
 
-const set_value = function(element, value) {
+const setValue = (element, value) => {
 
 	value = value !== undefined ? value : null;
 
@@ -76,14 +84,29 @@ const set_value = function(element, value) {
 
 	if (isElement(element) === true) {
 
-		result = element.value(value);
+		element.value(value);
+
+		result = true;
 
 	} else if (isArray(element) === true && isArray(value) === true) {
 
 		let check = [];
 
 		element.forEach((other, e) => {
-			check.push(set_value(element[e], value[e]));
+
+			if (isBoolean(element[e]) === true && isBoolean(value[e]) === true) {
+				element[e] = value[e];
+				check.push(true);
+			} else if (isNumber(element[e]) === true && isNumber(value[e]) === true) {
+				element[e] = value[e];
+				check.push(true);
+			} else if (isString(element[e]) === true && isString(value[e]) === true) {
+				element[e] = value[e];
+				check.push(true);
+			} else {
+				check.push(setValue(element[e], value[e]));
+			}
+
 		});
 
 		if (check.includes(false) === false) {
@@ -108,12 +131,25 @@ const set_value = function(element, value) {
 
 		}
 
-	} else if (isObject(element) === true && isObject(value) === true) {
+	} else if (isObject(element) === true && (isObject(value) === true || Object.keys(value).length > 0)) {
 
 		let check = [];
 
 		Object.keys(element).forEach((key) => {
-			check.push(set_value(element[key], value[key]));
+
+			if (isBoolean(element[key]) === true && isBoolean(value[key]) === true) {
+				element[key] = value[key];
+				check.push(true);
+			} else if (isNumber(element[key]) === true && isNumber(value[key]) === true) {
+				element[key] = value[key];
+				check.push(true);
+			} else if (isString(element[key]) === true && isString(value[key]) === true) {
+				element[key] = value[key];
+				check.push(true);
+			} else {
+				check.push(setValue(element[key], value[key]));
+			}
+
 		});
 
 		if (check.includes(false) === false) {
@@ -126,7 +162,7 @@ const set_value = function(element, value) {
 
 };
 
-const validate_value = function(element, value) {
+const validateValue = function(element, value) {
 
 	let result = true;
 
@@ -164,7 +200,7 @@ const validate_value = function(element, value) {
 
 			element.forEach((other, e) => {
 
-				let check = validate_value(other, value[e]);
+				let check = validateValue(other, value[e]);
 				if (check !== true) {
 					result = false;
 				}
@@ -177,7 +213,7 @@ const validate_value = function(element, value) {
 
 		Object.keys(element).forEach((key) => {
 
-			let check = validate_value(element[key], value[key]);
+			let check = validateValue(element[key], value[key]);
 			if (check !== true) {
 				result = false;
 			}
@@ -281,7 +317,7 @@ Widget.prototype = {
 		}
 
 		if (isObject(this.model) === true) {
-			data.model = get_value(this.model);
+			data.model = getValue(this.model);
 		}
 
 		return {
@@ -433,7 +469,7 @@ Widget.prototype = {
 	validate: function() {
 
 		if (isObject(this.model) === true) {
-			return validate_value(this.model, get_value(this.model));
+			return validateValue(this.model, getValue(this.model));
 		}
 
 
@@ -441,15 +477,24 @@ Widget.prototype = {
 
 	},
 
-	value: function(value) {
+	value: function(value_or_instance) {
 
-		value = isObject(value) ? value : null;
+		let value = null;
 
+		if (value_or_instance === undefined) {
+			value = null;
+		} else if (value_or_instance === null) {
+			value = null;
+		} else if (isObject(value_or_instance) === true) {
+			value = value_or_instance;
+		} else if (Object.keys(value_or_instance).length > 0) {
+			value = value_or_instance;
+		}
 
 		if (value !== null) {
 
 			if (isObject(this.model) === true) {
-				return set_value(this.model, value);
+				return setValue(this.model, value);
 			} else {
 				return false;
 			}
@@ -457,7 +502,7 @@ Widget.prototype = {
 		} else {
 
 			if (isObject(this.model) === true) {
-				return get_value(this.model);
+				return getValue(this.model);
 			} else {
 				return null;
 			}

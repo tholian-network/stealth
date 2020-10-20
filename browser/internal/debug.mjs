@@ -53,7 +53,7 @@ if (browser !== null) {
 
 			new Element('h4', 'Browser Tabs').render(article);
 
-			browser.tabs.forEach((data) => {
+			browser.tabs.map((tab) => tab.toJSON()).forEach((data) => {
 
 				let card = Tab.from(data);
 				if (card !== null) {

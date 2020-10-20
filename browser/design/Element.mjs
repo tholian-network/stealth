@@ -1374,6 +1374,8 @@ Element.prototype = {
 
 			}
 
+			return true;
+
 		} else {
 
 			let val = this.node.getAttribute('data-val');
@@ -1530,7 +1532,7 @@ Element.prototype = {
 						if (val.includes('\n')) {
 							return filter_values(val.split('\n'), null, null, (value) => parse_value(value));
 						} else {
-							return filter_values(val, null, null, (value) => parse_value(value));
+							return filter_value(val, null, null, (value) => parse_value(value));
 						}
 
 					}
