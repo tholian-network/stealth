@@ -3,15 +3,15 @@ import fs   from 'fs';
 import path from 'path';
 
 import { console, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                                                 } from './ENVIRONMENT.mjs';
-import { Session, isSession                                          } from './Session.mjs';
-import { HOSTS                                                       } from './parser/HOSTS.mjs';
-import { Beacon                                                      } from './server/Beacon.mjs';
-import { Blocker                                                     } from './server/Blocker.mjs';
-import { Host                                                        } from './server/Host.mjs';
-import { Mode                                                        } from './server/Mode.mjs';
-import { Peer                                                        } from './server/Peer.mjs';
-import { Redirect                                                    } from './server/Redirect.mjs';
+import { ENVIRONMENT                                                 } from '../source/ENVIRONMENT.mjs';
+import { Session, isSession                                          } from '../source/Session.mjs';
+import { HOSTS                                                       } from '../source/parser/HOSTS.mjs';
+import { Beacon                                                      } from '../source/server/Beacon.mjs';
+import { Blocker                                                     } from '../source/server/Blocker.mjs';
+import { Host                                                        } from '../source/server/Host.mjs';
+import { Mode                                                        } from '../source/server/Mode.mjs';
+import { Peer                                                        } from '../source/server/Peer.mjs';
+import { Redirect                                                    } from '../source/server/Redirect.mjs';
 
 
 

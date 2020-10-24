@@ -1,16 +1,20 @@
 
 # Covert Suite
 
-The Covert Suite is a test framework and test suite that allows to test
-and verify that the peer-to-peer network services implemented on either
-side are working as expected.
+The Covert Suite is a test framework and test runner that allows to test
+and verify implementations of peer-to-peer network services, and the
+simulation of network behaviours (2G, 3G, 4G).
 
-The idea is that it can be used to understand the different states that
-all its data can have, and that it can be used as a reference point for
-future Peer Client implementations.
+The idea of its concept is that it can help Developers understand their
+code, and that Reviews can be executed multiple times in a stateless
+manner; even in parallel while fixing bugs in an implementation.
 
-By default, it uses the node.js [Client.mjs](../stealth/source/Client.mjs),
-so no external libraries and no external programs are necessary.
+All Reviews have been implemented and maintained in a manner so that they
+can be used as a reference point for future third-party clients.
+
+By default, it uses the [stealth/Client](../stealth/source/Client.mjs)
+which is written for node.js, so no external libraries and no external
+programs are necessary.
 
 
 ## Requirements
@@ -35,48 +39,15 @@ transmit and receive of both UDP/TCP data:
 - `65432` for [stealth/Client](../stealth/review/Client.mjs) and [stealth/Server](../stealth/review/Server.mjs).
 
 
-## Command-Line Flags
-
-- `--debug` is a boolean flag to toggle the `console.clear()` that is
-  otherwise called after each Review's test has been processed.
-  If set to `true`, it allows explicit debugging in code without loss of
-  `process.stdout` data. The default value is `false`.
-
-- `--internet` is a boolean flag to toggle the inclusion of network
-  tests against the internet or online reference test suites.
-  The default value is `true`.
-
-- `--network` is a string flag to emulate a traffic-controlled internet
-  connection. It can be set to either of `1G`, `2G`, `3G` or `4G`.
-  The default value is `null`.
-
-- `--timeout` is a string flag to override the timeout in seconds after
-  which a waiting test is being skipped automatically.
-  The default value is `10s`.
-
-If a non-flag parameter is given, it is assumed to be a Query to filter
-the Reviews. This allows to debug a single Review or a Suite of related
-Reviews.
-
-```bash
-cd /path/to/covert;
-
-node ./covert.mjs stealth/Client;       # Execute Stealth's review/Client.mjs
-node ./covert.mjs stealth/client*;      # Execute Stealth's reviews starting with "client"
-node ./covert.mjs *Cache;               # Execute all reviews ending with "Cache"
-node ./covert.mjs stealth/client*Cache; # Execute Stealth's reviews starting with "client" and ending with "Cache"
-
-node ./covert.mjs --debug=true;     # Execute reviews in debug mode
-node ./covert.mjs --internet=false; # Execute reviews in offline mode
-```
-
-
 ## Quickstart
 
 - Install [node.js](https://nodejs.org/en/download) version `12+`.
 
 ```bash
 cd /path/to/stealth;
+
+# Build Covert
+node ./covert/make.mjs;
 
 # Show Help
 node ./covert/covert.mjs;

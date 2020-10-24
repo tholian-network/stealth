@@ -1,7 +1,7 @@
 
 import { isArray, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                } from '../parser/IP.mjs';
-import { HTTPS                                             } from './HTTPS.mjs';
+import { IP                                                } from '../../source/parser/IP.mjs';
+import { HTTPS                                             } from '../../source/connection/HTTPS.mjs';
 
 
 

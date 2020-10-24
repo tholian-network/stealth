@@ -2,13 +2,13 @@
 import process from 'process';
 
 import { console, Emitter, isObject, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                          } from './ENVIRONMENT.mjs';
-import { Request                              } from './Request.mjs';
-import { Server                               } from './Server.mjs';
-import { Session                              } from './Session.mjs';
-import { Settings                             } from './Settings.mjs';
-import { IP                                   } from './parser/IP.mjs';
-import { URL                                  } from './parser/URL.mjs';
+import { ENVIRONMENT                          } from '../source/ENVIRONMENT.mjs';
+import { Request                              } from '../source/Request.mjs';
+import { Server                               } from '../source/Server.mjs';
+import { Session                              } from '../source/Session.mjs';
+import { Settings                             } from '../source/Settings.mjs';
+import { IP                                   } from '../source/parser/IP.mjs';
+import { URL                                  } from '../source/parser/URL.mjs';
 
 
 

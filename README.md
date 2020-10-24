@@ -13,31 +13,6 @@ Stealth empowers its Users, not Website Developers that could (,will ,and did) a
 to compromise the freedom and rights of Web Browser End-Users.
 
 
-**Architecture Notes**:
-
-At this point in development, Stealth is implemented as a headless node.js Browser/Scraper/Proxy,
-which also serves its own HTML5-based Browser UI and can act as a Web Filtering Proxy via SOCKS or
-HTTP/S. At a later point in time, Stealth will probably use a forked Browser Engine with a reduced
-featureset (e.g. without WebRTC and without WebUSB), but currently it uses a Webview that's
-preinstalled on your target system.
-
-It is heavily recommended to use [Ungoogled Chromium](https://ungoogled-software.github.io) as a
-Webview if you run Stealth on a Desktop target environment. As Stealth serves its own Browser UI
-on the same port `65432`, it's possible to connect to a Stealth instance that's hosted on a different
-machine in the same local network, too.
-
-
-## Downloads / Releases
-
-Stealth is currently in the Prototype Stage. Non-Developing Users won't enjoy it much, as things
-are quite buggy and incomplete for the moment.
-
-However, due to the concept of using node.js and focussing on a privacy-oriented audience,
-Stealth will initially be released for `MacOS` and `GNU/Linux`.
-
-(Download Links will be inserted here once the Stealth Releases are ready for the public)
-
-
 ## Features
 
 Stealth is both a Web Scraper, Web Service and Web Proxy that can serve its own
@@ -83,7 +58,7 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
   Stealh as a Web App on your Android phone and you have direct access to your downloaded
   wikis, yay!
 
-- It can double-function as a Content-Auditing and Content-Filtering Web Proxy inside
+- It can double-function as a Content-Auditing and Content-Filtering Web Proxy for
   other Web Browsers, which allows corporate-like setups with a shared peer-to-peer
   Cache and a local Web Archive of the Internet.
 
@@ -96,34 +71,15 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
   potentially send data to the website.
 
 - Stealth can be scripted as a Web Scraper inside `node.js`. The [Browser](./browser/source)
-  is completely free-of-DOM, so every single task and interaction that the [Browser UI](./browser/design)
-  does can be implemented in an automateable and programmable manner, even remotely through
+  is completely headless, so every single task and interaction that the [Browser UI](./browser/design)
+  reflects can be implemented in an automateable and programmable manner, even remotely through
   trusted Peers using Stealth's peer-to-peer network services.
-
-
-## Stealth Guide (for Hackers?)
-
-The [Guide](/guide/README.md) is currently meant for Developers that are new to the Project.
-It explains all necessary topics to quickly get started to hack around with Stealth and modify
-it to fit your needs.
-
-A User's Guide probably will arrive at a later point in time, as Stealth currently has no
-public release yet.
-
-
-## Public Chat
-
-Currently, there's a Telegram Chat available where most technical discussions happen.
-We love to discuss ideas and we embrace Knowledge of any kind.
-
-Telegram Chat: [t.me/tholian_beta](https://t.me/tholian_beta) or search for `Tholian Beta`.
 
 
 ## Quickstart
 
 If you don't wanna deal with the native build toolchain, this
 is how to get started as quickly as possible:
-
 
 - Install [node.js](https://nodejs.org/en/download) version `12+`.
 - Install [Ungoogled Chromium](https://github.com/Eloston/ungoogled-chromium/releases) version `70+`.
@@ -143,6 +99,9 @@ node ./stealth/stealth.mjs --debug=true;
 
 # Open as Progressive Web App
 node ./browser/browser.mjs;
+
+# Alternatively open Stealth's Browser UI in a Web Browser
+# gio open "http://localhost:65432"
 ```
 
 **IMPORTANT**: On Android, Stealth can be used by visiting the URL and bookmarking it as
@@ -150,11 +109,44 @@ a Web App. The Stealth Icon will appear on your home screen, and it will behave 
 native offline-ready mobile app.
 
 
+## Releases
+
+At this point in Development, Stealth is implemented as a headless node.js Browser/Scraper/Proxy
+which serves its own HTML5-based User Interface. At a later point in time, there will be native
+builds available that will most likely include a custom fork of another Browser Engine with
+a reduced featureset (such as without WebRTC, WebUSB etc.); but currently Stealth's Browser
+uses a Webview that is preinstalled on your target Operating System.
+
+It is heavily recommended to use [Ungoogled Chromium](https://ungoogled-software.github.io)
+as a Webview if you want to run Stealth on a Desktop target environment.
+
+(Links will be inserted here once the Stealth releases are ready for the public)
+
+
+## Stealth Guide (for Hackers?)
+
+The [Guide](/guide/README.md) is currently meant for Developers that are new to the Project.
+It explains all necessary topics to quickly get started to hack around with Stealth and modify
+it to fit your needs.
+
+A User's Guide probably will arrive at a later point in time, as Stealth currently has no
+public release yet.
+
+
+## Community
+
+There's a Telegram Chat available where most technical discussions happen.
+You can join it via [t.me/tholian_beta](https://t.me/tholian_beta) or search for `Tholian Beta`.
+
+
 ## Roadmap
 
-The current roadmap is a mixture of the [/issues](./issues) section on GitHub/GitLab
-and the features that are going to be implemented in the near future which are put
-together in the [ROADMAP.md](./ROADMAP.md) file.
+The current roadmap is reflected by unimplemented [/issues](./issues) in this
+GitHub repository.
+
+A high-level roadmap is available at our Website's [Roadmap](https://tholian.network/roadmap.html),
+which also lists other projects that will be built in order to integrate Stealth
+with larger featuresets.
 
 As this project in its current form is highly experimental software, those features
 can change very rapidly; and lead to at least partial refactors of the codebase as

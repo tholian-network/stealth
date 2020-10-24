@@ -1,8 +1,8 @@
 
 import { isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
 import { COLORS                                                      } from './CSS/COLORS.mjs';
-import { NORMAL                                                      } from './CSS/NORMAL.mjs';
-import { SHORTHAND                                                   } from './CSS/SHORTHAND.mjs';
+// import { NORMAL                                                      } from './CSS/NORMAL.mjs';
+// import { SHORTHAND                                                   } from './CSS/SHORTHAND.mjs';
 
 
 
@@ -261,13 +261,13 @@ const parse_declaration = function(str) {
 	let val    = str.split(':').slice(1).join(':').trim();
 	let result = {};
 
-	if (isFunction(NORMAL[key]) === true) {
-		NORMAL[key](parse_values(val), result);
-	} else if (isFunction(SHORTHAND[key]) === true) {
-		SHORTHAND[key](parse_values(val), result);
-	} else {
-		result[key] = parse_value(val);
-	}
+	//if (isFunction(NORMAL[key]) === true) {
+	//	NORMAL[key](parse_values(val), result);
+	//} else if (isFunction(SHORTHAND[key]) === true) {
+	//	SHORTHAND[key](parse_values(val), result);
+	//} else {
+	result[key] = parse_value(val);
+	//}
 
 	return result;
 
@@ -1078,6 +1078,16 @@ const strip_comments = function(str) {
 
 const CSS = {
 
+	compare: function(a, b) {
+		// TODO: Compare CSS trees!?
+	},
+
+	filter: function(tree) {
+
+		return tree;
+
+	},
+
 	isCSS: function(tree) {
 
 		// TODO: Implement checks against tree structure
@@ -1303,19 +1313,18 @@ const CSS = {
 
 	},
 
-	render: function(buffer) {
+	render: function(tree) {
 
-		// TODO: Implement me
+		return null;
 
+	},
+
+	sort: function(a, b) {
+		// TODO: Sort CSS trees!?
 	}
 
 };
 
-
-export const isCSS       = CSS.isCSS;
-export const parse       = CSS.parse;
-export const parse_chunk = CSS.parse_chunk;
-export const render      = CSS.render;
 
 export { CSS };
 

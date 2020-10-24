@@ -1,11 +1,11 @@
 
 import { console, isArray, isNumber, isObject, isString } from '../extern/base.mjs';
-import { IP                                             } from './parser/IP.mjs';
-import { UA                                             } from './parser/UA.mjs';
-import { URL                                            } from './parser/URL.mjs';
-import { isRequest                                      } from './Request.mjs';
-import { isStealth                                      } from './Stealth.mjs';
-import { Tab                                            } from './Tab.mjs';
+import { isRequest                                      } from '../source/Request.mjs';
+import { isStealth                                      } from '../source/Stealth.mjs';
+import { Tab                                            } from '../source/Tab.mjs';
+import { IP                                             } from '../source/parser/IP.mjs';
+import { UA                                             } from '../source/parser/UA.mjs';
+import { URL                                            } from '../source/parser/URL.mjs';
 
 
 

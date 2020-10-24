@@ -2,26 +2,26 @@
 import net from 'net';
 
 import { console, Emitter, isFunction, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                            } from './ENVIRONMENT.mjs';
-import { isStealth                              } from './Stealth.mjs';
-import { Request                                } from './Request.mjs';
-import { IP                                     } from './parser/IP.mjs';
-import { URL                                    } from './parser/URL.mjs';
-import { DNS                                    } from './connection/DNS.mjs';
-import { HTTP                                   } from './connection/HTTP.mjs';
-import { SOCKS                                  } from './connection/SOCKS.mjs';
-import { WS                                     } from './connection/WS.mjs';
-import { ROUTER                                 } from './server/ROUTER.mjs';
-import { Beacon                                 } from './server/Beacon.mjs';
-import { Blocker                                } from './server/Blocker.mjs';
-import { Cache                                  } from './server/Cache.mjs';
-import { Host                                   } from './server/Host.mjs';
-import { Mode                                   } from './server/Mode.mjs';
-import { Peer                                   } from './server/Peer.mjs';
-import { Redirect                               } from './server/Redirect.mjs';
-import { Session                                } from './server/Session.mjs';
-import { Settings                               } from './server/Settings.mjs';
-import { Stash                                  } from './server/Stash.mjs';
+import { ENVIRONMENT                            } from '../source/ENVIRONMENT.mjs';
+import { isStealth                              } from '../source/Stealth.mjs';
+import { Request                                } from '../source/Request.mjs';
+import { IP                                     } from '../source/parser/IP.mjs';
+import { URL                                    } from '../source/parser/URL.mjs';
+import { DNS                                    } from '../source/connection/DNS.mjs';
+import { HTTP                                   } from '../source/connection/HTTP.mjs';
+import { SOCKS                                  } from '../source/connection/SOCKS.mjs';
+import { WS                                     } from '../source/connection/WS.mjs';
+import { ROUTER                                 } from '../source/server/ROUTER.mjs';
+import { Beacon                                 } from '../source/server/Beacon.mjs';
+import { Blocker                                } from '../source/server/Blocker.mjs';
+import { Cache                                  } from '../source/server/Cache.mjs';
+import { Host                                   } from '../source/server/Host.mjs';
+import { Mode                                   } from '../source/server/Mode.mjs';
+import { Peer                                   } from '../source/server/Peer.mjs';
+import { Redirect                               } from '../source/server/Redirect.mjs';
+import { Session                                } from '../source/server/Session.mjs';
+import { Settings                               } from '../source/server/Settings.mjs';
+import { Stash                                  } from '../source/server/Stash.mjs';
 
 
 

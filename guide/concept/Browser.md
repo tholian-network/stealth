@@ -45,23 +45,24 @@ and allows to create `node.js` based scrapers out of the box, too.
 
 - `Browser`, `Covert` and `Stealth` have the `extern/base.mjs` file that is imported from the [Base](/base/source) Library.
 - `Browser` only has a `Client.mjs` and `ENVIRONMENT.mjs`, everything else in [/browser/source](/browser/source) is imported from [/stealth/source](/stealth/source).
-- `/browser/extern/base.mjs` is imported via [browser.sh](/browser/bin/browser.sh) from `/base/build/browser.mjs`.
-- `/covert/extern/base.mjs` is imported via [covert.sh](/covert/bin/covert.sh) from `/base/build/node.mjs`.
-- `/stealth/extern/base.mjs` is imported via [stealth.sh](/stealth/bin/stealth.sh) from `/base/build/node.mjs`.
+- `/browser/extern/base.mjs` is imported via [browser/make.mjs](/browser/make.mjs) from `/base/build/browser.mjs`.
+- `/covert/extern/base.mjs` is imported via [covert/make.mjs](/covert/make.mjs) from `/base/build/node.mjs`.
+- `/stealth/extern/base.mjs` is imported via [stealth/make.mjs](/stealth/make.mjs) from `/base/build/node.mjs`.
 
 
-| Path                     | Browser | Stealth | Notes                                  |
-|:-------------------------|:-------:|:-------:|:---------------------------------------|
-| `extern/base.mjs`        |->       |->       | built via [base.sh](/base/bin/base.sh) |
-| `source/client/*.mjs`    |       <-|    x    |                                        |
-| `source/parser/*.mjs`    |       <-|    x    |                                        |
-| `source/Browser.mjs`     |       <-|    x    |                                        |
-| `source/Tab.mjs`         |       <-|    x    |                                        |
-| ------------------------ | ------- | ------- | -------------------------------------- |
-| `design/*.mjs`           |    x    |         | requires Browser or Webview            |
-| `internal/*.mjs`         |    x    |         | requires Browser or Webview            |
-| `source/Client.mjs`      |    x    |    x    | always Platform-specific               |
-| `source/ENVIRONMENT.mjs` |    x    |    x    | always Platform-specific               |
+| Path                     | Browser | Stealth | Notes                            |
+|:-------------------------|:-------:|:-------:|:---------------------------------|
+| `extern/base.mjs`        |->       |->       | built via [base](/base/make.mjs) |
+| `source/client/*.mjs`    |       <-|    x    |                                  |
+| `source/parser/*.mjs`    |       <-|    x    |                                  |
+| `source/Browser.mjs`     |       <-|    x    |                                  |
+| `source/Session.mjs`     |       <-|    x    |                                  |
+| `source/Tab.mjs`         |       <-|    x    |                                  |
+| ------------------------ | ------- | ------- | ---------------------------------|
+| `design/*.mjs`           |    x    |         | requires Browser or Webview      |
+| `internal/*.mjs`         |    x    |         | requires Browser or Webview      |
+| `source/Client.mjs`      |    x    |    x    | always Platform-specific         |
+| `source/ENVIRONMENT.mjs` |    x    |    x    | always Platform-specific         |
 
 
 ## Execution Process
@@ -69,9 +70,12 @@ and allows to create `node.js` based scrapers out of the box, too.
 As explained above, the [Browser](/browser/source) Project reuses most of the
 implementations from the [Stealth](/stealth/source) Service.
 
-The [browser.sh](/browser/bin/browser.sh) script imports necessary files from
-the [Base](/base/source) Library and [Stealth](/stealth/source) Service before
-it starts a preinstalled Browser Engine to open itself as a Progressive Web App.
+The [browser/make.mjs](/browser/make.mjs) builds the Browser and imports all
+necessary files from the [Base](/base/source) Library and
+[Stealth](/stealth/source) Service.
+
+The [browser/browser.mjs](/browser/browser.mjs) starts a preinstalled Browser
+Engine to open the Browser UI as a Progressive Web App.
 
 The only difference between the Browser codebase and the Stealth codebase are
 these files:
@@ -83,24 +87,29 @@ The [Browser UI](/browser/design) needs an HTML5/CSS3 environment as it is
 implemented using Web Components and requires either the `webview` or an `iframe`
 element available.
 
-The [browser.sh](/browser/bin/browser.sh) script uses one of the following (pre-)
-installed Browser Engines in order to open itself as a Progressive Web App:
 
+### Supported Webviews
 
-On **GNU/Linux** either of these is required:
+In order to enable [browser/browser.mjs](/browser/browser.mjs) to start a native
+preinstalled Browser's Webview, these are the requirements:
+
+On **GNU/Linux** either of these:
 
 - `chromium` (requires (Ungoogled) `Chromium` version `70+`)
 - `electron` (requires `Electron` version `8+`)
 - `gjs` (included with GNOME, requires `WebKit2 GTK` version `4+`)
-- `qmlscene` (included with KDE, requires `Qt5 WebView` version `5+` and `Qt5 QuickControls` version `2+`)
 
-On **MacOS** either of these is required:
+On **MacOS** either of these:
 
 - `Chromium.app` (requires (Ungoogled) `Chromium` version `70+`)
 - `Safari.app` (requires `Safari` version `12+`)
 
+On **Windows** either of these:
 
-## Engine / Webview Requirements
+- `chrome.exe` (requires (Ungoogled) `Chromium` version `70+`)
+
+
+## Engine / Webview API Requirements
 
 If you want to build a native Browser Engine, these are the current requirements
 for the [Browser UI](/browser/design) and [Internal Pages](/browser/internal):

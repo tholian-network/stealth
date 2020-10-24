@@ -4,9 +4,21 @@ import os            from 'os';
 import path          from 'path';
 import process       from 'process';
 
-import { IP } from './parser/IP.mjs';
+import { IP } from '../source/parser/IP.mjs';
 
 
+
+const action = (() => {
+
+	let value = Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === false).shift() || '';
+
+	if (/^([serve]{5})$/g.test(value)) {
+		return 'serve';
+	}
+
+	return 'help';
+
+})();
 
 const flags = (() => {
 
@@ -202,6 +214,7 @@ const temp = (() => {
 
 const ENVIRONMENT = {
 
+	action:    action,
 	flags:     flags,
 	hostname:  hostname,
 	hosts:     hosts,

@@ -1,19 +1,19 @@
 
 import { Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
-import { isStealth                               } from './Stealth.mjs';
-import { Beacon                                  } from './client/Beacon.mjs';
-import { Blocker                                 } from './client/Blocker.mjs';
-import { Cache                                   } from './client/Cache.mjs';
-import { Host                                    } from './client/Host.mjs';
-import { Mode                                    } from './client/Mode.mjs';
-import { Peer                                    } from './client/Peer.mjs';
-import { Redirect                                } from './client/Redirect.mjs';
-import { Session                                 } from './client/Session.mjs';
-import { Settings                                } from './client/Settings.mjs';
-import { Stash                                   } from './client/Stash.mjs';
-import { URL                                     } from './parser/URL.mjs';
-import { WS                                      } from './connection/WS.mjs';
-import { WSS                                     } from './connection/WSS.mjs';
+import { isStealth                               } from '../source/Stealth.mjs';
+import { Beacon                                  } from '../source/client/Beacon.mjs';
+import { Blocker                                 } from '../source/client/Blocker.mjs';
+import { Cache                                   } from '../source/client/Cache.mjs';
+import { Host                                    } from '../source/client/Host.mjs';
+import { Mode                                    } from '../source/client/Mode.mjs';
+import { Peer                                    } from '../source/client/Peer.mjs';
+import { Redirect                                } from '../source/client/Redirect.mjs';
+import { Session                                 } from '../source/client/Session.mjs';
+import { Settings                                } from '../source/client/Settings.mjs';
+import { Stash                                   } from '../source/client/Stash.mjs';
+import { URL                                     } from '../source/parser/URL.mjs';
+import { WS                                      } from '../source/connection/WS.mjs';
+import { WSS                                     } from '../source/connection/WSS.mjs';
 
 
 

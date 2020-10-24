@@ -1,10 +1,10 @@
 
 import { Emitter, isArray, isBoolean, isFunction, isObject } from '../../extern/base.mjs';
-import { Beacon                                            } from './Beacon.mjs';
-import { Host                                              } from './Host.mjs';
-import { Mode                                              } from './Mode.mjs';
-import { Peer                                              } from './Peer.mjs';
-import { Redirect                                          } from './Redirect.mjs';
+import { Beacon                                            } from '../../source/server/Beacon.mjs';
+import { Host                                              } from '../../source/server/Host.mjs';
+import { Mode                                              } from '../../source/server/Mode.mjs';
+import { Peer                                              } from '../../source/server/Peer.mjs';
+import { Redirect                                          } from '../../source/server/Redirect.mjs';
 
 
 

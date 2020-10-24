@@ -1,6 +1,6 @@
 
 import { isArray, isBoolean, isBuffer, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                         } from './IP.mjs';
+import { IP                                                         } from '../../source/parser/IP.mjs';
 
 
 

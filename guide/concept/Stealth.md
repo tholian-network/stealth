@@ -15,15 +15,14 @@ Services to connect peer-to-peer to other Stealth Services running headlessly.
 As the `Browser` itself only transfers commands via web sockets (WS13) to a Stealth
 instance, it can also be used without the [Browser UI](/browser/design).
 
-Service is a standalone Browser, Scraper and Proxy
-that runs in `node.js` version `12+`. This is the only requirement, as Stealth
-has zero external dependencies.
+The Stealth Service is a standalone Browser, Scraper and Proxy that runs in `node.js`
+version `12+`. This is the only requirement, as Stealth has zero external dependencies.
 
 
 ## Execution Process
 
-The [stealth.sh](/stealth/bin/stealth.sh) script builds the [Base](/base) Library and
-the [Browser](/browser) before the Stealth Service is started.
+The [stealth/make.mjs](/stealth/make.mjs) script builds the [Base](/base) Library and
+the [Browser](/browser) before the Stealth Service is built.
 
 This guarantees that the Browser UI available at `http://localhost:65432` is correctly
 built and available if a Browser Engine, Webview or other Web Browser connects to the
@@ -114,13 +113,14 @@ internet access, too.
 These are the available Peer-to-Peer network services that can be used with the
 [Browser Client](/browser/source/Client.mjs) or the [Stealth Client](/stealth/source/Client.mjs):
 
-- [Cache](/guide/services/Cache.md)
-- [Filter](/guide/services/Filter.md)
-- [Host](/guide/services/Host.md)
-- [Mode](/guide/services/Mode.md)
-- [Peer](/guide/services/Peer.md)
-- [Redirect](/guide/services/Redirect.md)
-- [Session](/guide/services/Session.md)
-- [Settings](/guide/services/Settings.md)
-- [Stash](/guide/services/Stash.md)
+- [Beacon](/stealth/source/client/Beacon.mjs)
+- [Blocker](/stealth/source/client/Blocker.mjs)
+- [Cache](/stealth/source/client/Cache.mjs)
+- [Host](/stealth/source/client/Host.mjs)
+- [Mode](/stealth/source/client/Mode.mjs)
+- [Peer](/stealth/source/client/Peer.mjs)
+- [Redirect](/stealth/source/client/Redirect.mjs)
+- [Session](/stealth/source/client/Session.mjs)
+- [Settings](/stealth/source/client/Settings.mjs)
+- [Stash](/stealth/source/client/Stash.mjs)
 

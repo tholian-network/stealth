@@ -49,7 +49,7 @@ and the term `Request` and `Response` are used henceforth.
 
 
 ```javascript
-// Example inside a Browser environment
+// Example inside a Browser VM
 
 let socket = new WebSocket('ws://stealth-service:65432', [ 'stealth' ]);
 

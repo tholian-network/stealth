@@ -91,6 +91,7 @@ const ASSETS  = [
 	'source/Browser.mjs',
 	'source/Client.mjs',
 	'source/ENVIRONMENT.mjs',
+	'source/Session.mjs',
 	'source/Tab.mjs',
 	'source/client/Beacon.mjs',
 	'source/client/Blocker.mjs',
@@ -110,6 +111,7 @@ const ASSETS  = [
 	'source/parser/CSS/STYLES.mjs',
 	'source/parser/DATETIME.mjs',
 	'source/parser/HOSTS.mjs',
+	'source/parser/HTML.mjs',
 	'source/parser/IP.mjs',
 	'source/parser/UA.mjs',
 	'source/parser/URL.mjs'

@@ -10,8 +10,8 @@ The [Covert](/covert/source) Project is a standalone Testrunner that runs in
 `node.js` version `12+` and uses `ECMAScript imports` without transpilation to
 guarantee identical behaviour when it comes to API tests or Integration tests.
 
-- A [Review](/covet/source/Review.mjs) is a set of tests, including preparation and cleanup helpers.
-- Each Implementation in `/source/*.mjs` has a single Review located in `/review/*.mjs`.
+- A [Review](/covet/source/Review.mjs) is a set of tests, including preparation (`before`) and cleanup (`after`) helpers.
+- Each Implementation in `/source/...mjs` has a Review located at `/review/...mjs`.
 
 Covert is able to watch for filesystem changes (see Usage of `watch`) and can
 re-execute Review(s) when the Implementation has changed.
@@ -19,19 +19,17 @@ re-execute Review(s) when the Implementation has changed.
 
 ## Execution Process
 
-The [covert.sh](/covert/bin/covert.sh) script builds the reference [socks proxy](/covert/sketch/socks-proxy)
-via `make` and starts it in the background before the given set of Reviews
-are executed.
+The [covert/make.mjs](/covert/make.mjs) builds Covert.
 
 As Covert also includes peer-to-peer tests for end-to-end network services, it
 requires the host machine to be reachable under at least two different IPs.
 
 If the host machine has no internet connection, some network-related tests
 will fail, such as
-[/stealth/connection/DNS](/stealth/review/connection/DNS.mjs),
-[/stealth/connection/HTTPS](/stealth/review/connection/HTTPS.mjs),
-[/stealth/connection/HTTP](/stealth/review/connection/HTTP.mjs),
-or [/stealth/client/Host](/stealth/review/client/Host.mjs).
+[stealth/connection/DNS](/stealth/review/connection/DNS.mjs),
+[stealth/connection/HTTPS](/stealth/review/connection/HTTPS.mjs),
+[stealth/connection/HTTP](/stealth/review/connection/HTTP.mjs),
+or [stealth/client/Host](/stealth/review/client/Host.mjs).
 
 As the only failsafe way to do this (without requiring two network cards or
 WAN/LAN connections), there's the requirement to reach the local machine
@@ -40,43 +38,43 @@ via the IPs `127.0.0.1`, `127.0.0.2` and `127.0.0.3`.
 **MacOS**
 
 On MacOS it is necessary to create an alias for the loopback interface
-before Covert itself can be run. The [covert.sh](/covert/bin/covert.sh)
-automatically creates an alias for above mentioned additional IPs on MacOS
-and will ask for your `sudo` password in order to do so.
+before Covert itself can be run. Covert automatically creates an alias
+for above mentioned additional IPs on MacOS and will ask for your
+`sudo` password in order to be able to do so.
 
 Currently there's no way to simulate slower network connections as there's
 no `netem` nor `tc` available on Darwin-based systems, so the `--network`
-should not be used.
+flag has no effect on MacOS and should not be used.
 
 
 ## Reviews
 
 Multiple Example Reviews are available in these folders:
 
-- [/base/review](/base/review)
-- [/covert/review](/covert/review)
-- [/stealth/review](/stealth/review)
+- [base/review](/base/review)
+- [covert/review](/covert/review)
+- [stealth/review](/stealth/review)
 
 
 Codestyle Rules (Assumptions) of a Review:
 
 - All Reviews (in `/review/*`) have to use `ES Modules` syntax.
-- All Source codes (in `/source/*`) have to use `ES Modules` syntax.
-- Reviews can have a single `before()` entry for preparation.
-- Reviews can have a single `after()` entry for cleanup.
+- All Sources (in `/source/*`) have to use `ES Modules` syntax.
+- Reviews can have multiple `before()` entries for preparation.
+- Reviews can have multiple `after()` entries for cleanup.
 - Reviews can have multiple stateless `describe()` entries.
 - Reviews need to `export default` via `finish('library/namespace/Identifier')` to ensure ES Modules compatibility.
 - `assert()` calls have to be in a separate line.
 - `assert()` calls have to be branch-less, surrounding `if/elseif/else` conditions are not allowed.
 
 
-Exports of the Review Folder (`/review/index.mjs`):
+Exports of the Review Folder (`/library/review/index.mjs`):
 
-The `index.mjs` of any review folder has to export the following properties as a `default` export:
+The `index.mjs` of any Review Folder has to export the following properties as a `default` export:
 
 - `(Array) reviews[]` that contains all imported reviews.
-- `(Object) sources{}` that contains a source-to-review map that allows overriding
-   which review have to reflect what implementation.
+- `(Object) sources{}` that contains a Source-to-Review map that allows overriding
+   which Review has to reflect what Implementation.
 
 ```javascript
 // Example index.mjs file
@@ -131,7 +129,7 @@ export default {
 
 ```javascript
 import { before, after, describe, finish } from '../../../covert/index.mjs';
-import { Example                         } from '../../../project/source/namespace/Example.mjs';
+import { Example                         } from '../../../library/source/namespace/Example.mjs';
 
 
 
@@ -156,7 +154,7 @@ describe('simple test', function(assert) {
 		assert(response, { foo: 'bar' });
 	});
 
-	assert(this.example.url, 'https://example.com/index.html');
+	assert(this.example.link, 'https://example.com/index.html');
 
 });
 
@@ -183,9 +181,9 @@ after('cleanup stuff', function(assert) {
 });
 
 
-// /project/source/namespace/Example.mjs is the Source Code (ES Module) implementation
-// /project/review/namespace/Example.mjs is this Review
+// /library/source/namespace/Example.mjs is the Source Code
+// /library/review/namespace/Example.mjs is this Review
 
-export default finish('my-project/namespace/Example');
+export default finish('library/namespace/Example');
 ```
 

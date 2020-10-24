@@ -1,8 +1,8 @@
 
 import { console, Emitter, isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { Client                                                   } from './Client.mjs';
-import { isTab, Tab                                               } from './Tab.mjs';
-import { URL                                                      } from './parser/URL.mjs';
+import { Client                                                   } from '../source/Client.mjs';
+import { isTab, Tab                                               } from '../source/Tab.mjs';
+import { URL                                                      } from '../source/parser/URL.mjs';
 
 
 

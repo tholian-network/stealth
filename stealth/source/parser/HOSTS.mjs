@@ -1,7 +1,7 @@
 
 import { isBuffer, isArray, isObject, isString } from '../../extern/base.mjs';
-import { IP                                    } from './IP.mjs';
-import { URL                                   } from './URL.mjs';
+import { IP                                    } from '../../source/parser/IP.mjs';
+import { URL                                   } from '../../source/parser/URL.mjs';
 
 
 

@@ -4,7 +4,9 @@ import { isServer                               } from '../source/Server.mjs';
 import { HTTP                                   } from '../source/connection/HTTP.mjs';
 import { HTTPS                                  } from '../source/connection/HTTPS.mjs';
 import { SOCKS                                  } from '../source/connection/SOCKS.mjs';
+import { CSS                                    } from '../source/parser/CSS.mjs';
 import { DATETIME                               } from '../source/parser/DATETIME.mjs';
+import { HTML                                   } from '../source/parser/HTML.mjs';
 import { URL                                    } from '../source/parser/URL.mjs';
 
 
@@ -39,7 +41,6 @@ export const isRequest = function(obj) {
 const Download = function(url) {
 
 	this.connection = null;
-	this.url        = url;
 
 	this.__state = {
 		bandwidth: {
@@ -47,7 +48,8 @@ const Download = function(url) {
 			length:   0,
 			timeline: new Array(30).fill(null)
 		},
-		interval: null
+		interval: null,
+		url:      url
 	};
 
 
@@ -64,8 +66,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 		let data = {
 			bandwidth:  this.bandwidth(),
 			connection: null,
-			percentage: '???.??%',
-			url:        URL.render(this.url)
+			percentage: '???.??%'
 		};
 
 		if (this.connection !== null) {
@@ -99,7 +100,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 
-		return Infinity;
+		return -1;
 
 	},
 
@@ -107,18 +108,20 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.connection === null) {
 
-			let proxy = this.url.proxy || null;
+			let url   = this.__state.url;
+			let proxy = this.__state.url.proxy || null;
+
 			if (proxy !== null) {
 
-				this.connection = SOCKS.connect(this.url);
+				this.connection = SOCKS.connect(url);
 
-			} else if (this.url.protocol === 'https') {
+			} else if (url.protocol === 'https') {
 
-				this.connection = HTTPS.connect(this.url);
+				this.connection = HTTPS.connect(url);
 
-			} else if (this.url.protocol === 'http') {
+			} else if (url.protocol === 'http') {
 
-				this.connection = HTTP.connect(this.url);
+				this.connection = HTTP.connect(url);
 
 			}
 
@@ -143,7 +146,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 
 						let bandwidth = this.bandwidth();
-						if (bandwidth < 0.01) {
+						if (bandwidth >= 0 && bandwidth < 0.01) {
 
 							if (this.connection !== null) {
 								this.connection.disconnect();
@@ -155,8 +158,8 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 
 					let hostname = null;
-					let domain   = URL.toDomain(this.url);
-					let host     = URL.toHost(this.url);
+					let domain   = URL.toDomain(url);
+					let host     = URL.toHost(url);
 
 					if (domain !== null) {
 						hostname = domain;
@@ -167,44 +170,44 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					let headers = {
 						'@method': 'GET',
-						'@url':    this.url.path + (this.url.query !== null ? ('?' + this.url.query) : ''),
+						'@url':    url.path + (url.query !== null ? ('?' + url.query) : ''),
 						'host':    hostname,
 						'range':   'bytes=0-'
 					};
 
-					if (this.url.headers !== null) {
+					if (url.headers !== null) {
 
-						let accept = this.url.headers['accept'] || null;
+						let accept = url.headers['accept'] || null;
 						if (accept !== null) {
 							headers['accept'] = accept;
 						}
 
-						let useragent = this.url.headers['user-agent'] || null;
+						let useragent = url.headers['user-agent'] || null;
 						if (useragent !== null) {
 							headers['user-agent'] = useragent;
 						}
 
-						let tmp1 = this.url.headers['@status']       || null;
-						let tmp2 = this.url.headers['content-range'] || null;
+						let tmp1 = url.headers['@status']       || null;
+						let tmp2 = url.headers['content-range'] || null;
 
 						if (
 							tmp1 === '206 Partial Content'
 							&& tmp2 !== null
-							&& this.url.payload !== null
+							&& url.payload !== null
 						) {
-							headers['range'] = 'bytes=' + this.url.payload.length + '-';
+							headers['range'] = 'bytes=' + url.payload.length + '-';
 						}
 
 					}
 
 
-					if (this.url.protocol === 'https') {
+					if (url.protocol === 'https') {
 
 						HTTPS.send(this.connection, {
 							headers: headers
 						});
 
-					} else if (this.url.protocol === 'http') {
+					} else if (url.protocol === 'http') {
 
 						HTTP.send(this.connection, {
 							headers: headers
@@ -317,6 +320,7 @@ const Request = function(data, server) {
 
 
 	Emitter.call(this);
+
 
 	this.on('start', () => {
 
@@ -728,7 +732,38 @@ const Request = function(data, server) {
 
 		this.timeline.optimize = DATETIME.parse(new Date());
 
-		/* TODO: Implement Optimizer integration */
+
+		let mime = this.url.mime || null;
+		if (mime !== null) {
+
+			if (mime.type === 'text' && mime.format === 'text/html') {
+
+				let parsed   = HTML.parse(this.response.payload);
+				let filtered = HTML.filter(parsed);
+				let rendered = HTML.render(filtered);
+
+				if (rendered !== null) {
+					this.response.payload = rendered;
+				}
+
+			} else if (mime.type === 'text' && mime.format === 'text/css') {
+
+				let parsed   = CSS.parse(this.response.payload);
+				let filtered = CSS.filter(parsed);
+				let rendered = CSS.render(filtered);
+
+				if (rendered !== null) {
+					this.response.payload = rendered;
+				}
+
+			} else if (mime.type === 'image' && mime.format === 'image/jpeg') {
+				// TODO: Integrate jpeg optimizer
+			} else if (mime.type === 'image' && mime.format === 'image/png') {
+				// TODO: Integrate optipng
+			}
+
+		}
+
 
 		this.emit('response', [ this.response ]);
 
@@ -855,7 +890,11 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 		let data = {
 			mode:     this.mode,
 			url:      URL.render(this.url),
-			download: null,
+			download: {
+				bandwidth:  -1,
+				connection: null,
+				percentage: '???.??%'
+			},
 			flags:    Object.assign({}, this.flags),
 			timeline: {},
 			events:   blob.data.events,

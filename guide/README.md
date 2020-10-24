@@ -26,9 +26,9 @@ Currently, the Repository consists of these important folders:
 
 # Implementation Examples
 
-Each Project has a `/review` folder which contains Reviews for the Covert Testrunner.
-The idea behind a `Review` is the complete audit-by-example of the equivalent implementation
-in the `/source` folder.
+Each Project has a `/review` folder which contains Reviews for Covert. The idea behind a
+`Review` is the complete audit-by-example of the equivalent implementation in the `/source`
+folder.
 
 For example, the [/stealth/review/Request.mjs](/stealth/review/Request.mjs) reviews the
 [/stealth/source/Request.mjs](/stealth/source/Request.mjs) implementation and it can be

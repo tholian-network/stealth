@@ -127,7 +127,11 @@ describe('Request.prototype.toJSON()', function(assert) {
 	assert(json.data, {
 		mode:     mode,
 		url:      'https://example.com/does-not-exist.html',
-		download: null,
+		download: {
+			bandwidth:  -1,
+			connection: null,
+			percentage: '???.??%'
+		},
 		flags:    {
 			connect:   true,
 			proxy:     false,

@@ -1,7 +1,7 @@
 
 import { isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { DATETIME                               } from './parser/DATETIME.mjs';
-import { URL                                    } from './parser/URL.mjs';
+import { DATETIME                               } from '../source/parser/DATETIME.mjs';
+import { URL                                    } from '../source/parser/URL.mjs';
 
 
 
@@ -265,9 +265,8 @@ Tab.prototype = {
 				time: DATETIME.render(event.time)
 			})),
 			requests: this.requests.map((request) => request.toJSON()),
-			url:      URL.render(this.url)
+			url: URL.render(this.url)
 		};
-
 
 		return {
 			'type': 'Tab',

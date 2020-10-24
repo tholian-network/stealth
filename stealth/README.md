@@ -11,19 +11,6 @@ visiting it with any modern Web Browser and to use the Progressive
 Web App in fullscreen mode.
 
 
-## Command-Line Flags
-
-- `--debug` is a boolean flag to toggle loading/debugging of the profile.
-  The default value is `false`.
-
-- `--host` is the `host` the Stealth Service is listening on.
-  The default value is `null`. The Stealth Service will always
-  listen on port `65432`.
-
-- `--profile` is the absolute path to the profile folder.
-  The default value is `/home/$USER/Stealth`.
-
-
 ## Quickstart
 
 - Install [node.js](https://nodejs.org/en/download) version `12+`.
@@ -31,7 +18,10 @@ Web App in fullscreen mode.
 ```bash
 cd /path/to/stealth;
 
-# Example shows default values for optional flags
-node ./stealth/stealth.mjs --host=null --profile=/home/$USER/Stealth;
+# Build Stealth (and Browser and Base)
+node ./stealth/make.mjs;
+
+# Show Help
+node ./stealth/stealth.mjs;
 ```
 
