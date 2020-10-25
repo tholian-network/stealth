@@ -1,1 +1,43 @@
-[]
+[
+	{
+		"domain": "radar.tholian.network",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": true,
+			"video": true,
+			"other": true
+		}
+	},
+	{
+		"domain": "peers.tholian.network",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": true
+		}
+	},
+	{
+		"domain": "searx.prvcy.eu",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "wiby.me",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	}
+
+]

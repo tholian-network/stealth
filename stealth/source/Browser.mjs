@@ -1,8 +1,8 @@
 
-import { console, Emitter, isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { Client                                                   } from '../source/Client.mjs';
-import { isTab, Tab                                               } from '../source/Tab.mjs';
-import { URL                                                      } from '../source/parser/URL.mjs';
+import { console, Emitter, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
+import { Client                                                               } from '../source/Client.mjs';
+import { isTab, Tab                                                           } from '../source/Tab.mjs';
+import { URL                                                                  } from '../source/parser/URL.mjs';
 
 
 
@@ -416,19 +416,33 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	download: function(link) {
+	download: function(link, callback) {
 
-		link = isString(link) ? link : null;
+		link     = isString(link)       ? link     : null;
+		callback = isFunction(callback) ? callback : null;
 
 
 		if (link !== null) {
 
-			let url    = URL.parse(link);
-			let domain = URL.toDomain(url);
+			let url = URL.parse(link);
 
-			if (domain !== null) {
+			if (
+				URL.isURL(url) === true
+				&& (url.protocol === 'https' || url.protocol === 'http')
+				&& this.__state.connected === true
+			) {
 
-				if (this.__state.connected === true) {
+				if (callback !== null) {
+
+					setTimeout(() => {
+
+						this.client.services.session.download(url, (response) => {
+							callback(response);
+						});
+
+					}, 0);
+
+				} else {
 
 					setTimeout(() => {
 
@@ -438,16 +452,29 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 					}, 0);
 
-					return true;
-
 				}
+
+				return true;
+
+			} else {
+
+				if (callback !== null) {
+					callback(null);
+				}
+
+				return false;
 
 			}
 
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			}
+
+			return false;
+
 		}
-
-
-		return false;
 
 	},
 

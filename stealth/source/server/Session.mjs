@@ -118,6 +118,8 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 				});
 
+				request.start();
+
 			} else {
 
 				if (callback !== null) {

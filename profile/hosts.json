@@ -16,4 +16,27 @@
 			"type": "v4"
 		}
 	]
+}, {
+	"domain": "searx.prvcy.eu",
+	"hosts": [
+		{
+			"ip": "95.217.14.39",
+			"scope": "public",
+			"type": "v4"
+		},
+		{
+			"ip": "2a01:4f9:c010:5df1::1",
+			"scope": "public",
+			"type": "v6"
+		}
+	]
+}, {
+	"domain": "wiby.me",
+	"hosts": [
+		{
+			"ip": "172.93.49.59",
+			"scope": "public",
+			"type": "v4"
+		}
+	]
 }]

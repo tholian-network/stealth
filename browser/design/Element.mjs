@@ -12,6 +12,9 @@ const ELEMENTS = [];
 
 const DOMEVENT = {
 
+	// Media
+	'load':        null,
+
 	// Mouse
 	'click':       'click',
 	'contextmenu': null,
