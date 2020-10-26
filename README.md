@@ -13,7 +13,7 @@ Stealth empowers its Users, not Website Developers that could (,will ,and did) a
 to compromise the freedom and rights of Web Browser End-Users.
 
 
-## Features
+## Implemented Features
 
 Stealth is both a Web Scraper, Web Service and Web Proxy that can serve its own
 User Interface ("Browser UI") that is implemented using Web Technologies.
@@ -22,58 +22,61 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
   and uses explicitely `https://` first, and fallsback to `http://` only when
   necessary and only when the website was not MITM-ed.
 
-- It offers intelligent Error Page wizards that guide the user through scenarios
-  when things are broken, from no domain resolved to download snapshot via web
-  archive.
-
 - It is peer-to-peer and always uses the most efficient way to share resources
-  and to reduce bandwidth, which means downloaded websites are readable even
-  when being completely offline.
+  and to reduce bandwidth, which means that once websites are downloaded they
+  can be shared with other Peers and continue to be readable, even when being
+  completely offline.
 
-- It uses blacklist-based `Blockers` that is on feature-parity with AdBlock Plus,
-  AdGuard, Pi-Hole, uBlock Origin and uMatrix (in the sense of "all of the above").
+- It uses `Blockers` that is on feature-parity with AdBlock Plus, AdGuard, Pi-Hole,
+  uBlock Origin and uMatrix (in the sense of "all of the above").
 
 - It uses `Optimizers` to render only the good parts of HTML and CSS. These Optimizers
-  make sure that no Client or Peer ever receives any malicious or unwanted content,
-  and it is written on-filesystem-cache (which is shared later to other peers) to
-  ensure that particularly. All Optimizers are applied across all `Site Modes`, and
-  the `Site Modes` decide what content or media is included.
+  make sure that no Client or Peer ever receives any malicious or unwanted content.
+  All Optimizers are applied across all `Site Modes`, and the `Site Modes` decide what
+  content or media is included.
 
-- It uses whitelist-based `Site Modes` that decide what to load, with incrementally
-  allowed features (or media types). By default, Stealth will load nothing. The Site
-  Mode next to the address bar decides what is loaded.
+- It uses `Site Modes` that decide what to load, with incrementally allowed features
+  (or media types). By default, Stealth will load nothing. The Site Mode next to the
+  address bar decides what is loaded.
 
-- It uses whitelist-based `Site Beacons` that allow specific elements on a Site
-  to be extracted as Knowledge - which in return help to train the Browser to understand
-  future similar Sites on the web more easily. This can be seen as a learning mechanism
-  that is similar to the "Reader Mode" in other Browsers, but whilst delivering the
-  cleaned content to all connected Clients and Peers (including Smartphones and Tablets).
+- It uses `Site Beacons` that label data on a Site for automated extraction purposes
+  which in return help to train Stealth to understand similar Sites on the Web more easily.
+  This is similar to the "Reader Mode" in other Browsers, but allows integrations with
+  third-party databases and/or software in an automated manner.
 
 - It never requests anything unnecessary. The cache is persistent until the user tells
-  it to refresh the Site manually (or a scheduled Download task runs for that URL).
+  it to `refresh` the Site manually (or a scheduled download task runs for that URL).
 
 - It uses trust-based `Peers` to share the local cache. Peers can receive, interchange,
   and synchronize their downloaded media. This is especially helpful in rural areas,
-  where internet bandwidth is sparse; and redundant downloads can be saved. Just bookmark
-  Stealh as a Web App on your Android phone and you have direct access to your downloaded
-  wikis, yay!
+  where internet bandwidth is sparse; and redundant downloads can be saved.
 
-- It can double-function as a Content-Auditing and Content-Filtering Web Proxy for
-  other Web Browsers, which allows corporate-like setups with a shared peer-to-peer
-  Cache and a local Web Archive of the Internet.
+- It can as a Content-Auditing and Content-Filtering Web Proxy for other Web Browsers,
+  which allows corporate-like setups with a shared peer-to-peer Cache and a local Archive
+  of the Web.
 
-- It has intelligent error handling. In case a website is not available anymore, the
-  `stealth:fix-request` error page allows to download websites automagically from trusted
+- It tries to achieve intelligent handling of Errors. In case a Site is not available anymore,
+  the `stealth:fix-request` error page allows to download websites automagically from trusted
   Peers or from the [Web Archive](https://web.archive.org).
 
-- This ain't your Mama's Web Browser. It completely disables to load ECMAScript in order
-  to improve Privacy. Stealth also does not support Web Forms or any Web API that could
-  potentially send data to the website.
+- This ain't your Mama's Web Browser. It completely disables ECMAScript in order to improve
+  Privacy. Stealth also does not support any Web API that could potentially send data to
+  malicious Sites.
 
 - Stealth can be scripted as a Web Scraper inside `node.js`. The [Browser](./browser/source)
-  is completely headless, so every single task and interaction that the [Browser UI](./browser/design)
-  reflects can be implemented in an automateable and programmable manner, even remotely through
-  trusted Peers using Stealth's peer-to-peer network services.
+  is completely headless, so every single interaction that the [Browser UI](./browser/design)
+  reflects can be implemented in a programmable manner, even remotely through trusted Peers
+  using Stealth's peer-to-peer network services.
+
+
+## Upcoming Features
+
+- Stealth in combination with a connected Radar instance will allow to discover Peers, and
+  to share and reuse `Beacons` and `Echoes` that help to automate even more on the Web.
+
+- Stealth will allow Peer-to-Peer TLS encryption by using intermediary certificates that are
+  shipped with each release and allow to sign Content that was downloaded via another Peer
+  in a trustless manner.
 
 
 ## Quickstart
@@ -118,7 +121,7 @@ a reduced featureset (such as without WebRTC, WebUSB etc.); but currently Stealt
 uses a Webview that is preinstalled on your target Operating System.
 
 It is heavily recommended to use [Ungoogled Chromium](https://ungoogled-software.github.io)
-as a Webview if you want to run Stealth on a Desktop target environment.
+as a Webview if you want to run Stealth via [browser/browser.mjs](/browser/browser.mjs).
 
 (Links will be inserted here once the Stealth releases are ready for the public)
 
