@@ -10,8 +10,23 @@ before(connect);
 
 describe('new Beacon()', function(assert) {
 
-	assert(this.server!== null);
+	assert(this.server !== null);
 	assert(this.server.services.beacon instanceof Beacon, true);
+
+});
+
+describe('Beacon.prototype.toJSON()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.beacon.toJSON), true);
+
+	assert(this.server.services.beacon.toJSON(), {
+		type: 'Beacon Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
 
 });
 

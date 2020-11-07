@@ -14,6 +14,7 @@ import client_Cache       from './client/Cache.mjs';
 import client_Host        from './client/Host.mjs';
 import client_Mode        from './client/Mode.mjs';
 import client_Peer        from './client/Peer.mjs';
+import client_Policy      from './client/Policy.mjs';
 import client_Redirect    from './client/Redirect.mjs';
 import client_Session     from './client/Session.mjs';
 import client_Settings    from './client/Settings.mjs';
@@ -38,6 +39,7 @@ import server_Cache       from './server/Cache.mjs';
 import server_Host        from './server/Host.mjs';
 import server_Mode        from './server/Mode.mjs';
 import server_Peer        from './server/Peer.mjs';
+import server_Policy      from './server/Policy.mjs';
 import server_Redirect    from './server/Redirect.mjs';
 import server_ROUTER      from './server/ROUTER.mjs';
 import server_Session     from './server/Session.mjs';
@@ -91,6 +93,7 @@ export default {
 		server_Host,
 		server_Mode,
 		server_Peer,
+		server_Policy,
 		server_Redirect,
 		server_Session,
 		server_Settings,
@@ -102,6 +105,7 @@ export default {
 		client_Host,
 		client_Mode,
 		client_Peer,
+		client_Policy,
 		client_Redirect,
 		client_Session,
 		client_Settings,

@@ -1,6 +1,5 @@
 
 import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { isServer                               } from '../source/Server.mjs';
 import { HTTP                                   } from '../source/connection/HTTP.mjs';
 import { HTTPS                                  } from '../source/connection/HTTPS.mjs';
 import { SOCKS                                  } from '../source/connection/SOCKS.mjs';
@@ -8,29 +7,12 @@ import { CSS                                    } from '../source/parser/CSS.mjs
 import { DATETIME                               } from '../source/parser/DATETIME.mjs';
 import { HTML                                   } from '../source/parser/HTML.mjs';
 import { URL                                    } from '../source/parser/URL.mjs';
+import { isServer                               } from '../source/Server.mjs';
+import { Mode                                   } from '../source/server/Mode.mjs';
+import { Policy                                 } from '../source/server/Policy.mjs';
+import { Redirect                               } from '../source/server/Redirect.mjs';
 
 
-
-// Embedded for Cross-Platform Compatibility
-const isMode = function(payload) {
-
-	if (
-		isObject(payload) === true
-		&& (isString(payload.domain) === true || payload.domain === null)
-		&& isObject(payload.mode) === true
-		&& isBoolean(payload.mode.text) === true
-		&& isBoolean(payload.mode.image) === true
-		&& isBoolean(payload.mode.audio) === true
-		&& isBoolean(payload.mode.video) === true
-		&& isBoolean(payload.mode.other) === true
-	) {
-		return true;
-	}
-
-
-	return false;
-
-};
 
 export const isRequest = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Request]';
@@ -259,7 +241,7 @@ const Request = function(data, server) {
 	server = isServer(server) ? server : null;
 
 
-	if (isMode(data.mode) === true) {
+	if (Mode.isMode(data.mode) === true) {
 		this.mode = data.mode;
 	} else {
 		this.mode = {
@@ -271,6 +253,24 @@ const Request = function(data, server) {
 				video: false,
 				other: false
 			}
+		};
+	}
+
+	if (Policy.isPolicy(data.policy) === true) {
+		this.policy = data.policy;
+	} else {
+		this.policy = {
+			domain:   null,
+			policies: []
+		};
+	}
+
+	if (Redirect.isRedirect(data.redirect) === true) {
+		this.redirect = data.redirect;
+	} else {
+		this.redirect = {
+			domain:    null,
+			redirects: []
 		};
 	}
 
@@ -322,19 +322,40 @@ const Request = function(data, server) {
 	Emitter.call(this);
 
 
+	// TODO: Implement on('policy') event
+	// that filters out malicious URL parameters
+
+
 	this.on('start', () => {
 
 		this.timeline.start = DATETIME.parse(new Date());
 
 		if (this.server !== null) {
 
-			this.server.services.redirect.read(this.url, (redirect) => {
+			this.server.services.redirect.read(this.url, (response) => {
 
-				let payload = redirect.payload || null;
-				if (payload !== null) {
+				if (response.payload !== null) {
+					this.redirect = response.payload;
+				}
+
+
+				let redirect = this.redirect.redirects.find((redirect) => {
+
+					if (
+						this.url.path === redirect.path
+						&& this.url.query === redirect.query
+					) {
+						return true;
+					}
+
+					return false;
+
+				}) || null;
+
+				if (redirect !== null) {
 
 					this.emit('redirect', [{
-						headers: { location: payload.location },
+						headers: { location: redirect.location },
 						payload: null
 					}, true ]);
 
@@ -345,9 +366,7 @@ const Request = function(data, server) {
 			});
 
 		} else {
-
 			this.emit('cache');
-
 		}
 
 	});
@@ -782,13 +801,39 @@ const Request = function(data, server) {
 
 			this.timeline.redirect = DATETIME.parse(new Date());
 
+
 			let location = response.headers['location'] || null;
+			let redirect = this.redirect.redirects.find((redirect) => {
+
+				if (
+					this.url.path === redirect.path
+					&& this.url.query === redirect.query
+				) {
+					return true;
+				}
+
+				return false;
+
+			}) || null;
+
 			if (location !== null) {
 
-				if (this.server !== null) {
-					this.server.services.redirect.save(Object.assign({}, this.url, {
+				if (redirect !== null) {
+
+					redirect.location = location;
+
+				} else {
+
+					this.redirect.redirects.push({
+						path:     this.url.path,
+						query:    this.url.query,
 						location: location
-					}), () => {});
+					});
+
+				}
+
+				if (this.server !== null) {
+					this.server.services.redirect.save(this.redirect, () => {});
 				}
 
 			}
@@ -850,9 +895,10 @@ Request.from = function(json) {
 			if (isString(data.url) === true) {
 
 				let request = new Request({
-					id:   isString(data.id)  ? data.id             : null,
-					mode: isMode(data.mode)  ? data.mode           : null,
-					url:  isString(data.url) ? URL.parse(data.url) : null
+					id:     isString(data.id)            ? data.id             : null,
+					mode:   Mode.isMode(data.mode)       ? data.mode           : null,
+					policy: Policy.isPolicy(data.policy) ? data.policy         : null,
+					url:    isString(data.url)           ? URL.parse(data.url) : null
 				});
 
 				if (isObject(data.flags) === true) {
@@ -889,6 +935,8 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
 			mode:     this.mode,
+			policy:   this.policy,
+			redirect: this.redirect,
 			url:      URL.render(this.url),
 			download: {
 				bandwidth:  -1,

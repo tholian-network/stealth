@@ -72,7 +72,7 @@ Blocker.toBlocker = function(payload) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isObject(payload.mode) === true) {
+		if (domain !== null) {
 
 			return {
 				domain: domain

@@ -15,6 +15,21 @@ describe('new Redirect()', function(assert) {
 
 });
 
+describe('Redirect.prototype.toJSON()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.redirect.toJSON), true);
+
+	assert(this.server.services.redirect.toJSON(), {
+		type: 'Redirect Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Redirect.isRedirect()', function(assert) {
 
 	assert(isFunction(Redirect.isRedirect), true);
@@ -23,15 +38,21 @@ describe('Redirect.isRedirect()', function(assert) {
 	assert(Redirect.isRedirect({}),   false);
 
 	assert(Redirect.isRedirect({
-		domain:   'example.com',
-		path:     '/review/server/redirect',
-		location: '/review/server/redirect/location.json'
+		domain:    'example.com',
+		redirects: [{
+			path:     '/review/server/redirect',
+			query:    null,
+			location: '/review/server/redirect/location.json'
+		}]
 	}), false);
 
 	assert(Redirect.isRedirect({
 		domain:   'example.com',
-		path:     '/review/server/redirect',
-		location: 'https://example.com/review/server/redirect/location.json'
+		redirects: [{
+			path:     '/review/server/redirect',
+			query:    'id=123&sid=123abc123',
+			location: 'https://example.com/review/server/redirect/location.json'
+		}]
 	}), true);
 
 });
@@ -43,8 +64,11 @@ describe('Redirect.prototype.save()', function(assert) {
 
 	this.server.services.redirect.save({
 		domain:   'example.com',
-		path:     '/review/server/redirect',
-		location: 'https://example.com/review/server/redirect/location.json'
+		redirects: [{
+			path:     '/review/server/redirect',
+			query:    'id=123&sid=123abc123',
+			location: 'https://example.com/review/server/redirect/location.json'
+		}]
 	}, (response) => {
 
 		assert(response, {
@@ -76,8 +100,11 @@ describe('Redirect.prototype.read()/success', function(assert) {
 			},
 			payload: {
 				domain:   'example.com',
-				path:     '/review/server/redirect',
-				location: 'https://example.com/review/server/redirect/location.json'
+				redirects: [{
+					path:     '/review/server/redirect',
+					query:    'id=123&sid=123abc123',
+					location: 'https://example.com/review/server/redirect/location.json'
+				}]
 			}
 		});
 

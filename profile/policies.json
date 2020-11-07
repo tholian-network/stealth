@@ -1,0 +1,134 @@
+[
+	{
+		"domain": "amazon.com",
+		"policies": [
+			{
+				"path": "/s/*",
+				"query": "k"
+			},
+			{
+				"path": "/*",
+				"query": null
+			}
+		]
+	},
+	{
+		"domain": "bing.com",
+		"policies": [
+			{
+				"path": "/search",
+				"query": "q&search"
+			}
+		]
+	},
+	{
+		"domain": "clickserve.dartsearch.net",
+		"policies": [
+			{
+				"path": "/link/click",
+				"query": "ds_dest_url"
+			}
+		]
+	},
+	{
+		"domain": "ebay.com",
+		"policies": [
+			{
+				"path": "/sch/i.html",
+				"query": "_nkw&_sacat&LH_*"
+			},
+			{
+				"path": "/*",
+				"query": null
+			}
+		]
+	},
+	{
+		"domain": "facebook.com",
+		"policies": [
+			{
+				"path": "/*",
+				"query": null
+			}
+		]
+	},
+	{
+		"domain": "google.com",
+		"policies": [
+			{
+				"path": "/search",
+				"query": "q&tbm"
+			},
+			{
+				"path": "/aclk",
+				"query": "ai&sa"
+			}
+		]
+	},
+	{
+		"domain": "imdb.com",
+		"policies": [
+			{
+				"path": "/find",
+				"query": "q&s&ttype"
+			},
+			{
+				"path": "/*",
+				"query": null
+			}
+		]
+	},
+	{
+		"domain": "nytimes.com",
+		"policies": [
+			{
+				"path": "/*",
+				"query": null
+			}
+		]
+	},
+	{
+		"domain": "reddit.com",
+		"policies": [
+			{
+				"path": "/r/*/controversial/",
+				"query": "sort&t"
+			},
+			{
+				"path": "/r/*/top/",
+				"query": "t"
+			}
+		]
+	},
+	{
+		"domain": "shutterstock.com",
+		"policies": [
+			{
+				"path": "/search/",
+				"query": "age&artists&color&editorial&ethnicity&exclude_keywords&gender&image_type&measurement&min_height&min_width&mreleased&number_of_people&orientation&safe&sort"
+			},
+			{
+				"path": "/*",
+				"query": null
+			}
+		]
+	},
+	{
+		"domain": "twitter.com",
+		"policies": [
+			{
+				"path": "/*",
+				"query": null
+			}
+		]
+	},
+	{
+		"domain": "youtube.com",
+		"policies": [
+			{
+				"path": "/watch",
+				"query": "v"
+			}
+		]
+	}
+]

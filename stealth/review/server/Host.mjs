@@ -16,6 +16,21 @@ describe('new Host()', function(assert) {
 
 });
 
+describe('Host.prototype.toJSON()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.host.toJSON), true);
+
+	assert(this.server.services.host.toJSON(), {
+		type: 'Host Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Host.isHost()', function(assert) {
 
 	assert(isFunction(Host.isHost), true);

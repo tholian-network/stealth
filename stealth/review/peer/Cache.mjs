@@ -86,8 +86,10 @@ describe('Client #1 - Peer.prototype.save()', function(assert) {
 	assert(isFunction(this.peer1.client.services.peer.save), true);
 
 	this.peer1.client.services.peer.save({
-		host:       '127.0.0.2',
-		connection: 'peer'
+		host: '127.0.0.2',
+		peer: {
+			connection: 'peer'
+		}
 	}, (response) => {
 
 		assert(response, true);
@@ -103,8 +105,10 @@ describe('Client #2 - Peer.prototype.save()', function(assert) {
 	assert(isFunction(this.peer2.client.services.peer.save), true);
 
 	this.peer2.client.services.peer.save({
-		host:       '127.0.0.1',
-		connection: 'peer'
+		host: '127.0.0.1',
+		peer: {
+			connection: 'peer'
+		}
 	}, (response) => {
 
 		assert(response, true);

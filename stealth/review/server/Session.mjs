@@ -17,6 +17,21 @@ describe('new Session()', function(assert) {
 
 });
 
+describe('Session.prototype.toJSON()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.session.toJSON), true);
+
+	assert(this.server.services.session.toJSON(), {
+		type: 'Session Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Session.prototype.download()/failure', function(assert) {
 
 	assert(this.server !== null);

@@ -16,6 +16,21 @@ describe('new Peer()', function(assert) {
 
 });
 
+describe('Peer.prototype.toJSON()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.peer.toJSON), true);
+
+	assert(this.server.services.peer.toJSON(), {
+		type: 'Peer Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Peer.isPeer()', function(assert) {
 
 	assert(isFunction(Peer.isPeer), true);
@@ -24,8 +39,17 @@ describe('Peer.isPeer()', function(assert) {
 	assert(Peer.isPeer({}),   false);
 
 	assert(Peer.isPeer({
-		domain:     '127.0.0.3',
-		connection: 'offline'
+		domain: '1.3.3.7',
+		peer:   {
+			connection: 'invalid'
+		}
+	}), false);
+
+	assert(Peer.isPeer({
+		domain: '127.0.0.3',
+		peer:   {
+			connection: 'offline'
+		}
 	}), true);
 
 });
@@ -36,8 +60,10 @@ describe('Peer.prototype.save()', function(assert) {
 	assert(isFunction(this.server.services.peer.save), true);
 
 	this.server.services.peer.save({
-		host:       '127.0.0.3',
-		connection: 'mobile'
+		host: '127.0.0.3',
+		peer: {
+			connection: 'mobile'
+		}
 	}, (response) => {
 
 		assert(response, {
@@ -67,8 +93,10 @@ describe('Peer.prototype.info()', function(assert) {
 				event:   'info'
 			},
 			payload: {
-				domain:     ENVIRONMENT.hostname,
-				connection: 'mobile'
+				domain: ENVIRONMENT.hostname,
+				peer:   {
+					connection: 'mobile'
+				}
 			}
 		});
 
@@ -91,8 +119,10 @@ describe('Peer.prototype.read()', function(assert) {
 				event:   'read'
 			},
 			payload: {
-				domain:     '127.0.0.3',
-				connection: 'mobile'
+				domain: '127.0.0.3',
+				peer:   {
+					connection: 'mobile'
+				}
 			}
 		});
 
@@ -146,8 +176,10 @@ describe('Peer.prototype.refresh()', function(assert) {
 				event:   'refresh'
 			},
 			payload: {
-				domain:     '127.0.0.3',
-				connection: 'mobile'
+				domain: '127.0.0.3',
+				peer:   {
+					connection: 'mobile'
+				}
 			}
 		});
 

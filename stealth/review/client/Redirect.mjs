@@ -39,8 +39,11 @@ describe('Redirect.prototype.save()', function(assert) {
 
 	this.client.services.redirect.save({
 		domain:   'example.com',
-		path:     '/review/client/redirect',
-		location: 'https://example.com/review/client/redirect/location.json'
+		redirects: [{
+			path:     '/review/client/redirect',
+			query:    'id=123&sid=123abc123',
+			location: 'https://example.com/review/client/redirect/location.json'
+		}]
 	}, (response) => {
 
 		assert(response, true);
@@ -61,8 +64,11 @@ describe('Redirect.prototype.read()/success', function(assert) {
 
 		assert(response, {
 			domain:   'example.com',
-			path:     '/review/client/redirect',
-			location: 'https://example.com/review/client/redirect/location.json'
+			redirects: [{
+				path:     '/review/client/redirect',
+				query:    'id=123&sid=123abc123',
+				location: 'https://example.com/review/client/redirect/location.json'
+			}]
 		});
 
 	});

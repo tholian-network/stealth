@@ -24,6 +24,7 @@ const readify = function(raw) {
 			payload['hosts']     = isBoolean(payload['hosts'])     ? payload['hosts']     : false;
 			payload['modes']     = isBoolean(payload['modes'])     ? payload['modes']     : false;
 			payload['peers']     = isBoolean(payload['peers'])     ? payload['peers']     : false;
+			payload['policies']  = false; // cannot be read
 			payload['redirects'] = isBoolean(payload['redirects']) ? payload['redirects'] : false;
 			payload['sessions']  = isBoolean(payload['sessions'])  ? payload['sessions']  : false;
 
@@ -51,6 +52,7 @@ const saveify = function(raw) {
 		payload['hosts']     = isArray(payload['hosts'])      ? payload['hosts']     : [];
 		payload['modes']     = isArray(payload['modes'])      ? payload['modes']     : [];
 		payload['peers']     = isArray(payload['peers'])      ? payload['peers']     : [];
+		payload['policies']  = []; // cannot be saved
 		payload['redirects'] = isArray(payload['redirects'])  ? payload['redirects'] : [];
 		payload['sessions']  = []; // cannot be saved
 
@@ -157,6 +159,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 							'hosts':     null,
 							'modes':     null,
 							'peers':     null,
+							'policies':  null,
 							'redirects': null,
 							'sessions':  null
 						};
@@ -212,6 +215,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 							'hosts':     blob.data['hosts'],
 							'modes':     blob.data['modes'],
 							'peers':     blob.data['peers'],
+							'policies':  null,
 							'redirects': blob.data['redirects'],
 							'sessions':  blob.data['sessions']
 						};

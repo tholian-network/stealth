@@ -62,11 +62,11 @@ browser-card-peer-article {
 	text-align: center;
 }
 
-browser-card-peer-article > button[data-key="connection"][data-val="offline"]:before   { color: var(--element-default-color); content: '\e8be'; }
-browser-card-peer-article > button[data-key="connection"][data-val="mobile"]:before    { color: var(--element-active-color);  content: '\e1b9'; }
-browser-card-peer-article > button[data-key="connection"][data-val="broadband"]:before { color: var(--element-active-color);  content: '\e1ba'; }
-browser-card-peer-article > button[data-key="connection"][data-val="peer"]:before      { color: var(--element-active-color);  content: '\e1e2'; }
-browser-card-peer-article > button[data-key="connection"][data-val="tor"]:before       { color: var(--element-active-color);  content: '\e32a'; }
+browser-card-peer-article > button[data-key="peer.connection"][data-val="offline"]:before   { color: var(--element-default-color); content: '\e8be'; }
+browser-card-peer-article > button[data-key="peer.connection"][data-val="mobile"]:before    { color: var(--element-active-color);  content: '\e1b9'; }
+browser-card-peer-article > button[data-key="peer.connection"][data-val="broadband"]:before { color: var(--element-active-color);  content: '\e1ba'; }
+browser-card-peer-article > button[data-key="peer.connection"][data-val="peer"]:before      { color: var(--element-active-color);  content: '\e1e2'; }
+browser-card-peer-article > button[data-key="peer.connection"][data-val="tor"]:before       { color: var(--element-active-color);  content: '\e32a'; }
 
 browser-card-peer-article > span {
 	display: inline-block;

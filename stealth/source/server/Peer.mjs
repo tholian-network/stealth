@@ -208,8 +208,9 @@ Peer.isPeer = function(payload) {
 	if (
 		isObject(payload) === true
 		&& isString(payload.domain) === true
-		&& isString(payload.connection) === true
-		&& CONNECTION.includes(payload.connection) === true
+		&& isObject(payload.peer) === true
+		&& isString(payload.peer.connection) === true
+		&& CONNECTION.includes(payload.peer.connection) === true
 	) {
 		return true;
 	}
@@ -238,12 +239,21 @@ Peer.toPeer = function(payload) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isString(payload.connection) === true) {
+		if (domain !== null && isObject(payload.peer) === true) {
 
-			return {
-				domain:     domain,
-				connection: CONNECTION.includes(payload.connection) ? payload.connection : 'offline'
-			};
+			if (
+				isString(payload.peer.connection) === true
+				&& CONNECTION.includes(payload.peer.connection) === true
+			) {
+
+				return {
+					domain: domain,
+					peer:   {
+						connection: CONNECTION.includes(payload.peer.connection) ? payload.peer.connection : 'offline'
+					}
+				};
+
+			}
 
 		}
 
@@ -285,8 +295,10 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 					event:   'info'
 				},
 				payload: {
-					domain:     ENVIRONMENT.hostname,
-					connection: this.stealth.settings.internet.connection
+					domain: ENVIRONMENT.hostname,
+					peer:   {
+						connection: this.stealth.settings.internet.connection
+					}
 				}
 			});
 
@@ -323,8 +335,10 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 			if (request.headers.service === 'peer' && request.headers.method === 'info') {
 
 				peer = {
-					domain:     domain,
-					connection: 'peer'
+					domain: domain,
+					peer:   {
+						connection: 'peer'
+					}
 				};
 
 			}
@@ -458,8 +472,10 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (peer === null) {
 				peer = {
-					domain:     domain,
-					connection: 'offline'
+					domain: domain,
+					peer:   {
+						connection: 'offline'
+					}
 				};
 			}
 
@@ -476,8 +492,11 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 						if (response !== null) {
 
-							if (CONNECTION.includes(response.connection)) {
-								peer.connection = response.connection;
+							if (
+								isObject(response.peer) === true
+								&& CONNECTION.includes(response.peer.connection) === true
+							) {
+								peer.peer.connection = response.peer.connection;
 							}
 
 						}
@@ -528,8 +547,11 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 								if (response !== null) {
 
-									if (CONNECTION.includes(response.connection)) {
-										peer.connection = response.connection;
+									if (
+										isObject(response.peer) === true
+										&& CONNECTION.includes(response.peer.connection) === true
+									) {
+										peer.peer.connection = response.peer.connection;
 									}
 
 								}
@@ -646,7 +668,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (peer_old !== null) {
 
-				peer_old.connection = peer_new.connection;
+				peer_old.peer.connection = peer_new.peer.connection;
 
 			} else {
 				this.stealth.settings.peers.push(peer_new);

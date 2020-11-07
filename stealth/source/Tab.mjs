@@ -1,30 +1,10 @@
 
-import { isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { DATETIME                               } from '../source/parser/DATETIME.mjs';
-import { URL                                    } from '../source/parser/URL.mjs';
+import { isArray, isObject, isString } from '../extern/base.mjs';
+import { DATETIME                    } from '../source/parser/DATETIME.mjs';
+import { URL                         } from '../source/parser/URL.mjs';
+import { isMode                      } from '../source/Browser.mjs';
 
 
-
-// Embedded for Cross-Platform Compatibility
-const isMode = function(payload) {
-
-	if (
-		isObject(payload) === true
-		&& (isString(payload.domain) === true || payload.domain === null)
-		&& isObject(payload.mode) === true
-		&& isBoolean(payload.mode.text) === true
-		&& isBoolean(payload.mode.image) === true
-		&& isBoolean(payload.mode.audio) === true
-		&& isBoolean(payload.mode.video) === true
-		&& isBoolean(payload.mode.other) === true
-	) {
-		return true;
-	}
-
-
-	return false;
-
-};
 
 // Embedded for Cross-Platform Compatibility
 const isRequest = function(obj) {

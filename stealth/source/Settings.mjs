@@ -11,6 +11,7 @@ import { Blocker                                                     } from '../
 import { Host                                                        } from '../source/server/Host.mjs';
 import { Mode                                                        } from '../source/server/Mode.mjs';
 import { Peer                                                        } from '../source/server/Peer.mjs';
+import { Policy                                                      } from '../source/server/Policy.mjs';
 import { Redirect                                                    } from '../source/server/Redirect.mjs';
 
 
@@ -25,6 +26,7 @@ ${settings.blockers.length} Blocker${settings.blockers.length === 1 ? '' : 's'},
 ${settings.hosts.length} Host${settings.hosts.length === 1 ? '' : 's'}, \
 ${settings.modes.length} Mode${settings.modes.length === 1 ? '' : 's'}, \
 ${settings.peers.length} Peer${settings.peers.length === 1 ? '' : 's'}, \
+${settings.policies.length} Polic${settings.policies.length === 1 ? 'y' : 'ies'}, \
 ${settings.redirects.length} Redirect${settings.redirects.length === 1 ? '' : 's'}, \
 ${settings.sessions.length} Session${settings.sessions.length === 1 ? '' : 's'}.
 `;
@@ -282,6 +284,7 @@ const read = function(profile, keepdata, callback) {
 				read_file.call(this, profile + '/hosts.json',     this['hosts'],     keepdata, Host.isHost),
 				read_file.call(this, profile + '/modes.json',     this['modes'],     keepdata, Mode.isMode),
 				read_file.call(this, profile + '/peers.json',     this['peers'],     keepdata, Peer.isPeer),
+				read_file.call(this, profile + '/policies.json',  this['policies'],  keepdata, Policy.isPolicy),
 				read_file.call(this, profile + '/redirects.json', this['redirects'], keepdata, Redirect.isRedirect),
 				read_file.call(this, profile + '/sessions.json',  sessions,          keepdata)
 			].filter((v) => v === false);
@@ -418,6 +421,7 @@ const save = function(profile, keepdata, callback) {
 				save_file.call(this, profile + '/hosts.json',     this['hosts'],     Host.isHost),
 				save_file.call(this, profile + '/modes.json',     this['modes'],     Mode.isMode),
 				save_file.call(this, profile + '/peers.json',     this['peers'],     Peer.isPeer),
+				true, // policies cannot be saved
 				save_file.call(this, profile + '/redirects.json', this['redirects'], Redirect.isRedirect),
 				save_file.call(this, profile + '/sessions.json',  this['sessions'],  isSession)
 			].filter((v) => v === false);
@@ -559,6 +563,7 @@ const Settings = function(settings) {
 	this['hosts']     = [];
 	this['modes']     = [];
 	this['peers']     = [];
+	this['policies']  = [];
 	this['redirects'] = [];
 	this['sessions']  = [];
 
@@ -729,6 +734,7 @@ Settings.prototype = {
 			'hosts':     [],
 			'modes':     [],
 			'peers':     [],
+			'policies':  null, // private
 			'profile':   null,
 			'redirects': [],
 			'sessions':  [],

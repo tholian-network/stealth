@@ -15,6 +15,21 @@ describe('new Stash()', function(assert) {
 
 });
 
+describe('Stash.prototype.toJSON()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.stash.toJSON), true);
+
+	assert(this.server.services.stash.toJSON(), {
+		type: 'Stash Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Stash.prototype.save()', function(assert) {
 
 	assert(this.server !== null);

@@ -7,6 +7,7 @@ import { Cache                                                    } from './clie
 import { Host                                                     } from './client/Host.mjs';
 import { Mode                                                     } from './client/Mode.mjs';
 import { Peer                                                     } from './client/Peer.mjs';
+import { Policy                                                   } from './client/Policy.mjs';
 import { Redirect                                                 } from './client/Redirect.mjs';
 import { Session                                                  } from './client/Session.mjs';
 import { Settings                                                 } from './client/Settings.mjs';
@@ -109,6 +110,7 @@ const Client = function(settings, browser) {
 	this.services['host']     = new Host(this);
 	this.services['mode']     = new Mode(this);
 	this.services['peer']     = new Peer(this);
+	this.services['policy']   = new Policy(this);
 	this.services['redirect'] = new Redirect(this);
 	this.services['session']  = new Session(this);
 	this.services['settings'] = new Settings(this);

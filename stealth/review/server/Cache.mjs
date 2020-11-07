@@ -15,6 +15,21 @@ describe('new Cache()', function(assert) {
 
 });
 
+describe('Cache.prototype.toJSON()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.cache.toJSON), true);
+
+	assert(this.server.services.cache.toJSON(), {
+		type: 'Cache Service',
+		data: {
+			events:  [],
+			journal: []
+		}
+	});
+
+});
+
 describe('Cache.prototype.save()', function(assert) {
 
 	assert(this.server !== null);

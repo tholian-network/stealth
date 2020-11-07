@@ -1,6 +1,6 @@
 
-import { Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { URL                                     } from '../parser/URL.mjs';
+import { Emitter, isArray, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { URL                                              } from '../parser/URL.mjs';
 
 
 
@@ -28,22 +28,6 @@ const toDomain = function(payload) {
 
 };
 
-const toPath = function(payload) {
-
-	let path = null;
-
-	if (isObject(payload) === true) {
-
-		if (isString(payload.path) === true) {
-			path = payload.path;
-		}
-
-	}
-
-	return path;
-
-};
-
 
 
 const Redirect = function(stealth) {
@@ -59,17 +43,31 @@ Redirect.isRedirect = function(payload) {
 	if (
 		isObject(payload) === true
 		&& isString(payload.domain) === true
-		&& isString(payload.path) === true
-		&& isString(payload.location) === true
+		&& isArray(payload.redirects) === true
 	) {
 
-		let url = URL.parse(payload.location);
-		if (url.protocol === 'https' || url.protocol === 'http') {
+		let check = payload.redirects.filter((redirect) => {
 
-			if (isString(url.domain) === true || isString(url.host) === true) {
-				return true;
+			if (
+				isObject(redirect) === true
+				&& isString(redirect.path) === true
+				&& (isString(redirect.query) === true || redirect.query === null)
+				&& isString(redirect.location) === true
+			) {
+
+				let url = URL.parse(redirect.location);
+				if (url.protocol === 'https' || url.protocol === 'http') {
+					return true;
+				}
+
 			}
 
+			return false;
+
+		});
+
+		if (check.length === payload.redirects.length) {
+			return true;
 		}
 
 	}
@@ -98,26 +96,37 @@ Redirect.toRedirect = function(payload) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isString(payload.path) === true && isString(payload.location) === true) {
+		if (domain !== null && isArray(payload.redirects) === true) {
 
-			let url = URL.parse(payload.location);
-			if (
-				(url.domain !== null || url.host !== null)
-				&& (url.protocol === 'https' || url.protocol === 'http')
-			) {
+			let check = payload.redirects.filter((redirect) => {
+
+				if (
+					isObject(redirect) === true
+					&& isString(redirect.path) === true
+					&& (isString(redirect.query) === true || redirect.query === null)
+					&& isString(redirect.location) === true
+				) {
+
+					let url = URL.parse(redirect.location);
+					if (url.protocol === 'https' || url.protocol === 'http') {
+						return true;
+					}
+
+				}
+
+				return false;
+
+			});
+
+			if (check.length === payload.redirects.length) {
 
 				return {
-					domain:   domain,
-					path:     payload.path,
-					location: payload.location
-				};
-
-			} else if (payload.location.startsWith('/')) {
-
-				return {
-					domain:   domain,
-					path:     payload.path,
-					location: payload.location
+					domain:    domain,
+					redirects: payload.redirects.map((redirect) => ({
+						path:     redirect.path,
+						query:    redirect.query,
+						location: redirect.location
+					}))
 				};
 
 			}
@@ -148,6 +157,7 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 		};
 
 	},
+
 	read: function(payload, callback) {
 
 		callback = isFunction(callback) ? callback : null;
@@ -155,9 +165,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 		let redirect = null;
 		let domain   = toDomain(payload);
-		let path     = toPath(payload);
-		if (domain !== null && path !== null) {
-			redirect = this.stealth.settings.redirects.find((r) => r.domain === domain && r.path === path) || null;
+		if (domain !== null) {
+			redirect = this.stealth.settings.redirects.find((r) => r.domain === domain) || null;
 		}
 
 
@@ -182,9 +191,8 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 
 		let redirect = null;
 		let domain   = toDomain(payload);
-		let path     = toPath(payload);
-		if (domain !== null && path !== null) {
-			redirect = this.stealth.settings.redirects.find((r) => r.domain === domain && r.path === path) || null;
+		if (domain !== null) {
+			redirect = this.stealth.settings.redirects.find((r) => r.domain === domain) || null;
 		}
 
 		if (redirect !== null) {
@@ -200,7 +208,7 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'redirect',
 					event:   'remove'
 				},
-				payload: (domain !== null && path !== null)
+				payload: (domain !== null)
 			});
 
 		}
@@ -216,16 +224,15 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 		let redirect_new = Redirect.toRedirect(payload);
 
 		let domain = toDomain(payload);
-		let path   = toPath(payload);
-		if (domain !== null && path !== null) {
-			redirect_old = this.stealth.settings.redirects.find((r) => r.domain === domain && r.path === path) || null;
+		if (domain !== null) {
+			redirect_old = this.stealth.settings.redirects.find((r) => r.domain === domain) || null;
 		}
 
 		if (redirect_new !== null) {
 
 			if (redirect_old !== null) {
 
-				redirect_old.location = redirect_new.location;
+				redirect_old.redirects = redirect_new.redirects;
 
 			} else {
 				this.stealth.settings.redirects.push(redirect_new);

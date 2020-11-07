@@ -7,6 +7,7 @@ import { Cache                                   } from '../source/client/Cache.
 import { Host                                    } from '../source/client/Host.mjs';
 import { Mode                                    } from '../source/client/Mode.mjs';
 import { Peer                                    } from '../source/client/Peer.mjs';
+import { Policy                                  } from '../source/client/Policy.mjs';
 import { Redirect                                } from '../source/client/Redirect.mjs';
 import { Session                                 } from '../source/client/Session.mjs';
 import { Settings                                } from '../source/client/Settings.mjs';
@@ -51,6 +52,7 @@ const Client = function(settings, stealth) {
 	this.services['host']     = new Host(this);
 	this.services['mode']     = new Mode(this);
 	this.services['peer']     = new Peer(this);
+	this.services['policy']   = new Policy(this);
 	this.services['redirect'] = new Redirect(this);
 	this.services['session']  = new Session(this);
 	this.services['settings'] = new Settings(this);

@@ -12,7 +12,7 @@ const Peer = function(browser, actions) {
 		'<h3><input title="Domain" type="text" data-key="domain"/></h3>',
 		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-peer-article>',
-		'<span>Connection:</span><button data-key="connection" data-val="offline" disabled></button>',
+		'<span>Connection:</span><button data-key="peer.connection" data-val="offline" disabled></button>',
 		'</browser-card-peer-article>',
 		'<browser-card-peer-footer>',
 		'<button title="Create Peer" data-action="create"></button>',
@@ -31,8 +31,10 @@ const Peer = function(browser, actions) {
 	};
 
 	this.model = {
-		domain:     this.element.query('[data-key="domain"]'),
-		connection: this.element.query('[data-key="connection"]')
+		domain: this.element.query('[data-key="domain"]'),
+		peer:   {
+			connection: this.element.query('[data-key="peer.connection"]')
+		}
 	};
 
 	Widget.call(this);
@@ -68,13 +70,13 @@ const Peer = function(browser, actions) {
 
 		if (this.actions.includes('create')) {
 			this.model.domain.state('enabled');
-			this.model.connection.state('disabled');
+			this.model.peer.connection.state('disabled');
 		} else if (this.actions.includes('save')) {
 			this.model.domain.state('disabled');
-			this.model.connection.state('disabled');
+			this.model.peer.connection.state('disabled');
 		} else {
 			this.model.domain.state('disabled');
-			this.model.connection.state('disabled');
+			this.model.peer.connection.state('disabled');
 		}
 
 

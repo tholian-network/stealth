@@ -39,8 +39,10 @@ describe('Peer.prototype.save()', function(assert) {
 	assert(isFunction(this.client.services.peer.save), true);
 
 	this.client.services.peer.save({
-		host:       '127.0.0.3',
-		connection: 'mobile'
+		host: '127.0.0.3',
+		peer: {
+			connection: 'mobile'
+		}
 	}, (response) => {
 
 		assert(response, true);
@@ -59,8 +61,10 @@ describe('Peer.prototype.info()', function(assert) {
 	}, (response) => {
 
 		assert(response, {
-			domain:     ENVIRONMENT.hostname,
-			connection: 'mobile'
+			domain: ENVIRONMENT.hostname,
+			peer:   {
+				connection: 'mobile'
+			}
 		});
 
 	});
@@ -77,8 +81,10 @@ describe('Peer.prototype.read()', function(assert) {
 	}, (response) => {
 
 		assert(response, {
-			domain:     '127.0.0.3',
-			connection: 'mobile'
+			domain: '127.0.0.3',
+			peer:   {
+				connection: 'mobile'
+			}
 		});
 
 	});
@@ -113,6 +119,7 @@ describe('Peer.prototype.proxy()/success', function(assert) {
 			'hosts':     null,
 			'modes':     null,
 			'peers':     null,
+			'policies':  null,
 			'redirects': null,
 			'sessions':  null
 		});
@@ -131,8 +138,10 @@ describe('Peer.prototype.refresh()', function(assert) {
 	}, (response) => {
 
 		assert(response, {
-			domain:     '127.0.0.3',
-			connection: 'mobile'
+			domain: '127.0.0.3',
+			peer: {
+				connection: 'mobile'
+			}
 		});
 
 	});
