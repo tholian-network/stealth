@@ -57,6 +57,31 @@ describe('Redirect.isRedirect()', function(assert) {
 
 });
 
+describe('Redirect.toRedirect()', function(assert) {
+
+	assert(isFunction(Redirect.toRedirect), true);
+
+	assert(Redirect.toRedirect(null), null);
+	assert(Redirect.toRedirect({}),   null);
+
+	assert(Redirect.toRedirect({
+		domain:    'example.com',
+		another:   'property',
+		redirects: [{
+			path:    '/what/ever',
+			query:   'param1&param2',
+			another: 'property'
+		}]
+	}), {
+		domain:    'example.com',
+		redirects: [{
+			path:  '/what/ever',
+			query: 'param1&param2',
+		}]
+	});
+
+});
+
 describe('Redirect.prototype.save()', function(assert) {
 
 	assert(this.server !== null);

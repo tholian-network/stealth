@@ -241,10 +241,7 @@ Peer.toPeer = function(payload) {
 
 		if (domain !== null && isObject(payload.peer) === true) {
 
-			if (
-				isString(payload.peer.connection) === true
-				&& CONNECTION.includes(payload.peer.connection) === true
-			) {
+			if (isString(payload.peer.connection) === true) {
 
 				return {
 					domain: domain,

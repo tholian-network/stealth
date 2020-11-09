@@ -71,6 +71,31 @@ describe('Policy.isPolicy()', function(assert) {
 
 });
 
+describe('Policy.toPolicy()', function(assert) {
+
+	assert(isFunction(Policy.toPolicy), true);
+
+	assert(Policy.toPolicy(null), null);
+	assert(Policy.toPolicy({}),   null);
+
+	assert(Policy.toPolicy({
+		domain:   'example.com',
+		another:  'property',
+		policies: [{
+			path:    '/what/ever',
+			query:   'param1&param2',
+			another: 'property'
+		}]
+	}), {
+		domain:   'example.com',
+		policies: [{
+			path:  '/what/ever',
+			query: 'param1&param2'
+		}]
+	});
+
+});
+
 describe('Policy.prototype.read()/success', function(assert) {
 
 	assert(this.server !== null);

@@ -127,14 +127,13 @@ Host.toHost = function(payload) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isArray(payload.hosts) === true) {
+		if (domain !== null) {
 
-			let check = payload.hosts.filter((ip) => IP.isIP(ip) === true);
-			if (check.length === payload.hosts.length) {
+			if (isArray(payload.hosts) === true) {
 
 				return {
 					domain: domain,
-					hosts:  payload.hosts
+					hosts:  payload.hosts.filter((ip) => IP.isIP(ip) === true)
 				};
 
 			}

@@ -3,6 +3,7 @@ import { isBuffer, isFunction, isObject  } from '../../../base/index.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { ENVIRONMENT                     } from '../../../stealth/source/ENVIRONMENT.mjs';
 import { Session                         } from '../../../stealth/source/server/Session.mjs';
+import { Session as Instance             } from '../../../stealth/source/Session.mjs';
 import { URL                             } from '../../../stealth/source/parser/URL.mjs';
 import { connect, disconnect             } from '../Server.mjs';
 
@@ -29,6 +30,17 @@ describe('Session.prototype.toJSON()', function(assert) {
 			journal: []
 		}
 	});
+
+});
+
+describe('Session.isSession()', function(assert) {
+
+	assert(isFunction(Session.isSession), true);
+
+	assert(Session.isSession(null), false);
+	assert(Session.isSession({}),   false);
+
+	assert(Session.isSession(new Instance()), true);
 
 });
 

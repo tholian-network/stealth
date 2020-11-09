@@ -54,6 +54,39 @@ describe('Peer.isPeer()', function(assert) {
 
 });
 
+describe('Peer.toPeer()', function(assert) {
+
+	assert(isFunction(Peer.toPeer), true);
+
+	assert(Peer.toPeer(null), null);
+	assert(Peer.toPeer({}),   null);
+
+	assert(Peer.toPeer({
+		domain: '1.3.3.7',
+		peer:   {
+			connection: 'invalid'
+		}
+	}), {
+		domain: '1.3.3.7',
+		peer:   {
+			connection: 'offline'
+		}
+	});
+
+	assert(Peer.toPeer({
+		domain: '127.0.0.3',
+		peer:   {
+			connection: 'mobile'
+		}
+	}), {
+		domain: '127.0.0.3',
+		peer:   {
+			connection: 'mobile'
+		}
+	});
+
+});
+
 describe('Peer.prototype.save()', function(assert) {
 
 	assert(this.server !== null);

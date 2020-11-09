@@ -43,6 +43,22 @@ describe('Blocker.isBlocker()', function(assert) {
 
 });
 
+describe('Blocker.toBlocker()', function(assert) {
+
+	assert(isFunction(Blocker.toBlocker), true);
+
+	assert(Blocker.toBlocker(null), null);
+	assert(Blocker.toBlocker({}),   null);
+
+	assert(Blocker.toBlocker({
+		domain:  'example.com',
+		another: 'property'
+	}), {
+		domain: 'example.com'
+	});
+
+});
+
 describe('Blocker.prototype.read()/success', function(assert) {
 
 	assert(this.server !== null);

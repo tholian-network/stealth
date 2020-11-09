@@ -48,6 +48,39 @@ describe('Host.isHost()', function(assert) {
 
 });
 
+describe('Host.toHost()', function(assert) {
+
+	assert(isFunction(Host.toHost), true);
+
+	assert(Host.toHost(null), null);
+	assert(Host.toHost({}),   null);
+
+	assert(Host.toHost({
+		domain: 'example.com',
+		hosts:  []
+	}), {
+		domain: 'example.com',
+		hosts:  []
+	});
+
+	assert(Host.toHost({
+		domain: 'example.com',
+		hosts:  [
+			EXAMPLE.ipv4,
+			'another',
+			EXAMPLE.ipv6,
+			'value'
+		]
+	}), {
+		domain: 'example.com',
+		hosts:  [
+			EXAMPLE.ipv4,
+			EXAMPLE.ipv6
+		]
+	});
+
+});
+
 describe('Host.prototype.save()', function(assert) {
 
 	assert(this.server !== null);

@@ -50,6 +50,47 @@ describe('Mode.isMode()', function(assert) {
 
 });
 
+describe('Mode.toMode()', function(assert) {
+
+	assert(isFunction(Mode.toMode), true);
+
+	assert(Mode.toMode(null), null);
+	assert(Mode.toMode({}),   null);
+
+	assert(Mode.toMode({
+		domain: 'example.com',
+		mode:   {}
+	}), {
+		domain: 'example.com',
+		mode: {
+			text:  false,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	});
+
+	assert(Mode.toMode({
+		domain: 'example.com',
+		mode:   {
+			text:  true,
+			image: false,
+			audio: true
+		}
+	}), {
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: true,
+			video: false,
+			other: false
+		}
+	});
+
+});
+
 describe('Mode.prototype.save()', function(assert) {
 
 	assert(this.server !== null);
