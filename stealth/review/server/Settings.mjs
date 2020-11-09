@@ -61,6 +61,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 				'hosts':     defaults['hosts'],
 				'modes':     defaults['modes'],
 				'peers':     defaults['peers'],
+				'policies':  defaults['policies'],
 				'redirects': defaults['redirects'],
 				'sessions':  defaults['sessions']
 			}
@@ -94,6 +95,7 @@ describe('Settings.prototype.read()/interface', function(assert) {
 				'hosts':     null,
 				'modes':     null,
 				'peers':     null,
+				'policies':  null,
 				'redirects': null,
 				'sessions':  null
 			}
@@ -127,6 +129,7 @@ describe('Settings.prototype.read()/internet', function(assert) {
 				'hosts':     null,
 				'modes':     null,
 				'peers':     null,
+				'policies':  null,
 				'redirects': null,
 				'sessions':  null
 			}
@@ -160,6 +163,7 @@ describe('Settings.prototype.read()/beacons', function(assert) {
 				'hosts':     null,
 				'modes':     null,
 				'peers':     null,
+				'policies':  null,
 				'redirects': null,
 				'sessions':  null
 			}
@@ -191,6 +195,7 @@ describe('Settings.prototype.read()/blockers', function(assert) {
 				'hosts':     null,
 				'modes':     null,
 				'peers':     null,
+				'policies':  null,
 				'redirects': null,
 				'sessions':  null
 			}
@@ -224,6 +229,7 @@ describe('Settings.prototype.read()/hosts', function(assert) {
 				'hosts':     defaults['hosts'],
 				'modes':     null,
 				'peers':     null,
+				'policies':  null,
 				'redirects': null,
 				'sessions':  null
 			}
@@ -257,6 +263,7 @@ describe('Settings.prototype.read()/modes', function(assert) {
 				'hosts':     null,
 				'modes':     defaults['modes'],
 				'peers':     null,
+				'policies':  null,
 				'redirects': null,
 				'sessions':  null
 			}
@@ -290,6 +297,41 @@ describe('Settings.prototype.read()/peers', function(assert) {
 				'hosts':     null,
 				'modes':     null,
 				'peers':     defaults['peers'],
+				'policies':  null,
+				'redirects': null,
+				'sessions':  null
+			}
+		});
+
+	});
+
+});
+
+describe('Settings.prototype.read()/policies', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.settings.read), true);
+
+	let defaults = this.stealth.settings.toJSON().data;
+
+	this.server.services.settings.read({
+		'policies': true
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'settings',
+				event:   'read'
+			},
+			payload: {
+				'interface': null,
+				'internet':  null,
+				'beacons':   null,
+				'blockers':  null,
+				'hosts':     null,
+				'modes':     null,
+				'peers':     null,
+				'policies':  defaults['policies'],
 				'redirects': null,
 				'sessions':  null
 			}
@@ -323,6 +365,7 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 				'hosts':     null,
 				'modes':     null,
 				'peers':     null,
+				'policies':  null,
 				'redirects': defaults['redirects'],
 				'sessions':  null
 			}
@@ -356,6 +399,7 @@ describe('Settings.prototype.read()/sessions', function(assert) {
 				'hosts':     null,
 				'modes':     null,
 				'peers':     null,
+				'policies':  null,
 				'redirects': null,
 				'sessions':  defaults['sessions']
 			}
@@ -425,13 +469,25 @@ describe('Settings.prototype.save()/all', function(assert) {
 			}
 		}],
 		'peers': [{
-			domain:     'covert.localdomain',
-			connection: 'mobile'
+			domain: 'covert.localdomain',
+			peer:   {
+				connection: 'mobile'
+			}
+		}],
+		'policies': [{
+			domain: 'covert.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'sort&type'
+			}]
 		}],
 		'redirects': [{
 			domain:   'covert.localdomain',
-			path:     '/redirect',
-			location: 'https://covert.localdomain/location.html'
+			redirects: [{
+				path:     '/redirect',
+				query:    null,
+				location: 'https://covert.localdomain/location.html'
+			}]
 		}]
 	}, (response) => {
 
@@ -460,6 +516,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 		'hosts':     true,
 		'modes':     true,
 		'peers':     true,
+		'policies':  true,
 		'redirects': true,
 		'sessions':  true  // private
 	}, (response) => {
@@ -515,7 +572,9 @@ describe('Settings.prototype.read()/all', function(assert) {
 
 		assert(response.payload['blockers'], null);
 
-		let host = response.payload['hosts'].find((h) => h.domain === 'covert.localdomain') || null;
+		let host   = response.payload['hosts'].find((h) => h.domain === 'covert.localdomain') || null;
+		let mode   = response.payload['modes'].find((m) => m.domain === 'covert.localdomain') || null;
+		let policy = response.payload['policies'].find((p) => p.domain === 'covert.localdomain') || null;
 
 		assert(host, {
 			domain: 'covert.localdomain',
@@ -526,7 +585,7 @@ describe('Settings.prototype.read()/all', function(assert) {
 			}]
 		});
 
-		assert(response.payload['modes'], [{
+		assert(mode, {
 			domain: 'covert.localdomain',
 			mode: {
 				text:  true,
@@ -535,17 +594,30 @@ describe('Settings.prototype.read()/all', function(assert) {
 				video: true,
 				other: true
 			}
-		}]);
+		});
 
 		assert(response.payload['peers'], [{
-			domain:     'covert.localdomain',
-			connection: 'mobile'
+			domain: 'covert.localdomain',
+			peer:   {
+				connection: 'mobile'
+			}
 		}]);
 
+		assert(policy, {
+			domain: 'covert.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'sort&type'
+			}]
+		});
+
 		assert(response.payload['redirects'], [{
-			domain:   'covert.localdomain',
-			path:     '/redirect',
-			location: 'https://covert.localdomain/location.html'
+			domain:    'covert.localdomain',
+			redirects: [{
+				path:     '/redirect',
+				query:    null,
+				location: 'https://covert.localdomain/location.html'
+			}]
 		}]);
 
 		assert(response.payload['sessions'], []);
@@ -908,8 +980,10 @@ describe('Settings.prototype.save()/peers', function(assert) {
 
 	this.server.services.settings.save({
 		'peers': [{
-			domain:     'covert-two.localdomain',
-			connection: 'peer'
+			domain: 'covert-two.localdomain',
+			peer:   {
+				connection: 'peer'
+			}
 		}]
 	}, (response) => {
 
@@ -943,13 +1017,81 @@ describe('Settings.prototype.read()/peers', function(assert) {
 		let peer2 = response.payload['peers'].find((p) => p.domain === 'covert-two.localdomain') || null;
 
 		assert(peer1, {
-			domain:     'covert.localdomain',
-			connection: 'mobile'
+			domain: 'covert.localdomain',
+			peer:   {
+				connection: 'mobile'
+			}
 		});
 
 		assert(peer2, {
-			domain:     'covert-two.localdomain',
-			connection: 'peer'
+			domain: 'covert-two.localdomain',
+			peer:   {
+				connection: 'peer'
+			}
+		});
+
+	});
+
+});
+
+describe('Settings.prototype.save()/policies', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.settings.save), true);
+
+	this.server.services.settings.save({
+		'policies': [{
+			domain:   'covert-two.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'q&search'
+			}]
+		}]
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'settings',
+				event:   'save'
+			},
+			payload: true
+		});
+
+	});
+
+});
+
+describe('Settings.prototype.read()/policies', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.settings.read), true);
+
+	this.server.services.settings.read({
+		'policies': true
+	}, (response) => {
+
+		assert(isObject(response),                    true);
+		assert(isObject(response.headers),            true);
+		assert(isObject(response.payload),            true);
+		assert(isArray(response.payload['policies']), true);
+
+		let policy1 = response.payload['policies'].find((p) => p.domain === 'covert.localdomain') || null;
+		let policy2 = response.payload['policies'].find((p) => p.domain === 'covert-two.localdomain') || null;
+
+		assert(policy1, {
+			domain:   'covert.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'sort&type'
+			}]
+		});
+
+		assert(policy2, {
+			domain:   'covert-two.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'q&search'
+			}]
 		});
 
 	});
@@ -963,9 +1105,12 @@ describe('Settings.prototype.save()/redirects', function(assert) {
 
 	this.server.services.settings.save({
 		'redirects': [{
-			domain:   'covert-two.localdomain',
-			path:     '/redirect',
-			location: 'https://covert-two.localdomain/location.html'
+			domain:    'covert-two.localdomain',
+			redirects: [{
+				path:     '/redirect',
+				query:    'foo=bar&qux=123',
+				location: 'https://covert-two.localdomain/location.html'
+			}]
 		}]
 	}, (response) => {
 
@@ -1000,14 +1145,20 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 
 		assert(redirect1, {
 			domain:   'covert.localdomain',
-			path:     '/redirect',
-			location: 'https://covert.localdomain/location.html'
+			redirects: [{
+				path:     '/redirect',
+				query:    null,
+				location: 'https://covert.localdomain/location.html'
+			}]
 		});
 
 		assert(redirect2, {
-			domain:   'covert-two.localdomain',
-			path:     '/redirect',
-			location: 'https://covert-two.localdomain/location.html'
+			domain:    'covert-two.localdomain',
+			redirects: [{
+				path:     '/redirect',
+				query:    'foo=bar&qux=123',
+				location: 'https://covert-two.localdomain/location.html'
+			}]
 		});
 
 	});

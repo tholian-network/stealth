@@ -104,7 +104,7 @@ describe('Policy.prototype.read()/failure', function(assert) {
 	assert(isFunction(this.server.services.policy.read), true);
 
 	this.server.services.policy.read({
-		domain: 'radar.tholian.network'
+		domain: 'example.com'
 	}, (response) => {
 
 		assert(response, {
@@ -113,6 +113,121 @@ describe('Policy.prototype.read()/failure', function(assert) {
 				event:   'read'
 			},
 			payload: null
+		});
+
+	});
+
+});
+
+describe('Policy.prototype.save()', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.policy.save), true);
+
+	this.server.services.policy.save({
+		domain:   'example.com',
+		policies: [{
+			path:  '/search',
+			query: 'q&type'
+		}]
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'policy',
+				event:   'save'
+			},
+			payload: true
+		});
+
+	});
+
+});
+
+describe('Policy.prototype.read()/success', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.policy.read), true);
+
+	this.server.services.policy.read({
+		domain: 'example.com'
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'policy',
+				event:   'read'
+			},
+			payload: {
+				domain:   'example.com',
+				policies: [{
+					path:  '/search',
+					query: 'q&type'
+				}]
+			}
+		});
+
+	});
+
+});
+
+describe('Policy.prototype.remove()/success', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.policy.remove), true);
+
+	this.server.services.policy.remove({
+		domain: 'example.com'
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'policy',
+				event:   'remove'
+			},
+			payload: true
+		});
+
+	});
+
+});
+
+describe('Policy.prototype.read()/failure', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.policy.read), true);
+
+	this.server.services.policy.read({
+		domain: 'example.com'
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'policy',
+				event:   'read'
+			},
+			payload: null
+		});
+
+	});
+
+});
+
+describe('Policy.prototype.remove()/failure', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.policy.remove), true);
+
+	this.server.services.policy.remove({
+		domain: 'example.com'
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'policy',
+				event:   'remove'
+			},
+			payload: false
 		});
 
 	});

@@ -81,14 +81,26 @@ describe('Settings.from()', function(assert) {
 				}
 			}],
 			'peers': [{
-				domain:     'covert.localdomain',
-				connection: 'mobile'
+				domain: 'covert.localdomain',
+				peer:   {
+					connection: 'mobile'
+				}
+			}],
+			'policies': [{
+				domain:   'covert.localdomain',
+				policies: [{
+					path:  '/policy',
+					query: 'sort&type'
+				}]
 			}],
 			'profile': sandbox,
 			'redirects': [{
 				domain:   'covert.localdomain',
-				path:     '/redirect',
-				location: 'https://covert.localdomain/location.html'
+				redirects: [{
+					path:     '/redirect',
+					query:    null,
+					location: 'https://covert.localdomain/location.html'
+				}]
 			}],
 			'sessions': [{
 				type: 'Session',
@@ -137,14 +149,27 @@ describe('Settings.from()', function(assert) {
 	}]);
 
 	assert(settings['peers'], [{
-		domain:     'covert.localdomain',
-		connection: 'mobile'
+		domain: 'covert.localdomain',
+		peer:   {
+			connection: 'mobile'
+		}
+	}]);
+
+	assert(settings['policies'], [{
+		domain:   'covert.localdomain',
+		policies: [{
+			path:  '/policy',
+			query: 'sort&type'
+		}]
 	}]);
 
 	assert(settings['redirects'], [{
-		domain:   'covert.localdomain',
-		path:     '/redirect',
-		location: 'https://covert.localdomain/location.html'
+		domain:    'covert.localdomain',
+		redirects: [{
+			path:     '/redirect',
+			query:    null,
+			location: 'https://covert.localdomain/location.html'
+		}]
 	}]);
 
 	assert(settings['sessions'].length,     1);
@@ -217,14 +242,26 @@ describe('Settings.prototype.toJSON()', function(assert) {
 				}
 			}],
 			'peers': [{
-				domain:     'covert.localdomain',
-				connection: 'mobile'
+				domain: 'covert.localdomain',
+				peer:   {
+					connection: 'mobile'
+				}
+			}],
+			'policies': [{
+				domain:   'covert.localdomain',
+				policies: [{
+					path:  '/policy',
+					query: 'sort&type'
+				}]
 			}],
 			'profile': sandbox,
 			'redirects': [{
 				domain:   'covert.localdomain',
-				path:     '/redirect',
-				location: 'https://covert.localdomain/location.html'
+				redirects: [{
+					path:     '/redirect',
+					query:    null,
+					location: 'https://covert.localdomain/location.html'
+				}]
 			}],
 			'sessions': [{
 				type: 'Session',
@@ -280,11 +317,27 @@ describe('Settings.prototype.toJSON()', function(assert) {
 			}
 		}],
 		'peers': [{
-			domain:     'covert.localdomain',
-			connection: 'mobile'
+			domain: 'covert.localdomain',
+			peer:   {
+				connection: 'mobile'
+			}
+		}],
+		'policies': [{
+			domain:   'covert.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'sort&type'
+			}]
 		}],
 		'profile': sandbox,
-		'redirects': null,
+		'redirects': [{
+			domain:   'covert.localdomain',
+			redirects: [{
+				path:     '/redirect',
+				query:    null,
+				location: 'https://covert.localdomain/location.html'
+			}]
+		}],
 		'sessions': [{
 			type: 'Session',
 			data: {
@@ -346,14 +399,26 @@ describe('Settings.prototype.read()', function(assert) {
 				}
 			}],
 			'peers': [{
-				domain:     'covert.localdomain',
-				connection: 'mobile'
+				domain: 'covert.localdomain',
+				peer:   {
+					connection: 'mobile'
+				}
+			}],
+			'policies': [{
+				domain:   'covert.localdomain',
+				policies: [{
+					path:  '/policy',
+					query: 'sort&type'
+				}]
 			}],
 			'profile': sandbox,
 			'redirects': [{
 				domain:   'covert.localdomain',
-				path:     '/redirect',
-				location: 'https://covert.localdomain/location.html'
+				redirects: [{
+					path:     '/redirect',
+					query:    null,
+					location: 'https://covert.localdomain/location.html'
+				}]
 			}],
 			'sessions': [{
 				type: 'Session',
@@ -417,14 +482,27 @@ describe('Settings.prototype.read()', function(assert) {
 		}]);
 
 		assert(read_file(sandbox + '/peers.json'), [{
-			domain:     'covert.localdomain',
-			connection: 'mobile'
+			domain: 'covert.localdomain',
+			peer:   {
+				connection: 'mobile'
+			}
+		}]);
+
+		assert(read_file(sandbox + '/policies.json'), [{
+			domain:   'covert.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'sort&type'
+			}]
 		}]);
 
 		assert(read_file(sandbox + '/redirects.json'), [{
 			domain:   'covert.localdomain',
-			path:     '/redirect',
-			location: 'https://covert.localdomain/location.html'
+			redirects: [{
+				path:     '/redirect',
+				query:    null,
+				location: 'https://covert.localdomain/location.html'
+			}]
 		}]);
 
 		assert(read_file(sandbox + '/sessions.json'), [{
@@ -478,6 +556,7 @@ describe('Settings.prototype.save()', function(assert) {
 
 		assert(read_file(sandbox + '/modes.json'),     []);
 		assert(read_file(sandbox + '/peers.json'),     []);
+		assert(read_file(sandbox + '/policies.json'),  []);
 		assert(read_file(sandbox + '/redirects.json'), []);
 		assert(read_file(sandbox + '/sessions.json'),  []);
 
@@ -486,7 +565,9 @@ describe('Settings.prototype.save()', function(assert) {
 	setTimeout(() => {
 
 		settings['interface'] = {
-			theme: 'light'
+			theme:   'light',
+			enforce: true,
+			opentab: 'stealth:blank'
 		};
 
 		settings['internet'] = {
@@ -530,14 +611,27 @@ describe('Settings.prototype.save()', function(assert) {
 		}];
 
 		settings['peers'] = [{
-			domain:     'covert.localdomain',
-			connection: 'mobile'
+			domain: 'covert.localdomain',
+			peer:   {
+				connection: 'mobile'
+			}
+		}];
+
+		settings['policies'] = [{
+			domain:   'covert.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'sort&type'
+			}]
 		}];
 
 		settings['redirects'] = [{
 			domain:   'covert.localdomain',
-			path:     '/redirect',
-			location: 'https://covert.localdomain/location.html'
+			redirects: [{
+				path:     '/redirect',
+				query:    null,
+				location: 'https://covert.localdomain/location.html'
+			}]
 		}];
 
 		settings['sessions'] = [{
@@ -557,7 +651,9 @@ describe('Settings.prototype.save()', function(assert) {
 	setTimeout(() => {
 
 		assert(read_file(sandbox + '/interface.json'), {
-			theme: 'light'
+			theme:   'light',
+			enforce: true,
+			opentab: 'stealth:blank'
 		});
 
 		assert(read_file(sandbox + '/internet.json'), {
@@ -599,14 +695,27 @@ describe('Settings.prototype.save()', function(assert) {
 		}]);
 
 		assert(read_file(sandbox + '/peers.json'), [{
-			domain:     'covert.localdomain',
-			connection: 'mobile'
+			domain: 'covert.localdomain',
+			peer:   {
+				connection: 'mobile'
+			}
+		}]);
+
+		assert(read_file(sandbox + '/policies.json'), [{
+			domain:   'covert.localdomain',
+			policies: [{
+				path:  '/policy',
+				query: 'sort&type'
+			}]
 		}]);
 
 		assert(read_file(sandbox + '/redirects.json'), [{
 			domain:   'covert.localdomain',
-			path:     '/redirect',
-			location: 'https://covert.localdomain/location.html'
+			redirects: [{
+				path:     '/redirect',
+				query:    null,
+				location: 'https://covert.localdomain/location.html'
+			}]
 		}]);
 
 		assert(read_file(sandbox + '/sessions.json'), [{

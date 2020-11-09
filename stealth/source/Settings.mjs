@@ -421,7 +421,7 @@ const save = function(profile, keepdata, callback) {
 				save_file.call(this, profile + '/hosts.json',     this['hosts'],     Host.isHost),
 				save_file.call(this, profile + '/modes.json',     this['modes'],     Mode.isMode),
 				save_file.call(this, profile + '/peers.json',     this['peers'],     Peer.isPeer),
-				true, // policies cannot be saved
+				save_file.call(this, profile + '/policies.json',  this['policies'],  Policy.isPolicy),
 				save_file.call(this, profile + '/redirects.json', this['redirects'], Redirect.isRedirect),
 				save_file.call(this, profile + '/sessions.json',  this['sessions'],  isSession)
 			].filter((v) => v === false);
@@ -697,6 +697,10 @@ Settings.from = function(json) {
 				settings['peers'] = data['peers'].filter((peer) => Peer.isPeer(peer));
 			}
 
+			if (isArray(data['policies']) === true) {
+				settings['policies'] = data['policies'].filter((policy) => Policy.isPolicy(policy));
+			}
+
 			if (isArray(data['redirects']) === true) {
 				settings['redirects'] = data['redirects'].filter((redirect) => Redirect.isRedirect(redirect));
 			}
@@ -734,7 +738,7 @@ Settings.prototype = {
 			'hosts':     [],
 			'modes':     [],
 			'peers':     [],
-			'policies':  null, // private
+			'policies':  [],
 			'profile':   null,
 			'redirects': [],
 			'sessions':  [],
@@ -777,6 +781,14 @@ Settings.prototype = {
 
 			if (Peer.isPeer(peer) === true) {
 				data['peers'].push(peer);
+			}
+
+		});
+
+		this['policies'].forEach((policy) => {
+
+			if (Policy.isPolicy(policy) === true) {
+				data['policies'].push(policy);
 			}
 
 		});

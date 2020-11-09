@@ -5,10 +5,6 @@
 			{
 				"path": "/s/*",
 				"query": "k"
-			},
-			{
-				"path": "/*",
-				"query": null
 			}
 		]
 	},
@@ -36,19 +32,6 @@
 			{
 				"path": "/sch/i.html",
 				"query": "_nkw&_sacat&LH_*"
-			},
-			{
-				"path": "/*",
-				"query": null
-			}
-		]
-	},
-	{
-		"domain": "facebook.com",
-		"policies": [
-			{
-				"path": "/*",
-				"query": null
 			}
 		]
 	},
@@ -71,19 +54,6 @@
 			{
 				"path": "/find",
 				"query": "q&s&ttype"
-			},
-			{
-				"path": "/*",
-				"query": null
-			}
-		]
-	},
-	{
-		"domain": "nytimes.com",
-		"policies": [
-			{
-				"path": "/*",
-				"query": null
 			}
 		]
 	},
@@ -106,19 +76,6 @@
 			{
 				"path": "/search/",
 				"query": "age&artists&color&editorial&ethnicity&exclude_keywords&gender&image_type&measurement&min_height&min_width&mreleased&number_of_people&orientation&safe&sort"
-			},
-			{
-				"path": "/*",
-				"query": null
-			}
-		]
-	},
-	{
-		"domain": "twitter.com",
-		"policies": [
-			{
-				"path": "/*",
-				"query": null
 			}
 		]
 	},

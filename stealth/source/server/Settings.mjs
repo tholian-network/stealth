@@ -4,6 +4,7 @@ import { Beacon                                            } from '../../source/
 import { Host                                              } from '../../source/server/Host.mjs';
 import { Mode                                              } from '../../source/server/Mode.mjs';
 import { Peer                                              } from '../../source/server/Peer.mjs';
+import { Policy                                            } from '../../source/server/Policy.mjs';
 import { Redirect                                          } from '../../source/server/Redirect.mjs';
 
 
@@ -24,7 +25,7 @@ const readify = function(raw) {
 			payload['hosts']     = isBoolean(payload['hosts'])     ? payload['hosts']     : false;
 			payload['modes']     = isBoolean(payload['modes'])     ? payload['modes']     : false;
 			payload['peers']     = isBoolean(payload['peers'])     ? payload['peers']     : false;
-			payload['policies']  = false; // cannot be read
+			payload['policies']  = isBoolean(payload['policies'])  ? payload['policies']  : false;
 			payload['redirects'] = isBoolean(payload['redirects']) ? payload['redirects'] : false;
 			payload['sessions']  = isBoolean(payload['sessions'])  ? payload['sessions']  : false;
 
@@ -52,7 +53,7 @@ const saveify = function(raw) {
 		payload['hosts']     = isArray(payload['hosts'])      ? payload['hosts']     : [];
 		payload['modes']     = isArray(payload['modes'])      ? payload['modes']     : [];
 		payload['peers']     = isArray(payload['peers'])      ? payload['peers']     : [];
-		payload['policies']  = []; // cannot be saved
+		payload['policies']  = isArray(payload['policies'])   ? payload['policies']  : [];
 		payload['redirects'] = isArray(payload['redirects'])  ? payload['redirects'] : [];
 		payload['sessions']  = []; // cannot be saved
 
@@ -70,6 +71,10 @@ const saveify = function(raw) {
 
 		if (isArray(payload['peers']) === true) {
 			payload['peers'] = payload['peers'].filter((peer) => Peer.isPeer(peer));
+		}
+
+		if (isArray(payload['policies']) === true) {
+			payload['policies'] = payload['policies'].filter((policy) => Policy.isPolicy(policy));
 		}
 
 		if (isArray(payload['redirects']) === true) {
@@ -215,7 +220,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 							'hosts':     blob.data['hosts'],
 							'modes':     blob.data['modes'],
 							'peers':     blob.data['peers'],
-							'policies':  null,
+							'policies':  blob.data['policies'],
 							'redirects': blob.data['redirects'],
 							'sessions':  blob.data['sessions']
 						};
@@ -277,7 +282,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			payload['beacons'].forEach((beacon) => {
 
-				let other = settings['beacons'].find((b) => b.domain === beacon.domain && b.path === beacon.path) || null;
+				let other = settings['beacons'].find((b) => b.domain === beacon.domain) || null;
 				if (other !== null) {
 					settings['beacons'].remove(other);
 				}
@@ -319,9 +324,20 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 
 			});
 
+			payload['policies'].forEach((policy) => {
+
+				let other = settings['policies'].find((p) => p.domain === policy.domain) || null;
+				if (other !== null) {
+					settings['policies'].remove(other);
+				}
+
+				settings['policies'].push(policy);
+
+			});
+
 			payload['redirects'].forEach((redirect) => {
 
-				let other = settings['redirects'].find((r) => r.domain === redirect.domain && r.path === redirect.path) || null;
+				let other = settings['redirects'].find((r) => r.domain === redirect.domain) || null;
 				if (other !== null) {
 					settings['redirects'].remove(other);
 				}

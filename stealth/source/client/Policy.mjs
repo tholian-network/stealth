@@ -50,6 +50,54 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 			callback(null);
 		}
 
+	},
+
+	remove: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			this.once('remove', (result) => callback(result));
+
+			this.client.send({
+				headers: {
+					service: 'policy',
+					method:  'remove'
+				},
+				payload: payload
+			});
+
+		} else if (callback !== null) {
+			callback(false);
+		}
+
+	},
+
+	save: function(payload, callback) {
+
+		payload  = isObject(payload)    ? payload  : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (payload !== null && callback !== null) {
+
+			this.once('save', (result) => callback(result));
+
+			this.client.send({
+				headers: {
+					service: 'policy',
+					method:  'save'
+				},
+				payload: payload
+			});
+
+		} else if (callback !== null) {
+			callback(false);
+		}
+
 	}
 
 });

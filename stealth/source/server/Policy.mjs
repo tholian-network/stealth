@@ -168,6 +168,77 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
+	},
+
+	remove: function(payload, callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
+
+		let policy = null;
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			policy = this.stealth.settings.policies.find((p) => p.domain === domain) || null;
+		}
+
+		if (policy !== null) {
+			this.stealth.settings.policies.remove(policy);
+			this.stealth.settings.save();
+		}
+
+
+		if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'policy',
+					event:   'remove'
+				},
+				payload: (policy !== null)
+			});
+
+		}
+
+	},
+
+	save: function(payload, callback) {
+
+		callback = isFunction(callback) ? callback : null;
+
+
+		let policy_old = null;
+		let policy_new = Policy.toPolicy(payload);
+
+		let domain = toDomain(payload);
+		if (domain !== null) {
+			policy_old = this.stealth.settings.policies.find((p) => p.domain === domain) || null;
+		}
+
+		if (policy_new !== null) {
+
+			if (policy_old !== null) {
+				policy_old.policies = policy_new.policies;
+			} else {
+				this.stealth.settings.policies.push(policy_new);
+			}
+
+			this.stealth.settings.save();
+
+		}
+
+
+		if (callback !== null) {
+
+			callback({
+				headers: {
+					service: 'policy',
+					event:   'save'
+				},
+				payload: (policy_new !== null)
+			});
+
+		}
+
 	}
 
 });

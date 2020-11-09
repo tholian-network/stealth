@@ -59,10 +59,95 @@ describe('Policy.prototype.read()/failure', function(assert) {
 	assert(isFunction(this.client.services.policy.read), true);
 
 	this.client.services.policy.read({
-		domain: 'radar.tholian.network'
+		domain: 'example.com'
 	}, (response) => {
 
 		assert(response, null);
+
+	});
+
+});
+
+describe('Policy.prototype.save()', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.policy.save), true);
+
+	this.client.services.policy.save({
+		domain:   'example.com',
+		policies: [{
+			path:  '/search',
+			query: 'q&type'
+		}]
+	}, (response) => {
+
+		assert(response, true);
+
+	});
+
+});
+
+describe('Policy.prototype.read()/success', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.policy.read), true);
+
+	this.client.services.policy.read({
+		domain: 'example.com'
+	}, (response) => {
+
+		assert(response, {
+			domain:   'example.com',
+			policies: [{
+				path:  '/search',
+				query: 'q&type'
+			}]
+		});
+
+	});
+
+});
+
+describe('Policy.prototype.remove()/success', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.policy.remove), true);
+
+	this.client.services.policy.remove({
+		domain: 'example.com'
+	}, (response) => {
+
+		assert(response, true);
+
+	});
+
+});
+
+describe('Policy.prototype.read()/failure', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.policy.read), true);
+
+	this.client.services.policy.read({
+		domain: 'example.com'
+	}, (response) => {
+
+		assert(response, null);
+
+	});
+
+});
+
+describe('Policy.prototype.remove()/failure', function(assert) {
+
+	assert(this.client !== null);
+	assert(isFunction(this.client.services.policy.remove), true);
+
+	this.client.services.policy.remove({
+		domain: 'example.com'
+	}, (response) => {
+
+		assert(response, false);
 
 	});
 
