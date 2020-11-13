@@ -92,9 +92,7 @@ const Redirect = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'remove', 'save' ];
 	this.element = new Element('browser-card-redirect', [
-		'<h3>',
-		'<input title="Domain" type="text" data-key="domain"/>',
-		'</h3>',
+		'<h3><input title="Domain" type="text" data-key="domain" disabled/></h3>',
 		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-redirect-article>',
 		'<table>',
@@ -196,6 +194,7 @@ const Redirect = function(browser, actions) {
 
 		if (this.actions.includes('create')) {
 
+			this.model.domain.attr('required', true);
 			this.model.domain.state('enabled');
 
 			this.redirect.buttons.create.state('enabled');
@@ -206,6 +205,7 @@ const Redirect = function(browser, actions) {
 
 		} else if (this.actions.includes('save')) {
 
+			this.model.domain.attr('required', true);
 			this.model.domain.state('disabled');
 
 			this.redirect.buttons.create.state('enabled');
@@ -216,6 +216,7 @@ const Redirect = function(browser, actions) {
 
 		} else {
 
+			this.model.domain.attr('required', null);
 			this.model.domain.state('disabled');
 
 			this.redirect.buttons.create.state('disabled');

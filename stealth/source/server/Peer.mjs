@@ -664,9 +664,7 @@ Peer.prototype = Object.assign({}, Emitter.prototype, {
 		if (peer_new !== null) {
 
 			if (peer_old !== null) {
-
 				peer_old.peer.connection = peer_new.peer.connection;
-
 			} else {
 				this.stealth.settings.peers.push(peer_new);
 			}

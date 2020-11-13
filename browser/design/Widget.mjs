@@ -1,6 +1,6 @@
 
-import { isArray, isBoolean, isNumber, isObject, isString } from '../extern/base.mjs';
-import { Element, isElement                               } from './Element.mjs';
+import { console, isArray, isBoolean, isNumber, isObject, isString } from '../extern/base.mjs';
+import { Element, isElement                                        } from './Element.mjs';
 
 
 
@@ -234,6 +234,9 @@ const Widget = function() {
 		this[Symbol.toStringTag] = this.element.type + ' Widget';
 	}
 
+	this.on('error', (err) => {
+		console.error(err);
+	});
 
 	WIDGETS.push(this);
 

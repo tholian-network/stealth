@@ -22,33 +22,31 @@ browser-card-beacon.active {
 
 browser-card-beacon > h3 {
 	display: block;
-	margin: 0px;
-	padding: 0px 0px 16px 0px;
-	overflow: hidden;
-	white-space: nowrap;
+	margin: 0px 0px 16px 0px;
+	padding: 0px;
+}
+
+browser-card-beacon > h3:before {
+	display: inline;
+	content: '\e3e4';
+	margin: 0px 16px 0px 0px;
+	padding: 0px;
+	font-family: 'icon';
+	font-size: 24px;
+	font-weight: 400;
+	text-align: center;
+	vertical-align: middle;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
 }
 
 browser-card-beacon > h3 input[type="text"] {
-	display: inline;
-	width: auto;
-	font-family: 'crystalline';
-	font-size: 32px;
-	font-weight: 500;
-	line-height: 32px;
-}
-
-browser-card-beacon.active > h3 input[type="text"] {
 	display: inline-block;
-	width: calc(100% - 48px);
-}
-
-browser-card-beacon.active > h3 input[type="text"]:nth-of-type(2) {
-	display: block;
-	width: 100%;
-	margin-top: 16px;
+	width: calc(100% - 32px - 32px - 24px);
 	font-family: 'vera-mono';
 	font-size: 16px;
 	font-weight: 400;
+	line-height: 32px;
 }
 
 browser-card-beacon > button[data-action="toggle"] {
@@ -93,8 +91,14 @@ browser-card-beacon-article code {
 	white-space: pre;
 }
 
+browser-card-beacon-article input[type="text"] {
+	display: block;
+	width: 100%;
+}
+
 browser-card-beacon-article table {
 	width: 100%;
+	table-layout: fixed;
 }
 
 browser-card-beacon-article table th {
@@ -115,14 +119,35 @@ browser-card-beacon-article table td {
 	line-height: 16px;
 	font-family: 'museo';
 	border-top: 1px solid var(--surface-default-color);
+	text-align: left;
+	overflow: hidden;
 }
 
-browser-card-beacon-article table td:nth-of-type(3) {
-	width: 160px;
+browser-card-beacon-article table th:nth-of-type(1),
+browser-card-beacon-article table td:nth-of-type(1) {
+	width: 20%;
+}
+
+browser-card-beacon-article table th:nth-of-type(2),
+browser-card-beacon-article table td:nth-of-type(2) {
+	width: 20%;
+}
+
+browser-card-beacon-article table th:nth-of-type(4),
+browser-card-beacon-article table td:nth-of-type(4) {
+	width: 128px;
+	text-align: center;
+}
+
+browser-card-beacon-article table th:nth-of-type(5),
+browser-card-beacon-article table td:nth-of-type(5) {
+	width: 48px;
 	text-align: center;
 }
 
 browser-card-beacon-article textarea {
+	display: block;
+	width: 100%;
 	height: auto;
 	background: transparent;
 	resize: vertical;

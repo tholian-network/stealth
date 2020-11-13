@@ -118,17 +118,18 @@ browser-card-redirect-article table td {
 
 browser-card-redirect-article table th:nth-of-type(1),
 browser-card-redirect-article table td:nth-of-type(1) {
-	width: 25%;
+	width: 20%;
 }
 
 browser-card-redirect-article table th:nth-of-type(2),
 browser-card-redirect-article table td:nth-of-type(2) {
-	width: 25%;
+	width: 20%;
 }
 
 browser-card-redirect-article table th:nth-of-type(4),
 browser-card-redirect-article table td:nth-of-type(4) {
 	width: 48px;
+	text-align: center;
 }
 
 

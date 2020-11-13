@@ -231,9 +231,7 @@ Redirect.prototype = Object.assign({}, Emitter.prototype, {
 		if (redirect_new !== null) {
 
 			if (redirect_old !== null) {
-
 				redirect_old.redirects = redirect_new.redirects;
-
 			} else {
 				this.stealth.settings.redirects.push(redirect_new);
 			}

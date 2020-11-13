@@ -28,30 +28,6 @@ Beacon.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	query: function(payload, callback) {
-
-		payload  = isObject(payload)    ? payload  : null;
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (payload !== null && callback !== null) {
-
-			this.once('query', (response) => callback(response));
-
-			this.client.send({
-				headers: {
-					service: 'beacon',
-					method:  'query'
-				},
-				payload: payload
-			});
-
-		} else if (callback !== null) {
-			callback([]);
-		}
-
-	},
-
 	read: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;

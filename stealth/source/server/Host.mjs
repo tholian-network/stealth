@@ -369,9 +369,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 		if (host_new !== null) {
 
 			if (host_old !== null) {
-
 				host_old.hosts = host_new.hosts;
-
 			} else {
 				this.stealth.settings.hosts.push(host_new);
 			}

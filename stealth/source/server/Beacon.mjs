@@ -1,7 +1,9 @@
 
-import { Emitter, isArray, isBoolean, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { Emitter, isArray, isFunction, isObject, isString } from '../../extern/base.mjs';
 
 
+
+const TERM = [ 'article', 'creator', 'date', 'description', 'identifier', 'language', 'license', 'publisher', 'source', 'subject', 'title', 'type' ];
 
 const toDomain = function(payload) {
 
@@ -27,22 +29,6 @@ const toDomain = function(payload) {
 
 };
 
-const toPath = function(payload) {
-
-	let path = null;
-
-	if (isObject(payload) === true) {
-
-		if (isString(payload.path) === true) {
-			path = payload.path;
-		}
-
-	}
-
-	return path;
-
-};
-
 
 
 const Beacon = function(stealth) {
@@ -58,7 +44,6 @@ Beacon.isBeacon = function(payload) {
 	if (
 		isObject(payload) === true
 		&& isString(payload.domain) === true
-		&& isString(payload.path) === true
 		&& isArray(payload.beacons) === true
 	) {
 
@@ -66,21 +51,13 @@ Beacon.isBeacon = function(payload) {
 
 			if (
 				isObject(beacon) === true
-				&& isString(beacon.label) === true
-				&& isArray(beacon.select) === true
-				&& isObject(beacon.mode) === true
-				&& isBoolean(beacon.mode.text) === true
-				&& isBoolean(beacon.mode.image) === true
-				&& isBoolean(beacon.mode.audio) === true
-				&& isBoolean(beacon.mode.video) === true
-				&& isBoolean(beacon.mode.other) === true
+				&& isString(beacon.path) === true
+				&& (isString(beacon.query) === true || beacon.query === null)
+				&& isString(beacon.select) === true
+				&& isString(beacon.term) === true
+				&& TERM.includes(beacon.term)
 			) {
-
-				let check = beacon.select.filter((s) => isString(s) === true);
-				if (check.length === beacon.select.length) {
-					return true;
-				}
-
+				return true;
 			}
 
 			return false;
@@ -117,22 +94,19 @@ Beacon.toBeacon = function(payload) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isString(payload.path) === true && isArray(payload.beacons) === true) {
+		if (domain !== null && isArray(payload.beacons) === true) {
 
 			let check = payload.beacons.filter((beacon) => {
 
 				if (
 					isObject(beacon) === true
-					&& isString(beacon.label) === true
-					&& isArray(beacon.select) === true
-					&& isObject(beacon.mode) === true
+					&& isString(beacon.path) === true
+					&& (isString(beacon.query) === true || beacon.query === null)
+					&& isString(beacon.select) === true
+					&& isString(beacon.term) === true
+					&& TERM.includes(beacon.term)
 				) {
-
-					let check = beacon.select.filter((s) => isString(s) === true);
-					if (check.length === beacon.select.length) {
-						return true;
-					}
-
+					return true;
 				}
 
 				return false;
@@ -145,15 +119,10 @@ Beacon.toBeacon = function(payload) {
 					domain:  domain,
 					path:    payload.path,
 					beacons: payload.beacons.map((beacon) => ({
-						label:  beacon.label,
+						path:   beacon.path,
+						query:  isString(beacon.query) ? beacon.query : null,
 						select: beacon.select,
-						mode:   {
-							text:  isBoolean(beacon.mode.text)  ? beacon.mode.text  : false,
-							image: isBoolean(beacon.mode.image) ? beacon.mode.image : false,
-							audio: isBoolean(beacon.mode.audio) ? beacon.mode.audio : false,
-							video: isBoolean(beacon.mode.video) ? beacon.mode.video : false,
-							other: isBoolean(beacon.mode.other) ? beacon.mode.other : false
-						}
+						term:   beacon.term
 					}))
 				};
 
@@ -186,105 +155,6 @@ Beacon.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	query: function(payload, callback) {
-
-		callback = isFunction(callback) ? callback : null;
-
-
-		let beacons = [];
-		let domain  = toDomain(payload);
-		let path    = toPath(payload);
-
-		if (domain !== null && path !== null) {
-
-			let temp = [];
-
-			if (domain === '*') {
-				temp = this.stealth.settings.beacons;
-			} else {
-				temp = this.stealth.settings.beacons.filter((b) => b.domain === domain);
-			}
-
-			if (path === '*') {
-
-				// Do nothing
-
-			} else if (path.startsWith('*')) {
-
-				temp = temp.filter((t) => {
-
-					let other = t.path;
-					if (other.startsWith('*')) {
-						return other.substr(1).endsWith(path.substr(1));
-					} else if (other.endsWith('*')) {
-						return other.substr(0, other.length - 1).includes(path.substr(0, path.length - 1));
-					} else {
-						return other.endsWith(path.substr(1));
-					}
-
-				});
-
-			} else if (path.endsWith('*')) {
-
-				temp = temp.filter((t) => {
-
-					let other = t.path;
-					if (other.startsWith('*')) {
-						return other.substr(1).includes(path.substr(0, path.length - 1));
-					} else if (other.endsWith('*')) {
-						return other.substr(0, other.length - 1).startsWith(path.substr(0, path.length - 1));
-					} else {
-						return other.startsWith(path.substr(0, path.length - 1));
-					}
-
-				});
-
-			} else {
-
-				temp = temp.filter((t) => {
-
-					let other = t.path;
-					if (other.startsWith('*')) {
-						return path.endsWith(other.substr(1));
-					} else if (other.endsWith('*')) {
-						return path.startsWith(other.substr(0, other.length - 1));
-					} else {
-						return other === path;
-					}
-
-				});
-
-			}
-
-			beacons = temp.sort((a, b) => {
-
-				if (a.domain < b.domain) return -1;
-				if (b.domain < a.domain) return  1;
-
-				if (a.path < b.path) return -1;
-				if (b.path < a.path) return  1;
-
-				return 0;
-
-			});
-
-		}
-
-
-		if (callback !== null) {
-
-			callback({
-				headers: {
-					service: 'beacon',
-					event:   'query'
-				},
-				payload: beacons
-			});
-
-		}
-
-	},
-
 	read: function(payload, callback) {
 
 		callback = isFunction(callback) ? callback : null;
@@ -292,9 +162,8 @@ Beacon.prototype = Object.assign({}, Emitter.prototype, {
 
 		let beacon = null;
 		let domain = toDomain(payload);
-		let path   = toPath(payload);
-		if (domain !== null && path !== null) {
-			beacon = this.stealth.settings.beacons.find((b) => b.domain === domain && b.path === path) || null;
+		if (domain !== null) {
+			beacon = this.stealth.settings.beacons.find((b) => b.domain === domain) || null;
 		}
 
 
@@ -319,9 +188,8 @@ Beacon.prototype = Object.assign({}, Emitter.prototype, {
 
 		let beacon = null;
 		let domain = toDomain(payload);
-		let path   = toPath(payload);
-		if (domain !== null && path !== null) {
-			beacon = this.stealth.settings.beacons.find((b) => b.domain === domain && b.path === path) || null;
+		if (domain !== null) {
+			beacon = this.stealth.settings.beacons.find((b) => b.domain === domain) || null;
 		}
 
 		if (beacon !== null) {
@@ -337,7 +205,7 @@ Beacon.prototype = Object.assign({}, Emitter.prototype, {
 					service: 'beacon',
 					event:   'remove'
 				},
-				payload: (domain !== null && path !== null)
+				payload: (domain !== null)
 			});
 
 		}
@@ -353,17 +221,14 @@ Beacon.prototype = Object.assign({}, Emitter.prototype, {
 		let beacon_new = Beacon.toBeacon(payload);
 
 		let domain = toDomain(payload);
-		let path   = toPath(payload);
-		if (domain !== null && path !== null) {
-			beacon_old = this.stealth.settings.beacons.find((b) => b.domain === domain && b.path === path) || null;
+		if (domain !== null) {
+			beacon_old = this.stealth.settings.beacons.find((b) => b.domain === domain) || null;
 		}
 
 		if (beacon_new !== null) {
 
 			if (beacon_old !== null) {
-
 				beacon_old.beacons = beacon_new.beacons;
-
 			} else {
 				this.stealth.settings.beacons.push(beacon_new);
 			}

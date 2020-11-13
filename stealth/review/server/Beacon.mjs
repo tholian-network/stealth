@@ -39,17 +39,16 @@ describe('Beacon.isBeacon()', function(assert) {
 
 	assert(Beacon.isBeacon({
 		domain: 'example.com',
-		path:   '/index.html',
 		beacons: [{
-			label:  'article',
-			select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
-			mode:   {
-				text:  true,
-				image: true,
-				audio: false,
-				video: false,
-				other: false
-			}
+			path:   '/index.html',
+			query:  null,
+			select: 'body > article',
+			term:   'article'
+		}, {
+			path:   '/index.html',
+			query:  null,
+			select: 'body > article > h3',
+			term:   'title'
 		}]
 	}), true);
 
@@ -61,18 +60,12 @@ describe('Beacon.prototype.save()', function(assert) {
 	assert(isFunction(this.server.services.beacon.save), true);
 
 	this.server.services.beacon.save({
-		domain: 'example.com',
-		path:   '/index.html',
+		domain:  'example.com',
 		beacons: [{
-			label:  'article',
-			select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
-			mode:   {
-				text:  true,
-				image: true,
-				audio: false,
-				video: false,
-				other: false
-			}
+			path:   '/index.html',
+			query:  null,
+			select: 'body > article > h3',
+			term:   'title'
 		}]
 	}, (response) => {
 
@@ -94,8 +87,7 @@ describe('Beacon.prototype.read()/success', function(assert) {
 	assert(isFunction(this.server.services.beacon.read), true);
 
 	this.server.services.beacon.read({
-		domain: 'example.com',
-		path:   '/index.html'
+		domain: 'example.com'
 	}, (response) => {
 
 		assert(response, {
@@ -104,18 +96,12 @@ describe('Beacon.prototype.read()/success', function(assert) {
 				event:   'read'
 			},
 			payload: {
-				domain: 'example.com',
-				path:   '/index.html',
+				domain:  'example.com',
 				beacons: [{
-					label:  'article',
-					select: [ '#article > p:nth-child(1)', '#article > p:nth-child(3)' ],
-					mode:   {
-						text:  true,
-						image: true,
-						audio: false,
-						video: false,
-						other: false
-					}
+					path:   '/index.html',
+					query:  null,
+					select: 'body > article > h3',
+					term:   'title'
 				}]
 			}
 		});
@@ -130,8 +116,7 @@ describe('Beacon.prototype.remove()/success', function(assert) {
 	assert(isFunction(this.server.services.beacon.remove), true);
 
 	this.server.services.beacon.remove({
-		domain: 'example.com',
-		path:   '/index.html'
+		domain: 'example.com'
 	}, (response) => {
 
 		assert(response, {
@@ -152,8 +137,7 @@ describe('Beacon.prototype.read()/failure', function(assert) {
 	assert(isFunction(this.server.services.beacon.read), true);
 
 	this.server.services.beacon.read({
-		domain: 'example.com',
-		path:   '/index.html'
+		domain: 'example.com'
 	}, (response) => {
 
 		assert(response, {
@@ -162,474 +146,6 @@ describe('Beacon.prototype.read()/failure', function(assert) {
 				event:   'read'
 			},
 			payload: null
-		});
-
-	});
-
-});
-
-describe('Beacon.prototype.save()/all', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.beacon.save), true);
-
-	this.server.services.beacon.save({
-		domain: 'example.com',
-		path:   '/news/articles/awesome-topic.html',
-		beacons: [{
-			label:  'topic',
-			select: [ 'h1#awesome-topic' ],
-			mode:   {
-				text:  true,
-				image: false,
-				audio: false,
-				video: false,
-				other: false
-			}
-		}]
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'save'
-			},
-			payload: true
-		});
-
-	});
-
-	this.server.services.beacon.save({
-		domain: 'example.com',
-		path:   '/news/articles/*',
-		beacons: [{
-			label:  'topic',
-			select: [ 'h1' ],
-			mode:   {
-				text:  true,
-				image: false,
-				audio: false,
-				video: false,
-				other: false
-			}
-		}]
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'save'
-			},
-			payload: true
-		});
-
-	});
-
-	this.server.services.beacon.save({
-		domain: 'news.example.com',
-		path:   '*/articles/awesome-topic.html',
-		beacons: [{
-			label:  'topic',
-			select: [ 'h1#awesome-topic' ],
-			mode:   {
-				text:  true,
-				image: false,
-				audio: false,
-				video: false,
-				other: false
-			}
-		}]
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'save'
-			},
-			payload: true
-		});
-
-	});
-
-	this.server.services.beacon.save({
-		domain: 'tholian.network',
-		path:   '/blog/*',
-		beacons: [{
-			label:  'topic',
-			select: [ 'h3' ],
-			mode:   {
-				text:  true,
-				image: false,
-				audio: false,
-				video: false,
-				other: false
-			}
-		}]
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'save'
-			},
-			payload: true
-		});
-
-	});
-
-});
-
-describe('Beacon.prototype.query()/domain/all', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.beacon.query), true);
-
-	this.server.services.beacon.query({
-		domain: '*',
-		path:   '*'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'query'
-			},
-			payload: [{
-				domain: 'example.com',
-				path:   '/news/articles/*',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}, {
-				domain: 'example.com',
-				path:   '/news/articles/awesome-topic.html',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1#awesome-topic' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}, {
-				domain: 'news.example.com',
-				path:   '*/articles/awesome-topic.html',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1#awesome-topic' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}, {
-				domain: 'tholian.network',
-				path:   '/blog/*',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h3' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}]
-		});
-
-	});
-
-});
-
-describe('Beacon.prototype.query()/domain/prefix', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.beacon.query), true);
-
-	this.server.services.beacon.query({
-		domain: 'example*',
-		path:   '*'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'query'
-			},
-			payload: [{
-				domain: 'example.com',
-				path:   '/news/articles/*',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}, {
-				domain: 'example.com',
-				path:   '/news/articles/awesome-topic.html',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1#awesome-topic' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}]
-		});
-
-	});
-
-});
-
-describe('Beacon.prototype.query()/domain/suffix', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.beacon.query), true);
-
-	this.server.services.beacon.query({
-		domain: '*.com',
-		path:   '*'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'query'
-			},
-			payload: [{
-				domain: 'example.com',
-				path:   '/news/articles/*',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}, {
-				domain: 'example.com',
-				path:   '/news/articles/awesome-topic.html',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1#awesome-topic' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}, {
-				domain: 'news.example.com',
-				path:   '*/articles/awesome-topic.html',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1#awesome-topic' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}]
-		});
-
-	});
-
-	this.server.services.beacon.query({
-		domain: '*.network',
-		path:   '*'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'query'
-			},
-			payload: [{
-				domain: 'tholian.network',
-				path:   '/blog/*',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h3' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}]
-		});
-
-	});
-
-});
-
-describe('Beacon.prototype.query()/path/all', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.beacon.query), true);
-
-	this.server.services.beacon.query({
-		domain: 'example.com',
-		path:   '*'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'query'
-			},
-			payload: [{
-				domain: 'example.com',
-				path:   '/news/articles/*',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}, {
-				domain: 'example.com',
-				path:   '/news/articles/awesome-topic.html',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1#awesome-topic' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}]
-		});
-
-	});
-
-});
-
-describe('Beacon.prototype.query()/path/prefix', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.beacon.query), true);
-
-	this.server.services.beacon.query({
-		domain: 'example.com',
-		path:   '/news/*'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'query'
-			},
-			payload: [{
-				domain: 'example.com',
-				path:   '/news/articles/*',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}, {
-				domain: 'example.com',
-				path:   '/news/articles/awesome-topic.html',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1#awesome-topic' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}]
-		});
-
-	});
-
-});
-
-describe('Beacon.prototype.query()/path/suffix', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.beacon.query), true);
-
-	this.server.services.beacon.query({
-		domain: 'example.com',
-		path:   '*/awesome-topic.html'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'beacon',
-				event:   'query'
-			},
-			payload: [{
-				domain: 'example.com',
-				path:   '/news/articles/awesome-topic.html',
-				beacons: [{
-					label:  'topic',
-					select: [ 'h1#awesome-topic' ],
-					mode:   {
-						text:  true,
-						image: false,
-						audio: false,
-						video: false,
-						other: false
-					}
-				}]
-			}]
 		});
 
 	});
