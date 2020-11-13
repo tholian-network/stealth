@@ -22,15 +22,30 @@ browser-card-host.active {
 
 browser-card-host > h3 {
 	display: block;
-	margin: 0px;
-	padding: 0px 0px 16px 0px;
+	margin: 0px 0px 16px 0px;
+	padding: 0px;
+}
+
+browser-card-host > h3:before {
+	display: inline;
+	content: '\e80d';
+	margin: 0px 16px 0px 0px;
+	padding: 0px;
+	font-family: 'icon';
+	font-size: 24px;
+	font-weight: 400;
+	text-align: center;
+	vertical-align: middle;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
 }
 
 browser-card-host > h3 input[type="text"] {
-	width: calc(100% - 48px);
-	font-family: 'crystalline';
-	font-size: 32px;
-	font-weight: 500;
+	display: inline-block;
+	width: calc(100% - 32px - 32px - 24px);
+	font-family: 'vera-mono';
+	font-size: 16px;
+	font-weight: 400;
 	line-height: 32px;
 }
 

@@ -26,14 +26,34 @@ browser-card-session.active {
 
 browser-card-session > h3 {
 	display: block;
-	margin: 0px;
-	padding: 0px 0px 16px 0px;
-	font-family: 'crystalline';
-	font-size: 32px;
-	font-weight: 500;
+	height: 32px;
+	margin: 0px 0px 16px 0px;
+	padding: 0px;
 	line-height: 32px;
+	font-family: 'vera-mono';
+	font-size: 16px;
+	font-weight: 400;
 	text-transform: uppercase;
 	vertical-align: middle;
+}
+
+browser-card-session > h3:before {
+	display: inline;
+	content: '\e335';
+	margin: 0px 16px 0px 0px;
+	padding: 0px;
+	font-family: 'icon';
+	font-size: 24px;
+	font-weight: 400;
+	text-align: center;
+	vertical-align: top;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+browser-card-session > h3 span {
+	font-size: 16px;
+	text-transform: none;
 }
 
 browser-card-session > button[data-action="toggle"] {

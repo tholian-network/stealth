@@ -149,11 +149,19 @@ const update = function(browser) {
 
 				entry.beacons.map((beacon) => {
 
-					if (this.actions.includes('remove')) {
-						return Beacon.from(beacon, [ 'remove', 'save' ]);
-					} else {
-						return Beacon.from(beacon, [ 'save' ]);
+					try {
+
+						if (this.actions.includes('remove')) {
+							return Beacon.from(beacon, [ 'remove', 'save' ]);
+						} else {
+							return Beacon.from(beacon, [ 'save' ]);
+						}
+
+					} catch (err) {
+						this.emit('error', [ err ]);
 					}
+
+					return null;
 
 				}).forEach((card) => cards.push(card));
 
@@ -163,11 +171,19 @@ const update = function(browser) {
 
 				entry.hosts.map((host) => {
 
-					if (this.actions.includes('remove')) {
-						return Host.from(host, [ 'remove', 'save' ]);
-					} else {
-						return Host.from(host, [ 'save' ]);
+					try {
+
+						if (this.actions.includes('remove')) {
+							return Host.from(host, [ 'remove', 'save' ]);
+						} else {
+							return Host.from(host, [ 'save' ]);
+						}
+
+					} catch (err) {
+						this.emit('error', [ err ]);
 					}
+
+					return null;
 
 				}).forEach((card) => cards.push(card));
 
@@ -177,11 +193,19 @@ const update = function(browser) {
 
 				entry.modes.map((mode) => {
 
-					if (this.actions.includes('remove')) {
-						return Mode.from(mode, [ 'remove', 'save' ]);
-					} else {
-						return Mode.from(mode, [ 'save' ]);
+					try {
+
+						if (this.actions.includes('remove')) {
+							return Mode.from(mode, [ 'remove', 'save' ]);
+						} else {
+							return Mode.from(mode, [ 'save' ]);
+						}
+
+					} catch (err) {
+						this.emit('error', [ err ]);
 					}
+
+					return null;
 
 				}).forEach((card) => cards.push(card));
 
@@ -191,11 +215,19 @@ const update = function(browser) {
 
 				entry.peers.map((peer) => {
 
-					if (this.actions.includes('remove')) {
-						return Peer.from(peer, [ 'remove', 'save' ]);
-					} else {
-						return Peer.from(peer, [ 'save' ]);
+					try {
+
+						if (this.actions.includes('remove')) {
+							return Peer.from(peer, [ 'remove', 'save' ]);
+						} else {
+							return Peer.from(peer, [ 'save' ]);
+						}
+
+					} catch (err) {
+						this.emit('error', [ err ]);
 					}
+
+					return null;
 
 				}).forEach((card) => cards.push(card));
 
@@ -205,11 +237,19 @@ const update = function(browser) {
 
 				entry.redirects.map((redirect) => {
 
-					if (this.actions.includes('remove')) {
-						return Redirect.from(redirect, [ 'remove', 'save' ]);
-					} else {
-						return Redirect.from(redirect, [ 'save' ]);
+					try {
+
+						if (this.actions.includes('remove')) {
+							return Redirect.from(redirect, [ 'remove', 'save' ]);
+						} else {
+							return Redirect.from(redirect, [ 'save' ]);
+						}
+
+					} catch (err) {
+						this.emit('error', [ err ]);
 					}
+
+					return null;
 
 				}).forEach((card) => cards.push(card));
 
@@ -219,11 +259,19 @@ const update = function(browser) {
 
 				entry.sessions.map((redirect) => {
 
-					if (this.actions.includes('remove')) {
-						return Session.from(redirect, [ 'remove' ]);
-					} else {
-						return Session.from(redirect, []);
+					try {
+
+						if (this.actions.includes('remove')) {
+							return Session.from(redirect, [ 'remove' ]);
+						} else {
+							return Session.from(redirect, []);
+						}
+
+					} catch (err) {
+						this.emit('error', [ err ]);
 					}
+
+					return null;
 
 				}).forEach((card) => cards.push(card));
 
@@ -232,7 +280,11 @@ const update = function(browser) {
 			if (cards.length > 0) {
 
 				cards.forEach((card) => {
-					card.render(article);
+
+					if (card !== null) {
+						card.render(article);
+					}
+
 				});
 
 			}

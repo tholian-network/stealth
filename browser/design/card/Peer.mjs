@@ -147,7 +147,7 @@ const Peer = function(browser, actions) {
 
 				if (peer !== null) {
 
-					browser.settings['peers'].removeEvery((m) => m.domain === value.domain);
+					browser.settings['peers'].removeEvery((p) => p.domain === value.domain);
 					browser.settings['peers'].push(value);
 
 					this.value(peer);
@@ -186,7 +186,7 @@ const Peer = function(browser, actions) {
 
 				if (result === true) {
 
-					browser.settings['peers'].removeEvery((h) => h.domain === value.domain);
+					browser.settings['peers'].removeEvery((p) => p.domain === value.domain);
 					this.element.erase();
 
 				}
@@ -207,7 +207,7 @@ const Peer = function(browser, actions) {
 
 				if (result === true) {
 
-					browser.settings['peers'].removeEvery((h) => h.domain === value.domain);
+					browser.settings['peers'].removeEvery((p) => p.domain === value.domain);
 					browser.settings['peers'].push(value);
 
 				}
