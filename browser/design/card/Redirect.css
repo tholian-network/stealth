@@ -71,9 +71,13 @@ browser-card-redirect > button[data-action="toggle"].active:before {
 
 
 browser-card-redirect-article {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
+}
+
+browser-card-redirect.active browser-card-redirect-article {
+	display: block;
 }
 
 browser-card-redirect-article button[data-action="redirect.create"]:before { content: '\e145'; }
@@ -135,11 +139,15 @@ browser-card-redirect-article table td:nth-of-type(4) {
 
 
 browser-card-redirect-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-redirect.active browser-card-redirect-footer {
+	display: block;
 }
 
 browser-card-redirect-footer > button {

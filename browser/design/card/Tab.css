@@ -69,12 +69,16 @@ browser-card-tab > button[data-action="toggle"].active:before {
 
 
 browser-card-tab-header {
-	display: block;
+	display: none;
 	position: relative;
 	width: 100%;
 	margin: 16px 0px 32px 0px;
 	padding: 0px;
 	box-sizing: border-box;
+}
+
+browser-card-tab.active browser-card-tab-header {
+	display: block;
 }
 
 browser-card-tab-header > button[data-action="back"] {
@@ -163,7 +167,7 @@ browser-card-tab-header-history > button[title^="stealth:fix-request"]:before { 
 
 
 browser-card-tab-article {
-	display: block;
+	display: none;
 	margin: 0px auto;
 	padding: 0px;
 	width: 320px;
@@ -172,6 +176,10 @@ browser-card-tab-article {
 	text-align: center;
 	transition: 200ms all ease-out;
 	overflow: hidden;
+}
+
+browser-card-tab.active browser-card-tab-article {
+	display: block;
 }
 
 browser-card-tab-article.active {
@@ -229,11 +237,15 @@ browser-card-tab-article > code[data-key="history.link"] {
 
 
 browser-card-tab-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-tab.active browser-card-tab-footer {
+	display: block;
 }
 
 browser-card-tab-footer > button {

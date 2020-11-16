@@ -253,6 +253,52 @@ input[type="text"]::selection {
 
 
 
+select {
+	display: inline-block;
+	height: 32px;
+	margin: 0px;
+	padding: 0px 0px 0px 32px;
+	line-height: 32px;
+	color: var(--element-default-color);
+	font-family: 'vera-mono';
+	font-size: 16px;
+	font-weight: 400;
+	text-align: left;
+	background-image: var(--element-select-default-background-image);
+	background-repeat: no-repeat no-repeat;
+	background-position: 0px 0px;
+	background-color: var(--element-default-background);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	vertical-align: middle;
+	transition: 200ms all ease-out;
+	box-sizing: border-box;
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	cursor: pointer;
+}
+
+select[disabled],
+select[disabled]:hover {
+	color: var(--element-disable-color);
+	border: 1px solid transparent;
+	background: var(--element-disable-background);
+	cursor: not-allowed;
+}
+
+select:focus,
+select:hover {
+	color: var(--element-focus-color);
+	border: 1px solid var(--element-focus-color);
+	background-image: var(--element-select-focus-background-image);
+	background-color: var(--element-focus-background);
+	outline: none;
+}
+
+
+
 textarea {
 	display: inline-block;
 	margin: 0px;

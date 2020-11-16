@@ -1,26 +1,26 @@
 
-import { Element             } from './Element.mjs';
-import { Widget              } from './Widget.mjs';
-import { isBoolean, isNumber } from '../extern/base.mjs';
-import { isBrowser           } from '../source/Browser.mjs';
-import { ENVIRONMENT         } from '../source/ENVIRONMENT.mjs';
-import { URL                 } from '../source/parser/URL.mjs';
+import { Element                       } from './Element.mjs';
+import { Widget                        } from './Widget.mjs';
+import { isBoolean, isNumber, isString } from '../extern/base.mjs';
+import { isBrowser                     } from '../source/Browser.mjs';
+import { ENVIRONMENT                   } from '../source/ENVIRONMENT.mjs';
+import { URL                           } from '../source/parser/URL.mjs';
 
-import { Address             } from './appbar/Address.mjs';
-import { History             } from './appbar/History.mjs';
-import { Mode                } from './appbar/Mode.mjs';
-import { Settings            } from './appbar/Settings.mjs';
-import { Splitter            } from './appbar/Splitter.mjs';
+import { Address                       } from './appbar/Address.mjs';
+import { History                       } from './appbar/History.mjs';
+import { Mode                          } from './appbar/Mode.mjs';
+import { Settings                      } from './appbar/Settings.mjs';
+import { Splitter                      } from './appbar/Splitter.mjs';
 
-import { Tabs                } from './backdrop/Tabs.mjs';
-import { Webview             } from './backdrop/Webview.mjs';
+import { Tabs                          } from './backdrop/Tabs.mjs';
+import { Webview                       } from './backdrop/Webview.mjs';
 
-import { Console             } from './sheet/Console.mjs';
-import { Session             } from './sheet/Session.mjs';
-import { Site                } from './sheet/Site.mjs';
+import { Console                       } from './sheet/Console.mjs';
+import { Session                       } from './sheet/Session.mjs';
+import { Site                          } from './sheet/Site.mjs';
 
-import { Context             } from './menu/Context.mjs';
-import { Help                } from './menu/Help.mjs';
+import { Context                       } from './menu/Context.mjs';
+import { Help                          } from './menu/Help.mjs';
 
 
 
@@ -33,99 +33,165 @@ const on_context = function(browser, element) {
 
 		let actions = [];
 		let base    = browser.tab.url;
-		let url     = null;
 
 		let webview = Widget.query('browser-backdrop-webview');
 		if (webview !== null) {
 			base = webview.toBaseURL();
 		}
 
-		if (type === 'a') {
-			url = URL.resolve(base, element.attr('href'));
-		} else if (type === 'img') {
-			url = URL.resolve(base, element.attr('src'));
-		} else if (type === 'audio' || type === 'video') {
-			url = URL.resolve(base, element.attr('src'));
-		}
 
-		if (URL.isURL(url) === true) {
+		if (
+			type === 'a'
+			|| type === 'img'
+			|| type === 'audio'
+			|| type === 'video'
+		) {
 
-			let tab = browser.tab || null;
-			if (
-				tab !== null
-				&& url.protocol === tab.url.protocol
-				&& URL.toDomain(url) === URL.toDomain(tab.url)
-				&& URL.toHost(url) === URL.toHost(tab.url)
-				&& url.port === tab.url.port
-				&& url.path === tab.url.path
-			) {
+			let url = null;
 
-				if (url.hash !== null) {
+			if (type === 'a') {
+				url = URL.resolve(base, element.attr('href'));
+			} else if (type === 'img') {
+				url = URL.resolve(base, element.attr('src'));
+			} else if (type === 'audio' || type === 'video') {
+				url = URL.resolve(base, element.attr('src'));
+			}
 
-					actions.push({
-						label: 'focus',
-						value: '#' + url.hash
-					});
+			if (URL.isURL(url) === true) {
 
-				} else {
+				let tab = browser.tab || null;
+				if (
+					tab !== null
+					&& url.protocol === tab.url.protocol
+					&& URL.toDomain(url) === URL.toDomain(tab.url)
+					&& URL.toHost(url) === URL.toHost(tab.url)
+					&& url.port === tab.url.port
+					&& url.path === tab.url.path
+				) {
 
-					actions.push({
-						label: 'refresh'
-					});
+					if (url.hash !== null) {
+
+						actions.push({
+							label: 'focus',
+							value: '#' + url.hash
+						});
+
+					} else {
+
+						actions.push({
+							label: 'refresh'
+						});
+
+					}
 
 				}
 
+
+				// TODO: Fix this for stealth:... URLs to not use url.link but relative asset path
+
+
+				actions.push({
+					label: 'open',
+					value: url.link
+				});
+
+				actions.push({
+					label: 'copy',
+					value: url.link
+				});
+
+				actions.push({
+					label: 'download',
+					value: url.link
+				});
+
 			}
 
+		} else if (
+			type === 'button'
+		) {
 
-			// TODO: Fix this for stealth:... URLs to not use url.link but relative asset path
+			if (element.state() !== 'disabled') {
 
+				actions.push({
+					icon:     'open',
+					label:    'click',
+					callback: () => {
+						element.emit('click');
+					}
+				});
 
-			actions.push({
-				label: 'open',
-				value: url.link
-			});
+			}
 
-			actions.push({
-				label: 'copy',
-				value: url.link
-			});
+		} else if (
+			type === 'input'
+			|| type === 'textarea'
+		) {
 
-			actions.push({
-				label: 'download',
-				value: url.link
-			});
+			if (element.state() !== 'disabled') {
+
+				context.read((clipped) => {
+
+					actions.push({
+						label: 'copy',
+						value: element.value()
+					});
+
+					if (isString(clipped) === true) {
+
+						actions.push({
+							label:    'paste',
+							value:    clipped,
+							callback: (browser, value) => {
+
+								if (isString(value) === true) {
+									element.value(value);
+									element.validate();
+								}
+
+							}
+						});
+
+					}
+
+				});
+
+			}
 
 		}
 
 
-		if (actions.length > 0) {
+		setTimeout(() => {
 
-			let area     = element.area();
-			let offset_x = 0;
-			let offset_y = 0;
+			if (actions.length > 0) {
+
+				let area     = element.area();
+				let offset_x = 0;
+				let offset_y = 0;
 
 
-			let appbar = Element.query('browser-appbar');
-			if (appbar !== null) {
-				offset_y += appbar.area().h;
+				let appbar = Element.query('browser-appbar');
+				if (appbar !== null) {
+					offset_y += appbar.area().h;
+				}
+
+				let tabs = Widget.query('browser-backdrop-tabs');
+				if (tabs !== null && tabs.state() === 'active') {
+					offset_x += tabs.area().w;
+				}
+
+
+				context.value(actions);
+				context.area({
+					x: area.x + offset_x,
+					y: area.y + offset_y
+				});
+
+				context.emit('show');
+
 			}
 
-			let tabs = Widget.query('browser-backdrop-tabs');
-			if (tabs !== null && tabs.state() === 'active') {
-				offset_x += tabs.area().w;
-			}
-
-
-			context.value(actions);
-			context.area({
-				x: area.x + offset_x,
-				y: area.y + offset_y
-			});
-
-			context.emit('show');
-
-		}
+		}, 100);
 
 	}
 

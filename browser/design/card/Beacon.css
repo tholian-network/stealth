@@ -71,9 +71,13 @@ browser-card-beacon > button[data-action="toggle"].active:before {
 
 
 browser-card-beacon-article {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
+}
+
+browser-card-beacon.active browser-card-beacon-article {
+	display: block;
 }
 
 browser-card-beacon-article button[data-action="beacon.create"]:before  { content: '\e145'; }
@@ -92,6 +96,11 @@ browser-card-beacon-article code {
 }
 
 browser-card-beacon-article input[type="text"] {
+	display: block;
+	width: 100%;
+}
+
+browser-card-beacon-article select {
 	display: block;
 	width: 100%;
 }
@@ -156,11 +165,15 @@ browser-card-beacon-article textarea {
 
 
 browser-card-beacon-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-beacon.active browser-card-beacon-footer {
+	display: block;
 }
 
 browser-card-beacon-footer > button {

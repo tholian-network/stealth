@@ -71,9 +71,13 @@ browser-card-host > button[data-action="toggle"].active:before {
 
 
 browser-card-host-article {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
+}
+
+browser-card-host.active browser-card-host-article {
+	display: block;
 }
 
 browser-card-host-article > textarea {
@@ -87,11 +91,15 @@ browser-card-host-article > textarea {
 
 
 browser-card-host-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-host.active browser-card-host-footer {
+	display: block;
 }
 
 browser-card-host-footer > button {

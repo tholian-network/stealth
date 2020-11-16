@@ -54,9 +54,13 @@ browser-card-internet > button[data-action="toggle"].active:before {
 
 
 browser-card-internet-article {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
+}
+
+browser-card-internet.active browser-card-internet-article {
+	display: block;
 }
 
 browser-card-internet-article > h4 {
@@ -136,11 +140,15 @@ browser-card-internet-article > ul li input[type="radio"]:checked + label {
 
 
 browser-card-internet-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-internet.active browser-card-internet-footer {
+	display: block;
 }
 
 browser-card-internet-footer > button[data-action="save"]:before { content: '\e876'; }

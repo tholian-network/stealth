@@ -42,6 +42,10 @@ body[data-theme="dark"] {
 	--surface-default-background: rgba(255, 255, 255, 0.10);
 	--surface-default-foreground: #1a1a1a;
 
+	/* Necessary image due to Browser Quirks */
+	--element-select-default-background-image: url('./theme-dark-element-select-default.svg');
+	--element-select-focus-background-image: url('./theme-dark-element-select-focus.svg');
+
 }
 
 body[data-theme="light"] {
@@ -85,6 +89,10 @@ body[data-theme="light"] {
 	--surface-default-color: #666666;
 	--surface-default-background: rgba(0, 0, 0, 0.025);
 	--surface-default-foreground: #e8e8e8;
+
+	/* Necessary image due to Browser Quirks */
+	--element-select-default-background-image: url('./theme-light-element-select-default.svg');
+	--element-select-focus-background-image: url('./theme-light-element-select-focus.svg');
 
 }
 

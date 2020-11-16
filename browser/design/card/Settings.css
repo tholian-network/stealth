@@ -74,9 +74,13 @@ browser-card-settings > button[data-action="toggle"].active:before {
 
 
 browser-card-settings-header {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
+}
+
+browser-card-settings.active browser-card-settings-header {
+	display: block;
 }
 
 browser-card-settings-header > input[data-key="domain"] {
@@ -96,9 +100,13 @@ browser-card-settings-header > p {
 
 
 browser-card-settings-article {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
+}
+
+browser-card-settings.active browser-card-settings-article {
+	display: block;
 }
 
 browser-card-settings-article > h4 {
@@ -137,11 +145,15 @@ browser-card-settings-article > * {
 
 
 browser-card-settings-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-settings.active browser-card-settings-footer {
+	display: block;
 }
 
 browser-card-settings-footer > button[data-action="refresh"]:before { content: '\e5d5'; }

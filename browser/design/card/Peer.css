@@ -71,10 +71,14 @@ browser-card-peer > button[data-action="toggle"].active:before {
 
 
 browser-card-peer-article {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
 	text-align: center;
+}
+
+browser-card-peer.active browser-card-peer-article {
+	display: block;
 }
 
 browser-card-peer-article > button[data-key="peer.connection"][data-val="offline"]:before   { color: var(--element-default-color); content: '\e8be'; }
@@ -95,11 +99,15 @@ browser-card-peer-article > span {
 
 
 browser-card-peer-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-peer.active browser-card-peer-footer {
+	display: block;
 }
 
 browser-card-peer-footer > button {

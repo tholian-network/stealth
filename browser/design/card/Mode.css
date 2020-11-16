@@ -71,10 +71,14 @@ browser-card-mode > button[data-action="toggle"].active:before {
 
 
 browser-card-mode-article {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
 	text-align: center;
+}
+
+browser-card-mode.active browser-card-mode-article {
+	display: block;
 }
 
 browser-card-mode-article > button {
@@ -92,11 +96,15 @@ browser-card-mode-article > button[data-val="true"]:hover        { color: var(--
 
 
 browser-card-mode-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-mode.active browser-card-mode-footer {
+	display: block;
 }
 
 browser-card-mode-footer > button {

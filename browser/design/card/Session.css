@@ -78,10 +78,14 @@ browser-card-session > button[data-action="toggle"].active:before {
 
 
 browser-card-session-header {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
 	margin: 0px 0px 16px 0px;
+}
+
+browser-card-session.active browser-card-session-header {
+	display: block;
 }
 
 browser-card-session-header > code {
@@ -97,9 +101,13 @@ browser-card-session-header > code {
 
 
 browser-card-session-article {
-	display: block;
+	display: none;
 	width: 100%;
 	height: auto;
+}
+
+browser-card-session.active browser-card-session-article {
+	display: block;
 }
 
 browser-card-session-article > browser-card-tab {
@@ -110,11 +118,15 @@ browser-card-session-article > browser-card-tab {
 
 
 browser-card-session-footer {
-	display: block;
+	display: none;
 	height: 32px;
 	margin: 16px 0px 0px 0px;
 	padding: 0px;
 	text-align: right;
+}
+
+browser-card-session.active browser-card-session-footer {
+	display: block;
 }
 
 browser-card-session-footer > button[data-action="remove"]:before { content: '\e14c'; }
