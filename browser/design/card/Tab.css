@@ -231,6 +231,7 @@ browser-card-tab-article > code[data-key="history.link"] {
 	display: block;
 	margin: 0px 0px 0.5em 0px;
 	text-align: left;
+	white-space: pre;
 	overflow: auto;
 }
 

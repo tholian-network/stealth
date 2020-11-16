@@ -114,6 +114,10 @@ browser-card-interface-article > ul li label {
 	cursor: pointer;
 }
 
+browser-card-interface-article > ul li label a {
+	vertical-align: top;
+}
+
 browser-card-interface-article > ul li input[type="radio"][name="theme"][value="dark"]:before              { content: '\e1ad'; }
 browser-card-interface-article > ul li input[type="radio"][name="theme"][value="light"]:before             { content: '\e1ac'; }
 browser-card-interface-article > ul li input[type="radio"][name="enforce"][value="false"]:before           { content: '\e234'; }
