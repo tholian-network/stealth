@@ -297,6 +297,25 @@ select:hover {
 	outline: none;
 }
 
+select[multiple] {
+	padding-left: 0px;
+	background: var(--element-default-background);
+	height: auto;
+}
+
+select[multiple][disabled],
+select[multiple][disabled]:hover {
+	color: var(--element-disable-color);
+	border: 1px solid transparent;
+	background: var(--element-disable-background);
+	cursor: not-allowed;
+}
+
+select[multiple]:hover,
+select[multiple]:focus {
+	background: var(--element-focus-background);
+}
+
 
 
 textarea {

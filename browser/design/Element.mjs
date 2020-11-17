@@ -1217,6 +1217,58 @@ Element.prototype = {
 
 					}
 
+				} else if (type === 'select') {
+
+					let tmp = isArray(value) ? value : [ value ];
+					let map = this.node.getAttribute('data-map');
+					if (map === 'DATETIME' || map === 'DATE' || map === 'TIME') {
+						tmp = tmp.map((v) => DATETIME.render(v));
+					} else if (map === 'IP') {
+						tmp = tmp.map((v) => IP.render(v));
+					} else if (map === 'UA') {
+						tmp = tmp.map((v) => UA.render(v));
+					} else if (map === 'URL') {
+						tmp = tmp.map((v) => URL.render(v));
+					} else {
+
+						let pattern = this.node.getAttribute('pattern');
+						if (pattern !== null) {
+							tmp = tmp.map((v) => render_value(v)).filter((v) => validate_value(v, pattern));
+						} else {
+							tmp = tmp.map((v) => render_value(v));
+						}
+
+					}
+
+					let multiple = this.node.getAttribute('multiple');
+					if (multiple !== null) {
+
+						Array.from(this.node.options).forEach((option) => {
+
+							if (tmp.includes(option.getAttribute('value')) === true) {
+								option.setAttribute('selected', true);
+							} else {
+								option.removeAttribute('selected');
+							}
+
+						});
+
+					} else {
+
+						Array.from(this.node.options).forEach((option) => {
+							option.removeAttribute('selected');
+						});
+
+						let active = Array.from(this.node.options).find((option) => {
+							return tmp.includes(option.getAttribute('value'));
+						}) || null;
+
+						if (active !== null) {
+							active.setAttribute('selected', true);
+						}
+
+					}
+
 				} else if (type === 'textarea') {
 
 					let map = this.node.getAttribute('data-map');
@@ -1430,6 +1482,112 @@ Element.prototype = {
 							}
 
 						}, (value) => parse_value(value));
+
+					}
+
+				} else if (type === 'select') {
+
+					let map = this.node.getAttribute('data-map');
+					let val = null;
+
+					let multiple = this.node.getAttribute('multiple');
+					if (multiple !== null) {
+
+						val = Array.from(this.node.options).filter((option) => {
+							return option.selected === true;
+						}).map((option) => ('' + option.getAttribute('value')).trim());
+
+					} else {
+
+						let option = Array.from(this.node.options).find((option) => {
+							return option.selected === true;
+						}) || null;
+
+						if (option !== null) {
+							val = ('' + option.getAttribute('value')).trim();
+						} else {
+							val = 'null';
+						}
+
+					}
+
+					if (map === 'DATETIME') {
+
+						if (isArray(val) === true) {
+							return filter_values(val, DATETIME.parse, DATETIME.isDATETIME);
+						} else {
+							return filter_value(val, DATETIME.parse, DATETIME.isDATETIME);
+						}
+
+					} else if (map === 'DATE') {
+
+						if (isArray(val) === true) {
+							return filter_values(val, DATETIME.parse, DATETIME.isDate);
+						} else {
+							return filter_value(val, DATETIME.parse, DATETIME.isDate);
+						}
+
+					} else if (map === 'TIME') {
+
+						if (isArray(val) === true) {
+							return filter_values(val, DATETIME.parse, DATETIME.isTime);
+						} else {
+							return filter_value(val, DATETIME.parse, DATETIME.isTime);
+						}
+
+					} else if (map === 'IP') {
+
+						if (isArray(val) === true) {
+							return filter_values(val, IP.parse, IP.isIP);
+						} else {
+							return filter_value(val, IP.parse, IP.isIP);
+						}
+
+					} else if (map === 'UA') {
+
+						if (isArray(val) === true) {
+							return filter_values(val, UA.parse, UA.isUA);
+						} else {
+							return filter_value(val, UA.parse, UA.isUA);
+						}
+
+					} else if (map === 'URL') {
+
+						if (isArray(val) === true) {
+							return filter_values(val, URL.parse, URL.isURL);
+						} else {
+							return filter_value(val, URL.parse, URL.isURL);
+						}
+
+					} else {
+
+						if (isArray(val) === true) {
+
+							return filter_values(val, null, (value) => {
+
+								let pattern = this.node.getAttribute('pattern');
+								if (pattern !== null) {
+									return validate_value(value, pattern);
+								} else {
+									return true;
+								}
+
+							}, (value) => parse_value(value));
+
+						} else {
+
+							return filter_value(val, null, (value) => {
+
+								let pattern = this.node.getAttribute('pattern');
+								if (pattern !== null) {
+									return validate_value(value, pattern);
+								} else {
+									return true;
+								}
+
+							}, (value) => parse_value(value));
+
+						}
 
 					}
 
