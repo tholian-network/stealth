@@ -12,27 +12,60 @@ export const isResults = function(obj) {
 
 const clone = function(obj) {
 
-	let data = null;
+	let target = null;
 
-	try {
-		data = JSON.parse(JSON.stringify(obj));
-	} catch (err) {
-		data = null;
-	}
+	if (obj instanceof Array) {
 
-	if (data !== null) {
+		target = [];
 
-		if (isObject(data.payload) === true) {
+		for (let o = 0, ol = obj.length; o < ol; o++) {
+			target[o] = clone(obj[o]);
+		}
 
-			if (data.payload.type === 'Buffer') {
-				data.payload = Buffer.from(data.payload.data || []);
+	} else if (obj instanceof Buffer) {
+
+		target = Buffer.from(obj.toJSON().data || []);
+
+	} else if (obj instanceof Date) {
+
+		target = new Date(obj.toISOString());
+
+	} else if (obj instanceof RegExp) {
+
+		target = new RegExp(obj.source || '', obj.flags || '');
+
+	} else if (obj instanceof Object) {
+
+		target = {};
+
+		for (let prop in obj) {
+
+			if (Object.prototype.hasOwnProperty.call(obj, prop) === true) {
+				target[prop] = clone(obj[prop]);
 			}
 
 		}
 
+	} else {
+
+		if (obj === undefined) {
+			target = undefined;
+		} else if (obj === null) {
+			target = null;
+		} else if (typeof obj === 'boolean') {
+			target = obj;
+		} else if (typeof obj === 'number') {
+			target = obj;
+		} else if (typeof obj === 'string') {
+			target = obj;
+		} else {
+			target = obj;
+		}
+
 	}
 
-	return data;
+
+	return target;
 
 };
 
