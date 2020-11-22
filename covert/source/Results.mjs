@@ -14,7 +14,27 @@ const clone = function(obj) {
 
 	let target = null;
 
-	if (obj instanceof Array) {
+	if (obj === undefined) {
+
+		target = undefined;
+
+	} else if (obj === null) {
+
+		target = null;
+
+	} else if (typeof obj === 'boolean') {
+
+		target = obj;
+
+	} else if (typeof obj === 'number') {
+
+		target = obj;
+
+	} else if (typeof obj === 'string') {
+
+		target = obj;
+
+	} else if (obj instanceof Array) {
 
 		target = [];
 
@@ -48,19 +68,7 @@ const clone = function(obj) {
 
 	} else {
 
-		if (obj === undefined) {
-			target = undefined;
-		} else if (obj === null) {
-			target = null;
-		} else if (typeof obj === 'boolean') {
-			target = obj;
-		} else if (typeof obj === 'number') {
-			target = obj;
-		} else if (typeof obj === 'string') {
-			target = obj;
-		} else {
-			target = obj;
-		}
+		target = obj;
 
 	}
 
