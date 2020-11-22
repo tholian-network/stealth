@@ -54,6 +54,35 @@ describe('Beacon.isBeacon()', function(assert) {
 
 });
 
+describe('Beacon.toBeacon()', function(assert) {
+
+	assert(isFunction(Beacon.toBeacon), true);
+
+	assert(Beacon.toBeacon(null), null);
+	assert(Beacon.toBeacon({}),   null);
+
+	assert(Beacon.toBeacon({
+		domain:  'example.com',
+		another: 'property',
+		beacons: [{
+			path:    '/index.html',
+			query:   null,
+			select:  'body > article > h3',
+			term:    'title',
+			another: 'property'
+		}]
+	}), {
+		domain: 'example.com',
+		beacons: [{
+			path:   '/index.html',
+			query:  null,
+			select: 'body > article > h3',
+			term:   'title'
+		}]
+	});
+
+});
+
 describe('Beacon.prototype.save()', function(assert) {
 
 	assert(this.server !== null);

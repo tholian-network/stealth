@@ -117,7 +117,6 @@ Beacon.toBeacon = function(payload) {
 
 				return {
 					domain:  domain,
-					path:    payload.path,
 					beacons: payload.beacons.map((beacon) => ({
 						path:   beacon.path,
 						query:  isString(beacon.query) ? beacon.query : null,
