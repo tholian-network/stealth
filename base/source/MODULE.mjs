@@ -9,9 +9,11 @@ export default {
 	Date:       Date,
 	Emitter:    Emitter,
 	Function:   Function,
+	Map:        Map,
 	Number:     Number,
 	Object:     Object,
 	RegExp:     RegExp,
+	Set:        Set,
 	String:     String,
 
 	isBoolean:  Boolean.isBoolean,
@@ -20,9 +22,11 @@ export default {
 	isDate:     Date.isDate,
 	isEmitter:  Emitter.isEmitter,
 	isFunction: Function.isFunction,
+	isMap:      Map.isMap,
 	isNumber:   Number.isNumber,
 	isObject:   Object.isObject,
 	isRegExp:   RegExp.isRegExp,
+	isSet:      Set.isSet,
 	isString:   String.isString
 
 };

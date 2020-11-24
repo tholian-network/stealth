@@ -124,9 +124,11 @@ const BASE_FILES = [
 	ROOT + '/source/Boolean.mjs',
 	ROOT + '/source/Date.mjs',
 	ROOT + '/source/Function.mjs',
+	ROOT + '/source/Map.mjs',
 	ROOT + '/source/Number.mjs',
 	ROOT + '/source/Object.mjs',
 	ROOT + '/source/RegExp.mjs',
+	ROOT + '/source/Set.mjs',
 	ROOT + '/source/String.mjs',
 	ROOT + '/source/Emitter.mjs'
 ].map((path) => read(path));

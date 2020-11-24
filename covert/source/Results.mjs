@@ -1,13 +1,49 @@
 
-import { Buffer, isArray, isBoolean, isBuffer, isDate, isFunction, isNumber, isObject, isRegExp, isString } from '../extern/base.mjs';
-import { Filesystem                                                                                       } from './Filesystem.mjs';
+import { Buffer, isArray, isBoolean, isBuffer, isDate, isFunction, isMap, isNumber, isObject, isRegExp, isSet, isString } from '../extern/base.mjs';
+import { Filesystem                                                                                                     } from './Filesystem.mjs';
 
 
-
-const FILESYSTEM = new Filesystem();
 
 export const isResults = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Results]';
+};
+
+const FILESYSTEM = new Filesystem();
+
+const isArrayBuffer = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object ArrayBuffer]';
+};
+
+const isDataView = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object DataView]';
+};
+
+const isTypedArray = function(obj) {
+
+	let str = Object.prototype.toString.call(obj);
+	let typ = '';
+	if (str.startsWith('[') && str.includes(' ') && str.endsWith(']')) {
+		typ = str.substr(1, str.length - 2).split(' ').pop();
+	}
+
+	if (
+		typ === 'Int8Array'
+		|| typ === 'Uint8Array'
+		|| typ === 'Uint8ClampedArray'
+		|| typ === 'Int16Array'
+		|| typ === 'Uint16Array'
+		|| typ === 'Int32Array'
+		|| typ === 'Uint32Array'
+		|| typ === 'Float32Array'
+		|| typ === 'Float64Array'
+		|| typ === 'BigInt64Array'
+		|| typ === 'BigUint64Array'
+	) {
+		return true;
+	}
+
+	return false;
+
 };
 
 const clone = function(obj) {
@@ -22,19 +58,7 @@ const clone = function(obj) {
 
 		target = null;
 
-	} else if (typeof obj === 'boolean') {
-
-		target = obj;
-
-	} else if (typeof obj === 'number') {
-
-		target = obj;
-
-	} else if (typeof obj === 'string') {
-
-		target = obj;
-
-	} else if (obj instanceof Array) {
+	} else if (isArray(obj) === true) {
 
 		target = [];
 
@@ -42,19 +66,59 @@ const clone = function(obj) {
 			target[o] = clone(obj[o]);
 		}
 
-	} else if (obj instanceof Buffer) {
+	} else if (isTypedArray(obj) === true) {
+
+		target = new obj.constructor(obj);
+
+	} else if (isArrayBuffer(obj) === true) {
+
+		target = obj.slice(0);
+
+	} else if (isBoolean(obj) === true) {
+
+		target = obj;
+
+	} else if (isBuffer(obj) === true) {
 
 		target = Buffer.from(obj.toJSON().data || []);
 
-	} else if (obj instanceof Date) {
+	} else if (isDataView(obj) === true) {
+
+		target = new DataView(clone(obj.buffer));
+
+	} else if (isDate(obj) === true) {
 
 		target = new Date(obj.toISOString());
 
-	} else if (obj instanceof RegExp) {
+	} else if (isMap(obj) === true) {
+
+		target = new Map();
+
+		obj.forEach((val, key) => {
+			target.set(clone(key), clone(val));
+		});
+
+	} else if (isNumber(obj) === true) {
+
+		target = obj;
+
+	} else if (isRegExp(obj) === true) {
 
 		target = new RegExp(obj.source || '', obj.flags || '');
 
-	} else if (obj instanceof Object) {
+	} else if (isSet(obj) === true) {
+
+		target = new Set();
+
+		obj.forEach((val) => {
+			target.add(clone(val));
+		});
+
+	} else if (isString(obj) === true) {
+
+		target = obj;
+
+	} else if (isObject(obj) === true) {
 
 		target = {};
 
