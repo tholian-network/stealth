@@ -2,7 +2,6 @@
 import fs   from 'fs';
 import path from 'path';
 
-
 import { Emitter, isBoolean, isBuffer, isString } from '../extern/base.mjs';
 
 

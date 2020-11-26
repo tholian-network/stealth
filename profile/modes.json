@@ -1,5 +1,15 @@
 [
 	{
+		"domain": "tholian.network",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": true,
+			"video": true,
+			"other": true
+		}
+	},
+	{
 		"domain": "radar.tholian.network",
 		"mode": {
 			"text": true,

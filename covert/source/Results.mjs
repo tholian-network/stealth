@@ -58,6 +58,18 @@ const clone = function(obj) {
 
 		target = null;
 
+	} else if (obj === Infinity) {
+
+		target = Infinity;
+
+	} else if (obj === -Infinity) {
+
+		target = -Infinity;
+
+	} else if (Number.isNaN(obj) === true) {
+
+		target = NaN;
+
 	} else if (isArray(obj) === true) {
 
 		target = [];

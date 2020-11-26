@@ -80,6 +80,10 @@
 		]
 	},
 	{
+		"domain": "tholian.network",
+		"policies": []
+	},
+	{
 		"domain": "youtube.com",
 		"policies": [
 			{

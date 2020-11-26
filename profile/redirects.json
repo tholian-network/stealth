@@ -1,1 +1,12 @@
-[]
+[
+	{
+		"domain": "tholian.network",
+		"redirects": [
+			{
+				"path": "/",
+				"query": null,
+				"location": "https://tholian.network/index.html"
+			}
+		]
+	}
+]
