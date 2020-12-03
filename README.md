@@ -19,7 +19,7 @@ Stealth is both a Web Scraper, Web Service and Web Proxy that can serve its own
 User Interface ("Browser UI") that is implemented using Web Technologies.
 
 - It is secure by default, without compromise. It only supports `DNS via HTTPS`,
-  and uses explicitely `https://` first, and fallsback to `http://` only when
+  and uses explicitly `https://` first, and falls back to `http://` only when
   necessary and only when the website was not MITM-ed.
 
 - It is peer-to-peer and always uses the most efficient way to share resources
