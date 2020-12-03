@@ -92,6 +92,7 @@ browser-card-beacon-article button[data-val="true"]:hover               { color:
 
 browser-card-beacon-article code {
 	display: block;
+	color: var(--element-disable-color);
 	white-space: pre;
 }
 

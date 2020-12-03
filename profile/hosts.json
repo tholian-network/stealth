@@ -30,7 +30,7 @@
 			}
 		]
 	}, {
-		"domain": "peers.tholian.network",
+		"domain": "sonar.tholian.network",
 		"hosts": [
 			{
 				"ip": "93.95.228.18",

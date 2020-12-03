@@ -31,9 +31,10 @@ ${settings.redirects.length} Redirect${settings.redirects.length === 1 ? '' : 's
 ${settings.sessions.length} Session${settings.sessions.length === 1 ? '' : 's'}.
 `;
 
-const init = function(callback) {
+const init = function(debug, callback) {
 
 	callback = isFunction(callback) ? callback : null;
+	debug    = isBoolean(debug)     ? debug    : false;
 
 
 	let result = false;
@@ -72,7 +73,7 @@ const init = function(callback) {
 						return false;
 
 					}).forEach((host) => {
-						this.hosts.push(host);
+						this['hosts'].push(host);
 					});
 
 					result = true;
@@ -84,6 +85,140 @@ const init = function(callback) {
 		}
 
 	}
+
+
+	if (debug === true) {
+
+		this['beacons'].push({
+			domain: 'tholian.network',
+			beacons: [{
+				path:   '/*',
+				query:  null,
+				select: 'article div,article figure,article p,article ul',
+				term:   'article'
+			}, {
+				path:   '/*',
+				query:  null,
+				select: 'meta[property="og:description"]',
+				term:   'description'
+			}, {
+				path:   '/*',
+				query:  null,
+				select: 'meta[property="og:locale"]',
+				term:   'language'
+			}, {
+				path:   '/*',
+				query:  null,
+				select: 'footer',
+				term:   'publisher'
+			}, {
+				path:   '/*',
+				query:  null,
+				select: 'meta[property="og:title"]',
+				term:   'title'
+			}, {
+				path:   '/*',
+				query:  null,
+				select: 'meta[property="og:type"]',
+				term:   'type'
+			}]
+		});
+
+		this['hosts'].push({
+			domain: 'tholian.network',
+			hosts: [{
+				ip:    '185.199.108.153',
+				scope: 'public',
+				type:  'v4'
+			}, {
+				ip:    '185.199.109.153',
+				scope: 'public',
+				type:  'v4'
+			}, {
+				ip:    '185.199.110.153',
+				scope: 'public',
+				type:  'v4'
+			}, {
+				ip:    '185.199.111.153',
+				scope: 'public',
+				type:  'v4'
+			}]
+		});
+
+		this['hosts'].push({
+			domain: 'radar.tholian.network',
+			hosts: [{
+				ip:    '93.95.228.18',
+				scope: 'public',
+				type:  'v4'
+			}]
+		});
+
+		this['hosts'].push({
+			domain: 'sonar.tholian.network',
+			hosts: [{
+				ip:    '93.95.228.18',
+				scope: 'public',
+				type:  'v4'
+			}]
+		});
+
+		this['modes'].push({
+			domain: 'tholian.network',
+			mode: {
+				text:  true,
+				image: true,
+				audio: true,
+				video: true,
+				other: true
+			}
+		});
+
+		this['modes'].push({
+			domain: 'radar.tholian.network',
+			mode: {
+				text:  true,
+				image: true,
+				audio: true,
+				video: true,
+				other: true
+			}
+		});
+
+		this['modes'].push({
+			domain: 'sonar.tholian.network',
+			mode: {
+				text:  true,
+				image: true,
+				audio: true,
+				video: true,
+				other: true
+			}
+		});
+
+		this['peers'].push({
+			domain: 'sonar.tholian.network',
+			peer: {
+				connection: 'peer'
+			}
+		});
+
+		this['policies'].push({
+			domain: 'tholian.network',
+			policies: []
+		});
+
+		this['redirects'].push({
+			domain: 'tholian.network',
+			redirects: [{
+				path:     '/',
+				query:    null,
+				location: 'https://tholian.network/index.html'
+			}]
+		});
+
+	}
+
 
 	if (callback !== null) {
 		callback(result);
@@ -548,6 +683,12 @@ const setup = function(profile, callback) {
 
 const Settings = function(settings) {
 
+	settings = Object.freeze(Object.assign({
+		debug:   isBoolean(settings.debug)  ? settings.debug   : false,
+		profile: isString(settings.profile) ? settings.profile : ENVIRONMENT.profile,
+		vendor:  isString(settings.vendor)  ? settings.vendor  : null
+	}, settings));
+
 	this['interface'] = {
 		theme:   'dark',
 		enforce: false,
@@ -568,23 +709,20 @@ const Settings = function(settings) {
 	this['sessions']  = [];
 
 
-	this.profile = ENVIRONMENT.profile;
-	this.vendor  = null;
+	if (settings.debug === true) {
 
-	if (isObject(settings) === true) {
+		this.profile = settings.profile;
+		this.vendor  = null;
 
-		if (isString(settings.profile) === true) {
-			this.profile = settings.profile;
-		}
+	} else {
 
-		if (isString(settings.vendor) === true) {
-			this.vendor = settings.vendor;
-		}
+		this.profile = settings.profile;
+		this.vendor  = settings.vendor;
 
 	}
 
 
-	init.call(this, (result) => {
+	init.call(this, settings.debug, (result) => {
 
 		if (result === true) {
 			console.info('Settings: Native Hosts imported from "' + ENVIRONMENT.hosts + '".');

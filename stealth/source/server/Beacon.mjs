@@ -52,8 +52,17 @@ Beacon.isBeacon = function(payload) {
 			if (
 				isObject(beacon) === true
 				&& isString(beacon.path) === true
-				&& (isString(beacon.query) === true || beacon.query === null)
+				&& /^([A-Za-z0-9*/:._-]+)?$/g.test(beacon.path) === true
+				&& (
+					(
+						isString(beacon.query) === true
+						&& /^([A-Za-z0-9/&=:._-]+)?$/g.test(beacon.query) === true
+					) || (
+						beacon.query === null
+					)
+				)
 				&& isString(beacon.select) === true
+				&& /^([a-z0-9#, =[\]\x22\x3e:._-]+)$/g.test(beacon.select) === true
 				&& isString(beacon.term) === true
 				&& TERM.includes(beacon.term)
 			) {

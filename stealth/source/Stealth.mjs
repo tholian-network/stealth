@@ -88,8 +88,9 @@ const Stealth = function(settings) {
 		host: this._settings.host
 	}, this);
 	this.settings = new Settings({
+		debug:   this._settings.debug,
 		profile: this._settings.profile,
-		vendor:  this._settings.debug === true ? null : this._settings.root + '/profile'
+		vendor:  this._settings.root + '/profile'
 	});
 
 	this.__state = {

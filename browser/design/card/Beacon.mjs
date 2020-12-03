@@ -35,11 +35,12 @@ const toMap = function(beacon) {
 			beacon.query = null;
 		}
 
+
 		let element = new Element('tr', [
-			'<td><code data-key="beacon.path"></code></td>',
-			'<td><code data-key="beacon.query"></code></td>',
-			'<td><code data-key="beacon.select"></code></td>',
-			'<td><code data-key="beacon.term"></code></td>',
+			'<td><input type="text" data-key="beacon.path" disabled/></td>',
+			'<td>' + (beacon.query === null ? '<code data-key="beacon.query"></code>' : '<input type="text" data-key="beacon.query" disabled/>') + '</td>',
+			'<td><input type="text" data-key="beacon.select" disabled/></td>',
+			'<td><input type="text" data-key="beacon.term" disabled/></td>',
 			'<td><button title="Remove Beacon" data-action="beacon.remove"></button></td>'
 		]);
 
@@ -115,9 +116,9 @@ const Beacon = function(browser, actions) {
 		'<tbody></tbody>',
 		'<tfoot class="disabled">',
 		'\t<tr>',
-		'\t\t<td><input title="Path" type="text" data-key="beacon.path" pattern="/([A-Za-z0-9\\/:._\\-]+)?" placeholder="/path" disabled/></td>',
-		'\t\t<td><input title="Query" type="text" data-key="beacon.query" pattern="([A-Za-z0-9\\/:._\\-&]+)?" placeholder="key=val&..." disabled/></td>',
-		'\t\t<td><textarea title="List of Selectors" data-key="beacon.select" rows="1" disabled></textarea></td>',
+		'\t\t<td><input title="Path" type="text" data-key="beacon.path" pattern="/([A-Za-z0-9*/:._-]+)?" placeholder="/path" disabled/></td>',
+		'\t\t<td><input title="Query" type="text" data-key="beacon.query" pattern="([A-Za-z0-9/&=:._-]+)?" placeholder="key=val&..." disabled/></td>',
+		'\t\t<td><input title="Selector" type="text" data-key="beacon.select" pattern="([a-z0-9#, =[\\]\\x22\\x3e:._-]+)" disabled/></td>',
 		'\t\t<td>',
 		'\t\t\t<select data-key="beacon.term">',
 		...TERM.map((term) => {
@@ -175,6 +176,10 @@ const Beacon = function(browser, actions) {
 
 	this.beacon.model.query.on('keyup', () => {
 		this.beacon.model.query.validate();
+	});
+
+	this.beacon.model.select.on('keyup', () => {
+		this.beacon.model.select.validate();
 	});
 
 	this.element.on('show', () => {
@@ -281,7 +286,7 @@ const Beacon = function(browser, actions) {
 
 				this.beacon.model.path.value('');
 				this.beacon.model.query.value('');
-				this.beacon.model.select.attr('rows', 1);
+				this.beacon.model.select.value('');
 				this.beacon.model.term.value(null);
 
 			}
