@@ -105,29 +105,27 @@ const Beacon = function(browser, actions) {
 		'<browser-card-beacon-article>',
 		'<table>',
 		'<thead>',
-		'\t<tr>',
-		'\t\t<th>Path</th>',
-		'\t\t<th>Query</th>',
-		'\t\t<th>Select</th>',
-		'\t\t<th>Term</th>',
-		'\t\t<th></th>',
-		'\t</tr>',
+		'<tr>',
+		[ 'Path', 'Query', 'Select', 'Term', '' ].map((v) => {
+			return '<th>' + v + '</th>';
+		}).join(''),
+		'</tr>',
 		'</thead>',
 		'<tbody></tbody>',
 		'<tfoot class="disabled">',
-		'\t<tr>',
-		'\t\t<td><input title="Path" type="text" data-key="beacon.path" pattern="/([A-Za-z0-9*/:._-]+)?" placeholder="/path" disabled/></td>',
-		'\t\t<td><input title="Query" type="text" data-key="beacon.query" pattern="([A-Za-z0-9/&=:._-]+)?" placeholder="key=val&..." disabled/></td>',
-		'\t\t<td><input title="Selector" type="text" data-key="beacon.select" pattern="([a-z0-9#, =[\\]\\x22\\x3e:._-]+)" disabled/></td>',
-		'\t\t<td>',
-		'\t\t\t<select data-key="beacon.term">',
-		...TERM.map((term) => {
-			return '\t\t\t\t<option value="' + term + '">' + term.charAt(0).toUpperCase() + term.substr(1) + '</option>';
-		}),
-		'\t\t\t</select>',
-		'\t\t</td>',
-		'\t\t<td><button title="Create Beacon" data-action="beacon.create" disabled></button></td>',
-		'\t</tr>',
+		'<tr>',
+		[
+			'<input title="Path" type="text" data-key="beacon.path" pattern="/([A-Za-z0-9*/:._-]+)?" placeholder="/path" disabled/>',
+			'<input title="Query" type="text" data-key="beacon.query" pattern="([A-Za-z0-9/&=:._-]+)?" placeholder="key=val&..." disabled/>',
+			'<input title="Selector" type="text" data-key="beacon.select" pattern="([a-z0-9#, =[\\]\\x22\\x3e:._-]+)" disabled/>',
+			'<select data-key="beacon.term">' + TERM.map((term) => {
+				return '<option value="' + term + '">' + term.charAt(0).toUpperCase() + term.substr(1) + '</option>';
+			}).join('') + '</select>',
+			'<button title="Create Beacon" data-action="beacon.create" disabled></button>'
+		].map((v) => {
+			return '<td>' + v + '</td>';
+		}).join(''),
+		'</tr>',
 		'</tfoot>',
 		'</table>',
 		'</browser-card-beacon-article>',

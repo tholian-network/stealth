@@ -39,9 +39,9 @@ const toMap = function(redirect) {
 		}
 
 		let element = new Element('tr', [
-			'<td><code data-key="redirect.path"></code></td>',
-			'<td><code data-key="redirect.query"></code></td>',
-			'<td><code data-key="redirect.location"></code></td>',
+			'<td><input type="text" data-key="redirect.path" disabled/></td>',
+			'<td>' + (redirect.query === null ? '<code data-key="redirect.query"></code>' : '<input type="text" data-key="redirect.query" disabled/>') + '</td>',
+			'<td><input type="text" data-key="redirect.location" disabled/></td>',
 			'<td><button title="Remove Redirect" data-action="redirect.remove"></button></td>'
 		]);
 
@@ -107,9 +107,9 @@ const Redirect = function(browser, actions) {
 		'<tbody></tbody>',
 		'<tfoot class="disabled">',
 		'\t<tr>',
-		'\t\t<td><input title="Path" type="text" data-key="redirect.path" pattern="/([A-Za-z0-9\\/:._\\-]+)?" placeholder="/path" disabled/></td>',
-		'\t\t<td><input title="Query" type="text" data-key="redirect.query" pattern="([A-Za-z0-9\\/:._\\-&]+)?" placeholder="key=val&..." disabled/></td>',
-		'\t\t<td><input title="Target Location" type="text" data-key="redirect.location" placeholder="https://target.example.com/location.html" disabled/></td>',
+		'\t\t<td><input title="Path" type="text" data-key="redirect.path" pattern="/([A-Za-z0-9/:._-]+)?" placeholder="/path" disabled/></td>',
+		'\t\t<td><input title="Query" type="text" data-key="redirect.query" pattern="([A-Za-z0-9/&=:._-]+)?" placeholder="key=val&..." disabled/></td>',
+		'\t\t<td><input title="Target Location" type="text" data-key="redirect.location" placeholder="https://example.com/location.html" disabled/></td>',
 		'\t\t<td><button title="Create Redirect" data-action="redirect.create" disabled></button></td>',
 		'\t</tr>',
 		'</tfoot>',

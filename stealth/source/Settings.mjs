@@ -683,11 +683,11 @@ const setup = function(profile, callback) {
 
 const Settings = function(settings) {
 
-	settings = Object.freeze(Object.assign({
+	settings = Object.freeze({
 		debug:   isBoolean(settings.debug)  ? settings.debug   : false,
 		profile: isString(settings.profile) ? settings.profile : ENVIRONMENT.profile,
 		vendor:  isString(settings.vendor)  ? settings.vendor  : null
-	}, settings));
+	});
 
 	this['interface'] = {
 		theme:   'dark',

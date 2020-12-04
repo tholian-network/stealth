@@ -9,7 +9,7 @@ const Peer = function(browser, actions) {
 
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove', 'save' ];
 	this.element = new Element('browser-card-peer', [
-		'<h3><input title="Domain" type="text" data-key="domain"/></h3>',
+		'<h3><input title="Domain" type="text" data-key="domain" disabled/></h3>',
 		'<button title="Toggle visibility of this Card" data-action="toggle"></button>',
 		'<browser-card-peer-article>',
 		'<span>Connection:</span><button data-key="peer.connection" data-val="offline" disabled></button>',
@@ -69,14 +69,26 @@ const Peer = function(browser, actions) {
 
 
 		if (this.actions.includes('create')) {
+
+			this.model.domain.attr('required', true);
 			this.model.domain.state('enabled');
+
 			this.model.peer.connection.state('disabled');
+
 		} else if (this.actions.includes('save')) {
+
+			this.model.domain.attr('required', true);
 			this.model.domain.state('disabled');
+
 			this.model.peer.connection.state('disabled');
+
 		} else {
+
+			this.model.domain.attr('required', null);
 			this.model.domain.state('disabled');
+
 			this.model.peer.connection.state('disabled');
+
 		}
 
 
