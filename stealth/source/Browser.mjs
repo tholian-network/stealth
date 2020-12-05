@@ -144,6 +144,7 @@ const Browser = function(settings) {
 		'hosts':     [],
 		'modes':     [],
 		'peers':     [],
+		'policies':  [],
 		'redirects': [],
 		'sessions':  []
 	};
@@ -198,6 +199,10 @@ const Browser = function(settings) {
 
 		if (isArray(response['peers']) === true) {
 			this.settings['peers'] = response['peers'];
+		}
+
+		if (isArray(response['policies']) === true) {
+			this.settings['policies'] = response['policies'];
 		}
 
 		if (isArray(response['redirects']) === true) {

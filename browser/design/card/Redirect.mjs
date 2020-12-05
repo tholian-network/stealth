@@ -199,7 +199,7 @@ const Redirect = function(browser, actions) {
 
 			this.redirect.buttons.create.state('enabled');
 			this.redirect.element.state('enabled');
-			this.redirect.element.query('button, input, textarea').forEach((element) => {
+			this.redirect.element.query('button, input', true).forEach((element) => {
 				element.state('enabled');
 			});
 
@@ -210,7 +210,7 @@ const Redirect = function(browser, actions) {
 
 			this.redirect.buttons.create.state('enabled');
 			this.redirect.element.state('enabled');
-			this.redirect.element.query('button, input, textarea').forEach((element) => {
+			this.redirect.element.query('button, input', true).forEach((element) => {
 				element.state('enabled');
 			});
 
@@ -221,7 +221,7 @@ const Redirect = function(browser, actions) {
 
 			this.redirect.buttons.create.state('disabled');
 			this.redirect.element.state('disabled');
-			this.redirect.element.query('button, input, textarea').forEach((element) => {
+			this.redirect.element.query('button, input', true).forEach((element) => {
 				element.state('disabled');
 			});
 

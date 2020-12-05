@@ -82,7 +82,7 @@ const select = function(key) {
 			button.state('');
 		});
 
-		this.article.query('tr[data-key]').forEach((row) => {
+		this.article.query('tr[data-key]', true).forEach((row) => {
 			row.state('');
 		});
 
@@ -287,7 +287,7 @@ const Help = function(/* browser */) {
 	};
 
 
-	this.header.query('button[data-key]').forEach((button) => {
+	this.header.query('button[data-key]', true).forEach((button) => {
 
 		button.on('click', (e) => {
 
@@ -311,7 +311,7 @@ const Help = function(/* browser */) {
 
 	});
 
-	this.article.query('tr[data-key]').forEach((row) => {
+	this.article.query('tr[data-key]', true).forEach((row) => {
 
 		row.on('click', (e) => {
 

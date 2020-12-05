@@ -36,20 +36,24 @@ const getValue = function(element) {
 	} else if (isArray(element) === true) {
 
 		let check = element.filter((e) => (e.type === 'input' && e.attr('type') === 'radio'));
-		if (check.length === element.length) {
+		if (element.length > 0 && element.length === check.length) {
 
 			let active = element.find((other) => other.attr('checked') === true) || null;
 			if (active !== null) {
 				value = getValue(active);
 			}
 
-		} else {
+		} else if (element.length > 0) {
 
 			value = [];
 
 			element.forEach((other, e) => {
 				value.push(getValue(element[e]));
 			});
+
+		} else {
+
+			value = [];
 
 		}
 
@@ -116,7 +120,7 @@ const setValue = (element, value) => {
 	} else if (isArray(element) === true && isArray(value) === false) {
 
 		let check = element.filter((e) => (e.type === 'input' && e.attr('type') === 'radio'));
-		if (check.length === element.length) {
+		if (element.length > 0 && element.length === check.length) {
 
 			element.forEach((other) => {
 

@@ -80,15 +80,8 @@ browser-card-beacon.active browser-card-beacon-article {
 	display: block;
 }
 
-browser-card-beacon-article button[data-action="beacon.create"]:before  { content: '\e145'; }
-browser-card-beacon-article button[data-action="beacon.remove"]:before  { content: '\e14c'; }
-browser-card-beacon-article button[data-key="beacon.mode.text"]:before  { content: '\e06f'; }
-browser-card-beacon-article button[data-key="beacon.mode.image"]:before { content: '\e432'; }
-browser-card-beacon-article button[data-key="beacon.mode.audio"]:before { content: '\e049'; }
-browser-card-beacon-article button[data-key="beacon.mode.video"]:before { content: '\e404'; }
-browser-card-beacon-article button[data-key="beacon.mode.other"]:before { content: '\e048'; }
-browser-card-beacon-article button[data-val="true"]                     { color: var(--element-active-color); }
-browser-card-beacon-article button[data-val="true"]:hover               { color: var(--element-active-color); }
+browser-card-beacon-article button[data-action="beacon.create"]:before { content: '\e145'; }
+browser-card-beacon-article button[data-action="beacon.remove"]:before { content: '\e14c'; }
 
 browser-card-beacon-article code {
 	display: block;
@@ -155,14 +148,6 @@ browser-card-beacon-article table td:nth-of-type(5) {
 	text-align: center;
 }
 
-browser-card-beacon-article textarea {
-	display: block;
-	width: 100%;
-	height: auto;
-	background: transparent;
-	resize: vertical;
-}
-
 
 
 browser-card-beacon-footer {
@@ -181,10 +166,9 @@ browser-card-beacon-footer > button {
 	margin-left: 16px;
 }
 
-browser-card-beacon-footer > button[data-action="create"]:before  { content: '\e145'; }
-browser-card-beacon-footer > button[data-action="refresh"]:before { content: '\e5d5'; }
-browser-card-beacon-footer > button[data-action="remove"]:before  { content: '\e14c'; }
-browser-card-beacon-footer > button[data-action="save"]:before    { content: '\e876'; }
+browser-card-beacon-footer > button[data-action="create"]:before { content: '\e145'; }
+browser-card-beacon-footer > button[data-action="remove"]:before { content: '\e14c'; }
+browser-card-beacon-footer > button[data-action="save"]:before   { content: '\e876'; }
 
 
 

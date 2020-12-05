@@ -1,0 +1,156 @@
+
+browser-card-policy {
+	all: unset;
+	display: block;
+	position: relative;
+	width: 800px;
+	max-height: 64px;
+	margin: 0px;
+	padding: 16px;
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow: hidden;
+	cursor: default;
+}
+
+browser-card-policy.active {
+	max-height: unset;
+}
+
+browser-card-policy > h3 {
+	display: block;
+	margin: 0px 0px 16px 0px;
+	padding: 0px;
+}
+
+browser-card-policy > h3:before {
+	display: inline;
+	content: '\e32a';
+	margin: 0px 16px 0px 0px;
+	padding: 0px;
+	font-family: 'icon';
+	font-size: 24px;
+	font-weight: 400;
+	text-align: center;
+	vertical-align: middle;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+browser-card-policy > h3 input[type="text"] {
+	display: inline-block;
+	width: calc(100% - 32px - 32px - 24px);
+	font-family: 'vera-mono';
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 32px;
+}
+
+browser-card-policy > button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-policy > button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-policy > button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+
+
+browser-card-policy-article {
+	display: none;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-policy.active browser-card-policy-article {
+	display: block;
+}
+
+browser-card-policy-article button[data-action="policy.create"]:before { content: '\e145'; }
+browser-card-policy-article button[data-action="policy.remove"]:before { content: '\e14c'; }
+
+browser-card-policy-article code {
+	display: block;
+	color: var(--element-disable-color);
+	white-space: pre;
+}
+
+browser-card-policy-article input[type="text"] {
+	display: block;
+	width: 100%;
+}
+
+browser-card-policy-article table {
+	width: 100%;
+	table-layout: fixed;
+}
+
+browser-card-policy-article table th {
+	margin: 0px;
+	padding: 0px;
+	font-family: 'crystalline';
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 32px;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+browser-card-policy-article table td {
+	margin: 0px;
+	padding: 8px 8px;
+	font-size: 16px;
+	line-height: 16px;
+	font-family: 'museo';
+	border-top: 1px solid var(--surface-default-color);
+	text-align: left;
+	overflow: hidden;
+}
+
+browser-card-policy-article table th:nth-of-type(1),
+browser-card-policy-article table td:nth-of-type(1) {
+	width: 20%;
+}
+
+browser-card-policy-article table th:nth-of-type(3),
+browser-card-policy-article table td:nth-of-type(3) {
+	width: 48px;
+	text-align: center;
+}
+
+
+
+browser-card-policy-footer {
+	display: none;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-card-policy.active browser-card-policy-footer {
+	display: block;
+}
+
+browser-card-policy-footer > button {
+	margin-left: 16px;
+}
+
+browser-card-policy-footer > button[data-action="create"]:before { content: '\e145'; }
+browser-card-policy-footer > button[data-action="remove"]:before { content: '\e14c'; }
+browser-card-policy-footer > button[data-action="save"]:before   { content: '\e876'; }
+

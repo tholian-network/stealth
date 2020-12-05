@@ -11,7 +11,7 @@ import { URL         } from '../source/parser/URL.mjs';
 let browser = window.parent.BROWSER || null;
 if (browser !== null) {
 
-	let site_settings = Settings.from({ domain: '' }, [ 'beacons', 'hosts', 'modes', 'peers', 'redirects' ]);
+	let site_settings = Settings.from({ domain: '' }, [ 'beacons', 'hosts', 'modes', 'peers', 'policies', 'redirects' ]);
 	if (site_settings !== null) {
 
 		let domain = URL.toDomain(ENVIRONMENT.flags.url);

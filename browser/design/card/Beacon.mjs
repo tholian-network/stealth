@@ -214,7 +214,7 @@ const Beacon = function(browser, actions) {
 
 			this.beacon.buttons.create.state('enabled');
 			this.beacon.element.state('enabled');
-			this.beacon.element.query('button, input, textarea').forEach((element) => {
+			this.beacon.element.query('button, input', true).forEach((element) => {
 				element.state('enabled');
 			});
 
@@ -225,7 +225,7 @@ const Beacon = function(browser, actions) {
 
 			this.beacon.buttons.create.state('enabled');
 			this.beacon.element.state('enabled');
-			this.beacon.element.query('button, input, textarea').forEach((element) => {
+			this.beacon.element.query('button, input', true).forEach((element) => {
 				element.state('enabled');
 			});
 
@@ -236,7 +236,7 @@ const Beacon = function(browser, actions) {
 
 			this.beacon.buttons.create.state('disabled');
 			this.beacon.element.state('disabled');
-			this.beacon.element.query('button, input, textarea').forEach((element) => {
+			this.beacon.element.query('button, input', true).forEach((element) => {
 				element.state('disabled');
 			});
 

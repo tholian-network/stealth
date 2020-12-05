@@ -5,6 +5,7 @@ import { Beacon                      } from '../card/Beacon.mjs';
 import { Host                        } from '../card/Host.mjs';
 import { Mode                        } from '../card/Mode.mjs';
 import { Peer                        } from '../card/Peer.mjs';
+import { Policy                      } from '../card/Policy.mjs';
 import { Redirect                    } from '../card/Redirect.mjs';
 import { Session                     } from '../card/Session.mjs';
 import { isArray, isObject, isString } from '../../extern/base.mjs';
@@ -60,6 +61,7 @@ const update = function(browser) {
 							hosts:     [],
 							modes:     [],
 							peers:     [],
+							policies:  [],
 							redirects: [],
 							sessions:  []
 						};
@@ -233,6 +235,28 @@ const update = function(browser) {
 
 			}
 
+			if (entry.policies.length > 0) {
+
+				entry.policies.map((policy) => {
+
+					try {
+
+						if (this.actions.includes('remove')) {
+							return Policy.from(policy, [ 'remove', 'save' ]);
+						} else {
+							return Policy.from(policy, [ 'save' ]);
+						}
+
+					} catch (err) {
+						this.emit('error', [ err ]);
+					}
+
+					return null;
+
+				}).forEach((card) => cards.push(card));
+
+			}
+
 			if (entry.redirects.length > 0) {
 
 				entry.redirects.map((redirect) => {
@@ -299,7 +323,7 @@ const update = function(browser) {
 
 const Settings = function(browser, allowed, actions) {
 
-	this.allowed = isArray(allowed) ? allowed : [ 'beacons', 'hosts', 'modes', 'peers', 'redirects', 'sessions' ];
+	this.allowed = isArray(allowed) ? allowed : [ 'beacons', 'hosts', 'modes', 'peers', 'policies', 'redirects', 'sessions' ];
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove' ];
 	this.element = new Element('browser-card-settings', [
 		'<h3>Settings</h3>',
@@ -307,7 +331,7 @@ const Settings = function(browser, allowed, actions) {
 		'<browser-card-settings-header>',
 		'<p>Search for Sites-specific Settings via their Domain:</p>',
 		'<input title="Domain" type="text" data-key="domain" pattern="([A-Za-z0-9._\\-*]+).([A-Za-z*]+)" placeholder="domain.tld" disabled/>',
-		'<p data-key="results">0 of 0 Beacons, 0 of 0 Hosts, 0 of 0 Modes, 0 of 0 Peers, 0 of 0 Redirects, 0 of 0 Sessions</p>',
+		'<p data-key="results">0 of 0 Beacons, 0 of 0 Hosts, 0 of 0 Modes, 0 of 0 Peers, 0 of 0 Policies, 0 of 0 Redirects, 0 of 0 Sessions</p>',
 		'</browser-card-settings-header>',
 		'<browser-card-settings-article>',
 		'</browser-card-settings-article>',

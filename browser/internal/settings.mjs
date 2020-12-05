@@ -46,7 +46,7 @@ if (browser !== null) {
 
 	widgets['interface'] = Interface.from(browser.settings['interface']);
 	widgets['internet']  = Internet.from(browser.settings['internet']);
-	widgets['settings']  = Settings.from({ domain: '' }, [ 'beacons', 'hosts', 'modes', 'redirects' ]);
+	widgets['settings']  = Settings.from({ domain: '' }, [ 'beacons', 'hosts', 'modes', 'policies', 'redirects' ]);
 
 	render_widget(widgets['interface']);
 	render_widget(widgets['internet']);
