@@ -154,6 +154,22 @@ const Webview = function(browser) {
 	});
 
 
+	browser.on('change',  (tab) => {
+
+		if (this.url === tab.url) {
+
+			if (this.window !== null) {
+
+				if (this.window.location.pathname === '/browser/internal/fix-mode.html') {
+					update.call(this, tab, true);
+				}
+
+			}
+
+		}
+
+	});
+
 	browser.on('theme',   (theme)              => update_theme.call(this, theme));
 	browser.on('show',    (tab, tabs, refresh) => update.call(this, tab, refresh));
 	browser.on('refresh', (tab, tabs, refresh) => update.call(this, tab, refresh));

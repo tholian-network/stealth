@@ -64,7 +64,7 @@
 			if (browser !== null && domain !== null) {
 
 				let body = Element.query('body');
-				let mode = browser.settings.modes.find((m) => m.domain === domain) || { domain: domain };
+				let mode = browser.settings.modes.find((m) => m.domain === domain) || { domain: domain, mode: { text: false, image: false, audio: false, video: false, other: false } };
 
 				if (body !== null && mode !== null) {
 

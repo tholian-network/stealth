@@ -46,7 +46,7 @@
 			if (browser !== null && domain !== null) {
 
 				let body = Element.query('body');
-				let host = browser.settings.hosts.find((h) => h.domain === domain) || { domain: domain };
+				let host = browser.settings['hosts'].find((h) => h.domain === domain) || { domain: domain, hosts: [] };
 
 				if (body !== null && host !== null) {
 
