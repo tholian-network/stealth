@@ -52,8 +52,36 @@
 
 					let widget = Host.from(host, [ 'refresh', 'save' ]);
 					if (widget !== null) {
+
 						widget.render(body);
 						widget.emit('show');
+
+						widget.buttons.refresh.once('click', () => {
+
+							setTimeout(() => {
+
+								let host = browser.settings['hosts'].find((h) => h.domain === domain) || null;
+								if (host !== null && host.hosts.length > 0) {
+									browser.back();
+								}
+
+							}, 500);
+
+						});
+
+						widget.buttons.save.once('click', () => {
+
+							setTimeout(() => {
+
+								let host = browser.settings['hosts'].find((h) => h.domain === domain) || null;
+								if (host !== null && host.hosts.length > 0) {
+									browser.back();
+								}
+
+							}, 500);
+
+						});
+
 					}
 
 				}

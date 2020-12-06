@@ -70,8 +70,23 @@
 
 					let widget = Mode.from(mode, [ 'save' ]);
 					if (widget !== null) {
+
 						widget.render(body);
 						widget.emit('show');
+
+						widget.buttons.save.once('click', () => {
+
+							setTimeout(() => {
+
+								let mode = browser.settings.modes.find((m) => m.domain === domain) || null;
+								if (mode !== null) {
+									browser.setMode(mode);
+								}
+
+							}, 500);
+
+						});
+
 					}
 
 				}

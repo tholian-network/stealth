@@ -1,8 +1,8 @@
 
-import { Element  } from '../Element.mjs';
-import { Widget   } from '../Widget.mjs';
-import { isString } from '../../extern/base.mjs';
-import { URL      } from '../../source/parser/URL.mjs';
+import { Element            } from '../Element.mjs';
+import { Widget             } from '../Widget.mjs';
+import { isObject, isString } from '../../extern/base.mjs';
+import { URL                } from '../../source/parser/URL.mjs';
 
 
 
@@ -335,7 +335,48 @@ const Address = function(browser) {
 };
 
 
-Address.prototype = Object.assign({}, Widget.prototype);
+Address.prototype = Object.assign({}, Widget.prototype, {
+
+	value: function(value_or_url) {
+
+		let value = null;
+
+		if (value_or_url === undefined) {
+			value = null;
+		} else if (value_or_url === null) {
+			value = null;
+		} else if (isObject(value_or_url) === true) {
+			value = value_or_url;
+		}
+
+		if (value !== null) {
+
+			if (URL.isURL(value) === true) {
+
+				this.input.emit('focus');
+				this.input.value(value.link);
+				this.input.emit('blur');
+
+				return true;
+
+			} else {
+				return false;
+			}
+
+		} else {
+
+			let tmp = URL.parse(this.input.value());
+			if (URL.isURL(tmp) === true) {
+				return tmp;
+			} else {
+				return null;
+			}
+
+		}
+
+	}
+
+});
 
 
 export { Address };
