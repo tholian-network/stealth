@@ -98,7 +98,7 @@ cd ./stealth;
 node ./make.mjs;
 
 # Start Stealth Service (optional debug flag)
-node ./stealth/stealth.mjs --debug=true;
+node ./stealth/stealth.mjs serve --debug=true;
 
 # Open as Progressive Web App
 node ./browser/browser.mjs;
@@ -107,9 +107,9 @@ node ./browser/browser.mjs;
 # gio open "http://localhost:65432"
 ```
 
-**IMPORTANT**: On Android, Stealth can be used by visiting the URL and bookmarking it as
-a Web App. The Stealth Icon will appear on your home screen, and it will behave like a
-native offline-ready mobile app.
+**IMPORTANT**: On mobile systems, Stealth can be used by visiting the URL and bookmarking
+it as a Web App. The Stealth Icon will appear on your home screen, and it will behave like
+an offline-ready mobile app, given that the Stealth Service's web server is online.
 
 
 ## Releases
