@@ -35,6 +35,7 @@
 
 a {
 	padding: 0px 2px;
+	font-family: 'vera-mono';
 	color: var(--link-default-color);
 	border: 1px solid transparent;
 	border-bottom: 1px solid var(--link-default-color);

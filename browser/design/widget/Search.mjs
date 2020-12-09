@@ -53,9 +53,9 @@ const toMap = function(result) {
 
 		let element = new Element('li', [
 			'<h4 data-key="title">Title</h4>',
-			'<code data-key="content">Content</code>',
+			'<a data-key="url" href="#">URL</a>',
 			'<span data-key="score">0</span>',
-			'<a data-key="url" href="#">URL</a>'
+			'<code data-key="content">Content</code>'
 		]);
 
 		let model = {
