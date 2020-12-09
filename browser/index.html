@@ -80,6 +80,13 @@
 
 					});
 
+				} else if (URL.isURL(ENVIRONMENT.flags.url) === true) {
+
+					let tab = browser.open(ENVIRONMENT.flags.url.link);
+					if (tab !== null) {
+						browser.show(tab);
+					}
+
 				} else {
 
 					let worker = (window.navigator || {}).serviceWorker || null;

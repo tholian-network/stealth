@@ -23,7 +23,7 @@ const toSRC = function(url, id, refresh) {
 		let mime = url.mime || null;
 		if (mime !== null) {
 
-			if (mime.type === 'audio' || mime.type === 'video') {
+			if (mime.type === 'image' || mime.type === 'audio' || mime.type === 'video') {
 
 				src = '/browser/internal/media.html?url=' + encodeURIComponent(url.link);
 
@@ -77,13 +77,6 @@ const toURL = function(src) {
 				url = URL.parse('stealth:fix-host?url=' + decodeURIComponent(tmp));
 			}
 
-		} else if (src.startsWith('/browser/internal/media.html?url=')) {
-
-			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
-			if (tmp !== null) {
-				url = URL.parse('stealth:media?url=' + decodeURIComponent(tmp));
-			}
-
 		} else if (src.startsWith('/browser/internal/fix-mode.html?url=')) {
 
 			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
@@ -96,6 +89,13 @@ const toURL = function(src) {
 			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
 			if (tmp !== null) {
 				url = URL.parse('stealth:fix-request?url=' + decodeURIComponent(tmp));
+			}
+
+		} else if (src.startsWith('/browser/internal/media.html?url=')) {
+
+			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
+			if (tmp !== null) {
+				url = URL.parse('stealth:media?url=' + decodeURIComponent(tmp));
 			}
 
 		} else if (src.startsWith('/stealth/')) {
@@ -203,15 +203,11 @@ const Webview = function(browser) {
 			if (
 				url.link !== this.url.link
 				&& url.protocol === 'stealth'
-				&& (
-					url.domain === 'fix-host'
-					|| url.domain === 'fix-mode'
-					|| url.domain === 'fix-request'
-				)
+				&& this.url.protocol !== 'stealth'
 			) {
 
-				// XXX: In case of Error Page Redirect, update Tab's Settings
-				// without triggering an event flow (to avoid potential cycles)
+				// XXX: In case of a Page Redirect, update Tab's Settings
+				// without triggering an event (to avoid potential cycles)
 
 				let datetime = DATETIME.parse(new Date());
 

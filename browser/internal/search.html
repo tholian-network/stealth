@@ -10,81 +10,17 @@
 			@import url("../design/common/elements.css");
 			@import url("../design/common/layout.css");
 
-			article#search p,
-			article#search div {
-				text-align: center;
-			}
+			@import url("../design/widget/Search.css");
 
-			article#search input[data-key="search-query"] {
-				display: inline-block;
-				width: calc(50% - 32px);
-				text-align: center;
-			}
 
-			article#search button[data-action="search"]:before {
-				display: inline-block;
-				content: '\e52e';
-			}
 
-			article#results {
-				opacity: 0;
-				transition: 250ms opacity ease-out;
-			}
-
-			article#results ul {
-				display: block;
-				margin: 0px;
-				padding: 0px;
-				list-style: none;
-			}
-
-			article#results ul li {
-				display: block;
-				margin: 0px;
-				padding: 16px 0px;
-				border-bottom: 1px solid var(--surface-default-color);
-			}
-
-			article#results ul li:last-of-type {
-				border-bottom: none;
-			}
-
-			article#results ul li b {
-				display: block;
-				font-family: 'crystalline';
-				font-size: 20px;
-				font-weight: 600;
-				line-height: 24px;
-			}
-
-			article#results ul li span {
-				display: block;
-				font-size: 16px;
-				margin: 8px 0px 8px 0px;
-			}
-
-			article#results.active {
-				opacity: 1;
-				transition: 250ms opacity ease-out;
+			body > browser-widget-search {
+				margin: 64px auto 0px auto;
 			}
 
 		</style>
 	</head>
 	<body data-page="search">
-		<article id="search">
-			<h3>Search</h3>
-			<p>
-				Search the Web for keywords:
-			</p>
-			<div>
-				<input data-key="search-query" title="Keyword Search" type="text" placeholder="search for keywords..." disabled/>
-				<button data-action="search"></button>
-			</div>
-		</article>
-		<article id="results">
-			<h3>Results</h3>
-			<ul data-key="results-list"></ul>
-		</article>
 		<script type="module" src="search.mjs"></script>
 	</body>
 </html>

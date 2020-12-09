@@ -25,6 +25,31 @@ if (browser !== null) {
 			site_settings.emit('show');
 		}
 
+		if (URL.isURL(ENVIRONMENT.flags.url) === true) {
+
+			let footer = site_settings.query('browser-card-settings-footer');
+			if (footer !== null) {
+
+				let button = new Element('button');
+
+				button.attr('title',       'Open URL in new Tab');
+				button.attr('data-action', 'open');
+
+				button.on('click', () => {
+
+					let tab = browser.open(ENVIRONMENT.flags.url.link);
+					if (tab !== null) {
+						browser.show(tab);
+					}
+
+				});
+
+				button.render(footer);
+
+			}
+
+		}
+
 	}
 
 
