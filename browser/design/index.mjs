@@ -50,11 +50,30 @@ const on_context = function(browser, element) {
 			let url = null;
 
 			if (type === 'a') {
-				url = URL.resolve(base, element.attr('href'));
-			} else if (type === 'img') {
-				url = URL.resolve(base, element.attr('src'));
-			} else if (type === 'audio' || type === 'video') {
-				url = URL.resolve(base, element.attr('src'));
+
+				url = URL.parse(element.attr('href'));
+
+				if (URL.toDomain(url) === null && URL.toHost(url) === null) {
+					url = URL.resolve(base, url);
+				}
+
+			} else if (
+				type === 'img'
+				|| type === 'audio'
+				|| type === 'video'
+			) {
+
+				let src = element.attr('src');
+				if (src.startsWith('/stealth/:')) {
+					url = URL.parse(src.substr(9).split('/').slice(1).join('/'));
+				} else if (src.startsWith('/stealth/')) {
+					url = URL.parse(src.substr(9));
+				}
+
+				if (URL.toDomain(url) === null && URL.toHost(url) === null) {
+					url = URL.resolve(base, url);
+				}
+
 			}
 
 			if (URL.isURL(url) === true) {
@@ -85,9 +104,6 @@ const on_context = function(browser, element) {
 					}
 
 				}
-
-
-				// TODO: Fix this for stealth:... URLs to not use url.link but relative asset path
 
 
 				actions.push({

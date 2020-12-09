@@ -28,6 +28,10 @@
 				display: inline-block;
 			}
 
+			body > article table {
+				table-layout: fixed;
+			}
+
 			body > article table + table {
 				margin-top: 32px;
 			}
@@ -40,8 +44,9 @@
 				border-top: 0px none;
 			}
 
+			body > article table th:nth-of-type(1),
 			body > article table td:nth-of-type(1) {
-				width: 144px;
+				width: 204px;
 				padding: 0px 8px;
 				text-align: center;
 				white-space: nowrap;
@@ -214,12 +219,12 @@
 						<td>History Manager (not implemented yet)</td>
 					</tr>
 					<tr>
-						<td><a href="stealth:media" disabled>stealth:media</a></td>
-						<td>Media Manager (not implemented yet)</td>
+						<td><a href="stealth:media">stealth:media</a></td>
+						<td>Media Manager</td>
 					</tr>
 					<tr>
-						<td><a href="stealth:search" disabled>stealth:search</a></td>
-						<td>Offline + Online Search (not implemented yet)</td>
+						<td><a href="stealth:search">stealth:search</a></td>
+						<td>Web Search</td>
 					</tr>
 					<tr>
 						<td><a href="stealth:settings">stealth:settings</a></td>
