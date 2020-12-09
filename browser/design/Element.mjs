@@ -1172,7 +1172,31 @@ Element.prototype = {
 			let val = this.node.getAttribute('data-val');
 			if (val !== null) {
 
-				this.node.setAttribute('data-val', render_value(value));
+				let map = this.node.getAttribute('data-map');
+				if (map === 'DATETIME' || map === 'DATE' || map === 'TIME') {
+					this.node.setAttribute('data-val', DATETIME.render(value));
+				} else if (map === 'IP') {
+					this.node.setAttribute('data-val', IP.render(value));
+				} else if (map === 'UA') {
+					this.node.setAttribute('data-val', UA.render(value));
+				} else if (map === 'URL') {
+					this.node.setAttribute('data-val', URL.render(value));
+				} else {
+
+					let pattern = this.node.getAttribute('pattern');
+					if (pattern !== null) {
+
+						if (validate_value(value, pattern) === true) {
+							this.node.setAttribute('data-val', render_value(value));
+						} else {
+							this.node.setAttribute('data-val', null);
+						}
+
+					} else {
+						this.node.setAttribute('data-val', render_value(value));
+					}
+
+				}
 
 			} else {
 
@@ -1436,7 +1460,33 @@ Element.prototype = {
 			let val = this.node.getAttribute('data-val');
 			if (val !== null) {
 
-				return parse_value(val);
+				let map = this.node.getAttribute('data-map');
+				if (map === 'DATETIME') {
+					return filter_value(val, DATETIME.parse, DATETIME.isDATETIME);
+				} else if (map === 'DATE') {
+					return filter_value(val, DATETIME.parse, DATETIME.isDate);
+				} else if (map === 'TIME') {
+					return filter_value(val, DATETIME.parse, DATETIME.isTime);
+				} else if (map === 'IP') {
+					return filter_value(val, IP.parse, IP.isIP);
+				} else if (map === 'UA') {
+					return filter_value(val, UA.parse, UA.isUA);
+				} else if (map === 'URL') {
+					return filter_value(val, URL.parse, URL.isURL);
+				} else {
+
+					return filter_value(val, null, (value) => {
+
+						let pattern = this.node.getAttribute('pattern');
+						if (pattern !== null) {
+							return validate_value(value, pattern);
+						} else {
+							return true;
+						}
+
+					}, (value) => parse_value(value));
+
+				}
 
 			} else {
 
@@ -1447,29 +1497,17 @@ Element.prototype = {
 					let val = (this.node.value).trim();
 
 					if (map === 'DATETIME') {
-
 						return filter_value(val, DATETIME.parse, DATETIME.isDATETIME);
-
 					} else if (map === 'DATE') {
-
 						return filter_value(val, DATETIME.parse, DATETIME.isDate);
-
 					} else if (map === 'TIME') {
-
 						return filter_value(val, DATETIME.parse, DATETIME.isTime);
-
 					} else if (map === 'IP') {
-
 						return filter_value(val, IP.parse, IP.isIP);
-
 					} else if (map === 'UA') {
-
 						return filter_value(val, UA.parse, UA.isUA);
-
 					} else if (map === 'URL') {
-
 						return filter_value(val, URL.parse, URL.isURL);
-
 					} else {
 
 						return filter_value(val, null, (value) => {

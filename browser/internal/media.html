@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>stealth:media</title>
+		<style>
+
+			@import url("../design/common/index.css");
+			@import url("../design/common/theme.css");
+			@import url("../design/common/elements.css");
+			@import url("../design/common/layout.css");
+
+			@import url("../design/widget/Image.css");
+			@import url("../design/widget/Audio.css");
+			@import url("../design/widget/Video.css");
+
+
+
+			body > browser-widget-image,
+			body > browser-widget-audio,
+			body > browser-widget-video {
+				margin: 64px auto 64px auto;
+			}
+
+		</style>
+	</head>
+	<body data-page="media">
+		<script type="module" src="media.mjs"></script>
+	</body>
+</html>

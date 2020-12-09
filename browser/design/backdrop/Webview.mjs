@@ -174,7 +174,7 @@ const update = function(tab, refresh) {
 const Webview = function(browser) {
 
 	this.element = new Element('browser-backdrop-webview', [
-		'<iframe sandbox="allow-scripts allow-same-origin" src="/browser/internal/blank.html"></iframe>'
+		'<iframe sandbox="allow-downloads allow-scripts allow-same-origin" src="/browser/internal/blank.html"></iframe>'
 	]);
 
 	this.url     = URL.parse('stealth:blank');

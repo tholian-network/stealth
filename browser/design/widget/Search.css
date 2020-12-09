@@ -4,7 +4,6 @@ browser-widget-search {
 	display: block;
 	position: relative;
 	width: 800px;
-	max-height: unset;
 	margin: 0px;
 	padding: 16px;
 	background: var(--surface-default-background);
