@@ -1,14 +1,14 @@
 
-import { Element                    } from '../Element.mjs';
-import { Widget                     } from '../Widget.mjs';
-import { console, isArray, isObject } from '../../extern/base.mjs';
-import { URL                        } from '../../source/parser/URL.mjs';
+import { Element           } from '../Element.mjs';
+import { Widget            } from '../Widget.mjs';
+import { isArray, isObject } from '../../extern/base.mjs';
+import { URL               } from '../../source/parser/URL.mjs';
 
 
 
 const Image = function(browser, actions) {
 
-	this.actions = isArray(actions) ? actions : [ 'download', 'fullscreen' ];
+	this.actions = isArray(actions) ? actions : [ 'fullscreen', 'download' ];
 	this.element = new Element('browser-widget-image', [
 		'<browser-widget-image-article>',
 		'<img data-key="source" data-map="URL" data-val="null"/>',
@@ -39,12 +39,12 @@ const Image = function(browser, actions) {
 
 		let footer = this.element.query('browser-widget-image-footer');
 
-		if (this.actions.includes('download')) {
-			this.buttons.download.render(footer);
-		}
-
 		if (this.actions.includes('fullscreen')) {
 			this.buttons.fullscreen.render(footer);
+		}
+
+		if (this.actions.includes('download')) {
+			this.buttons.download.render(footer);
 		}
 
 	});
@@ -75,8 +75,11 @@ const Image = function(browser, actions) {
 
 		this.buttons.fullscreen.on('click', () => {
 
-			this.model.source.node.requestFullscreen().catch((err) => {
-				console.error(err);
+			this.model.source.node.requestFullscreen().catch(() => {
+
+				this.actions.remove('fullscreen');
+				this.element.emit('update');
+
 			});
 
 		});
@@ -89,8 +92,6 @@ const Image = function(browser, actions) {
 
 
 Image.from = function(value, actions) {
-
-	console.log(value, actions);
 
 	value   = isObject(value)  ? value   : null;
 	actions = isArray(actions) ? actions : null;

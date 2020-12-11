@@ -146,7 +146,7 @@ export const Emitter = (function(global) {
 								}
 
 							} catch (err) {
-								// Ignore
+								console.error(err);
 							}
 
 							events.splice(e, 1);
@@ -163,7 +163,7 @@ export const Emitter = (function(global) {
 								}
 
 							} catch (err) {
-								// Ignore
+								console.error(err);
 							}
 
 						}

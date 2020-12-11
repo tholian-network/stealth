@@ -1,9 +1,10 @@
 
-import { isArray, isBoolean, isFunction, isNumber, isObject, isString } from '../extern/base.mjs';
-import { DATETIME                                                     } from '../source/parser/DATETIME.mjs';
-import { IP                                                           } from '../source/parser/IP.mjs';
-import { UA                                                           } from '../source/parser/UA.mjs';
-import { URL                                                          } from '../source/parser/URL.mjs';
+import { console, isArray, isBoolean, isFunction, isNumber, isObject, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                                           } from '../source/ENVIRONMENT.mjs';
+import { DATETIME                                                              } from '../source/parser/DATETIME.mjs';
+import { IP                                                                    } from '../source/parser/IP.mjs';
+import { UA                                                                    } from '../source/parser/UA.mjs';
+import { URL                                                                   } from '../source/parser/URL.mjs';
 
 
 
@@ -58,7 +59,31 @@ const DOMEVENT = {
 	'dragleave': null,
 	'dragover':  null,
 	'dragstart': null,
-	'drop':      null
+	'drop':      null,
+
+	// Media
+	'abort':          null,
+	'canplay':        null,
+	'canplaythrough': null,
+	'durationchange': null,
+	'emptied':        null,
+	'ended':          null,
+	'error':          null,
+	'loadeddata':     null,
+	'loadedmetadata': null,
+	'loadstart':      null,
+	'pause':          'pause',
+	'play':           'play',
+	'playing':        null,
+	'progress':       null,
+	'ratechange':     null,
+	'seeked':         null,
+	'seeking':        null,
+	'stalled':        null,
+	'suspend':        null,
+	'timeupdate':     null,
+	'volumechange':   null,
+	'waiting':        null
 
 };
 
@@ -737,7 +762,11 @@ Element.prototype = {
 							}
 
 						} catch (err) {
-							// Ignore
+
+							if (ENVIRONMENT.flags.debug === true) {
+								console.error(err);
+							}
+
 						}
 
 						events.splice(e, 1);
@@ -754,7 +783,11 @@ Element.prototype = {
 							}
 
 						} catch (err) {
-							// Ignore
+
+							if (ENVIRONMENT.flags.debug === true) {
+								console.error(err);
+							}
+
 						}
 
 					}
