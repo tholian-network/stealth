@@ -1,7 +1,7 @@
 
 import { isString    } from '../extern/base.mjs';
 import { Element     } from '../design/Element.mjs';
-import { Search      } from '../design/widget/Search.mjs';
+import { Search      } from '../internal/search/Search.mjs';
 import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
 
 

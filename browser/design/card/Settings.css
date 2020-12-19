@@ -139,8 +139,8 @@ browser-card-settings-article > h4 button[data-action="remove"]:before {
 }
 
 browser-card-settings-article > * {
-	width: 100%;
-	margin: 0px 0px 16px 0px;
+	width: 100% !important;
+	margin: 0px 0px 16px 0px !important;
 }
 
 

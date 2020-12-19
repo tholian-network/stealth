@@ -11,68 +11,18 @@
 			@import url("../design/common/layout.css");
 
 			@import url("../design/card/Settings.css");
-			@import url("../design/card/Session.css");
+			@import url("../internal/debug/Browser.css");
 
-			article {
-				all: unset;
-				display: block;
-				position: relative;
-				width: 800px;
-				margin: 32px auto;
-				padding: 16px;
-				background: var(--surface-default-background);
-				border: 1px solid var(--surface-default-color);
-				border-radius: 8px;
-				box-sizing: border-box;
-				transition: 200ms all ease-out;
-				overflow: hidden;
-				cursor: default;
-			}
 
-			article > h3 {
-				display: block;
-				margin: 0px;
-				padding: 0px 0px 16px 0px;
-				font-family: 'crystalline';
-				font-size: 32px;
-				font-weight: 500;
-				line-height: 32px;
-				text-transform: uppercase;
-				vertical-align: middle;
-			}
 
-			article > h4 {
-				display: block;
-				margin: 16px 0px 16px 0px;
-				padding: 0px 0px 0px 0px;
-				font-family: 'crystalline';
-				font-size: 24px;
-				font-weight: 500;
-				line-height: 24px;
-				text-transform: uppercase;
-				vertical-align: middle;
-				border-bottom: 1px solid var(--surface-default-color);
-			}
-
-			section[data-inspect="site"] > browser-card-settings {
-				margin: 32px auto;
-			}
-
-			section[data-inspect="site"] > browser-card-settings > browser-card-settings-footer button[data-action="open"]:before {
-				content: '\e89e';
-			}
-
-			section[data-inspect="browser"] > article > browser-card-session,
-			section[data-inspect="browser"] > article > browser-card-tab {
-				width: 100%;
-				margin: 32px auto;
+			body > browser-card-settings,
+			body > browser-widget-browser {
+				margin: 64px auto 64px auto;
 			}
 
 		</style>
 	</head>
 	<body data-page="debug">
-		<section data-inspect="site"></section>
-		<section data-inspect="browser"></section>
 		<script type="module" src="debug.mjs"></script>
 	</body>
 </html>

@@ -101,6 +101,7 @@ const update = function(browser) {
 			element.erase();
 		});
 
+
 		Object.keys(this.results).sort().forEach((domain) => {
 
 			let cards = [];
@@ -351,7 +352,6 @@ const Settings = function(browser, allowed, actions) {
 
 	this.results = {};
 
-
 	Widget.call(this);
 
 
@@ -406,6 +406,7 @@ const Settings = function(browser, allowed, actions) {
 		update.call(this, browser);
 
 	});
+
 
 	if (this.buttons.refresh !== null) {
 

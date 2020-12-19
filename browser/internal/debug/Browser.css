@@ -1,0 +1,143 @@
+
+@import url("../../design/card/Beacon.css");
+@import url("../../design/card/Host.css");
+@import url("../../design/card/Mode.css");
+@import url("../../design/card/Peer.css");
+@import url("../../design/card/Policy.css");
+@import url("../../design/card/Redirect.css");
+@import url("../../design/card/Session.css");
+
+
+
+body,
+body[data-theme="dark"] {
+	--surface-nested-foreground: #313131;
+}
+
+body[data-theme="light"] {
+	--surface-nested-foreground: #e3e3e3;
+}
+
+
+
+browser-widget-browser {
+	all: unset;
+	display: block;
+	position: relative;
+	width: 800px;
+	max-height: 64px;
+	margin: 0px;
+	padding: 16px;
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow: hidden;
+	cursor: default;
+}
+
+browser-widget-browser.active {
+	max-height: unset;
+}
+
+browser-widget-browser > h3 {
+	display: block;
+	margin: 0px;
+	padding: 0px 0px 16px 0px;
+	font-family: 'crystalline';
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 32px;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
+
+browser-widget-browser > button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-widget-browser > button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-widget-browser > button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+
+
+browser-widget-browser-header {
+	display: none;
+	width: 100%;
+	height: auto;
+}
+
+browser-widget-browser.active browser-widget-browser-header {
+	display: block;
+}
+
+browser-widget-browser-header > input[data-key="domain"] {
+	display: block;
+	width: 100%;
+	margin: 0px auto 16px auto;
+	text-align: center;
+}
+
+browser-widget-browser-header > p {
+	margin: 0px 0px 16px 0px;
+	font-family: 'museo';
+	font-size: 16px;
+	text-align: center;
+}
+
+
+
+browser-widget-browser-article {
+	display: none;
+	width: 100%;
+	height: auto;
+}
+
+browser-widget-browser.active browser-widget-browser-article {
+	display: block;
+}
+
+browser-widget-browser-article > * {
+	width: 100% !important;
+	margin: 0px 0px 16px 0px !important;
+}
+
+
+
+browser-widget-browser-footer {
+	display: none;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-widget-browser.active browser-widget-browser-footer {
+	display: block;
+}
+
+browser-widget-browser-footer > button[data-action="refresh"]:before { content: '\e5d5'; }
+
+
+
+@media screen and (max-width: 800px) {
+
+	browser-widget-browser {
+		width: auto;
+	}
+
+}
+
