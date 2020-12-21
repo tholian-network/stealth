@@ -29,33 +29,12 @@ browser-widget-audio-article {
 
 
 
-
-whatever {
-
-	background: white;
-	color: #f00;
-}
-
-/*
-browser-widget-audio-article audio {
-	display: inline-block;
-	width: auto;
-	max-width: 100%;
-	height: auto;
-	max-height: 100%;
-	margin: 0px auto;
-	padding: 0px;
-}
-*/
-
-
-
 browser-widget-audio-footer {
 	display: block;
 	height: 32px;
 	margin: 0px;
 	padding: 0px;
-	text-align: center;
+	text-align: left;
 	z-index: 2;
 }
 
@@ -74,7 +53,7 @@ browser-widget-audio-footer > button[data-action="pause"]:before    { content: '
 
 browser-widget-audio-footer > progress {
 	display: inline-block;
-	width: calc(100% - 96px);
+	width: calc(100% - 48px - 48px);
 	height: 16px;
 	line-height: 30px;
 	border: 1px solid transparent;

@@ -1,6 +1,6 @@
 
-import { Element                                         } from '../Element.mjs';
-import { Widget                                          } from '../Widget.mjs';
+import { Element                                         } from '../../design/Element.mjs';
+import { Widget                                          } from '../../design/Widget.mjs';
 import { isArray, isBuffer, isNumber, isObject, isString } from '../../extern/base.mjs';
 
 
@@ -240,7 +240,9 @@ Search.prototype = Object.assign({}, Widget.prototype, {
 				value.results = value.results.filter((r) => isResult(r));
 
 
-				let list = this.element.query('ul');
+				let article = this.element.query('browser-widget-search-article');
+				let list    = article.query('ul');
+
 				if (list !== null) {
 
 					list.query('li', true).forEach((item) => item.erase());

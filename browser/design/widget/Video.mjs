@@ -41,7 +41,7 @@ const Video = function(browser, actions) {
 		this.buttons.fullscreen.erase();
 
 
-		let footer = this.element.query('browser-widget-image-footer');
+		let footer = this.element.query('browser-widget-video-footer');
 
 		if (this.actions.includes('fullscreen')) {
 			this.buttons.fullscreen.render(footer);

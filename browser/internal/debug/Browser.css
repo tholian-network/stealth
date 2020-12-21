@@ -9,17 +9,6 @@
 
 
 
-body,
-body[data-theme="dark"] {
-	--surface-nested-foreground: #313131;
-}
-
-body[data-theme="light"] {
-	--surface-nested-foreground: #e3e3e3;
-}
-
-
-
 browser-widget-browser {
 	all: unset;
 	display: block;

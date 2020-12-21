@@ -4,63 +4,6 @@ import { IP                                                         } from '../.
 
 
 
-const isPolicy = function(policy) {
-
-	if (
-		isObject(policy) === true
-		&& isString(policy.domain) === true
-		&& isArray(policy.url) === true
-	) {
-
-		let check = policy.url.filter((url) => {
-
-			if (
-				isObject(url) === true
-				&& isObject(url.path) === true
-				&& (isString(url.path.prefix) === true || url.path.prefix === null)
-				&& (isString(url.path.midfix) === true || url.path.midfix === null)
-				&& (isString(url.path.suffix) === true || url.path.suffix === null)
-				&& isArray(url.query) === true
-			) {
-
-				let check = url.query.filter((query) => {
-
-					if (
-						(isString(query.prefix) === true || query.prefix === null)
-						&& (isString(query.midfix) === true || query.midfix === null)
-						&& (isString(query.suffix) === true || query.suffix === null)
-					) {
-						return true;
-					}
-
-
-					return false;
-
-				});
-
-				if (check.length === url.query.length) {
-					return true;
-				}
-
-			}
-
-
-			return false;
-
-		});
-
-		if (check.length === policy.url.length) {
-			return true;
-		}
-
-	}
-
-
-	return false;
-
-};
-
-
 const TOPLEVELDOMAINS = [
 	'aba.ae',
 	'ac.id',
@@ -328,8 +271,13 @@ const MIME = [
 
 	// video
 	{ ext: 'avi',  type: 'video', binary: true, format: 'video/x-msvideo' },
+	{ ext: 'm4v',  type: 'video', binary: true, format: 'video/mp4'       },
+	{ ext: 'mov',  type: 'video', binary: true, format: 'video/quicktime' },
+	{ ext: 'mp4',  type: 'video', binary: true, format: 'video/mp4'       },
 	{ ext: 'mpeg', type: 'video', binary: true, format: 'video/mpeg'      },
+	{ ext: 'mpg4', type: 'video', binary: true, format: 'video/mp4'       },
 	{ ext: 'ogv',  type: 'video', binary: true, format: 'video/ogg'       },
+	{ ext: 'qt',   type: 'video', binary: true, format: 'video/quicktime' },
 	{ ext: 'webm', type: 'video', binary: true, format: 'video/webm'      },
 
 	// other
@@ -415,28 +363,6 @@ const resolve_path = function(raw) {
 
 
 const URL = {
-
-	clean: function(url, policy) {
-
-		url    = URL.isURL(url)   ? url    : null;
-		policy = isPolicy(policy) ? policy : null;
-
-
-		if (url !== null) {
-
-			if (isString(url.query) === true) {
-
-				// TODO: Implement this
-				console.log(url.query);
-
-			}
-
-		}
-
-
-		return url;
-
-	},
 
 	compare: function(a, b) {
 
