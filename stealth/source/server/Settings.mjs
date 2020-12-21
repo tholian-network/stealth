@@ -21,7 +21,7 @@ const readify = function(raw) {
 			payload['interface'] = isBoolean(payload['interface']) ? payload['interface'] : false;
 			payload['internet']  = isBoolean(payload['internet'])  ? payload['internet']  : false;
 			payload['beacons']   = isBoolean(payload['beacons'])   ? payload['beacons']   : false;
-			payload['blockers']  = false; // cannot be read
+			payload['blockers']  = isBoolean(payload['blockers'])  ? payload['blockers']  : false;
 			payload['hosts']     = isBoolean(payload['hosts'])     ? payload['hosts']     : false;
 			payload['modes']     = isBoolean(payload['modes'])     ? payload['modes']     : false;
 			payload['peers']     = isBoolean(payload['peers'])     ? payload['peers']     : false;
@@ -216,7 +216,7 @@ Settings.prototype = Object.assign({}, Emitter.prototype, {
 							'interface': blob.data['interface'],
 							'internet':  blob.data['internet'],
 							'beacons':   blob.data['beacons'],
-							'blockers':  null,
+							'blockers':  blob.data['blockers'],
 							'hosts':     blob.data['hosts'],
 							'modes':     blob.data['modes'],
 							'peers':     blob.data['peers'],

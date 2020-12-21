@@ -110,6 +110,7 @@ const Peer = function(browser, actions) {
 
 	});
 
+
 	if (this.buttons.create !== null) {
 
 		this.buttons.create.on('click', () => {

@@ -1,0 +1,106 @@
+
+browser-card-blocker {
+	all: unset;
+	display: block;
+	position: relative;
+	width: 800px;
+	max-height: 64px;
+	margin: 0px;
+	padding: 16px;
+	background: var(--surface-default-background);
+	border: 1px solid var(--surface-default-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+	transition: 200ms all ease-out;
+	overflow: hidden;
+	cursor: default;
+}
+
+browser-card-blocker.active {
+	max-height: unset;
+}
+
+browser-card-blocker > h3 {
+	display: block;
+	margin: 0px 0px 16px 0px;
+	padding: 0px;
+}
+
+browser-card-blocker > h3:before {
+	display: inline;
+	content: '\e32a';
+	margin: 0px 16px 0px 0px;
+	padding: 0px;
+	font-family: 'icon';
+	font-size: 24px;
+	font-weight: 400;
+	text-align: center;
+	vertical-align: middle;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+browser-card-blocker > h3 input[type="text"] {
+	display: inline-block;
+	width: calc(100% - 32px - 32px - 24px);
+	font-family: 'vera-mono';
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 32px;
+}
+
+browser-card-blocker > button[data-action="toggle"] {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	bottom: auto;
+	left: auto;
+}
+
+browser-card-blocker > button[data-action="toggle"]:before {
+	content: '\e5c5';
+	transition: 200ms transform ease-out;
+}
+
+browser-card-blocker > button[data-action="toggle"].active:before {
+	transform: rotate(180deg);
+	transition: 200ms transform ease-out;
+}
+
+
+
+browser-card-blocker-article {
+	display: none;
+	width: 100%;
+	height: auto;
+}
+
+browser-card-blocker.active browser-card-blocker-article {
+	display: block;
+}
+
+
+
+browser-card-blocker-footer {
+	display: none;
+	height: 32px;
+	margin: 16px 0px 0px 0px;
+	padding: 0px;
+	text-align: right;
+}
+
+browser-card-blocker.active browser-card-blocker-footer {
+	display: block;
+}
+
+
+
+@media screen and (max-width: 800px) {
+
+	browser-card-blocker {
+		width: auto;
+	}
+
+}
+

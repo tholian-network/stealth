@@ -823,6 +823,10 @@ Settings.from = function(json) {
 				settings['beacons'] = data['beacons'].filter((beacon) => Beacon.isBeacon(beacon));
 			}
 
+			if (isArray(data['blockers']) === true) {
+				settings['blockers'] = data['blockers'].filter((blocker) => Blocker.isBlocker(blocker));
+			}
+
 			if (isArray(data['hosts']) === true) {
 				settings['hosts'] = data['hosts'].filter((host) => Host.isHost(host));
 			}
@@ -872,7 +876,7 @@ Settings.prototype = {
 			'interface': {},
 			'internet':  {},
 			'beacons':   [],
-			'blockers':  null, // private
+			'blockers':  [],
 			'hosts':     [],
 			'modes':     [],
 			'peers':     [],
@@ -895,6 +899,14 @@ Settings.prototype = {
 
 			if (Beacon.isBeacon(beacon) === true) {
 				data['beacons'].push(beacon);
+			}
+
+		});
+
+		this['blockers'].forEach((blocker) => {
+
+			if (Blocker.isBlocker(blocker) === true) {
+				data['blockers'].push(blocker);
 			}
 
 		});

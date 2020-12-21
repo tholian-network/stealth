@@ -162,6 +162,7 @@ const Tab = function(browser, actions) {
 
 	});
 
+
 	if (this.buttons.back !== null) {
 
 		this.buttons.back.on('click', () => {

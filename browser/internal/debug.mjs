@@ -11,7 +11,7 @@ let browser = window.parent.BROWSER || null;
 if (browser !== null) {
 
 	let browser_settings = Browser.from(browser.settings, [ 'tabs', 'sessions' ]);
-	let site_settings    = Settings.from({ domain: '' }, [ 'beacons', 'hosts', 'modes', 'peers', 'policies', 'redirects' ]);
+	let site_settings    = Settings.from({ domain: '' }, [ 'beacons', 'blockers', 'hosts', 'modes', 'peers', 'policies', 'redirects' ]);
 
 	if (URL.isURL(ENVIRONMENT.flags.url) === true) {
 

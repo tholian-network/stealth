@@ -121,6 +121,7 @@ const Session = function(browser, actions) {
 
 	});
 
+
 	if (this.buttons.remove !== null) {
 
 		this.buttons.remove.on('click', () => {

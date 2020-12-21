@@ -235,6 +235,7 @@ const Policy = function(browser, actions) {
 
 	});
 
+
 	if (this.policy.buttons.create !== null) {
 
 		this.policy.buttons.create.on('click', () => {

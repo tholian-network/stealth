@@ -2,6 +2,7 @@
 import { Element                     } from '../Element.mjs';
 import { Widget                      } from '../Widget.mjs';
 import { Beacon                      } from '../card/Beacon.mjs';
+import { Blocker                     } from '../card/Blocker.mjs';
 import { Host                        } from '../card/Host.mjs';
 import { Mode                        } from '../card/Mode.mjs';
 import { Peer                        } from '../card/Peer.mjs';
@@ -58,6 +59,7 @@ const update = function(browser) {
 
 						this.results[entry.domain] = {
 							beacons:   [],
+							blockers:  [],
 							hosts:     [],
 							modes:     [],
 							peers:     [],
@@ -160,6 +162,22 @@ const update = function(browser) {
 							return Beacon.from(beacon, [ 'save' ]);
 						}
 
+					} catch (err) {
+						this.emit('error', [ err ]);
+					}
+
+					return null;
+
+				}).forEach((card) => cards.push(card));
+
+			}
+
+			if (entry.blockers.length > 0) {
+
+				entry.blockers.map((blocker) => {
+
+					try {
+						return Blocker.from(blocker, []);
 					} catch (err) {
 						this.emit('error', [ err ]);
 					}
@@ -324,7 +342,7 @@ const update = function(browser) {
 
 const Settings = function(browser, allowed, actions) {
 
-	this.allowed = isArray(allowed) ? allowed : [ 'beacons', 'hosts', 'modes', 'peers', 'policies', 'redirects', 'sessions' ];
+	this.allowed = isArray(allowed) ? allowed : [ 'beacons', 'blockers', 'hosts', 'modes', 'peers', 'policies', 'redirects', 'sessions' ];
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove' ];
 	this.element = new Element('browser-card-settings', [
 		'<h3>Settings</h3>',
@@ -332,7 +350,7 @@ const Settings = function(browser, allowed, actions) {
 		'<browser-card-settings-header>',
 		'<p>Search for Sites-specific Settings via their Domain:</p>',
 		'<input title="Domain" type="text" data-key="domain" pattern="([A-Za-z0-9._\\-*]+).([A-Za-z*]+)" placeholder="domain.tld" disabled/>',
-		'<p data-key="results">0 of 0 Beacons, 0 of 0 Hosts, 0 of 0 Modes, 0 of 0 Peers, 0 of 0 Policies, 0 of 0 Redirects, 0 of 0 Sessions</p>',
+		'<p data-key="results">0 of 0 Beacons, 0 of 0 Blockers, 0 of 0 Hosts, 0 of 0 Modes, 0 of 0 Peers, 0 of 0 Policies, 0 of 0 Redirects, 0 of 0 Sessions</p>',
 		'</browser-card-settings-header>',
 		'<browser-card-settings-article>',
 		'</browser-card-settings-article>',

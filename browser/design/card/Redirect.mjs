@@ -242,6 +242,7 @@ const Redirect = function(browser, actions) {
 
 	});
 
+
 	if (this.redirect.buttons.create !== null) {
 
 		this.redirect.buttons.create.on('click', () => {
@@ -275,6 +276,7 @@ const Redirect = function(browser, actions) {
 		});
 
 	}
+
 
 	if (this.buttons.create !== null) {
 

@@ -43,9 +43,7 @@ Blocker.isBlocker = function(payload) {
 		isObject(payload) === true
 		&& isString(payload.domain) === true
 	) {
-
 		return true;
-
 	}
 
 

@@ -183,6 +183,10 @@ const Browser = function(settings) {
 			this.settings['beacons'] = response['beacons'];
 		}
 
+		if (isArray(response['blockers']) === true) {
+			this.settings['blockers'] = response['blockers'];
+		}
+
 		if (isArray(response['hosts']) === true) {
 			this.settings['hosts'] = response['hosts'];
 		}

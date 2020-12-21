@@ -129,6 +129,7 @@ const Interface = function(browser, actions) {
 
 	});
 
+
 	if (this.buttons.save !== null) {
 
 		this.buttons.save.on('click', () => {

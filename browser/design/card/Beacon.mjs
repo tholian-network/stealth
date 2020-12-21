@@ -257,6 +257,7 @@ const Beacon = function(browser, actions) {
 
 	});
 
+
 	if (this.beacon.buttons.create !== null) {
 
 		this.beacon.buttons.create.on('click', () => {
