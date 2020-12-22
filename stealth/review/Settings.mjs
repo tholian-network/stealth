@@ -216,11 +216,11 @@ describe('Settings.prototype.toJSON()', function(assert) {
 			},
 			'beacons':  [{
 				domain: 'covert.localdomain',
-				path:   '/news/*',
 				beacons: [{
-					label:  'headline',
-					select: [ '#header h1' ],
-					mode:   'text'
+					path:   '/news/*',
+					query:  null,
+					select: 'article h1',
+					term:   'title'
 				}]
 			}],
 			'hosts': [{
@@ -290,11 +290,11 @@ describe('Settings.prototype.toJSON()', function(assert) {
 		},
 		'beacons':  [{
 			domain: 'covert.localdomain',
-			path:   '/news/*',
 			beacons: [{
-				label:  'headline',
-				select: [ '#header h1' ],
-				mode:   'text'
+				path:   '/news/*',
+				query:  null,
+				select: 'article h1',
+				term:   'title'
 			}]
 		}],
 		'blockers': null,
@@ -370,11 +370,11 @@ describe('Settings.prototype.read()', function(assert) {
 			},
 			'beacons': [{
 				domain: 'covert.localdomain',
-				path:   '/news/*',
 				beacons: [{
-					label:  'headline',
-					select: [ '#header h1' ],
-					mode:   'text'
+					path:   '/news/*',
+					query:  null,
+					select: 'article h1',
+					term:   'title'
 				}]
 			}],
 			'blockers': [{
@@ -451,15 +451,17 @@ describe('Settings.prototype.read()', function(assert) {
 
 		assert(read_file(sandbox + '/beacons.json'), [{
 			domain: 'covert.localdomain',
-			path:   '/news/*',
 			beacons: [{
-				label:  'headline',
-				select: [ '#header h1' ],
-				mode:   'text'
+				path:   '/news/*',
+				query:  null,
+				select: 'article h1',
+				term:   'title'
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/blockers.json'), []);
+		assert(read_file(sandbox + '/blockers.json'), [{
+			domain: 'malicious.example.com'
+		}]);
 
 		assert(read_file(sandbox + '/hosts.json'), [{
 			domain: 'covert.localdomain',
@@ -578,11 +580,11 @@ describe('Settings.prototype.save()', function(assert) {
 
 		settings['beacons'] = [{
 			domain: 'covert.localdomain',
-			path:   '/news/*',
 			beacons: [{
-				label:  'headline',
-				select: [ '#header h1' ],
-				mode:   'text'
+				path:   '/news/*',
+				query:  null,
+				select: 'article h1',
+				term:   'title'
 			}]
 		}];
 
@@ -664,11 +666,11 @@ describe('Settings.prototype.save()', function(assert) {
 
 		assert(read_file(sandbox + '/beacons.json'), [{
 			domain: 'covert.localdomain',
-			path:   '/news/*',
 			beacons: [{
-				label:  'headline',
-				select: [ '#header h1' ],
-				mode:   'text'
+				path:   '/news/*',
+				query:  null,
+				select: 'article h1',
+				term:   'title'
 			}]
 		}]);
 
