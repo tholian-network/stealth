@@ -1,7 +1,7 @@
 
-/.github/covert-scan.log
 /.github/ISSUES
 /.github/TOKEN
+/.github/workflows/*.report
 
 
 /node_modules
