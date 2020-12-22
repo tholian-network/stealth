@@ -15,6 +15,7 @@ if (REPORT !== null) {
 
 			if (
 				line.startsWith('(!)')
+				&& line.trim() !== '(!)'
 				&& line.includes('>') === false
 			) {
 				console.log(line);
