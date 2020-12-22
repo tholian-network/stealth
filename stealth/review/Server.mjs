@@ -110,6 +110,13 @@ describe('Server.prototype.toJSON()', function(assert) {
 					journal: []
 				}
 			},
+			policy: {
+				type: 'Policy Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
 			redirect: {
 				type: 'Redirect Service',
 				data: {

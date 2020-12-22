@@ -109,12 +109,29 @@ describe('isRequest()', function(assert) {
 
 describe('Request.prototype.toJSON()', function(assert) {
 
-	let mode    = EXAMPLE.toMode('https://example.com/does-not-exist.html');
-	let request = Request.from({
+	let mode     = EXAMPLE.toMode('https://example.com/does-not-exist.html');
+	let policy   = {
+		domain:   'example.com',
+		policies: [{
+			path:  '/clickbait.html',
+			query: 'ad&tracker'
+		}]
+	};
+	let redirect = {
+		domain:    'example.com',
+		redirects: [{
+			path:     '/redirect',
+			query:    'origin=123',
+			location: 'https://example.com/location.html'
+		}]
+	};
+	let request  = Request.from({
 		type: 'Request',
 		data: {
-			mode:  mode,
-			url:   'https://example.com/does-not-exist.html',
+			mode:     mode,
+			policy:   policy,
+			redirect: redirect,
+			url:      'https://example.com/does-not-exist.html',
 			flags: {
 				webview: true
 			}
@@ -126,6 +143,8 @@ describe('Request.prototype.toJSON()', function(assert) {
 	assert(json.type, 'Request');
 	assert(json.data, {
 		mode:     mode,
+		policy:   policy,
+		redirect: redirect,
 		url:      'https://example.com/does-not-exist.html',
 		download: {
 			bandwidth:  -1,
@@ -305,9 +324,12 @@ describe('Redirect.prototype.save()', function(assert) {
 	assert(isFunction(this.server.services.redirect.save), true);
 
 	this.server.services.redirect.save({
-		domain:   'example.com',
-		path:     '/redirect',
-		location: 'https://example.com/index.html'
+		domain:    'example.com',
+		redirects: [{
+			path:     '/redirect',
+			query:    null,
+			location: 'https://example.com/index.html'
+		}]
 	}, (response) => {
 
 		assert(response, {

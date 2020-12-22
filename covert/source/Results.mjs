@@ -176,7 +176,7 @@ const diff = function(aobject, bobject) {
 
 						if (isObject(aobject[a]) === true) {
 
-							if (Object.keys(aobject[a].length > 0)) {
+							if (Object.keys(aobject[a]).length > 0) {
 								return true;
 							}
 
@@ -224,6 +224,36 @@ const diff = function(aobject, bobject) {
 			return true;
 		}
 
+	} else if (isMap(aobject) === true && isMap(bobject) === true) {
+
+		let avalues = Array.from(aobject);
+		let bvalues = Array.from(bobject);
+
+		for (let a = 0, al = avalues.length; a < al; a++) {
+
+			if (bvalues[a] !== undefined && avalues[a][0] !== undefined && bvalues[a][0] !== undefined) {
+
+				if (avalues[a][0] === bvalues[a][0]) {
+
+					let is_different = diff(avalues[a][1], bvalues[a][1]);
+					if (is_different === true) {
+						return true;
+					}
+
+				} else {
+
+					return true;
+
+				}
+
+			} else {
+
+				return true;
+
+			}
+
+		}
+
 	} else if (isNumber(aobject) === true && isNumber(bobject) === true) {
 
 		if (aobject === bobject) {
@@ -244,6 +274,57 @@ const diff = function(aobject, bobject) {
 			return true;
 
 		}
+
+	} else if (isRegExp(aobject) === true && isRegExp(bobject) === true) {
+
+		let astr = aobject.toString();
+		let bstr = bobject.toString();
+
+		if (astr !== bstr) {
+			return true;
+		}
+
+	} else if (isSet(aobject) === true && isSet(bobject) === true) {
+
+		let avalues = Array.from(aobject);
+		let bvalues = Array.from(bobject);
+
+		for (let a = 0, al = avalues.length; a < al; a++) {
+
+			if (bvalues[a] !== undefined) {
+
+				if (avalues[a] !== null && bvalues[a] !== null) {
+
+					let is_different = diff(avalues[a], bvalues[a]);
+					if (is_different === true) {
+
+						if (isObject(avalues[a]) === true) {
+
+							if (Object.keys(avalues[a]).length > 0) {
+								return true;
+							}
+
+						} else {
+
+							return true;
+
+						}
+
+					}
+
+				}
+
+			} else {
+
+				return true;
+
+			}
+
+		}
+
+	} else if (isString(aobject) === true && isString(bobject) === true) {
+
+		return aobject !== bobject;
 
 	} else if (isObject(aobject) === true && isObject(bobject) === true) {
 
@@ -289,19 +370,6 @@ const diff = function(aobject, bobject) {
 			}
 
 		}
-
-	} else if (isRegExp(aobject) === true && isRegExp(bobject) === true) {
-
-		let astr = aobject.toString();
-		let bstr = bobject.toString();
-
-		if (astr !== bstr) {
-			return true;
-		}
-
-	} else if (isString(aobject) === true && isString(bobject) === true) {
-
-		return aobject !== bobject;
 
 	} else if (aobject !== bobject) {
 

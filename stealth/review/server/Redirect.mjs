@@ -68,15 +68,17 @@ describe('Redirect.toRedirect()', function(assert) {
 		domain:    'example.com',
 		another:   'property',
 		redirects: [{
-			path:    '/what/ever',
-			query:   'param1&param2',
-			another: 'property'
+			path:     '/review/server/redirect',
+			query:    'id=123&sid=123abc123',
+			location: 'https://example.com/review/server/redirect/location.json',
+			another:  'property'
 		}]
 	}), {
 		domain:    'example.com',
 		redirects: [{
-			path:  '/what/ever',
-			query: 'param1&param2',
+			path:     '/review/server/redirect',
+			query:    'id=123&sid=123abc123',
+			location: 'https://example.com/review/server/redirect/location.json',
 		}]
 	});
 

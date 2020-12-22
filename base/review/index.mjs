@@ -6,10 +6,12 @@ import _Buffer   from './Buffer.mjs';
 import _Date     from './Date.mjs';
 import Emitter   from './Emitter.mjs';
 import _Function from './Function.mjs';
+import _Map      from './Map.mjs';
 import MODULE    from './MODULE.mjs';
 import _Number   from './Number.mjs';
 import _Object   from './Object.mjs';
 import _RegExp   from './RegExp.mjs';
+import _Set      from './Set.mjs';
 import _String   from './String.mjs';
 
 
@@ -28,9 +30,11 @@ export default {
 		_Date,
 		Emitter,
 		_Function,
+		_Map,
 		_Number,
 		_Object,
 		_RegExp,
+		_Set,
 		_String
 
 	],

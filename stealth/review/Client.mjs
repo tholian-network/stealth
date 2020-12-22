@@ -66,9 +66,6 @@ describe('Client.prototype.toJSON()', function(assert) {
 		browser: null,
 		events: [],
 		journal: [],
-		settings: {
-			host: '127.0.0.3'
-		},
 		services: {
 			beacon: {
 				type: 'Beacon Service',
@@ -112,6 +109,13 @@ describe('Client.prototype.toJSON()', function(assert) {
 					journal: []
 				}
 			},
+			policy: {
+				type: 'Policy Service',
+				data: {
+					events: [],
+					journal: []
+				}
+			},
 			redirect: {
 				type: 'Redirect Service',
 				data: {
@@ -140,6 +144,9 @@ describe('Client.prototype.toJSON()', function(assert) {
 					journal: []
 				}
 			}
+		},
+		settings: {
+			host: '127.0.0.3'
 		},
 		state: {
 			connected: false,

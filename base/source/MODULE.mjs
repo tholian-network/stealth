@@ -16,9 +16,9 @@ export default {
 	Set:        Set,
 	String:     String,
 
+	isArray:    Array.isArray,
 	isBoolean:  Boolean.isBoolean,
 	isBuffer:   Buffer.isBuffer,
-	isArray:    Array.isArray,
 	isDate:     Date.isDate,
 	isEmitter:  Emitter.isEmitter,
 	isFunction: Function.isFunction,

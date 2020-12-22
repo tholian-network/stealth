@@ -5,7 +5,7 @@ on: [push]
 
 jobs:
 
-  test:
+  scan-base:
 
     runs-on: ubuntu-latest
 
@@ -16,9 +16,43 @@ jobs:
           node-version: 14
       - run: npm install
       - run: node ./make.mjs build
-      - run: node ./covert/covert.mjs scan --debug=true --report=.github/covert-scan.report
+      - run: node ./covert/covert.mjs scan "base/*" --debug=true --report=.github/covert-scan-base.report
       - uses: actions/upload-artifact@v2
         with:
-          name: Covert Report
-          path: .github/covert-scan.report
+          name: Covert Report for Base
+          path: .github/covert-scan-base.report
+
+  scan-covert:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install
+      - run: node ./make.mjs build
+      - run: node ./covert/covert.mjs scan "covert/*" --debug=true --report=.github/covert-scan-covert.report
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Covert Report for Covert
+          path: .github/covert-scan-covert.report
+
+  scan-stealth:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install
+      - run: node ./make.mjs build
+      - run: node ./covert/covert.mjs scan "stealth/*" --debug=true --report=.github/covert-scan-stealth.report
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Covert Report for Stealth
+          path: .github/covert-scan-stealth.report
 
