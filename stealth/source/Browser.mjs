@@ -120,6 +120,9 @@ const on_mode_change = function(mode) {
 
 const Browser = function(settings) {
 
+	settings = isObject(settings) ? settings : {};
+
+
 	this._settings = Object.freeze(Object.assign({
 		debug: false,
 		host:  'localhost'

@@ -235,14 +235,22 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 
 
-const Request = function(data, server) {
+const Request = function(settings, server) {
 
-	data   = isObject(data)   ? data   : {};
-	server = isServer(server) ? server : null;
+	settings = isObject(settings) ? settings : {};
+	server   = isServer(server)   ? server   : null;
 
 
-	if (Mode.isMode(data.mode) === true) {
-		this.mode = data.mode;
+	settings = Object.freeze({
+		mode:     Mode.isMode(settings.mode)             ? settings.mode     : null,
+		policy:   Policy.isPolicy(settings.policy)       ? settings.policy   : null,
+		redirect: Redirect.isRedirect(settings.redirect) ? settings.redirect : null,
+		url:      URL.isURL(settings.url)                ? settings.url      : null
+	});
+
+
+	if (Mode.isMode(settings.mode) === true) {
+		this.mode = settings.mode;
 	} else {
 		this.mode = {
 			domain: null,
@@ -256,8 +264,8 @@ const Request = function(data, server) {
 		};
 	}
 
-	if (Policy.isPolicy(data.policy) === true) {
-		this.policy = data.policy;
+	if (Policy.isPolicy(settings.policy) === true) {
+		this.policy = settings.policy;
 	} else {
 		this.policy = {
 			domain:   null,
@@ -265,8 +273,8 @@ const Request = function(data, server) {
 		};
 	}
 
-	if (Redirect.isRedirect(data.redirect) === true) {
-		this.redirect = data.redirect;
+	if (Redirect.isRedirect(settings.redirect) === true) {
+		this.redirect = settings.redirect;
 	} else {
 		this.redirect = {
 			domain:    null,
@@ -274,8 +282,8 @@ const Request = function(data, server) {
 		};
 	}
 
-	if (URL.isURL(data.url) === true) {
-		this.url = data.url;
+	if (URL.isURL(settings.url) === true) {
+		this.url = settings.url;
 	} else {
 		this.url = null;
 	}
@@ -752,36 +760,36 @@ const Request = function(data, server) {
 		this.timeline.optimize = DATETIME.parse(new Date());
 
 
-		let mime = this.url.mime || null;
-		if (mime !== null) {
+		// let mime = this.url.mime || null;
+		// if (mime !== null) {
 
-			if (mime.type === 'text' && mime.format === 'text/html') {
+		// 	if (mime.type === 'text' && mime.format === 'text/html') {
 
-				let parsed   = HTML.parse(this.response.payload);
-				let filtered = HTML.filter(parsed);
-				let rendered = HTML.render(filtered);
+		// 		let parsed   = HTML.parse(this.response.payload);
+		// 		let filtered = HTML.filter(parsed);
+		// 		let rendered = HTML.render(filtered);
 
-				if (rendered !== null) {
-					this.response.payload = rendered;
-				}
+		// 		if (rendered !== null) {
+		// 			this.response.payload = rendered;
+		// 		}
 
-			} else if (mime.type === 'text' && mime.format === 'text/css') {
+		// 	} else if (mime.type === 'text' && mime.format === 'text/css') {
 
-				let parsed   = CSS.parse(this.response.payload);
-				let filtered = CSS.filter(parsed);
-				let rendered = CSS.render(filtered);
+		// 		let parsed   = CSS.parse(this.response.payload);
+		// 		let filtered = CSS.filter(parsed);
+		// 		let rendered = CSS.render(filtered);
 
-				if (rendered !== null) {
-					this.response.payload = rendered;
-				}
+		// 		if (rendered !== null) {
+		// 			this.response.payload = rendered;
+		// 		}
 
-			} else if (mime.type === 'image' && mime.format === 'image/jpeg') {
-				// TODO: Integrate jpeg optimizer
-			} else if (mime.type === 'image' && mime.format === 'image/png') {
-				// TODO: Integrate optipng
-			}
+		// 	} else if (mime.type === 'image' && mime.format === 'image/jpeg') {
+		// 		// TODO: Integrate jpeg optimizer
+		// 	} else if (mime.type === 'image' && mime.format === 'image/png') {
+		// 		// TODO: Integrate optipng
+		// 	}
 
-		}
+		// }
 
 
 		this.emit('response', [ this.response ]);

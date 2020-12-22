@@ -68,6 +68,9 @@ const toMode = function(url) {
 
 const Stealth = function(settings) {
 
+	settings = isObject(settings) ? settings : {};
+
+
 	this._settings = Object.freeze(Object.assign({
 		debug:   false,
 		host:    null,

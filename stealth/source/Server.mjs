@@ -1,28 +1,28 @@
 
 import net from 'net';
 
-import { console, Emitter, isFunction, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                            } from '../source/ENVIRONMENT.mjs';
-import { isStealth                              } from '../source/Stealth.mjs';
-import { Request                                } from '../source/Request.mjs';
-import { IP                                     } from '../source/parser/IP.mjs';
-import { URL                                    } from '../source/parser/URL.mjs';
-import { DNS                                    } from '../source/connection/DNS.mjs';
-import { HTTP                                   } from '../source/connection/HTTP.mjs';
-import { SOCKS                                  } from '../source/connection/SOCKS.mjs';
-import { WS                                     } from '../source/connection/WS.mjs';
-import { ROUTER                                 } from '../source/server/ROUTER.mjs';
-import { Beacon                                 } from '../source/server/Beacon.mjs';
-import { Blocker                                } from '../source/server/Blocker.mjs';
-import { Cache                                  } from '../source/server/Cache.mjs';
-import { Host                                   } from '../source/server/Host.mjs';
-import { Mode                                   } from '../source/server/Mode.mjs';
-import { Peer                                   } from '../source/server/Peer.mjs';
-import { Policy                                 } from '../source/server/Policy.mjs';
-import { Redirect                               } from '../source/server/Redirect.mjs';
-import { Session                                } from '../source/server/Session.mjs';
-import { Settings                               } from '../source/server/Settings.mjs';
-import { Stash                                  } from '../source/server/Stash.mjs';
+import { console, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                      } from '../source/ENVIRONMENT.mjs';
+import { isStealth                                        } from '../source/Stealth.mjs';
+import { Request                                          } from '../source/Request.mjs';
+import { IP                                               } from '../source/parser/IP.mjs';
+import { URL                                              } from '../source/parser/URL.mjs';
+import { DNS                                              } from '../source/connection/DNS.mjs';
+import { HTTP                                             } from '../source/connection/HTTP.mjs';
+import { SOCKS                                            } from '../source/connection/SOCKS.mjs';
+import { WS                                               } from '../source/connection/WS.mjs';
+import { ROUTER                                           } from '../source/server/ROUTER.mjs';
+import { Beacon                                           } from '../source/server/Beacon.mjs';
+import { Blocker                                          } from '../source/server/Blocker.mjs';
+import { Cache                                            } from '../source/server/Cache.mjs';
+import { Host                                             } from '../source/server/Host.mjs';
+import { Mode                                             } from '../source/server/Mode.mjs';
+import { Peer                                             } from '../source/server/Peer.mjs';
+import { Policy                                           } from '../source/server/Policy.mjs';
+import { Redirect                                         } from '../source/server/Redirect.mjs';
+import { Session                                          } from '../source/server/Session.mjs';
+import { Settings                                         } from '../source/server/Settings.mjs';
+import { Stash                                            } from '../source/server/Stash.mjs';
 
 
 
@@ -570,7 +570,8 @@ const upgrade_ws = function(socket, url) {
 
 const Server = function(settings, stealth) {
 
-	stealth = isStealth(stealth) ? stealth : null;
+	settings = isObject(settings) ? settings : {};
+	stealth  = isStealth(stealth) ? stealth  : null;
 
 
 	this._settings = Object.freeze(Object.assign({

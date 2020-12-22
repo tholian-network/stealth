@@ -26,7 +26,8 @@ export const isClient = function(obj) {
 
 const Client = function(settings, stealth) {
 
-	stealth = isStealth(stealth) ? stealth : null;
+	settings = isObject(settings) ? settings : {};
+	stealth  = isStealth(stealth) ? stealth  : null;
 
 
 	this._settings = Object.freeze(Object.assign({

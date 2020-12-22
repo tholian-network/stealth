@@ -47,12 +47,19 @@ const search = function(link) {
 
 let CURRENT_ID = 0;
 
-const Tab = function(data) {
+const Tab = function(settings) {
 
-	let settings = Object.assign({}, data);
+	settings = isObject(settings) ? settings : {};
 
 
-	this.id       = settings.id || ('' + CURRENT_ID++);
+	settings = Object.freeze({
+		id:   isString(settings.id)   ? settings.id   : ('' + CURRENT_ID++),
+		mode: isMode(settings.mode)   ? settings.mode : null,
+		url:  URL.isURL(settings.url) ? settings.url  : null
+	});
+
+
+	this.id       = settings.id;
 	this.history  = [];
 	this.mode     = {
 		domain: 'welcome',
@@ -68,16 +75,13 @@ const Tab = function(data) {
 	this.requests = [];
 
 
-	let mode = isMode(settings.mode)   ? settings.mode : null;
-	let url  = URL.isURL(settings.url) ? settings.url  : null;
-
-	if (URL.isURL(url) === true) {
-		this.navigate(url.link, mode);
+	if (URL.isURL(settings.url) === true) {
+		this.navigate(settings.url.link, settings.mode);
 	}
 
 	if (this.mode.domain === null) {
 
-		let domain = URL.toDomain(url);
+		let domain = URL.toDomain(settings.url);
 		if (domain !== null) {
 			this.mode.domain = domain;
 		}
