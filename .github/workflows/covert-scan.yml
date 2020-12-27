@@ -19,7 +19,7 @@ jobs:
       - run: node ./covert/covert.mjs scan "base/*" --debug=true --report=.github/workflows/covert-scan-base.report
       - uses: actions/upload-artifact@v2
         with:
-          name: Covert Report for Base
+          name: Report for Base
           path: .github/workflows/covert-scan-base.report
       - run: node .github/workflows/covert-scan.mjs .github/workflows/covert-scan-base.report
 
@@ -37,7 +37,7 @@ jobs:
       - run: node ./covert/covert.mjs scan "covert/*" --debug=true --report=.github/workflows/covert-scan-covert.report
       - uses: actions/upload-artifact@v2
         with:
-          name: Covert Report for Covert
+          name: Report for Covert
           path: .github/workflows/covert-scan-covert.report
       - run: node .github/workflows/covert-scan.mjs .github/workflows/covert-scan-covert.report
 
@@ -55,7 +55,7 @@ jobs:
       - run: node ./covert/covert.mjs scan "stealth/*" --debug=true --report=.github/workflows/covert-scan-stealth.report
       - uses: actions/upload-artifact@v2
         with:
-          name: Covert Report for Stealth
+          name: Report for Stealth
           path: .github/workflows/covert-scan-stealth.report
       - run: node .github/workflows/covert-scan.mjs .github/workflows/covert-scan-stealth.report
 

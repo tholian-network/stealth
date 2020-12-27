@@ -78,29 +78,38 @@ const clone = function(obj) {
 			target[o] = clone(obj[o]);
 		}
 
-	} else if (isTypedArray(obj) === true) {
+	} else if (isBuffer(obj) === true) {
 
-		target = new obj.constructor(obj);
+		target = Buffer.from(obj.toJSON().data || []);
 
 	} else if (isArrayBuffer(obj) === true) {
 
 		target = obj.slice(0);
 
-	} else if (isBoolean(obj) === true) {
-
-		target = obj;
-
-	} else if (isBuffer(obj) === true) {
-
-		target = Buffer.from(obj.toJSON().data || []);
-
 	} else if (isDataView(obj) === true) {
 
 		target = new DataView(clone(obj.buffer));
 
+	} else if (isTypedArray(obj) === true) {
+
+		target = new obj.constructor(obj);
+
 	} else if (isDate(obj) === true) {
 
-		target = new Date(obj.toISOString());
+		let data = null;
+		try {
+			data = obj.toISOString();
+		} catch (err) {
+			data = null;
+		}
+
+		if (data !== null) {
+			target = new Date(data);
+		}
+
+	} else if (isBoolean(obj) === true) {
+
+		target = obj;
 
 	} else if (isMap(obj) === true) {
 
@@ -159,11 +168,19 @@ const diff = function(aobject, bobject) {
 	bobject = bobject !== undefined ? bobject : undefined;
 
 
-	if (aobject === bobject) {
+	if (Number.isNaN(aobject) === true && Number.isNaN(bobject) === true) {
+
+		return false;
+
+	} else if (aobject === bobject) {
 
 		return false;
 
 	} else if (isArray(aobject) === true && isArray(bobject) === true) {
+
+		if (aobject.length !== bobject.length) {
+			return true;
+		}
 
 		for (let a = 0, al = aobject.length; a < al; a++) {
 
@@ -229,6 +246,10 @@ const diff = function(aobject, bobject) {
 		let avalues = Array.from(aobject);
 		let bvalues = Array.from(bobject);
 
+		if (avalues.length !== bvalues.length) {
+			return true;
+		}
+
 		for (let a = 0, al = avalues.length; a < al; a++) {
 
 			if (bvalues[a] !== undefined && avalues[a][0] !== undefined && bvalues[a][0] !== undefined) {
@@ -289,6 +310,10 @@ const diff = function(aobject, bobject) {
 		let avalues = Array.from(aobject);
 		let bvalues = Array.from(bobject);
 
+		if (avalues.length !== bvalues.length) {
+			return true;
+		}
+
 		for (let a = 0, al = avalues.length; a < al; a++) {
 
 			if (bvalues[a] !== undefined) {
@@ -334,7 +359,6 @@ const diff = function(aobject, bobject) {
 		if (akeys.length !== bkeys.length) {
 			return true;
 		}
-
 
 		for (let a = 0, al = akeys.length; a < al; a++) {
 

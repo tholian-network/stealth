@@ -117,10 +117,88 @@ describe('Results.prototype.toString()', function(assert) {
 
 });
 
+describe('Results.prototype.assert()/undefined', function(assert) {
+
+	let results = Results.from(6);
+
+	results.assert(undefined);
+	results.assert(null);
+
+	results.assert(undefined, undefined);
+	results.assert(undefined, null);
+	results.assert(null, undefined);
+	results.assert(null, null);
+
+	assert(results.data[0], null);
+	assert(results.data[1], null);
+
+	assert(results.data[2], null);
+	assert(results.data[3], false);
+	assert(results.data[4], null);
+	assert(results.data[5], true);
+
+});
+
+describe('Results.prototype.assert()/Infinity', function(assert) {
+
+	let results = Results.from(6);
+
+	results.assert(Infinity);
+	results.assert(-Infinity);
+
+	results.assert(Infinity, Infinity);
+	results.assert(Infinity, -Infinity);
+	results.assert(-Infinity, Infinity);
+	results.assert(-Infinity, -Infinity);
+
+	assert(results.data[0], null);
+	assert(results.data[1], null);
+
+	assert(results.data[2], true);
+	assert(results.data[3], false);
+	assert(results.data[4], false);
+	assert(results.data[5], true);
+
+});
+
+describe('Results.prototype.assert()/NaN', function(assert) {
+
+	let results = Results.from(11);
+
+	results.assert(NaN);
+	results.assert(13);
+	results.assert(13.37);
+
+	results.assert(NaN, NaN);
+	results.assert(13, NaN);
+	results.assert(NaN, 13);
+	results.assert(13, 13);
+
+	results.assert(NaN, NaN);
+	results.assert(13.37, NaN);
+	results.assert(NaN, 13.37);
+	results.assert(13.37, 13.37);
+
+	assert(results.data[0], null);
+	assert(results.data[1], null);
+	assert(results.data[2], null);
+
+	assert(results.data[3], true);
+	assert(results.data[4], false);
+	assert(results.data[5], false);
+	assert(results.data[6], true);
+
+	assert(results.data[7], true);
+	assert(results.data[8], false);
+	assert(results.data[9], false);
+	assert(results.data[10], true);
+
+});
+
 describe('Results.prototype.assert()/Array', function(assert) {
 
 	let date1   = new Date('01.02.20 13:37');
-	let date2   = new Date('13.01.37 20:02');
+	let date2   = new Date('01.13.37 20:02');
 	let regexp1 = new RegExp('/foo/bar', 'g');
 	let regexp2 = new RegExp('/bar/foo', 'g');
 	let results = Results.from(29);
@@ -229,11 +307,49 @@ describe('Results.prototype.assert()/Boolean', function(assert) {
 
 });
 
+describe('Results.prototype.assert()/Buffer', function(assert) {
+
+	let buffer1 = Buffer.from('foo bar qux!', 'utf8');
+	let buffer2 = Buffer.from('foo bar qux!', 'utf8');
+	let buffer3 = Buffer.from('foo bar!', 'utf8');
+	let results = Results.from(11);
+
+	results.assert(buffer1);
+	results.assert(buffer2);
+	results.assert(buffer3);
+
+	results.assert(buffer1, buffer1);
+	results.assert(buffer1, buffer2);
+	results.assert(buffer2, buffer1);
+	results.assert(buffer2, buffer2);
+
+	results.assert(buffer2, buffer2);
+	results.assert(buffer2, buffer3);
+	results.assert(buffer3, buffer2);
+	results.assert(buffer3, buffer3);
+
+
+	assert(results.data[0], null);
+	assert(results.data[1], null);
+	assert(results.data[2], null);
+
+	assert(results.data[3], true);
+	assert(results.data[4], true);
+	assert(results.data[5], true);
+	assert(results.data[6], true);
+
+	assert(results.data[7], true);
+	assert(results.data[8], false);
+	assert(results.data[9], false);
+	assert(results.data[10], true);
+
+});
+
 describe('Results.prototype.assert()/Date', function(assert) {
 
 	let date1   = new Date('01.02.20 13:37');
 	let date2   = new Date('01.02.20 13:37');
-	let date3   = new Date('13.01.37 20:02');
+	let date3   = new Date('01.13.37 20:02');
 	let results = Results.from(9);
 
 	results.assert(date1);
@@ -306,6 +422,44 @@ describe('Results.prototype.assert()/Function', function(assert) {
 
 });
 
+describe('Results.prototype.assert()/Map', function(assert) {
+
+	let map1    = new Map([ [ 1, 'l' ], [ 3, 'e' ], [ 7, 't' ] ]);
+	let map2    = new Map([ [ 1, 'l' ], [ 3, 'e' ], [ 3, 'e' ], [ 7, 't' ] ]);
+	let map3    = new Map([ [ 1, 'l' ], [ 3, 'e' ], [ 7, 't' ], [ 5, 'z' ] ]);
+	let results = Results.from(11);
+
+	results.assert(map1);
+	results.assert(map2);
+	results.assert(map3);
+
+	results.assert(map1, map1);
+	results.assert(map1, map2);
+	results.assert(map2, map1);
+	results.assert(map2, map2);
+
+	results.assert(map2, map2);
+	results.assert(map2, map3);
+	results.assert(map3, map2);
+	results.assert(map3, map3);
+
+
+	assert(results.data[0], null);
+	assert(results.data[1], null);
+	assert(results.data[2], null);
+
+	assert(results.data[3], true);
+	assert(results.data[4], true);
+	assert(results.data[5], true);
+	assert(results.data[6], true);
+
+	assert(results.data[7], true);
+	assert(results.data[8], false);
+	assert(results.data[9], false);
+	assert(results.data[10], true);
+
+});
+
 describe('Results.prototype.assert()/Number', function(assert) {
 
 	let results = Results.from(10);
@@ -342,7 +496,7 @@ describe('Results.prototype.assert()/Number', function(assert) {
 describe('Results.prototype.assert()/Object', function(assert) {
 
 	let date1   = new Date('01.02.20 13:37');
-	let date2   = new Date('13.01.37 20:02');
+	let date2   = new Date('01.13.37 20:02');
 	let regexp1 = new RegExp('/foo/bar', 'g');
 	let regexp2 = new RegExp('/bar/foo', 'g');
 	let results = Results.from(21);
@@ -433,6 +587,44 @@ describe('Results.prototype.assert()/RegExp', function(assert) {
 	assert(results.data[6], false);
 	assert(results.data[7], false);
 	assert(results.data[8], true);
+
+});
+
+describe('Results.prototype.assert()/Set', function(assert) {
+
+	let set1    = new Set([ 1, 3, 7 ]);
+	let set2    = new Set([ 1, 3, 3, 7 ]);
+	let set3    = new Set([ 1, 3, 7, 5 ]);
+	let results = Results.from(11);
+
+	results.assert(set1);
+	results.assert(set2);
+	results.assert(set3);
+
+	results.assert(set1, set1);
+	results.assert(set1, set2);
+	results.assert(set2, set1);
+	results.assert(set2, set2);
+
+	results.assert(set2, set2);
+	results.assert(set2, set3);
+	results.assert(set3, set2);
+	results.assert(set3, set3);
+
+
+	assert(results.data[0], null);
+	assert(results.data[1], null);
+	assert(results.data[2], null);
+
+	assert(results.data[3], true);
+	assert(results.data[4], true);
+	assert(results.data[5], true);
+	assert(results.data[6], true);
+
+	assert(results.data[7], true);
+	assert(results.data[8], false);
+	assert(results.data[9], false);
+	assert(results.data[10], true);
 
 });
 
