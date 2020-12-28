@@ -2,8 +2,7 @@
 import path from 'path';
 import url  from 'url';
 
-import { console    } from './base/source/node/console.mjs';
-import { Filesystem } from './covert/source/Filesystem.mjs';
+import { console } from './base/source/node/console.mjs';
 
 import { build as build_base,    clean as clean_base    } from './base/make.mjs';
 import { build as build_browser, clean as clean_browser } from './browser/make.mjs';
@@ -11,9 +10,8 @@ import { build as build_covert,  clean as clean_covert  } from './covert/make.mj
 import { build as build_stealth, clean as clean_stealth } from './stealth/make.mjs';
 
 
-const FILE       = url.fileURLToPath(import.meta.url);
-const FILESYSTEM = new Filesystem();
-const ROOT       = path.dirname(path.resolve(FILE, '.'));
+const FILE = url.fileURLToPath(import.meta.url);
+const ROOT = path.dirname(path.resolve(FILE, '.'));
 
 const isComparison = (line, chunk) => {
 
@@ -109,8 +107,7 @@ const OPTIONAL_COMPARE = [
 
 const lint_file = (file) => {
 
-	let buffer = FILESYSTEM.read(ROOT + file);
-	let lines  = buffer.split('\n');
+	let lines  = file.buffer.split('\n');
 	let result = true;
 
 	lines.forEach((line, l) => {
@@ -120,7 +117,7 @@ const lint_file = (file) => {
 			if (line.includes(chunk + '(') === true) {
 
 				if (isComparison(line, chunk) === false) {
-					console.error(file + '#L' + (l + 1) + ':' + line.trim());
+					console.error(file.name + '#L' + (l + 1) + ':' + line.trim());
 					result = false;
 				}
 
@@ -133,7 +130,7 @@ const lint_file = (file) => {
 			if (line.includes(chunk + '(') === true) {
 
 				if (isComparison(line, chunk) === false) {
-					console.warn(file + '#L' + (l + 1) + ':' + line.trim());
+					console.warn(file.name + '#L' + (l + 1) + ':' + line.trim());
 					result = false;
 				}
 
@@ -147,9 +144,16 @@ const lint_file = (file) => {
 
 };
 
-const lint = () => {
+const lint = async () => {
 
 	let ignored = [];
+
+	let Filesystem = await import(ROOT + '/covert/source/Filesystem.mjs').then((mod) => mod['Filesystem']).catch((err) => {
+		console.error('Please execute "make.mjs build" first.');
+		process.exit(1);
+	});
+
+	let FILESYSTEM = new Filesystem();
 
 	FILESYSTEM.read(ROOT + '/browser/.gitignore').split('\n').forEach((line) => {
 
@@ -190,7 +194,10 @@ const lint = () => {
 
 		return true;
 
-	});
+	}).map((file) => ({
+		name:   file,
+		buffer: FILESYSTEM.read(ROOT + file)
+	}));
 
 
 	let results = files.map((file) => {
@@ -222,7 +229,7 @@ if (args.includes(FILE) === true) {
 	}
 
 	if (args.includes('lint')) {
-		results.push(lint());
+		results.push(await lint());
 	}
 
 	if (results.length === 0) {

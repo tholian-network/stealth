@@ -759,17 +759,21 @@ const Covert = function(settings) {
 		}
 
 
-		this.renderer.render(reviews, 'complete');
+		if (reviews.length > 0) {
 
+			this.renderer.render(reviews, 'complete');
 
-		if (this._settings.report !== null) {
+			if (this._settings.report !== null) {
 
-			let buffer = this.renderer.buffer(reviews, 'complete');
-			if (buffer !== null) {
-				this.filesystem.write(this._settings.report, buffer, 'utf8');
+				let buffer = this.renderer.buffer(reviews, 'errors');
+				if (buffer !== null) {
+					this.filesystem.write(this._settings.report, buffer, 'utf8');
+				}
+
 			}
 
 		}
+
 
 		if (this.__state.connected === true) {
 

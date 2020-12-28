@@ -275,7 +275,13 @@ const update_review = async function(review) {
 
 				if (exported.prototype !== undefined && exported.prototype !== null) {
 
-					custom  = exported.prototype[Symbol.toStringTag] || null;
+					custom = exported.prototype[Symbol.toStringTag] || null;
+
+					if (custom === 'Map' || custom === 'Set') {
+						custom = null;
+					}
+
+
 					methods = Object.keys(exported.prototype).filter((key) => {
 
 						if (name !== 'Emitter') {
@@ -457,6 +463,7 @@ const Linter = function(settings) {
 		action:   null, // 'check'
 		internet: true,
 		patterns: [],
+		report:   null,
 		reviews:  [],
 		sources:  {},
 		root:     ENVIRONMENT.root
@@ -495,7 +502,21 @@ const Linter = function(settings) {
 
 	});
 
-	this.on('disconnect', () => {
+	this.on('disconnect', (reviews) => {
+
+		if (reviews.length > 0) {
+
+			if (this._settings.report !== null) {
+
+				let buffer = this.renderer.buffer(reviews, 'errors');
+				if (buffer !== null) {
+					this.filesystem.write(this._settings.report, buffer, 'utf8');
+				}
+
+			}
+
+		}
+
 
 		if (this.__state.connected === true) {
 

@@ -113,19 +113,29 @@ const show_help = () => {
 if (ENVIRONMENT.action === 'check') {
 
 	let linter = new Linter({
-		action:   ENVIRONMENT.action      || null,
-		debug:    ENVIRONMENT.flags.debug || false,
-		patterns: ENVIRONMENT.patterns    || [],
+		action:   ENVIRONMENT.action       || null,
+		debug:    ENVIRONMENT.flags.debug  || false,
+		patterns: ENVIRONMENT.patterns     || [],
+		report:   ENVIRONMENT.flags.report || null,
 		reviews:  REVIEWS,
 		sources:  SOURCES
 	});
 
 	linter.on('disconnect', (reviews) => {
 
-		if (reviews.length > 0) {
-			process.exit(linter.destroy() || 0);
+		if (ENVIRONMENT.flags.report !== null) {
+
+			linter.destroy();
+			process.exit(0);
+
 		} else {
-			process.exit(1);
+
+			if (reviews.length > 0) {
+				process.exit(linter.destroy() || 0);
+			} else {
+				process.exit(1);
+			}
+
 		}
 
 	});

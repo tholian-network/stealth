@@ -30,6 +30,19 @@ describe('console.blink()', function(assert, _console) {
 
 });
 
+describe('console.diff()', function(assert, _console) {
+
+	assert(typeof console.diff,  'function');
+	assert(typeof _console.diff, 'function');
+
+	console.diff('foo bar qux', 'foo qux qux');
+	assert(true);
+
+	console.diff('foo bar qux', 'foo bar qux');
+	assert(true);
+
+});
+
 describe('console.debug()', function(assert, _console) {
 
 	assert(typeof console.debug,  'function');

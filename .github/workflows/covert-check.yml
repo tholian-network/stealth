@@ -1,0 +1,61 @@
+
+name: Covert Check
+
+on: [push]
+
+jobs:
+
+  check-base:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install
+      - run: node ./make.mjs build
+      - run: node ./covert/covert.mjs check "base/*" --debug=true --report=.github/workflows/covert-check-base.report
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Report for Base
+          path: .github/workflows/covert-check-base.report
+      - run: node .github/workflows/covert-check.mjs .github/workflows/covert-check-base.report
+
+  check-covert:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install
+      - run: node ./make.mjs build
+      - run: node ./covert/covert.mjs check "covert/*" --debug=true --report=.github/workflows/covert-check-covert.report
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Report for Covert
+          path: .github/workflows/covert-check-covert.report
+      - run: node .github/workflows/covert-check.mjs .github/workflows/covert-check-covert.report
+
+  check-stealth:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install
+      - run: node ./make.mjs build
+      - run: node ./covert/covert.mjs check "stealth/*" --debug=true --report=.github/workflows/covert-check-stealth.report
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Report for Stealth
+          path: .github/workflows/covert-check-stealth.report
+      - run: node .github/workflows/covert-check.mjs .github/workflows/covert-check-stealth.report
+

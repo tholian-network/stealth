@@ -13,15 +13,15 @@ const buffer_errors = function(review) {
 	let lines = [];
 
 	if (review.state === null) {
-		lines.push('(?) ' + review.id);
+		lines.push('(?) ' + review.id + ': running ...');
 	} else if (review.state === 'okay') {
-		lines.push('    ' + review.id);
+		lines.push('    ' + review.id + ': okay.');
 	} else if (review.state === 'wait') {
-		lines.push('(?) ' + review.id);
+		lines.push('(?) ' + review.id + ': wait ...');
 	} else if (review.state === 'fail') {
-		lines.push('(!) ' + review.id);
+		lines.push('(!) ' + review.id + ': fail!');
 	} else if (review.state === 'none') {
-		lines.push('(?) ' + review.id);
+		lines.push('(!) ' + review.id + ': incomplete!');
 	}
 
 	review.errors.forEach((error) => {
