@@ -175,7 +175,7 @@ describe('Buffer.prototype.toJSON()', function(assert) {
 	assert(buffer1.toJSON(), { type: 'Buffer', data: [ 102, 111, 111 ]});
 	assert(JSON.stringify(buffer1), '{"type":"Buffer","data":[102,111,111]}');
 
-	assert(buffer1.toJSON(), { type: 'Buffer', data: [ 102, 111, 111, 32, 98, 97, 114 ]});
+	assert(buffer2.toJSON(), { type: 'Buffer', data: [ 102, 111, 111, 32, 98, 97, 114 ]});
 	assert(JSON.stringify(buffer2), '{"type":"Buffer","data":[102,111,111,32,98,97,114]}');
 
 });
