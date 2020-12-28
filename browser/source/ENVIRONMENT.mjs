@@ -14,13 +14,13 @@ const flags = ((global) => {
 
 	let tmp1 = (global.location        || {}).search || '';
 	let tmp2 = (global.parent.location || {}).search || '';
-	if (tmp1.includes('debug')) {
+	if (tmp1.includes('debug') === true) {
 		flags.debug = true;
-	} else if (tmp2.includes('debug')) {
+	} else if (tmp2.includes('debug') === true) {
 		flags.debug = true;
 	}
 
-	if (tmp1.startsWith('?')) {
+	if (tmp1.startsWith('?') === true) {
 
 		tmp1.substr(1).split('&').forEach((flag) => {
 
@@ -64,7 +64,7 @@ const hostname = ((global) => {
 	let host = 'localhost';
 
 	let tmp1 = (global.location || {}).host || '';
-	if (tmp1.includes(':')) {
+	if (tmp1.includes(':') === true) {
 
 		let tmp2 = tmp1.split(':').slice(0, -1).join(':');
 		if (tmp2 !== 'localhost') {
@@ -84,7 +84,7 @@ const secure = ((global) => {
 	let secure = true;
 
 	let tmp1 = (global.location || {}).protocol || '';
-	if (tmp1.includes(':')) {
+	if (tmp1.includes(':') === true) {
 
 		let tmp2 = tmp1.split(':').shift();
 		if (tmp2 !== 'https') {

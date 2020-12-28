@@ -64,9 +64,9 @@ const on_context = function(browser, element) {
 			) {
 
 				let src = element.attr('src');
-				if (src.startsWith('/stealth/:')) {
+				if (src.startsWith('/stealth/:') === true) {
 					url = URL.parse(src.substr(9).split('/').slice(1).join('/'));
-				} else if (src.startsWith('/stealth/')) {
+				} else if (src.startsWith('/stealth/') === true) {
 					url = URL.parse(src.substr(9));
 				}
 
@@ -285,12 +285,12 @@ const on_key = function(browser, key) {
 			|| key.name === 'f2'
 			|| key.name === 'f3'
 			|| key.name === 'f4'
-			|| (key.mods.includes('alt') && key.name === 'arrowleft')
-			|| (key.mods.includes('alt') && key.name === 'arrowright')
-			|| (key.mods.includes('ctrl') && key.name === '[')
-			|| (key.mods.includes('ctrl') && key.name === ']')
-			|| (key.mods.includes('ctrl') && key.name === 'r')
-			|| (key.mods.includes('ctrl') && key.name === 't')
+			|| (key.mods.includes('alt') === true && key.name === 'arrowleft')
+			|| (key.mods.includes('alt') === true && key.name === 'arrowright')
+			|| (key.mods.includes('ctrl') === true && key.name === '[')
+			|| (key.mods.includes('ctrl') === true && key.name === ']')
+			|| (key.mods.includes('ctrl') === true && key.name === 'r')
+			|| (key.mods.includes('ctrl') === true && key.name === 't')
 		) {
 
 			let history = Widget.query('browser-appbar-history');
@@ -301,7 +301,7 @@ const on_key = function(browser, key) {
 
 		} else if (
 			key.name === 'f5'
-			|| (key.mods.includes('ctrl') && key.name === 'e')
+			|| (key.mods.includes('ctrl') === true && key.name === 'e')
 		) {
 
 			let address = Widget.query('browser-appbar-address');
@@ -314,9 +314,9 @@ const on_key = function(browser, key) {
 			key.name === 'f6'
 			|| key.name === 'f7'
 			|| key.name === 'f8'
-			|| (key.mods.includes('ctrl') && key.name === 'pageup')
-			|| (key.mods.includes('ctrl') && key.name === 'w')
-			|| (key.mods.includes('ctrl') && key.name === 'pagedown')
+			|| (key.mods.includes('ctrl') === true && key.name === 'pageup')
+			|| (key.mods.includes('ctrl') === true && key.name === 'w')
+			|| (key.mods.includes('ctrl') === true && key.name === 'pagedown')
 		) {
 
 			let tabs = Widget.query('browser-backdrop-tabs');
@@ -348,7 +348,7 @@ const on_key = function(browser, key) {
 			}
 
 		} else if (
-			key.mods.includes('ctrl') && key.name === ' '
+			key.mods.includes('ctrl') === true && key.name === ' '
 		) {
 
 			let active = this['document'].activeElement || null;
@@ -542,7 +542,7 @@ export const dispatch = (window, browser, reset) => {
 						if (element.type === 'a') {
 
 							let value = element.attr('href');
-							if (value.startsWith('#')) {
+							if (value.startsWith('#') === true) {
 
 								context.value([{
 									label: 'focus',

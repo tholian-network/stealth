@@ -230,7 +230,7 @@ export const console = (function() {
 
 		}
 
-		if (chunk.endsWith(';') || chunk.endsWith(',')) {
+		if (chunk.endsWith(';') === true || chunk.endsWith(',') === true) {
 			suffix = chunk.substr(chunk.length - 1, 1);
 			chunk  = chunk.substr(0, chunk.length - 1);
 		}
@@ -239,33 +239,33 @@ export const console = (function() {
 
 			chunk = highlight(chunk, SYNTAX[chunk]);
 
-		} else if (chunk.includes(':')) {
+		} else if (chunk.includes(':') === true) {
 
 			chunk = highlight_split(chunk, ':');
 
-		} else if (chunk.includes('(')) {
+		} else if (chunk.includes('(') === true) {
 
 			chunk = highlight_split(chunk, '(');
 
-		} else if (chunk.includes(')')) {
+		} else if (chunk.includes(')') === true) {
 
 			chunk = highlight_split(chunk, ')');
 
-		} else if (chunk.includes('{')) {
+		} else if (chunk.includes('{') === true) {
 
 			chunk = highlight_split(chunk, '{');
 
-		} else if (chunk.includes('}')) {
+		} else if (chunk.includes('}') === true) {
 
 			chunk = highlight_split(chunk, '}');
 
-		} else if (chunk.includes(' ')) {
+		} else if (chunk.includes(' ') === true) {
 
 			chunk = highlight_split(chunk, ' ');
 
 		} else if ((/^([0-9.]*)$/g).test(chunk) === true) {
 
-			if (chunk.includes('.')) {
+			if (chunk.includes('.') === true) {
 
 				let num = parseFloat(chunk);
 				if (Number.isNaN(num) === false && (num).toString() === chunk) {
@@ -281,7 +281,7 @@ export const console = (function() {
 
 			}
 
-		} else if (chunk.includes('.')) {
+		} else if (chunk.includes('.') === true) {
 
 			chunk = chunk.split('.').map((ch) => highlight_chunk(ch)).join('.');
 
@@ -360,7 +360,7 @@ export const console = (function() {
 	};
 
 	const isError = function(obj) {
-		return Object.prototype.toString.call(obj).includes('Error');
+		return Object.prototype.toString.call(obj).includes('Error') === true;
 	};
 
 	const isFunction = function(fun) {
@@ -527,7 +527,7 @@ export const console = (function() {
 		} else if (isError(data) === true) {
 
 			let type = Object.prototype.toString.call(data);
-			if (type.startsWith('[object') && type.endsWith(']')) {
+			if (type.startsWith('[object') === true && type.endsWith(']') === true) {
 				type = type.substr(7, type.length - 8).trim();
 			}
 
@@ -547,18 +547,18 @@ export const console = (function() {
 				for (let s = 0, sl = stack.length; s < sl; s++) {
 
 					let line = stack[s].trim();
-					if (line.includes('(file://') && line.includes(')')) {
+					if (line.includes('(file://') === true && line.includes(')') === true) {
 
 						let tmp = line.split('(file://')[1].split(')').shift().trim();
-						if (tmp.includes('.mjs')) {
+						if (tmp.includes('.mjs') === true) {
 							origin = tmp;
 							break;
 						}
 
-					} else if (line.includes('file:///')) {
+					} else if (line.includes('file:///') === true) {
 
 						let tmp = line.split('file://')[1].trim();
-						if (tmp.includes('.mjs')) {
+						if (tmp.includes('.mjs') === true) {
 							origin = tmp;
 							break;
 						}
@@ -590,7 +590,9 @@ export const console = (function() {
 
 				let offset = '';
 
-				let tmp = lines.find((line) => line.startsWith('\t') && line.trim() !== '') || null;
+				let tmp = lines.find((line) => {
+					return line.startsWith('\t') === true && line.trim() !== '';
+				}) || null;
 				if (tmp !== null) {
 					offset = tmp.substr(0, tmp.length - tmp.trim().length);
 				}
@@ -609,7 +611,7 @@ export const console = (function() {
 
 
 				let first_line = lines[0];
-				if (first_line.includes('function(') || first_line.includes('{')) {
+				if (first_line.includes('function(') === true || first_line.includes('{') === true) {
 
 					if (indent.length > 0) {
 						str += indent.substr(0, indent.length - 1) + '\t' + first_line.trim();
@@ -894,7 +896,9 @@ export const console = (function() {
 		} else {
 
 			let chunks    = args.slice(1).map((value) => stringify(value));
-			let multiline = chunks.find((value) => value.includes('\n')) !== undefined;
+			let multiline = chunks.find((value) => {
+				return value.includes('\n') === true;
+			}) !== undefined;
 			if (multiline === true) {
 
 				let lines = [
@@ -905,11 +909,11 @@ export const console = (function() {
 
 					raw.split('\n').forEach((line) => {
 
-						if (line.includes('\t')) {
+						if (line.includes('\t') === true) {
 							line = line.split('\t').join(INDENT);
 						}
 
-						if (line.includes('\r')) {
+						if (line.includes('\r') === true) {
 							line = line.split('\r').join('\\r');
 						}
 

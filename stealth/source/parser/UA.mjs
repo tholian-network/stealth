@@ -8,7 +8,7 @@ const parse_version = function(prefix, agent) {
 	let version = null;
 
 	let tmp = agent.split(';').join(' ').split(' ').map((v) => v.trim()).find((v) => {
-		return v.startsWith(prefix + '/');
+		return v.startsWith(prefix + '/') === true;
 	}) || null;
 
 	if (tmp !== null) {
@@ -16,7 +16,7 @@ const parse_version = function(prefix, agent) {
 		tmp = tmp.split('/').pop();
 		tmp = tmp.split('.').slice(0, 2).join('.');
 
-		if (tmp.includes('.')) {
+		if (tmp.includes('.') === true) {
 
 			let num = parseFloat(tmp);
 			if (Number.isNaN(num) === false) {
@@ -77,25 +77,25 @@ const BROWSER = {
 			let system  = null;
 			let version = null;
 
-			if (agent.includes('Chrome')) {
+			if (agent.includes('Chrome') === true) {
 				engine = 'chrome';
-			} else if (agent.includes('Chromium')) {
+			} else if (agent.includes('Chromium') === true) {
 				engine = 'chrome';
 			}
 
-			if (agent.includes('Macintosh') || agent.includes('Ubuntu') || agent.includes('Windows')) {
+			if (agent.includes('Macintosh') === true || agent.includes('Ubuntu') === true || agent.includes('Windows') === true) {
 				system = 'desktop';
-			} else if (agent.includes('Android')) {
+			} else if (agent.includes('Android') === true) {
 				system = 'mobile';
-			} else if (agent.includes('iPad') || agent.includes('iPhone')) {
+			} else if (agent.includes('iPad') === true || agent.includes('iPhone') === true) {
 				system = 'mobile';
-			} else if (agent.includes('Linux')) {
+			} else if (agent.includes('Linux') === true) {
 				system = 'desktop';
 			}
 
-			if (agent.includes('Chrome/')) {
+			if (agent.includes('Chrome/') === true) {
 				version = parse_version('Chrome', agent);
-			} else if (agent.includes('Chromium/')) {
+			} else if (agent.includes('Chromium/') === true) {
 				version = parse_version('Chromium', agent);
 			}
 
@@ -178,17 +178,17 @@ const BROWSER = {
 			let system  = null;
 			let version = null;
 
-			if (agent.includes('Fennec')) {
+			if (agent.includes('Fennec') === true) {
 				engine = 'firefox';
 				system = 'mobile';
-			} else if (agent.includes('Firefox')) {
+			} else if (agent.includes('Firefox') === true) {
 				engine = 'firefox';
 				system = 'desktop';
 			}
 
-			if (agent.includes('Fennec/')) {
+			if (agent.includes('Fennec/') === true) {
 				version = parse_version('Fennec', agent);
-			} else if (agent.includes('Firefox/')) {
+			} else if (agent.includes('Firefox/') === true) {
 				version = parse_version('Firefox', agent);
 			}
 
@@ -260,19 +260,19 @@ const BROWSER = {
 			let system  = null;
 			let version = null;
 
-			if (agent.includes('Safari')) {
+			if (agent.includes('Safari') === true) {
 
-				if (agent.includes('iPhone') || agent.includes('iPad')) {
+				if (agent.includes('iPhone') === true || agent.includes('iPad') === true) {
 					engine = 'safari';
 					system = 'mobile';
-				} else if (agent.includes('Mac OS X')) {
+				} else if (agent.includes('Mac OS X') === true) {
 					engine = 'safari';
 					system = 'desktop';
 				}
 
 			}
 
-			if (agent.includes('Safari/') && agent.includes('Version/')) {
+			if (agent.includes('Safari/') === true && agent.includes('Version/') === true) {
 				version = parse_version('Version', agent);
 			}
 
@@ -374,21 +374,21 @@ const SPIDER = {
 			let system  = null;
 			let version = null;
 
-			if (agent.includes('Baiduspider') || agent.includes('baiduboxapp')) {
+			if (agent.includes('Baiduspider') === true || agent.includes('baiduboxapp') === true) {
 				engine = 'baidu';
 			}
 
-			if (agent.includes('iPhone') || agent.includes('Android')) {
+			if (agent.includes('iPhone') === true || agent.includes('Android') === true) {
 				system = 'mobile';
 			} else {
 				system = 'desktop';
 			}
 
-			if (agent.includes('Baiduspider+')) {
+			if (agent.includes('Baiduspider+') === true) {
 				version = '2.0';
-			} else if (agent.includes('Baiduspider/')) {
+			} else if (agent.includes('Baiduspider/') === true) {
 				version = parse_version('Baiduspider', agent);
-			} else if (agent.includes('baiduboxapp/')) {
+			} else if (agent.includes('baiduboxapp/') === true) {
 				version = parse_version('baiduboxapp', agent);
 			}
 
@@ -459,19 +459,19 @@ const SPIDER = {
 			let system  = null;
 			let version = null;
 
-			if (agent.includes('bingbot') || agent.includes('bingbot-media')) {
+			if (agent.includes('bingbot') === true || agent.includes('bingbot-media') === true) {
 				engine = 'bing';
 			}
 
-			if (agent.includes('iPhone')) {
+			if (agent.includes('iPhone') === true) {
 				system = 'mobile';
 			} else {
 				system = 'desktop';
 			}
 
-			if (agent.includes('bingbot/')) {
+			if (agent.includes('bingbot/') === true) {
 				version = parse_version('bingbot', agent);
-			} else if (agent.includes('bingbot-media/')) {
+			} else if (agent.includes('bingbot-media/') === true) {
 				version = parse_version('bingbot-media', agent);
 			}
 
@@ -533,19 +533,19 @@ const SPIDER = {
 			let system  = null;
 			let version = null;
 
-			if (agent.includes('facebook')) {
+			if (agent.includes('facebook') === true) {
 				engine = 'facebook';
 			}
 
-			if (agent.includes('FBAN') || agent.includes('FBIOS')) {
+			if (agent.includes('FBAN') === true || agent.includes('FBIOS') === true) {
 				system = 'mobile';
 			} else {
 				system = 'desktop';
 			}
 
-			if (agent.includes('facebookexternalhit/')) {
+			if (agent.includes('facebookexternalhit/') === true) {
 				version = parse_version('facebookexternalhit', agent);
-			} else if (agent.includes('FBAN') || agent.includes('FBIOS')) {
+			} else if (agent.includes('FBAN') === true || agent.includes('FBIOS') === true) {
 				version = parse_version('FBAV', agent);
 			}
 
@@ -638,17 +638,17 @@ const SPIDER = {
 			let system  = null;
 			let version = null;
 
-			if (agent.includes('Googlebot')) {
+			if (agent.includes('Googlebot') === true) {
 				engine = 'google';
 			}
 
-			if (agent.includes('Mobile')) {
+			if (agent.includes('Mobile') === true) {
 				system = 'mobile';
 			} else {
 				system = 'desktop';
 			}
 
-			if (agent.includes('Googlebot/')) {
+			if (agent.includes('Googlebot/') === true) {
 				version = parse_version('Googlebot', agent);
 			}
 
@@ -711,11 +711,11 @@ const SPIDER = {
 			let system  = 'desktop';
 			let version = null;
 
-			if (agent.includes('Twitterbot')) {
+			if (agent.includes('Twitterbot') === true) {
 				engine = 'twitter';
 			}
 
-			if (agent.includes('Twitterbot/')) {
+			if (agent.includes('Twitterbot/') === true) {
 				version = parse_version('Twitterbot', agent);
 			}
 
@@ -766,17 +766,17 @@ const SPIDER = {
 			let system  = 'desktop';
 			let version = null;
 
-			if (agent.includes('Yahoo! Slurp')) {
+			if (agent.includes('Yahoo! Slurp') === true) {
 				engine = 'yahoo';
-			} else if (agent.includes('YahooMailProxy')) {
+			} else if (agent.includes('YahooMailProxy') === true) {
 				engine = 'yahoo';
 			}
 
-			if (agent.includes('Yahoo! Slurp/')) {
+			if (agent.includes('Yahoo! Slurp/') === true) {
 				version = parse_version('Yahoo! Slurp', agent);
-			} else if (agent.includes('Yahoo! Slurp;')) {
+			} else if (agent.includes('Yahoo! Slurp;') === true) {
 				version = '3.0';
-			} else if (agent.includes('YahooMailProxy;')) {
+			} else if (agent.includes('YahooMailProxy;') === true) {
 				version = '3.0';
 			}
 
@@ -828,13 +828,13 @@ const SPIDER = {
 			let system  = 'desktop';
 			let version = null;
 
-			if (agent.includes('YandexBot') || agent.includes('YaBrowser')) {
+			if (agent.includes('YandexBot') === true || agent.includes('YaBrowser') === true) {
 				engine = 'yandex';
 			}
 
-			if (agent.includes('YandexBot/')) {
+			if (agent.includes('YandexBot/') === true) {
 				version = parse_version('YandexBot', agent);
-			} else if (agent.includes('YaBrowser/')) {
+			} else if (agent.includes('YaBrowser/') === true) {
 				version = parse_version('YaBrowser', agent);
 			}
 
@@ -1063,9 +1063,9 @@ const UA = {
 
 				if (data.engine !== null) {
 
-					if (Object.keys(BROWSER).includes(data.engine)) {
+					if (Object.keys(BROWSER).includes(data.engine) === true) {
 						data.platform = 'browser';
-					} else if (Object.keys(SPIDER).includes(data.engine)) {
+					} else if (Object.keys(SPIDER).includes(data.engine) === true) {
 						data.platform = 'spider';
 					}
 

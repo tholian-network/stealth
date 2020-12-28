@@ -185,7 +185,7 @@ const Policy = function(browser, actions) {
 		this.buttons.save.erase();
 
 
-		if (this.actions.includes('create')) {
+		if (this.actions.includes('create') === true) {
 
 			this.model.domain.attr('required', true);
 			this.model.domain.state('enabled');
@@ -196,7 +196,7 @@ const Policy = function(browser, actions) {
 				element.state('enabled');
 			});
 
-		} else if (this.actions.includes('save')) {
+		} else if (this.actions.includes('save') === true) {
 
 			this.model.domain.attr('required', true);
 			this.model.domain.state('disabled');
@@ -223,13 +223,13 @@ const Policy = function(browser, actions) {
 
 		let footer = this.element.query('browser-card-policy-footer');
 
-		if (this.actions.includes('remove')) {
+		if (this.actions.includes('remove') === true) {
 			this.buttons.remove.render(footer);
 		}
 
-		if (this.actions.includes('create')) {
+		if (this.actions.includes('create') === true) {
 			this.buttons.create.render(footer);
-		} else if (this.actions.includes('save')) {
+		} else if (this.actions.includes('save') === true) {
 			this.buttons.save.render(footer);
 		}
 

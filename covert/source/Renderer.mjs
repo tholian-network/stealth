@@ -106,7 +106,10 @@ const buffer_summary = function(review) {
 				lines.push('(!) ' + message);
 			}
 
-			let errors = review.errors.filter((msg) => msg.startsWith(test.name));
+			let errors = review.errors.filter((msg) => {
+				return msg.startsWith(test.name) === true;
+			});
+
 			if (errors.length > 0) {
 				errors.forEach((error) => {
 					error.split('\n').forEach((line) => {
@@ -259,7 +262,10 @@ const render_complete = function(review, is_current) {
 			console.error(message);
 		}
 
-		let errors = review.errors.filter((msg) => msg.startsWith(test.name));
+		let errors = review.errors.filter((msg) => {
+			return msg.startsWith(test.name) === true;
+		});
+
 		if (errors.length > 0) {
 			errors.forEach((error) => {
 				error.split('\n').forEach((line) => {
@@ -576,7 +582,10 @@ const render_summary = function(review, is_current) {
 				console.error(message);
 			}
 
-			let errors = review.errors.filter((msg) => msg.startsWith(test.name));
+			let errors = review.errors.filter((msg) => {
+				return msg.startsWith(test.name) === true;
+			});
+
 			if (errors.length > 0) {
 				errors.forEach((error) => {
 					error.split('\n').forEach((line) => {

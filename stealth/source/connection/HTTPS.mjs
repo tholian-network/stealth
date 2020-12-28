@@ -267,7 +267,7 @@ const HTTPS = {
 						let code  = (err.code || '');
 						let error = { type: 'request' };
 
-						if (code.startsWith('ERR_TLS')) {
+						if (code.startsWith('ERR_TLS') === true) {
 							error = { type: 'request', cause: 'socket-trust' };
 						}
 

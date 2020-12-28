@@ -44,10 +44,10 @@ const init = function(settings) {
 		let implementations = this.filesystem.scan(ENVIRONMENT.root + '/' + project + '/source', true).map((path) => {
 
 			let raw = path.substr(ENVIRONMENT.root.length + 1);
-			if (raw.endsWith('.mjs')) {
+			if (raw.endsWith('.mjs') === true) {
 
 				let tmp = raw.substr(0, raw.length - 4).split('/');
-				if (tmp.includes('source')) {
+				if (tmp.includes('source') === true) {
 
 					let index = tmp.indexOf('source');
 					if (index === 1) {
@@ -110,34 +110,34 @@ const init = function(settings) {
 		filtered = true;
 
 
-		if (pattern.startsWith('*')) {
+		if (pattern.startsWith('*') === true) {
 
 			reviews.forEach((review) => {
 
-				if (review.id.endsWith(pattern.substr(1))) {
+				if (review.id.endsWith(pattern.substr(1)) === true) {
 					include[review.id] = true;
 				}
 
 			});
 
-		} else if (pattern.endsWith('*')) {
+		} else if (pattern.endsWith('*') === true) {
 
 			reviews.forEach((review) => {
 
-				if (review.id.startsWith(pattern.substr(0, pattern.length - 1))) {
+				if (review.id.startsWith(pattern.substr(0, pattern.length - 1)) === true) {
 					include[review.id] = true;
 				}
 
 			});
 
-		} else if (pattern.includes('*')) {
+		} else if (pattern.includes('*') === true) {
 
 			let prefix = pattern.split('*').shift();
 			let suffix = pattern.split('*').pop();
 
 			reviews.forEach((review) => {
 
-				if (review.id.startsWith(prefix) && review.id.endsWith(suffix)) {
+				if (review.id.startsWith(prefix) === true && review.id.endsWith(suffix) === true) {
 					include[review.id] = true;
 				}
 
@@ -384,7 +384,10 @@ const update_review = async function(review) {
 
 	expect.forEach((name) => {
 
-		let check = tests.find((t) => t.name.startsWith(name)) || null;
+		let check = tests.find((t) => {
+			return t.name.startsWith(name) === true;
+		}) || null;
+
 		if (check === null) {
 			review.errors.push(name + ' is not tested via describe().');
 			state = 'none';
@@ -403,9 +406,9 @@ const update_review = async function(review) {
 		if (body.length > 0) {
 
 			let wrong_compare = body.map((line) => line.trim()).filter((line) => {
-				return line.startsWith('assert(') && line.endsWith(' === undefined);') === false;
+				return line.startsWith('assert(') === true && line.endsWith(' === undefined);') === false;
 			}).find((line) => {
-				return line.startsWith('assert(') && (line.includes(' === ') || line.includes(' == ') || line.includes(' && '));
+				return line.startsWith('assert(') === true && (line.includes(' === ') === true || line.includes(' == ') === true || line.includes(' && ') === true);
 			}) || null;
 
 			if (wrong_compare !== null) {
@@ -414,7 +417,7 @@ const update_review = async function(review) {
 			}
 
 			let wrong_null = body.map((line) => line.trim()).filter((line) => {
-				return line.startsWith('assert(') && line.includes(' !== null);');
+				return line.startsWith('assert(') === true && line.includes(' !== null);') === true;
 			}).find((line) => {
 				return line.startsWith('assert(this.') === false;
 			}) || null;

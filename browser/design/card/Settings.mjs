@@ -28,13 +28,13 @@ const update = function(browser) {
 		let suffix = null;
 
 
-		if (domain.includes('*')) {
+		if (domain.includes('*') === true) {
 
-			if (domain.startsWith('*')) {
+			if (domain.startsWith('*') === true) {
 				suffix = domain.split('*').pop();
 			}
 
-			if (domain.endsWith('*')) {
+			if (domain.endsWith('*') === true) {
 				prefix = domain.split('*').shift();
 			}
 
@@ -50,9 +50,9 @@ const update = function(browser) {
 			browser.settings[type].forEach((entry) => {
 
 				if (
-					(prefix === null || entry.domain.startsWith(prefix))
-					&& (midfix === null || entry.domain.includes(midfix))
-					&& (suffix === null || entry.domain.endsWith(suffix))
+					(prefix === null || entry.domain.startsWith(prefix) === true)
+					&& (midfix === null || entry.domain.includes(midfix) === true)
+					&& (suffix === null || entry.domain.endsWith(suffix) === true)
 				) {
 
 					if (isObject(this.results[entry.domain]) === false) {
@@ -109,7 +109,7 @@ const update = function(browser) {
 			let cards = [];
 			let entry = this.results[domain];
 
-			if (this.actions.includes('remove')) {
+			if (this.actions.includes('remove') === true) {
 
 				let headline = new Element('h4', [
 					domain,
@@ -156,7 +156,7 @@ const update = function(browser) {
 
 					try {
 
-						if (this.actions.includes('remove')) {
+						if (this.actions.includes('remove') === true) {
 							return Beacon.from(beacon, [ 'remove', 'save' ]);
 						} else {
 							return Beacon.from(beacon, [ 'save' ]);
@@ -194,7 +194,7 @@ const update = function(browser) {
 
 					try {
 
-						if (this.actions.includes('remove')) {
+						if (this.actions.includes('remove') === true) {
 							return Host.from(host, [ 'remove', 'save' ]);
 						} else {
 							return Host.from(host, [ 'save' ]);
@@ -216,7 +216,7 @@ const update = function(browser) {
 
 					try {
 
-						if (this.actions.includes('remove')) {
+						if (this.actions.includes('remove') === true) {
 							return Mode.from(mode, [ 'remove', 'save' ]);
 						} else {
 							return Mode.from(mode, [ 'save' ]);
@@ -238,7 +238,7 @@ const update = function(browser) {
 
 					try {
 
-						if (this.actions.includes('remove')) {
+						if (this.actions.includes('remove') === true) {
 							return Peer.from(peer, [ 'remove', 'save' ]);
 						} else {
 							return Peer.from(peer, [ 'save' ]);
@@ -260,7 +260,7 @@ const update = function(browser) {
 
 					try {
 
-						if (this.actions.includes('remove')) {
+						if (this.actions.includes('remove') === true) {
 							return Policy.from(policy, [ 'remove', 'save' ]);
 						} else {
 							return Policy.from(policy, [ 'save' ]);
@@ -282,7 +282,7 @@ const update = function(browser) {
 
 					try {
 
-						if (this.actions.includes('remove')) {
+						if (this.actions.includes('remove') === true) {
 							return Redirect.from(redirect, [ 'remove', 'save' ]);
 						} else {
 							return Redirect.from(redirect, [ 'save' ]);
@@ -304,7 +304,7 @@ const update = function(browser) {
 
 					try {
 
-						if (this.actions.includes('remove')) {
+						if (this.actions.includes('remove') === true) {
 							return Session.from(redirect, [ 'remove' ]);
 						} else {
 							return Session.from(redirect, []);
@@ -417,7 +417,7 @@ const Settings = function(browser, allowed, actions) {
 
 		let footer = this.element.query('browser-card-settings-footer');
 
-		if (this.actions.includes('refresh')) {
+		if (this.actions.includes('refresh') === true) {
 			this.buttons.refresh.render(footer);
 		}
 

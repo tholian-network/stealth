@@ -22,7 +22,7 @@ const isTypedArray = function(obj) {
 
 	let str = Object.prototype.toString.call(obj);
 	let typ = '';
-	if (str.startsWith('[') && str.includes(' ') && str.endsWith(']')) {
+	if (str.startsWith('[') === true && str.includes(' ') === true && str.endsWith(']') === true) {
 		typ = str.substr(1, str.length - 2).split(' ').pop();
 	}
 
@@ -425,18 +425,18 @@ const trace_assert = function() {
 		for (let s = 0, sl = stack.length; s < sl; s++) {
 
 			let line = stack[s].trim();
-			if (line.includes('(file://') && line.includes(')')) {
+			if (line.includes('(file://') === true && line.includes(')') === true) {
 
 				let tmp = line.split('(file://')[1].split(')').shift().trim();
-				if (tmp.includes('/review/') && tmp.includes('.mjs')) {
+				if (tmp.includes('/review/') === true && tmp.includes('.mjs') === true) {
 					origin = tmp;
 					break;
 				}
 
-			} else if (line.includes('file://')) {
+			} else if (line.includes('file://') === true) {
 
 				let tmp = line.split('file://')[1].trim();
-				if (tmp.includes('/review/') && tmp.includes('.mjs')) {
+				if (tmp.includes('/review/') === true && tmp.includes('.mjs') === true) {
 					origin = tmp;
 					break;
 				}
@@ -450,7 +450,7 @@ const trace_assert = function() {
 			let file = origin.split(':')[0] || null;
 			let line = origin.split(':')[1] || null;
 
-			if (file !== null && file.endsWith('.mjs') && line !== null) {
+			if (file !== null && file.endsWith('.mjs') === true && line !== null) {
 
 				let code = FILESYSTEM.read(file, 'utf8');
 				if (code !== null) {
@@ -458,9 +458,9 @@ const trace_assert = function() {
 					let lines = code.split('\n');
 					let check = lines[line - 1].trim();
 
-					if (check.startsWith('assert(') && check.endsWith(');')) {
+					if (check.startsWith('assert(') === true && check.endsWith(');') === true) {
 						return check.substr(0, check.length - 1) + ' in line #' + line;
-					} else if (check.startsWith('assert(')) {
+					} else if (check.startsWith('assert(') === true) {
 						return 'assert() in line #' + line;
 					}
 
@@ -506,7 +506,7 @@ Results.from = function(data) {
 
 			body.map((line) => line.trim()).forEach((line) => {
 
-				if (line.startsWith('assert(')) {
+				if (line.startsWith('assert(') === true) {
 					length++;
 				}
 
@@ -669,7 +669,11 @@ Results.prototype = {
 	includes: function(result) {
 
 		if (isBoolean(result) === true || result === null) {
-			return this.data.includes(result);
+
+			if (this.data.includes(result) === true) {
+				return true;
+			}
+
 		}
 
 		return false;

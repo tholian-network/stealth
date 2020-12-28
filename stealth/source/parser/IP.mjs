@@ -150,7 +150,7 @@ const validate_ipv6 = function(ipv6) {
 	let valid = true;
 	let chunk = [];
 
-	if (ipv6.includes('::')) {
+	if (ipv6.includes('::') === true) {
 
 		let tmp = ipv6.split('::').map((v) => v.split(':'));
 
@@ -165,8 +165,13 @@ const validate_ipv6 = function(ipv6) {
 		}
 
 		[].concat(tmp[0]).concat(tmp[1]).map((v) => {
-			if (v.length < 4) return '0000'.substr(0, 4 - v.length) + v;
+
+			if (v.length < 4) {
+				return '0000'.substr(0, 4 - v.length) + v;
+			}
+
 			return v;
+
 		}).forEach((v) => {
 
 			chunk.push(v);
@@ -283,14 +288,14 @@ const IP = {
 				if (type === 'v4' || type === 'v6') {
 
 					let ip = payload.ip || '';
-					if (ip.includes(':')) {
+					if (ip.includes(':') === true) {
 
 						let check = validate_ipv6(ip);
 						if (check !== null) {
 							return true;
 						}
 
-					} else if (ip.includes('.')) {
+					} else if (ip.includes('.') === true) {
 
 						let check = validate_ipv4(ip);
 						if (check !== null) {
@@ -327,11 +332,11 @@ const IP = {
 
 		if (raw !== null) {
 
-			if (raw.startsWith('::ffff:')) {
+			if (raw.startsWith('::ffff:') === true) {
 				raw = raw.substr(7);
 			}
 
-			if (raw.includes(':')) {
+			if (raw.includes(':') === true) {
 
 				let check = validate_ipv6(raw);
 				if (check !== null) {
@@ -339,7 +344,10 @@ const IP = {
 					ip   = check;
 					type = 'v6';
 
-					let subnet = PRIVATE_V6.find((prefix) => check.startsWith(prefix)) || null;
+					let subnet = PRIVATE_V6.find((prefix) => {
+						return check.startsWith(prefix) === true;
+					}) || null;
+
 					if (subnet !== null) {
 						scope = 'private';
 					} else {
@@ -348,7 +356,7 @@ const IP = {
 
 				}
 
-			} else if (raw.includes('.')) {
+			} else if (raw.includes('.') === true) {
 
 				let check = validate_ipv4(raw);
 				if (check !== null) {
@@ -356,7 +364,10 @@ const IP = {
 					ip   = check;
 					type = 'v4';
 
-					let subnet = PRIVATE_V4.find((prefix) => check.startsWith(prefix)) || null;
+					let subnet = PRIVATE_V4.find((prefix) => {
+						return check.startsWith(prefix) === true;
+					}) || null;
+
 					if (subnet !== null) {
 						scope = 'private';
 					} else {

@@ -106,7 +106,7 @@ const Interface = function(browser, actions) {
 		this.buttons.save.erase();
 
 
-		if (this.actions.includes('save')) {
+		if (this.actions.includes('save') === true) {
 
 			Object.values(this.model.theme).forEach((input) => {
 				input.state('enabled');
@@ -123,7 +123,7 @@ const Interface = function(browser, actions) {
 
 		let footer = this.element.query('browser-card-interface-footer');
 
-		if (this.actions.includes('save')) {
+		if (this.actions.includes('save') === true) {
 			this.buttons.save.render(footer);
 		}
 

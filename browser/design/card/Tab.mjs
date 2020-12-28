@@ -156,7 +156,7 @@ const Tab = function(browser, actions) {
 
 		let footer = this.element.query('browser-card-tab-footer');
 
-		if (this.actions.includes('remove')) {
+		if (this.actions.includes('remove') === true) {
 			this.buttons.remove.render(footer);
 		}
 

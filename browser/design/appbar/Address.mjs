@@ -203,7 +203,7 @@ const Address = function(browser) {
 
 		if (
 			key.name === 'f5'
-			|| (key.mods.includes('ctrl') && key.name === 'e')
+			|| (key.mods.includes('ctrl') === true && key.name === 'e')
 		) {
 			this.input.node.setSelectionRange(0, this.input.node.value.length);
 			this.input.emit('focus');
@@ -227,7 +227,7 @@ const Address = function(browser) {
 			link = 'stealth:search?keywords=' + encodeURIComponent(link);
 			this.input.state('');
 
-		} else if (link.endsWith('://')) {
+		} else if (link.endsWith('://') === true) {
 
 			update.call(this, browser.tab);
 			link = '';
@@ -238,7 +238,7 @@ const Address = function(browser) {
 			this.input.value('stealth:blank');
 			link = 'stealth:blank';
 
-		} else if (link.startsWith('stealth:') || link.includes('://')) {
+		} else if (link.startsWith('stealth:') === true || link.includes('://') === true) {
 
 			this.input.state('');
 

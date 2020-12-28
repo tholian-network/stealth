@@ -15,7 +15,7 @@ export const isCovert = function(obj) {
 };
 
 const isError = function(obj) {
-	return Object.prototype.toString.call(obj).includes('Error');
+	return Object.prototype.toString.call(obj).includes('Error') === true;
 };
 
 const isModule = function(obj) {
@@ -27,7 +27,7 @@ const toMessage = function(data) {
 	if (isError(data) === true) {
 
 		let type = Object.prototype.toString.call(data);
-		if (type.startsWith('[object') && type.endsWith(']')) {
+		if (type.startsWith('[object') === true && type.endsWith(']') === true) {
 			type = type.substr(7, type.length - 8).trim();
 		}
 
@@ -42,10 +42,10 @@ const toMessage = function(data) {
 			for (let s = 0, sl = stack.length; s < sl; s++) {
 
 				let line = stack[s].trim();
-				if (line.includes('(file://') && line.includes(')')) {
+				if (line.includes('(file://') === true && line.includes(')') === true) {
 
 					let tmp = line.split('(file://')[1].split(')').shift().trim();
-					if (tmp.includes('.mjs')) {
+					if (tmp.includes('.mjs') === true) {
 						origin = tmp;
 						break;
 					}
@@ -144,34 +144,34 @@ const init = function(settings) {
 		filtered = true;
 
 
-		if (pattern.startsWith('*')) {
+		if (pattern.startsWith('*') === true) {
 
 			settings.reviews.forEach((review) => {
 
-				if (review.id.endsWith(pattern.substr(1))) {
+				if (review.id.endsWith(pattern.substr(1)) === true) {
 					include[review.id] = true;
 				}
 
 			});
 
-		} else if (pattern.endsWith('*')) {
+		} else if (pattern.endsWith('*') === true) {
 
 			settings.reviews.forEach((review) => {
 
-				if (review.id.startsWith(pattern.substr(0, pattern.length - 1))) {
+				if (review.id.startsWith(pattern.substr(0, pattern.length - 1)) === true) {
 					include[review.id] = true;
 				}
 
 			});
 
-		} else if (pattern.includes('*')) {
+		} else if (pattern.includes('*') === true) {
 
 			let prefix = pattern.split('*').shift();
 			let suffix = pattern.split('*').pop();
 
 			settings.reviews.forEach((review) => {
 
-				if (review.id.startsWith(prefix) && review.id.endsWith(suffix)) {
+				if (review.id.startsWith(prefix) === true && review.id.endsWith(suffix) === true) {
 					include[review.id] = true;
 				}
 
@@ -300,7 +300,7 @@ const init = function(settings) {
 	}
 
 
-	if (timeout !== null && timeout.endsWith('s')) {
+	if (timeout !== null && timeout.endsWith('s') === true) {
 
 		let num = parseInt(timeout.substr(0, timeout.length - 1), 10);
 		if (isNumber(num) === true && Number.isNaN(num) === false) {
@@ -346,7 +346,7 @@ const next_test = function(review, test) {
 
 	if (test !== null) {
 
-		if (review.before.includes(test)) {
+		if (review.before.includes(test) === true) {
 
 			let temp = review.before[review.before.indexOf(test) + 1] || null;
 			if (temp !== null) {
@@ -359,7 +359,7 @@ const next_test = function(review, test) {
 				next = null;
 			}
 
-		} else if (review.tests.includes(test)) {
+		} else if (review.tests.includes(test) === true) {
 
 			let temp = review.tests[review.tests.indexOf(test) + 1] || null;
 			if (temp !== null) {
@@ -370,7 +370,7 @@ const next_test = function(review, test) {
 				next = null;
 			}
 
-		} else if (review.after.includes(test)) {
+		} else if (review.after.includes(test) === true) {
 
 			let temp = review.after[review.after.indexOf(test) + 1] || null;
 			if (temp !== null) {
@@ -563,9 +563,9 @@ const update_review = function(review) {
 
 			tests.forEach((test) => {
 
-				if (test.results.includes(false)) {
+				if (test.results.includes(false) === true) {
 					state = 'fail';
-				} else if (test.results.includes(null)) {
+				} else if (test.results.includes(null) === true) {
 					state = 'wait';
 				}
 
@@ -589,9 +589,9 @@ const update_test = function(test) {
 	let is_complete = test.results.complete();
 	if (is_complete === true) {
 
-		if (test.results.includes(false)) {
+		if (test.results.includes(false) === true) {
 			test.state = 'fail';
-		} else if (test.results.includes(null)) {
+		} else if (test.results.includes(null) === true) {
 			test.state = 'wait';
 		} else {
 			test.state = 'okay';

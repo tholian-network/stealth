@@ -2,9 +2,9 @@
 import fs      from 'fs';
 import http    from 'http';
 import https   from 'https';
-import url     from 'url';
 import path    from 'path';
 import process from 'process';
+import url     from 'url';
 
 import { console             } from '../base/source/node/console.mjs';
 import { isString            } from '../base/source/String.mjs';

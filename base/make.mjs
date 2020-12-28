@@ -1,8 +1,8 @@
 
 import fs      from 'fs';
-import url     from 'url';
 import path    from 'path';
 import process from 'process';
+import url     from 'url';
 
 import { console } from './source/node/console.mjs';
 

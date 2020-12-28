@@ -64,7 +64,7 @@ Beacon.isBeacon = function(payload) {
 				&& isString(beacon.select) === true
 				&& /^([a-z0-9#, =[\]\x22\x3e:._-]+)$/g.test(beacon.select) === true
 				&& isString(beacon.term) === true
-				&& TERM.includes(beacon.term)
+				&& TERM.includes(beacon.term) === true
 			) {
 				return true;
 			}
@@ -113,7 +113,7 @@ Beacon.toBeacon = function(payload) {
 					&& (isString(beacon.query) === true || beacon.query === null)
 					&& isString(beacon.select) === true
 					&& isString(beacon.term) === true
-					&& TERM.includes(beacon.term)
+					&& TERM.includes(beacon.term) === true
 				) {
 					return true;
 				}

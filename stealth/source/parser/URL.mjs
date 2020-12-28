@@ -675,27 +675,27 @@ const URL = {
 			let prefix = raw.split('?')[0] || '';
 			let suffix = raw.split('?')[1] || '';
 
-			if (prefix.startsWith('stealth:')) {
+			if (prefix.startsWith('stealth:') === true) {
 
 				protocol = 'stealth';
 				domain   = prefix.substr(protocol.length + 1).split('/')[0];
 				path     = '/' + prefix.substr(protocol.length + 1).split('/').slice(1).join('/');
 				query    = suffix !== '' ? suffix : null;
 
-			} else if (prefix.startsWith('file://')) {
+			} else if (prefix.startsWith('file://') === true) {
 
 				protocol = 'file';
 				path     = '/' + prefix.substr(protocol.length + 3).split('/').slice(1).join('/');
 				query    = suffix !== '' ? suffix : null;
 
-			} else if (prefix.startsWith('//')) {
+			} else if (prefix.startsWith('//') === true) {
 
 				protocol = 'https';
 				domain   = prefix.substr(2).split('/')[0];
 				path     = '/' + prefix.substr(2).split('/').slice(1).join('/');
 				query    = suffix !== '' ? suffix : null;
 
-			} else if (prefix.startsWith('/')) {
+			} else if (prefix.startsWith('/') === true) {
 
 				protocol = 'file';
 				domain   = null;
@@ -703,28 +703,28 @@ const URL = {
 				path     = prefix;
 				query    = suffix !== '' ? suffix : null;
 
-			} else if (prefix.startsWith('..')) {
+			} else if (prefix.startsWith('..') === true) {
 
 				path     = prefix;
 				query    = suffix !== '' ? suffix : null;
 
-			} else if (prefix.startsWith('.')) {
+			} else if (prefix.startsWith('.') === true) {
 
 				path     = prefix;
 				query    = suffix !== '' ? suffix : null;
 
-			} else if (prefix.includes('://')) {
+			} else if (prefix.includes('://') === true) {
 
 				protocol = prefix.substr(0, prefix.indexOf('://'));
 				domain   = prefix.substr(protocol.length + 3).split('/')[0];
 				path     = '/' + prefix.substr(protocol.length + 3).split('/').slice(1).join('/');
 				query    = suffix !== '' ? suffix : null;
 
-			} else if (prefix.startsWith('?')) {
+			} else if (prefix.startsWith('?') === true) {
 
 				query    = suffix !== '' ? suffix : null;
 
-			} else if (prefix.startsWith('#')) {
+			} else if (prefix.startsWith('#') === true) {
 
 				hash     = prefix.split('#').slice(1).join('#');
 
@@ -741,12 +741,12 @@ const URL = {
 			}
 
 
-			if (path !== null && path.includes('#')) {
+			if (path !== null && path.includes('#') === true) {
 				hash = path.split('#').slice(1).join('#');
 				path = path.split('#').shift();
 			}
 
-			if (query !== null && query.includes('#')) {
+			if (query !== null && query.includes('#') === true) {
 				hash  = query.split('#').slice(1).join('#');
 				query = query.split('#').shift();
 			}
@@ -755,21 +755,21 @@ const URL = {
 			let check_ipv6 = false;
 			let check_ipv4 = false;
 
-			if (domain !== null && domain.includes(':')) {
+			if (domain !== null && domain.includes(':') === true) {
 				check_ipv6 = domain.split(':').length > 2;
 			}
 
-			if (domain !== null && domain.includes('.')) {
-				check_ipv4 = /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/g.test(domain.split(':')[0]);
+			if (domain !== null && domain.includes('.') === true) {
+				check_ipv4 = /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/g.test(domain.split(':')[0]) === true;
 			}
 
 			if (check_ipv6 === true) {
 
-				if (domain.startsWith('[')) {
+				if (domain.startsWith('[') === true) {
 					domain = domain.substr(1);
 				}
 
-				if (domain.includes(']:')) {
+				if (domain.includes(']:') === true) {
 
 					let tmp1 = domain.split(']:');
 					let tmp2 = parseInt(tmp1[1], 10);
@@ -780,7 +780,7 @@ const URL = {
 						port = tmp2;
 					}
 
-				} else if (domain.includes(']')) {
+				} else if (domain.includes(']') === true) {
 					domain = domain.split(']').join('');
 				}
 
@@ -796,15 +796,15 @@ const URL = {
 
 			} else if (check_ipv4 === true) {
 
-				if (domain.includes('[')) {
+				if (domain.includes('[') === true) {
 					domain = domain.split('[').join('');
 				}
 
-				if (domain.includes(']')) {
+				if (domain.includes(']') === true) {
 					domain = domain.split(']').join('');
 				}
 
-				if (domain.includes(':')) {
+				if (domain.includes(':') === true) {
 
 					let tmp1 = domain.split(':');
 					let tmp2 = parseInt(tmp1[1], 10);
@@ -827,9 +827,9 @@ const URL = {
 
 				}
 
-			} else if (domain !== null && domain.includes('.')) {
+			} else if (domain !== null && domain.includes('.') === true) {
 
-				if (domain.includes(':')) {
+				if (domain.includes(':') === true) {
 
 					let tmp1 = domain.split(':');
 					let tmp2 = parseInt(tmp1[1], 10);
@@ -864,13 +864,13 @@ const URL = {
 					subdomain = null;
 				}
 
-				if (domain.startsWith('-')) {
+				if (domain.startsWith('-') === true) {
 					domain = null;
 				}
 
 			} else if (domain !== null) {
 
-				if (domain.includes(':')) {
+				if (domain.includes(':') === true) {
 
 					let tmp1 = domain.split(':');
 					let tmp2 = parseInt(tmp1[1], 10);
@@ -898,7 +898,7 @@ const URL = {
 			}
 
 
-			if (path !== null && path.includes('.')) {
+			if (path !== null && path.includes('.') === true) {
 
 				let ext  = path.split('.').pop();
 				let type = MIME.find((m) => m.ext === ext) || null;
@@ -1145,7 +1145,7 @@ const URL = {
 				query     = url_relative.query;
 				subdomain = url_relative.subdomain;
 
-			} else if (url_relative.path.startsWith('../')) {
+			} else if (url_relative.path.startsWith('../') === true) {
 
 				domain    = url_absolute.domain;
 				host      = url_absolute.host;
@@ -1158,14 +1158,14 @@ const URL = {
 				mime      = url_relative.mime;
 				query     = url_relative.query;
 
-				let is_folder = url_absolute.path.endsWith('/');
+				let is_folder = url_absolute.path.endsWith('/') === true;
 				if (is_folder === true) {
 					path = resolve_path(url_absolute.path + url_relative.path);
 				} else {
 					path = resolve_path(url_absolute.path.split('/').slice(0, -1).join('/') + '/' + url_relative.path);
 				}
 
-			} else if (url_relative.path.startsWith('./')) {
+			} else if (url_relative.path.startsWith('./') === true) {
 
 				domain    = url_absolute.domain;
 				host      = url_absolute.host;
@@ -1178,14 +1178,14 @@ const URL = {
 				mime      = url_relative.mime;
 				query     = url_relative.query;
 
-				let is_folder = url_absolute.path.endsWith('/');
+				let is_folder = url_absolute.path.endsWith('/') === true;
 				if (is_folder === true) {
 					path = resolve_path(url_absolute.path + url_relative.path);
 				} else {
 					path = resolve_path(url_absolute.path.split('/').slice(0, -1).join('/') + '/' + url_relative.path);
 				}
 
-			} else if (isString(relative) === true && relative.startsWith('//')) {
+			} else if (isString(relative) === true && relative.startsWith('//') === true) {
 
 				domain    = url_relative.domain;
 				host      = url_relative.host;
@@ -1232,7 +1232,7 @@ const URL = {
 				path      = resolve_path(url_relative.path);
 				query     = url_relative.query;
 
-			} else if (isString(relative) === true && relative.startsWith('/')) {
+			} else if (isString(relative) === true && relative.startsWith('/') === true) {
 
 				domain    = url_absolute.domain;
 				host      = url_absolute.host;

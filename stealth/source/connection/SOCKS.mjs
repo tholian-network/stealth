@@ -676,7 +676,7 @@ const isUpgrade = function(url) {
 	if (
 		isObject(url) === true
 		&& isObject(url.headers) === true
-		&& (url.headers['auth'] || []).includes('none')
+		&& (url.headers['auth'] || []).includes('none') === true
 	) {
 		return true;
 	}

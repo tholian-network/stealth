@@ -99,7 +99,11 @@ const FakeEvent = function() {
 const isHTMLElement = function(element) {
 
 	let str = Object.prototype.toString.call(element);
-	if (str.startsWith('[object') && str.includes('HTML') && str.includes('Element]')) {
+	if (
+		str.startsWith('[object') === true
+		&& str.includes('HTML') === true
+		&& str.includes('Element]') === true
+	) {
 		return true;
 	}
 
@@ -212,7 +216,7 @@ const parse_value = (raw) => {
 		val = false;
 	} else if (raw === '(none)' || raw === 'null') {
 		val = null;
-	} else if (raw.startsWith('[')) {
+	} else if (raw.startsWith('[') === true) {
 
 		try {
 			val = JSON.parse(raw);
@@ -220,7 +224,7 @@ const parse_value = (raw) => {
 			val = null;
 		}
 
-	} else if (raw.startsWith('{')) {
+	} else if (raw.startsWith('{') === true) {
 
 		try {
 			val = JSON.parse(raw);
@@ -228,11 +232,11 @@ const parse_value = (raw) => {
 			val = null;
 		}
 
-	} else if (/^([0-9.]+)$/g.test(raw)) {
+	} else if (/^([0-9.]+)$/g.test(raw) === true) {
 
 		let num = null;
 
-		if (raw.includes('.')) {
+		if (raw.includes('.') === true) {
 			num = parseFloat(raw);
 		} else {
 			num = parseInt(raw, 10);
@@ -616,7 +620,7 @@ Element.prototype = {
 					// Not listed in node.attributes
 					this.node.setAttribute('required', val);
 
-				} else if (attributes.includes(key)) {
+				} else if (attributes.includes(key) === true) {
 
 					let san = render_value(val);
 					if (san.length === 0) {
@@ -656,7 +660,7 @@ Element.prototype = {
 						return false;
 					}
 
-				} else if (attributes.includes(key)) {
+				} else if (attributes.includes(key) === true) {
 
 					let raw = this.node.getAttribute(key);
 					if (isString(raw) === true) {
@@ -1317,7 +1321,7 @@ Element.prototype = {
 						});
 
 						let active = Array.from(this.node.options).find((option) => {
-							return tmp.includes(option.getAttribute('value'));
+							return tmp.includes(option.getAttribute('value')) === true;
 						}) || null;
 
 						if (active !== null) {
@@ -1713,7 +1717,7 @@ Element.prototype = {
 
 					if (map === 'DATETIME') {
 
-						if (val.includes('\n')) {
+						if (val.includes('\n') === true) {
 							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDATETIME);
 						} else {
 							return filter_value(val, DATETIME.parse, DATETIME.isDATETIME);
@@ -1721,7 +1725,7 @@ Element.prototype = {
 
 					} else if (map === 'DATE') {
 
-						if (val.includes('\n')) {
+						if (val.includes('\n') === true) {
 							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isDate);
 						} else {
 							return filter_value(val, DATETIME.parse, DATETIME.isDate);
@@ -1729,7 +1733,7 @@ Element.prototype = {
 
 					} else if (map === 'TIME') {
 
-						if (val.includes('\n')) {
+						if (val.includes('\n') === true) {
 							return filter_values(val.split('\n'), DATETIME.parse, DATETIME.isTime);
 						} else {
 							return filter_value(val, DATETIME.parse, DATETIME.isTime);
@@ -1737,7 +1741,7 @@ Element.prototype = {
 
 					} else if (map === 'IP') {
 
-						if (val.includes('\n')) {
+						if (val.includes('\n') === true) {
 							return filter_values(val.split('\n'), IP.parse, IP.isIP);
 						} else {
 							return filter_value(val, IP.parse, IP.isIP);
@@ -1745,7 +1749,7 @@ Element.prototype = {
 
 					} else if (map === 'UA') {
 
-						if (val.includes('\n')) {
+						if (val.includes('\n') === true) {
 							return filter_values(val.split('\n'), UA.parse, UA.isUA);
 						} else {
 							return filter_value(val, UA.parse, UA.isUA);
@@ -1753,7 +1757,7 @@ Element.prototype = {
 
 					} else if (map === 'URL') {
 
-						if (val.includes('\n')) {
+						if (val.includes('\n') === true) {
 							return filter_values(val.split('\n'), URL.parse, URL.isURL);
 						} else {
 							return filter_value(val, URL.parse, URL.isURL);
@@ -1761,7 +1765,7 @@ Element.prototype = {
 
 					} else {
 
-						if (val.includes('\n')) {
+						if (val.includes('\n') === true) {
 							return filter_values(val.split('\n'), null, null, (value) => parse_value(value));
 						} else {
 							return filter_value(val, null, null, (value) => parse_value(value));

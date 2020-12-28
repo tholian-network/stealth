@@ -59,7 +59,7 @@ Timeline.from = function(data) {
 
 			body.map((line) => line.trim()).forEach((line) => {
 
-				if (line.startsWith('assert(')) {
+				if (line.startsWith('assert(') === true) {
 					length++;
 				}
 
@@ -143,7 +143,11 @@ Timeline.prototype = {
 	includes: function(time) {
 
 		if (isNumber(time) === true || time === null) {
-			return this.data.includes(time);
+
+			if (this.data.includes(time) === true) {
+				return true;
+			}
+
 		}
 
 		return false;

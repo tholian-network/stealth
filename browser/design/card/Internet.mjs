@@ -126,7 +126,7 @@ const Internet = function(browser, actions) {
 		this.buttons.save.erase();
 
 
-		if (this.actions.includes('save')) {
+		if (this.actions.includes('save') === true) {
 
 			Object.values(this.model.connection).forEach((input) => {
 				input.state('enabled');
@@ -159,7 +159,7 @@ const Internet = function(browser, actions) {
 
 		let footer = this.element.query('browser-card-internet-footer');
 
-		if (this.actions.includes('save')) {
+		if (this.actions.includes('save') === true) {
 			this.buttons.save.render(footer);
 		}
 

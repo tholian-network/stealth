@@ -70,35 +70,35 @@ const toURL = function(src) {
 
 	if (src !== null) {
 
-		if (src.startsWith('/browser/internal/fix-host.html?url=')) {
+		if (src.startsWith('/browser/internal/fix-host.html?url=') === true) {
 
 			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
 			if (tmp !== null) {
 				url = URL.parse('stealth:fix-host?url=' + decodeURIComponent(tmp));
 			}
 
-		} else if (src.startsWith('/browser/internal/fix-mode.html?url=')) {
+		} else if (src.startsWith('/browser/internal/fix-mode.html?url=') === true) {
 
 			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
 			if (tmp !== null) {
 				url = URL.parse('stealth:fix-mode?url=' + decodeURIComponent(tmp));
 			}
 
-		} else if (src.startsWith('/browser/internal/fix-request.html?url=')) {
+		} else if (src.startsWith('/browser/internal/fix-request.html?url=') === true) {
 
 			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
 			if (tmp !== null) {
 				url = URL.parse('stealth:fix-request?url=' + decodeURIComponent(tmp));
 			}
 
-		} else if (src.startsWith('/browser/internal/media.html?url=')) {
+		} else if (src.startsWith('/browser/internal/media.html?url=') === true) {
 
 			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
 			if (tmp !== null) {
 				url = URL.parse('stealth:media?url=' + decodeURIComponent(tmp));
 			}
 
-		} else if (src.startsWith('/stealth/')) {
+		} else if (src.startsWith('/stealth/') === true) {
 
 			url = URL.parse(src.split('/').slice(3).join('/'));
 

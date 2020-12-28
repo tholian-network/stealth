@@ -40,7 +40,7 @@ const Audio = function(browser, actions) {
 
 		let footer = this.element.query('browser-widget-audio-footer');
 
-		if (this.actions.includes('download')) {
+		if (this.actions.includes('download') === true) {
 			this.buttons.download.render(footer);
 		}
 

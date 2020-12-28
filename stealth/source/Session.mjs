@@ -63,7 +63,7 @@ const remove_request = function(request) {
 
 	this.tabs.forEach((tab) => {
 
-		if (tab.includes(request)) {
+		if (tab.includes(request) === true) {
 			tab.untrack(request);
 		}
 
@@ -230,7 +230,7 @@ Session.prototype = {
 				this.domain = domain;
 			}
 
-			if (this.domain.endsWith('.tholian.network')) {
+			if (this.domain.endsWith('.tholian.network') === true) {
 
 				let address = headers['@remote'] || null;
 				if (address !== null) {
@@ -366,7 +366,7 @@ Session.prototype = {
 				let tab = this.tabs.find((t) => t.id === tid) || null;
 				if (tab !== null) {
 
-					if (tab.includes(request)) {
+					if (tab.includes(request) === true) {
 						request.off('progress');
 						tab.untrack(request);
 					}
@@ -379,7 +379,7 @@ Session.prototype = {
 
 				this.tabs.forEach((tab) => {
 
-					if (tab.includes(request)) {
+					if (tab.includes(request) === true) {
 						tab.untrack(request);
 					}
 

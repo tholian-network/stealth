@@ -56,20 +56,20 @@ const upgrade_http = function(socket, url) {
 		let flags = [];
 		let tab   = null;
 
-		if (link.startsWith('https://') || link.startsWith('http://')) {
+		if (link.startsWith('https://') === true || link.startsWith('http://') === true) {
 
 			flags.push('proxy');
 
-		} else if (link.startsWith('/stealth/')) {
+		} else if (link.startsWith('/stealth/') === true) {
 
-			if (link.startsWith('/stealth/:')) {
+			if (link.startsWith('/stealth/:') === true) {
 
 				let tmp = link.substr(9).split('/').shift();
-				if (tmp.startsWith(':') && tmp.endsWith(':')) {
+				if (tmp.startsWith(':') === true && tmp.endsWith(':') === true) {
 
 					tmp = tmp.substr(1, tmp.length - 2);
 
-					if (tmp.includes(',')) {
+					if (tmp.includes(',') === true) {
 						tab   = tmp.split(',').shift();
 						flags = tmp.split(',').slice(1);
 						link  = link.substr(9).split('/').slice(1).join('/');
@@ -88,7 +88,7 @@ const upgrade_http = function(socket, url) {
 
 				}
 
-			} else if (link.startsWith('/stealth/')) {
+			} else if (link.startsWith('/stealth/') === true) {
 				link = link.substr(9);
 			}
 
@@ -284,15 +284,15 @@ const upgrade_http = function(socket, url) {
 
 			});
 
-			if (flags.includes('proxy')) {
+			if (flags.includes('proxy') === true) {
 				request.set('proxy', true);
 			}
 
-			if (flags.includes('refresh')) {
+			if (flags.includes('refresh') === true) {
 				request.set('refresh', true);
 			}
 
-			if (flags.includes('webview')) {
+			if (flags.includes('webview') === true) {
 				request.set('webview', true);
 			}
 
@@ -697,11 +697,11 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 							let tmp1 = (request.headers['connection'] || '').toLowerCase();
 							let tmp2 = (request.headers['upgrade'] || '').toLowerCase();
 
-							if (tmp1.includes('upgrade') && tmp2.includes('websocket')) {
+							if (tmp1.includes('upgrade') === true && tmp2.includes('websocket') === true) {
 
 								upgrade_ws.call(this, socket, request);
 
-							} else if (link.startsWith('https://') || link.startsWith('http://') || link.startsWith('/stealth')) {
+							} else if (link.startsWith('https://') === true || link.startsWith('http://') === true || link.startsWith('/stealth') === true) {
 
 								upgrade_http.call(this, socket, request);
 

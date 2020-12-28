@@ -53,7 +53,7 @@ const toPath = function(payload) {
 
 		if (isString(payload.path) === true) {
 
-			if (payload.path.endsWith('/')) {
+			if (payload.path.endsWith('/') === true) {
 				path = payload.path + 'index.html';
 			} else {
 				path = payload.path;

@@ -9,11 +9,11 @@ const WIDGETS = [];
 export const isWidget = function(obj) {
 
 	let str = Object.prototype.toString.call(obj);
-	if (str.startsWith('[') && str.endsWith(']')) {
+	if (str.startsWith('[') === true && str.endsWith(']') === true) {
 		str = str.substr(1, str.length - 2);
 	}
 
-	if (str.startsWith('object') && str.includes('browser-')) {
+	if (str.startsWith('object') === true && str.includes('browser-') === true) {
 
 		if (isElement(obj.element) === true) {
 			return true;

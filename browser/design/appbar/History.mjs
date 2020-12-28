@@ -51,8 +51,8 @@ const History = function(browser) {
 
 		if (
 			key.name === 'f1'
-			|| (key.mods.includes('alt') && key.name === 'arrowleft')
-			|| (key.mods.includes('ctrl') && key.name === '[')
+			|| (key.mods.includes('alt') === true && key.name === 'arrowleft')
+			|| (key.mods.includes('ctrl') === true && key.name === '[')
 		) {
 
 			if (this.buttons.back.state() !== 'disabled') {
@@ -61,8 +61,8 @@ const History = function(browser) {
 
 		} else if (
 			key.name === 'f2'
-			|| (key.mods.includes('alt') && key.name === 'arrowright')
-			|| (key.mods.includes('ctrl') && key.name === ']')
+			|| (key.mods.includes('alt') === true && key.name === 'arrowright')
+			|| (key.mods.includes('ctrl') === true && key.name === ']')
 		) {
 
 			if (this.buttons.next.state() !== 'disabled') {
@@ -71,7 +71,7 @@ const History = function(browser) {
 
 		} else if (
 			key.name === 'f3'
-			|| (key.mods.includes('ctrl') && key.name === 'r')
+			|| (key.mods.includes('ctrl') === true && key.name === 'r')
 		) {
 
 			if (this.buttons.action.state() !== 'disabled') {
@@ -80,7 +80,7 @@ const History = function(browser) {
 
 		} else if (
 			key.name === 'f4'
-			|| (key.mods.includes('ctrl') && key.name === 't')
+			|| (key.mods.includes('ctrl') === true && key.name === 't')
 		) {
 
 			if (this.buttons.open.state() !== 'disabled') {

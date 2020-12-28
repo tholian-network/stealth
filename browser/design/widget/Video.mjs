@@ -43,11 +43,11 @@ const Video = function(browser, actions) {
 
 		let footer = this.element.query('browser-widget-video-footer');
 
-		if (this.actions.includes('fullscreen')) {
+		if (this.actions.includes('fullscreen') === true) {
 			this.buttons.fullscreen.render(footer);
 		}
 
-		if (this.actions.includes('download')) {
+		if (this.actions.includes('download') === true) {
 			this.buttons.download.render(footer);
 		}
 

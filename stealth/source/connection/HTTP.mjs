@@ -149,7 +149,7 @@ const ondata = function(connection, url, chunk) {
 						fragment.length = num;
 					}
 
-				} else if (tmp1 !== null && tmp1.includes('/') && fragment.length === null) {
+				} else if (tmp1 !== null && tmp1.includes('/') === true && fragment.length === null) {
 
 					let num = parseInt(tmp1.split('/').pop(), 10);
 					if (Number.isNaN(num) === false) {
@@ -367,9 +367,9 @@ const ondisconnect = function(connection, url) {
 					connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
 				}
 
-			} else if (code.startsWith('4') && code.length === 3) {
+			} else if (code.startsWith('4') === true && code.length === 3) {
 				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
-			} else if (code.startsWith('5') && code.length === 3) {
+			} else if (code.startsWith('5') === true && code.length === 3) {
 				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
 			} else {
 				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
@@ -715,7 +715,7 @@ const HTTP = {
 			let index = raw.indexOf('\r\n\r\n');
 			if (index !== -1) {
 
-				if (raw.endsWith('\r\n\r\n')) {
+				if (raw.endsWith('\r\n\r\n') === true) {
 					raw_headers = raw.substr(0, index);
 					raw_payload = buffer.slice(index + 4, buffer.length - 4);
 				} else {
@@ -732,13 +732,13 @@ const HTTP = {
 			if (tmp1.length > 1) {
 
 				let tmp2 = tmp1.shift().split(' ');
-				if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp2[0])) {
+				if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp2[0]) === true) {
 
 					headers['@method'] = tmp2[0];
 
-					if (tmp2[1].startsWith('/')) {
+					if (tmp2[1].startsWith('/') === true) {
 						headers['@url'] = tmp2[1];
-					} else if (tmp2[1].startsWith('http://') || tmp2[1].startsWith('https://')) {
+					} else if (tmp2[1].startsWith('http://') === true || tmp2[1].startsWith('https://') === true) {
 						headers['@url'] = tmp2[1];
 					}
 
@@ -749,7 +749,7 @@ const HTTP = {
 
 				tmp1.filter((line) => line !== '').forEach((line) => {
 
-					if (line.includes(':')) {
+					if (line.includes(':') === true) {
 
 						let key = line.split(':')[0].trim().toLowerCase();
 						let val = line.split(':').slice(1).join(':').trim();

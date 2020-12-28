@@ -282,9 +282,9 @@ const DATETIME = {
 			second = date_or_num_or_str.getUTCSeconds();
 
 		} else if (
-			isString(date_or_num_or_str)
-			&& date_or_num_or_str.includes('T')
-			&& date_or_num_or_str.endsWith('Z')
+			isString(date_or_num_or_str) === true
+			&& date_or_num_or_str.includes('T') === true
+			&& date_or_num_or_str.endsWith('Z') === true
 		) {
 
 			let date = new Date(date_or_num_or_str);
@@ -298,7 +298,7 @@ const DATETIME = {
 
 		} else if (isString(date_or_num_or_str) === true) {
 
-			if (/^([0-9]{2}):([0-9]{2}):([0-9]{2})$/g.test(date_or_num_or_str)) {
+			if (/^([0-9]{2}):([0-9]{2}):([0-9]{2})$/g.test(date_or_num_or_str) === true) {
 
 				let tmp_hour   = parseInt(date_or_num_or_str.split(':')[0], 10);
 				let tmp_minute = parseInt(date_or_num_or_str.split(':')[1], 10);
@@ -328,7 +328,7 @@ const DATETIME = {
 					second = tmp_second;
 				}
 
-			} else if (/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/g.test(date_or_num_or_str)) {
+			} else if (/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/g.test(date_or_num_or_str) === true) {
 
 				let tmp_year  = parseInt(date_or_num_or_str.split('-')[0], 10);
 				let tmp_month = parseInt(date_or_num_or_str.split('-')[1], 10);
@@ -357,7 +357,7 @@ const DATETIME = {
 					day = tmp_day;
 				}
 
-			} else if (/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/g.test(date_or_num_or_str)) {
+			} else if (/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/g.test(date_or_num_or_str) === true) {
 
 				let tmp_day   = parseInt(date_or_num_or_str.split('.')[0], 10);
 				let tmp_month = parseInt(date_or_num_or_str.split('.')[1], 10);
@@ -386,7 +386,7 @@ const DATETIME = {
 					day = tmp_day;
 				}
 
-			} else if (date_or_num_or_str.trim().includes(' ')) {
+			} else if (date_or_num_or_str.trim().includes(' ') === true) {
 
 				let tmp_date = DATETIME.parse(date_or_num_or_str.trim().split(' ').shift());
 				let tmp_time = DATETIME.parse(date_or_num_or_str.trim().split(' ').pop());

@@ -449,7 +449,7 @@ const onconnect = function(connection, url) {
 			let tmp1 = (response.headers['connection'] || '').toLowerCase();
 			let tmp2 = (response.headers['upgrade'] || '').toLowerCase();
 
-			if (tmp1.includes('upgrade') && tmp2.includes('websocket')) {
+			if (tmp1.includes('upgrade') === true && tmp2.includes('websocket') === true) {
 
 				let accept = response.headers['sec-websocket-accept'] || '';
 				let hash   = crypto.createHash('sha1').update(nonce.toString('base64') + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');

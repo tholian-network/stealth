@@ -395,7 +395,7 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 				// XXX: This is a Chromium Bug, two parallel connections
 				// lead to ::ffff:127.0.0.2-255 remote address
 				// whereas the initial connection uses ::1
-				if (address === '::1' || address.startsWith('127.0.0.')) {
+				if (address === '::1' || address.startsWith('127.0.0.') === true) {
 					address = '127.0.0.1';
 				}
 

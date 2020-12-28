@@ -342,7 +342,7 @@ const Tabs = function(browser) {
 
 		if (
 			key.name === 'f6'
-			|| (key.mods.includes('ctrl') && key.name === 'pageup')
+			|| (key.mods.includes('ctrl') === true && key.name === 'pageup')
 		) {
 
 			if (this.prev !== null) {
@@ -351,7 +351,7 @@ const Tabs = function(browser) {
 
 		} else if (
 			key.name === 'f7'
-			|| (key.mods.includes('ctrl') && key.name === 'w')
+			|| (key.mods.includes('ctrl') === true && key.name === 'w')
 		) {
 
 			if (this.curr !== null) {
@@ -365,7 +365,7 @@ const Tabs = function(browser) {
 
 		} else if (
 			key.name === 'f8'
-			|| (key.mods.includes('ctrl') && key.name === 'pagedown')
+			|| (key.mods.includes('ctrl') === true && key.name === 'pagedown')
 		) {
 
 			if (this.next !== null) {

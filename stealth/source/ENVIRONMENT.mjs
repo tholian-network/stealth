@@ -12,7 +12,7 @@ const action = (() => {
 
 	let value = Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === false).shift() || '';
 
-	if (/^([serve]{5})$/g.test(value)) {
+	if (/^([serve]{5})$/g.test(value) === true) {
 		return 'serve';
 	}
 
@@ -125,7 +125,7 @@ const profile = (() => {
 		folder = path.resolve((process.env.USERPROFILE || 'C:\\Users\\' + user) + '/Stealth');
 	}
 
-	if (folder.endsWith('/')) {
+	if (folder.endsWith('/') === true) {
 		folder = folder.substr(0, folder.length - 1);
 	}
 
@@ -178,7 +178,7 @@ const root = (() => {
 
 	}
 
-	if (folder.endsWith('/')) {
+	if (folder.endsWith('/') === true) {
 		folder = folder.substr(0, folder.length - 1);
 	}
 
@@ -202,7 +202,7 @@ const temp = (() => {
 		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\stealth-' + user);
 	}
 
-	if (folder.endsWith('/')) {
+	if (folder.endsWith('/') === true) {
 		folder = folder.substr(0, folder.length - 1);
 	}
 

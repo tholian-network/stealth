@@ -123,7 +123,7 @@ const send_pac = (url, callback) => {
 
 			address = url.headers['@local'];
 
-			if (address.startsWith('::ffff:')) {
+			if (address.startsWith('::ffff:') === true) {
 				address = address.substr(7);
 			}
 
@@ -282,7 +282,7 @@ const ROUTER = {
 					headers: url.headers
 				}), callback);
 
-			} else if (url.path.startsWith('/browser')) {
+			} else if (url.path.startsWith('/browser') === true) {
 
 				send_file(url, (response) => {
 
@@ -299,7 +299,7 @@ const ROUTER = {
 
 				});
 
-			} else if (url.path.startsWith('/stealth')) {
+			} else if (url.path.startsWith('/stealth') === true) {
 
 				callback(Object.assign(url, {
 					headers: {

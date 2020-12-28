@@ -174,7 +174,7 @@ const HOSTS = {
 					&& chunk[0] !== '!'
 				) {
 
-					if (chunk.includes('#')) {
+					if (chunk.includes('#') === true) {
 						chunk = chunk.split('#')[0].trim();
 					}
 
@@ -198,7 +198,7 @@ const HOSTS = {
 					let ip      = null;
 
 					let line = lines[l];
-					if (line.includes('\t')) {
+					if (line.includes('\t') === true) {
 
 						let tmp = line.split('\t');
 						for (let t = 0, tl = tmp.length; t < tl; t++) {
@@ -251,7 +251,7 @@ const HOSTS = {
 						} else {
 
 							let chunk = tmp[0];
-							if (chunk.includes('.')) {
+							if (chunk.includes('.') === true) {
 
 								// Allow third-party domain lists that
 								// are not in /etc/hosts format

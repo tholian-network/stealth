@@ -10,13 +10,13 @@ const action = (() => {
 
 	let value = Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === false).shift() || '';
 
-	if (/^([check]{5})$/g.test(value)) {
+	if (/^([check]{5})$/g.test(value) === true) {
 		return 'check';
-	} else if (/^([watch]{5})$/g.test(value)) {
+	} else if (/^([watch]{5})$/g.test(value) === true) {
 		return 'watch';
-	} else if (/^([scan]{4})$/g.test(value)) {
+	} else if (/^([scan]{4})$/g.test(value) === true) {
 		return 'scan';
-	} else if (/^([time]{4})$/g.test(value)) {
+	} else if (/^([time]{4})$/g.test(value) === true) {
 		return 'time';
 	}
 
@@ -52,7 +52,7 @@ const flags = (() => {
 				val = false;
 			} else if (val === 'null') {
 				val = null;
-			} else if (val.endsWith('s')) {
+			} else if (val.endsWith('s') === true) {
 
 				let num = parseInt(val.substr(0, val.length - 1), 10);
 				if (Number.isNaN(num) === false) {
@@ -128,7 +128,7 @@ const root = (() => {
 
 	}
 
-	if (folder.endsWith('/')) {
+	if (folder.endsWith('/') === true) {
 		folder = folder.substr(0, folder.length - 1);
 	}
 
@@ -152,7 +152,7 @@ const temp = (() => {
 		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\covert-' + user);
 	}
 
-	if (folder.endsWith('/')) {
+	if (folder.endsWith('/') === true) {
 		folder = folder.substr(0, folder.length - 1);
 	}
 
@@ -187,11 +187,11 @@ const mktemp = (prefix, seed) => {
 	seed   = typeof seed === 'number'   ? Math.round(seed / 2) * 2 : null;
 
 
-	if (prefix.startsWith('/')) {
+	if (prefix.startsWith('/') === true) {
 		prefix = prefix.substr(1);
 	}
 
-	if (prefix.endsWith('/')) {
+	if (prefix.endsWith('/') === true) {
 		prefix = prefix.substr(0, prefix.length - 1);
 	}
 

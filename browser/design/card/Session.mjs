@@ -115,7 +115,7 @@ const Session = function(browser, actions) {
 
 		let footer = this.element.query('browser-card-session-footer');
 
-		if (this.actions.includes('remove')) {
+		if (this.actions.includes('remove') === true) {
 			this.buttons.remove.render(footer);
 		}
 

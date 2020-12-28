@@ -417,7 +417,7 @@ Tab.prototype = {
 
 		if (request !== null) {
 
-			if (this.requests.includes(request)) {
+			if (this.requests.includes(request) === true) {
 				return true;
 			}
 
@@ -469,7 +469,7 @@ Tab.prototype = {
 
 		if (link !== null) {
 
-			if (link.includes('./') || link.includes('../')) {
+			if (link.includes('./') === true || link.includes('../') === true) {
 				link = URL.resolve(this.url, link).link;
 			}
 
