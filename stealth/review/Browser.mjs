@@ -376,7 +376,7 @@ describe('Browser.prototype.download()', function(assert) {
 
 });
 
-describe('Browser.prototype.get()', function(assert) {
+describe('Browser.prototype.getMode()', function(assert) {
 
 	this.browser.settings.modes = [{
 		domain: 'example.com',

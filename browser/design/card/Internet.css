@@ -121,6 +121,7 @@ browser-card-internet-article > ul li input[type="radio"][name="connection"][val
 browser-card-internet-article > ul li input[type="radio"][name="history"][value="stealth"]:before           { content: '\e32a'; }
 browser-card-internet-article > ul li input[type="radio"][name="history"][value="day"]:before               { content: '\e889'; }
 browser-card-internet-article > ul li input[type="radio"][name="history"][value="week"]:before              { content: '\e916'; }
+browser-card-internet-article > ul li input[type="radio"][name="history"][value="month"]:before             { content: '\e916'; }
 browser-card-internet-article > ul li input[type="radio"][name="history"][value="forever"]:before           { content: '\eb3d'; }
 browser-card-internet-article > ul li input[type="radio"][name="useragent"][value="stealth"]:before         { content: '\e32a'; }
 browser-card-internet-article > ul li input[type="radio"][name="useragent"][value="browser-mobile"]:before  { content: '\e324'; }

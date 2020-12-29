@@ -355,6 +355,8 @@ Tab.prototype = {
 			limit = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24)));
 		} else if (until === 'week') {
 			limit = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 7)));
+		} else if (until === 'month') {
+			limit = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 31)));
 		} else if (until === 'forever') {
 			limit = DATETIME.parse('1582-01-01 00:00:00');
 		}
