@@ -2,8 +2,9 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { URL                                                                  } from '../parser/URL.mjs';
+import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { DATETIME                                                                      } from '../parser/DATETIME.mjs';
+import { URL                                                                           } from '../parser/URL.mjs';
 
 
 
@@ -67,7 +68,26 @@ const toPath = function(payload) {
 
 };
 
-const info = function(url) {
+const toQuery = function(payload) {
+
+	let query = '';
+
+	if (isObject(payload) === true) {
+
+		if (isString(payload.query) === true) {
+			query = payload.query;
+		}
+
+	}
+
+	return query;
+
+};
+
+const info = function(url, datetime) {
+
+	datetime = DATETIME.isDATETIME(datetime) ? datetime : null;
+
 
 	let stat = null;
 
@@ -81,7 +101,8 @@ const info = function(url) {
 
 		return {
 			size: stat.size || 0,
-			time: (stat.mtime).toISOString()
+			date: datetime !== null ? DATETIME.toDate(DATETIME) : null,
+			time: datetime !== null ? DATETIME.toTime(DATETIME) : null
 		};
 
 	}
@@ -146,6 +167,20 @@ const read = function(url, json) {
 
 };
 
+const readdir = function(url) {
+
+	let result = [];
+
+	try {
+		result = fs.readdirSync(path.resolve(url));
+	} catch (err) {
+		result = [];
+	}
+
+	return result;
+
+};
+
 const remove = function(url) {
 
 	let result = false;
@@ -187,12 +222,85 @@ const save = function(url, buffer) {
 
 };
 
+const walk = function(root, folder, result) {
+
+	folder = isString(folder) ? folder : '';
+	result = isArray(result)  ? result : [];
+
+
+	readdir(root + '/' + folder).forEach((file_or_folder) => {
+
+		let stat = null;
+
+		try {
+			stat = fs.lstatSync(path.resolve(root + folder + '/' + file_or_folder));
+		} catch (err) {
+			stat = null;
+		}
+
+		if (stat !== null) {
+
+			if (stat.isDirectory() === true) {
+				walk(root, folder + '/' + file_or_folder, result);
+			} else if (stat.isFile() === true) {
+				result.push(folder + '/' + file_or_folder);
+			}
+		}
+
+	});
+
+
+	return result;
+
+};
+
 
 
 const Cache = function(stealth) {
 
 	this.stealth = stealth;
+	this.history = {};
+
 	Emitter.call(this);
+
+
+	setTimeout(() => {
+
+		readdir(this.stealth.settings.profile + '/cache/headers').forEach((raw) => {
+
+			let datetime = DATETIME.parse(raw);
+			if (DATETIME.isDATETIME(datetime) === true) {
+
+				let urls = walk(this.stealth.settings.profile + '/cache/headers/' + DATETIME.render(datetime));
+				if (urls.length > 0) {
+
+					urls.map((u) => u.substr(1)).forEach((url) => {
+
+						if (isArray(this.history[url]) === true) {
+
+							let latest = this.history[url][this.history[url].length - 1];
+
+							if (DATETIME.compare(latest, datetime) < 0) {
+								this.history[url].unshift(datetime);
+							} else {
+								this.history[url].push(datetime);
+							}
+
+						} else {
+
+							this.history[url] = [ datetime ];
+
+						}
+
+					});
+
+				}
+
+			}
+
+		});
+
+	}, 100);
 
 };
 
@@ -214,6 +322,7 @@ Cache.toCache = function(payload) {
 		} else if (isString(payload.host) === true) {
 			domain = payload.host;
 		}
+
 
 		let cache_headers = null;
 
@@ -287,18 +396,30 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 		let domain = toDomain(payload);
 		let path   = toPath(payload);
+		let query  = toQuery(payload);
 
 		if (domain !== null && path !== null) {
 
-			let cache_headers = info(this.stealth.settings.profile + '/cache/headers/' + domain + path);
-			let cache_payload = info(this.stealth.settings.profile + '/cache/payload/' + domain + path);
-
-			if (cache_headers !== null && cache_payload !== null) {
-				response = {
-					headers: cache_headers,
-					payload: cache_payload
-				};
+			let datetime = null;
+			let history = this.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+			if (history !== null) {
+				datetime = history[0];
 			}
+
+			if (datetime !== null) {
+
+				let cache_headers = info(this.stealth.settings.profile + '/cache/headers/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''), datetime);
+				let cache_payload = info(this.stealth.settings.profile + '/cache/payload/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''), datetime);
+
+				if (cache_headers !== null && cache_payload !== null) {
+					response = {
+						headers: cache_headers,
+						payload: cache_payload
+					};
+				}
+
+			}
+
 
 		}
 
@@ -327,23 +448,35 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 		let domain = toDomain(payload);
 		let mime   = toMIME(payload);
 		let path   = toPath(payload);
+		let query  = toQuery(payload);
 
 		if (domain !== null && mime !== null && path !== null) {
 
-			let cache_headers = read(this.stealth.settings.profile + '/cache/headers/' + domain + path, true);
-			let cache_payload = read(this.stealth.settings.profile + '/cache/payload/' + domain + path, false);
+			let datetime = null;
+			let history = this.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+			if (history !== null) {
+				datetime = history[0];
+			}
 
-			if (cache_headers !== null && cache_payload !== null) {
+			if (datetime !== null) {
 
-				Object.assign(cache_headers, {
-					'content-type':   mime.format,
-					'content-length': Buffer.byteLength(cache_payload)
-				});
+				let cache_headers = read(this.stealth.settings.profile + '/cache/headers/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''), true);
+				let cache_payload = read(this.stealth.settings.profile + '/cache/payload/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''), false);
 
-				response = {
-					headers: cache_headers,
-					payload: cache_payload
-				};
+				if (cache_headers !== null && cache_payload !== null) {
+
+					Object.assign(cache_headers, {
+						'content-type':   mime.format,
+						'content-length': Buffer.byteLength(cache_payload),
+						'last-modified':  DATETIME.toIMF(datetime)
+					});
+
+					response = {
+						headers: cache_headers,
+						payload: cache_payload
+					};
+
+				}
 
 			}
 
@@ -373,14 +506,26 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 		let domain = toDomain(payload);
 		let path   = toPath(payload);
+		let query  = toQuery(payload);
 
 		if (domain !== null && path !== null) {
 
-			let cache_headers = remove(this.stealth.settings.profile + '/cache/headers/' + domain + path);
-			let cache_payload = remove(this.stealth.settings.profile + '/cache/payload/' + domain + path);
+			let history = this.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+			if (history !== null) {
 
-			if (cache_headers === true && cache_payload === true) {
-				result = true;
+				history.forEach((datetime) => {
+
+					let result_headers = remove(this.stealth.settings.profile + '/cache/headers/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''));
+					let result_payload = remove(this.stealth.settings.profile + '/cache/payload/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''));
+
+					if (result_headers === true && result_payload === true) {
+						result = true;
+					}
+
+				});
+
+				delete this.history[domain + path + (query !== '' ? ('?' + query) : '')];
+
 			}
 
 		}
@@ -410,16 +555,25 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 		let domain = toDomain(payload);
 		let path   = toPath(payload);
+		let query  = toQuery(payload);
 
 		if (domain !== null && path !== null) {
 
 			if (cache !== null) {
 
-				let cache_headers = save(this.stealth.settings.profile + '/cache/headers/' + domain + path, cache.headers);
-				let cache_payload = save(this.stealth.settings.profile + '/cache/payload/' + domain + path, cache.payload);
+				let datetime       = DATETIME.parse(new Date());
+				let result_headers = save(this.stealth.settings.profile + '/cache/headers/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''), cache.headers);
+				let result_payload = save(this.stealth.settings.profile + '/cache/payload/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''), cache.payload);
 
-				if (cache_headers === true && cache_payload === true) {
+				if (result_headers === true && result_payload === true) {
+
+					let history = this.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+					if (history !== null) {
+						history.unshift(datetime);
+					}
+
 					result = true;
+
 				}
 
 			}

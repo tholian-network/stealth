@@ -7,18 +7,18 @@ import { Optimizer                                } from '../../../stealth/sourc
 before('prepare', function(assert) {
 
 	this.simple = {
-		ref:    EXAMPLE.sketch('css/simple.css'),
-		config: EXAMPLE.config('css/simple.css')
+		mode:   EXAMPLE.toMode('css/simple.css'),
+		sketch: EXAMPLE.toSketch('css/simple.css')
 	};
 
 	this.complex = {
-		ref:    EXAMPLE.sketch('css/complex.css'),
-		config: EXAMPLE.config('css/complex.css')
+		mode:   EXAMPLE.toMode('css/complex.css'),
+		sketch: EXAMPLE.toSketch('css/complex.css')
 	};
 
 	this.minified = {
-		ref:    EXAMPLE.sketch('css/minified.css'),
-		config: EXAMPLE.config('css/minified.css')
+		mode:   EXAMPLE.toMode('css/minified.css'),
+		sketch: EXAMPLE.toSketch('css/minified.css')
 	};
 
 	assert(this.simple !== null);

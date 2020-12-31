@@ -269,7 +269,8 @@ const upgrade_http = function(socket, url) {
 					// Strip out all unnecessary HTTP headers
 					response.headers = {
 						'content-length': response.payload.length,
-						'content-type':   url.mime.format
+						'content-type':   url.mime.format,
+						'last-modified':  response.headers['last-modified'] || null
 					};
 
 					HTTP.send(connection, response);

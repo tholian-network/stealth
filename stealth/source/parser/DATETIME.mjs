@@ -501,6 +501,19 @@ const DATETIME = {
 
 	},
 
+	toIMF: function(datetime) {
+
+		datetime = (DATETIME.isDATETIME(datetime) || DATETIME.isDate(datetime)) ? datetime : null;
+
+
+		if (datetime !== null) {
+			return new Date(render_date(datetime) + 'T' + render_time(datetime) + 'Z').toGMTString();
+		}
+
+		return null;
+
+	},
+
 	toDate: function(datetime) {
 
 		datetime = (DATETIME.isDATETIME(datetime) || DATETIME.isDate(datetime)) ? datetime : null;
