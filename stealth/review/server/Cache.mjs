@@ -2,6 +2,7 @@
 import { isBuffer, isFunction, isNumber, isObject, isString } from '../../../base/index.mjs';
 import { after, before, describe, finish                    } from '../../../covert/index.mjs';
 import { Cache                                              } from '../../../stealth/source/server/Cache.mjs';
+import { DATETIME                                           } from '../../../stealth/source/parser/DATETIME.mjs';
 import { connect, disconnect                                } from '../Server.mjs';
 
 
@@ -74,13 +75,15 @@ describe('Cache.prototype.info()', function(assert) {
 			'event':   'info'
 		});
 
-		assert(isObject(response.payload),              true);
-		assert(isObject(response.payload.headers),      true);
-		assert(isNumber(response.payload.headers.size), true);
-		assert(isString(response.payload.headers.time), true);
-		assert(isObject(response.payload.payload),      true);
-		assert(isNumber(response.payload.payload.size), true);
-		assert(isString(response.payload.payload.time), true);
+		assert(isObject(response.payload),                     true);
+		assert(isObject(response.payload.headers),             true);
+		assert(isNumber(response.payload.headers.size),        true);
+		assert(DATETIME.isDate(response.payload.headers.date), true);
+		assert(DATETIME.isTime(response.payload.headers.time), true);
+		assert(isObject(response.payload.payload),             true);
+		assert(isNumber(response.payload.payload.size),        true);
+		assert(DATETIME.isDate(response.payload.payload.date), true);
+		assert(DATETIME.isTime(response.payload.payload.time), true);
 
 	});
 
@@ -106,11 +109,10 @@ describe('Cache.prototype.read()/success', function(assert) {
 		assert(isObject(response.payload.headers), true);
 		assert(isBuffer(response.payload.payload), true);
 
-		assert(response.payload.headers, {
-			'x-test':         'save',
-			'content-type':   'application/json',
-			'content-length': 17
-		});
+		assert(response.payload.headers['x-test'],                  'save');
+		assert(response.payload.headers['content-type'],            'application/json');
+		assert(response.payload.headers['content-length'],          17);
+		assert(isString(response.payload.headers['last-modified']), true);
 
 		let data = null;
 		try {
@@ -184,7 +186,7 @@ describe('Cache.prototype.remove()/failure', function(assert) {
 				service: 'cache',
 				event:   'remove'
 			},
-			payload: true
+			payload: false
 		});
 
 	});

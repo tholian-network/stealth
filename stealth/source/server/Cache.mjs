@@ -101,8 +101,8 @@ const info = function(url, datetime) {
 
 		return {
 			size: stat.size || 0,
-			date: datetime !== null ? DATETIME.toDate(DATETIME) : null,
-			time: datetime !== null ? DATETIME.toTime(DATETIME) : null
+			date: datetime !== null ? DATETIME.toDate(datetime) : null,
+			time: datetime !== null ? DATETIME.toTime(datetime) : null
 		};
 
 	}
@@ -259,7 +259,11 @@ const walk = function(root, folder, result) {
 const Cache = function(stealth) {
 
 	this.stealth = stealth;
-	this.history = {};
+
+	this.__state = {
+		history: {}
+	};
+
 
 	Emitter.call(this);
 
@@ -276,19 +280,19 @@ const Cache = function(stealth) {
 
 					urls.map((u) => u.substr(1)).forEach((url) => {
 
-						if (isArray(this.history[url]) === true) {
+						if (isArray(this.__state.history[url]) === true) {
 
-							let latest = this.history[url][this.history[url].length - 1];
+							let latest = this.__state.history[url][this.__state.history[url].length - 1];
 
 							if (DATETIME.compare(latest, datetime) < 0) {
-								this.history[url].unshift(datetime);
+								this.__state.history[url].unshift(datetime);
 							} else {
-								this.history[url].push(datetime);
+								this.__state.history[url].push(datetime);
 							}
 
 						} else {
 
-							this.history[url] = [ datetime ];
+							this.__state.history[url] = [ datetime ];
 
 						}
 
@@ -401,7 +405,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 		if (domain !== null && path !== null) {
 
 			let datetime = null;
-			let history = this.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+			let history  = this.__state.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+
 			if (history !== null) {
 				datetime = history[0];
 			}
@@ -453,7 +458,8 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 		if (domain !== null && mime !== null && path !== null) {
 
 			let datetime = null;
-			let history = this.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+			let history  = this.__state.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+
 			if (history !== null) {
 				datetime = history[0];
 			}
@@ -510,7 +516,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (domain !== null && path !== null) {
 
-			let history = this.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+			let history = this.__state.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
 			if (history !== null) {
 
 				history.forEach((datetime) => {
@@ -524,7 +530,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 				});
 
-				delete this.history[domain + path + (query !== '' ? ('?' + query) : '')];
+				delete this.__state.history[domain + path + (query !== '' ? ('?' + query) : '')];
 
 			}
 
@@ -567,9 +573,11 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 				if (result_headers === true && result_payload === true) {
 
-					let history = this.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
+					let history = this.__state.history[domain + path + (query !== '' ? ('?' + query) : '')] || null;
 					if (history !== null) {
 						history.unshift(datetime);
+					} else {
+						this.__state.history[domain + path + (query !== '' ? ('?' + query) : '')] = [ datetime ];
 					}
 
 					result = true;
