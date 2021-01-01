@@ -3,14 +3,14 @@
 
 Tholian&reg; Stealth is the automateable Web Browser for the Web of Knowledge.
 
-Its design goals are increased Privacy, increased Automation, adaptive Semantic Understanding
-and efficient bandwidth usage, no matter the cost.
+Its design goals are increased Privacy, increased Automation, adaptive Semantic
+Understanding and efficient Bandwidth Usage, no matter the cost.
 
-It is built by a former contributor to both Chromium and Firefox, and is built out of personal
-opinion on how Web Browsers should try to understand the Semantic Web.
+It is built by a former contributor to both Chromium and Firefox, and is built out
+of personal opinion on how Web Browsers should try to understand the Semantic Web.
 
-Stealth empowers its Users, not Website Developers that could (,will ,and did) abuse technologies
-to compromise the freedom and rights of Web Browser End-Users.
+Stealth empowers its Users, not Website Developers that could (,will ,and did) abuse
+technologies to compromise the freedom and rights of Web Browser End-Users.
 
 
 ## Implemented Features
@@ -23,41 +23,43 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
   necessary and only when the website was not MITM-ed.
 
 - It is peer-to-peer and always uses the most efficient way to share resources
-  and to reduce bandwidth, which means that once websites are downloaded they
-  can be shared with other Peers and continue to be readable, even when being
+  and to reduce bandwidth, which means that once a Site is downloaded it can be
+  shared with trusted Peers and continues to be readable, even when being
   completely offline.
 
 - It uses `Blockers` that is on feature-parity with AdBlock Plus, AdGuard, Pi-Hole,
   uBlock Origin and uMatrix (in the sense of "all of the above").
 
-- It uses `Optimizers` to render only the good parts of HTML and CSS. These Optimizers
-  make sure that no Client or Peer ever receives any malicious or unwanted content.
-  All Optimizers are applied across all `Site Modes`, and the `Site Modes` decide what
-  content or media is included.
+- It uses `Optimizers` to render only the good parts of HTML and CSS. These ensure that
+  no Client or Peer ever receives any malicious or unwanted content. All Optimizers are
+  applied across all `Site Modes`, and the `Site Modes` decide what content or media is
+  included.
 
 - It uses `Site Modes` that decide what to load, with incrementally allowed features
   (or media types). By default, Stealth will load nothing. The Site Mode next to the
-  address bar decides what is loaded.
+  address bar decides what is being loaded.
 
 - It uses `Site Beacons` that label data on a Site for automated extraction purposes
-  which in return help to train Stealth to understand similar Sites on the Web more easily.
+  which help to train Stealth to understand similar Sites on the Web more easily.
   This is similar to the "Reader Mode" in other Browsers, but allows integrations with
-  third-party databases and/or software in an automated manner.
+  third-party databases and both exports/imports from/to third-party software in an
+  automated manner.
 
-- It never requests anything unnecessary. The cache is persistent until the user tells
-  it to `refresh` the Site manually (or a scheduled download task runs for that URL).
+- It never requests anything unnecessary. The cache is persistent and time sensitive
+  until the user tells it to `refresh` the Site manually or the manually configured
+  Internet History lifetime has expired.
 
 - It uses trust-based `Peers` to share the local cache. Peers can receive, interchange,
-  and synchronize their downloaded media. This is especially helpful in rural areas,
+  and synchronize their downloaded contents. This is especially helpful in rural areas,
   where internet bandwidth is sparse; and redundant downloads can be saved.
 
-- It can as a Content-Auditing and Content-Filtering Web Proxy for other Web Browsers,
+- It can act as a Content-Auditing and Content-Filtering Web Proxy for other Web Browsers,
   which allows corporate-like setups with a shared peer-to-peer Cache and a local Archive
-  of the Web.
+  of the Web. Simply point your SOCKS4/5 or HTTP/S client to `http://stealth-service:65432/proxy.pac`.
 
-- It tries to achieve intelligent handling of Errors. In case a Site is not available anymore,
-  the `stealth:fix-request` error page allows to download websites automagically from trusted
-  Peers or from the [Web Archive](https://web.archive.org).
+- It offers intelligent solutions for Error scenarios. In case a Site is not available
+  anymore, the `stealth:fix-request` Page allows to download the Site automagically from
+  trusted Peers or from the [Web Archive](https://web.archive.org).
 
 - This ain't your Mama's Web Browser. It completely disables ECMAScript in order to improve
   Privacy. Stealth also does not support any Web API that could potentially send data to
@@ -107,9 +109,10 @@ node ./browser/browser.mjs;
 # gio open "http://localhost:65432"
 ```
 
-**IMPORTANT**: On mobile systems, Stealth can be used by visiting the URL and bookmarking
-it as a Web App. The Stealth Icon will appear on your home screen, and it will behave like
-an offline-ready mobile app, given that the Stealth Service's web server is online.
+**IMPORTANT**: On mobile phones, Stealth can be used as a Web App by visiting the URL and
+adding it to the Home Screen. It will behave like an offline-ready App, and allow to visit
+downloaded Sites from the Cache; given that the Stealth Service is reachable via Wi-Fi or LAN
+from your mobile phone.
 
 
 ## Releases
@@ -147,7 +150,7 @@ You can join it via [t.me/tholian_beta](https://t.me/tholian_beta) or search for
 The current roadmap is reflected by unimplemented [/issues](./issues) in this
 GitHub repository.
 
-A high-level roadmap is available at our Website's [Roadmap](https://tholian.network/roadmap.html),
+A high-level overview is available at our Website's [Roadmap](https://tholian.network/roadmap.html),
 which also lists other projects that will be built in order to integrate Stealth
 with larger featuresets.
 
