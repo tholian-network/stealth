@@ -2,7 +2,7 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { console, Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
 import { DATETIME                                                             } from '../parser/DATETIME.mjs';
 import { URL                                                                  } from '../parser/URL.mjs';
 
