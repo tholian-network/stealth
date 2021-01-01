@@ -2,7 +2,8 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { console, Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { DATETIME                                                             } from '../parser/DATETIME.mjs';
 import { URL                                                                  } from '../parser/URL.mjs';
 
 
@@ -67,6 +68,22 @@ const toPath = function(payload) {
 
 };
 
+const toQuery = function(payload) {
+
+	let query = '';
+
+	if (isObject(payload) === true) {
+
+		if (isString(payload.query) === true) {
+			query = payload.query;
+		}
+
+	}
+
+	return query;
+
+};
+
 const info = function(url) {
 
 	let stat = null;
@@ -79,9 +96,12 @@ const info = function(url) {
 
 	if (stat !== null && stat.isFile() === true) {
 
+		let datetime = DATETIME.parse(stat.mtime);
+
 		return {
 			size: stat.size || 0,
-			time: (stat.mtime).toISOString()
+			date: DATETIME.toDate(datetime),
+			time: DATETIME.toTime(datetime)
 		};
 
 	}
@@ -159,10 +179,6 @@ const remove = function(url) {
 			result = false;
 		}
 
-	} else {
-
-		result = true;
-
 	}
 
 	return result;
@@ -192,6 +208,8 @@ const save = function(url, buffer) {
 const Stash = function(stealth) {
 
 	this.stealth = stealth;
+
+
 	Emitter.call(this);
 
 };
@@ -287,11 +305,12 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 		let domain = toDomain(payload);
 		let path   = toPath(payload);
+		let query  = toQuery(payload);
 
 		if (domain !== null && path !== null) {
 
-			let stash_headers = info(this.stealth.settings.profile + '/stash/headers/' + domain + path);
-			let stash_payload = info(this.stealth.settings.profile + '/stash/payload/' + domain + path);
+			let stash_headers = info(this.stealth.settings.profile + '/stash/headers/' + domain + path + (query !== '' ? ('?' + query) : ''));
+			let stash_payload = info(this.stealth.settings.profile + '/stash/payload/' + domain + path + (query !== '' ? ('?' + query) : ''));
 
 			if (stash_headers !== null && stash_payload !== null) {
 				response = {
@@ -327,17 +346,29 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 		let domain = toDomain(payload);
 		let mime   = toMIME(payload);
 		let path   = toPath(payload);
+		let query  = toQuery(payload);
 
 		if (domain !== null && mime !== null && path !== null) {
 
-			let stash_headers = read(this.stealth.settings.profile + '/stash/headers/' + domain + path, true);
-			let stash_payload = read(this.stealth.settings.profile + '/stash/payload/' + domain + path, false);
+			let info_payload  = info(this.stealth.settings.profile + '/stash/payload/' + domain + path + (query !== '' ? ('?' + query) : ''));
+			let stash_headers = read(this.stealth.settings.profile + '/stash/headers/' + domain + path + (query !== '' ? ('?' + query) : ''), true);
+			let stash_payload = read(this.stealth.settings.profile + '/stash/payload/' + domain + path + (query !== '' ? ('?' + query) : ''), false);
 
-			if (stash_headers !== null && stash_payload !== null) {
+			if (stash_headers !== null && info_payload !== null && stash_payload !== null) {
+
+				let datetime = {
+					year:   info_payload.date.year,
+					month:  info_payload.date.month,
+					day:    info_payload.date.day,
+					hour:   info_payload.time.hour,
+					minute: info_payload.time.minute,
+					second: info_payload.time.second
+				};
 
 				Object.assign(stash_headers, {
 					'content-type':   mime.format,
-					'content-length': Buffer.byteLength(stash_payload)
+					'content-length': Buffer.byteLength(stash_payload),
+					'last-modified':  DATETIME.toIMF(datetime)
 				});
 
 				response = {
@@ -373,11 +404,12 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 		let domain = toDomain(payload);
 		let path   = toPath(payload);
+		let query  = toQuery(payload);
 
 		if (domain !== null && path !== null) {
 
-			let stash_headers = remove(this.stealth.settings.profile + '/stash/headers/' + domain + path);
-			let stash_payload = remove(this.stealth.settings.profile + '/stash/payload/' + domain + path);
+			let stash_headers = remove(this.stealth.settings.profile + '/stash/headers/' + domain + path + (query !== '' ? ('?' + query) : ''));
+			let stash_payload = remove(this.stealth.settings.profile + '/stash/payload/' + domain + path + (query !== '' ? ('?' + query) : ''));
 
 			if (stash_headers === true && stash_payload === true) {
 				result = true;
@@ -410,13 +442,14 @@ Stash.prototype = Object.assign({}, Emitter.prototype, {
 
 		let domain = toDomain(payload);
 		let path   = toPath(payload);
+		let query  = toQuery(payload);
 
 		if (domain !== null && path !== null) {
 
 			if (stash !== null) {
 
-				let stash_headers = save(this.stealth.settings.profile + '/stash/headers/' + domain + path, stash.headers);
-				let stash_payload = save(this.stealth.settings.profile + '/stash/payload/' + domain + path, stash.payload);
+				let stash_headers = save(this.stealth.settings.profile + '/stash/headers/' + domain + path + (query !== '' ? ('?' + query) : ''), stash.headers);
+				let stash_payload = save(this.stealth.settings.profile + '/stash/payload/' + domain + path + (query !== '' ? ('?' + query) : ''), stash.payload);
 
 				if (stash_headers === true && stash_payload === true) {
 					result = true;

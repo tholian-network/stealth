@@ -99,6 +99,10 @@ const info = function(url, datetime) {
 
 	if (stat !== null && stat.isFile() === true) {
 
+		if (datetime === null) {
+			datetime = DATETIME.parse(stat.mtime);
+		}
+
 		return {
 			size: stat.size || 0,
 			date: datetime !== null ? DATETIME.toDate(datetime) : null,
@@ -193,10 +197,6 @@ const remove = function(url) {
 		} catch (err) {
 			result = false;
 		}
-
-	} else {
-
-		result = true;
 
 	}
 

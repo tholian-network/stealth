@@ -1,8 +1,8 @@
 
 import { isBuffer, isFunction, isNumber, isObject, isString           } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
-import { Cache                                                        } from '../../../stealth/source/client/Cache.mjs';
 import { DATETIME                                                     } from '../../../stealth/source/parser/DATETIME.mjs';
+import { Cache                                                        } from '../../../stealth/source/client/Cache.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { connect as connect_client, disconnect as disconnect_client   } from '../Client.mjs';
 
@@ -314,7 +314,6 @@ describe('URL #2 - Cache.prototype.remove()/failure', function(assert) {
 	});
 
 });
-
 
 after(disconnect_client);
 after(disconnect_stealth);
