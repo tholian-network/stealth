@@ -161,10 +161,8 @@ describe('Client #1 - Cache.prototype.read()', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers, {
-			'content-type':   'application/json',
-			'content-length': 17
-		});
+		assert(response.headers['content-type'],   'application/json');
+		assert(response.headers['content-length'], 17);
 
 		let data = null;
 		try {
@@ -201,10 +199,8 @@ describe('Client #2 - Peer.prototype.proxy()', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers, {
-			'content-type':   'application/json',
-			'content-length': 17
-		});
+		assert(response.headers['content-type'],   'application/json');
+		assert(response.headers['content-length'], 17);
 
 		let data = null;
 		try {
@@ -251,10 +247,8 @@ describe('Client #2 - Cache.prototype.read()', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers, {
-			'content-type':   'application/json',
-			'content-length': 17
-		});
+		assert(response.headers['content-type'],   'application/json');
+		assert(response.headers['content-length'], 17);
 
 		let data = null;
 		try {

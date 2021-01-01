@@ -31,7 +31,7 @@ describe('Cache.prototype.toJSON()', function(assert) {
 
 });
 
-describe('Cache.prototype.save()/1', function(assert) {
+describe('URL #1 - Cache.prototype.save()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.save), true);
@@ -59,7 +59,7 @@ describe('Cache.prototype.save()/1', function(assert) {
 
 });
 
-describe('Cache.prototype.save()/2', function(assert) {
+describe('URL #2 - Cache.prototype.save()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.save), true);
@@ -87,7 +87,7 @@ describe('Cache.prototype.save()/2', function(assert) {
 
 });
 
-describe('Cache.prototype.info()/1', function(assert) {
+describe('URL #1 - Cache.prototype.info()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.info), true);
@@ -119,7 +119,7 @@ describe('Cache.prototype.info()/1', function(assert) {
 
 });
 
-describe('Cache.prototype.info()/2', function(assert) {
+describe('URL #2 - Cache.prototype.info()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.info), true);
@@ -151,7 +151,7 @@ describe('Cache.prototype.info()/2', function(assert) {
 
 });
 
-describe('Cache.prototype.read()/3/failure', function(assert) {
+describe('Cache.prototype.read()/failure', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.read), true);
@@ -173,7 +173,7 @@ describe('Cache.prototype.read()/3/failure', function(assert) {
 
 });
 
-describe('Cache.prototype.read()/1/success', function(assert) {
+describe('URL #1 - Cache.prototype.read()/success', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.read), true);
@@ -211,7 +211,7 @@ describe('Cache.prototype.read()/1/success', function(assert) {
 
 });
 
-describe('Cache.prototype.read()/2/success', function(assert) {
+describe('URL #2 - Cache.prototype.read()/success', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.read), true);
@@ -249,7 +249,7 @@ describe('Cache.prototype.read()/2/success', function(assert) {
 
 });
 
-describe('Cache.prototype.remove()/1/success', function(assert) {
+describe('URL #1 - Cache.prototype.remove()/success', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.remove), true);
@@ -271,7 +271,7 @@ describe('Cache.prototype.remove()/1/success', function(assert) {
 
 });
 
-describe('Cache.prototype.read()/1/failure', function(assert) {
+describe('URL #1 - Cache.prototype.read()/failure', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.read), true);
@@ -293,7 +293,7 @@ describe('Cache.prototype.read()/1/failure', function(assert) {
 
 });
 
-describe('Cache.prototype.remove()/1/failure', function(assert) {
+describe('URL #1 - Cache.prototype.remove()/failure', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.remove), true);
@@ -315,7 +315,7 @@ describe('Cache.prototype.remove()/1/failure', function(assert) {
 
 });
 
-describe('Cache.prototype.info()/2', function(assert) {
+describe('URL #2 - Cache.prototype.info()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.read), true);
@@ -347,7 +347,7 @@ describe('Cache.prototype.info()/2', function(assert) {
 
 });
 
-describe('Cache.prototype.remove()/2/success', function(assert) {
+describe('URL #2 - Cache.prototype.remove()/success', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.remove), true);
@@ -369,7 +369,7 @@ describe('Cache.prototype.remove()/2/success', function(assert) {
 
 });
 
-describe('Cache.prototype.remove()/2/failure', function(assert) {
+describe('URL #2 - Cache.prototype.remove()/failure', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.remove), true);
