@@ -164,8 +164,14 @@ up an Issue and we'll be happy to talk about it :)
 
 ## License
 
-Usage of [Stealth](/stealth), including its [Browser](/browser/source) and
-[Browser UI](/browser/design) is licensed under [GNU GPL 3](./LICENSE_GPL3.txt).
+Private Usage of [Stealth](/stealth), including its [Browser](/browser) and the
+[Covert Testsuite](/covert) is licensed under [GNU GPL 3](./LICENSE_GPL3.txt).
+
+Commercial Usage of [Stealth](/stealth), including its [Browser](/browser) and the
+[Covert Testsuite](/covert) is only allowed under under a custom available license.
+
+If you want to commercially use the technology behind Stealth, please contact us on
+[https://tholian.network](https://tholian.network) for a license.
 
 `(c) 2019-2020 Tholian(r) Network`
 

@@ -71,10 +71,14 @@ const show_help = () => {
 	console.log('');
 	console.log('Examples:');
 	console.log('');
+	console.log('    cd /path/to/stealth;');
+	console.log('    cd ./stealth;');
+	console.log('');
 	console.log('    covert check stealth/client/* --debug=true;');
 	console.log('    covert scan stealth/connection/*;');
 	console.log('    covert time stealth/connection/DNS --network=2G;');
 	console.log('    covert watch stealth/connection/DNS stealth/connection/HTTPS;');
+	console.log('');
 	console.log('    covert scan stealth/Session --debug=true --inspect="Session.prototype.get()";');
 	console.log('    covert scan --internet=false;');
 	console.log('');
