@@ -21,6 +21,7 @@ export const console = (function(global) {
 		'Keyword':  '#d25f7b',
 		'Literal':  '#d68786',
 		'Number':   '#ff094b',
+		'RegExp':   '#ff094b',
 		'Scope':    '#03a8cd',
 		'String':   '#55d759',
 		'Type':     '#d68786'
@@ -465,6 +466,10 @@ export const console = (function(global) {
 
 	};
 
+	const isRegExp = function(obj) {
+		return Object.prototype.toString.call(obj) === '[object RegExp]';
+	};
+
 	const isString = function(str) {
 		return Object.prototype.toString.call(str) === '[object String]';
 	};
@@ -646,6 +651,10 @@ export const console = (function(global) {
 		} else if (isNumber(data) === true) {
 
 			str = indent + highlight(data.toString(), 'Number');
+
+		} else if (isRegExp(data) === true) {
+
+			str = indent + highlight(data.toString(), 'RegExp');
 
 		} else if (isString(data) === true) {
 

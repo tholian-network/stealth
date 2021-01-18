@@ -24,6 +24,7 @@ export const console = (function() {
 		'Keyword': '204',
 		'Literal': '174',
 		'Number':  '197',
+		'RegExp':  '197',
 		'Scope':   '38',
 		'String':  '77',
 		'Type':    '174'
@@ -411,6 +412,10 @@ export const console = (function() {
 
 	};
 
+	const isRegExp = function(obj) {
+		return Object.prototype.toString.call(obj) === '[object RegExp]';
+	};
+
 	const isString = function(str) {
 		return Object.prototype.toString.call(str) === '[object String]';
 	};
@@ -576,6 +581,10 @@ export const console = (function() {
 		} else if (isNumber(data) === true) {
 
 			str = indent + highlight(data.toString(), 'Number');
+
+		} else if (isRegExp(data) === true) {
+
+			str = indent + highlight(data.toString(), 'RegExp');
 
 		} else if (isString(data) === true) {
 
