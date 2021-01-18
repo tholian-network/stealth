@@ -112,9 +112,25 @@ const Interface = function(browser, actions) {
 				input.state('enabled');
 			});
 
+			Object.values(this.model.enforce).forEach((input) => {
+				input.state('enabled');
+			});
+
+			Object.values(this.model.opentab).forEach((input) => {
+				input.state('enabled');
+			});
+
 		} else {
 
 			Object.values(this.model.theme).forEach((input) => {
+				input.state('disabled');
+			});
+
+			Object.values(this.model.enforce).forEach((input) => {
+				input.state('disabled');
+			});
+
+			Object.values(this.model.opentab).forEach((input) => {
 				input.state('disabled');
 			});
 

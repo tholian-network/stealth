@@ -60,6 +60,8 @@ const Mode = function(browser) {
 		}
 	};
 
+	Widget.call(this);
+
 
 	this.element.on('contextmenu', (e) => {
 
@@ -153,9 +155,6 @@ const Mode = function(browser) {
 	browser.on('change',  () => update.call(this, browser.tab));
 	browser.on('refresh', () => update.call(this, browser.tab));
 	browser.on('show',    () => update.call(this, browser.tab));
-
-
-	Widget.call(this);
 
 };
 
