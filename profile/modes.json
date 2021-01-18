@@ -1,5 +1,245 @@
 [
 	{
+		"domain": "libs.baidu.com",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "bootstrapcdn.com",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "ajax.googleapis.com",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "cdn.jsdelivr.net",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "cdnjs.cloudflare.com",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "github.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "githubassets.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "githubusercontent.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "gitlab.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "assets.gitlab-static.net",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "user-content.gitlab-static.net",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "i.imgur.com",
+		"mode": {
+			"text": false,
+			"image": true,
+			"audio": false,
+			"video": true,
+			"other": false
+		}
+	},
+	{
+		"domain": "s.imgur.com",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "i.stack.imgur.com",
+		"mode": {
+			"text": false,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "code.jquery.com",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "ajax.microsoft.com",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "developer.mozilla.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "searx.prvcy.eu",
+		"mode": {
+			"text": true,
+			"image": false,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "reddit.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": true,
+			"other": false
+		}
+	},
+	{
+		"domain": "thumbs.redditmedia.com",
+		"mode": {
+			"text": false,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "redditstatic.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "preview.redd.it",
+		"mode": {
+			"text": false,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "cdn.sstatic.net",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
+		"domain": "stackoverflow.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
+	},
+	{
 		"domain": "tholian.network",
 		"mode": {
 			"text": true,
@@ -30,7 +270,7 @@
 		}
 	},
 	{
-		"domain": "searx.prvcy.eu",
+		"domain": "wiby.me",
 		"mode": {
 			"text": true,
 			"image": false,
@@ -40,7 +280,27 @@
 		}
 	},
 	{
-		"domain": "wiby.me",
+		"domain": "wikimedia.org",
+		"mode": {
+			"text": false,
+			"image": true,
+			"audio": true,
+			"video": true,
+			"other": false
+		}
+	},
+	{
+		"domain": "wikipedia.org",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": true,
+			"video": true,
+			"other": false
+		}
+	},
+	{
+		"domain": "yastatic.net",
 		"mode": {
 			"text": true,
 			"image": false,
@@ -48,6 +308,15 @@
 			"video": false,
 			"other": false
 		}
+	},
+	{
+		"domain": "news.ycombinator.com",
+		"mode": {
+			"text": true,
+			"image": true,
+			"audio": false,
+			"video": false,
+			"other": false
+		}
 	}
-
 ]
