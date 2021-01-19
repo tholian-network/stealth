@@ -685,7 +685,11 @@ const Covert = function(settings) {
 			this.renderer.render(reviews, 'complete');
 
 			this.filesystem.connect();
-			this.network.connect();
+
+			let peer_network = this.reviews.filter((review) => review.flags.network === true).length > 0;
+			if (peer_network === true) {
+				this.network.connect();
+			}
 
 			this.__state.connected = true;
 
