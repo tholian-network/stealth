@@ -364,5 +364,8 @@ after('Peer #2 - (Client/Stealth).prototype.disconnect()', function(assert) {
 });
 
 
-export default finish('stealth/peer/Cache');
+export default finish('stealth/peer/Cache', {
+	internet: false,
+	network:  true
+});
 

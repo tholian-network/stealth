@@ -1181,5 +1181,8 @@ describe('Settings.prototype.read()/redirects', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Settings');
+export default finish('stealth/server/Settings', {
+	internet: false,
+	network:  true
+});
 

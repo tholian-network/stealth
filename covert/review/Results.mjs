@@ -1,6 +1,7 @@
 
-import { describe, finish   } from '../index.mjs';
-import { Results, isResults } from '../source/Results.mjs';
+import { console, Buffer    } from '../../covert/extern/base.mjs';
+import { describe, finish   } from '../../covert/index.mjs';
+import { Results, isResults } from '../../covert/source/Results.mjs';
 
 
 
@@ -765,5 +766,8 @@ describe('Results.prototype.reset()', function(assert) {
 });
 
 
-export default finish('covert/Results');
+export default finish('covert/Results', {
+	internet: false,
+	network:  false
+});
 

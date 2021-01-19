@@ -69,5 +69,8 @@ describe('MODULE', function(assert) {
 });
 
 
-export default finish('base/MODULE');
+export default finish('base/MODULE', {
+	internet: false,
+	network:  false
+});
 

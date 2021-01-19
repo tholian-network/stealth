@@ -188,6 +188,7 @@ after(disconnect_stealth);
 
 
 export default finish('stealth/client/Session', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

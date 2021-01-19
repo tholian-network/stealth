@@ -319,5 +319,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Stash');
+export default finish('stealth/client/Stash', {
+	internet: false,
+	network:  true
+});
 

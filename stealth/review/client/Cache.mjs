@@ -319,5 +319,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Cache');
+export default finish('stealth/client/Cache', {
+	internet: false,
+	network:  true
+});
 

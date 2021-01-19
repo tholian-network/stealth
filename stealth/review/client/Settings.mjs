@@ -1034,5 +1034,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Settings');
+export default finish('stealth/client/Settings', {
+	internet: false,
+	network:  true
+});
 

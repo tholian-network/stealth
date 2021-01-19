@@ -225,5 +225,8 @@ describe('UA.sort()', function(assert) {
 });
 
 
-export default finish('stealth/parser/UA');
+export default finish('stealth/parser/UA', {
+	internet: false,
+	network:  false
+});
 

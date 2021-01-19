@@ -412,5 +412,8 @@ describe('IP.sort()/v6', function(assert) {
 });
 
 
-export default finish('stealth/parser/IP');
+export default finish('stealth/parser/IP', {
+	internet: false,
+	network:  false
+});
 

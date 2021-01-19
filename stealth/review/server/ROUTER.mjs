@@ -191,5 +191,8 @@ describe('ROUTER.send()', function(assert) {
 });
 
 
-export default finish('stealth/server/ROUTER');
+export default finish('stealth/server/ROUTER', {
+	internet: false,
+	network:  false
+});
 

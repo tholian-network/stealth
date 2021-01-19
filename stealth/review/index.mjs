@@ -25,7 +25,7 @@ import connection_HTTPS   from './connection/HTTPS.mjs';
 import connection_SOCKS   from './connection/SOCKS.mjs';
 import connection_WS      from './connection/WS.mjs';
 import connection_WSS     from './connection/WSS.mjs';
-import optimizer_CSS      from './optimizer/CSS.mjs';
+// import optimizer_CSS      from './optimizer/CSS.mjs';
 import parser_CSS         from './parser/CSS.mjs';
 import parser_DATETIME    from './parser/DATETIME.mjs';
 import parser_HOSTS       from './parser/HOSTS.mjs';
@@ -63,7 +63,7 @@ export default {
 		parser_URL,
 
 		// Optimizers
-		optimizer_CSS,
+		// optimizer_CSS,
 
 		// Network
 		connection_DNS,

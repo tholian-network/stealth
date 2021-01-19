@@ -883,6 +883,7 @@ describe('Tab.prototype.untrack()', function(assert) {
 
 
 export default finish('stealth/Tab', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

@@ -237,5 +237,8 @@ describe('Emitter.prototype.once()', function(assert) {
 });
 
 
-export default finish('base/Emitter');
+export default finish('base/Emitter', {
+	internet: false,
+	network:  false
+});
 

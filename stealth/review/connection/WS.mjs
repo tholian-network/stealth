@@ -297,6 +297,7 @@ describe('WS.upgrade()', function(assert) {
 
 
 export default finish('stealth/connection/WS', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

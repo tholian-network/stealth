@@ -55,5 +55,8 @@ describe('Set.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/Set');
+export default finish('base/Set', {
+	internet: false,
+	network:  false
+});
 

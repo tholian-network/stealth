@@ -75,5 +75,8 @@ describe('Map.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/Map');
+export default finish('base/Map', {
+	internet: false,
+	network:  false
+});
 

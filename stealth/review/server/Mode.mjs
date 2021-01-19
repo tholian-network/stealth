@@ -215,5 +215,8 @@ describe('Mode.prototype.remove()/failure', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Mode');
+export default finish('stealth/server/Mode', {
+	internet: false,
+	network:  true
+});
 

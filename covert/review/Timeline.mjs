@@ -327,5 +327,8 @@ describe('Timeline.prototype.time()', function(assert) {
 });
 
 
-export default finish('covert/Timeline');
+export default finish('covert/Timeline', {
+	internet: false,
+	network:  false
+});
 

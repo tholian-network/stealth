@@ -294,5 +294,8 @@ describe('Peer.prototype.remove()/success', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Peer');
+export default finish('stealth/server/Peer', {
+	internet: false,
+	network:  true
+});
 

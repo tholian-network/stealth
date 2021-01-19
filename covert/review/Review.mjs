@@ -1,5 +1,6 @@
 
-import { after, before, describe, finish, Review, isReview } from '../source/Review.mjs';
+import { console                                           } from '../../covert/extern/base.mjs';
+import { after, before, describe, finish, Review, isReview } from '../../covert/source/Review.mjs';
 
 
 
@@ -136,5 +137,8 @@ after('after()', function(assert, console) {
 });
 
 
-export default finish('covert/Review');
+export default finish('covert/Review', {
+	internet: false,
+	network:  false
+});
 

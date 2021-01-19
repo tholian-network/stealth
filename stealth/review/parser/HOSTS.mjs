@@ -326,5 +326,8 @@ after('cleanup', function(assert) {
 });
 
 
-export default finish('stealth/parser/HOSTS');
+export default finish('stealth/parser/HOSTS', {
+	internet: false,
+	network:  false
+});
 

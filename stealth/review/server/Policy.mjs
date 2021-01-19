@@ -262,5 +262,8 @@ describe('Policy.prototype.remove()/failure', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Policy');
+export default finish('stealth/server/Policy', {
+	internet: false,
+	network:  true
+});
 

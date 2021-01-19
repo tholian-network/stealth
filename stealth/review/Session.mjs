@@ -526,5 +526,8 @@ describe('Session.prototype.warn()', function(assert) {
 });
 
 
-export default finish('stealth/Session');
+export default finish('stealth/Session', {
+	internet: true,
+	network:  true
+});
 

@@ -55,5 +55,8 @@ describe('Function.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/Function');
+export default finish('base/Function', {
+	internet: false,
+	network:  false
+});
 

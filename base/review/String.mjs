@@ -56,5 +56,8 @@ describe('String.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/String');
+export default finish('base/String', {
+	internet: false,
+	network:  false
+});
 

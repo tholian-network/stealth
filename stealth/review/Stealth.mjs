@@ -213,5 +213,8 @@ export const disconnect = after('Stealth.prototype.disconnect()', function(asser
 });
 
 
-export default finish('stealth/Stealth');
+export default finish('stealth/Stealth', {
+	internet: false,
+	network:  true
+});
 

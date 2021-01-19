@@ -248,6 +248,7 @@ after(disconnect);
 
 
 export default finish('stealth/server/Session', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

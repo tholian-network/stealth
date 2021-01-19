@@ -78,5 +78,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Blocker');
+export default finish('stealth/client/Blocker', {
+	internet: false,
+	network:  true
+});
 

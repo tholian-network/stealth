@@ -219,6 +219,7 @@ describe('WSS.send()', function(assert) {
 
 
 export default finish('stealth/connection/WSS', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

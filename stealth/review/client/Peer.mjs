@@ -205,5 +205,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Peer');
+export default finish('stealth/client/Peer', {
+	internet: false,
+	network:  true
+});
 

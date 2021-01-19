@@ -50,5 +50,8 @@ describe('MODULE', function(assert) {
 });
 
 
-export default finish('stealth/MODULE');
+export default finish('stealth/MODULE', {
+	internet: false,
+	network:  false
+});
 

@@ -735,5 +735,8 @@ describe('Settings.prototype.save()', function(assert) {
 });
 
 
-export default finish('stealth/Settings');
+export default finish('stealth/Settings', {
+	internet: false,
+	network:  true
+});
 

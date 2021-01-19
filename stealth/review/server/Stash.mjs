@@ -394,5 +394,8 @@ describe('URL #2 - Stash.prototype.remove()/failure', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Stash');
+export default finish('stealth/server/Stash', {
+	internet: false,
+	network:  true
+});
 

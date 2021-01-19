@@ -208,5 +208,8 @@ describe('Redirect.prototype.remove()/success', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Redirect');
+export default finish('stealth/server/Redirect', {
+	internet: false,
+	network:  true
+});
 

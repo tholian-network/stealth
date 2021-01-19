@@ -414,5 +414,8 @@ describe('DATETIME.toTime()', function(assert) {
 });
 
 
-export default finish('stealth/parser/DATETIME');
+export default finish('stealth/parser/DATETIME', {
+	internet: false,
+	network:  false
+});
 

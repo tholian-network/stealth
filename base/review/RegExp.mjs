@@ -55,5 +55,8 @@ describe('RegExp.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/RegExp');
+export default finish('base/RegExp', {
+	internet: false,
+	network:  false
+});
 

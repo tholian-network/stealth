@@ -102,5 +102,8 @@ describe('Array.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/Array');
+export default finish('base/Array', {
+	internet: false,
+	network:  false
+});
 

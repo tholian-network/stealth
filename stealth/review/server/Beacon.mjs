@@ -184,5 +184,8 @@ describe('Beacon.prototype.read()/failure', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Beacon');
+export default finish('stealth/server/Beacon', {
+	internet: false,
+	network:  true
+});
 

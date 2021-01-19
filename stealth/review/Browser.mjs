@@ -793,6 +793,7 @@ after(disconnect_stealth);
 
 
 export default finish('stealth/Browser', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

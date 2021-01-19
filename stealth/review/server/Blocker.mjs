@@ -122,5 +122,8 @@ describe('Blocker.prototype.read()/failure', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Blocker');
+export default finish('stealth/server/Blocker', {
+	internet: false,
+	network:  true
+});
 

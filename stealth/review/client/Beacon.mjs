@@ -110,5 +110,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Beacon');
+export default finish('stealth/client/Beacon', {
+	internet: false,
+	network:  true
+});
 

@@ -56,5 +56,8 @@ describe('Date.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/Date');
+export default finish('base/Date', {
+	internet: false,
+	network:  false
+});
 

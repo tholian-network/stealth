@@ -59,5 +59,8 @@ describe('MODULE', function(assert) {
 });
 
 
-export default finish('covert/MODULE');
+export default finish('covert/MODULE', {
+	internet: false,
+	network:  false
+});
 

@@ -394,5 +394,8 @@ describe('URL #2 - Cache.prototype.remove()/failure', function(assert) {
 after(disconnect);
 
 
-export default finish('stealth/server/Cache');
+export default finish('stealth/server/Cache', {
+	internet: false,
+	network:  true
+});
 

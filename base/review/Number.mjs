@@ -55,5 +55,8 @@ describe('Number.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/Number');
+export default finish('base/Number', {
+	internet: false,
+	network:  false
+});
 

@@ -106,5 +106,8 @@ describe('console.warn()', function(assert, _console) {
 });
 
 
-export default finish('base/console');
+export default finish('base/console', {
+	internet: false,
+	network:  false
+});
 

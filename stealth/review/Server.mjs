@@ -176,5 +176,8 @@ export const disconnect = after('Server.prototype.disconnect()', function(assert
 });
 
 
-export default finish('stealth/Server');
+export default finish('stealth/Server', {
+	internet: false,
+	network:  true
+});
 

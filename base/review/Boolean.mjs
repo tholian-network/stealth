@@ -75,5 +75,8 @@ describe('Boolean.prototype.valueOf()', function(assert) {
 });
 
 
-export default finish('base/Boolean');
+export default finish('base/Boolean', {
+	internet: false,
+	network:  false
+});
 

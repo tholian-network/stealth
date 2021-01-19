@@ -390,5 +390,8 @@ describe('Buffer.prototype.toString()', function(assert) {
 });
 
 
-export default finish('base/Buffer');
+export default finish('base/Buffer', {
+	internet: false,
+	network:  false
+});
 

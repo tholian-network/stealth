@@ -260,6 +260,7 @@ after(disconnect);
 
 
 export default finish('stealth/server/Host', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

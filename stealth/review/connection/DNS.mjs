@@ -99,6 +99,7 @@ describe('DNS.resolve()/quad9', function(assert) {
 
 
 export default finish('stealth/connection/DNS', {
-	internet: true
+	internet: true,
+	network:  false
 });
 

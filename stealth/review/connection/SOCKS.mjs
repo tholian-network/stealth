@@ -360,6 +360,7 @@ after(disconnect_stealth);
 
 
 export default finish('stealth/connection/SOCKS', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

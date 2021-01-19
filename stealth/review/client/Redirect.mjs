@@ -127,5 +127,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Redirect');
+export default finish('stealth/client/Redirect', {
+	internet: false,
+	network:  true
+});
 

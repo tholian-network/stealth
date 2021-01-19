@@ -157,5 +157,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Policy');
+export default finish('stealth/client/Policy', {
+	internet: false,
+	network:  true
+});
 

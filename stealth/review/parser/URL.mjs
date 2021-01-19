@@ -626,5 +626,8 @@ describe('URL.toHost()', function(assert) {
 });
 
 
-export default finish('stealth/parser/URL');
+export default finish('stealth/parser/URL', {
+	internet: false,
+	network:  false
+});
 

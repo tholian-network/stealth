@@ -442,6 +442,7 @@ after(disconnect);
 
 
 export default finish('stealth/Request', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

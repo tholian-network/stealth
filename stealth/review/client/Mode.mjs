@@ -127,5 +127,8 @@ after(disconnect_client);
 after(disconnect_stealth);
 
 
-export default finish('stealth/client/Mode');
+export default finish('stealth/client/Mode', {
+	internet: false,
+	network:  true
+});
 

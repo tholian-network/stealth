@@ -269,6 +269,7 @@ describe('HTTP.upgrade()', function(assert) {
 
 
 export default finish('stealth/connection/HTTP', {
-	internet: true
+	internet: true,
+	network:  true
 });
 

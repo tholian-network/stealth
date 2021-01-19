@@ -189,6 +189,7 @@ describe('HTTPS.send()', function(assert) {
 
 
 export default finish('stealth/connection/HTTPS', {
-	internet: true
+	internet: true,
+	network:  true
 });
 
