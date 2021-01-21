@@ -11,10 +11,10 @@ const mock_events = (request) => {
 	let events = {
 		start:    false,
 		stop:     false,
-		cache:    false,
-		stash:    false,
 		block:    false,
 		mode:     false,
+		cache:    false,
+		stash:    false,
 		connect:  false,
 		download: false,
 		optimize: false,
@@ -25,10 +25,10 @@ const mock_events = (request) => {
 
 	request.once('start',    () => { events.start    = true; });
 	request.once('stop',     () => { events.stop     = true; });
-	request.once('cache',    () => { events.cache    = true; });
-	request.once('stash',    () => { events.stash    = true; });
 	request.once('block',    () => { events.block    = true; });
 	request.once('mode',     () => { events.mode     = true; });
+	request.once('cache',    () => { events.cache    = true; });
+	request.once('stash',    () => { events.stash    = true; });
 	request.once('connect',  () => { events.connect  = true; });
 	request.once('download', () => { events.download = true; });
 	request.once('optimize', () => { events.optimize = true; });
@@ -159,26 +159,29 @@ describe('Request.prototype.toJSON()', function(assert) {
 			webview:   true
 		},
 		timeline: {
+
 			error:    null,
 			stop:     null,
 			redirect: null,
+
 			start:    null,
-			cache:    null,
-			stash:    null,
 			block:    null,
 			mode:     null,
+			cache:    null,
+			stash:    null,
 			connect:  null,
 			download: null,
 			optimize: null,
 			response: null
+
 		},
 		events: [
 			'start',
 			'stop',
-			'cache',
-			'stash',
 			'block',
 			'mode',
+			'cache',
+			'stash',
 			'connect',
 			'download',
 			'optimize',
@@ -243,10 +246,10 @@ describe('Request.prototype.start()', function(assert) {
 			assert(events, {
 				start:    true,
 				stop:     false,
-				cache:    true,
-				stash:    true,
 				block:    true,
 				mode:     true,
+				cache:    true,
+				stash:    true,
 				connect:  true,
 				download: true,
 				optimize: true,
@@ -256,10 +259,10 @@ describe('Request.prototype.start()', function(assert) {
 			});
 
 			assert(DATETIME.isDATETIME(request.timeline.start),    true);
-			assert(DATETIME.isDATETIME(request.timeline.cache),    true);
-			assert(DATETIME.isDATETIME(request.timeline.stash),    true);
 			assert(DATETIME.isDATETIME(request.timeline.block),    true);
 			assert(DATETIME.isDATETIME(request.timeline.mode),     true);
+			assert(DATETIME.isDATETIME(request.timeline.cache),    true);
+			assert(DATETIME.isDATETIME(request.timeline.stash),    true);
 			assert(DATETIME.isDATETIME(request.timeline.connect),  true);
 			assert(DATETIME.isDATETIME(request.timeline.download), true);
 			assert(DATETIME.isDATETIME(request.timeline.optimize), true);
@@ -288,10 +291,10 @@ describe('Request.prototype.start()/cache', function(assert) {
 		assert(events, {
 			start:    true,
 			stop:     false,
-			cache:    true,
-			stash:    false,
 			block:    false,
 			mode:     false,
+			cache:    true,
+			stash:    false,
 			connect:  false,
 			download: false,
 			optimize: true,
@@ -408,10 +411,10 @@ describe('Request.prototype.stop()', function(assert) {
 		assert(events, {
 			start:    true,
 			stop:     true,
-			cache:    true,
-			stash:    true,
 			block:    true,
 			mode:     true,
+			cache:    true,
+			stash:    true,
 			connect:  true,
 			download: true,
 			optimize: false,
@@ -421,10 +424,10 @@ describe('Request.prototype.stop()', function(assert) {
 		});
 
 		assert(DATETIME.isDATETIME(request.timeline.start),    true);
-		assert(DATETIME.isDATETIME(request.timeline.cache),    true);
-		assert(DATETIME.isDATETIME(request.timeline.stash),    true);
 		assert(DATETIME.isDATETIME(request.timeline.block),    true);
 		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
+		assert(DATETIME.isDATETIME(request.timeline.cache),    true);
+		assert(DATETIME.isDATETIME(request.timeline.stash),    true);
 		assert(DATETIME.isDATETIME(request.timeline.connect),  true);
 		assert(DATETIME.isDATETIME(request.timeline.download), true);
 		assert(request.timeline.optimize,                      null);

@@ -1,33 +1,46 @@
 
 import net from 'net';
 
-import { console, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                                      } from '../source/ENVIRONMENT.mjs';
-import { isStealth                                        } from '../source/Stealth.mjs';
-import { Request                                          } from '../source/Request.mjs';
-import { IP                                               } from '../source/parser/IP.mjs';
-import { URL                                              } from '../source/parser/URL.mjs';
-import { DNS                                              } from '../source/connection/DNS.mjs';
-import { HTTP                                             } from '../source/connection/HTTP.mjs';
-import { SOCKS                                            } from '../source/connection/SOCKS.mjs';
-import { WS                                               } from '../source/connection/WS.mjs';
-import { ROUTER                                           } from '../source/server/ROUTER.mjs';
-import { Beacon                                           } from '../source/server/Beacon.mjs';
-import { Blocker                                          } from '../source/server/Blocker.mjs';
-import { Cache                                            } from '../source/server/Cache.mjs';
-import { Host                                             } from '../source/server/Host.mjs';
-import { Mode                                             } from '../source/server/Mode.mjs';
-import { Peer                                             } from '../source/server/Peer.mjs';
-import { Policy                                           } from '../source/server/Policy.mjs';
-import { Redirect                                         } from '../source/server/Redirect.mjs';
-import { Session                                          } from '../source/server/Session.mjs';
-import { Settings                                         } from '../source/server/Settings.mjs';
-import { Stash                                            } from '../source/server/Stash.mjs';
+import { console, Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                              } from '../source/ENVIRONMENT.mjs';
+import { isStealth                                                } from '../source/Stealth.mjs';
+import { Request                                                  } from '../source/Request.mjs';
+import { IP                                                       } from '../source/parser/IP.mjs';
+import { URL                                                      } from '../source/parser/URL.mjs';
+import { HTTP                                                     } from '../source/connection/HTTP.mjs';
+import { SOCKS                                                    } from '../source/connection/SOCKS.mjs';
+import { WS                                                       } from '../source/connection/WS.mjs';
+import { ROUTER                                                   } from '../source/server/ROUTER.mjs';
+import { Beacon                                                   } from '../source/server/Beacon.mjs';
+import { Blocker                                                  } from '../source/server/Blocker.mjs';
+import { Cache                                                    } from '../source/server/Cache.mjs';
+import { Host                                                     } from '../source/server/Host.mjs';
+import { Mode                                                     } from '../source/server/Mode.mjs';
+import { Peer                                                     } from '../source/server/Peer.mjs';
+import { Policy                                                   } from '../source/server/Policy.mjs';
+import { Redirect                                                 } from '../source/server/Redirect.mjs';
+import { Session                                                  } from '../source/server/Session.mjs';
+import { Settings                                                 } from '../source/server/Settings.mjs';
+import { Stash                                                    } from '../source/server/Stash.mjs';
 
 
 
 export const isServer = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Server]';
+};
+
+const encode_http_status = function(status) {
+
+	status = isString(status) ? status : '500 Internal Server Error';
+
+
+	return Buffer.from([
+		'HTTP/1.1 ' + status,
+		'Connection: close',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+
 };
 
 const upgrade_http = function(socket, url) {
@@ -123,6 +136,19 @@ const upgrade_http = function(socket, url) {
 
 		if (request !== null) {
 
+			if (flags.includes('proxy') === true) {
+				request.set('proxy', true);
+			}
+
+			if (flags.includes('refresh') === true) {
+				request.set('refresh', true);
+			}
+
+			if (flags.includes('webview') === true) {
+				request.set('webview', true);
+			}
+
+
 			request.once('error', (err) => {
 
 				request.off('redirect');
@@ -130,7 +156,13 @@ const upgrade_http = function(socket, url) {
 				request.stop();
 
 
-				if (request.get('webview') === true) {
+				if (request.get('proxy') === true) {
+
+					ROUTER.error({ code: 403 }, (response) => {
+						HTTP.send(connection, response);
+					});
+
+				} else if (request.get('webview') === true) {
 
 					if (
 						err.type === 'host'
@@ -142,32 +174,6 @@ const upgrade_http = function(socket, url) {
 							url: link
 						}), (response) => {
 							HTTP.send(connection, response);
-						});
-
-					} else {
-
-						ROUTER.error({ code: 403 }, (response) => {
-							HTTP.send(connection, response);
-						});
-
-					}
-
-				} else if (request.get('proxy') === true) {
-
-					if (
-						err.type === 'host'
-						|| err.type === 'mode'
-						|| err.type === 'request'
-					) {
-
-						ROUTER.error(Object.assign(err, {
-							url: link
-						}), (response) => {
-
-							response.headers['location'] = 'http://' + url.headers['host'] + ':65432' + response.headers['location'];
-
-							HTTP.send(connection, response);
-
 						});
 
 					} else {
@@ -209,13 +215,38 @@ const upgrade_http = function(socket, url) {
 				}
 
 
-				if (request.get('webview') === true) {
+				if (request.get('proxy') === true) {
+
+					redirect = URL.parse(response.headers['location']);
+
+					if (this.stealth._settings.debug === true) {
+						console.warn('Server: "' + url.link + '" redirected to "' + redirect.link + '"');
+					}
+
+					HTTP.send(connection, {
+						headers: {
+							'@code':    307,
+							'@status':  '307 Temporary Redirect',
+							'location': redirect.link
+						},
+						payload: null
+					});
+
+				} else if (request.get('webview') === true) {
 
 					if (tab !== null) {
 						redirect = URL.parse('http://' + hostname + ':65432/stealth/:' + tab + ',webview:/' + response.headers['location']);
 					} else {
 						redirect = URL.parse('http://' + hostname + ':65432/stealth/' + response.headers['location']);
 					}
+
+					if (this.stealth._settings.debug === true) {
+						console.warn('Server: "' + url.link + '" redirected to "' + redirect.link + '"');
+					}
+
+					ROUTER.send(redirect, (response) => {
+						HTTP.send(connection, response);
+					});
 
 				} else {
 
@@ -225,11 +256,15 @@ const upgrade_http = function(socket, url) {
 						redirect = URL.parse('http://' + hostname + ':65432/stealth/' + response.headers['location']);
 					}
 
-				}
+					if (this.stealth._settings.debug === true) {
+						console.warn('Server: "' + url.link + '" redirected to "' + redirect.link + '"');
+					}
 
-				ROUTER.send(redirect, (response) => {
-					HTTP.send(connection, response);
-				});
+					ROUTER.send(redirect, (response) => {
+						HTTP.send(connection, response);
+					});
+
+				}
 
 			});
 
@@ -285,18 +320,6 @@ const upgrade_http = function(socket, url) {
 
 			});
 
-			if (flags.includes('proxy') === true) {
-				request.set('proxy', true);
-			}
-
-			if (flags.includes('refresh') === true) {
-				request.set('refresh', true);
-			}
-
-			if (flags.includes('webview') === true) {
-				request.set('webview', true);
-			}
-
 			if (session !== null) {
 				session.track(request, tab);
 			}
@@ -310,6 +333,124 @@ const upgrade_http = function(socket, url) {
 			});
 
 		}
+
+	} else {
+
+		socket.end();
+
+	}
+
+};
+
+const upgrade_https = function(socket, url) {
+
+	url = URL.parse('https://' + url.headers['host']);
+
+
+	let domain = URL.toDomain(url);
+	let host   = URL.toHost(url);
+
+	if (domain !== null) {
+
+		this.services.blocker.read({
+			domain: domain
+		}, (response) => {
+
+			if (response.payload === null) {
+
+				this.services.host.read({
+					domain: domain
+				}, (response) => {
+
+					if (response.payload !== null) {
+
+						url.hosts = response.payload.hosts;
+
+
+						let tunnel = null;
+
+						try {
+							tunnel = net.connect({
+								host: url.hosts[0].ip,
+								port: url.port
+							}, () => {
+
+								socket.pipe(tunnel);
+								tunnel.pipe(socket);
+
+								socket.write(encode_http_status('200 Connection Established'));
+
+							});
+						} catch (err) {
+							tunnel = null;
+						}
+
+						if (tunnel === null) {
+
+							socket.write(encode_http_status('504 Gateway Timeout'));
+							socket.end();
+
+						}
+
+					} else {
+
+						socket.write(encode_http_status('504 Gateway Timeout'));
+						socket.end();
+
+					}
+
+				});
+
+			} else {
+
+				socket.write(encode_http_status('403 Forbidden'));
+				socket.end();
+
+			}
+
+		});
+
+	} else if (host !== null) {
+
+		this.services.blocker.read({
+			host: host
+		}, (response) => {
+
+			if (response.payload === null) {
+
+				let tunnel = null;
+
+				try {
+					tunnel = net.connect({
+						host: url.hosts[0].ip,
+						port: url.port
+					}, () => {
+
+						socket.pipe(tunnel);
+						tunnel.pipe(socket);
+
+						socket.write(encode_http_status('200 Connection Established'));
+
+					});
+				} catch (err) {
+					tunnel = null;
+				}
+
+				if (tunnel === null) {
+
+					socket.write(encode_http_status('504 Gateway Timeout'));
+					socket.end();
+
+				}
+
+			} else {
+
+				socket.write(encode_http_status('403 Forbidden'));
+				socket.end();
+
+			}
+
+		});
 
 	} else {
 
@@ -354,7 +495,7 @@ const upgrade_socks = function(socket, url) {
 
 					if (response.payload === null) {
 
-						DNS.resolve({
+						this.services.host.read({
 							domain: domain
 						}, (response) => {
 
@@ -363,10 +504,10 @@ const upgrade_socks = function(socket, url) {
 								url.hosts = response.payload.hosts;
 
 
-								let socket = null;
+								let tunnel = null;
 
 								try {
-									socket = net.connect({
+									tunnel = net.connect({
 										host: url.hosts[0].ip,
 										port: url.port
 									}, () => {
@@ -375,17 +516,17 @@ const upgrade_socks = function(socket, url) {
 										let port = url.port || null;
 
 										if (host !== null && port !== null) {
-											callback('success', URL.parse(host + ':' + port), socket);
+											callback('success', URL.parse(host + ':' + port), tunnel);
 										} else {
 											callback('error-host', null);
 										}
 
 									});
 								} catch (err) {
-									socket = null;
+									tunnel = null;
 								}
 
-								if (socket === null) {
+								if (tunnel === null) {
 									callback('error-connection', null);
 								}
 
@@ -401,7 +542,6 @@ const upgrade_socks = function(socket, url) {
 
 				});
 
-
 			} else if (host !== null) {
 
 				this.services.blocker.read({
@@ -410,10 +550,10 @@ const upgrade_socks = function(socket, url) {
 
 					if (response.payload === null) {
 
-						let socket = null;
+						let tunnel = null;
 
 						try {
-							socket = net.connect({
+							tunnel = net.connect({
 								host: url.hosts[0].ip,
 								port: url.port
 							}, () => {
@@ -422,17 +562,17 @@ const upgrade_socks = function(socket, url) {
 								let port = url.port || null;
 
 								if (host !== null && port !== null) {
-									callback('success', URL.parse(host + ':' + port), socket);
+									callback('success', URL.parse(host + ':' + port), tunnel);
 								} else {
 									callback('error-host', null);
 								}
 
 							});
 						} catch (err) {
-							socket = null;
+							tunnel = null;
 						}
 
-						if (socket === null) {
+						if (tunnel === null) {
 							callback('error-connection', null);
 						}
 
@@ -694,40 +834,66 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 							request.headers['@remote'] = socket.remoteAddress || null;
 
 
-							let link = (request.headers['@url'] || '');
-							let tmp1 = (request.headers['connection'] || '').toLowerCase();
-							let tmp2 = (request.headers['upgrade'] || '').toLowerCase();
+							let method     = (request.headers['@method'] || '');
+							let link       = (request.headers['@url'] || '');
+							let connection = (request.headers['connection'] || '').toLowerCase();
+							let upgrade    = (request.headers['upgrade'] || '').toLowerCase();
 
-							if (tmp1.includes('upgrade') === true && tmp2.includes('websocket') === true) {
+							if (method === 'CONNECT' && isString(request.headers['host']) === true && request.headers['host'].endsWith(':443') === true) {
+
+								upgrade_https.call(this, socket, request);
+
+							} else if (method === 'GET' && connection === 'upgrade' && upgrade === 'websocket') {
 
 								upgrade_ws.call(this, socket, request);
 
-							} else if (link.startsWith('https://') === true || link.startsWith('http://') === true || link.startsWith('/stealth') === true) {
+							} else if (method === 'GET') {
 
-								upgrade_http.call(this, socket, request);
+								if (
+									link.startsWith('https://') === true
+									|| link.startsWith('http://') === true
+									|| link.startsWith('/stealth/') === true
+								) {
 
-							} else if (isString(request.headers['@url']) === true) {
+									upgrade_http.call(this, socket, request);
 
-								if (isString(request.headers['host']) === false) {
-									request.headers['host'] = ENVIRONMENT.hostname + ':65432';
+								} else if (link.startsWith('/') === true) {
+
+									if (isString(request.headers['host']) === false) {
+										request.headers['host'] = ENVIRONMENT.hostname + ':65432';
+									}
+
+									ROUTER.send(Object.assign(URL.parse('http://' + request.headers['host'] + request.headers['@url']), {
+										headers: {
+											'@debug':  ENVIRONMENT.flags.debug,
+											'@local':  request.headers['@local'],
+											'@remote': request.headers['@remote']
+										}
+									}), (response) => {
+
+										let connection = HTTP.upgrade(socket);
+										if (connection !== null) {
+											HTTP.send(connection, response);
+										} else {
+											socket.end();
+										}
+
+									});
+
+								} else {
+
+									ROUTER.error({ code: 403 }, (response) => {
+
+										let connection = HTTP.upgrade(socket);
+										if (connection !== null) {
+											HTTP.send(connection, response);
+										} else {
+											socket.end();
+										}
+
+									});
+
 								}
-
-								ROUTER.send(Object.assign(URL.parse('http://' + request.headers['host'] + request.headers['@url']), {
-									headers: {
-										'@debug':  ENVIRONMENT.flags.debug,
-										'@local':  request.headers['@local'],
-										'@remote': request.headers['@remote']
-									}
-								}), (response) => {
-
-									let connection = HTTP.upgrade(socket);
-									if (connection !== null) {
-										HTTP.send(connection, response);
-									} else {
-										socket.end();
-									}
-
-								});
 
 							} else {
 

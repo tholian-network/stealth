@@ -135,6 +135,10 @@ const Stealth = function(settings) {
 					max_downloads = 2;
 				}
 
+				if (this._settings.debug === true) {
+					max_downloads = 1;
+				}
+
 
 				for (let r = 0; r < this.requests.length; r++) {
 

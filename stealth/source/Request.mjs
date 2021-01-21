@@ -3,9 +3,7 @@ import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
 import { HTTP                                   } from '../source/connection/HTTP.mjs';
 import { HTTPS                                  } from '../source/connection/HTTPS.mjs';
 import { SOCKS                                  } from '../source/connection/SOCKS.mjs';
-import { CSS                                    } from '../source/parser/CSS.mjs';
 import { DATETIME                               } from '../source/parser/DATETIME.mjs';
-import { HTML                                   } from '../source/parser/HTML.mjs';
 import { URL                                    } from '../source/parser/URL.mjs';
 import { isServer                               } from '../source/Server.mjs';
 import { Mode                                   } from '../source/server/Mode.mjs';
@@ -106,6 +104,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 				this.connection = HTTP.connect(url);
 
 			}
+
 
 			if (this.connection !== null) {
 
@@ -315,10 +314,10 @@ const Request = function(settings, server) {
 
 		// response workflow
 		start:    null,
-		cache:    null,
-		stash:    null,
 		block:    null,
 		mode:     null,
+		cache:    null,
+		stash:    null,
 		connect:  null,
 		download: null,
 		optimize: null,
@@ -368,13 +367,13 @@ const Request = function(settings, server) {
 					}, true ]);
 
 				} else {
-					this.emit('cache');
+					this.emit('block');
 				}
 
 			});
 
 		} else {
-			this.emit('cache');
+			this.emit('block');
 		}
 
 	});
@@ -388,6 +387,68 @@ const Request = function(settings, server) {
 			this.download.stop();
 			this.download = null;
 
+		}
+
+	});
+
+	this.on('block', () => {
+
+		this.timeline.block = DATETIME.parse(new Date());
+
+		if (this.server !== null) {
+
+			this.server.services.blocker.read({
+				domain:    this.url.domain,
+				subdomain: this.url.subdomain,
+				host:      this.url.host
+			}, (response) => {
+
+				if (response.payload !== null) {
+
+					// Always Block, no matter the User's Mode
+					this.mode.mode.text  = false;
+					this.mode.mode.image = false;
+					this.mode.mode.audio = false;
+					this.mode.mode.video = false;
+					this.mode.mode.other = false;
+
+					this.emit('error', [{ type: 'block' }]);
+
+				} else {
+
+					if (this.url.protocol === 'https' || this.url.protocol === 'http') {
+						this.emit('mode');
+					} else {
+						this.emit('error', [{ type: 'block' }]);
+					}
+
+				}
+
+			});
+
+		} else {
+
+			if (this.url.protocol === 'https' || this.url.protocol === 'http') {
+				this.emit('mode');
+			} else {
+				this.emit('error', [{ type: 'block' }]);
+			}
+
+		}
+
+	});
+
+	this.on('mode', () => {
+
+		let mime    = this.url.mime;
+		let allowed = this.mode.mode[mime.type] === true;
+
+		this.timeline.mode = DATETIME.parse(new Date());
+
+		if (allowed === true) {
+			this.emit('cache');
+		} else {
+			this.emit('error', [{ type: 'mode' }]);
 		}
 
 	});
@@ -430,7 +491,11 @@ const Request = function(settings, server) {
 
 		if (this.flags.refresh === true) {
 
-			this.emit('block');
+			if (this.flags.connect === true) {
+				this.emit('connect');
+			} else {
+				// External Scheduler calls emit('connect')
+			}
 
 		} else {
 
@@ -460,73 +525,26 @@ const Request = function(settings, server) {
 
 					}
 
-					this.emit('block');
+					if (this.flags.connect === true) {
+						this.emit('connect');
+					} else {
+						// External Scheduler calls emit('connect')
+					}
 
 				});
 
 			} else {
 
 				this.timeline.stash = DATETIME.parse(new Date());
-				this.emit('block');
 
-			}
-
-		}
-
-	});
-
-	this.on('block', () => {
-
-		this.timeline.block = DATETIME.parse(new Date());
-
-		if (this.server !== null) {
-
-			this.server.services.blocker.read({
-				domain:    this.url.domain,
-				subdomain: this.url.subdomain,
-				host:      this.url.host
-			}, (response) => {
-
-				if (response.payload !== null) {
-
-					// Always Block, no matter the User's Mode
-					this.mode.mode.text  = false;
-					this.mode.mode.image = false;
-					this.mode.mode.audio = false;
-					this.mode.mode.video = false;
-					this.mode.mode.other = false;
-
-					this.emit('error', [{ type: 'block' }]);
-
+				if (this.flags.connect === true) {
+					this.emit('connect');
 				} else {
-					this.emit('mode');
+					// External Scheduler calls emit('connect')
 				}
 
-			});
-
-		} else {
-			this.emit('mode');
-		}
-
-	});
-
-	this.on('mode', () => {
-
-		let mime    = this.url.mime;
-		let allowed = this.mode.mode[mime.type] === true;
-
-		this.timeline.mode = DATETIME.parse(new Date());
-
-		if (allowed === true) {
-
-			if (this.flags.connect === true) {
-				this.emit('connect');
-			} else {
-				// External Scheduler calls emit('connect')
 			}
 
-		} else if (this.flags.webview === true) {
-			this.emit('error', [{ type: 'mode' }]);
 		}
 
 	});
@@ -621,137 +639,131 @@ const Request = function(settings, server) {
 		}
 
 
-		if (this.url.protocol === 'https' || this.url.protocol === 'http') {
+		this.download = new Download(this.url);
 
-			this.download = new Download(this.url);
+		this.download.on('progress', (partial, progress) => {
 
-			this.download.on('progress', (partial, progress) => {
+			if (this.server !== null) {
+				this.server.services.stash.save(Object.assign({}, this.url, partial), () => {
+					this.emit('progress', [ partial, progress ]);
+				});
+			}
 
-				if (this.server !== null) {
-					this.server.services.stash.save(Object.assign({}, this.url, partial), () => {
-						this.emit('progress', [ partial, progress ]);
-					});
-				}
+		});
 
-			});
+		this.download.once('timeout', (partial) => {
 
-			this.download.once('timeout', (partial) => {
-
-				this.download.off('progress');
-				this.download.off('error');
-				this.download.off('redirect');
-				this.download.off('response');
-				this.download = null;
+			this.download.off('progress');
+			this.download.off('error');
+			this.download.off('redirect');
+			this.download.off('response');
+			this.download = null;
 
 
-				if (partial !== null) {
+			if (partial !== null) {
 
-					this.retries++;
+				this.retries++;
 
-					if (this.retries < 10) {
+				if (this.retries < 10) {
 
-						if (this.server !== null) {
+					if (this.server !== null) {
 
-							this.server.services.stash.save(Object.assign({}, this.url, partial), (result) => {
+						this.server.services.stash.save(Object.assign({}, this.url, partial), (result) => {
 
-								if (result === true) {
-									this.url.headers = partial.headers;
-									this.url.payload = partial.payload;
-								}
+							if (result === true) {
+								this.url.headers = partial.headers;
+								this.url.payload = partial.payload;
+							}
 
-								this.emit('download');
+							this.emit('download');
 
-							});
-
-						} else {
-							this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
-						}
+						});
 
 					} else {
 						this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
 					}
 
 				} else {
-					this.emit('error', [{ type: 'request', cause: 'socket-timeout' }]);
+					this.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
 				}
 
-			});
+			} else {
+				this.emit('error', [{ type: 'request', cause: 'socket-timeout' }]);
+			}
 
-			this.download.once('error', (error) => {
+		});
 
-				this.download.off('progress');
-				this.download.off('timeout');
-				this.download.off('redirect');
-				this.download.off('response');
-				this.download = null;
+		this.download.once('error', (error) => {
 
-
-				if (this.server !== null) {
-
-					this.server.services.stash.remove(this.url, () => {
-
-						this.url.headers = null;
-						this.url.payload = null;
-
-						this.emit('download');
-
-					});
-
-				} else {
-					this.emit('error', [ error ]);
-				}
-
-			});
-
-			this.download.once('redirect', (response) => {
-
-				this.download.off('progress');
-				this.download.off('timeout');
-				this.download.off('error');
-				this.download.off('response');
-				this.download = null;
+			this.download.off('progress');
+			this.download.off('timeout');
+			this.download.off('redirect');
+			this.download.off('response');
+			this.download = null;
 
 
-				if (this.server !== null) {
+			if (this.server !== null) {
 
-					this.server.services.stash.remove(this.url, () => {
-						this.emit('redirect', [ response, false ]);
-					});
+				this.server.services.stash.remove(this.url, () => {
 
-				} else {
+					this.url.headers = null;
+					this.url.payload = null;
+
+					this.emit('download');
+
+				});
+
+			} else {
+				this.emit('error', [ error ]);
+			}
+
+		});
+
+		this.download.once('redirect', (response) => {
+
+			this.download.off('progress');
+			this.download.off('timeout');
+			this.download.off('error');
+			this.download.off('response');
+			this.download = null;
+
+
+			if (this.server !== null) {
+
+				this.server.services.stash.remove(this.url, () => {
 					this.emit('redirect', [ response, false ]);
-				}
+				});
 
-			});
+			} else {
+				this.emit('redirect', [ response, false ]);
+			}
 
-			this.download.once('response', (response) => {
+		});
 
-				this.download.off('progress');
-				this.download.off('timeout');
-				this.download.off('error');
-				this.download.off('redirect');
-				this.download = null;
+		this.download.once('response', (response) => {
+
+			this.download.off('progress');
+			this.download.off('timeout');
+			this.download.off('error');
+			this.download.off('redirect');
+			this.download = null;
 
 
-				if (this.server !== null) {
+			if (this.server !== null) {
 
-					this.server.services.stash.remove(this.url, () => {
-						this.url.headers = null;
-						this.url.payload = null;
-					});
+				this.server.services.stash.remove(this.url, () => {
+					this.url.headers = null;
+					this.url.payload = null;
+				});
 
-				}
+			}
 
-				this.response = response;
-				this.emit('optimize');
+			this.response = response;
+			this.emit('optimize');
 
-			});
+		});
 
-			this.download.start();
-
-		} else {
-			this.emit('error', [{ type: 'block' }]);
-		}
+		this.download.start();
 
 	});
 
