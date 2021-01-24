@@ -11,8 +11,6 @@
 @import url("./backdrop/Tabs.css");
 @import url("./backdrop/Webview.css");
 
-@import url("./card/Host.css");
-
 @import url("./sheet/Console.css");
 @import url("./sheet/Session.css");
 @import url("./sheet/Site.css");
