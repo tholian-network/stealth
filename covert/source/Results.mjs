@@ -186,22 +186,18 @@ const diff = function(aobject, bobject) {
 
 			if (bobject[a] !== undefined) {
 
-				if (aobject[a] !== null && bobject[a] !== null) {
+				let is_different = diff(aobject[a], bobject[a]);
+				if (is_different === true) {
 
-					let is_different = diff(aobject[a], bobject[a]);
-					if (is_different === true) {
+					if (isObject(aobject[a]) === true) {
 
-						if (isObject(aobject[a]) === true) {
-
-							if (Object.keys(aobject[a]).length > 0) {
-								return true;
-							}
-
-						} else {
-
+						if (Object.keys(aobject[a]).length > 0) {
 							return true;
-
 						}
+
+					} else {
+
+						return true;
 
 					}
 
@@ -318,22 +314,18 @@ const diff = function(aobject, bobject) {
 
 			if (bvalues[a] !== undefined) {
 
-				if (avalues[a] !== null && bvalues[a] !== null) {
+				let is_different = diff(avalues[a], bvalues[a]);
+				if (is_different === true) {
 
-					let is_different = diff(avalues[a], bvalues[a]);
-					if (is_different === true) {
+					if (isObject(avalues[a]) === true) {
 
-						if (isObject(avalues[a]) === true) {
-
-							if (Object.keys(avalues[a]).length > 0) {
-								return true;
-							}
-
-						} else {
-
+						if (Object.keys(avalues[a]).length > 0) {
 							return true;
-
 						}
+
+					} else {
+
+						return true;
 
 					}
 
@@ -366,22 +358,18 @@ const diff = function(aobject, bobject) {
 
 			if (bobject[key] !== undefined) {
 
-				if (aobject[key] !== null && bobject[key] !== null) {
+				let is_different = diff(aobject[key], bobject[key]);
+				if (is_different === true) {
 
-					let is_different = diff(aobject[key], bobject[key]);
-					if (is_different === true) {
+					if (isObject(aobject[key]) === true) {
 
-						if (isObject(aobject[key]) === true) {
-
-							if (Object.keys(aobject[key].length > 0)) {
-								return true;
-							}
-
-						} else {
-
+						if (Object.keys(aobject[key].length > 0)) {
 							return true;
-
 						}
+
+					} else {
+
+						return true;
 
 					}
 
