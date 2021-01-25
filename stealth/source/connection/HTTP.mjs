@@ -10,19 +10,29 @@ import { URL                                                                  } 
 
 const decode_chunked = function(payload) {
 
-	let chunks = payload.toString('utf8').split('\r\n');
 	let target = Buffer.from('', 'utf8');
+	let chunks = payload.toString('utf8').split('\r\n').map((value) => {
+		return Buffer.from(value, 'utf8');
+	});
+
 
 	while (chunks.length >= 2) {
 
-		let length = parseInt(chunks.shift(), 16);
+		let length = parseInt(chunks.shift().toString('utf8'), 16);
 		let chunk  = chunks.shift();
 
 		if (chunk.length === length) {
-			target = Buffer.concat([ target, Buffer.from(chunk, 'utf8') ]);
+
+			target = Buffer.concat([ target, chunk ]);
+
 		} else {
-			target = Buffer.from('', 'utf8');
+
+			// XXX: Specification says nothing about this case, but it happens
+			// https://tools.ietf.org/html/rfc2616#section-3.6.1
+
+			target = Buffer.concat([ target, chunk.slice(0, length) ]);
 			break;
+
 		}
 
 		if (chunks.length === 1 && chunks[0] === '') {
