@@ -220,7 +220,7 @@ const upgrade_http = function(socket, url) {
 					redirect = URL.parse(response.headers['location']);
 
 					if (this.stealth._settings.debug === true) {
-						console.warn('Server: "' + url.link + '" redirected to "' + redirect.link + '"');
+						console.warn('Server: "' + url.link + '": Redirect to "' + redirect.link + '".');
 					}
 
 					HTTP.send(connection, {
@@ -241,7 +241,7 @@ const upgrade_http = function(socket, url) {
 					}
 
 					if (this.stealth._settings.debug === true) {
-						console.warn('Server: "' + url.link + '" redirected to "' + redirect.link + '"');
+						console.warn('Server: "' + url.link + '": Redirect to "' + redirect.link + '".');
 					}
 
 					ROUTER.send(redirect, (response) => {
@@ -257,7 +257,7 @@ const upgrade_http = function(socket, url) {
 					}
 
 					if (this.stealth._settings.debug === true) {
-						console.warn('Server: "' + url.link + '" redirected to "' + redirect.link + '"');
+						console.warn('Server: "' + url.link + '": Redirect to "' + redirect.link + '".');
 					}
 
 					ROUTER.send(redirect, (response) => {
@@ -881,6 +881,10 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 									});
 
 								} else {
+
+									if (this.stealth._settings.debug === true) {
+										console.error('Server: "' + link + '": Forbidden.');
+									}
 
 									ROUTER.error({ code: 403 }, (response) => {
 
