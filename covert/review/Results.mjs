@@ -140,6 +140,62 @@ describe('Results.prototype.assert()/undefined', function(assert) {
 
 });
 
+describe('Results.prototype.assert()/null', function(assert) {
+
+	let results = Results.from(15);
+
+	results.assert(13, 13);
+	results.assert(13, null);
+	results.assert(null, 13);
+
+	results.assert('foo', 'foo');
+	results.assert('foo', null);
+	results.assert(null, 'foo');
+
+	results.assert([], []);
+	results.assert([], null);
+	results.assert(null, []);
+
+	results.assert({}, {});
+	results.assert({}, null);
+	results.assert(null, {});
+
+	results.assert({
+		foo: 'bar'
+	}, {
+		foo: null
+	});
+
+	results.assert([
+		1, 3, 3, 7
+	], [
+		1, 3, 3, null
+	]);
+
+	results.assert(null, null);
+
+	assert(results.data[0], true);
+	assert(results.data[1], false);
+	assert(results.data[2], false);
+
+	assert(results.data[3], true);
+	assert(results.data[4], false);
+	assert(results.data[5], false);
+
+	assert(results.data[6], true);
+	assert(results.data[7], false);
+	assert(results.data[8], false);
+
+	assert(results.data[9],  true);
+	assert(results.data[10], false);
+	assert(results.data[11], false);
+
+	assert(results.data[12], false);
+	assert(results.data[13], false);
+	assert(results.data[14], true);
+
+});
+
 describe('Results.prototype.assert()/Infinity', function(assert) {
 
 	let results = Results.from(6);
