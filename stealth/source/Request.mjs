@@ -282,7 +282,22 @@ const Request = function(settings, server) {
 	}
 
 	if (URL.isURL(settings.url) === true) {
+
 		this.url = settings.url;
+
+		if (this.redirect.domain === null) {
+
+			let domain = URL.toDomain(this.url);
+			let host   = URL.toHost(this.url);
+
+			if (domain !== null) {
+				this.redirect.domain = domain;
+			} else if (host !== null) {
+				this.redirect.domain = host;
+			}
+
+		}
+
 	} else {
 		this.url = null;
 	}
@@ -361,10 +376,16 @@ const Request = function(settings, server) {
 
 				if (redirect !== null) {
 
-					this.emit('redirect', [{
-						headers: { location: redirect.location },
-						payload: null
-					}, true ]);
+					if (redirect.location !== this.url.link) {
+
+						this.emit('redirect', [{
+							headers: { location: redirect.location },
+							payload: null
+						}, true ]);
+
+					} else {
+						this.emit('block');
+					}
 
 				} else {
 					this.emit('block');
@@ -1013,9 +1034,13 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.timeline.start === null) {
 
-			this.emit('start');
+			if (this.url !== null) {
 
-			return true;
+				this.emit('start');
+
+				return true;
+
+			}
 
 		}
 
