@@ -71,6 +71,34 @@ describe('Cache.prototype.read()/github/http', function(assert) {
 
 });
 
+describe('Redirect.prototype.read()/github/http', function(assert) {
+
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.redirect.read), true);
+
+	let url = EXAMPLE.toURL('http://github.com/');
+
+	this.server.services.redirect.read(url, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'redirect',
+				event:   'read'
+			},
+			payload: {
+				domain: 'github.com',
+				redirects: [{
+					path:     '/',
+					query:    null,
+					location: 'https://github.com/'
+				}]
+			}
+		});
+
+	});
+
+});
+
 describe('new Request()/github/https', function(assert) {
 
 	let mode    = EXAMPLE.toMode('https://github.com/');
