@@ -61,6 +61,8 @@ const GRAMMAR = {
 					rules.push(rule);
 				}
 
+			} else {
+				break;
 			}
 
 		}
@@ -138,16 +140,11 @@ const GRAMMAR = {
 			let token = this.next([ 'string' ]);
 			if (token.type === 'string') {
 
-				let charset = token.value;
+				let value = token.value;
 
-				let check = this.next([ ';' ]);
-				if (check.type === ';') {
+				let check = this.range([ ';' ]);
+				if (check[check.length - 1].type === ';') {
 					this.next();
-				} else {
-
-					this.seek(';');
-					this.next();
-
 				}
 
 				return {
@@ -155,15 +152,13 @@ const GRAMMAR = {
 					name: 'charset',
 					value: {
 						type: 'string',
-						value: charset.substr(1, charset.length - 2)
+						value: value.substr(1, value.length - 2)
 					}
 				};
 
 			} else {
-
-				this.seek(';');
+				this.range([ ';' ]);
 				this.next();
-
 			}
 
 		}
@@ -187,20 +182,29 @@ const GRAMMAR = {
 			let token = this.next([ 'string', 'url' ]);
 			if (token.type === 'string') {
 
-				let url   = token.value;
 				let media = null;
+				let value = token.value;
 
 				let check = this.next([ ';', 'media-type' ]);
 				if (check.type === ';') {
 
 					this.next();
 
-				} else {
+				} else if (check.type === 'media-type') {
 
-					// TODO: media-query-list
-					// media = this.exec('media-query-list');
+					let tokens = this.range([ ';' ]);
+					if (tokens.length > 0) {
 
-					this.seek(';');
+						console.warn(tokens);
+
+					}
+
+					media = {
+						type:  'media-query',
+						value: check.value,
+						query: null
+					};
+
 					this.next();
 
 				}
@@ -211,26 +215,35 @@ const GRAMMAR = {
 					media: media,
 					value: {
 						type: 'url',
-						value: url.substr(1, url.length - 2)
+						value: value.substr(1, value.length - 2)
 					}
 				};
 
 			} else if (token.type === 'url') {
 
-				let url   = token.value;
 				let media = null;
+				let value = token.value;
 
 				let check = this.next([ ';', 'media-type' ]);
 				if (check.type === ';') {
 
 					this.next();
 
-				} else {
+				} else if (check.type === 'media-type') {
 
-					// TODO: media-query-list
-					// media = this.exec('media-query-list');
+					let tokens = this.range([ ';' ]);
+					if (tokens.length > 0) {
 
-					this.seek(';');
+						console.warn(tokens);
+
+					}
+
+					media = {
+						type:  'media-query',
+						value: check.value,
+						query: null
+					};
+
 					this.next();
 
 				}
@@ -241,13 +254,13 @@ const GRAMMAR = {
 					media: media,
 					value: {
 						type: 'url',
-						value: url.substr(5, url.length - 7)
+						value: value.substr(5, value.length - 7)
 					}
 				};
 
 			} else {
 
-				this.seek(';');
+				this.range([ ';' ]);
 				this.next();
 
 			}

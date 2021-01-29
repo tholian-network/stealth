@@ -55,87 +55,52 @@ const isSyntax = function(syntax) {
 
 };
 
-const nextToken = function() {
+const toMatches = (chunk, syntax) => {
 
-	if (this.__state.index < this.__state.buffer.length) {
+	let matches = [];
 
-		let chunk = this.__state.buffer.substr(this.__state.index);
-		let found = null;
+	syntax.forEach((token) => {
 
-		for (let s = 0, sl = this.syntax.length; s < sl; s++) {
+		let match = null;
 
-			let token = this.syntax[s];
-			let match = toMatch(chunk, token.pattern);
+		if (isString(token.pattern) === true) {
 
-			if (match !== null) {
-
-				this.__state.index += match.length;
-
-				if (token.type === null) {
-
-					found = nextToken.call(this);
-
-				} else if (token.type !== null) {
-
-					found = {
-						type:  token.type,
-						value: match
-					};
-
-				}
-
+			if (chunk.startsWith(token.pattern) === true) {
+				match = token.pattern;
 			}
 
-			if (found !== null) {
-				break;
+		} else if (isRegExp(token.pattern) === true) {
+
+			let tmp = chunk.match(token.pattern);
+			if (tmp !== null) {
+				match = tmp[0];
 			}
 
 		}
 
 
-		// TODO: Refactor this!?
-		if (found === null) {
-			throw new SyntaxError('Unexpected Token "' + chunk[0] + '" at index "' + this.__state.index + '"');
-		}
-
-
-		if (found !== null) {
-
-			this.token = found;
-
-			return found;
-
-		}
-
-	}
-
-
-	return {
-		type:  null,
-		value: null
-	};
-
-};
-
-const toMatch = (chunk, pattern) => {
-
-	if (isString(pattern) === true) {
-
-		if (chunk.startsWith(pattern) === true) {
-			return pattern;
-		}
-
-	} else if (isRegExp(pattern) === true) {
-
-		let match = chunk.match(pattern);
 		if (match !== null) {
-			return match[0];
+
+			matches.push({
+				type:  token.type,
+				value: match
+			});
+
 		}
+
+	});
+
+	if (matches.length > 1) {
+
+		matches.sort((a, b) => {
+			if (a.value.length > b.value.length) return -1;
+			if (b.value.length > a.value.length) return  1;
+			return 0;
+		});
 
 	}
 
-
-	return null;
+	return matches;
 
 };
 
@@ -242,26 +207,81 @@ Parser.prototype = {
 		types = isArray(types) ? types : [];
 
 
-		this.token = nextToken.call(this);
+		if (this.__state.index < this.__state.buffer.length) {
 
-		if (types.length > 0) {
+			if (types.length > 0) {
 
-			let valid = false;
+				let chunk   = this.__state.buffer.substr(this.__state.index);
+				let matches = toMatches(chunk, this.syntax.filter((token) => {
+					return types.includes(token.type) || token.type === null;
+				}));
 
-			for (let t = 0, tl = types.length; t < tl; t++) {
+				if (matches.length > 0) {
 
-				if (this.token.type === types[t]) {
-					valid = true;
-					break;
+					let token = matches[0];
+					if (token.type !== null) {
+
+						this.__state.index += token.value.length;
+						this.token = token;
+
+						return this.token;
+
+					} else if (token.type === null) {
+
+						this.__state.index += token.value.length;
+						this.token = token;
+
+						return this.next(types);
+
+					}
+
+				} else {
+
+					throw new SyntaxError('Unexpected Token "' + chunk[0] + '" at index ' + this.__state.index + '. Expected either of [ "' + types.join('", "') + '" ].');
+
+				}
+
+			} else {
+
+				let chunk   = this.__state.buffer.substr(this.__state.index);
+				let matches = toMatches(chunk, this.syntax);
+
+				if (matches.length > 0) {
+
+					let token = matches[0];
+					if (token.type !== null) {
+
+						this.__state.index += token.value.length;
+						this.token = token;
+
+						return this.token;
+
+					} else if (token.type === null) {
+
+						this.__state.index += token.value.length;
+						this.token = token;
+
+						return this.next(types);
+
+					}
+
+				} else {
+
+					throw new SyntaxError('Unexpected Token "' + chunk[0] + '" at index ' + this.__state.index);
+
 				}
 
 			}
 
-			if (valid === false) {
-				throw new SyntaxError('Unexpected Token "' + this.token.type + '" at index "' + this.__state.index + '", expected "' + types.join('", "') + '".');
-			}
+		} else {
+
+			this.token = {
+				type:  null,
+				value: null
+			};
 
 		}
+
 
 		return this.token;
 
@@ -285,7 +305,7 @@ Parser.prototype = {
 			this.__state.buffer = raw;
 			this.__state.index  = 0;
 
-			this.token = nextToken.call(this);
+			this.next();
 
 			tree = this.exec('root');
 
@@ -295,23 +315,57 @@ Parser.prototype = {
 
 	},
 
-	seek: function(type) {
+	range: function(types) {
 
-		type = isString(type) ? type : null;
+		types = isArray(types) ? types : [];
 
 
-		if (type !== null) {
+		if (types.length > 0) {
 
-			while (this.token.type !== null && this.token.type !== type) {
-				this.token = nextToken.call(this);
+			let found  = false;
+			let offset = 0;
+			let tokens = [];
+
+
+			while (this.__state.index + offset < this.__state.buffer.length) {
+
+				let chunk   = this.__state.buffer.substr(this.__state.index + offset);
+				let matches = toMatches(chunk, this.syntax);
+
+				if (matches.length > 0) {
+
+					let token = matches[0];
+					if (token.type !== null) {
+						tokens.push(token);
+					}
+
+					offset += token.value.length;
+
+					if (types.includes(token.type) === true) {
+						found = true;
+						break;
+					}
+
+				} else {
+					break;
+				}
+
 			}
 
-			return this.token;
+
+			if (tokens.length > 0 && found === true) {
+
+				this.__state.index += offset;
+				this.token = tokens[tokens.length - 1];
+
+				return tokens;
+
+			}
 
 		}
 
 
-		return this.next();
+		return [];
 
 	}
 

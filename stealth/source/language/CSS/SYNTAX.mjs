@@ -19,7 +19,7 @@ const SYNTAX = [
 	{ type: 'media-type', pattern: new RegExp('^(all|print|screen|speech)') },
 
 	// Percentage
-	{ type: 'percentage', pattern: '%'  },
+	{ type: 'percentage', pattern: '%' },
 
 	// Font-Relative Lengths
 	{ type: 'length', pattern: 'em'  },
@@ -86,7 +86,6 @@ const SYNTAX = [
 	// dimension
 	// CDO <!--
 	// CDC -->
-	//
 
 ];
 
