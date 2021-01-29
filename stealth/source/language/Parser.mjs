@@ -1,5 +1,5 @@
 
-import { console, isArray, isBuffer, isFunction, isNumber, isObject, isRegExp, isString } from '../../extern/base.mjs';
+import { isArray, isBuffer, isFunction, isObject, isRegExp, isString } from '../../extern/base.mjs';
 
 
 
@@ -66,6 +66,7 @@ const nextToken = function() {
 
 			let token = this.syntax[s];
 			let match = toMatch(chunk, token.pattern);
+
 			if (match !== null) {
 
 				this.__state.index += match.length;
@@ -109,69 +110,10 @@ const nextToken = function() {
 	}
 
 
-	return null;
-
-};
-
-const seekToken = function(search, index) {
-
-	search = isString(search) ? search : null;
-	index  = isNumber(index)  ? index  : (this.__state.index);
-
-	console.log(search, index, this.__state.buffer.length);
-
-
-	if (index < this.__state.buffer.length) {
-
-		let chunk = this.__state.buffer.substr(index);
-		let found = null;
-
-		console.log(chunk);
-
-		for (let s = 0, sl = this.syntax.length; s < sl; s++) {
-
-			let token = this.syntax[s];
-			let match = toMatch(chunk, token.pattern);
-			if (match !== null) {
-
-				if (token.type === null) {
-
-					found = seekToken.call(this, search, index + match.length);
-
-				} else if (search !== null && token.type === search) {
-
-					found = {
-						type:  token.type,
-						value: match
-					};
-
-				} else if (search === null) {
-
-					found = {
-						type:  token.type,
-						value: match
-					};
-
-				}
-
-			}
-
-			if (found !== null) {
-				break;
-			}
-
-		}
-
-
-		if (found !== null) {
-			return found;
-		}
-
-	}
-
-
-	return null;
-
+	return {
+		type:  null,
+		value: null
+	};
 
 };
 
@@ -241,40 +183,87 @@ Parser.prototype = {
 		if (found !== null) {
 
 			if (isFunction(found) === true) {
-				return found.call(this);
+
+				let token = found.call(this);
+
+				if (isObject(token) === true) {
+					return token;
+				}
+
 			}
 
 		}
 
 
-		return null;
+		return {
+			type:  null,
+			value: null
+		};
 
 	},
 
-	next: function(type) {
+	expect: function(types) {
 
-		console.log('next()', type);
-
-		type = isString(type) ? type : null;
+		types = isArray(types) ? types : [];
 
 
-		let token = this.token;
+		if (types.length > 0) {
 
-		// TODO: Refactor this!?
-		if (token !== null && type !== null) {
+			let valid = false;
 
-			if (token.type !== type) {
-				throw new SyntaxError('Unexpected Token "' + token.value + '" at index "' + this.__state.index + '", expected "' + type + '".');
+			for (let t = 0, tl = types.length; t < tl; t++) {
+
+				if (this.token.type === types[t]) {
+					valid = true;
+					break;
+				}
+
 			}
 
-		} else if (token === null) {
-			throw new SyntaxError('Unexpected End of File at index "' + this.__state.index + '", expected "' + type + '".');
+			if (valid === false) {
+				throw new SyntaxError('Unexpected Token "' + this.token.value + '" at index "' + this.__state.index + '", expected "' + types.join('", "') + '".');
+			}
+
+			if (valid === true) {
+				return this.token;
+			}
+
 		}
+
+		return {
+			type:  null,
+			value: null
+		};
+
+	},
+
+	next: function(types) {
+
+		types = isArray(types) ? types : [];
+
 
 		this.token = nextToken.call(this);
 
+		if (types.length > 0) {
 
-		return token;
+			let valid = false;
+
+			for (let t = 0, tl = types.length; t < tl; t++) {
+
+				if (this.token.type === types[t]) {
+					valid = true;
+					break;
+				}
+
+			}
+
+			if (valid === false) {
+				throw new SyntaxError('Unexpected Token "' + this.token.type + '" at index "' + this.__state.index + '", expected "' + types.join('", "') + '".');
+			}
+
+		}
+
+		return this.token;
 
 	},
 
@@ -311,13 +300,18 @@ Parser.prototype = {
 		type = isString(type) ? type : null;
 
 
-		let index = this.__state.index;
+		if (type !== null) {
 
-		if (this.token !== null) {
-			index += this.token.value.length;
+			while (this.token.type !== null && this.token.type !== type) {
+				this.token = nextToken.call(this);
+			}
+
+			return this.token;
+
 		}
 
-		return seekToken.call(this, type, index);
+
+		return this.next();
 
 	}
 

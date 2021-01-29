@@ -1,16 +1,17 @@
 
 import { isArray, isBuffer, isObject, isString } from '../../extern/base.mjs';
 import { Parser                                } from '../../source/language/Parser.mjs';
-import { SPECIFICATION                         } from '../../source/language/CSS/SPECIFICATION.mjs';
-
-
-
+import { GRAMMAR                               } from '../../source/language/CSS/GRAMMAR.mjs';
+import { SYNTAX                                } from '../../source/language/CSS/SYNTAX.mjs';
 
 
 
 const CSS = {
 
 	compare: function(a, b) {
+
+		// TODO: Can CSS trees be compared to each other?
+
 	},
 
 	isCSS: function(payload) {
@@ -39,8 +40,8 @@ const CSS = {
 		}
 
 
-		let parser = new Parser({ grammar: SPECIFICATION.grammar, syntax:  SPECIFICATION.syntax });
-		let tree  = { type: 'root', rules: [] };
+		let parser = new Parser({ grammar: GRAMMAR, syntax: SYNTAX });
+		let tree   = { type: 'root', rules: [] };
 
 		if (raw !== null) {
 
@@ -53,6 +54,9 @@ const CSS = {
 	},
 
 	render: function(tree) {
+
+		// TODO: Render CSS tree into Buffer
+
 	},
 
 	sort: function(array) {
