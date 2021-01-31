@@ -4,6 +4,7 @@ const SYNTAX = [
 	// Ignored
 	{ type: null, pattern: new RegExp('^\\s+')                 }, // whitespace
 	{ type: null, pattern: new RegExp('^\\/\\*[\\s\\S]*?\\*/') }, // multi-line comment
+	{ type: null, pattern: new RegExp('^(<!--.*-->)')          }, // multi-line comment
 
 	// Symbols
 	{ type: '@', pattern: '@' },
@@ -59,8 +60,8 @@ const SYNTAX = [
 	{ type: 'duration', pattern: 'ms' },
 
 	// Frequency Units
-	{ type: 'frequency', pattern: 'Hz'  },
-	{ type: 'frequency', pattern: 'kHz' },
+	{ type: 'frequency', pattern: 'hz'  },
+	{ type: 'frequency', pattern: 'khz' },
 
 	// Resolution Units
 	{ type: 'resolution', pattern: 'dpi'  },
@@ -80,12 +81,9 @@ const SYNTAX = [
 	// function
 	// hash
 	// bad-string
-	// url
 	// bad-url
 	// delim
 	// dimension
-	// CDO <!--
-	// CDC -->
 
 ];
 

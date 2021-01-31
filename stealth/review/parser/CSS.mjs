@@ -111,6 +111,22 @@ describe('CSS.parse()/@import', function(assert) {
 
 });
 
+describe('CSS.parse()/@page', function(assert) {
+
+	let page1 = CSS.parse('@page { margin: 2cm; }');
+	let page2 = CSS.parse('@page :left { margin-left: 3cm; }');
+	let page3 = CSS.parse('@page :right { margin-right: 3cm; }');
+	let page4 = CSS.parse('@page :blank { @top-center { content: none; } }');
+
+});
+
+describe('CSS.parse()/@keyframes', function(assert) {
+
+	let keyframes1 = CSS.parse('@keyframes { from { color: red; } to { color: #ff8800; } }');
+	let keyframes2 = CSS.parse('@keyframes { 1% { color: #ff0000; } 13.333333333333337 { color: #ffff00; } 137% { color: #00ff00; } }');
+
+});
+
 
 export default finish('stealth/parser/CSS', {
 	internet: false,

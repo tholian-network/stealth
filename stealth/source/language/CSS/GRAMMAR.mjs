@@ -62,7 +62,12 @@ const GRAMMAR = {
 				}
 
 			} else {
+
+				// TODO: range([ ';', '{' ])
+				// and then ignore unsupported rule
+
 				break;
+
 			}
 
 		}
@@ -119,8 +124,6 @@ const GRAMMAR = {
 			return this.exec('at-page');
 		} else if (rule.value === 'supports') {
 			return this.exec('at-supports');
-		} else if (rule.value === 'viewport') {
-			return this.exec('at-viewport');
 		}
 
 	},
