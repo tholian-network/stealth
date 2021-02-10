@@ -277,8 +277,10 @@ const GRAMMAR = {
 				keyframes.name = name.value.substr(1, name.value.length - 2);
 			}
 
-			let block = this.next([ '{' ]);
-			if (block.type === '{') {
+			this.next();
+
+			let check_block1 = this.expect([ '{' ]);
+			if (check_block1.type === '{') {
 
 				while (this.token.type !== '}') {
 
@@ -305,7 +307,9 @@ const GRAMMAR = {
 
 					}
 
-					let check1 = this.next([ '{' ]);
+					this.next();
+
+					let check1 = this.expect([ '{' ]);
 					if (check1.type === '{') {
 
 						this.next();
@@ -335,8 +339,18 @@ const GRAMMAR = {
 
 			}
 
-			if (keyframes.name !== null && keyframes.rules.length > 0) {
-				return keyframes;
+			let check_block2 = this.expect([ '}' ]);
+			if (check_block2.type === '}') {
+
+				this.next();
+
+				if (keyframes.name !== null && keyframes.rules.length > 0) {
+					return keyframes;
+				}
+
+			} else {
+				this.range([ '}' ]);
+				this.next();
 			}
 
 		}
@@ -358,6 +372,9 @@ const GRAMMAR = {
 	 * : [ ... ident ':' value ]
 	 * ;
 	 */
+
+	// TODO: Verify that declarations stops _BEFORE_ the '}' character,
+	// so that next() will return '}'
 
 	'declarations': function() {
 
