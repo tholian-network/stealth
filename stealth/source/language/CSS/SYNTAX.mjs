@@ -4,6 +4,7 @@ const SYNTAX = [
 	// Ignored
 	{ type: null, pattern: new RegExp('^\\s+')                 }, // whitespace
 	{ type: null, pattern: new RegExp('^\\/\\*[\\s\\S]*?\\*/') }, // multi-line comment
+	{ type: null, pattern: new RegExp('^(<!--.*-->)')          }, // multi-line comment
 
 	// Symbols
 	{ type: '@', pattern: '@' },
@@ -81,12 +82,9 @@ const SYNTAX = [
 	// function
 	// hash
 	// bad-string
-	// url
 	// bad-url
 	// delim
 	// dimension
-	// CDO <!--
-	// CDC -->
 
 ];
 

@@ -63,7 +63,12 @@ const GRAMMAR = {
 				}
 
 			} else {
+
+				// TODO: range([ ';', '{' ])
+				// and then ignore unsupported rule
+
 				break;
+
 			}
 
 		}
@@ -106,7 +111,6 @@ const GRAMMAR = {
 	/*
 	 * at-charset
 	 * : 'charset' string ';'
-	 * | 'charset' string ';'
 	 * ;
 	 */
 
