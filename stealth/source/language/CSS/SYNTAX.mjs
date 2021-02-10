@@ -14,6 +14,7 @@ const SYNTAX = [
 	{ type: ',', pattern: ',' },
 	{ type: ':', pattern: ':' },
 	{ type: ';', pattern: ';' },
+	{ type: '!', pattern: '!' },
 
 	// Keywords
 	{ type: 'media-type', pattern: new RegExp('^(all|print|screen|speech)') },
@@ -59,8 +60,8 @@ const SYNTAX = [
 	{ type: 'duration', pattern: 'ms' },
 
 	// Frequency Units
-	{ type: 'frequency', pattern: 'Hz'  },
-	{ type: 'frequency', pattern: 'kHz' },
+	{ type: 'frequency', pattern: 'hz'  },
+	{ type: 'frequency', pattern: 'khz' },
 
 	// Resolution Units
 	{ type: 'resolution', pattern: 'dpi'  },

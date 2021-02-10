@@ -34,8 +34,7 @@ const GRAMMAR = {
 
 	/*
 	 * root
-	 * : style-rule
-	 * | at-rule
+	 * : [ ... style-rule, ... at-rule ]
 	 * ;
 	 */
 
@@ -54,6 +53,8 @@ const GRAMMAR = {
 					rules.push(rule);
 				}
 
+				console.log(rules);
+				break;
 			} else if (this.token.type === 'ident') {
 
 				let rule = this.exec('style-rule');
@@ -77,24 +78,12 @@ const GRAMMAR = {
 	/*
 	 * at-rule
 	 * : at-charset
-	 * | at-counter-style
-	 * | at-font-face
-	 * | at-font-feature-values
+	 * | TODO: at-font-face
 	 * | at-import
 	 * | at-keyframes
-	 * | at-media
-	 * | at-namespace
-	 * | at-page
-	 * | at-property
-	 * | at-supports
-	 * | at-viewport (Working Draft)
-	 *
-	 *
-	 *
-	 *
-	 * : '@' name '(' component-values ')' '{' declarations '}'
-	 * | '@' name '{' declarations '}'
-	 * | '@' name '"' parameters '"'
+	 * | TODO: at-media
+	 * | TODO: at-page
+	 * | TODO: at-supports
 	 * ;
 	 */
 
@@ -108,19 +97,8 @@ const GRAMMAR = {
 			return this.exec('at-charset');
 		} else if (rule.value === 'import') {
 			return this.exec('at-import');
-
-
-
 		} else if (rule.value === 'keyframes') {
 			return this.exec('at-keyframes');
-		} else if (rule.value === 'media') {
-			return this.exec('at-media');
-		} else if (rule.value === 'page') {
-			return this.exec('at-page');
-		} else if (rule.value === 'supports') {
-			return this.exec('at-supports');
-		} else if (rule.value === 'viewport') {
-			return this.exec('at-viewport');
 		}
 
 	},
@@ -271,11 +249,94 @@ const GRAMMAR = {
 
 	/*
 	 * at-keyframes
-	 * : 'keyframes' '{' declarations '}'
+	 * : 'keyframes' ident '{' [ 'from' '{' declarations '}', to '{' declarations '}' ] '}'
+	 * | 'keyframes' ident '{' [ ... number 'percentage' '{' declarations '}' ] '}'
+	 * | 'keyframes' string '{' [ 'from' '{' declarations '}', to '{' declarations '}' ] '}'
+	 * | 'keyframes' string '{' [ ... number 'percentage' '{' declarations '}' ] '}'
 	 * ;
 	 */
 
 	'at-keyframes': function() {
+
+		let ident = this.expect([ 'ident' ]);
+		if (ident.value === 'keyframes') {
+
+			let keyframes = {
+				name:  null,
+				rules: []
+			};
+
+			let name = this.next([ 'ident', 'string' ]);
+			if (name.type === 'ident') {
+				keyframes.name = name.value;
+			} else if (name.type === 'string') {
+				keyframes.name = name.value.substr(1, name.value.length - 2);
+			}
+
+			let block = this.next([ '{' ]);
+			if (block.type === '{') {
+
+				while (this.token.type !== '}') {
+
+					let rule = {
+						selector:     null,
+						declarations: []
+					};
+
+					let selector = this.next([ 'ident', 'number' ]);
+					if (selector.type === 'ident') {
+
+						if (selector.value === 'from') {
+							rule.selector = '0%';
+						} else if (selector.value === 'to') {
+							rule.selector = '100%';
+						}
+
+					} else if (selector.type === 'number') {
+
+						this.next();
+						this.expect([ 'percentage' ]);
+
+						rule.selector = selector.value + '%';
+
+					}
+
+					let check1 = this.next([ '{' ]);
+					if (check1.type === '{') {
+
+						this.next();
+
+						let declarations = this.exec('declarations');
+						if (declarations.length > 0) {
+							rule.declarations = declarations;
+						}
+
+					}
+
+					let check2 = this.expect([ '}' ]);
+					if (check2.type === '}') {
+
+						if (rule.selector !== null && rule.declarations.length > 0) {
+							keyframes.rules.push(rule);
+						}
+
+						this.next();
+
+					} else {
+						this.range([ '}' ]);
+						this.next();
+					}
+
+				}
+
+			}
+
+			if (keyframes.name !== null && keyframes.rules.length > 0) {
+				return keyframes;
+			}
+
+		}
+
 	},
 
 	/*
@@ -290,11 +351,71 @@ const GRAMMAR = {
 
 	/*
 	 * declarations
-	 * : list of declaration
+	 * : [ ... ident ':' value ]
 	 * ;
 	 */
 
 	'declarations': function() {
+
+		let declarations = [];
+
+		while (this.token.type !== null && this.token.type !== '}') {
+
+			let declaration = {
+				name:      null,
+				value:     null,
+				important: false
+			};
+
+			let name = this.expect([ 'ident' ]);
+			if (name.type === 'ident') {
+				declaration.name = name.value;
+			}
+
+			let colon = this.next([ ':' ]);
+			if (colon.type === ':') {
+
+				let value = this.range([ ';', '}' ]);
+				if (value.length > 2) {
+
+					// TODO: Complex value
+					// background: url("what/ever.jpg") !important;
+					// background: #ff0000 scroll scroll 0px;
+
+				} else if (value.length === 2) {
+
+					let simple = value[0];
+					if (simple.type === 'string') {
+						declaration.value = simple;
+					} else if (simple.type === 'url') {
+						declaration.value = simple;
+					} else if (simple.type === 'ident') {
+						declaration.value = simple;
+					}
+
+					if (value[1].type === ';') {
+						this.range(';');
+						this.next();
+					}
+
+				} else if (value.length === 1) {
+					this.next();
+				} else {
+					break;
+				}
+
+			} else {
+				break;
+			}
+
+			if (declaration.name !== null && declaration.value !== null) {
+				declarations.push(declaration);
+			}
+
+		}
+
+		return declarations;
+
 	},
 
 	/*

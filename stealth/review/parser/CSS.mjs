@@ -111,6 +111,15 @@ describe('CSS.parse()/@import', function(assert) {
 
 });
 
+describe('CSS.parse()/@keyframes', function(assert) {
+
+	let keyframes1 = CSS.parse('@keyframes my-animation-name { 0% { color: \'#ff0000\'; background: transparent } 50% { color: "#0000ff"; background: "#ff0000"; } }');
+	// let keyframes2 = CSS.parse('@keyframes my-animation-name { from { color: \'#ff0000\'; } to { color: "#0000ff" } }');
+
+	console.log(keyframes1);
+
+});
+
 
 export default finish('stealth/parser/CSS', {
 	internet: false,
