@@ -103,6 +103,7 @@ const encode_payload = function(payload) {
 
 				let tmp = Buffer.from(payload.subdomain + '.' + payload.domain, 'utf8');
 
+				data.push(0x03);
 				data.push(tmp.length);
 				tmp.forEach((v) => {
 					data.push(v);
@@ -112,6 +113,7 @@ const encode_payload = function(payload) {
 
 				let tmp = Buffer.from(payload.domain, 'utf8');
 
+				data.push(0x03);
 				data.push(tmp.length);
 				tmp.forEach((v) => {
 					data.push(v);
@@ -271,8 +273,8 @@ const decode_payload = function(buffer) {
 	} else if (type === 0x03) {
 
 		let length     = buffer[1];
-		let raw_domain = buffer.slice(1, 1 + length);
-		let raw_port   = buffer.slice(1 + length, 1 + length + 2);
+		let raw_domain = buffer.slice(2, 2 + length);
+		let raw_port   = buffer.slice(2 + length, 2 + length + 2);
 
 		if (raw_domain.length > 0 && raw_port.length === 2) {
 
