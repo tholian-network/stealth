@@ -401,8 +401,6 @@ export const console = (function(global) {
 			return true;
 		} else if (Object.prototype.toString.call(buffer) === '[object Buffer]') {
 			return true;
-		} else if (Object.prototype.toString.call(buffer) === '[object Uint8Array]') {
-			return true;
 		}
 
 
@@ -472,6 +470,17 @@ export const console = (function(global) {
 
 	const isString = function(str) {
 		return Object.prototype.toString.call(str) === '[object String]';
+	};
+
+	const isUint8Array = function(array) {
+
+		if (Object.prototype.toString.call(array) === '[object Uint8Array]') {
+			return true;
+		}
+
+
+		return false;
+
 	};
 
 	const INDENT       = '    ';
@@ -832,6 +841,37 @@ export const console = (function(global) {
 			} else {
 
 				str += highlight('Buffer', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+				str += highlight(']', 'Literal');
+				str += ')';
+
+			}
+
+		} else if (isUint8Array(data) === true) {
+
+			str = indent;
+
+			if (data.length > 0) {
+
+				str += highlight('Uint8Array', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+
+				for (let d = 0, dl = data.byteLength; d < dl; d++) {
+
+					str += highlight(data[d], 'Number');
+
+					if (d < dl - 1) {
+						str += ',';
+					}
+
+				}
+
+				str += highlight(']', 'Literal');
+				str += ')';
+
+			} else {
+
+				str += highlight('Uint8Array', 'Type') + '.from(';
 				str += highlight('[', 'Literal');
 				str += highlight(']', 'Literal');
 				str += ')';
