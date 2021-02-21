@@ -226,7 +226,7 @@ const remove = (url) => {
 };
 
 const IGNORED = [
-	path.resolve(ROOT + '/browser/bin'),
+	path.resolve(ROOT + '/browser/app'),
 	path.resolve(ROOT + '/browser.mjs'),
 	path.resolve(ROOT + '/browser/README.md'),
 	path.resolve(ROOT + '/browser/make.mjs')

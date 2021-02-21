@@ -5,8 +5,6 @@
 
 const VERSION = 'X0:2020-03';
 const ASSETS  = [
-	'app/electron.js',
-	'app/gjs.js',
 	'browser.mjs',
 	'design/Element.mjs',
 	'design/Widget.mjs',
@@ -129,11 +127,6 @@ const ASSETS  = [
 	'source/client/Settings.mjs',
 	'source/client/Stash.mjs',
 	'source/parser/CSS.mjs',
-	'source/parser/CSS/COLORS.mjs',
-	'source/parser/CSS/NORMAL.mjs',
-	'source/parser/CSS/RULE.mjs',
-	'source/parser/CSS/SHORTHAND.mjs',
-	'source/parser/CSS/STYLES.mjs',
 	'source/parser/DATETIME.mjs',
 	'source/parser/HOSTS.mjs',
 	'source/parser/HTML.mjs',
