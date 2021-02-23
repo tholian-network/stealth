@@ -331,6 +331,7 @@ const Request = function(settings, server) {
 		start:    null,
 		block:    null,
 		mode:     null,
+		policy:   null,
 		cache:    null,
 		stash:    null,
 		connect:  null,
@@ -342,10 +343,6 @@ const Request = function(settings, server) {
 
 
 	Emitter.call(this);
-
-
-	// TODO: Implement on('policy') event
-	// that filters out malicious URL parameters
 
 
 	this.on('start', () => {
@@ -467,9 +464,45 @@ const Request = function(settings, server) {
 		this.timeline.mode = DATETIME.parse(new Date());
 
 		if (allowed === true) {
-			this.emit('cache');
+			this.emit('policy');
 		} else {
 			this.emit('error', [{ type: 'mode' }]);
+		}
+
+	});
+
+	this.on('policy', () => {
+
+		this.timeline.policy = DATETIME.parse(new Date());
+
+		let policy = this.policy.policies.find((policy) => {
+
+			if (
+				this.url.path === policy.path
+			) {
+				return true;
+			}
+
+			return false;
+
+		}) || null;
+
+		if (policy !== null) {
+
+			let url = URL.filter(this.url, policy);
+			if (URL.compare(url, this.url) !== 0) {
+
+				this.emit('redirect', [{
+					headers: { location: url.link },
+					payload: null
+				}, true ]);
+
+			} else {
+				this.emit('cache');
+			}
+
+		} else {
+			this.emit('cache');
 		}
 
 	});
@@ -936,10 +969,11 @@ Request.from = function(json) {
 			if (isString(data.url) === true) {
 
 				let request = new Request({
-					id:     isString(data.id)            ? data.id             : null,
-					mode:   Mode.isMode(data.mode)       ? data.mode           : null,
-					policy: Policy.isPolicy(data.policy) ? data.policy         : null,
-					url:    isString(data.url)           ? URL.parse(data.url) : null
+					id:       isString(data.id)                  ? data.id             : null,
+					mode:     Mode.isMode(data.mode)             ? data.mode           : null,
+					policy:   Policy.isPolicy(data.policy)       ? data.policy         : null,
+					redirect: Redirect.isRedirect(data.redirect) ? data.redirect       : null,
+					url:      isString(data.url)                 ? URL.parse(data.url) : null
 				});
 
 				if (isObject(data.flags) === true) {
