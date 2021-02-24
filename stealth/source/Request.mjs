@@ -291,8 +291,10 @@ const Request = function(settings, server) {
 			let host   = URL.toHost(this.url);
 
 			if (domain !== null) {
+				this.policy.domain = domain;
 				this.redirect.domain = domain;
 			} else if (host !== null) {
+				this.policy.domain = host;
 				this.redirect.domain = host;
 			}
 
@@ -390,6 +392,38 @@ const Request = function(settings, server) {
 
 			});
 
+		} else if (Redirect.isRedirect(this.redirect) === true) {
+
+			let redirect = this.redirect.redirects.find((redirect) => {
+
+				if (
+					this.url.path === redirect.path
+					&& this.url.query === redirect.query
+				) {
+					return true;
+				}
+
+				return false;
+
+			}) || null;
+
+			if (redirect !== null) {
+
+				if (redirect.location !== this.url.link) {
+
+					this.emit('redirect', [{
+						headers: { location: redirect.location },
+						payload: null
+					}, true ]);
+
+				} else {
+					this.emit('block');
+				}
+
+			} else {
+				this.emit('block');
+			}
+
 		} else {
 			this.emit('block');
 		}
@@ -475,25 +509,35 @@ const Request = function(settings, server) {
 
 		this.timeline.policy = DATETIME.parse(new Date());
 
-		let policy = this.policy.policies.find((policy) => {
+		if (this.server !== null) {
 
-			if (
-				this.url.path === policy.path
-			) {
-				return true;
-			}
+			this.server.services.policy.read(this.url, (response) => {
 
-			return false;
+				if (response.payload !== null) {
+					this.policy = response.payload;
+				}
 
-		}) || null;
+				let redirect = URL.filter(this.url, this.policy);
+				if (redirect.link !== this.url.link) {
 
-		if (policy !== null) {
+					this.emit('redirect', [{
+						headers: { location: redirect.link },
+						payload: null
+					}, true ]);
 
-			let url = URL.filter(this.url, policy);
-			if (URL.compare(url, this.url) !== 0) {
+				} else {
+					this.emit('cache');
+				}
+
+			});
+
+		} else if (Policy.isPolicy(this.policy) === true) {
+
+			let redirect = URL.filter(this.url, this.policy);
+			if (redirect.link !== this.url.link) {
 
 				this.emit('redirect', [{
-					headers: { location: url.link },
+					headers: { location: redirect.link },
 					payload: null
 				}, true ]);
 
@@ -707,11 +751,13 @@ const Request = function(settings, server) {
 
 		this.download.once('timeout', (partial) => {
 
-			this.download.off('progress');
-			this.download.off('error');
-			this.download.off('redirect');
-			this.download.off('response');
-			this.download = null;
+			if (this.download !== null) {
+				this.download.off('progress');
+				this.download.off('error');
+				this.download.off('redirect');
+				this.download.off('response');
+				this.download = null;
+			}
 
 
 			if (partial !== null) {
@@ -749,11 +795,13 @@ const Request = function(settings, server) {
 
 		this.download.once('error', (error) => {
 
-			this.download.off('progress');
-			this.download.off('timeout');
-			this.download.off('redirect');
-			this.download.off('response');
-			this.download = null;
+			if (this.download !== null) {
+				this.download.off('progress');
+				this.download.off('timeout');
+				this.download.off('redirect');
+				this.download.off('response');
+				this.download = null;
+			}
 
 
 			if (this.server !== null) {
@@ -775,11 +823,13 @@ const Request = function(settings, server) {
 
 		this.download.once('redirect', (response) => {
 
-			this.download.off('progress');
-			this.download.off('timeout');
-			this.download.off('error');
-			this.download.off('response');
-			this.download = null;
+			if (this.download !== null) {
+				this.download.off('progress');
+				this.download.off('timeout');
+				this.download.off('error');
+				this.download.off('response');
+				this.download = null;
+			}
 
 
 			if (this.server !== null) {
@@ -796,11 +846,13 @@ const Request = function(settings, server) {
 
 		this.download.once('response', (response) => {
 
-			this.download.off('progress');
-			this.download.off('timeout');
-			this.download.off('error');
-			this.download.off('redirect');
-			this.download = null;
+			if (this.download !== null) {
+				this.download.off('progress');
+				this.download.off('timeout');
+				this.download.off('error');
+				this.download.off('redirect');
+				this.download = null;
+			}
 
 
 			if (this.server !== null) {
@@ -867,14 +919,14 @@ const Request = function(settings, server) {
 		ignore = isBoolean(ignore) ? ignore : false;
 
 
+		this.timeline.redirect = DATETIME.parse(new Date());
+
+
 		if (ignore === true) {
 
 			// Do nothing
 
 		} else if (response !== null && response.headers !== null) {
-
-			this.timeline.redirect = DATETIME.parse(new Date());
-
 
 			let location = response.headers['location'] || null;
 			let redirect = this.redirect.redirects.find((redirect) => {

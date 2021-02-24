@@ -323,6 +323,39 @@ const isMIME = function(mime) {
 
 };
 
+const isPolicy = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& isString(payload.domain) === true
+		&& isArray(payload.policies) === true
+	) {
+
+		let check = payload.policies.filter((policy) => {
+
+			if (
+				isObject(policy) === true
+				&& isString(policy.path) === true
+				&& (isString(policy.query) === true || policy.query === null)
+			) {
+				return true;
+			}
+
+			return false;
+
+		});
+
+		if (check.length === payload.policies.length) {
+			return true;
+		}
+
+	}
+
+
+	return false;
+
+};
+
 const resolve_path = function(raw) {
 
 	let tmp = raw.split('/');
@@ -460,6 +493,7 @@ const URL = {
 			}
 
 			return 0;
+
 		} else if (is_url_a === true) {
 			return -1;
 		} else if (is_url_b === true) {
@@ -468,6 +502,169 @@ const URL = {
 
 
 		return 0;
+
+	},
+
+	filter: function(url, policy) {
+
+		url    = URL.isURL(url)   ? url    : null;
+		policy = isPolicy(policy) ? policy : null;
+
+
+		if (url !== null && policy !== null) {
+
+			let found = policy.policies.find((policy) => {
+
+				let pattern = policy.path;
+				if (pattern.startsWith('*')) {
+
+					return url.path.endsWith(pattern.substr(1));
+
+				} else if (pattern.endsWith('*')) {
+
+					return url.path.startsWith(pattern.substr(0, pattern.length - 1));
+
+				} else if (pattern.includes('*')) {
+
+					return (
+						url.path.startsWith(pattern.split('*').shift())
+						&& url.path.endsWith(pattern.split('*').pop())
+					);
+
+				} else {
+
+					return url.path === policy.path;
+
+				}
+
+			}) || null;
+
+			if (found !== null) {
+
+				let parameters = [];
+				let patterns   = [];
+
+				found.query.split('&').forEach((chunk) => {
+
+					let key = chunk.split('=')[0] || null;
+					let val = chunk.split('=')[1] || null;
+
+					if (key !== null && val !== null) {
+						patterns.push({ key: key, val: val });
+					} else if (key !== null) {
+						patterns.push({ key: key, val: '*' });
+					}
+
+				});
+
+				url.query.split('&').map((chunk) => ({
+					key: chunk.split('=')[0] || null,
+					val: chunk.split('=')[1] || ''
+				})).sort((a, b) => {
+					if (a.key < b.key) return -1;
+					if (b.key < a.key) return  1;
+					return 0;
+				}).forEach((parameter) => {
+
+					let valid_key = false;
+					let valid_val = false;
+
+					for (let p = 0, pl = patterns.length; p < pl; p++) {
+
+						let pattern = patterns[p];
+
+						if (pattern.key.startsWith('*')) {
+							valid_key = parameter.key.endsWith(pattern.key.substr(1));
+						} else if (pattern.key.endsWith('*')) {
+							valid_key = parameter.key.startsWith(pattern.key.substr(0, pattern.key.length - 1));
+						} else if (pattern.key.includes('*')) {
+							valid_key = (
+								parameter.key.startsWith(pattern.key.split('*')[0])
+								&& parameter.key.endsWith(pattern.key.split('*')[1])
+							);
+						} else {
+							valid_key = parameter.key === pattern.key;
+						}
+
+						if (pattern.val.startsWith('*')) {
+							valid_val = parameter.val.endsWith(pattern.val.substr(1));
+						} else if (pattern.val.endsWith('*')) {
+							valid_val = parameter.val.startsWith(pattern.val.substr(0, pattern.val.length - 1));
+						} else if (pattern.val.includes('*')) {
+							valid_val = (
+								parameter.val.startsWith(pattern.val.split('*')[0])
+								&& parameter.val.endsWith(pattern.val.split('*')[1])
+							);
+						} else {
+							valid_val = parameter.val === pattern.val;
+						}
+
+						if (valid_key === true && valid_val === true) {
+							break;
+						}
+
+					}
+
+					if (valid_key === true && valid_val === true) {
+						parameters.push(parameter);
+					}
+
+				});
+
+
+				let query = '';
+
+				parameters.forEach((parameter, p) => {
+
+					if (p > 0) {
+						query += '&';
+					}
+
+					query += parameter.key + '=' + parameter.val;
+
+				});
+
+
+				return {
+
+					domain:    url.domain,
+					hash:      url.hash,
+					host:      url.host,
+					mime:      url.mime,
+					path:      url.path,
+					port:      url.port,
+					protocol:  url.protocol,
+					query:     query,
+					subdomain: url.subdomain,
+
+					// Browser API
+					link:      URL.render({
+						domain:    url.domain,
+						host:      url.host,
+						path:      url.path,
+						port:      url.port,
+						protocol:  url.protocol,
+						query:     query,
+						subdomain: url.subdomain
+					}),
+
+					// DNS API
+					hosts:     url.hosts,
+
+					// Service API
+					headers:   url.headers,
+					payload:   url.payload
+
+				};
+
+			}
+
+			return url;
+
+		}
+
+
+		return null;
 
 	},
 

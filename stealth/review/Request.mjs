@@ -9,8 +9,12 @@ import { connect, disconnect                      } from './Server.mjs';
 const mock_events = (request) => {
 
 	let events = {
-		start:    false,
+
+		error:    false,
+		redirect: false,
 		stop:     false,
+
+		start:    false,
 		block:    false,
 		mode:     false,
 		policy:   false,
@@ -19,14 +23,13 @@ const mock_events = (request) => {
 		connect:  false,
 		download: false,
 		optimize: false,
-		response: false,
-		redirect: false,
-		error:    false
+		response: false
+
 	};
 
 	request.once('error',    () => { events.error    = true; });
-	request.once('stop',     () => { events.stop     = true; });
 	request.once('redirect', () => { events.redirect = true; });
+	request.once('stop',     () => { events.stop     = true; });
 
 	request.once('start',    () => { events.start    = true; });
 	request.once('block',    () => { events.block    = true; });
@@ -164,8 +167,8 @@ describe('Request.prototype.toJSON()', function(assert) {
 		timeline: {
 
 			error:    null,
-			stop:     null,
 			redirect: null,
+			stop:     null,
 
 			start:    null,
 			block:    null,
@@ -253,8 +256,8 @@ describe('Request.prototype.start()', function(assert) {
 			assert(events, {
 
 				error:    false,
-				stop:     false,
 				redirect: false,
+				stop:     false,
 
 				start:    true,
 				block:    true,
@@ -269,6 +272,10 @@ describe('Request.prototype.start()', function(assert) {
 
 			});
 
+			assert(request.timeline.error,                         null);
+			assert(request.timeline.redirect,                      null);
+			assert(request.timeline.stop,                          null);
+
 			assert(DATETIME.isDATETIME(request.timeline.start),    true);
 			assert(DATETIME.isDATETIME(request.timeline.block),    true);
 			assert(DATETIME.isDATETIME(request.timeline.mode),     true);
@@ -279,8 +286,6 @@ describe('Request.prototype.start()', function(assert) {
 			assert(DATETIME.isDATETIME(request.timeline.download), true);
 			assert(DATETIME.isDATETIME(request.timeline.optimize), true);
 			assert(DATETIME.isDATETIME(request.timeline.response), true);
-			assert(request.timeline.redirect,                      null);
-			assert(request.timeline.error,                         null);
 
 		}, 0);
 
@@ -303,8 +308,8 @@ describe('Request.prototype.start()/cache', function(assert) {
 		assert(events, {
 
 			error:    false,
-			stop:     false,
 			redirect: false,
+			stop:     false,
 
 			start:    true,
 			block:    true,
@@ -319,6 +324,10 @@ describe('Request.prototype.start()/cache', function(assert) {
 
 		});
 
+		assert(request.timeline.error,                         null);
+		assert(request.timeline.redirect,                      null);
+		assert(request.timeline.stop,                          null);
+
 		assert(DATETIME.isDATETIME(request.timeline.start),    true);
 		assert(DATETIME.isDATETIME(request.timeline.block),    true);
 		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
@@ -329,9 +338,6 @@ describe('Request.prototype.start()/cache', function(assert) {
 		assert(request.timeline.download,                      null);
 		assert(DATETIME.isDATETIME(request.timeline.optimize), true);
 		assert(DATETIME.isDATETIME(request.timeline.response), true);
-		assert(request.timeline.error,                         null);
-		assert(request.timeline.stop,                          null);
-		assert(request.timeline.redirect,                      null);
 
 	}, 500);
 
@@ -370,12 +376,51 @@ describe('Request.prototype.start()/policy', function(assert) {
 		mode: EXAMPLE.toMode('https://example.com/policy?foo=bar&bar123=456&track=123'),
 		url:  EXAMPLE.toURL('https://example.com/policy?foo=bar&bar123=456&track=123'),
 	}, this.server);
+	let events  = mock_events(request);
+
+	setTimeout(() => {
+
+		assert(events, {
+
+			error:    false,
+			redirect: true,
+			stop:     false,
+
+			start:    true,
+			block:    true,
+			mode:     true,
+			policy:   true,
+			cache:    false,
+			stash:    false,
+			connect:  false,
+			download: false,
+			optimize: false,
+			response: false
+
+		});
+
+		assert(request.timeline.error,                         null);
+		assert(DATETIME.isDATETIME(request.timeline.redirect), true);
+		assert(request.timeline.stop,                          null);
+
+		assert(DATETIME.isDATETIME(request.timeline.start),    true);
+		assert(DATETIME.isDATETIME(request.timeline.block),    true);
+		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
+		assert(DATETIME.isDATETIME(request.timeline.policy),   true);
+		assert(request.timeline.cache,                         null);
+		assert(request.timeline.stash,                         null);
+		assert(request.timeline.connect,                       null);
+		assert(request.timeline.download,                      null);
+		assert(request.timeline.optimize,                      null);
+		assert(request.timeline.response,                      null);
+
+	}, 500);
 
 	request.once('redirect', (response) => {
 
 		assert(response, {
 			headers: {
-				location: 'https://example.com/policy?foo=bar&bar123=456'
+				location: 'https://example.com/policy?bar123=456&foo=bar'
 			},
 			payload: null
 		});
@@ -476,8 +521,8 @@ describe('Request.prototype.stop()', function(assert) {
 		assert(events, {
 
 			error:    false,
-			stop:     true,
 			redirect: false,
+			stop:     true,
 
 			start:    true,
 			block:    true,
@@ -492,6 +537,10 @@ describe('Request.prototype.stop()', function(assert) {
 
 		});
 
+		assert(request.timeline.error,                         null);
+		assert(request.timeline.redirect,                      null);
+		assert(DATETIME.isDATETIME(request.timeline.stop),     true);
+
 		assert(DATETIME.isDATETIME(request.timeline.start),    true);
 		assert(DATETIME.isDATETIME(request.timeline.block),    true);
 		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
@@ -502,9 +551,6 @@ describe('Request.prototype.stop()', function(assert) {
 		assert(DATETIME.isDATETIME(request.timeline.download), true);
 		assert(request.timeline.optimize,                      null);
 		assert(request.timeline.response,                      null);
-		assert(request.timeline.error,                         null);
-		assert(DATETIME.isDATETIME(request.timeline.stop),     true);
-		assert(request.timeline.redirect,                      null);
 
 	}, 500);
 

@@ -107,6 +107,60 @@ const build_file = (protocol, path, query, hash) => {
 
 
 
+describe('URL.filter()', function(assert) {
+
+	let url1    = URL.parse('http://example.com/tracker?foo=bar&bar=qux&qux=123');
+	let policy1 = {
+		domain: 'example.com',
+		policies: [{
+			path: '/tracker',
+			query: 'foo&bar'
+		}]
+	};
+
+	let url2    = URL.parse('http://example.com/tracker?foo=bar&bar=qux&qux=123');
+	let url3    = URL.parse('https://example.com/tracker?fee=123EUR&bar=qux&qux=123');
+	let policy2 = {
+		domain: 'example.com',
+		policies: [{
+			path: '/track*',
+			query: 'f*&qux'
+		}]
+	};
+
+	let url4    = URL.parse('http://example.com/tracker?foo=bar&bar=qux&qux=123');
+	let url5    = URL.parse('https://example.com/tracker?loo=asd&bar=qux&qux=123');
+	let policy3 = {
+		domain: 'example.com',
+		policies: [{
+			path: '*cker',
+			query: '*oo&bar=qux'
+		}]
+	};
+
+	let url6    = URL.parse('http://example.com/tracker?foo=bar&bar=qux&qux=123');
+	let url7    = URL.parse('https://example.com/tracker?bor=asd&bar=qux&qux=321');
+	let policy4 = {
+		domain: 'example.com',
+		policies: [{
+			path: '/t*er',
+			query: 'b*r&qux=*23'
+		}]
+	};
+
+	assert(URL.filter(url1, policy1), URL.parse('http://example.com/tracker?bar=qux&foo=bar'));
+
+	assert(URL.filter(url2, policy2), URL.parse('http://example.com/tracker?foo=bar&qux=123'));
+	assert(URL.filter(url3, policy2), URL.parse('https://example.com/tracker?fee=123EUR&qux=123'));
+
+	assert(URL.filter(url4, policy3), URL.parse('http://example.com/tracker?bar=qux&foo=bar'));
+	assert(URL.filter(url5, policy3), URL.parse('https://example.com/tracker?bar=qux&loo=asd'));
+
+	assert(URL.filter(url6, policy4), URL.parse('http://example.com/tracker?bar=qux&qux=123'));
+	assert(URL.filter(url7, policy4), URL.parse('https://example.com/tracker?bar=qux&bor=asd'));
+
+});
+
 describe('URL.isDomain()', function(assert) {
 
 	assert(URL.isDomain('example.com',     'example.com'),     true);
