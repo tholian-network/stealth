@@ -50,13 +50,11 @@ export const connect = before('Stealth.prototype.connect()', function(assert) {
 
 	this.server  = null;
 	this.stealth = new Stealth({
-		profile: SANDBOX.mktemp('stealth/Stealth', 8),
-		root:    SANDBOX.root
+		profile: SANDBOX.mktemp('stealth/Stealth', 8)
 	});
 
 	assert(this.stealth._settings.debug, false);
 	assert(this.stealth._settings.host,  null);
-	assert(this.stealth._settings.root,  SANDBOX.root);
 
 	this.stealth.once('connect', () => {
 
@@ -80,7 +78,6 @@ describe('new Stealth()', function(assert) {
 	assert(stealth._settings.debug,   false);
 	assert(stealth._settings.host,    '127.0.0.3');
 	assert(stealth._settings.profile, null);
-	assert(stealth._settings.root,    SANDBOX.root);
 
 	assert(Stealth.isStealth(stealth), true);
 	assert(isStealth(stealth),         true);

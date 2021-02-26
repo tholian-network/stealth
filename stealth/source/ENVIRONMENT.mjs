@@ -1,8 +1,8 @@
 
-import child_process from 'child_process';
-import os            from 'os';
-import path          from 'path';
-import process       from 'process';
+import os      from 'os';
+import path    from 'path';
+import process from 'process';
+import url     from 'url';
 
 import { IP } from '../source/parser/IP.mjs';
 
@@ -135,54 +135,7 @@ const profile = (() => {
 
 const root = (() => {
 
-	let folder   = '/tmp/stealth';
-	let platform = os.platform();
-
-	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd' || platform === 'darwin') {
-
-		let pwd = process.env.PWD || null;
-		if (pwd !== null) {
-			folder = path.resolve(pwd);
-		}
-
-	} else if (platform === 'android') {
-
-		let pwd = process.env.PWD || null;
-		if (pwd !== null) {
-			folder = path.resolve(pwd);
-		}
-
-	} else if (platform === 'win32') {
-
-		if (process.env.MSYSTEM === 'MINGW64') {
-
-			let pwd = process.env.PWD || null;
-			if (pwd.startsWith('/c/') === true) {
-				folder = path.resolve('C:\\' + pwd.substr(3).split('/').join('\\'));
-			}
-
-		} else {
-
-			let cwd = null;
-			try {
-				cwd = child_process.execSync('echo %cd%').toString('utf8').trim();
-			} catch (err) {
-				cwd = null;
-			}
-
-			if (cwd !== null) {
-				folder = cwd;
-			}
-
-		}
-
-	}
-
-	if (folder.endsWith('/') === true) {
-		folder = folder.substr(0, folder.length - 1);
-	}
-
-	return folder;
+	return path.resolve(url.fileURLToPath(import.meta.url), '../../../');
 
 })();
 
@@ -210,6 +163,14 @@ const temp = (() => {
 
 })();
 
+const vendor = (() => {
+
+	let root = path.resolve(url.fileURLToPath(import.meta.url), '../../../');
+
+	return root + '/profile';
+
+})();
+
 
 
 const ENVIRONMENT = {
@@ -221,7 +182,8 @@ const ENVIRONMENT = {
 	ips:       ips,
 	profile:   profile,
 	root:      root,
-	temp:      temp
+	temp:      temp,
+	vendor:    vendor
 
 };
 

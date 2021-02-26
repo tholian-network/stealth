@@ -15,8 +15,7 @@ before('Peer #1 - (Client/Stealth).prototype.connect()', function(assert) {
 
 	let stealth = new Stealth({
 		host:    '127.0.0.1',
-		profile: SANDBOX.mktemp('stealth/peer/Cache'),
-		root:    SANDBOX.root
+		profile: SANDBOX.mktemp('stealth/peer/Cache')
 	});
 
 	client.once('connect', () => {
@@ -51,8 +50,7 @@ before('Peer #2 - (Client/Stealth).prototype.connect()', function(assert) {
 
 	let stealth = new Stealth({
 		host:    '127.0.0.2',
-		profile: SANDBOX.mktemp('stealth/peer/Cache'),
-		root:    SANDBOX.root
+		profile: SANDBOX.mktemp('stealth/peer/Cache')
 	});
 
 	client.once('connect', () => {

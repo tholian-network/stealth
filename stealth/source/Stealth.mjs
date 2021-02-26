@@ -74,8 +74,7 @@ const Stealth = function(settings) {
 	this._settings = Object.freeze(Object.assign({
 		debug:   false,
 		host:    null,
-		profile: null,
-		root:    ENVIRONMENT.root
+		profile: null
 	}, settings));
 
 
@@ -93,7 +92,7 @@ const Stealth = function(settings) {
 	this.settings = new Settings({
 		debug:   this._settings.debug,
 		profile: this._settings.profile,
-		vendor:  this._settings.root + '/profile'
+		vendor:  ENVIRONMENT.vendor
 	});
 
 	this.__state = {
