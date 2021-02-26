@@ -16,7 +16,9 @@ jobs:
           node-version: 14
       - run: npm install
       - run: node ./make.mjs build
-      - run: node ./covert/covert.mjs scan "base/*" --debug=true --report=.github/workflows/covert-scan-base.report
+      - run: |
+          cd ./base
+          node ../covert/covert.mjs scan "base/*" --debug=true --report=../.github/workflows/covert-scan-base.report
       - uses: actions/upload-artifact@v2
         with:
           name: Report for Base
@@ -34,7 +36,9 @@ jobs:
           node-version: 14
       - run: npm install
       - run: node ./make.mjs build
-      - run: node ./covert/covert.mjs scan "covert/*" --debug=true --report=.github/workflows/covert-scan-covert.report
+      - run: |
+          cd ./covert
+          node ../covert/covert.mjs scan "covert/*" --debug=true --report=../.github/workflows/covert-scan-covert.report
       - uses: actions/upload-artifact@v2
         with:
           name: Report for Covert
@@ -52,7 +56,9 @@ jobs:
           node-version: 14
       - run: npm install
       - run: node ./make.mjs build
-      - run: node ./covert/covert.mjs scan "stealth/*" --debug=true --report=.github/workflows/covert-scan-stealth.report
+      - run: |
+          cd ./stealth
+          node ../covert/covert.mjs scan "stealth/*" --debug=true --report=../.github/workflows/covert-scan-stealth.report
       - uses: actions/upload-artifact@v2
         with:
           name: Report for Stealth

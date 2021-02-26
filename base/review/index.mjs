@@ -16,46 +16,42 @@ import _String   from './String.mjs';
 
 
 
-export default {
+export const REVIEWS = [
 
-	reviews: [
+	MODULE,
 
-		MODULE,
+	_console,
 
-		_console,
+	_Array,
+	_Boolean,
+	_Buffer,
+	_Date,
+	Emitter,
+	_Function,
+	_Map,
+	_Number,
+	_Object,
+	_RegExp,
+	_Set,
+	_String
 
-		_Array,
-		_Boolean,
-		_Buffer,
-		_Date,
-		Emitter,
-		_Function,
-		_Map,
-		_Number,
-		_Object,
-		_RegExp,
-		_Set,
-		_String
+];
 
-	],
+export const SOURCES = {
 
-	sources: {
+	// Map sources to review.id
+	'browser/Buffer':  'Buffer',
+	'browser/console': 'console',
 
-		// Map sources to review.id
-		'browser/Buffer':  'Buffer',
-		'browser/console': 'console',
+	'node/Buffer':     'Buffer',
+	'node/console':    'console',
 
-		'node/Buffer':     'Buffer',
-		'node/console':    'console',
+	// Map review.id to sources
+	'Buffer':          'browser/Buffer',
+	'console':         'node/console',
 
-		// Map review.id to sources
-		'Buffer':          'browser/Buffer',
-		'console':         'node/console',
-
-		// Ignore
-		'MODULE':          null
-
-	}
+	// Ignore
+	'MODULE':          null
 
 };
 

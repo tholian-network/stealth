@@ -49,83 +49,79 @@ import server_Stash       from './server/Stash.mjs';
 
 
 
-export default {
+export const REVIEWS = [
 
-	reviews: [
+	MODULE,
 
-		MODULE,
+	// Parsers
+	parser_CSS,
+	parser_DATETIME,
+	parser_HOSTS,
+	parser_IP,
+	parser_UA,
+	parser_URL,
 
-		// Parsers
-		parser_CSS,
-		parser_DATETIME,
-		parser_HOSTS,
-		parser_IP,
-		parser_UA,
-		parser_URL,
+	// Optimizers
+	// optimizer_CSS,
 
-		// Optimizers
-		// optimizer_CSS,
+	// Network
+	connection_DNS,
+	connection_HTTP,
+	connection_HTTPS,
+	connection_SOCKS,
+	connection_WS,
+	connection_WSS,
 
-		// Network
-		connection_DNS,
-		connection_HTTP,
-		connection_HTTPS,
-		connection_SOCKS,
-		connection_WS,
-		connection_WSS,
+	// Requests
+	Request,
+	request_Unicode,
 
-		// Requests
-		Request,
-		request_Unicode,
+	// Stealth
+	Session,
+	Settings,
+	Stealth,
+	Client,
+	Server,
+	Tab,
+	Browser,
 
-		// Stealth
-		Session,
-		Settings,
-		Stealth,
-		Client,
-		Server,
-		Tab,
-		Browser,
+	// Network Services
+	server_ROUTER,
+	server_Beacon,
+	server_Blocker,
+	server_Cache,
+	server_Host,
+	server_Mode,
+	server_Peer,
+	server_Policy,
+	server_Redirect,
+	server_Session,
+	server_Settings,
+	server_Stash,
 
-		// Network Services
-		server_ROUTER,
-		server_Beacon,
-		server_Blocker,
-		server_Cache,
-		server_Host,
-		server_Mode,
-		server_Peer,
-		server_Policy,
-		server_Redirect,
-		server_Session,
-		server_Settings,
-		server_Stash,
+	client_Beacon,
+	client_Blocker,
+	client_Cache,
+	client_Host,
+	client_Mode,
+	client_Peer,
+	client_Policy,
+	client_Redirect,
+	client_Session,
+	client_Settings,
+	client_Stash,
 
-		client_Beacon,
-		client_Blocker,
-		client_Cache,
-		client_Host,
-		client_Mode,
-		client_Peer,
-		client_Policy,
-		client_Redirect,
-		client_Session,
-		client_Settings,
-		client_Stash,
+	// Peer-to-Peer
+	peer_Cache
 
-		// Peer-to-Peer
-		peer_Cache
+];
 
-	],
+export const SOURCES = {
 
-	sources: {
-
-		// Ignore
-		'ENVIRONMENT':          null,
-		'parser/CSS/NORMAL':    null,
-		'parser/CSS/SHORTHAND': null
-
-	}
+	// Ignore
+	'ENVIRONMENT':          null,
+	'parser/CSS/NORMAL':    null,
+	'parser/CSS/SHORTHAND': null
 
 };
 

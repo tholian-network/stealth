@@ -10,30 +10,26 @@ import Timeline   from './Timeline.mjs';
 
 
 
-export default {
+export const REVIEWS = [
 
-	reviews: [
+	MODULE,
 
-		MODULE,
+	// Review and Benchmark
+	Review,
+	Results,
+	Timeline,
 
-		// Review and Benchmark
-		Review,
-		Results,
-		Timeline,
+	// Covert
+	// Covert,
+	// Filesystem,
+	// Network, // Cannot be tested
+	// Renderer
 
-		// Covert
-		// Covert,
-		// Filesystem,
-		// Network, // Cannot be tested
-		// Renderer
+];
 
-	],
+export const SOURCES = {
 
-	sources: {
-
-		'ENVIRONMENT': null
-
-	}
+	'ENVIRONMENT': null
 
 };
 

@@ -6,22 +6,37 @@ import { Covert      } from './source/Covert.mjs';
 import { Linter      } from './source/Linter.mjs';
 import { ENVIRONMENT } from './source/ENVIRONMENT.mjs';
 
-import BASE    from '../base/review/index.mjs';
-import COVERT  from '../covert/review/index.mjs';
-import STEALTH from '../stealth/review/index.mjs';
 
 
+const REVIEWS = [];
+const SOURCES = {};
 
-const REVIEWS = [
-	...BASE.reviews,
-	...COVERT.reviews,
-	...STEALTH.reviews
-];
+const init = (callback) => {
 
-const SOURCES = {
-	base:    BASE.sources,
-	covert:  COVERT.sources,
-	stealth: STEALTH.sources
+	import(process.cwd() + '/review/index.mjs').then((mod) => {
+
+		let reviews = mod['REVIEWS'] || [];
+		if (reviews.length > 0) {
+			reviews.forEach((review) => {
+				REVIEWS.push(review);
+			});
+		}
+
+		let sources = mod['SOURCES'] || {};
+		if (Object.keys(sources).length > 0) {
+
+			Object.keys(sources).forEach((id) => {
+				SOURCES[id] = sources[id];
+			});
+
+		}
+
+		callback(true);
+
+	}).catch(() => {
+		callback(false);
+	});
+
 };
 
 const reset = (review) => {
@@ -114,147 +129,164 @@ const show_help = () => {
 
 
 
-if (ENVIRONMENT.action === 'check') {
+init((result) => {
 
-	let linter = new Linter({
-		action:   ENVIRONMENT.action       || null,
-		debug:    ENVIRONMENT.flags.debug  || false,
-		patterns: ENVIRONMENT.patterns     || [],
-		report:   ENVIRONMENT.flags.report || null,
-		reviews:  REVIEWS,
-		sources:  SOURCES
-	});
+	if (result === false || REVIEWS.length === 0) {
 
-	linter.on('disconnect', (reviews) => {
+		console.error('');
+		console.error('covert: Could not read "./review/index.mjs".');
+		console.error('covert: Could not import "SOURCES" and "REVIEWS" constant.');
+		console.error('');
 
-		if (ENVIRONMENT.flags.report !== null) {
+		console.log('');
+		console.info('covert: Change the current working directory to the project\'s root folder.');
+		console.log('');
 
-			linter.destroy();
-			process.exit(0);
+		process.exit(1);
 
-		} else {
+	} else if (ENVIRONMENT.action === 'check') {
 
-			if (reviews.length > 0) {
-				process.exit(linter.destroy() || 0);
-			} else {
-				process.exit(1);
-			}
-
-		}
-
-	});
-
-	linter.connect();
-
-} else if (ENVIRONMENT.action === 'watch') {
-
-	let covert = new Covert({
-		action:   ENVIRONMENT.action         || null,
-		debug:    ENVIRONMENT.flags.debug    || false,
-		inspect:  ENVIRONMENT.flags.inspect  || null,
-		internet: ENVIRONMENT.flags.internet || null,
-		network:  ENVIRONMENT.flags.network  || null,
-		patterns: ENVIRONMENT.patterns       || [],
-		report:   ENVIRONMENT.flags.report   || null,
-		reviews:  REVIEWS,
-		sources:  SOURCES,
-		timeout:  ENVIRONMENT.flags.timeout  || null
-	});
-
-	process.on('SIGINT', () => {
-		setTimeout(() => covert.destroy(), 1000);
-	});
-
-	process.on('SIGQUIT', () => {
-		setTimeout(() => covert.destroy(), 1000);
-	});
-
-	process.on('SIGABRT', () => {
-		setTimeout(() => covert.destroy(), 1000);
-	});
-
-	process.on('SIGTERM', () => {
-		setTimeout(() => covert.destroy(), 1000);
-	});
-
-	covert.on('disconnect', (reviews) => {
-
-		if (reviews.length > 0) {
-
-			let stub = setInterval(() => {
-				// Do nothing
-			}, 500);
-
-			covert.once('connect', () => {
-
-				if (stub !== null) {
-					clearInterval(stub);
-					stub = null;
-				}
-
-			});
-
-		} else {
-
-			process.exit(1);
-
-		}
-
-	});
-
-	covert.on('change', (reviews, review) => {
-
-		covert.once('disconnect', () => {
-			reset(review);
-			covert.connect();
+		let linter = new Linter({
+			action:   ENVIRONMENT.action       || null,
+			debug:    ENVIRONMENT.flags.debug  || false,
+			patterns: ENVIRONMENT.patterns     || [],
+			report:   ENVIRONMENT.flags.report || null,
+			reviews:  REVIEWS,
+			sources:  SOURCES
 		});
 
-		covert.disconnect();
+		linter.on('disconnect', (reviews) => {
 
-	});
+			if (ENVIRONMENT.flags.report !== null) {
 
-	covert.connect();
+				linter.destroy();
+				process.exit(0);
 
-} else if (ENVIRONMENT.action === 'scan' || ENVIRONMENT.action === 'time') {
-
-	let covert = new Covert({
-		action:   ENVIRONMENT.action         || null,
-		debug:    ENVIRONMENT.flags.debug    || false,
-		inspect:  ENVIRONMENT.flags.inspect  || null,
-		internet: ENVIRONMENT.flags.internet || null,
-		network:  ENVIRONMENT.flags.network  || null,
-		patterns: ENVIRONMENT.patterns       || [],
-		report:   ENVIRONMENT.flags.report   || null,
-		reviews:  REVIEWS,
-		sources:  SOURCES,
-		timeout:  ENVIRONMENT.flags.timeout  || null
-	});
-
-	covert.on('disconnect', (reviews) => {
-
-		if (ENVIRONMENT.flags.report !== null) {
-
-			covert.destroy();
-			process.exit(0);
-
-		} else {
-
-			if (reviews.length > 0) {
-				process.exit(covert.destroy() || 0);
 			} else {
-				process.exit(1);
+
+				if (reviews.length > 0) {
+					process.exit(linter.destroy() || 0);
+				} else {
+					process.exit(1);
+				}
+
 			}
 
-		}
+		});
 
-	});
+		linter.connect();
 
-	covert.connect();
+	} else if (ENVIRONMENT.action === 'watch') {
 
-} else {
+		let covert = new Covert({
+			action:   ENVIRONMENT.action         || null,
+			debug:    ENVIRONMENT.flags.debug    || false,
+			inspect:  ENVIRONMENT.flags.inspect  || null,
+			internet: ENVIRONMENT.flags.internet || null,
+			network:  ENVIRONMENT.flags.network  || null,
+			patterns: ENVIRONMENT.patterns       || [],
+			report:   ENVIRONMENT.flags.report   || null,
+			reviews:  REVIEWS,
+			sources:  SOURCES,
+			timeout:  ENVIRONMENT.flags.timeout  || null
+		});
 
-	show_help();
-	process.exit(1);
+		process.on('SIGINT', () => {
+			setTimeout(() => covert.destroy(), 1000);
+		});
 
-}
+		process.on('SIGQUIT', () => {
+			setTimeout(() => covert.destroy(), 1000);
+		});
+
+		process.on('SIGABRT', () => {
+			setTimeout(() => covert.destroy(), 1000);
+		});
+
+		process.on('SIGTERM', () => {
+			setTimeout(() => covert.destroy(), 1000);
+		});
+
+		covert.on('disconnect', (reviews) => {
+
+			if (reviews.length > 0) {
+
+				let stub = setInterval(() => {
+					// Do nothing
+				}, 500);
+
+				covert.once('connect', () => {
+
+					if (stub !== null) {
+						clearInterval(stub);
+						stub = null;
+					}
+
+				});
+
+			} else {
+
+				process.exit(1);
+
+			}
+
+		});
+
+		covert.on('change', (reviews, review) => {
+
+			covert.once('disconnect', () => {
+				reset(review);
+				covert.connect();
+			});
+
+			covert.disconnect();
+
+		});
+
+		covert.connect();
+
+	} else if (ENVIRONMENT.action === 'scan' || ENVIRONMENT.action === 'time') {
+
+		let covert = new Covert({
+			action:   ENVIRONMENT.action         || null,
+			debug:    ENVIRONMENT.flags.debug    || false,
+			inspect:  ENVIRONMENT.flags.inspect  || null,
+			internet: ENVIRONMENT.flags.internet || null,
+			network:  ENVIRONMENT.flags.network  || null,
+			patterns: ENVIRONMENT.patterns       || [],
+			report:   ENVIRONMENT.flags.report   || null,
+			reviews:  REVIEWS,
+			sources:  SOURCES,
+			timeout:  ENVIRONMENT.flags.timeout  || null
+		});
+
+		covert.on('disconnect', (reviews) => {
+
+			if (ENVIRONMENT.flags.report !== null) {
+
+				covert.destroy();
+				process.exit(0);
+
+			} else {
+
+				if (reviews.length > 0) {
+					process.exit(covert.destroy() || 0);
+				} else {
+					process.exit(1);
+				}
+
+			}
+
+		});
+
+		covert.connect();
+
+	} else {
+
+		show_help();
+		process.exit(1);
+
+	}
+
+});
 
