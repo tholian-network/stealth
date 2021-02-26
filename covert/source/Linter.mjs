@@ -179,6 +179,72 @@ const prettify = (object) => {
 
 };
 
+const update_index = async function() {
+
+	let namespace = this._settings.project.split('/').pop();
+	let review    = new Review();
+
+	review.id    = namespace + '/review/index.mjs';
+	review.state = 'none';
+
+
+	let module = await import(this._settings.project + '/review/index.mjs').then((mod) => mod).catch(() => {});
+	if (isModule(module) === true) {
+
+		let reviews = module['REVIEWS'] || [];
+		if (reviews.length > 0) {
+
+			reviews.forEach((data, r) => {
+
+				if (isReview(data) === false) {
+					review.errors.push('REVIEWS[' + r + '] must be a Review.');
+				}
+
+			});
+
+		} else {
+			review.errors.push('Exported constant REVIEWS must be an Array of Reviews.');
+		}
+
+		let sources = module['SOURCES'] || {};
+		if (Object.keys(sources).length > 0) {
+
+			Object.keys(sources).forEach((key) => {
+
+				let val = sources[key];
+
+				if (isString(val) === true) {
+
+					if (key.startsWith(namespace + '/') === false) {
+						review.errors.push('SOURCES["' + key + '"] must start with the project namespace.');
+					}
+
+					if (val.startsWith(namespace + '/') === false) {
+						review.errors.push('SOURCES["' + key + '"]\'s value must start with the project namespace.');
+					}
+
+				} else if (val !== null) {
+					review.errors.push('SOURCES["' + key + '"] must be a String or Null.');
+				}
+
+			});
+
+		} else {
+			review.errors.push('Exported constant SOURCES must be an Object of Identifier Mappings.');
+			review.errors.push('Example: { "' + namespace + '/$platform_specific_path/Module": "' + namespace + '/Module" }');
+		}
+
+	} else {
+		review.errors.push('Covert\'s index.mjs is an invalid ECMAScript Module.');
+	}
+
+
+	if (review.errors.length > 0) {
+		this.reviews.splice(0, 0, review);
+	}
+
+};
+
 const update_review = async function(review) {
 
 	if (this.modules[review.id] === undefined) {
@@ -424,6 +490,10 @@ const update = function() {
 	this.reviews.forEach((review) => {
 		update_review.call(this, review);
 	});
+
+	setTimeout(() => {
+		update_index.call(this);
+	}, 500);
 
 	setTimeout(() => {
 		this.disconnect();

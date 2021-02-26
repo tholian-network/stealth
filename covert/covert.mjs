@@ -121,8 +121,9 @@ init((result) => {
 	if (result === false || REVIEWS.length === 0) {
 
 		console.error('');
-		console.error('covert: Could not read "./review/index.mjs".');
-		console.error('covert: Could not import "SOURCES" and "REVIEWS" constant.');
+		console.error('covert: Covert\'s index.mjs is an invalid ECMAScript Module.');
+		console.error('covert: Exported constant REVIEWS must be an Array of Reviews.');
+		console.error('covert: Exported constant SOURCES must be an Object of Identifier Mappings.');
 		console.error('');
 
 		console.log('');
