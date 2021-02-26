@@ -119,9 +119,7 @@ export const REVIEWS = [
 export const SOURCES = {
 
 	// Ignore
-	'ENVIRONMENT':          null,
-	'parser/CSS/NORMAL':    null,
-	'parser/CSS/SHORTHAND': null
+	'stealth/ENVIRONMENT': null
 
 };
 

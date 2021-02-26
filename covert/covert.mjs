@@ -13,7 +13,7 @@ const SOURCES = {};
 
 const init = (callback) => {
 
-	import(process.cwd() + '/review/index.mjs').then((mod) => {
+	import(ENVIRONMENT.project + '/review/index.mjs').then((mod) => {
 
 		let reviews = mod['REVIEWS'] || [];
 		if (reviews.length > 0) {
@@ -39,17 +39,6 @@ const init = (callback) => {
 
 };
 
-const reset = (review) => {
-
-	review.state = null;
-	review.flatten().forEach((test) => {
-		test.results.reset();
-		test.timeline.reset();
-		test.state = null;
-	});
-
-};
-
 const show_help = () => {
 
 	console.info('');
@@ -71,7 +60,6 @@ const show_help = () => {
 	console.log('    check      | Checks reviews and lints and their tests.         ');
 	console.log('    scan       | Scans reviews and executes their tests.           ');
 	console.log('    time       | Scans reviews and benchmarks their test timelines.');
-	console.log('    watch      | Watches filesystem and scans reviews on changes.  ');
 	console.log('');
 	console.log('Available Flags:');
 	console.log('');
@@ -92,7 +80,6 @@ const show_help = () => {
 	console.log('    covert check stealth/client/* --debug=true;');
 	console.log('    covert scan stealth/connection/*;');
 	console.log('    covert time stealth/connection/DNS --network=2G;');
-	console.log('    covert watch stealth/connection/DNS stealth/connection/HTTPS;');
 	console.log('');
 	console.log('    covert scan stealth/Session --debug=true --inspect="Session.prototype.get()";');
 	console.log('    covert scan --internet=false;');
@@ -139,7 +126,7 @@ init((result) => {
 		console.error('');
 
 		console.log('');
-		console.info('covert: Change the current working directory to the project\'s root folder.');
+		console.info('covert: Change the current working directory to the project\'s folder.');
 		console.log('');
 
 		process.exit(1);
@@ -150,6 +137,7 @@ init((result) => {
 			action:   ENVIRONMENT.action       || null,
 			debug:    ENVIRONMENT.flags.debug  || false,
 			patterns: ENVIRONMENT.patterns     || [],
+			project:  ENVIRONMENT.project      || null,
 			report:   ENVIRONMENT.flags.report || null,
 			reviews:  REVIEWS,
 			sources:  SOURCES
@@ -176,75 +164,6 @@ init((result) => {
 
 		linter.connect();
 
-	} else if (ENVIRONMENT.action === 'watch') {
-
-		let covert = new Covert({
-			action:   ENVIRONMENT.action         || null,
-			debug:    ENVIRONMENT.flags.debug    || false,
-			inspect:  ENVIRONMENT.flags.inspect  || null,
-			internet: ENVIRONMENT.flags.internet || null,
-			network:  ENVIRONMENT.flags.network  || null,
-			patterns: ENVIRONMENT.patterns       || [],
-			report:   ENVIRONMENT.flags.report   || null,
-			reviews:  REVIEWS,
-			sources:  SOURCES,
-			timeout:  ENVIRONMENT.flags.timeout  || null
-		});
-
-		process.on('SIGINT', () => {
-			setTimeout(() => covert.destroy(), 1000);
-		});
-
-		process.on('SIGQUIT', () => {
-			setTimeout(() => covert.destroy(), 1000);
-		});
-
-		process.on('SIGABRT', () => {
-			setTimeout(() => covert.destroy(), 1000);
-		});
-
-		process.on('SIGTERM', () => {
-			setTimeout(() => covert.destroy(), 1000);
-		});
-
-		covert.on('disconnect', (reviews) => {
-
-			if (reviews.length > 0) {
-
-				let stub = setInterval(() => {
-					// Do nothing
-				}, 500);
-
-				covert.once('connect', () => {
-
-					if (stub !== null) {
-						clearInterval(stub);
-						stub = null;
-					}
-
-				});
-
-			} else {
-
-				process.exit(1);
-
-			}
-
-		});
-
-		covert.on('change', (reviews, review) => {
-
-			covert.once('disconnect', () => {
-				reset(review);
-				covert.connect();
-			});
-
-			covert.disconnect();
-
-		});
-
-		covert.connect();
-
 	} else if (ENVIRONMENT.action === 'scan' || ENVIRONMENT.action === 'time') {
 
 		let covert = new Covert({
@@ -254,6 +173,7 @@ init((result) => {
 			internet: ENVIRONMENT.flags.internet || null,
 			network:  ENVIRONMENT.flags.network  || null,
 			patterns: ENVIRONMENT.patterns       || [],
+			project:  ENVIRONMENT.project        || null,
 			report:   ENVIRONMENT.flags.report   || null,
 			reviews:  REVIEWS,
 			sources:  SOURCES,

@@ -258,13 +258,6 @@ const init = function(settings) {
 					this.scan(review);
 				});
 
-			} else if (action === 'watch') {
-
-				reviews.forEach((review) => {
-					this.scan(review);
-					this.watch(review);
-				});
-
 			}
 
 		}
@@ -284,13 +277,6 @@ const init = function(settings) {
 
 				reviews.forEach((review) => {
 					this.scan(review);
-				});
-
-			} else if (action === 'watch') {
-
-				reviews.forEach((review) => {
-					this.scan(review);
-					this.watch(review);
 				});
 
 			}
@@ -623,13 +609,14 @@ const prettify_settings = (object) => {
 const Covert = function(settings) {
 
 	this._settings = Object.freeze(Object.assign({
-		action:   null, // 'scan', 'time' or 'watch'
+		action:   null, // 'scan' or 'time'
 		inspect:  null,
 		internet: true,
 		patterns: [],
+		project:  ENVIRONMENT.project,
 		report:   null,
 		reviews:  [],
-		root:     ENVIRONMENT.root,
+		sources:  {},
 		timeout:  null
 	}, settings));
 
@@ -649,8 +636,7 @@ const Covert = function(settings) {
 		connected: false,
 		review:    null,
 		test:      null,
-		timeout:   10 * 1000,
-		watch:     {}
+		timeout:   10 * 1000
 	};
 
 
@@ -683,8 +669,6 @@ const Covert = function(settings) {
 		if (this.__state.connected === false) {
 
 			this.renderer.render(reviews, 'complete');
-
-			this.filesystem.connect();
 
 			let peer_network = this.reviews.filter((review) => review.flags.network === true).length > 0;
 			if (peer_network === true) {
@@ -781,26 +765,10 @@ const Covert = function(settings) {
 
 		if (this.__state.connected === true) {
 
-			if (this._settings.action === 'watch') {
-				// Do nothing
-			} else {
+			this.network.disconnect();
 
-				this.network.disconnect();
-				this.filesystem.disconnect();
+			this.__state.connected = false;
 
-				this.__state.connected = false;
-
-			}
-
-		}
-
-	});
-
-	this.filesystem.on('change', (source) => {
-
-		let review = this.__state.watch[source] || null;
-		if (review !== null) {
-			this.emit('change', [ this.reviews, review ]);
 		}
 
 	});
@@ -955,7 +923,7 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 			console.info('Covert: All Reviews succeeded.');
 			console.info('');
 
-			if (this._settings.action === 'time' || this._settings.action === 'watch') {
+			if (this._settings.action === 'time') {
 
 				this.reviews.forEach((review) => {
 					console.log('');
@@ -1023,47 +991,6 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			return true;
-
-		}
-
-
-		return false;
-
-	},
-
-	watch: function(review) {
-
-		// Allow import * syntax
-		if (isModule(review)) {
-
-			if ('default' in review) {
-				review = review['default'] || null;
-			}
-
-		}
-
-
-		review = isReview(review) ? review : null;
-
-
-		if (review !== null) {
-
-			let name   = review.id.split('/').shift();
-			let id     = review.id.split('/').slice(1).join('/');
-			let source = this._settings.root + '/' + name + '/source/' + id + '.mjs';
-
-			if (this.filesystem.exists(source) === true) {
-
-				let result = this.filesystem.watch(source);
-				if (result === true) {
-
-					this.__state.watch[source] = review;
-
-					return true;
-
-				}
-
-			}
 
 		}
 

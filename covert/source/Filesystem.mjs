@@ -62,10 +62,6 @@ const Filesystem = function(settings) {
 	this._settings = Object.freeze(Object.assign({
 	}, settings));
 
-	this.__state = {
-		watch: []
-	};
-
 
 	Emitter.call(this);
 
@@ -75,54 +71,6 @@ const Filesystem = function(settings) {
 Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Filesystem',
-
-	connect: function() {
-
-		if (this.__state.watch.length > 0) {
-
-			this.__state.watch.forEach((file) => {
-
-				fs.watchFile(path.resolve(file.url), (curr) => {
-
-					if (curr.mtime > file.mtime) {
-
-						file.mtime = curr.mtime;
-
-
-						let buffer = this.read(file.url, 'utf8');
-						if (buffer !== file.buffer) {
-
-							if (buffer !== file.buffer) {
-
-								file.buffer = buffer;
-
-								this.emit('change', [ file.url ]);
-
-							}
-
-						}
-
-					}
-
-				});
-
-			});
-
-		}
-
-	},
-
-	disconnect: function() {
-
-		if (this.__state.watch.length > 0) {
-
-			this.__state.watch.forEach((file) => {
-				fs.unwatchFile(path.resolve(file.url));
-			});
-
-		}
-
-	},
 
 	exists: function(url, type) {
 
@@ -255,45 +203,6 @@ Filesystem.prototype = Object.assign({}, Emitter.prototype, {
 		}
 
 		return results;
-
-	},
-
-	watch: function(url) {
-
-		url = isString(url) ? url : null;
-
-
-		if (url !== null) {
-
-			let buffer = this.read(url, 'utf8');
-			if (buffer !== null) {
-
-				let stat = null;
-
-				try {
-					stat = fs.lstatSync(path.resolve(url));
-				} catch (err) {
-					stat = null;
-				}
-
-				if (stat !== null) {
-
-					this.__state.watch.push({
-						url:    url,
-						buffer: buffer,
-						mtime:  stat.mtime
-					});
-
-					return true;
-
-				}
-
-			}
-
-		}
-
-
-		return false;
 
 	},
 

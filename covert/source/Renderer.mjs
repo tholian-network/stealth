@@ -69,15 +69,14 @@ const buffer_summary = function(review) {
 
 		let action = this._settings.action || null;
 		let tests  = review.flatten().filter((test) => test.state !== 'okay');
-		let div1   = indent(tests.map((test) => test.name));
-		let div2   = indent(tests.map((test) => test.results.render()));
+		let div    = indent(tests.map((test) => test.name));
 
 		tests.forEach((test) => {
 
 			let message = '>';
 
 			message += ' ' + test.name;
-			message += ' ' + div1(test.name);
+			message += ' ' + div(test.name);
 
 			if (action === 'scan') {
 
@@ -86,15 +85,6 @@ const buffer_summary = function(review) {
 			} else if (action === 'time') {
 
 				message += test.timeline.render();
-
-			} else if (action === 'watch') {
-
-				let str1 = test.results.render();
-				let str2 = test.timeline.render();
-
-				message += str1;
-				message += div2(str1);
-				message += str2;
 
 			}
 
@@ -125,9 +115,9 @@ const buffer_summary = function(review) {
 					lines.push('(!)');
 
 					if (entry.assert !== null) {
-						lines.push('(!) > ' + test.name + div1(test.name) + ' ' + entry.assert + ' differs ...');
+						lines.push('(!) > ' + test.name + div(test.name) + ' ' + entry.assert + ' differs ...');
 					} else {
-						lines.push('(!) > ' + test.name + div1(test.name) + ' assert() #' + e + ' differs ...');
+						lines.push('(!) > ' + test.name + div(test.name) + ' assert() #' + e + ' differs ...');
 					}
 
 					let diff0 = null;
@@ -218,15 +208,14 @@ const render_complete = function(review, is_current) {
 	let action  = this._settings.action || null;
 	let tests   = review.flatten();
 	let current = tests.find((test) => test.state === null) || null;
-	let div1    = indent(tests.map((test) => test.name));
-	let div2    = indent(tests.map((test) => test.results.render()));
+	let div     = indent(tests.map((test) => test.name));
 
 	tests.forEach((test) => {
 
 		let message = '>';
 
 		message += ' ' + test.name;
-		message += ' ' + div1(test.name);
+		message += ' ' + div(test.name);
 
 		if (action === 'scan') {
 
@@ -235,15 +224,6 @@ const render_complete = function(review, is_current) {
 		} else if (action === 'time') {
 
 			message += test.timeline.render();
-
-		} else if (action === 'watch') {
-
-			let str1 = test.results.render();
-			let str2 = test.timeline.render();
-
-			message += str1;
-			message += div2(str1);
-			message += str2;
 
 		}
 
@@ -473,15 +453,6 @@ const render_partial = function(reviews, prev_state, curr_state) {
 
 					message += test.timeline.render();
 
-				} else if (action === 'watch') {
-
-					let str1 = test.results.render();
-					let str2 = test.timeline.render();
-
-					message += str1;
-					message += ' ';
-					message += str2;
-
 				}
 
 				if (test.state === null) {
@@ -540,15 +511,14 @@ const render_summary = function(review, is_current) {
 		let action  = this._settings.action || null;
 		let tests   = review.flatten().filter((test) => test.state !== 'okay');
 		let current = tests.find((test) => test.state === null) || null;
-		let div1    = indent(tests.map((test) => test.name));
-		let div2    = indent(tests.map((test) => test.results.render()));
+		let div     = indent(tests.map((test) => test.name));
 
 		tests.forEach((test) => {
 
 			let message = '>';
 
 			message += ' ' + test.name;
-			message += ' ' + div1(test.name);
+			message += ' ' + div(test.name);
 
 			if (action === 'scan') {
 
@@ -557,15 +527,6 @@ const render_summary = function(review, is_current) {
 			} else if (action === 'time') {
 
 				message += test.timeline.render();
-
-			} else if (action === 'watch') {
-
-				let str1 = test.results.render();
-				let str2 = test.timeline.render();
-
-				message += str1;
-				message += div2(str1);
-				message += str2;
 
 			}
 
@@ -601,10 +562,10 @@ const render_summary = function(review, is_current) {
 					console.log('');
 
 					if (entry.assert !== null) {
-						console.error('> ' + test.name + div1(test.name) + ' ' + entry.assert + ' differs ...');
+						console.error('> ' + test.name + div(test.name) + ' ' + entry.assert + ' differs ...');
 						console.diff(entry.diff[0], entry.diff[1]);
 					} else {
-						console.error('> ' + test.name + div1(test.name) + ' assert() #' + e + ' differs ...');
+						console.error('> ' + test.name + div(test.name) + ' assert() #' + e + ' differs ...');
 						console.diff(entry.diff[0], entry.diff[1]);
 					}
 
@@ -637,7 +598,7 @@ const render_summary = function(review, is_current) {
 const Renderer = function(settings) {
 
 	this._settings = Object.freeze(Object.assign({
-		action: null,  // 'scan', 'time' or 'watch'
+		action: null,  // 'scan' or 'time'
 		debug:  false
 	}, settings));
 

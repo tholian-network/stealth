@@ -29,7 +29,8 @@ export const REVIEWS = [
 
 export const SOURCES = {
 
-	'ENVIRONMENT': null
+	'covert/ENVIRONMENT': null,
+	'covert/EXAMPLE':     null
 
 };
 

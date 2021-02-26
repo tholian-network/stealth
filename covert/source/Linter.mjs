@@ -21,89 +21,50 @@ const init = function(settings) {
 
 	let action   = isString(settings.action)    ? settings.action                             : null;
 	let internet = isBoolean(settings.internet) ? settings.internet                           : false;
+	let project  = isString(settings.project)   ? settings.project                            : ENVIRONMENT.project;
 	let reviews  = isArray(settings.reviews)    ? settings.reviews.filter((r) => isReview(r)) : [];
 	let sources  = isObject(settings.sources)   ? settings.sources                            : {};
 	let filtered = false;
 	let include  = {};
-	let projects = [];
 
 
 	reviews.forEach((review) => {
-
 		include[review.id] = false;
-
-		let project = review.id.split('/').shift();
-		if (projects.includes(project) === false) {
-			projects.push(project);
-		}
-
 	});
 
-	projects.forEach((project) => {
+	this.filesystem.scan(project + '/source', true).filter((file) => {
+		return file.endsWith('.mjs');
+	}).map((file) => {
 
-		let implementations = this.filesystem.scan(ENVIRONMENT.root + '/' + project + '/source', true).map((path) => {
+		let path      = file.substr(project.length + '/source'.length + 1);
+		let source_id = project.split('/').pop() + '/' + path.split('.').slice(0, -1).join('.');
+		let review_id = sources[source_id];
 
-			let raw = path.substr(ENVIRONMENT.root.length + 1);
-			if (raw.endsWith('.mjs') === true) {
-
-				let tmp = raw.substr(0, raw.length - 4).split('/');
-				if (tmp.includes('source') === true) {
-
-					let index = tmp.indexOf('source');
-					if (index === 1) {
-						tmp.splice(index, 1);
-					}
-
-					if (
-						sources[tmp[0]] !== undefined
-						&& sources[tmp[0]][tmp.slice(1).join('/')] !== undefined
-					) {
-
-						let new_id = sources[tmp[0]][tmp.slice(1).join('/')];
-						if (new_id === undefined) {
-							// Do nothing
-						} else if (new_id !== null) {
-							tmp = (tmp[0] + '/' + new_id).split('/');
-						} else if (new_id === null) {
-							tmp = [];
-						}
-
-					}
-
-					if (tmp.length > 0) {
-						return tmp.join('/');
-					}
-
-				}
-
-			}
-
-
+		if (review_id === undefined) {
+			return source_id;
+		} else if (review_id !== null) {
+			return review_id;
+		} else if (review_id === null) {
 			return null;
+		}
 
-		}).filter((id) => id !== null);
+	}).filter((id) => id !== null).forEach((id) => {
 
-		if (implementations.length > 0) {
+		if (include[id] === undefined) {
 
-			implementations.forEach((id) => {
+			let review = new Review();
 
-				if (include[id] === undefined) {
+			review.id    = id;
+			review.state = 'none';
+			review.errors.push('Review is an invalid ECMAScript Module.');
 
-					let review = new Review();
-
-					review.id    = id;
-					review.state = 'none';
-
-					include[review.id] = false;
-					reviews.push(review);
-
-				}
-
-			});
+			include[review.id] = false;
+			reviews.push(review);
 
 		}
 
 	});
+
 
 	settings.patterns.forEach((pattern) => {
 
@@ -222,28 +183,40 @@ const update_review = async function(review) {
 
 	if (this.modules[review.id] === undefined) {
 
-		let sources = this._settings.sources;
+		let sources   = this._settings.sources;
+		let path      = null;
+		let review_id = review.id;
+		let source_id = sources[review_id];
 
-		let tmp = review.id.split('/');
+		if (source_id === undefined) {
 
-		if (
-			sources[tmp[0]] !== undefined
-			&& sources[tmp[0]][tmp.slice(1).join('/')] !== undefined
-		) {
-			tmp = (tmp[0] + '/' + sources[tmp[0]][tmp.slice(1).join('/')]).split('/');
-		} else {
-			tmp = review.id.split('/');
+			let tmp = review_id.split('/');
+			tmp.splice(0, 1);           // remove namespace
+			tmp.splice(0, 0, 'source'); // insert source
+			path = tmp.join('/') + '.mjs';
+
+		} else if (source_id !== null) {
+
+			let tmp = source_id.split('/');
+			tmp.splice(0, 1);           // remove namespace
+			tmp.splice(0, 0, 'source'); // insert source
+			path = tmp.join('/') + '.mjs';
+
+		} else if (source_id === null) {
+
+			path = null;
+
 		}
 
-		tmp.splice(1, 0, 'source');
-		tmp[tmp.length - 1] = tmp[tmp.length - 1] + '.mjs';
+		if (path !== null) {
 
+			let module = await import(this._settings.project + '/' + path).then((mod) => mod).catch(() => {});
+			if (isModule(module) === true && Object.keys(module).length > 0) {
+				this.modules[review.id] = module;
+			} else {
+				review.errors.push('Implementation is an invalid ECMAScript Module.');
+			}
 
-		let path   = tmp.join('/');
-		let module = await import(ENVIRONMENT.root + '/' + path).then((mod) => mod).catch(() => {});
-
-		if (isModule(module) === true) {
-			this.modules[review.id] = module;
 		}
 
 	}
@@ -437,7 +410,10 @@ const update_review = async function(review) {
 
 	});
 
-	review.state = state;
+	if (review.state !== 'none') {
+		review.state = state;
+	}
+
 
 	return true;
 
@@ -463,10 +439,10 @@ const Linter = function(settings) {
 		action:   null, // 'check'
 		internet: true,
 		patterns: [],
+		project:  ENVIRONMENT.project,
 		report:   null,
 		reviews:  [],
 		sources:  {},
-		root:     ENVIRONMENT.root
 	}, settings));
 
 
@@ -491,11 +467,7 @@ const Linter = function(settings) {
 	this.on('connect', () => {
 
 		if (this.__state.connected === false) {
-
-			this.filesystem.connect();
-
 			this.__state.connected = true;
-
 		}
 
 		update.call(this);
@@ -519,11 +491,7 @@ const Linter = function(settings) {
 
 
 		if (this.__state.connected === true) {
-
-			this.filesystem.disconnect();
-
 			this.__state.connected = false;
-
 		}
 
 	});
@@ -622,6 +590,13 @@ Linter.prototype = Object.assign({}, Emitter.prototype, {
 	},
 
 	destroy: function() {
+
+		this.reviews.filter((r) => r.state === 'fail').forEach((review) => {
+			review.state = 'okay';
+		});
+
+
+
 
 		let nones = this.reviews.filter((r) => r.state === 'none');
 		let fails = this.reviews.filter((r) => r.state === 'fail');

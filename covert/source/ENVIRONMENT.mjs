@@ -12,8 +12,6 @@ const action = (() => {
 
 	if (/^([check]{5})$/g.test(value) === true) {
 		return 'check';
-	} else if (/^([watch]{5})$/g.test(value) === true) {
-		return 'watch';
 	} else if (/^([scan]{4})$/g.test(value) === true) {
 		return 'scan';
 	} else if (/^([time]{4})$/g.test(value) === true) {
@@ -83,7 +81,7 @@ const patterns = (() => {
 
 })();
 
-const root = (() => {
+const project = (() => {
 
 	let folder   = '/tmp/covert';
 	let platform = os.platform();
@@ -233,7 +231,7 @@ const ENVIRONMENT = {
 	flags:    flags,
 	mktemp:   mktemp,
 	patterns: patterns,
-	root:     root,
+	project:  project,
 	temp:     temp
 
 };

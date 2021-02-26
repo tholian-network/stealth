@@ -40,18 +40,14 @@ export const REVIEWS = [
 export const SOURCES = {
 
 	// Map sources to review.id
-	'browser/Buffer':  'Buffer',
-	'browser/console': 'console',
-
-	'node/Buffer':     'Buffer',
-	'node/console':    'console',
+	'base/browser/Buffer':  'base/Buffer',
+	'base/browser/console': 'base/console',
+	'base/node/Buffer':     'base/Buffer',
+	'base/node/console':    'base/console',
 
 	// Map review.id to sources
-	'Buffer':          'browser/Buffer',
-	'console':         'node/console',
-
-	// Ignore
-	'MODULE':          null
+	'base/Buffer':          'base/browser/Buffer',
+	'base/console':         'base/node/console'
 
 };
 
