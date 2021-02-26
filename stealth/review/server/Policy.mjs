@@ -51,7 +51,15 @@ describe('Policy.isPolicy()', function(assert) {
 			path:  '/track.php',
 			query: null
 		}]
-	}), true);
+	}), false);
+
+	assert(Policy.isPolicy({
+		domain:   'example.com',
+		policies: [{
+			path:  null,
+			query: 'ad&tracker'
+		}]
+	}), false);
 
 	assert(Policy.isPolicy({
 		domain:   'example.com',

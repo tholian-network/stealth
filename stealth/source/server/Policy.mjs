@@ -50,7 +50,7 @@ Policy.isPolicy = function(payload) {
 			if (
 				isObject(policy) === true
 				&& isString(policy.path) === true
-				&& (isString(policy.query) === true || policy.query === null)
+				&& isString(policy.query) === true
 			) {
 				return true;
 			}

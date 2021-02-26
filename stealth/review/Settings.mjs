@@ -297,7 +297,7 @@ describe('Settings.prototype.toJSON()', function(assert) {
 				term:   'title'
 			}]
 		}],
-		'blockers': null,
+		'blockers': [],
 		'hosts': [{
 			domain: 'covert.localdomain',
 			hosts: [{
