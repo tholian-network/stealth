@@ -118,7 +118,6 @@ export const REVIEWS = [
 
 export const SOURCES = {
 
-	// Ignore
 	'stealth/ENVIRONMENT': null
 
 };

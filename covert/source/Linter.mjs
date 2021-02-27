@@ -179,7 +179,7 @@ const prettify = (object) => {
 
 };
 
-const update_index = async function() {
+const update_review_index = async function() {
 
 	let namespace = this._settings.project.split('/').pop();
 	let review    = new Review();
@@ -235,7 +235,7 @@ const update_index = async function() {
 		}
 
 	} else {
-		review.errors.push('Covert\'s index.mjs is an invalid ECMAScript Module.');
+		review.errors.push('The index.mjs is an invalid ECMAScript Module.');
 	}
 
 
@@ -485,6 +485,104 @@ const update_review = async function(review) {
 
 };
 
+const update_source_index = async function() {
+
+	let namespace = this._settings.project.split('/').pop();
+	let review    = new Review();
+
+	review.id    = namespace + '/index.mjs';
+	review.state = 'none';
+
+
+	let module = await import(this._settings.project + '/index.mjs').then((mod) => mod).catch(() => {});
+	if (isModule(module) === true) {
+
+		let exported = Object.keys(module);
+		let expected = this.filesystem.scan(this._settings.project + '/source').filter((path) => {
+			return path.endsWith('.mjs');
+		}).map((path) => {
+			return path.split('/').pop().split('.').slice(0, -1).join('.');
+		}).filter((expect) => {
+			return expect !== 'MODULE';
+		});
+
+		if (expected.length > 0) {
+
+			expected.forEach((expect) => {
+
+				let format_constructor = (expect.charAt(0).toUpperCase() + expect.substr(1).toLowerCase());
+				let format_method      = expect.toLowerCase();
+				let format_singleton   = expect.toUpperCase();
+
+				if (expect === format_constructor) {
+
+					if (exported.includes(expect) === false) {
+						review.errors.push('Exported constant "' + expect + '" is missing.');
+					}
+
+					if (exported.includes('is' + expect) === false) {
+						review.errors.push('Exported constant "is' + expect + '" is missing.');
+					}
+
+					if (isFunction(module[expect]) === false) {
+						review.errors.push('Exported constant "' + expect + '" is not a Constructor.');
+					}
+
+					if (isFunction(module['is' + expect]) === false) {
+						review.errors.push('Exported constant "' + expect + '" is not a Function.');
+					}
+
+				} else if (expect === format_singleton) {
+
+					if (exported.includes(expect) === false) {
+						review.errors.push('Exported constant "' + expect + '" is missing.');
+					}
+
+					if (isObject(module[expect]) === false) {
+						review.errors.push('Exported constant "' + expect + '" is not an Object.');
+					}
+
+				} else if (expect === format_method) {
+
+					// Do Nothing
+
+				} else {
+
+					// XXX: Has to be CamelCase
+
+					if (exported.includes(expect) === false) {
+						review.errors.push('Exported constant "' + expect + '" is missing.');
+					}
+
+					if (exported.includes('is' + expect) === false) {
+						review.errors.push('Exported constant "is' + expect + '" is missing.');
+					}
+
+					if (isFunction(module[expect]) === false) {
+						review.errors.push('Exported constant "' + expect + '" is not a Constructor.');
+					}
+
+					if (isFunction(module['is' + expect]) === false) {
+						review.errors.push('Exported constant "' + expect + '" is not a Function.');
+					}
+
+				}
+
+			});
+
+		}
+
+	} else {
+		review.errors.push('The index.mjs is an invalid ECMAScript Module.');
+	}
+
+
+	if (review.errors.length > 0) {
+		this.reviews.splice(0, 0, review);
+	}
+
+};
+
 const update = function() {
 
 	this.reviews.forEach((review) => {
@@ -492,7 +590,8 @@ const update = function() {
 	});
 
 	setTimeout(() => {
-		update_index.call(this);
+		update_review_index.call(this);
+		update_source_index.call(this);
 	}, 500);
 
 	setTimeout(() => {

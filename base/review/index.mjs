@@ -39,13 +39,13 @@ export const REVIEWS = [
 
 export const SOURCES = {
 
-	// Map sources to review.id
+	// Map source.id to review.id
 	'base/browser/Buffer':  'base/Buffer',
 	'base/browser/console': 'base/console',
 	'base/node/Buffer':     'base/Buffer',
 	'base/node/console':    'base/console',
 
-	// Map review.id to sources
+	// Map review.id to source.id
 	'base/Buffer':          'base/browser/Buffer',
 	'base/console':         'base/node/console'
 
