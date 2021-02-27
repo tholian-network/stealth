@@ -107,6 +107,51 @@ const build_file = (protocol, path, query, hash) => {
 
 
 
+describe('URL.compare()', function(assert) {
+
+	let sorted = [
+		URL.parse('http://localhost/what/ever.html'),
+		URL.parse('http://thinkpad:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('https://domain.tld/what/ever.html'),
+		URL.parse('https://sub.domain.tld:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('http://127.0.0.1/what/ever.html'),
+		URL.parse('http://127.0.0.1:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('https://[::1]/what/ever.html'),
+		URL.parse('https://[::1]:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('stealth:settings'),
+		URL.parse('stealth:search?query=This+is+a+test'),
+		URL.parse('file:///what/ever.html'),
+		URL.parse('file:///what/ever.html?q=u&e=r&y'),
+		URL.parse('ftp://localhost/what/ever.html'),
+		URL.parse('ftp://thinkpad:1337/what/ever.html?q=u&e=r&y'),
+		URL.parse('unknown://domain.tld/what/ever.html'),
+		URL.parse('unknown://sub.domain.tld:1337/what/ever.html?q=u&e=r&y')
+	].sort((a, b) => {
+		return URL.compare(a, b);
+	});
+
+	assert(sorted.length > 0);
+	assert(sorted.length, 16);
+
+	assert(sorted[0].link,  'file:///what/ever.html');
+	assert(sorted[1].link,  'file:///what/ever.html?q=u&e=r&y');
+	assert(sorted[2].link,  'ftp://localhost/what/ever.html');
+	assert(sorted[3].link,  'ftp://thinkpad:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[4].link,  'http://127.0.0.1/what/ever.html');
+	assert(sorted[5].link,  'http://127.0.0.1:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[6].link,  'http://localhost/what/ever.html');
+	assert(sorted[7].link,  'http://thinkpad:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[8].link,  'https://[0000:0000:0000:0000:0000:0000:0000:0001]/what/ever.html');
+	assert(sorted[9].link,  'https://[0000:0000:0000:0000:0000:0000:0000:0001]:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[10].link, 'https://domain.tld/what/ever.html');
+	assert(sorted[11].link, 'https://sub.domain.tld:1337/what/ever.html?q=u&e=r&y');
+	assert(sorted[12].link, 'stealth:search?query=This+is+a+test');
+	assert(sorted[13].link, 'stealth:settings');
+	assert(sorted[14].link, 'unknown://domain.tld/what/ever.html');
+	assert(sorted[15].link, 'unknown://sub.domain.tld:1337/what/ever.html?q=u&e=r&y');
+
+});
+
 describe('URL.filter()', function(assert) {
 
 	let url1    = URL.parse('http://example.com/tracker?foo=bar&bar=qux&qux=123');
