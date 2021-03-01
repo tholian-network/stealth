@@ -108,7 +108,75 @@ const copy = (origin, target) => {
 
 };
 
-const download = (url, cache, callback) => {
+const download_adblock = (url, cache, callback) => {
+
+	let lib     = url.startsWith('https://') ? https : http;
+	let request = lib.request(url, (response) => {
+
+		if (response['statusCode'] === 200) {
+
+			let chunks = [];
+
+			response.on('data', (chunk) => {
+				chunks.push(chunk);
+			});
+
+			response.on('end', () => {
+
+				let hosts = Buffer.concat(chunks).toString('utf8').split('\n').map((line) => {
+
+					if (line.startsWith('||') && (line.endsWith('^') || line.endsWith('^$third-party'))) {
+
+						let domain = line.substr(2).split('^').shift();
+						if (domain.includes('*') === false) {
+							return domain;
+						}
+
+					}
+
+					return null;
+
+				}).filter((line) => line !== null);
+
+				if (hosts.length > 0) {
+
+					fs.writeFile(cache, hosts.join('\n'), 'utf8', (err) => {
+
+						if (err === null) {
+							callback(true);
+						} else {
+							callback(false);
+						}
+
+					});
+
+				} else {
+					callback(false);
+				}
+
+			});
+
+			response.resume();
+
+		} else {
+
+			response.destroy();
+			callback(false);
+
+		}
+
+	});
+
+	request.on('error', () => {
+		callback(false);
+	});
+
+	request.write('');
+	request.end();
+
+};
+
+const download_hosts = (url, cache, callback) => {
 
 	let lib     = url.startsWith('https://') ? https : http;
 	let request = lib.request(url, (response) => {
@@ -475,24 +543,51 @@ export const update = async (target) => {
 	const URL   = await import('../stealth/source/parser/URL.mjs').then((module) => module['URL']);
 
 
+	let update_exists = false;
+
+	try {
+		update_exists = fs.existsSync(target + '/.update');
+	} catch (err) {
+		update_exists = false;
+	}
+
+	if (update_exists === false) {
+
+		try {
+			fs.mkdirSync(target + '/.update', {
+				recursive: true
+			});
+		} catch (err) {
+			// Do Nothing
+		}
+
+	}
+
 
 	let queue   = [
-		download.bind(null, 'https://adaway.org/hosts.txt',                          target + '/.update/adaway_hosts.txt'),
-		download.bind(null, 'https://badmojr.github.io/1Hosts/complete/hosts.txt',   target + '/.update/badmojr_hosts.txt'),
-		download.bind(null, 'https://hostsfile.org/Downloads/hosts.txt',             target + '/.update/hostsfile_hosts.txt'),
-		download.bind(null, 'https://hostsfile.mine.nu/hosts0.txt',                  target + '/.update/hostsfile_hosts0.txt'),
-		download.bind(null, 'https://www.malwaredomainlist.com/hostslist/hosts.txt', target + '/.update/malwaredomainlist_hosts.txt'),
-		download.bind(null, 'https://someonewhocares.org/hosts/hosts',               target + '/.update/someonewhocares_hosts.txt'),
-		download.bind(null, 'https://sysctl.org/cameleon/hosts',                     target + '/.update/sysctl_hosts.txt'),
-		download.bind(null, 'https://v.firebog.net/hosts/BillStearns.txt',           target + '/.update/firebog_billstearns.txt'),
-		download.bind(null, 'https://v.firebog.net/hosts/Easylist.txt',              target + '/.update/firebog_easylist.txt'),
-		download.bind(null, 'https://v.firebog.net/hosts/Easyprivacy.txt',           target + '/.update/firebog_easyprivacy.txt'),
-		download.bind(null, 'https://v.firebog.net/hosts/Kowabit.txt',               target + '/.update/firebog_kowabit.txt'),
-		download.bind(null, 'https://v.firebog.net/hosts/Prigent-Ads.txt',           target + '/.update/firebog_prigent.txt'),
-		download.bind(null, 'https://winhelp2002.mvps.org/hosts.txt',                target + '/.update/winhelp_hosts.txt')
-	];
-	let results = new Array(queue.length).fill(null);
 
+		download_adblock.bind(null, 'https://secure.fanboy.co.nz/easyprivacy.txt',         target + '/.update/fanboy_easyprivacy.txt'),
+		download_adblock.bind(null, 'https://secure.fanboy.co.nz/enhancedstats.txt',       target + '/.update/fanboy_enhancedstats.txt'),
+		download_adblock.bind(null, 'https://secure.fanboy.co.nz/fanboy-annoyance.txt',    target + '/.update/fanboy_annoyance.txt'),
+		download_adblock.bind(null, 'https://secure.fanboy.co.nz/fanboy-social.txt',       target + '/.update/fanboy_social.txt'),
+
+		download_hosts.bind(null, 'https://adaway.org/hosts.txt',                          target + '/.update/adaway_hosts.txt'),
+		download_hosts.bind(null, 'https://badmojr.github.io/1Hosts/complete/hosts.txt',   target + '/.update/badmojr_hosts.txt'),
+		download_hosts.bind(null, 'https://hostsfile.org/Downloads/hosts.txt',             target + '/.update/hostsfile_hosts.txt'),
+		download_hosts.bind(null, 'https://hostsfile.mine.nu/hosts0.txt',                  target + '/.update/hostsfile_hosts0.txt'),
+		download_hosts.bind(null, 'https://www.malwaredomainlist.com/hostslist/hosts.txt', target + '/.update/malwaredomainlist_hosts.txt'),
+		download_hosts.bind(null, 'https://someonewhocares.org/hosts/hosts',               target + '/.update/someonewhocares_hosts.txt'),
+		download_hosts.bind(null, 'https://sysctl.org/cameleon/hosts',                     target + '/.update/sysctl_hosts.txt'),
+		download_hosts.bind(null, 'https://v.firebog.net/hosts/BillStearns.txt',           target + '/.update/firebog_billstearns.txt'),
+		download_hosts.bind(null, 'https://v.firebog.net/hosts/Easylist.txt',              target + '/.update/firebog_easylist.txt'),
+		download_hosts.bind(null, 'https://v.firebog.net/hosts/Easyprivacy.txt',           target + '/.update/firebog_easyprivacy.txt'),
+		download_hosts.bind(null, 'https://v.firebog.net/hosts/Kowabit.txt',               target + '/.update/firebog_kowabit.txt'),
+		download_hosts.bind(null, 'https://v.firebog.net/hosts/Prigent-Ads.txt',           target + '/.update/firebog_prigent.txt'),
+		download_hosts.bind(null, 'https://winhelp2002.mvps.org/hosts.txt',                target + '/.update/winhelp_hosts.txt')
+
+	];
+
+	let results = new Array(queue.length).fill(null);
 
 	queue.forEach((entry, q) => {
 
