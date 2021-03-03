@@ -73,6 +73,32 @@
 				fill:   #000000;
 				stroke: #000000;
 			}
+
+			body > footer {
+				display: block;
+				position: fixed;
+				top: auto;
+				right: 0px;
+				bottom: 0px;
+				left: 0px;
+				margin: 0px;
+				padding: 16px;
+				font-family: 'vera-mono';
+				font-size: 16px;
+				line-height: 32px;
+				text-align: center;
+				color: var(--layout-default-color);
+				background: var(--layout-default-background);
+				background: #000000;
+				transition: opacity 500ms ease-out;
+				user-select: none;
+				opacity: 0;
+			}
+
+			body > footer:hover {
+				transition: opacity 500ms ease-out;
+				opacity: 1;
+			}
 		</style>
 	</head>
 	<body data-page="blank">
@@ -91,5 +117,9 @@
 				<code>Be correct; we do not tolerate deceit.</code>
 			</p>
 		</header>
+		<footer>
+			<q>Those who seek the truth are condemned the most. It's up to us to welcome them.</q><br>
+			Dedicated in loving memory of my grandfather Wilhelm.
+		</footer>
 	</body>
 </html>

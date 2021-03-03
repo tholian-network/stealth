@@ -564,7 +564,7 @@ export const update = async (target) => {
 	}
 
 
-	let queue   = [
+	let queue = [
 
 		download_adblock.bind(null, 'https://secure.fanboy.co.nz/easyprivacy.txt',         target + '/.update/fanboy_easyprivacy.txt'),
 		download_adblock.bind(null, 'https://secure.fanboy.co.nz/enhancedstats.txt',       target + '/.update/fanboy_enhancedstats.txt'),
