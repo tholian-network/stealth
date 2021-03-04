@@ -17,6 +17,23 @@ const SYNTAX = [
 	{ type: ';', pattern: ';' },
 	{ type: '!', pattern: '!' },
 
+	// Operators
+	{ type: '=',  pattern: '='  },
+	{ type: '^=', pattern: '^=' },
+	{ type: '*=', pattern: '*=' },
+	{ type: '$=', pattern: '$=' },
+	{ type: '~=', pattern: '~=' },
+	{ type: '|=', pattern: '|=' },
+
+	// Selectors
+	{ type: '[', pattern: '[' },
+	{ type: ']', pattern: ']' },
+	{ type: '#', pattern: '#' },
+	{ type: '.', pattern: '.' },
+	{ type: '>', pattern: '>' },
+	{ type: '+', pattern: '+' },
+	{ type: '~', pattern: '~' },
+
 	// Keywords
 	{ type: 'media-type', pattern: new RegExp('^(all|print|screen|speech)') },
 
@@ -70,6 +87,9 @@ const SYNTAX = [
 	{ type: 'resolution', pattern: 'dppx' },
 
 	// Literals
+	{ type: 'hash',   pattern: new RegExp('^#[0-9A-Fa-f]{3}')     },
+	{ type: 'hash',   pattern: new RegExp('^#[0-9A-Fa-f]{6}')     },
+	{ type: 'hash',   pattern: new RegExp('^#[0-9A-Fa-f]{8}')     },
 	{ type: 'url',    pattern: new RegExp('^url\\("[^"]*"\\)')    },
 	{ type: 'url',    pattern: new RegExp('^url\\(\'[^\']*\'\\)') },
 	{ type: 'number', pattern: new RegExp('^[0-9]+\\.[0-9]+')     },
@@ -77,14 +97,6 @@ const SYNTAX = [
 	{ type: 'string', pattern: new RegExp('^"[^"]*"')             },
 	{ type: 'string', pattern: new RegExp('^\'[^\']*\'')          },
 	{ type: 'ident',  pattern: new RegExp('^[A-Za-z_-]+')         },
-
-
-	// function
-	// hash
-	// bad-string
-	// bad-url
-	// delim
-	// dimension
 
 ];
 
