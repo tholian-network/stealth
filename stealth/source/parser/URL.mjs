@@ -779,7 +779,9 @@ const URL = {
 				}
 
 			} else if (
-				protocol === 'ftps'
+				protocol === 'dns'
+				|| protocol === 'dnss'
+				|| protocol === 'ftps'
 				|| protocol === 'ftp'
 				|| protocol === 'https'
 				|| protocol === 'http'
@@ -1124,6 +1126,10 @@ const URL = {
 
 				if (protocol === 'file') {
 					// Do nothing
+				} else if (protocol === 'dns') {
+					port = 53;
+				} else if (protocol === 'dnss') {
+					port = 853;
 				} else if (protocol === 'ftps') {
 					port = 990;
 				} else if (protocol === 'ftp') {
@@ -1220,6 +1226,18 @@ const URL = {
 				if (url.protocol === 'file') {
 
 					// Do nothing
+
+				} else if (url.protocol === 'dns') {
+
+					if (url.port !== 53) {
+						link += ':' + url.port;
+					}
+
+				} else if (url.protocol === 'dnss') {
+
+					if (url.port !== 853) {
+						link += ':' + url.port;
+					}
 
 				} else if (url.protocol === 'ftps') {
 
@@ -1398,6 +1416,10 @@ const URL = {
 
 					if (protocol === 'file') {
 						// Do nothing
+					} else if (protocol === 'dns') {
+						port = 53;
+					} else if (protocol === 'dnss') {
+						port = 853;
 					} else if (protocol === 'ftps') {
 						port = 990;
 					} else if (protocol === 'ftp') {
