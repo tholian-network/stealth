@@ -1,5 +1,6 @@
 
 import { console } from '../../../extern/base.mjs';
+import { VALUES  } from '../../../source/language/CSS/VALUES.mjs';
 
 // TODO: semicolons are OPTIONAL for declarations, but not for rules. semicolons OR { has to come, ALWAYS
 
@@ -282,6 +283,8 @@ const GRAMMAR = {
 			let check_block1 = this.expect([ '{' ]);
 			if (check_block1.type === '{') {
 
+				this.next();
+
 				while (this.token.type !== '}') {
 
 					let rule = {
@@ -289,7 +292,7 @@ const GRAMMAR = {
 						declarations: []
 					};
 
-					let selector = this.next([ 'ident', 'number' ]);
+					let selector = this.expect([ 'ident', 'number' ]);
 					if (selector.type === 'ident') {
 
 						if (selector.value === 'from') {
@@ -300,10 +303,16 @@ const GRAMMAR = {
 
 					} else if (selector.type === 'number') {
 
-						this.next();
-						this.expect([ 'percentage' ]);
+						this.next([ 'percentage' ]);
 
-						rule.selector = selector.value + '%';
+						let num = parseInt(selector.value, 10);
+						if (Number.isNaN(num) === false) {
+
+							if (num < 0)   num = 0;
+							if (num > 100) num = 100;
+
+							rule.selector = num + '%';
+						}
 
 					}
 
@@ -314,9 +323,9 @@ const GRAMMAR = {
 
 						this.next();
 
-						let declarations = this.exec('declarations');
-						if (declarations.length > 0) {
-							rule.declarations = declarations;
+						let block = this.exec('declarations');
+						if (block.type === 'declarations') {
+							rule.declarations = block.declarations;
 						}
 
 					}
@@ -325,7 +334,19 @@ const GRAMMAR = {
 					if (check2.type === '}') {
 
 						if (rule.selector !== null && rule.declarations.length > 0) {
-							keyframes.rules.push(rule);
+
+							let other_rule = keyframes.rules.find((r) => r.selector === rule.selector) || null;
+							if (other_rule !== null) {
+
+								// TODO: Merge declarations correctly
+								rule.declarations.forEach((declaration) => {
+									other_rule.declarations.push(declaration);
+								});
+
+							} else {
+								keyframes.rules.push(rule);
+							}
+
 						}
 
 						this.next();
@@ -373,12 +394,12 @@ const GRAMMAR = {
 	 * ;
 	 */
 
-	// TODO: Verify that declarations stops _BEFORE_ the '}' character,
-	// so that next() will return '}'
-
 	'declarations': function() {
 
-		let declarations = [];
+		let token = {
+			type:         'declarations',
+			declarations: []
+		};
 
 		while (this.token.type !== null && this.token.type !== '}') {
 
@@ -398,6 +419,8 @@ const GRAMMAR = {
 
 				let value = this.range([ ';', '}' ]);
 				if (value.length > 2) {
+
+					console.warn(value);
 
 					// TODO: Complex value
 					// background: url("what/ever.jpg") !important;
@@ -430,12 +453,12 @@ const GRAMMAR = {
 			}
 
 			if (declaration.name !== null && declaration.value !== null) {
-				declarations.push(declaration);
+				token.declarations.push(declaration);
 			}
 
 		}
 
-		return declarations;
+		return token;
 
 	},
 
