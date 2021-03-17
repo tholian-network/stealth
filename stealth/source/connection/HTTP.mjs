@@ -102,6 +102,8 @@ const onconnect = function(connection, url) {
 
 	let timeout = Date.now() + 1000;
 
+	connection.type = 'client';
+
 	connection.socket.on('data', (fragment) => {
 
 		ondata(connection, url, fragment);
@@ -121,8 +123,6 @@ const onconnect = function(connection, url) {
 
 	}, 1000);
 
-
-	connection.type = 'client';
 	setTimeout(() => {
 		connection.emit('@connect');
 	}, 0);
