@@ -8,7 +8,6 @@ describe('MODULE', function(assert) {
 
 	assert(typeof COVERT['Covert'],      'function');
 	assert(typeof COVERT['ENVIRONMENT'], 'object');
-	assert(typeof COVERT['EXAMPLE'],     'object');
 	assert(typeof COVERT['Filesystem'],  'function');
 	assert(typeof COVERT['Linter'],      'function');
 	assert(typeof COVERT['Network'],     'function');
@@ -34,7 +33,6 @@ describe('MODULE', function(assert) {
 	assert(Object.keys(COVERT), [
 		'Covert',
 		'ENVIRONMENT',
-		'EXAMPLE',
 		'Filesystem',
 		'Linter',
 		'Network',

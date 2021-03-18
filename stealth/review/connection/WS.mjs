@@ -1,9 +1,11 @@
 
 import net from 'net';
 
-import { Buffer, isFunction        } from '../../../base/index.mjs';
-import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
-import { WS                        } from '../../../stealth/source/connection/WS.mjs';
+import { Buffer, isFunction } from '../../../base/index.mjs';
+import { describe, finish   } from '../../../covert/index.mjs';
+import { IP                 } from '../../../stealth/source/parser/IP.mjs';
+import { URL                } from '../../../stealth/source/parser/URL.mjs';
+import { WS                 } from '../../../stealth/source/connection/WS.mjs';
 
 
 
@@ -65,7 +67,7 @@ describe('WS.connect()', function(assert) {
 	assert(isFunction(WS.connect), true);
 
 
-	let url        = EXAMPLE.toURL('ws://echo.websocket.org:80');
+	let url        = Object.assign(URL.parse('ws://echo.websocket.org:80'), { hosts: [ IP.parse('174.129.224.73') ] });
 	let connection = WS.connect(url);
 
 	connection.once('@connect', () => {
@@ -89,7 +91,7 @@ describe('WS.disconnect()', function(assert) {
 	assert(isFunction(WS.disconnect), true);
 
 
-	let url        = EXAMPLE.toURL('ws://echo.websocket.org:80');
+	let url        = Object.assign(URL.parse('ws://echo.websocket.org:80'), { hosts: [ IP.parse('174.129.224.73') ] });
 	let connection = WS.connect(url);
 
 	connection.once('@connect', () => {
@@ -113,7 +115,7 @@ describe('WS.receive()/client', function(assert) {
 	assert(isFunction(WS.receive), true);
 
 
-	let url        = EXAMPLE.toURL('ws://echo.websocket.org:80');
+	let url        = Object.assign(URL.parse('ws://echo.websocket.org:80'), { hosts: [ IP.parse('174.129.224.73') ] });
 	let connection = WS.connect(url);
 
 	connection.once('@connect', () => {
@@ -182,7 +184,7 @@ describe('WS.send()', function(assert) {
 	assert(isFunction(WS.send), true);
 
 
-	let url        = EXAMPLE.toURL('ws://echo.websocket.org:80');
+	let url        = Object.assign(URL.parse('ws://echo.websocket.org:80'), { hosts: [ IP.parse('174.129.224.73') ] });
 	let connection = WS.connect(url);
 
 	connection.once('response', (response) => {
@@ -256,7 +258,7 @@ describe('WS.upgrade()', function(assert) {
 	server.listen(13337, null);
 
 
-	let url        = EXAMPLE.toURL('ws://localhost:13337');
+	let url        = URL.parse('ws://localhost:13337');
 	let connection = WS.connect(url);
 
 	connection.once('@connect', () => {

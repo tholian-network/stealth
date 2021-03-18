@@ -1,9 +1,11 @@
 
 import net from 'net';
 
-import { Buffer, isFunction        } from '../../../base/index.mjs';
-import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
-import { WSS                       } from '../../../stealth/source/connection/WSS.mjs';
+import { Buffer, isFunction } from '../../../base/index.mjs';
+import { describe, finish   } from '../../../covert/index.mjs';
+import { IP                 } from '../../../stealth/source/parser/IP.mjs';
+import { URL                } from '../../../stealth/source/parser/URL.mjs';
+import { WSS                } from '../../../stealth/source/connection/WSS.mjs';
 
 
 
@@ -65,7 +67,7 @@ describe('WSS.connect()', function(assert) {
 	assert(isFunction(WSS.connect), true);
 
 
-	let url        = EXAMPLE.toURL('wss://echo.websocket.org:443');
+	let url        = Object.assign(URL.parse('wss://echo.websocket.org:443'), { hosts: [ IP.parse('174.129.224.73') ] });
 	let connection = WSS.connect(url);
 
 	connection.once('@connect', () => {
@@ -89,7 +91,7 @@ describe('WSS.disconnect()', function(assert) {
 	assert(isFunction(WSS.disconnect), true);
 
 
-	let url        = EXAMPLE.toURL('wss://echo.websocket.org:443');
+	let url        = Object.assign(URL.parse('wss://echo.websocket.org:443'), { hosts: [ IP.parse('174.129.224.73') ] });
 	let connection = WSS.connect(url);
 
 	connection.once('@connect', () => {
@@ -113,7 +115,7 @@ describe('WSS.receive()/client', function(assert) {
 	assert(isFunction(WSS.receive), true);
 
 
-	let url        = EXAMPLE.toURL('wss://echo.websocket.org:443');
+	let url        = Object.assign(URL.parse('wss://echo.websocket.org:443'), { hosts: [ IP.parse('174.129.224.73') ] });
 	let connection = WSS.connect(url);
 
 	connection.once('@connect', () => {
@@ -182,7 +184,7 @@ describe('WSS.send()', function(assert) {
 	assert(isFunction(WSS.send), true);
 
 
-	let url        = EXAMPLE.toURL('wss://echo.websocket.org:443');
+	let url        = Object.assign(URL.parse('wss://echo.websocket.org:443'), { hosts: [ IP.parse('174.129.224.73') ] });
 	let connection = WSS.connect(url);
 
 	connection.on('response', (response) => {

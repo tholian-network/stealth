@@ -1,7 +1,8 @@
 
-import { isFunction                } from '../../../base/index.mjs';
-import { describe, finish, EXAMPLE } from '../../../covert/index.mjs';
-import { DNS                       } from '../../../stealth/source/connection/DNS.mjs';
+import { isFunction       } from '../../../base/index.mjs';
+import { describe, finish } from '../../../covert/index.mjs';
+import { DNS              } from '../../../stealth/source/connection/DNS.mjs';
+import { IP               } from '../../../stealth/source/parser/IP.mjs';
 
 
 
@@ -20,7 +21,10 @@ describe('DNS.resolve()/cloudflare', function(assert) {
 			headers: {},
 			payload: {
 				domain: 'example.com',
-				hosts:  EXAMPLE.hosts
+				hosts:  [
+					IP.parse('93.184.216.34'),
+					IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+				]
 			}
 		});
 
@@ -43,7 +47,10 @@ describe('DNS.resolve()/dnssb', function(assert) {
 			headers: {},
 			payload: {
 				domain: 'example.com',
-				hosts:  EXAMPLE.hosts
+				hosts:  [
+					IP.parse('93.184.216.34'),
+					IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+				]
 			}
 		});
 
@@ -66,7 +73,10 @@ describe('DNS.resolve()/google', function(assert) {
 			headers: {},
 			payload: {
 				domain: 'example.com',
-				hosts:  EXAMPLE.hosts
+				hosts:  [
+					IP.parse('93.184.216.34'),
+					IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+				]
 			}
 		});
 
@@ -89,7 +99,10 @@ describe('DNS.resolve()/quad9', function(assert) {
 			headers: {},
 			payload: {
 				domain: 'example.com',
-				hosts:  EXAMPLE.hosts
+				hosts:  [
+					IP.parse('93.184.216.34'),
+					IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+				]
 			}
 		});
 

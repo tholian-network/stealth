@@ -2,8 +2,10 @@
 import net from 'net';
 
 import { Buffer, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
-import { describe, finish, EXAMPLE              } from '../../../covert/index.mjs';
+import { describe, finish                       } from '../../../covert/index.mjs';
 import { HTTPS                                  } from '../../../stealth/source/connection/HTTPS.mjs';
+import { IP                                     } from '../../../stealth/source/parser/IP.mjs';
+import { URL                                    } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -12,7 +14,7 @@ describe('HTTPS.connect()', function(assert) {
 	assert(isFunction(HTTPS.connect), true);
 
 
-	let url        = EXAMPLE.toURL('https://example.com/index.html');
+	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTPS.connect(url);
 
 	connection.once('@connect', () => {
@@ -36,7 +38,7 @@ describe('HTTPS.disconnect()', function(assert) {
 	assert(isFunction(HTTPS.disconnect), true);
 
 
-	let url        = EXAMPLE.toURL('https://example.com/index.html');
+	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTPS.connect(url);
 
 	connection.once('@connect', () => {
@@ -60,7 +62,7 @@ describe('HTTPS.receive()/client', function(assert) {
 	assert(isFunction(HTTPS.receive), true);
 
 
-	let url        = EXAMPLE.toURL('https://example.com');
+	let url        = Object.assign(URL.parse('https://example.com'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTPS.connect(url);
 
 	connection.once('@connect', () => {
@@ -149,7 +151,7 @@ describe('HTTPS.send()', function(assert) {
 	assert(isFunction(HTTPS.send), true);
 
 
-	let url        = EXAMPLE.toURL('https://example.com/index.html');
+	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTPS.connect(url);
 
 	connection.once('response', (response) => {

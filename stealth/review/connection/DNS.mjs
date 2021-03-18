@@ -1,7 +1,8 @@
 
 import { Buffer, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
-import { describe, finish, EXAMPLE              } from '../../../covert/index.mjs';
+import { describe, finish                       } from '../../../covert/index.mjs';
 import { DNS                                    } from '../../../stealth/source/connection/DNS.mjs';
+import { URL                                    } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -10,7 +11,7 @@ describe('DNS.connect()', function(assert) {
 	assert(isFunction(DNS.connect), true);
 
 
-	let url        = EXAMPLE.toURL('dns://1.0.0.1:53');
+	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
 	connection.once('@connect', () => {
@@ -34,7 +35,7 @@ describe('DNS.disconnect()', function(assert) {
 	assert(isFunction(DNS.disconnect), true);
 
 
-	let url        = EXAMPLE.toURL('dns://1.0.0.1:53');
+	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
 	connection.once('@connect', () => {
@@ -65,7 +66,7 @@ describe('DNS.send()', function(assert) {
 
 	assert(isFunction(DNS.send), true);
 
-	let url        = EXAMPLE.toURL('dns://1.0.0.1:53');
+	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
 	connection.once('response', (response) => {

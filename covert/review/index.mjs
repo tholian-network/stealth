@@ -29,8 +29,7 @@ export const REVIEWS = [
 
 export const SOURCES = {
 
-	'covert/ENVIRONMENT': null,
-	'covert/EXAMPLE':     null
+	'covert/ENVIRONMENT': null
 
 };
 

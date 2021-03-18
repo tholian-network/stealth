@@ -2,10 +2,11 @@
 import net from 'net';
 
 import { Buffer, isBuffer, isFunction, isObject                       } from '../../../base/index.mjs';
-import { after, before, describe, finish, EXAMPLE                     } from '../../../covert/index.mjs';
+import { after, before, describe, finish                              } from '../../../covert/index.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
 import { HTTP                                                         } from '../../../stealth/source/connection/HTTP.mjs';
 import { HTTPS                                                        } from '../../../stealth/source/connection/HTTPS.mjs';
+import { IP                                                           } from '../../../stealth/source/parser/IP.mjs';
 import { SOCKS                                                        } from '../../../stealth/source/connection/SOCKS.mjs';
 import { URL                                                          } from '../../../stealth/source/parser/URL.mjs';
 import { WS                                                           } from '../../../stealth/source/connection/WS.mjs';
@@ -20,7 +21,7 @@ describe('SOCKS.connect()', function(assert) {
 	assert(isFunction(SOCKS.connect), true);
 
 
-	let url        = Object.assign(EXAMPLE.toURL('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ], proxy: { host: '127.0.0.1', port: 65432 }});
 	let connection = SOCKS.connect(url);
 
 	connection.once('@connect', () => {
@@ -48,7 +49,7 @@ describe('SOCKS.disconnect()', function(assert) {
 	assert(isFunction(SOCKS.disconnect), true);
 
 
-	let url        = Object.assign(EXAMPLE.toURL('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ], proxy: { host: '127.0.0.1', port: 65432 }});
 	let connection = SOCKS.connect(url);
 
 	connection.once('@connect', () => {
@@ -77,7 +78,7 @@ describe('SOCKS.connect()/http', function(assert) {
 	assert(isFunction(HTTP.send),     true);
 
 
-	let url        = Object.assign(EXAMPLE.toURL('http://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ], proxy: { host: '127.0.0.1', port: 65432 }});
 	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
@@ -125,7 +126,7 @@ describe('SOCKS.connect()/https', function(assert) {
 	assert(isFunction(HTTPS.send),    true);
 
 
-	let url        = Object.assign(EXAMPLE.toURL('https://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ], proxy: { host: '127.0.0.1', port: 65432 }});
 	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
@@ -173,7 +174,7 @@ describe('SOCKS.connect()/ws', function(assert) {
 	assert(isFunction(WS.send),       true);
 
 
-	let url        = Object.assign(EXAMPLE.toURL('ws://echo.websocket.org:80'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let url        = Object.assign(URL.parse('ws://echo.websocket.org:80'), { hosts: [ IP.parse('174.129.224.73') ], proxy: { host: '127.0.0.1', port: 65432 }});
 	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
@@ -218,7 +219,7 @@ describe('SOCKS.connect()/wss', function(assert) {
 	assert(isFunction(WSS.send),      true);
 
 
-	let url        = Object.assign(EXAMPLE.toURL('wss://echo.websocket.org:443'), { proxy: { host: '127.0.0.1', port: 65432 }});
+	let url        = Object.assign(URL.parse('wss://echo.websocket.org:443'), { hosts: [ IP.parse('174.129.224.73') ], proxy: { host: '127.0.0.1', port: 65432 }});
 	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {
@@ -305,7 +306,7 @@ describe('SOCKS.upgrade()', function(assert) {
 	server.listen(13337, null);
 
 
-	let url        = Object.assign(EXAMPLE.toURL('http://example.com/index.html'), { proxy: { host: '127.0.0.1', port: 13337 }});
+	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ], proxy: { host: '127.0.0.1', port: 13337 }});
 	let connection = SOCKS.connect(url);
 
 	connection.once('@tunnel', (tunnel) => {

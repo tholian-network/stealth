@@ -33,8 +33,13 @@ const init = (callback) => {
 
 		callback(true);
 
-	}).catch(() => {
+	}).catch((err) => {
+
+		console.error('Syntax Error:');
+		console.error(err);
+
 		callback(false);
+
 	});
 
 };

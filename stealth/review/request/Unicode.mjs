@@ -1,19 +1,28 @@
 
-import { isBuffer, isFunction, isObject           } from '../../../base/index.mjs';
-import { after, before, describe, finish, EXAMPLE } from '../../../covert/index.mjs';
-import { Request                                  } from '../../../stealth/source/Request.mjs';
-import { connect, disconnect                      } from '../Server.mjs';
+import { isBuffer, isFunction, isObject  } from '../../../base/index.mjs';
+import { after, before, describe, finish } from '../../../covert/index.mjs';
+import { Request                         } from '../../../stealth/source/Request.mjs';
+import { URL                             } from '../../../stealth/source/parser/URL.mjs';
+import { connect, disconnect             } from '../Server.mjs';
+
 
 
 before(connect);
 
 describe('new Request()/github/http', function(assert) {
 
-	let mode    = EXAMPLE.toMode('http://github.com/');
-	let url     = EXAMPLE.toURL('http://github.com/');
 	let request = new Request({
-		mode: mode,
-		url:  url
+		mode: {
+			domain: 'github.com',
+			mode: {
+				text:  true,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		url: URL.parse('http://github.com/')
 	}, this.server);
 
 	let events = {
@@ -55,7 +64,7 @@ describe('Cache.prototype.read()/github/http', function(assert) {
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.read), true);
 
-	let url = EXAMPLE.toURL('http://github.com/');
+	let url = URL.parse('http://github.com/');
 
 	this.server.services.cache.read(url, (response) => {
 
@@ -76,7 +85,7 @@ describe('Redirect.prototype.read()/github/http', function(assert) {
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.redirect.read), true);
 
-	let url = EXAMPLE.toURL('http://github.com/');
+	let url = URL.parse('http://github.com/');
 
 	this.server.services.redirect.read(url, (response) => {
 
@@ -101,11 +110,18 @@ describe('Redirect.prototype.read()/github/http', function(assert) {
 
 describe('new Request()/github/https', function(assert) {
 
-	let mode    = EXAMPLE.toMode('https://github.com/');
-	let url     = EXAMPLE.toURL('https://github.com/');
 	let request = new Request({
-		mode: mode,
-		url:  url
+		mode: {
+			domain: 'github.com',
+			mode: {
+				text:  true,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		url: URL.parse('https://github.com/')
 	}, this.server);
 
 	let events = {
@@ -150,7 +166,7 @@ describe('Cache.prototype.read()/github/https', function(assert) {
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.cache.read), true);
 
-	let url = EXAMPLE.toURL('https://github.com/');
+	let url = URL.parse('https://github.com/');
 
 	this.server.services.cache.read(url, (response) => {
 

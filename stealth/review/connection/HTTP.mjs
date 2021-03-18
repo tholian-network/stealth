@@ -2,8 +2,10 @@
 import net from 'net';
 
 import { Buffer, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
-import { describe, finish, EXAMPLE              } from '../../../covert/index.mjs';
+import { describe, finish                       } from '../../../covert/index.mjs';
 import { HTTP                                   } from '../../../stealth/source/connection/HTTP.mjs';
+import { IP                                     } from '../../../stealth/source/parser/IP.mjs';
+import { URL                                    } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -12,7 +14,7 @@ describe('HTTP.connect()', function(assert) {
 	assert(isFunction(HTTP.connect), true);
 
 
-	let url        = EXAMPLE.toURL('http://example.com:80/index.html');
+	let url        = Object.assign(URL.parse('http://example.com:80/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTP.connect(url);
 
 	connection.once('@connect', () => {
@@ -36,7 +38,7 @@ describe('HTTP.disconnect()', function(assert) {
 	assert(isFunction(HTTP.disconnect), true);
 
 
-	let url        = EXAMPLE.toURL('http://example.com:80/index.html');
+	let url        = Object.assign(URL.parse('http://example.com:80/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTP.connect(url);
 
 	connection.once('@connect', () => {
@@ -60,7 +62,7 @@ describe('HTTP.receive()/client', function(assert) {
 	assert(isFunction(HTTP.receive), true);
 
 
-	let url        = EXAMPLE.toURL('http://example.com:80');
+	let url        = Object.assign(URL.parse('http://example.com:80'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTP.connect(url);
 
 	connection.once('@connect', () => {
@@ -149,7 +151,7 @@ describe('HTTP.send()', function(assert) {
 	assert(isFunction(HTTP.send), true);
 
 
-	let url        = EXAMPLE.toURL('http://example.com:80/index.html');
+	let url        = Object.assign(URL.parse('http://example.com:80/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTP.connect(url);
 
 	connection.once('response', (response) => {
@@ -211,7 +213,7 @@ describe('HTTP.upgrade()', function(assert) {
 					'host':            'example.com',
 					'accept-encoding': 'gzip'
 				},
-				payload: null
+				payload: Buffer.from('', 'utf8')
 			});
 
 		});
@@ -227,7 +229,7 @@ describe('HTTP.upgrade()', function(assert) {
 	server.listen(13337, null);
 
 
-	let url        = EXAMPLE.toURL('http://localhost:13337');
+	let url        = URL.parse('http://localhost:13337');
 	let connection = HTTP.connect(url);
 
 	connection.once('@connect', () => {

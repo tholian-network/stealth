@@ -1,9 +1,11 @@
 
-import { isFunction                               } from '../../base/index.mjs';
-import { after, before, describe, finish, EXAMPLE } from '../../covert/index.mjs';
-import { Request, isRequest                       } from '../../stealth/source/Request.mjs';
-import { DATETIME                                 } from '../../stealth/source/parser/DATETIME.mjs';
-import { connect, disconnect                      } from './Server.mjs';
+import { isFunction                      } from '../../base/index.mjs';
+import { after, before, describe, finish } from '../../covert/index.mjs';
+import { Request, isRequest              } from '../../stealth/source/Request.mjs';
+import { DATETIME                        } from '../../stealth/source/parser/DATETIME.mjs';
+import { URL                             } from '../../stealth/source/parser/URL.mjs';
+import { connect, disconnect             } from './Server.mjs';
+
 
 
 const mock_events = (request) => {
@@ -46,14 +48,16 @@ const mock_events = (request) => {
 
 };
 
+
+
 before(connect);
 
 describe('new Request()', function(assert) {
 
-	let mode    = EXAMPLE.toMode('https://example.com/index.html');
+	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
 	let request = new Request({
 		mode: mode,
-		url:  EXAMPLE.toURL('https://example.com/index.html')
+		url:  URL.parse('https://example.com/index.html')
 	}, this.server);
 
 	assert(request.mode,     mode);
@@ -66,7 +70,7 @@ describe('new Request()', function(assert) {
 
 describe('Request.from()', function(assert) {
 
-	let mode    = EXAMPLE.toMode('https://example.com/does-not-exist.html');
+	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
 	let request = Request.from({
 		type: 'Request',
 		data: {
@@ -115,7 +119,16 @@ describe('isRequest()', function(assert) {
 
 describe('Request.prototype.toJSON()', function(assert) {
 
-	let mode     = EXAMPLE.toMode('https://example.com/does-not-exist.html');
+	let mode     = {
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	};
 	let policy   = {
 		domain:   'example.com',
 		policies: [{
@@ -244,8 +257,17 @@ describe('Request.prototype.set()', function(assert) {
 describe('Request.prototype.start()', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.toMode('https://example.com/index.html'),
-		url:  EXAMPLE.toURL('https://example.com/index.html')
+		mode: {
+			domain: 'example.com',
+			mode: {
+				text:  true,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		url: URL.parse('https://example.com/index.html')
 	}, this.server);
 	let events  = mock_events(request);
 
@@ -298,8 +320,17 @@ describe('Request.prototype.start()', function(assert) {
 describe('Request.prototype.start()/cache', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.toMode('https://example.com/index.html'),
-		url:  EXAMPLE.toURL('https://example.com/index.html')
+		mode: {
+			domain: 'example.com',
+			mode: {
+				text:  true,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		url: URL.parse('https://example.com/index.html')
 	}, this.server);
 	let events  = mock_events(request);
 
@@ -353,7 +384,7 @@ describe('Policy.prototype.save()', function(assert) {
 	this.server.services.policy.save({
 		domain: 'example.com',
 		policies: [{
-			path:  '/policy',
+			path:  '/policy.html',
 			query: 'foo&bar*'
 		}]
 	}, (response) => {
@@ -373,8 +404,17 @@ describe('Policy.prototype.save()', function(assert) {
 describe('Request.prototype.start()/policy', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.toMode('https://example.com/policy?foo=bar&bar123=456&track=123'),
-		url:  EXAMPLE.toURL('https://example.com/policy?foo=bar&bar123=456&track=123'),
+		mode: {
+			domain: 'example.com',
+			mode: {
+				text:  true,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		url: URL.parse('https://example.com/policy.html?foo=bar&bar123=456&track=123')
 	}, this.server);
 	let events  = mock_events(request);
 
@@ -420,7 +460,7 @@ describe('Request.prototype.start()/policy', function(assert) {
 
 		assert(response, {
 			headers: {
-				location: 'https://example.com/policy?bar123=456&foo=bar'
+				location: 'https://example.com/policy.html?bar123=456&foo=bar'
 			},
 			payload: null
 		});
@@ -460,10 +500,18 @@ describe('Redirect.prototype.save()', function(assert) {
 describe('Request.prototype.start()/redirect', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.toMode('https://example.com/redirect'),
-		url:  EXAMPLE.toURL('https://example.com/redirect')
+		mode: {
+			domain: 'example.com',
+			mode: {
+				text:  true,
+				image: true,
+				audio: true,
+				video: true,
+				other: true
+			}
+		},
+		url: URL.parse('https://example.com/redirect')
 	}, this.server);
-
 
 	request.once('redirect', (response) => {
 
@@ -505,8 +553,17 @@ describe('Cache.prototype.remove()', function(assert) {
 describe('Request.prototype.stop()', function(assert) {
 
 	let request = new Request({
-		mode: EXAMPLE.toMode('https://example.com/index.html'),
-		url:  EXAMPLE.toURL('https://example.com/index.html')
+		mode: {
+			domain: 'example.com',
+			mode: {
+				text:  true,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		url: URL.parse('https://example.com/index.html')
 	}, this.server);
 	let events  = mock_events(request);
 

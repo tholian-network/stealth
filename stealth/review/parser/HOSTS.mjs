@@ -1,227 +1,257 @@
 
-import { Buffer, isArray, isString                } from '../../../base/index.mjs';
-import { after, before, describe, finish, EXAMPLE } from '../../../covert/index.mjs';
-import { HOSTS                                    } from '../../../stealth/source/parser/HOSTS.mjs';
+import { Buffer, isArray, isString } from '../../../base/index.mjs';
+import { describe, finish          } from '../../../covert/index.mjs';
+import { IP                        } from '../../../stealth/source/parser/IP.mjs';
+import { HOSTS                     } from '../../../stealth/source/parser/HOSTS.mjs';
 
 
 
-const BLOCK = EXAMPLE.toSketch('hosts/block.txt');
-const POSIX = EXAMPLE.toSketch('hosts/posix.txt');
+const BLOCKLIST = Buffer.from([
+	'#',
+	'#   comment that should be ignored',
+	'#   \t   ',
+	'#      (1) site',
+	'#\t\t    ',
+	'Site',
+	'malicious.example.com',
+	'ad.example.com',
+	'',
+	'! another comment that should be ignored',
+	'Category',
+	'tracker.example.com',
+	'#',
+	'# comment that should be ignored',
+	'#',
+	'# ignored.com',
+	'# 127.0.0.1 other.ignored.com',
+	'#',
+	'# END'
+].join('\r\n'), 'utf8');
 
-const find_domain = (data, domain) => {
+const HOSTSLIST = Buffer.from([
+	'#',
+	'# /etc/hosts: static lookup table for host names',
+	'#',
+	'',
+	'#<ip-address>	<hostname.domain.org>	<hostname>',
+	'127.0.0.1	localhost.localdomain	localhost',
+	'::1		localhost.localdomain	localhost',
+	'',
+	'192.168.1.1  router router.localdomain # comment that should be filtered out',
+	'192.168.1.2  machine',
+	'',
+	'',
+	'',
+	'#',
+	'# TEMPORARY',
+	'#',
+	'',
+	'',
+	'93.184.216.34                           example.com',
+	'2606:2800:0220:0001:0248:1893:25c8:1946 example.com',
+	'',
+	'93.184.216.34				      	www.example.com',
+	'2606:2800:0220:0001:0248:1893:25c8:1946 www.example.com',
+	'',
+	'',
+	'',
+	'# End of file',
+].join('\n'), 'utf8');
 
-	let found = null;
-
-	if (isArray(data) && isString(domain)) {
-		found = data.find((ref) => ref.domain === domain) || null;
-	}
-
-	return found;
-
-};
 
 
+describe('HOSTS.isHost()', function(assert) {
 
-before('prepare', function(assert) {
+	let host1 = { domain: 'example.com',         hosts: [] };
+	let host2 = { domain: 'ad.example.com',      hosts: [ IP.parse('127.0.0.1') ] };
+	let host3 = { domain: 'tracker.example.com', hosts: [ IP.parse('93.184.216.34') ] };
+	let host4 = { domain: 'tracker.example.com', hosts: [ IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] };
+	let host5 = { domain: '192.168.0.1',         hosts: [ IP.parse('192.168.0.1') ] };
+	let host6 = { domain: '192.168.0.1' };
+	let host7 = { hosts: [] };
+	let host8 = { hosts: [ IP.parse('127.0.0.1') ] };
 
-	this.block = HOSTS.parse(BLOCK.payload);
-	this.posix = HOSTS.parse(POSIX.payload);
+	assert(HOSTS.isHost(host1), true);
+	assert(HOSTS.isHost(host2), true);
+	assert(HOSTS.isHost(host3), true);
+	assert(HOSTS.isHost(host4), true);
 
-	assert(this.block !== null);
-	assert(this.posix !== null);
+	assert(HOSTS.isHost(host5), false);
+	assert(HOSTS.isHost(host6), false);
+	assert(HOSTS.isHost(host7), false);
+	assert(HOSTS.isHost(host8), false);
 
 });
 
-describe('HOSTS.isHost()/block', function(assert) {
+describe('HOSTS.isHOSTS()', function(assert) {
 
-	let domain1 = find_domain(this.block, 'malicious.example.com');
-	let domain2 = find_domain(this.block, 'ad.example.com');
-	let domain3 = find_domain(this.block, 'tracker.example.com');
+	let host1 = { domain: 'example.com',         hosts: [] };
+	let host2 = { domain: 'tracker.example.com', hosts: [ IP.parse('93.184.216.34') ] };
+	let host3 = { domain: '192.168.0.1',         hosts: [ IP.parse('192.168.0.1') ] };
+	let host4 = { hosts: [ IP.parse('127.0.0.1') ] };
 
-	let result1 = HOSTS.isHost(domain1);
-	let result2 = HOSTS.isHost(domain2);
-	let result3 = HOSTS.isHost(domain3);
-
-	assert(result1, true);
-	assert(result2, true);
-	assert(result3, true);
-
-});
-
-describe('HOSTS.isHOSTS()/block', function(assert) {
-
-	let domain1 = find_domain(this.block, 'malicious.example.com');
-	let domain2 = find_domain(this.block, 'ad.example.com');
-	let domain3 = find_domain(this.block, 'tracker.example.com');
-
-	let result1 = HOSTS.isHOSTS([ domain1 ]);
-	let result2 = HOSTS.isHOSTS([ domain1, domain2 ]);
-	let result3 = HOSTS.isHOSTS([ domain1, domain2, domain3 ]);
-
-	assert(result1, true);
-	assert(result2, true);
-	assert(result3, true);
+	assert(HOSTS.isHOSTS([ host1, host2 ]), true);
+	assert(HOSTS.isHOSTS([ host1, host3 ]), false);
+	assert(HOSTS.isHOSTS([ host1, host4 ]), false);
+	assert(HOSTS.isHOSTS([ host2, host3 ]), false);
+	assert(HOSTS.isHOSTS([ host2, host4 ]), false);
+	assert(HOSTS.isHOSTS([ host3, host4 ]), false);
 
 });
 
-describe('HOSTS.parse()/block', function(assert) {
+describe('HOSTS.parse()/blocklist', function(assert) {
 
-	let domain1 = find_domain(this.block, 'malicious.example.com');
-	let domain2 = find_domain(this.block, 'ad.example.com');
-	let domain3 = find_domain(this.block, 'tracker.example.com');
+	let hosts = HOSTS.parse(BLOCKLIST);
+	let host1 = hosts.find((h) => h.domain === 'Site')                  || null;
+	let host2 = hosts.find((h) => h.domain === 'Category')              || null;
+	let host3 = hosts.find((h) => h.domain === 'ignored.com')           || null;
+	let host4 = hosts.find((h) => h.domain === 'other.ignored.com')     || null;
+	let host5 = hosts.find((h) => h.domain === 'malicious.example.com') || null;
+	let host6 = hosts.find((h) => h.domain === 'ad.example.com')        || null;
+	let host7 = hosts.find((h) => h.domain === 'tracker.example.com')   || null;
 
-	assert(domain1, {
+	assert(HOSTS.isHOSTS(hosts), true);
+
+	assert(host1, null);
+
+	assert(host2, null);
+
+	assert(host3, null);
+
+	assert(host4, null);
+
+	assert(host5, {
 		domain: 'malicious.example.com',
-		hosts: [{
-			ip:    '127.0.0.1',
-			scope: 'private',
-			type:  'v4'
-		}]
+		hosts: [
+			IP.parse('127.0.0.1')
+		]
 	});
 
-	assert(domain2, {
+	assert(host6, {
 		domain: 'ad.example.com',
-		hosts: [{
-			ip:    '127.0.0.1',
-			scope: 'private',
-			type:  'v4'
-		}]
+		hosts: [
+			IP.parse('127.0.0.1')
+		]
 	});
 
-	assert(domain3, {
+	assert(host7, {
 		domain: 'tracker.example.com',
-		hosts: [{
-			ip:    '127.0.0.1',
-			scope: 'private',
-			type:  'v4'
-		}]
+		hosts: [
+			IP.parse('127.0.0.1')
+		]
 	});
 
 });
 
-describe('HOSTS.render()/block', function(assert) {
+describe('HOSTS.render()/blocklist', function(assert) {
 
-	let hosts = HOSTS.render(this.block);
-	let file  = [
+	let hosts  = HOSTS.parse(BLOCKLIST);
+	let string = HOSTS.render(hosts);
+
+	assert(HOSTS.isHOSTS(hosts), true);
+
+	assert(isString(string), true);
+
+	assert(string, [
 		'127.0.0.1\tmalicious.example.com',
 		'127.0.0.1\tad.example.com',
 		'127.0.0.1\ttracker.example.com'
-	].join('\n');
-
-	assert(hosts, file);
+	].join('\n'));
 
 });
 
-describe('HOSTS.sort()/block', function(assert) {
+describe('HOSTS.sort()/blocklist', function(assert) {
 
-	let sorted = HOSTS.sort([
-		HOSTS.parse(Buffer.from('malicious.example.com', 'utf8'))[0],
-		HOSTS.parse(Buffer.from('ad.example.com', 'utf8'))[0],
-		HOSTS.parse(Buffer.from('tracker.example.com', 'utf8'))[0]
-	]);
+	let hosts  = HOSTS.parse(BLOCKLIST);
+	let sorted = HOSTS.sort(hosts);
 
 	assert(isArray(sorted), true);
 
-	assert(sorted[0], {
+	assert(sorted, [{
 		domain: 'ad.example.com',
-		hosts:  [{
-			ip:    '127.0.0.1',
-			scope: 'private',
-			type:  'v4'
-		}]
-	});
-
-	assert(sorted[1], {
+		hosts: [
+			IP.parse('127.0.0.1')
+		]
+	}, {
 		domain: 'malicious.example.com',
-		hosts:  [{
-			ip:    '127.0.0.1',
-			scope: 'private',
-			type:  'v4'
-		}]
-	});
-
-	assert(sorted[2], {
+		hosts: [
+			IP.parse('127.0.0.1')
+		]
+	}, {
 		domain: 'tracker.example.com',
-		hosts:  [{
-			ip:    '127.0.0.1',
-			scope: 'private',
-			type:  'v4'
-		}]
-	});
+		hosts: [
+			IP.parse('127.0.0.1')
+		]
+	}]);
 
 });
 
-describe('HOSTS.isHost()/posix', function(assert) {
+describe('HOSTS.parse()/hostslist', function(assert) {
 
-	let domain1 = find_domain(this.posix, 'router');
-	let domain2 = find_domain(this.posix, 'router.localdomain');
-	let domain3 = find_domain(this.posix, 'machine');
+	let hosts = HOSTS.parse(HOSTSLIST);
+	let host1 = hosts.find((h) => h.domain === 'localhost')             || null;
+	let host2 = hosts.find((h) => h.domain === 'localhost.localdomain') || null;
+	let host3 = hosts.find((h) => h.domain === 'router')                || null;
+	let host4 = hosts.find((h) => h.domain === 'router.localdomain')    || null;
+	let host5 = hosts.find((h) => h.domain === 'machine')               || null;
+	let host6 = hosts.find((h) => h.domain === 'example.com')           || null;
+	let host7 = hosts.find((h) => h.domain === 'www.example.com')       || null;
 
-	let result1 = HOSTS.isHost(domain1);
-	let result2 = HOSTS.isHost(domain2);
-	let result3 = HOSTS.isHost(domain3);
+	assert(HOSTS.isHOSTS(hosts), true);
 
-	assert(result1, true);
-	assert(result2, true);
-	assert(result3, true);
+	assert(host1, null);
 
-});
+	assert(host2, null);
 
-describe('HOSTS.isHOSTS()/posix', function(assert) {
-
-	let domain1 = find_domain(this.posix, 'router');
-	let domain2 = find_domain(this.posix, 'router.localdomain');
-	let domain3 = find_domain(this.posix, 'machine');
-
-	let result1 = HOSTS.isHOSTS([ domain1 ]);
-	let result2 = HOSTS.isHOSTS([ domain1, domain2 ]);
-	let result3 = HOSTS.isHOSTS([ domain1, domain2, domain3 ]);
-
-	assert(result1, true);
-	assert(result2, true);
-	assert(result3, true);
-
-});
-
-describe('HOSTS.parse()/posix', function(assert) {
-
-	let domain1 = find_domain(this.posix, 'router');
-	let domain2 = find_domain(this.posix, 'router.localdomain');
-	let domain3 = find_domain(this.posix, 'machine');
-
-	assert(domain1, {
+	assert(host3, {
 		domain: 'router',
-		hosts: [{
-			ip:    '192.168.1.1',
-			scope: 'private',
-			type:  'v4'
-		}]
+		hosts: [
+			IP.parse('192.168.1.1')
+		]
 	});
 
-	assert(domain2, {
+	assert(host4, {
 		domain: 'router.localdomain',
-		hosts: [{
-			ip:    '192.168.1.1',
-			scope: 'private',
-			type:  'v4'
-		}]
+		hosts: [
+			IP.parse('192.168.1.1')
+		]
 	});
 
-	assert(domain3, {
+	assert(host5, {
 		domain: 'machine',
-		hosts: [{
-			ip:    '192.168.1.2',
-			scope: 'private',
-			type:  'v4'
-		}]
+		hosts: [
+			IP.parse('192.168.1.2')
+		]
+	});
+
+	assert(host6, {
+		domain: 'example.com',
+		hosts: [
+			IP.parse('93.184.216.34'),
+			IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+		]
+	});
+
+	assert(host7, {
+		domain: 'www.example.com',
+		hosts: [
+			IP.parse('93.184.216.34'),
+			IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+		]
 	});
 
 });
 
-describe('HOSTS.render()/posix', function(assert) {
+describe('HOSTS.render()/hostslist', function(assert) {
 
-	let hosts = HOSTS.render(this.posix);
-	let file  = [
+	let hosts  = HOSTS.parse(HOSTSLIST);
+	let string = HOSTS.render(hosts);
+
+	assert(HOSTS.isHOSTS(hosts), true);
+
+	assert(isString(string), true);
+
+	assert(string, [
 		'192.168.1.1\trouter',
 		'192.168.1.1\trouter.localdomain',
 		'192.168.1.2\tmachine',
@@ -229,99 +259,45 @@ describe('HOSTS.render()/posix', function(assert) {
 		'2606:2800:220:1:248:1893:25c8:1946\texample.com',
 		'93.184.216.34\twww.example.com',
 		'2606:2800:220:1:248:1893:25c8:1946\twww.example.com'
-	].join('\n');
-
-	assert(hosts, file);
+	].join('\n'));
 
 });
 
-describe('HOSTS.sort()/posix', function(assert) {
+describe('HOSTS.sort()/hostslist', function(assert) {
 
-	let sorted = HOSTS.sort([
-		HOSTS.parse(Buffer.from('192.168.1.1\trouter', 'utf8'))[0],
-		HOSTS.parse(Buffer.from('192.168.1.1\trouter.localdomain', 'utf8'))[0],
-		HOSTS.parse(Buffer.from('192.168.1.2\tmachine', 'utf8'))[0],
-		HOSTS.parse(Buffer.from('93.184.216.34\texample.com', 'utf8'))[0],
-		HOSTS.parse(Buffer.from('2606:2800:220:1:248:1893:25c8:1946\texample.com', 'utf8'))[0],
-		HOSTS.parse(Buffer.from('93.184.216.34\twww.example.com', 'utf8'))[0],
-		HOSTS.parse(Buffer.from('2606:2800:220:1:248:1893:25c8:1946\twww.example.com', 'utf8'))[0]
-	]);
+	let hosts  = HOSTS.parse(HOSTSLIST);
+	let sorted = HOSTS.sort(hosts);
 
 	assert(isArray(sorted), true);
 
-	assert(sorted[0], {
+	assert(sorted, [{
 		domain: 'example.com',
-		hosts: [ EXAMPLE.ipv4 ]
-	});
-
-	assert(sorted[1], {
-		domain: 'example.com',
-		hosts: [ EXAMPLE.ipv6 ]
-	});
-
-	assert(sorted[2], {
+		hosts: [
+			IP.parse('93.184.216.34'),
+			IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+		]
+	}, {
 		domain: 'www.example.com',
-		hosts: [ EXAMPLE.ipv4 ]
-	});
-
-	assert(sorted[3], {
-		domain: 'www.example.com',
-		hosts: [ EXAMPLE.ipv6 ]
-	});
-
-	assert(sorted[4], {
+		hosts: [
+			IP.parse('93.184.216.34'),
+			IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+		]
+	}, {
 		domain: 'machine',
-		hosts: [{
-			ip:    '192.168.1.2',
-			scope: 'private',
-			type:  'v4'
-		}]
-	});
-
-	assert(sorted[5], {
+		hosts: [
+			IP.parse('192.168.1.2')
+		]
+	}, {
 		domain: 'router',
-		hosts: [{
-			ip:    '192.168.1.1',
-			scope: 'private',
-			type:  'v4'
-		}]
-	});
-
-	assert(sorted[6], {
+		hosts: [
+			IP.parse('192.168.1.1')
+		]
+	}, {
 		domain: 'router.localdomain',
-		hosts: [{
-			ip:    '192.168.1.1',
-			scope: 'private',
-			type:  'v4'
-		}]
-	});
-
-});
-
-describe('HOSTS.parse()/remote', function(assert) {
-
-	let domain1 = find_domain(this.posix, 'example.com');
-	let domain2 = find_domain(this.posix, 'www.example.com');
-
-	assert(domain1, {
-		domain: 'example.com',
-		hosts:  EXAMPLE.hosts
-	});
-
-	assert(domain2, {
-		domain: 'www.example.com',
-		hosts:  EXAMPLE.hosts
-	});
-
-});
-
-after('cleanup', function(assert) {
-
-	this.block = null;
-	this.posix = null;
-
-	assert(this.block, null);
-	assert(this.posix, null);
+		hosts: [
+			IP.parse('192.168.1.1')
+		]
+	}]);
 
 });
 

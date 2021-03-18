@@ -1,10 +1,10 @@
 
-import { isArray, isString         } from '../../base/index.mjs';
-import { describe, finish, EXAMPLE } from '../../covert/index.mjs';
-import { Request                   } from '../../stealth/source/Request.mjs';
-import { Session, isSession        } from '../../stealth/source/Session.mjs';
-import { isTab                     } from '../../stealth/source/Tab.mjs';
-import { URL                       } from '../../stealth/source/parser/URL.mjs';
+import { isArray, isString  } from '../../base/index.mjs';
+import { describe, finish   } from '../../covert/index.mjs';
+import { Request            } from '../../stealth/source/Request.mjs';
+import { Session, isSession } from '../../stealth/source/Session.mjs';
+import { isTab              } from '../../stealth/source/Tab.mjs';
+import { URL                } from '../../stealth/source/parser/URL.mjs';
 
 
 
@@ -353,11 +353,12 @@ describe('Session.prototype.dispatch()', function(assert) {
 
 describe('Session.prototype.get()', function(assert) {
 
+	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
 	let request = Request.from({
 		type: 'Request',
 		data: {
 			url:   'https://example.com/does-not-exist.html',
-			mode:  EXAMPLE.toMode('https://example.com/does-not-exist.html'),
+			mode:  mode,
 			flags: {
 				connect:   false,
 				proxy:     true,
@@ -414,11 +415,12 @@ describe('Session.prototype.get()', function(assert) {
 
 describe('Session.prototype.track()', function(assert) {
 
+	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
 	let request = Request.from({
 		type: 'Request',
 		data: {
 			url:   'https://example.com/does-not-exist.html',
-			mode:  EXAMPLE.toMode('https://example.com/does-not-exist.html'),
+			mode:  mode,
 			flags: {
 				connect:   false,
 				proxy:     true,
@@ -467,11 +469,12 @@ describe('Session.prototype.track()', function(assert) {
 
 describe('Session.prototype.untrack()', function(assert) {
 
+	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
 	let request = Request.from({
 		type: 'Request',
 		data: {
 			url:   'https://example.com/does-not-exist.html',
-			mode:  EXAMPLE.toMode('https://example.com/does-not-exist.html'),
+			mode:  mode,
 			flags: {
 				connect:   false,
 				proxy:     true,
