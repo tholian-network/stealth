@@ -437,27 +437,49 @@ const onconnect = function(connection, url) {
 
 						if (response.headers['@status'] === 'success') {
 
-							let tunnel = null;
+							let protocol = null;
+							let tunnel   = null;
 
-							if (url.protocol === 'https') {
-								connection.protocol = 'https';
-								tunnel = HTTPS.connect(url, connection);
-							} else if (url.protocol === 'http') {
-								connection.protocol = 'http';
-								tunnel = HTTP.connect(url, connection);
-							} else if (url.protocol === 'wss') {
-								connection.protocol = 'wss';
-								tunnel = WSS.connect(url, connection);
-							} else if (url.protocol === 'ws') {
-								connection.protocol = 'ws';
-								tunnel = WS.connect(url, connection);
+							try {
+
+								if (url.protocol === 'https') {
+									protocol = 'https';
+									tunnel   = HTTPS.connect(url, connection);
+								} else if (url.protocol === 'http') {
+									protocol = 'http';
+									tunnel   = HTTP.connect(url, connection);
+								} else if (url.protocol === 'wss') {
+									protocol = 'wss';
+									tunnel   = WSS.connect(url, connection);
+								} else if (url.protocol === 'ws') {
+									protocol = 'ws';
+									tunnel   = WS.connect(url, connection);
+								}
+
+							} catch (err) {
+								protocol = null;
+								tunnel   = null;
 							}
 
-							if (tunnel !== null) {
-								connection.emit('@tunnel', [ tunnel ]);
-							} else {
-								connection.disconnect();
-							}
+							setTimeout(() => {
+
+								if (protocol !== null && tunnel !== null) {
+
+									connection.protocol = protocol;
+									connection.tunnel   = tunnel;
+
+									connection.emit('@tunnel', [ tunnel ]);
+
+								} else {
+
+									connection.protocol = null;
+									connection.tunnel   = null;
+
+									connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+
+								}
+
+							}, 100);
 
 						} else if (response.headers['@status'] === 'error-blocked') {
 							connection.emit('error', [{ code: 403 }]);
@@ -550,53 +572,63 @@ const onupgrade = function(connection, url) {
 						socket = isSocket(socket) ? socket : null;
 
 
-						if (status === 'success') {
+						if (connection.socket !== null) {
 
-							SOCKS.send(connection, {
-								headers: {
-									'@status': 'success'
-								},
-								payload: reply
-							});
+							if (status === 'success') {
 
-							if (socket !== null) {
+								SOCKS.send(connection, {
+									headers: {
+										'@status': 'success'
+									},
+									payload: reply
+								});
 
-								socket.pipe(connection.socket);
-								connection.socket.pipe(socket);
+								if (socket !== null) {
+
+									socket.pipe(connection.socket);
+									connection.socket.pipe(socket);
+
+								} else {
+
+									connection.socket.on('data', (fragment) => {
+										ondata(connection, url, fragment);
+									});
+
+								}
+
+								setTimeout(() => {
+									connection.emit('@tunnel', [ null ]);
+								}, 0);
+
+							} else if (status !== null && ERRORS.includes(status) === true) {
+
+								SOCKS.send(connection, {
+									headers: {
+										'@status': status
+									},
+									payload: null
+								});
+
+								setTimeout(() => {
+									connection.disconnect();
+								}, 0);
 
 							} else {
 
-								connection.socket.on('data', (fragment) => {
-									ondata(connection, url, fragment);
+								SOCKS.send(connection, {
+									headers: {
+										'@status': 'error'
+									},
+									payload: null
 								});
+
+								setTimeout(() => {
+									connection.disconnect();
+								}, 0);
 
 							}
 
-							setTimeout(() => {
-								connection.emit('@tunnel', [ null ]);
-							}, 0);
-
-						} else if (status !== null && ERRORS.includes(status) === true) {
-
-							SOCKS.send(connection, {
-								headers: {
-									'@status': status
-								},
-								payload: null
-							});
-
-							setTimeout(() => {
-								connection.disconnect();
-							}, 0);
-
 						} else {
-
-							SOCKS.send(connection, {
-								headers: {
-									'@status': 'error'
-								},
-								payload: null
-							});
 
 							setTimeout(() => {
 								connection.disconnect();
@@ -691,6 +723,7 @@ const Connection = function(socket) {
 
 	this.socket   = socket || null;
 	this.protocol = 'socks';
+	this.tunnel   = null;
 	this.type     = null;
 
 
@@ -1079,7 +1112,6 @@ const SOCKS = {
 						payload: payload
 					});
 
-
 				}
 
 
@@ -1099,21 +1131,25 @@ const SOCKS = {
 
 				}
 
-			} else if (connection.protocol === 'https') {
+			} else if (connection.tunnel !== null) {
 
-				HTTPS.send(connection, data, callback);
+				if (connection.protocol === 'https') {
 
-			} else if (connection.protocol === 'http') {
+					HTTPS.send(connection.tunnel, data, callback);
 
-				HTTP.send(connection, data, callback);
+				} else if (connection.protocol === 'http') {
 
-			} else if (connection.protocol === 'wss') {
+					HTTP.send(connection.tunnel, data, callback);
 
-				WSS.send(connection, data, callback);
+				} else if (connection.protocol === 'wss') {
 
-			} else if (connection.protocol === 'ws') {
+					WSS.send(connection.tunnel, data, callback);
 
-				WS.send(connection, data, callback);
+				} else if (connection.protocol === 'ws') {
+
+					WS.send(connection.tunnel, data, callback);
+
+				}
 
 			} else {
 

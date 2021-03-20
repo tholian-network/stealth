@@ -275,23 +275,34 @@ describe('SOCKS.upgrade()', function(assert) {
 
 		connection.once('@connect-tunnel', (request, callback) => {
 
-			let url = request.payload;
+			let url    = request.payload;
+			let tunnel = null;
 
-			socket = net.connect({
-				host: url.hosts[0].ip,
-				port: url.port
-			}, () => {
+			try {
 
-				let host = URL.toHost(url);
-				let port = url.port || null;
+				tunnel = net.connect({
+					host: url.hosts[0].ip,
+					port: url.port
+				}, () => {
 
-				if (host !== null && port !== null) {
-					callback('success', URL.parse(host + ':' + port), socket);
-				} else {
-					callback('error-host', null);
-				}
+					let host = URL.toHost(url);
+					let port = url.port || null;
 
-			});
+					if (host !== null && port !== null) {
+						callback('success', URL.parse(host + ':' + port), tunnel);
+					} else {
+						callback('error-host', null);
+					}
+
+				});
+
+			} catch (err) {
+				tunnel = null;
+			}
+
+			if (tunnel === null) {
+				callback('error-connection', null);
+			}
 
 		});
 
@@ -328,7 +339,7 @@ describe('SOCKS.upgrade()', function(assert) {
 
 		tunnel.once('@connect', () => {
 
-			HTTP.send(connection, {
+			SOCKS.send(connection, {
 				headers: {
 					'@method':         'GET',
 					'@url':            '/index.html',
@@ -353,7 +364,7 @@ describe('SOCKS.upgrade()', function(assert) {
 	setTimeout(() => {
 		server.close();
 		assert(true);
-	}, 1000);
+	}, 3000);
 
 });
 
