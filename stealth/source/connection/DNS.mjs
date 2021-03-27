@@ -1,9 +1,9 @@
 
 import dgram from 'dgram';
 
-import { Buffer, Emitter, isBoolean, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                                   } from '../../source/parser/IP.mjs';
-import { URL                                                                  } from '../../source/parser/URL.mjs';
+import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                                             } from '../../source/parser/IP.mjs';
+import { URL                                                                            } from '../../source/parser/URL.mjs';
 
 
 
@@ -491,6 +491,42 @@ const DNS = {
 	},
 
 	receive: function(connection, buffer, callback) {
+
+		connection = isConnection(connection) ? connection : null;
+		buffer     = isBuffer(buffer)         ? buffer     : null;
+		callback   = isFunction(callback)     ? callback   : null;
+
+
+		if (buffer !== null) {
+
+			let data = decode(connection, buffer);
+			if (data !== null) {
+
+				if (callback !== null) {
+
+					callback({
+						headers: data.headers,
+						payload: data.payload
+					});
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(null);
+				}
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			}
+
+		}
+
 	},
 
 	send: function(connection, data, callback) {
