@@ -1,9 +1,9 @@
 
 import dgram from 'dgram';
 
-import { console, Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                                                      } from '../../source/parser/IP.mjs';
-import { URL                                                                                     } from '../../source/parser/URL.mjs';
+import { console, Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                                                               } from '../../source/parser/IP.mjs';
+import { URL                                                                                              } from '../../source/parser/URL.mjs';
 
 
 
@@ -16,6 +16,7 @@ const TYPES = {
 	'OPT':   41,
 	'PTR':   12,
 	'SOA':    6,
+	'SRV':   33,
 	'TXT':   16
 };
 
@@ -23,39 +24,71 @@ const CLASSES = {
 	'IN': 1
 };
 
-const decode_question = function(chunk, payload) {
+const decode_domain = function(chunk, payload, labels) {
 
-	let offset = chunk.state.offset;
-	let length = payload[offset];
-	let labels = [];
+	let bytes = 0;
+	let check = payload[bytes];
 
+	if (check !== 0) {
 
-	while (offset + 1 < payload.length) {
+		while (bytes < payload.length) {
 
-		let length = payload[offset];
-		if (length === 0) {
+			let length = payload[bytes];
+			if (length === 0) {
 
-			offset += 1;
+				bytes += 1;
 
-			break;
+				break;
 
-		} else if (length > 0 && length < 64) {
+			} else if (length > 0 && length < 64) {
 
-			let label = payload.slice(offset + 1, offset + 1 + length);
+				let label = payload.slice(bytes + 1, bytes + 1 + length);
 
-			labels.push(label);
+				labels.push(label);
 
-			offset += 1;
-			offset += length;
+				bytes += 1;
+				bytes += length;
+
+			} else if (length > 64) {
+
+				let pointer = ((length - 192) << 8) + payload[bytes + 1];
+				if (pointer >= 12) {
+
+					let entry = chunk.state.labels[pointer] || [];
+					if (entry.length > 0) {
+						entry.forEach((label) => labels.push(label));
+					}
+
+				}
+
+				bytes += 2;
+
+				break;
+
+			}
 
 		}
 
+	} else {
+
+		bytes += 1;
+
 	}
 
-	if (labels.length > 0) {
-		chunk.state.database[chunk.state.offset] = labels.slice();
-	}
+	return bytes;
 
+};
+
+const decode_question = function(chunk, payload) {
+
+	let labels = [];
+	let offset = chunk.state.offset;
+	let bytes  = decode_domain(chunk, payload.slice(offset), labels);
+
+	if (bytes > 0) {
+		chunk.state.labels[offset] = labels.slice();
+		offset += bytes;
+	}
 
 	let domain = labels.map((buf) => buf.toString('utf8')).join('.');
 	let qtype  = (payload[offset + 0] << 8) + payload[offset + 1] || null;
@@ -82,67 +115,21 @@ const decode_question = function(chunk, payload) {
 
 const decode_record = function(chunk, payload) {
 
-	let offset = chunk.state.offset;
-	let length = payload[offset];
 	let labels = [];
+	let offset = chunk.state.offset;
+	let bytes  = decode_domain(chunk, payload.slice(offset), labels);
 
-	if (length !== 0) {
-
-		while (offset + 1 < payload.length) {
-
-			let length = payload[offset];
-			if (length === 0) {
-
-				offset += 1;
-
-				break;
-
-			} else if (length > 0 && length < 64) {
-
-				let label = payload.slice(offset + 1, offset + 1 + length);
-
-				labels.push(label);
-
-				offset += 1;
-				offset += length;
-
-			} else if (length > 64) {
-
-				let pointer = ((length - 192) << 8) + payload[offset + 1];
-				if (pointer >= 12) {
-
-					let entry = chunk.state.database[pointer] || [];
-					if (entry.length > 0) {
-						entry.forEach((label) => labels.push(label));
-					}
-
-				}
-
-				offset += 2;
-
-				break;
-
-			}
-
-		}
-
-		if (labels.length > 0) {
-			chunk.state.database[chunk.state.offset] = labels.slice();
-		}
-
-	} else {
-
-		offset += 1;
-
+	if (bytes > 0) {
+		chunk.state.labels[offset] = labels.slice();
+		offset += bytes;
 	}
 
-
 	let domain   = labels.map((buf) => buf.toString('utf8')).join('.');
-	let rtype    = (payload[offset + 0] << 8) + payload[offset + 1] || null;
-	let rclass   = (payload[offset + 2] << 8) + payload[offset + 3] || null;
-	let rttl_hi  = (payload[offset + 4] << 8) + payload[offset + 5] || 0;
-	let rttl_lo  = (payload[offset + 6] << 8) + payload[offset + 7] || 0;
-	let rdlength = (payload[offset + 8] << 8) + payload[offset + 9] || 0;
+	let rtype    = (payload[offset + 0] << 8) + payload[offset + 1];
+	let rclass   = (payload[offset + 2] << 8) + payload[offset + 3];
+	let rttl_hi  = (payload[offset + 4] << 8) + payload[offset + 5];
+	let rttl_lo  = (payload[offset + 6] << 8) + payload[offset + 7];
+	let rdlength = (payload[offset + 8] << 8) + payload[offset + 9];
 
 	offset            += 10;
 	chunk.state.offset = offset + rdlength;
@@ -163,7 +150,7 @@ const decode_record = function(chunk, payload) {
 			return {
 				domain: domain,
 				type:   type,
-				data:   IP.parse(ip)
+				value:  IP.parse(ip)
 			};
 
 		} else if (type === 'AAAA') {
@@ -192,25 +179,94 @@ const decode_record = function(chunk, payload) {
 			return {
 				domain: domain,
 				type:   type,
-				data:   IP.parse(ip)
+				value:  IP.parse(ip)
 			};
 
 		} else if (type === 'CNAME') {
-			// TODO: RDATA is domain name
+
+			let value = [];
+			let bytes = decode_domain(chunk, payload.slice(offset), value);
+
+			if (bytes > 0) {
+				chunk.state.labels[offset] = value.slice();
+			}
+
+			return {
+				domain: domain,
+				type:   type,
+				value:  value.join('.')
+			};
+
 		} else if (type === 'MX') {
-			// TODO: RDATA is domain name
+
+			let value      = [];
+			let preference = (payload[offset + 0] << 8) + payload[offset + 1];
+			let bytes      = decode_domain(chunk, payload.slice(offset + 2), value);
+
+			if (bytes > 0) {
+				chunk.state.labels[offset] = value.slice();
+			}
+
+			return {
+				domain: domain,
+				type:   type,
+				value:  value.join('.')
+			};
+
 		} else if (type === 'NS') {
-			// TODO: RDATA is domain name
+
+			let value = [];
+			let bytes = decode_domain(chunk, payload.slice(offset), value);
+
+			if (bytes > 0) {
+				chunk.state.labels[offset] = value.slice();
+			}
+
+			return {
+				domain: domain,
+				type:   type,
+				value:  value.join('.')
+			};
+
 		} else if (type === 'OPT') {
+
 			// TODO: EDNS RFC #6891
+
 		} else if (type === 'PTR') {
-			// TODO: RDATA is domain name
+
+			let value = [];
+			let bytes = decode_domain(chunk, payload.slice(offset), value);
+
+			if (bytes > 0) {
+				chunk.state.labels[offset] = value.slice();
+			}
+
+			return {
+				domain: domain,
+				type:   type,
+				value:  value.join('.')
+			};
+
 		} else if (type === 'SOA') {
+
 			// TODO: Complicated
+
 		} else if (type === 'SRV') {
-			// TODO: RDATA can be IPv4, IPv6 or domain
+
+
+			// TODO: RFC 2782
+			// RDATA can be IPv4, IPv6 or domain
+
+			// _service._protocol.Name TTL Class SRV Priority Weight Port Target
+
 		} else if (type === 'TXT') {
-			// TODO: Complicated
+
+			return {
+				domain: domain,
+				type:   type,
+				value:  payload.slice(offset, offset + rdlength)
+			};
+
 		}
 
 	}
@@ -229,8 +285,8 @@ const decode = function(connection, buffer) {
 
 	let chunk = {
 		state: {
-			database: {},
-			offset:   12
+			labels: {},
+			offset: 12
 		},
 		headers: {
 			'@type': null

@@ -225,9 +225,6 @@ describe('DNS.disconnect()', function(assert) {
 
 });
 
-// TODO: Test A query
-// TODO: Test AAAA query
-// TODO: Test CNAME query
 // TODO: Test NS query
 
 // TODO: Test TXT query (for DKIM and DMARC?)
@@ -259,7 +256,7 @@ describe('DNS.receive()/client/A', function(assert, console) {
 					answers: [{
 						domain: 'example.com',
 						type:   'A',
-						data:   IP.parse('93.184.216.34')
+						value:  IP.parse('93.184.216.34')
 					}],
 					authorities: [],
 					additionals: []
@@ -283,9 +280,9 @@ describe('DNS.receive()/server/A', function(assert) {
 
 	connection.once('@connect', () => {
 
-		DNS.receive(connection, PAYLOADS['A']['REQUEST'], (response) => {
+		DNS.receive(connection, PAYLOADS['A']['REQUEST'], (request) => {
 
-			assert(response, {
+			assert(request, {
 				headers: {
 					'@type': 'request',
 					'@kind': 'query'
@@ -333,7 +330,7 @@ describe('DNS.receive()/client/AAAA', function(assert) {
 					answers:     [{
 						domain: 'example.com',
 						type:   'AAAA',
-						data:   IP.parse('2606:2800:220:1:248:1893:25c8:1946')
+						value:  IP.parse('2606:2800:220:1:248:1893:25c8:1946')
 					}],
 					authorities: [],
 					additionals: []
@@ -357,9 +354,9 @@ describe('DNS.receive()/server/AAAA', function(assert) {
 
 	connection.once('@connect', () => {
 
-		DNS.receive(connection, PAYLOADS['AAAA']['REQUEST'], (response) => {
+		DNS.receive(connection, PAYLOADS['AAAA']['REQUEST'], (request) => {
 
-			assert(response, {
+			assert(request, {
 				headers: {
 					'@type': 'request',
 					'@kind': 'query'
@@ -383,49 +380,79 @@ describe('DNS.receive()/server/AAAA', function(assert) {
 
 });
 
-describe('DNS.receive()/CNAME', function(assert) {
-});
+describe('DNS.receive()/client/CNAME', function(assert) {
 
-describe('DNS.receive()/SRC', function(assert) {
-});
-
-describe('DNS.receive()/TXT', function(assert) {
-});
-
-describe('DNS.send()', function(assert) {
-
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.receive), true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
-	connection.once('response', (response) => {
-
-		console.log(response);
-
-	});
-
 	connection.once('@connect', () => {
 
-		DNS.send(connection, {
-			headers: {
-				'@type': 'request'
-			},
-			payload: {
-				questions: [{
-					name: 'example.com',
-					type: 'A'
-				}]
-			}
-		}, (result) => {
+		DNS.receive(connection, PAYLOADS['CNAME']['RESPONSE'], (response) => {
 
-			assert(result, true);
+			assert(response, {
+				headers: {
+					'@type': 'response',
+					'@kind': 'query'
+				},
+				payload: {
+					questions: [{
+						domain: 'prophet.heise.de',
+						type:   'CNAME'
+					}],
+					answers: [{
+						domain: 'prophet.heise.de',
+						type:   'CNAME',
+						value:  'heise02.webtrekk.net'
+					}],
+					authorities: [],
+					additionals: []
+				}
+			});
+
+			connection.disconnect();
 
 		});
 
 	});
 
 });
+
+// describe('DNS.send()', function(assert) {
+//
+// 	assert(isFunction(DNS.send), true);
+//
+// 	let url        = URL.parse('dns://1.0.0.1:53');
+// 	let connection = DNS.connect(url);
+//
+// 	connection.once('response', (response) => {
+//
+// 		console.log(response);
+//
+// 	});
+//
+// 	connection.once('@connect', () => {
+//
+// 		DNS.send(connection, {
+// 			headers: {
+// 				'@type': 'request'
+// 			},
+// 			payload: {
+// 				questions: [{
+// 					name: 'example.com',
+// 					type: 'A'
+// 				}]
+// 			}
+// 		}, (result) => {
+//
+// 			assert(result, true);
+//
+// 		});
+//
+// 	});
+//
+// });
 
 
 
