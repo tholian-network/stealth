@@ -1,24 +1,25 @@
 
 import dgram from 'dgram';
 
-import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                                             } from '../../source/parser/IP.mjs';
-import { URL                                                                            } from '../../source/parser/URL.mjs';
+import { console, Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                                                      } from '../../source/parser/IP.mjs';
+import { URL                                                                                     } from '../../source/parser/URL.mjs';
 
 
 
-const QTYPE = {
+const TYPES = {
 	'A':      1,
 	'AAAA':  28,
 	'CNAME':  5,
 	'MX':    15,
 	'NS':     2,
+	'OPT':   41,
 	'PTR':   12,
 	'SOA':    6,
 	'TXT':   16
 };
 
-const QCLASS = {
+const CLASSES = {
 	'IN': 1
 };
 
@@ -26,51 +27,51 @@ const decode_question = function(chunk, payload) {
 
 	let offset = chunk.state.offset;
 	let length = payload[offset];
-	if (length > 0 && length < 64) {
-
-		offset += 1;
+	let labels = [];
 
 
-		let labels = [];
+	while (offset + 1 < payload.length) {
 
-		while (offset + length + 1 < payload.length) {
+		let length = payload[offset];
+		if (length === 0) {
 
-			let label = payload.slice(offset, offset + length);
-
-			offset += length;
-			length  = payload[offset];
 			offset += 1;
+
+			break;
+
+		} else if (length > 0 && length < 64) {
+
+			let label = payload.slice(offset + 1, offset + 1 + length);
 
 			labels.push(label);
 
-			if (Number.isNaN(length) === true || length === 0) {
-				break;
-			}
+			offset += 1;
+			offset += length;
 
 		}
 
-		let domain = labels.join('.');
-		let qtype  = (payload[offset + 0] << 8) + payload[offset + 1] || null;
-		let qclass = (payload[offset + 2] << 8) + payload[offset + 3] || null;
+	}
 
-		offset += 4;
-
-		chunk.state.offset = offset;
+	if (labels.length > 0) {
+		chunk.state.database[chunk.state.offset] = labels.slice();
+	}
 
 
-		let type = Object.keys(QTYPE).find((key) => QTYPE[key] === qtype) || null;
-		if (type !== null && qclass === QCLASS['IN']) {
+	let domain = labels.map((buf) => buf.toString('utf8')).join('.');
+	let qtype  = (payload[offset + 0] << 8) + payload[offset + 1] || null;
+	let qclass = (payload[offset + 2] << 8) + payload[offset + 3] || null;
 
-			return {
-				domain: domain,
-				type:   type
-			};
+	offset += 4;
+	chunk.state.offset = offset;
 
-		}
 
-	} else if (length & 0b11000000 === 0b11000000) {
+	let type = Object.keys(TYPES).find((key) => TYPES[key] === qtype) || null;
+	if (type !== null && qclass === CLASSES['IN']) {
 
-		// XXX: What to do here? QNAME cannot be part of database
+		return {
+			domain: domain,
+			type:   type
+		};
 
 	}
 
@@ -79,13 +80,13 @@ const decode_question = function(chunk, payload) {
 
 };
 
-const decode_record = function(chunk, payload, type) {
+const decode_record = function(chunk, payload) {
 
 	let offset = chunk.state.offset;
 	let length = payload[offset];
-	if (length > 0 && length < 64) {
+	let labels = [];
 
-		let labels = [];
+	if (length !== 0) {
 
 		while (offset + 1 < payload.length) {
 
@@ -107,7 +108,7 @@ const decode_record = function(chunk, payload, type) {
 
 			} else if (length > 64) {
 
-				let pointer = (length - 192);
+				let pointer = ((length - 192) << 8) + payload[offset + 1];
 				if (pointer >= 12) {
 
 					let entry = chunk.state.database[pointer] || [];
@@ -117,53 +118,100 @@ const decode_record = function(chunk, payload, type) {
 
 				}
 
-				offset += 1;
+				offset += 2;
+
+				break;
 
 			}
 
 		}
 
-		// TODO: Assumption about pointers is wrong.
-		// Pointers can also point to the length byte before a PARTIAL of a domain
-		// (and needs to be injected until the null byte is seen again)
-		//
-		// --------
-		// 3 foo
-		// 3 bar
-		// 3 com
-		// --------
-		// 3 bar
-		// 192 + 4 (+ offset to header)
-		//
-
 		if (labels.length > 0) {
 			chunk.state.database[chunk.state.offset] = labels.slice();
 		}
 
+	} else {
 
-		// TODO
-		// 2 bytes TYPE
-		// 2 bytes CLASS
-		// 4 bytes TTL 32bit in seconds
-		// 2 bytes RDLENGTH
-		// variable bytes RDATA (dependent on type)
+		offset += 1;
 
-		let qtype  = (payload[offset + 0] << 8) + payload[offset + 1] || null;
-		let qclass = (payload[offset + 2] << 8) + payload[offset + 3] || null;
+	}
 
-		// XXX: TTL is a 32 bit integer which cannot be represented in JS
-		let ttl_hi = (payload[offset + 4] << 8) + payload[offset + 5] || 0;
-		let ttl_lo = (payload[offset + 6] << 8) + payload[offset + 7] || 0;
 
-		offset += 8;
+	let domain   = labels.map((buf) => buf.toString('utf8')).join('.');
+	let rtype    = (payload[offset + 0] << 8) + payload[offset + 1] || null;
+	let rclass   = (payload[offset + 2] << 8) + payload[offset + 3] || null;
+	let rttl_hi  = (payload[offset + 4] << 8) + payload[offset + 5] || 0;
+	let rttl_lo  = (payload[offset + 6] << 8) + payload[offset + 7] || 0;
+	let rdlength = (payload[offset + 8] << 8) + payload[offset + 9] || 0;
 
-		// TODO: Parse RDATA specific format (RFC1035 3.3.1 following)
+	offset            += 10;
+	chunk.state.offset = offset + rdlength;
 
-		chunk.state.offset = offset;
 
-	} else if (length > 64) {
+	let type = Object.keys(TYPES).find((key) => TYPES[key] === rtype) || null;
+	if (type !== null && rdlength > 0) {
 
-		// TODO?
+		if (type === 'A') {
+
+			let ip = [
+				payload[offset + 0],
+				payload[offset + 1],
+				payload[offset + 2],
+				payload[offset + 3]
+			].join('.');
+
+			return {
+				domain: domain,
+				type:   type,
+				data:   IP.parse(ip)
+			};
+
+		} else if (type === 'AAAA') {
+
+			let toHex = (num) => {
+
+				let val = (num).toString(16);
+				if (val.length < 2) {
+					val = '0' + val;
+				}
+
+				return val;
+			};
+
+			let ip = [
+				toHex(payload[offset +  0]) + toHex(payload[offset +  1]),
+				toHex(payload[offset +  2]) + toHex(payload[offset +  3]),
+				toHex(payload[offset +  4]) + toHex(payload[offset +  5]),
+				toHex(payload[offset +  6]) + toHex(payload[offset +  7]),
+				toHex(payload[offset +  8]) + toHex(payload[offset +  9]),
+				toHex(payload[offset + 10]) + toHex(payload[offset + 11]),
+				toHex(payload[offset + 12]) + toHex(payload[offset + 13]),
+				toHex(payload[offset + 14]) + toHex(payload[offset + 15])
+			].join(':');
+
+			return {
+				domain: domain,
+				type:   type,
+				data:   IP.parse(ip)
+			};
+
+		} else if (type === 'CNAME') {
+			// TODO: RDATA is domain name
+		} else if (type === 'MX') {
+			// TODO: RDATA is domain name
+		} else if (type === 'NS') {
+			// TODO: RDATA is domain name
+		} else if (type === 'OPT') {
+			// TODO: EDNS RFC #6891
+		} else if (type === 'PTR') {
+			// TODO: RDATA is domain name
+		} else if (type === 'SOA') {
+			// TODO: Complicated
+		} else if (type === 'SRV') {
+			// TODO: RDATA can be IPv4, IPv6 or domain
+		} else if (type === 'TXT') {
+			// TODO: Complicated
+		}
 
 	}
 
@@ -271,20 +319,23 @@ const decode = function(connection, buffer) {
 
 	}
 
-	if (additional > 0) {
+	// TODO: Support OPT records
+	// if (additional > 0) {
 
-		for (let a = 0; a < additional; a++) {
+	// 	for (let a = 0; a < additional; a++) {
 
-			let record = decode_record(chunk, buffer);
-			if (record !== null) {
-				chunk.payload.additionals.push(record);
-			} else {
-				break;
-			}
+	// 		console.error('PARSE ADDITIONAL #' + a);
 
-		}
+	// 		let record = decode_record(chunk, buffer);
+	// 		if (record !== null) {
+	// 			chunk.payload.additionals.push(record);
+	// 		} else {
+	// 			break;
+	// 		}
 
-	}
+	// 	}
+
+	// }
 
 
 	return chunk;

@@ -2,7 +2,9 @@
 import { Buffer, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
 import { describe, finish                       } from '../../../covert/index.mjs';
 import { DNS                                    } from '../../../stealth/source/connection/DNS.mjs';
+import { IP                                     } from '../../../stealth/source/parser/IP.mjs';
 import { URL                                    } from '../../../stealth/source/parser/URL.mjs';
+
 
 
 const PAYLOADS = {
@@ -148,6 +150,26 @@ const PAYLOADS = {
 			0xc2, 0xee, 0xae
 		])
 
+	},
+
+	MX: {
+		// TODO: DNS Example Buffers
+	},
+
+	NS: {
+		// TODO: DNS Example Buffers
+	},
+
+	PTR: {
+		// TODO: DNS Example Buffers
+	},
+
+	SRV: {
+		// TODO: DNS Example Buffers
+	},
+
+	TXT: {
+		// TODO: DNS Example Buffers
 	}
 
 };
@@ -225,26 +247,140 @@ describe('DNS.receive()/client/A', function(assert, console) {
 		DNS.receive(connection, PAYLOADS['A']['RESPONSE'], (response) => {
 
 			assert(response, {
+				headers: {
+					'@type': 'response',
+					'@kind': 'query'
+				},
+				payload: {
+					questions: [{
+						domain: 'example.com',
+						type:   'A'
+					}],
+					answers: [{
+						domain: 'example.com',
+						type:   'A',
+						data:   IP.parse('93.184.216.34')
+					}],
+					authorities: [],
+					additionals: []
+				}
 			});
 
 			connection.disconnect();
-
-			console.log(response);
-
-			assert(true);
 
 		});
 
 	});
 
-	assert(false);
-
 });
 
 describe('DNS.receive()/server/A', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['A']['REQUEST'], (response) => {
+
+			assert(response, {
+				headers: {
+					'@type': 'request',
+					'@kind': 'query'
+				},
+				payload: {
+					questions: [{
+						domain: 'example.com',
+						type:   'A'
+					}],
+					answers:     [],
+					authorities: [],
+					additionals: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
 });
 
-describe('DNS.receive()/AAAA', function(assert) {
+describe('DNS.receive()/client/AAAA', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['AAAA']['RESPONSE'], (response) => {
+
+			assert(response, {
+				headers: {
+					'@type': 'response',
+					'@kind': 'query'
+				},
+				payload: {
+					questions: [{
+						domain: 'example.com',
+						type:   'AAAA'
+					}],
+					answers:     [{
+						domain: 'example.com',
+						type:   'AAAA',
+						data:   IP.parse('2606:2800:220:1:248:1893:25c8:1946')
+					}],
+					authorities: [],
+					additionals: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/AAAA', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['AAAA']['REQUEST'], (response) => {
+
+			assert(response, {
+				headers: {
+					'@type': 'request',
+					'@kind': 'query'
+				},
+				payload: {
+					questions: [{
+						domain: 'example.com',
+						type:   'AAAA'
+					}],
+					answers:     [],
+					authorities: [],
+					additionals: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
 });
 
 describe('DNS.receive()/CNAME', function(assert) {
