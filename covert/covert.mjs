@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 import process from 'process';
 
@@ -60,11 +61,12 @@ const show_help = () => {
 	console.log('');
 	console.log('Available Actions:');
 	console.log('');
-	console.log('    Action     | Description                                       ');
-	console.log('    -----------|---------------------------------------------------');
-	console.log('    check      | Checks reviews and lints and their tests.         ');
-	console.log('    scan       | Scans reviews and executes their tests.           ');
-	console.log('    time       | Scans reviews and benchmarks their test timelines.');
+	console.log('    Action     | Description                                              ');
+	console.log('    -----------|----------------------------------------------------------');
+	console.log('    check      | Checks reviews and lints and their tests.                ');
+	console.log('    inspect    | Short syntax for scan "..." --debug=true --inspect="...".');
+	console.log('    scan       | Scans reviews and executes their tests.                  ');
+	console.log('    time       | Scans reviews and benchmarks their test timelines.       ');
 	console.log('');
 	console.log('Available Flags:');
 	console.log('');
@@ -88,6 +90,10 @@ const show_help = () => {
 	console.log('');
 	console.log('    covert scan stealth/Session --debug=true --inspect="Session.prototype.get()";');
 	console.log('    covert scan --internet=false;');
+	console.log('');
+	console.log('    # The following two commands are equivalent');
+	console.log('    covert scan stealth/connection/DNS --debug=true --inspect="DNS.receive()/client/A" --internet=true --timeout="60s"');
+	console.log('    covert inspect stealth/connection/DNS "DNS.receive()/client/A"');
 	console.log('');
 
 
@@ -132,7 +138,8 @@ init((result) => {
 		console.error('');
 
 		console.log('');
-		console.info('covert: Change the current working directory to the project\'s folder.');
+		console.info('covert: Change the current working directory to the Project\'s root folder.');
+		console.info('covert: Ensure that "./review/index.mjs" is a valid ECMAScript Module.');
 		console.log('');
 
 		process.exit(1);
@@ -169,6 +176,53 @@ init((result) => {
 		});
 
 		linter.connect();
+
+	} else if (ENVIRONMENT.action === 'inspect') {
+
+		let patterns = ENVIRONMENT.patterns.slice();
+		if (patterns.length === 2) {
+
+			let covert = new Covert({
+				action:   'scan',
+				debug:    true,
+				inspect:  patterns[1],
+				internet: true,
+				network:  ENVIRONMENT.flags.network  || null,
+				patterns: [ patterns[0] ],
+				project:  ENVIRONMENT.project        || null,
+				report:   ENVIRONMENT.flags.report   || null,
+				reviews:  REVIEWS,
+				sources:  SOURCES,
+				timeout:  '60s'
+			});
+
+			covert.on('disconnect', (reviews) => {
+
+				if (ENVIRONMENT.flags.report !== null) {
+
+					covert.destroy();
+					process.exit(0);
+
+				} else {
+
+					if (reviews.length > 0) {
+						process.exit(covert.destroy() || 0);
+					} else {
+						process.exit(1);
+					}
+
+				}
+
+			});
+
+			covert.connect();
+
+		} else {
+
+			show_help();
+			process.exit(1);
+
+		}
 
 	} else if (ENVIRONMENT.action === 'scan' || ENVIRONMENT.action === 'time') {
 

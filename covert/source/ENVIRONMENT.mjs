@@ -12,6 +12,8 @@ const action = (() => {
 
 	if (/^([check]{5})$/g.test(value) === true) {
 		return 'check';
+	} else if (/^([inspect]{7})$/g.test(value) === true) {
+		return 'inspect';
 	} else if (/^([scan]{4})$/g.test(value) === true) {
 		return 'scan';
 	} else if (/^([time]{4})$/g.test(value) === true) {

@@ -7,82 +7,183 @@ import { URL                                                                    
 
 
 
-const RECORD_TYPES = {
-	'A': 1,
-	'AAAA': 1,
-	'CNAME': 2,
-	'NS': 3, // ???
-	'PTR': 3,
-	'SOA': 4,
-	'TXT': 5
+const QTYPE = {
+	'A':      1,
+	'AAAA':  28,
+	'CNAME':  5,
+	'MX':    15,
+	'NS':     2,
+	'PTR':   12,
+	'SOA':    6,
+	'TXT':   16
 };
 
-const decode_questions = function(amount, payload) {
-
-	amount = isNumber(amount) ? amount : 0;
-
-
-	let data = {
-		bytes: 0,
-		value: []
-	};
-
-
-	if (amount >= 1 && amount <= 65535) {
-
-
-	}
-
-
-	return data;
-
+const QCLASS = {
+	'IN': 1
 };
 
-const decode_name = function(payload) {
+const decode_question = function(chunk, payload) {
 
-	let string = {
-		bytes: 0,
-		value: null
-	};
+	let offset = chunk.state.offset;
+	let length = payload[offset];
+	if (length > 0 && length < 64) {
 
-	let check = payload[0];
-	if (check > 0) {
+		offset += 1;
 
-		let chunks = [];
-		let length = payload[0];
-		let offset = 1;
 
-		while (length !== 0 && offset + length < payload.length) {
+		let labels = [];
 
-			let chunk = payload.slice(offset, offset + length);
-			if (chunk.length > 0) {
-				chunks.push(chunk.toString('utf8'));
-			}
+		while (offset + length + 1 < payload.length) {
+
+			let label = payload.slice(offset, offset + length);
 
 			offset += length;
-
-			length = payload[offset];
+			length  = payload[offset];
 			offset += 1;
+
+			labels.push(label);
+
+			if (Number.isNaN(length) === true || length === 0) {
+				break;
+			}
 
 		}
 
-		string.bytes = offset;
-		string.value = chunks.join('.');
+		let domain = labels.join('.');
+		let qtype  = (payload[offset + 0] << 8) + payload[offset + 1] || null;
+		let qclass = (payload[offset + 2] << 8) + payload[offset + 3] || null;
+
+		offset += 4;
+
+		chunk.state.offset = offset;
+
+
+		let type = Object.keys(QTYPE).find((key) => QTYPE[key] === qtype) || null;
+		if (type !== null && qclass === QCLASS['IN']) {
+
+			return {
+				domain: domain,
+				type:   type
+			};
+
+		}
+
+	} else if (length & 0b11000000 === 0b11000000) {
+
+		// XXX: What to do here? QNAME cannot be part of database
 
 	}
 
-	return string;
+
+	return null;
 
 };
 
-export const decode = function(connection, buffer) {
+const decode_record = function(chunk, payload, type) {
 
-	// TODO: What is minimum length of a buffer?
+	let offset = chunk.state.offset;
+	let length = payload[offset];
+	if (length > 0 && length < 64) {
+
+		let labels = [];
+
+		while (offset + 1 < payload.length) {
+
+			let length = payload[offset];
+			if (length === 0) {
+
+				offset += 1;
+
+				break;
+
+			} else if (length > 0 && length < 64) {
+
+				let label = payload.slice(offset + 1, offset + 1 + length);
+
+				labels.push(label);
+
+				offset += 1;
+				offset += length;
+
+			} else if (length > 64) {
+
+				let pointer = (length - 192);
+				if (pointer >= 12) {
+
+					let entry = chunk.state.database[pointer] || [];
+					if (entry.length > 0) {
+						entry.forEach((label) => labels.push(label));
+					}
+
+				}
+
+				offset += 1;
+
+			}
+
+		}
+
+		// TODO: Assumption about pointers is wrong.
+		// Pointers can also point to the length byte before a PARTIAL of a domain
+		// (and needs to be injected until the null byte is seen again)
+		//
+		// --------
+		// 3 foo
+		// 3 bar
+		// 3 com
+		// --------
+		// 3 bar
+		// 192 + 4 (+ offset to header)
+		//
+
+		if (labels.length > 0) {
+			chunk.state.database[chunk.state.offset] = labels.slice();
+		}
+
+
+		// TODO
+		// 2 bytes TYPE
+		// 2 bytes CLASS
+		// 4 bytes TTL 32bit in seconds
+		// 2 bytes RDLENGTH
+		// variable bytes RDATA (dependent on type)
+
+		let qtype  = (payload[offset + 0] << 8) + payload[offset + 1] || null;
+		let qclass = (payload[offset + 2] << 8) + payload[offset + 3] || null;
+
+		// XXX: TTL is a 32 bit integer which cannot be represented in JS
+		let ttl_hi = (payload[offset + 4] << 8) + payload[offset + 5] || 0;
+		let ttl_lo = (payload[offset + 6] << 8) + payload[offset + 7] || 0;
+
+		offset += 8;
+
+		// TODO: Parse RDATA specific format (RFC1035 3.3.1 following)
+
+		chunk.state.offset = offset;
+
+	} else if (length > 64) {
+
+		// TODO?
+
+	}
+
+
+	return null;
+
+};
+
+const decode = function(connection, buffer) {
+
 	if (buffer.length < 12) {
 		return null;
 	}
 
+
 	let chunk = {
+		state: {
+			database: {},
+			offset:   12
+		},
 		headers: {
 			'@type': null
 		},
@@ -95,19 +196,19 @@ export const decode = function(connection, buffer) {
 	};
 
 
+	// let id          = (buffer[0] << 8) + buffer[1];
 	let query       = (buffer[2] & 128) === 128;
 	let operator    = (buffer[2] & 120);
-	let authorative = (buffer[2] & 4) === 4;
-	let truncated   = (buffer[2] & 2) === 2;
+	// let authorative = (buffer[2] & 4) === 4;
+	// let truncated   = (buffer[2] & 2) === 2;
 	// XXX: Recursion is unnecessary for our use-cases
 	// let r_desired   = (buffer[2] & 1) === 1;
 	// let r_available = (buffer[3] & 128) === 128;
-	let status_code = (buffer[3] & 15);
+	// let status_code = (buffer[3] & 15);
 	let questions   = (buffer[4]  << 8) + buffer[5];
 	let answers     = (buffer[6]  << 8) + buffer[7];
 	let authorities = (buffer[8]  << 8) + buffer[9];
 	let additional  = (buffer[10] << 8) + buffer[11];
-	let payload     = buffer.slice(12);
 
 
 	if (query === true) {
@@ -116,48 +217,74 @@ export const decode = function(connection, buffer) {
 		chunk.headers['@type'] = 'request';
 	}
 
-	console.log('query?',       query ? 'response' : 'request');
-	console.log('operator',     operator);
-	console.log('authorative?', authorative);
-	console.log('truncated?',   truncated);
-	console.log('status_code',  status_code);
+	if (operator === 0) {
+		chunk.headers['@kind'] = 'query';
+	} else if (operator === 1) {
+		chunk.headers['@kind'] = 'iquery';
+	} else if (operator === 2) {
+		chunk.headers['@kind'] = 'status';
+	}
 
-	console.log('questions:',   questions);
-	console.log('answers:',     answers);
-	console.log('authorities:', authorities);
-	console.log('additional:',  additional);
-
-	console.log('payload:',     payload);
-
-
-	let offset = 0;
 
 	if (questions > 0) {
 
-		// TODO: let result = decode_questions(questions, payload) would make more sense!?
-		let data = decode_questions(questions, payload);
+		for (let q = 0; q < questions; q++) {
 
-		console.log(data);
+			let question = decode_question(chunk, buffer);
+			if (question !== null) {
+				chunk.payload.questions.push(question);
+			} else {
+				break;
+			}
 
-		// if (domain.bytes > 0) {
-
-		// 	let type = payload.slice(domain.bytes, domain.bytes + 1);
-		// 	console.log(type);
-
-		// 	console.log(domain);
-
-		// }
-
-
-
+		}
 
 	}
 
-	// Each question payload contains a variable length octet before the label (name) itself
-	// TODO: question_section
-	// TODO: answer_section
-	// TODO: authorities_section
-	// TODO: additional_section
+	if (answers > 0) {
+
+		for (let a = 0; a < answers; a++) {
+
+			let record = decode_record(chunk, buffer);
+			if (record !== null) {
+				chunk.payload.answers.push(record);
+			} else {
+				break;
+			}
+
+		}
+
+	}
+
+	if (authorities > 0) {
+
+		for (let a = 0; a < authorities; a++) {
+
+			let record = decode_record(chunk, buffer);
+			if (record !== null) {
+				chunk.payload.authorities.push(record);
+			} else {
+				break;
+			}
+
+		}
+
+	}
+
+	if (additional > 0) {
+
+		for (let a = 0; a < additional; a++) {
+
+			let record = decode_record(chunk, buffer);
+			if (record !== null) {
+				chunk.payload.additionals.push(record);
+			} else {
+				break;
+			}
+
+		}
+
+	}
 
 
 	return chunk;
