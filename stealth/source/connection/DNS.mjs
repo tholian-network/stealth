@@ -57,6 +57,16 @@ const decode_domain = function(chunk, payload, labels) {
 					let entry = chunk.state.labels[pointer] || [];
 					if (entry.length > 0) {
 						entry.forEach((label) => labels.push(label));
+					} else {
+
+						let tmp_labels = [];
+						let tmp_bytes  = decode_domain(chunk, chunk.state.buffer.slice(pointer), tmp_labels);
+
+						if (tmp_bytes > 0 && tmp_labels.length > 0) {
+							chunk.state.labels[pointer] = tmp_labels.slice();
+							chunk.state.labels[pointer].forEach((label) => labels.push(label));
+						}
+
 					}
 
 				}
@@ -185,7 +195,7 @@ const decode_record = function(chunk, payload) {
 		} else if (type === 'CNAME') {
 
 			let value = [];
-			let bytes = decode_domain(chunk, payload.slice(offset), value);
+			let bytes = decode_domain(chunk, payload.slice(offset, offset + rdlength), value);
 
 			if (bytes > 0) {
 				chunk.state.labels[offset] = value.slice();
@@ -199,9 +209,9 @@ const decode_record = function(chunk, payload) {
 
 		} else if (type === 'MX') {
 
-			let value      = [];
-			let preference = (payload[offset + 0] << 8) + payload[offset + 1];
-			let bytes      = decode_domain(chunk, payload.slice(offset + 2), value);
+			let value  = [];
+			let weight = (payload[offset + 0] << 8) + payload[offset + 1];
+			let bytes  = decode_domain(chunk, payload.slice(offset + 2, offset + rdlength), value);
 
 			if (bytes > 0) {
 				chunk.state.labels[offset] = value.slice();
@@ -210,13 +220,14 @@ const decode_record = function(chunk, payload) {
 			return {
 				domain: domain,
 				type:   type,
-				value:  value.join('.')
+				value:  value.join('.'),
+				weight: weight
 			};
 
 		} else if (type === 'NS') {
 
 			let value = [];
-			let bytes = decode_domain(chunk, payload.slice(offset), value);
+			let bytes = decode_domain(chunk, payload.slice(offset, offset + rdlength), value);
 
 			if (bytes > 0) {
 				chunk.state.labels[offset] = value.slice();
@@ -235,7 +246,7 @@ const decode_record = function(chunk, payload) {
 		} else if (type === 'PTR') {
 
 			let value = [];
-			let bytes = decode_domain(chunk, payload.slice(offset), value);
+			let bytes = decode_domain(chunk, payload.slice(offset, offset + rdlength), value);
 
 			if (bytes > 0) {
 				chunk.state.labels[offset] = value.slice();
@@ -253,18 +264,34 @@ const decode_record = function(chunk, payload) {
 
 		} else if (type === 'SRV') {
 
+			let priority = (payload[offset + 0] << 8) + payload[offset + 1];
+			// let weight   = (payload[offset + 2] << 8) + payload[offset + 3];
+			let port     = (payload[offset + 4] << 8) + payload[offset + 5];
+			let value    = [];
+			let bytes    = decode_domain(chunk, payload.slice(offset + 6, offset + rdlength), value);
 
-			// TODO: RFC 2782
-			// RDATA can be IPv4, IPv6 or domain
-
-			// _service._protocol.Name TTL Class SRV Priority Weight Port Target
-
-		} else if (type === 'TXT') {
+			// XXX: RFC2782 is unclear.
+			// - sort by priority, then if same priority sort by weight
+			// - but always prefer priority=0
+			// = therefore priority is actually the weight
 
 			return {
 				domain: domain,
 				type:   type,
-				value:  payload.slice(offset, offset + rdlength)
+				value:  value.join('.'),
+				weight: priority,
+				port:   port
+			};
+
+		} else if (type === 'TXT') {
+
+			let values = [];
+			let bytes  = decode_string(payload.slice(offset, offset + rdlength), values);
+
+			return {
+				domain: domain,
+				type:   type,
+				value:  values
 			};
 
 		}
@@ -273,6 +300,31 @@ const decode_record = function(chunk, payload) {
 
 
 	return null;
+
+};
+
+const decode_string = function(payload, texts) {
+
+	let bytes = 0;
+	let check = payload[bytes];
+
+	if (check !== 0) {
+
+		while (bytes < payload.length) {
+
+			let length = payload[bytes];
+			let text   = payload.slice(bytes + 1, bytes + 1 + length);
+
+			texts.push(text);
+
+			bytes += 1;
+			bytes += length;
+
+		}
+
+	}
+
+	return bytes;
 
 };
 
@@ -285,6 +337,7 @@ const decode = function(connection, buffer) {
 
 	let chunk = {
 		state: {
+			buffer: buffer,
 			labels: {},
 			offset: 12
 		},
