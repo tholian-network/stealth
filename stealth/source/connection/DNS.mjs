@@ -1,9 +1,9 @@
 
 import dgram from 'dgram';
 
-import { console, Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                                                               } from '../../source/parser/IP.mjs';
-import { URL                                                                                              } from '../../source/parser/URL.mjs';
+import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                                                      } from '../../source/parser/IP.mjs';
+import { URL                                                                                     } from '../../source/parser/URL.mjs';
 
 
 
@@ -13,15 +13,13 @@ const TYPES = {
 	'CNAME':  5,
 	'MX':    15,
 	'NS':     2,
-	'OPT':   41,
 	'PTR':   12,
-	'SOA':    6,
 	'SRV':   33,
 	'TXT':   16
 };
 
 const CLASSES = {
-	'IN': 1
+	'INTERNET': 1
 };
 
 const decode_domain = function(chunk, payload, labels) {
@@ -109,12 +107,58 @@ const decode_question = function(chunk, payload) {
 
 
 	let type = Object.keys(TYPES).find((key) => TYPES[key] === qtype) || null;
-	if (type !== null && qclass === CLASSES['IN']) {
+	if (type !== null && qclass === CLASSES['INTERNET']) {
 
-		return {
-			domain: domain,
-			type:   type
-		};
+		if (
+			type === 'A'
+			|| type === 'AAAA'
+			|| type === 'CNAME'
+			|| type === 'MX'
+			|| type === 'NS'
+			|| type === 'SRV'
+			|| type === 'TXT'
+		) {
+
+			return {
+				domain: domain,
+				type:   type,
+				value:  null
+			};
+
+		} else if (type === 'PTR') {
+
+			let ip = null;
+
+			if (domain.endsWith('.in-addr.arpa') === true) {
+
+				let tmp = domain.split('.').slice(0, 4).reverse();
+
+				ip = IP.parse(tmp.join('.'));
+
+			} else if (domain.endsWith('.ip6.arpa') === true) {
+
+				let tmp = domain.split('.').slice(0, 32).reverse();
+
+				ip = IP.parse([
+					tmp.slice( 0,  4).join(''),
+					tmp.slice( 4,  8).join(''),
+					tmp.slice( 8, 12).join(''),
+					tmp.slice(12, 16).join(''),
+					tmp.slice(16, 20).join(''),
+					tmp.slice(20, 24).join(''),
+					tmp.slice(24, 28).join(''),
+					tmp.slice(28, 32).join('')
+				].join(':'));
+
+			}
+
+			return {
+				domain: null,
+				type:   type,
+				value:  ip
+			};
+
+		}
 
 	}
 
@@ -137,8 +181,8 @@ const decode_record = function(chunk, payload) {
 	let domain   = labels.map((buf) => buf.toString('utf8')).join('.');
 	let rtype    = (payload[offset + 0] << 8) + payload[offset + 1];
 	let rclass   = (payload[offset + 2] << 8) + payload[offset + 3];
-	let rttl_hi  = (payload[offset + 4] << 8) + payload[offset + 5];
-	let rttl_lo  = (payload[offset + 6] << 8) + payload[offset + 7];
+	// let rttl_hi  = (payload[offset + 4] << 8) + payload[offset + 5];
+	// let rttl_lo  = (payload[offset + 6] << 8) + payload[offset + 7];
 	let rdlength = (payload[offset + 8] << 8) + payload[offset + 9];
 
 	offset            += 10;
@@ -146,7 +190,7 @@ const decode_record = function(chunk, payload) {
 
 
 	let type = Object.keys(TYPES).find((key) => TYPES[key] === rtype) || null;
-	if (type !== null && rdlength > 0) {
+	if (type !== null && rdlength > 0 && rclass === CLASSES['INTERNET']) {
 
 		if (type === 'A') {
 
@@ -239,10 +283,6 @@ const decode_record = function(chunk, payload) {
 				value:  value.join('.')
 			};
 
-		} else if (type === 'OPT') {
-
-			// TODO: EDNS RFC #6891
-
 		} else if (type === 'PTR') {
 
 			let value = [];
@@ -252,15 +292,36 @@ const decode_record = function(chunk, payload) {
 				chunk.state.labels[offset] = value.slice();
 			}
 
+			let ip = null;
+
+			if (domain.endsWith('.in-addr.arpa') === true) {
+
+				let tmp = domain.split('.').slice(0, 4).reverse();
+
+				ip = IP.parse(tmp.join('.'));
+
+			} else if (domain.endsWith('.ip6.arpa') === true) {
+
+				let tmp = domain.split('.').slice(0, 32).reverse();
+
+				ip = IP.parse([
+					tmp.slice( 0,  4).join(''),
+					tmp.slice( 4,  8).join(''),
+					tmp.slice( 8, 12).join(''),
+					tmp.slice(12, 16).join(''),
+					tmp.slice(16, 20).join(''),
+					tmp.slice(20, 24).join(''),
+					tmp.slice(24, 28).join(''),
+					tmp.slice(28, 32).join('')
+				].join(':'));
+
+			}
+
 			return {
-				domain: domain,
+				domain: value.join('.'),
 				type:   type,
-				value:  value.join('.')
+				value:  ip
 			};
-
-		} else if (type === 'SOA') {
-
-			// TODO: Complicated
 
 		} else if (type === 'SRV') {
 
@@ -342,19 +403,18 @@ const decode = function(connection, buffer) {
 			offset: 12
 		},
 		headers: {
+			'@id':   0,
 			'@type': null
 		},
 		payload: {
-			questions:   [],
-			answers:     [],
-			authorities: [], // XXX: Are authority/additional section really necessary?
-			additionals: []
+			questions: [],
+			answers:   [],
 		}
 	};
 
 
-	// let id          = (buffer[0] << 8) + buffer[1];
-	let query       = (buffer[2] & 128) === 128;
+	let id          = (buffer[0] << 8) + buffer[1];
+	let query       = (buffer[2] & 128) !== 128;
 	let operator    = (buffer[2] & 120);
 	// let authorative = (buffer[2] & 4) === 4;
 	// let truncated   = (buffer[2] & 2) === 2;
@@ -364,105 +424,157 @@ const decode = function(connection, buffer) {
 	// let status_code = (buffer[3] & 15);
 	let questions   = (buffer[4]  << 8) + buffer[5];
 	let answers     = (buffer[6]  << 8) + buffer[7];
-	let authorities = (buffer[8]  << 8) + buffer[9];
-	let additional  = (buffer[10] << 8) + buffer[11];
+	// let authorities = (buffer[8]  << 8) + buffer[9];
+	// let additional  = (buffer[10] << 8) + buffer[11];
 
+
+	if (id !== 0) {
+		chunk.headers['@id'] = id;
+	} else {
+		chunk.headers['@id'] = 0;
+	}
 
 	if (query === true) {
-		chunk.headers['@type'] = 'response';
-	} else if (query === false) {
 		chunk.headers['@type'] = 'request';
+	} else if (query === false) {
+		chunk.headers['@type'] = 'response';
 	}
 
 	if (operator === 0) {
-		chunk.headers['@kind'] = 'query';
-	} else if (operator === 1) {
-		chunk.headers['@kind'] = 'iquery';
-	} else if (operator === 2) {
-		chunk.headers['@kind'] = 'status';
-	}
 
+		if (questions > 0) {
 
-	if (questions > 0) {
+			for (let q = 0; q < questions; q++) {
 
-		for (let q = 0; q < questions; q++) {
+				let question = decode_question(chunk, buffer);
+				if (question !== null) {
+					chunk.payload.questions.push(question);
+				} else {
+					break;
+				}
 
-			let question = decode_question(chunk, buffer);
-			if (question !== null) {
-				chunk.payload.questions.push(question);
-			} else {
-				break;
+			}
+
+		}
+
+		if (answers > 0) {
+
+			for (let a = 0; a < answers; a++) {
+
+				let record = decode_record(chunk, buffer);
+				if (record !== null) {
+					chunk.payload.answers.push(record);
+				} else {
+					break;
+				}
+
 			}
 
 		}
 
 	}
-
-	if (answers > 0) {
-
-		for (let a = 0; a < answers; a++) {
-
-			let record = decode_record(chunk, buffer);
-			if (record !== null) {
-				chunk.payload.answers.push(record);
-			} else {
-				break;
-			}
-
-		}
-
-	}
-
-	if (authorities > 0) {
-
-		for (let a = 0; a < authorities; a++) {
-
-			let record = decode_record(chunk, buffer);
-			if (record !== null) {
-				chunk.payload.authorities.push(record);
-			} else {
-				break;
-			}
-
-		}
-
-	}
-
-	// TODO: Support OPT records
-	// if (additional > 0) {
-
-	// 	for (let a = 0; a < additional; a++) {
-
-	// 		console.error('PARSE ADDITIONAL #' + a);
-
-	// 		let record = decode_record(chunk, buffer);
-	// 		if (record !== null) {
-	// 			chunk.payload.additionals.push(record);
-	// 		} else {
-	// 			break;
-	// 		}
-
-	// 	}
-
-	// }
 
 
 	return chunk;
 
 };
 
-export const encode = function(connection, data) {
+const encode = function(connection, data) {
 
 	let buffer       = null;
 	let header_data  = null;
 	let payload_data = null;
 
+	let query     = false;
+	let operator  = 0;
+	let questions = [];
+	let answers   = [];
+
+
+	if (isObject(data.payload) === true) {
+
+		if (isArray(data.payload.questions) === true) {
+			questions = data.payload.questions.filter((question) => {
+
+				if (
+					isObject(question) === true
+					&& isString(question.domain) === true
+					&& isString(question.type) === true
+					&& Object.keys(TYPES).includes(question.type) === true
+				) {
+					return true;
+				}
+
+				return false;
+
+			});
+		}
+
+		if (isArray(data.payload.answers) === true) {
+			answers = data.payload.answers.filter((answer) => {
+
+				if (
+					isObject(answer) === true
+					&& isString(answer.domain) === true
+					&& isString(answer.type) === true
+					&& Object.keys(TYPES).includes(answer.type) === true
+					&& (
+						isArray(answer.value) === true
+						|| isString(answer.value) === true
+					)
+				) {
+					return true;
+				}
+
+				return false;
+
+			});
+		}
+
+	}
+
+
 	if (connection.type === 'server') {
 
-		// TODO: data.headers['@type'];
+		query = false;
+
+		if (data.headers['@type'] === 'response') {
+			query = false;
+		} else if (data.headers['@type'] === 'request') {
+			query = true;
+		}
+
+
+		if (questions.length > 0) {
+
+
+			// TODO: encode_payload
+		}
+
+		if (answers.length > 0) {
+			// TODO: encode_payload
+		}
 
 	} else {
 
+		query = true;
+
+		if (data.headers['@type'] === 'response') {
+			query = false;
+		} else if (data.headers['@type'] === 'request') {
+			query = true;
+		}
+
+		if (questions.length > 0) {
+
+			console.log(questions);
+
+		}
+
+		if (answers.length > 0) {
+		}
+
+		// TODO: data.payload
 
 	}
 
@@ -826,7 +938,6 @@ const DNS = {
 		if (connection !== null && connection.socket !== null) {
 
 			let buffer  = null;
-			let blob    = [ 0x00, 0x00 ];
 			let headers = {};
 			let payload = null;
 
@@ -834,39 +945,65 @@ const DNS = {
 				headers = data.headers;
 			}
 
-			if (isBoolean(data.payload) === true) {
-				payload = data.payload;
-			} else {
-				payload = data.payload || null;
-			}
-
 			if (connection.type === 'client') {
 
-				//   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
-				// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-				// |                 Message ID                    |
-				// |QR|   Opcode  |AA|TC|RD|RA|    Z   |   RCODE   |
-
-				// QR is query (0) or response(1)
-				// OPCODE is four bit, 0 query
-				// AA is authorative answer (1) or not
-				// TC means if (1) message was truncated due to max length
-				// RD means if (1) Recursion is desired, (OPTIONAL)
-				// RA means if (1) Recursion is available (OPTIONAL)
-				// Z is reserved and must be 0
-
-				// RCODE is Response Code (4 bits)
-				// 0 no error condition
-				// 1 Format Error - the name server was unable to interpret the query
-				// 2 Server failure - the name server was unable to process
-				// 3 Name error - domain does not exist
-				// 4 Not implemented
-				// 5 Refused
+				if (
+					isObject(data.payload) === true
+					&& isArray(data.payload.questions) === true
+					&& data.payload.questions.length > 0
+				) {
+					payload = {
+						questions: data.payload.questions
+					};
+				}
 
 			} else if (connection.type === 'server') {
+
+				if (
+					isObject(data.payload) === true
+					&& isArray(data.payload.questions) === true
+					&& data.payload.questions.length > 0
+					&& isArray(data.payload.answers) === true
+					&& data.payload.answers.length > 0
+				) {
+
+					if (data.payload.questions.length === data.payload.answers.length) {
+						payload = {
+							questions: data.payload.questions,
+							answers:   data.payload.answers
+						};
+					}
+
+				}
+
 			}
-			// TODO: Encode headers
-			// TODO: Encode payload
+
+
+			if (headers !== null && payload !== null) {
+
+				buffer = encode(connection, {
+					headers: headers,
+					payload: payload
+				});
+
+			}
+
+
+			if (buffer !== null) {
+
+				connection.socket.write(buffer);
+
+				if (callback !== null) {
+					callback(true);
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(false);
+				}
+
+			}
 
 		} else {
 

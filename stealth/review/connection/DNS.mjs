@@ -11,7 +11,7 @@ const PAYLOADS = {
 
 	'A': {
 
-		REQUEST: Buffer.from([
+		'REQUEST': Buffer.from([
 			0x96, 0x9a, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x65, 0x78, 0x61,
 			0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
@@ -21,7 +21,7 @@ const PAYLOADS = {
 			0xfe, 0x48, 0xb9, 0x31
 		]),
 
-		RESPONSE: Buffer.from([
+		'RESPONSE': Buffer.from([
 			0x96, 0x9a, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x65, 0x78, 0x61,
 			0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
@@ -39,7 +39,7 @@ const PAYLOADS = {
 
 	'AAAA': {
 
-		REQUEST: Buffer.from([
+		'REQUEST': Buffer.from([
 			0x68, 0xbf, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x65, 0x78, 0x61,
 			0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
@@ -49,7 +49,7 @@ const PAYLOADS = {
 			0xf4, 0x93, 0x6f, 0x32
 		]),
 
-		RESPONSE: Buffer.from([
+		'RESPONSE': Buffer.from([
 			0x68, 0xbf, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x65, 0x78, 0x61,
 			0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
@@ -68,7 +68,7 @@ const PAYLOADS = {
 
 	'CNAME': {
 
-		REQUEST: Buffer.from([
+		'REQUEST': Buffer.from([
 			0x59, 0x6b, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x70, 0x72, 0x6f,
 			0x70, 0x68, 0x65, 0x74, 0x05, 0x68, 0x65, 0x69,
@@ -79,7 +79,7 @@ const PAYLOADS = {
 			0xe5
 		]),
 
-		RESPONSE: Buffer.from([
+		'RESPONSE': Buffer.from([
 			0x59, 0x6b, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x70, 0x72, 0x6f,
 			0x70, 0x68, 0x65, 0x74, 0x05, 0x68, 0x65, 0x69,
@@ -98,9 +98,9 @@ const PAYLOADS = {
 
 	},
 
-	MX: {
+	'MX': {
 
-		REQUEST: Buffer.from([
+		'REQUEST': Buffer.from([
 			0x70, 0x52, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x01, 0x06, 0x67, 0x69, 0x74,
 			0x68, 0x75, 0x62, 0x03, 0x63, 0x6f, 0x6d, 0x00,
@@ -110,7 +110,7 @@ const PAYLOADS = {
 			0x1f, 0x12, 0x05
 		]),
 
-		RESPONSE: Buffer.from([
+		'RESPONSE': Buffer.from([
 			0x70, 0x52, 0x81, 0x80, 0x00, 0x01, 0x00, 0x05,
 			0x00, 0x00, 0x00, 0x01, 0x06, 0x67, 0x69, 0x74,
 			0x68, 0x75, 0x62, 0x03, 0x63, 0x6f, 0x6d, 0x00,
@@ -138,9 +138,9 @@ const PAYLOADS = {
 
 	},
 
-	NS: {
+	'NS': {
 
-		REQUEST: Buffer.from([
+		'REQUEST': Buffer.from([
 			0x2b, 0x42, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x65, 0x78, 0x61,
 			0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
@@ -150,7 +150,7 @@ const PAYLOADS = {
 			0x86, 0xb3, 0x78, 0xd4
 		]),
 
-		RESPONSE: Buffer.from([
+		'RESPONSE': Buffer.from([
 			0x2b, 0x42, 0x81, 0x80, 0x00, 0x01, 0x00, 0x02,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x65, 0x78, 0x61,
 			0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
@@ -170,21 +170,80 @@ const PAYLOADS = {
 
 	},
 
-	OPT: {
-		// TODO: DNS Example Buffers
+	'PTR_IPV4': {
+
+		'REQUEST': Buffer.from([
+			0x1a, 0xc8, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x01, 0x03, 0x32, 0x34, 0x36,
+			0x03, 0x31, 0x36, 0x33, 0x03, 0x32, 0x31, 0x37,
+			0x02, 0x39, 0x35, 0x07, 0x69, 0x6e, 0x2d, 0x61,
+			0x64, 0x64, 0x72, 0x04, 0x61, 0x72, 0x70, 0x61,
+			0x00, 0x00, 0x0c, 0x00, 0x01, 0x00, 0x00, 0x29,
+			0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c,
+			0x00, 0x0a, 0x00, 0x08, 0x1e, 0x7a, 0xb3, 0xc2,
+			0x91, 0xe8, 0xda, 0x22
+		]),
+
+		'RESPONSE': Buffer.from([
+			0x1a, 0xc8, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01,
+			0x00, 0x00, 0x00, 0x01, 0x03, 0x32, 0x34, 0x36,
+			0x03, 0x31, 0x36, 0x33, 0x03, 0x32, 0x31, 0x37,
+			0x02, 0x39, 0x35, 0x07, 0x69, 0x6e, 0x2d, 0x61,
+			0x64, 0x64, 0x72, 0x04, 0x61, 0x72, 0x70, 0x61,
+			0x00, 0x00, 0x0c, 0x00, 0x01, 0xc0, 0x0c, 0x00,
+			0x0c, 0x00, 0x01, 0x00, 0x01, 0x3d, 0x90, 0x00,
+			0x0f, 0x09, 0x61, 0x72, 0x63, 0x68, 0x6c, 0x69,
+			0x6e, 0x75, 0x78, 0x03, 0x6f, 0x72, 0x67, 0x00,
+			0x00, 0x00, 0x29, 0x04, 0xd0, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00
+		])
+
 	},
 
-	PTR: {
-		// TODO: DNS Example Buffers
+	'PTR_IPV6': {
+
+		'REQUEST': Buffer.from([
+			0xc1, 0xc3, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x01, 0x01, 0x31, 0x01, 0x30,
+			0x01, 0x30, 0x01, 0x30, 0x01, 0x30, 0x01, 0x30,
+			0x01, 0x30, 0x01, 0x30, 0x01, 0x30, 0x01, 0x30,
+			0x01, 0x30, 0x01, 0x30, 0x01, 0x30, 0x01, 0x30,
+			0x01, 0x30, 0x01, 0x30, 0x01, 0x66, 0x01, 0x31,
+			0x01, 0x62, 0x01, 0x36, 0x01, 0x30, 0x01, 0x31,
+			0x01, 0x30, 0x01, 0x63, 0x01, 0x39, 0x01, 0x66,
+			0x01, 0x34, 0x01, 0x30, 0x01, 0x31, 0x01, 0x30,
+			0x01, 0x61, 0x01, 0x32, 0x03, 0x69, 0x70, 0x36,
+			0x04, 0x61, 0x72, 0x70, 0x61, 0x00, 0x00, 0x0c,
+			0x00, 0x01, 0x00, 0x00, 0x29, 0x10, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x0a, 0x00,
+			0x08, 0xfb, 0xb2, 0x09, 0x25, 0xf5, 0xbd, 0x88,
+			0x51
+		]),
+
+		'RESPONSE': Buffer.from([
+			0xc1, 0xc3, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01,
+			0x00, 0x00, 0x00, 0x01, 0x01, 0x31, 0x01, 0x30,
+			0x01, 0x30, 0x01, 0x30, 0x01, 0x30, 0x01, 0x30,
+			0x01, 0x30, 0x01, 0x30, 0x01, 0x30, 0x01, 0x30,
+			0x01, 0x30, 0x01, 0x30, 0x01, 0x30, 0x01, 0x30,
+			0x01, 0x30, 0x01, 0x30, 0x01, 0x66, 0x01, 0x31,
+			0x01, 0x62, 0x01, 0x36, 0x01, 0x30, 0x01, 0x31,
+			0x01, 0x30, 0x01, 0x63, 0x01, 0x39, 0x01, 0x66,
+			0x01, 0x34, 0x01, 0x30, 0x01, 0x31, 0x01, 0x30,
+			0x01, 0x61, 0x01, 0x32, 0x03, 0x69, 0x70, 0x36,
+			0x04, 0x61, 0x72, 0x70, 0x61, 0x00, 0x00, 0x0c,
+			0x00, 0x01, 0xc0, 0x0c, 0x00, 0x0c, 0x00, 0x01,
+			0x00, 0x01, 0x4e, 0xd4, 0x00, 0x0f, 0x09, 0x61,
+			0x72, 0x63, 0x68, 0x6c, 0x69, 0x6e, 0x75, 0x78,
+			0x03, 0x6f, 0x72, 0x67, 0x00, 0x00, 0x00, 0x29,
+			0x04, 0xd0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+		])
+
 	},
 
-	SOA: {
-		// TODO: DNS Example Buffers
-	},
+	'SRV': {
 
-	SRV: {
-
-		REQUEST: Buffer.from([
+		'REQUEST': Buffer.from([
 			0x0b, 0x0f, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x01, 0x08, 0x5f, 0x73, 0x74,
 			0x65, 0x61, 0x6c, 0x74, 0x68, 0x04, 0x5f, 0x77,
@@ -197,7 +256,7 @@ const PAYLOADS = {
 		]),
 
 
-		RESPONSE: Buffer.from([
+		'RESPONSE': Buffer.from([
 			0x0b, 0x0f, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01,
 			0x00, 0x00, 0x00, 0x01, 0x08, 0x5f, 0x73, 0x74,
 			0x65, 0x61, 0x6c, 0x74, 0x68, 0x04, 0x5f, 0x77,
@@ -218,9 +277,9 @@ const PAYLOADS = {
 
 	},
 
-	TXT: {
+	'TXT': {
 
-		REQUEST: Buffer.from([
+		'REQUEST': Buffer.from([
 			0x43, 0x5f, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x65, 0x78, 0x61,
 			0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
@@ -230,7 +289,7 @@ const PAYLOADS = {
 			0x65, 0x33, 0x74, 0x1a
 		]),
 
-		RESPONSE: Buffer.from([
+		'RESPONSE': Buffer.from([
 			0x43, 0x5f, 0x81, 0x80, 0x00, 0x01, 0x00, 0x02,
 			0x00, 0x00, 0x00, 0x01, 0x07, 0x65, 0x78, 0x61,
 			0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
@@ -305,7 +364,7 @@ describe('DNS.disconnect()', function(assert) {
 
 });
 
-describe('DNS.receive()/client/A', function(assert, console) {
+describe('DNS.receive()/client/A', function(assert) {
 
 	assert(isFunction(DNS.receive), true);
 
@@ -318,21 +377,20 @@ describe('DNS.receive()/client/A', function(assert, console) {
 
 			assert(response, {
 				headers: {
-					'@type': 'response',
-					'@kind': 'query'
+					'@id':   38554,
+					'@type': 'response'
 				},
 				payload: {
 					questions: [{
 						domain: 'example.com',
-						type:   'A'
+						type:   'A',
+						value:  null
 					}],
 					answers: [{
 						domain: 'example.com',
 						type:   'A',
 						value:  IP.parse('93.184.216.34')
-					}],
-					authorities: [],
-					additionals: []
+					}]
 				}
 			});
 
@@ -357,17 +415,16 @@ describe('DNS.receive()/server/A', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@type': 'request',
-					'@kind': 'query'
+					'@id':   38554,
+					'@type': 'request'
 				},
 				payload: {
 					questions: [{
 						domain: 'example.com',
-						type:   'A'
+						type:   'A',
+						value:  null
 					}],
-					answers:     [],
-					authorities: [],
-					additionals: []
+					answers: []
 				}
 			});
 
@@ -392,21 +449,20 @@ describe('DNS.receive()/client/AAAA', function(assert) {
 
 			assert(response, {
 				headers: {
-					'@type': 'response',
-					'@kind': 'query'
+					'@id':   26815,
+					'@type': 'response'
 				},
 				payload: {
 					questions: [{
 						domain: 'example.com',
-						type:   'AAAA'
+						type:   'AAAA',
+						value:  null
 					}],
-					answers:     [{
+					answers: [{
 						domain: 'example.com',
 						type:   'AAAA',
 						value:  IP.parse('2606:2800:220:1:248:1893:25c8:1946')
-					}],
-					authorities: [],
-					additionals: []
+					}]
 				}
 			});
 
@@ -431,17 +487,16 @@ describe('DNS.receive()/server/AAAA', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@type': 'request',
-					'@kind': 'query'
+					'@id':   26815,
+					'@type': 'request'
 				},
 				payload: {
 					questions: [{
 						domain: 'example.com',
-						type:   'AAAA'
+						type:   'AAAA',
+						value:  null
 					}],
-					answers:     [],
-					authorities: [],
-					additionals: []
+					answers: []
 				}
 			});
 
@@ -466,21 +521,20 @@ describe('DNS.receive()/client/CNAME', function(assert) {
 
 			assert(response, {
 				headers: {
-					'@type': 'response',
-					'@kind': 'query'
+					'@id':   22891,
+					'@type': 'response'
 				},
 				payload: {
 					questions: [{
 						domain: 'prophet.heise.de',
-						type:   'CNAME'
+						type:   'CNAME',
+						value:  null
 					}],
 					answers: [{
 						domain: 'prophet.heise.de',
 						type:   'CNAME',
 						value:  'heise02.webtrekk.net'
-					}],
-					authorities: [],
-					additionals: []
+					}]
 				}
 			});
 
@@ -505,17 +559,16 @@ describe('DNS.receive()/server/CNAME', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@type': 'request',
-					'@kind': 'query'
+					'@id':   22891,
+					'@type': 'request'
 				},
 				payload: {
 					questions: [{
 						domain: 'prophet.heise.de',
-						type:   'CNAME'
+						type:   'CNAME',
+						value:  null
 					}],
-					answers: [],
-					authorities: [],
-					additionals: []
+					answers: []
 				}
 			});
 
@@ -540,13 +593,14 @@ describe('DNS.receive()/client/MX', function(assert) {
 
 			assert(response, {
 				headers: {
-					'@type': 'response',
-					'@kind': 'query'
+					'@id':   28754,
+					'@type': 'response'
 				},
 				payload: {
 					questions: [{
 						domain: 'github.com',
-						type:   'MX'
+						type:   'MX',
+						value:  null
 					}],
 					answers: [{
 						domain: 'github.com',
@@ -573,9 +627,7 @@ describe('DNS.receive()/client/MX', function(assert) {
 						type:   'MX',
 						value:  'alt4.aspmx.l.google.com',
 						weight: 10
-					}],
-					authorities: [],
-					additionals: []
+					}]
 				}
 			});
 
@@ -600,17 +652,16 @@ describe('DNS.receive()/server/MX', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@type': 'request',
-					'@kind': 'query'
+					'@id':   28754,
+					'@type': 'request'
 				},
 				payload: {
 					questions: [{
 						domain: 'github.com',
-						type:   'MX'
+						type:   'MX',
+						value:  null
 					}],
-					answers:     [],
-					authorities: [],
-					additionals: []
+					answers: []
 				}
 			});
 
@@ -635,13 +686,14 @@ describe('DNS.receive()/client/NS', function(assert) {
 
 			assert(response, {
 				headers: {
-					'@type': 'response',
-					'@kind': 'query'
+					'@id':   11074,
+					'@type': 'response'
 				},
 				payload: {
 					questions: [{
 						domain: 'example.com',
-						type:   'NS'
+						type:   'NS',
+						value:  null
 					}],
 					answers: [{
 						domain: 'example.com',
@@ -651,9 +703,7 @@ describe('DNS.receive()/client/NS', function(assert) {
 						domain: 'example.com',
 						type:   'NS',
 						value:  'b.iana-servers.net'
-					}],
-					authorities: [],
-					additionals: []
+					}]
 				}
 			});
 
@@ -678,17 +728,16 @@ describe('DNS.receive()/server/NS', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@type': 'request',
-					'@kind': 'query'
+					'@id':   11074,
+					'@type': 'request'
 				},
 				payload: {
 					questions: [{
 						domain: 'example.com',
-						type:   'NS'
+						type:   'NS',
+						value:  null
 					}],
-					answers:     [],
-					authorities: [],
-					additionals: []
+					answers: []
 				}
 			});
 
@@ -699,6 +748,151 @@ describe('DNS.receive()/server/NS', function(assert) {
 	});
 
 });
+
+describe('DNS.receive()/client/PTR/v4', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['PTR_IPV4']['RESPONSE'], (response) => {
+
+			assert(response, {
+				headers: {
+					'@id':   6856,
+					'@type': 'response'
+				},
+				payload: {
+					questions: [{
+						domain: null,
+						type:   'PTR',
+						value:  IP.parse('95.217.163.246')
+					}],
+					answers: [{
+						domain: 'archlinux.org',
+						type:   'PTR',
+						value:  IP.parse('95.217.163.246')
+					}]
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/PTR/v4', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['PTR_IPV4']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   6856,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: null,
+						type:   'PTR',
+						value:  IP.parse('95.217.163.246')
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/client/PTR/v6', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['PTR_IPV6']['RESPONSE'], (response) => {
+
+			assert(response, {
+				headers: {
+					'@id':   49603,
+					'@type': 'response'
+				},
+				payload: {
+					questions: [{
+						domain: null,
+						type:   'PTR',
+						value:  IP.parse('2a01:04f9:c010:6b1f:0000:0000:0000:0001')
+					}],
+					answers: [{
+						domain: 'archlinux.org',
+						type:   'PTR',
+						value:  IP.parse('2a01:04f9:c010:6b1f:0000:0000:0000:0001')
+					}]
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/PTR/v6', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['PTR_IPV6']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   49603,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: null,
+						type:   'PTR',
+						value:  IP.parse('2a01:04f9:c010:6b1f:0000:0000:0000:0001')
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
 
 describe('DNS.receive()/client/SRV', function(assert) {
 
@@ -713,13 +907,14 @@ describe('DNS.receive()/client/SRV', function(assert) {
 
 			assert(response, {
 				headers: {
-					'@type': 'response',
-					'@kind': 'query'
+					'@id':   2831,
+					'@type': 'response'
 				},
 				payload: {
 					questions: [{
 						domain: '_stealth._wss.tholian.network',
-						type:   'SRV'
+						type:   'SRV',
+						value:  null
 					}],
 					answers: [{
 						domain: '_stealth._wss.tholian.network',
@@ -727,9 +922,7 @@ describe('DNS.receive()/client/SRV', function(assert) {
 						value:  'radar.tholian.network',
 						weight: 0,
 						port:   65432
-					}],
-					authorities: [],
-					additionals: []
+					}]
 				}
 			});
 
@@ -754,17 +947,16 @@ describe('DNS.receive()/server/SRV', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@type': 'request',
-					'@kind': 'query'
+					'@id':   2831,
+					'@type': 'request'
 				},
 				payload: {
 					questions: [{
 						domain: '_stealth._wss.tholian.network',
-						type:   'SRV'
+						type:   'SRV',
+						value:  null
 					}],
-					answers:     [],
-					authorities: [],
-					additionals: []
+					answers: []
 				}
 			});
 
@@ -789,13 +981,14 @@ describe('DNS.receive()/client/TXT', function(assert) {
 
 			assert(response, {
 				headers: {
-					'@type': 'response',
-					'@kind': 'query'
+					'@id':   17247,
+					'@type': 'response'
 				},
 				payload: {
 					questions: [{
 						domain: 'example.com',
-						type:   'TXT'
+						type:   'TXT',
+						value:  null
 					}],
 					answers: [{
 						domain: 'example.com',
@@ -809,9 +1002,7 @@ describe('DNS.receive()/client/TXT', function(assert) {
 						value:  [
 							Buffer.from('v=spf1 -all', 'utf8')
 						]
-					}],
-					authorities: [],
-					additionals: []
+					}]
 				}
 			});
 
@@ -836,17 +1027,16 @@ describe('DNS.receive()/server/TXT', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@type': 'request',
-					'@kind': 'query'
+					'@id':   17247,
+					'@type': 'request'
 				},
 				payload: {
 					questions: [{
 						domain: 'example.com',
-						type:   'TXT'
+						type:   'TXT',
+						value:  null
 					}],
-					answers:     [],
-					authorities: [],
-					additionals: []
+					answers: []
 				}
 			});
 
@@ -858,7 +1048,59 @@ describe('DNS.receive()/server/TXT', function(assert) {
 
 });
 
+describe('DNS.send()/A', function(assert) {
 
+	assert(isFunction(DNS.send), true);
+
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   13337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'example.com',
+					type:   'A',
+					value:  null
+				}],
+				answers: [{
+					domain: 'example.com',
+					type:   'A',
+					value:  IP.parse('93.184.216.34')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 13337
+			},
+			payload: {
+				questions: [{
+					domain: 'example.com',
+					type:   'A',
+					value:  null
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
 
 
 // describe('DNS.send()', function(assert) {
