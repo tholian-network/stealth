@@ -1,9 +1,11 @@
 
-import { Buffer, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
-import { describe, finish                       } from '../../../covert/index.mjs';
-import { DNS                                    } from '../../../stealth/source/connection/DNS.mjs';
-import { IP                                     } from '../../../stealth/source/parser/IP.mjs';
-import { URL                                    } from '../../../stealth/source/parser/URL.mjs';
+import dgram from 'dgram';
+
+import { Buffer, isFunction } from '../../../base/index.mjs';
+import { describe, finish   } from '../../../covert/index.mjs';
+import { DNS                } from '../../../stealth/source/connection/DNS.mjs';
+import { IP                 } from '../../../stealth/source/parser/IP.mjs';
+import { URL                } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -402,40 +404,6 @@ describe('DNS.receive()/client/A', function(assert) {
 
 });
 
-describe('DNS.receive()/server/A', function(assert) {
-
-	assert(isFunction(DNS.receive), true);
-
-	let url        = URL.parse('dns://1.0.0.1:53');
-	let connection = DNS.connect(url);
-
-	connection.once('@connect', () => {
-
-		DNS.receive(connection, PAYLOADS['A']['REQUEST'], (request) => {
-
-			assert(request, {
-				headers: {
-					'@id':   38554,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: 'example.com',
-						type:   'A',
-						value:  null
-					}],
-					answers: []
-				}
-			});
-
-			connection.disconnect();
-
-		});
-
-	});
-
-});
-
 describe('DNS.receive()/client/AAAA', function(assert) {
 
 	assert(isFunction(DNS.receive), true);
@@ -463,40 +431,6 @@ describe('DNS.receive()/client/AAAA', function(assert) {
 						type:   'AAAA',
 						value:  IP.parse('2606:2800:220:1:248:1893:25c8:1946')
 					}]
-				}
-			});
-
-			connection.disconnect();
-
-		});
-
-	});
-
-});
-
-describe('DNS.receive()/server/AAAA', function(assert) {
-
-	assert(isFunction(DNS.receive), true);
-
-	let url        = URL.parse('dns://1.0.0.1:53');
-	let connection = DNS.connect(url);
-
-	connection.once('@connect', () => {
-
-		DNS.receive(connection, PAYLOADS['AAAA']['REQUEST'], (request) => {
-
-			assert(request, {
-				headers: {
-					'@id':   26815,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: 'example.com',
-						type:   'AAAA',
-						value:  null
-					}],
-					answers: []
 				}
 			});
 
@@ -546,40 +480,6 @@ describe('DNS.receive()/client/CNAME', function(assert) {
 
 });
 
-describe('DNS.receive()/server/CNAME', function(assert) {
-
-	assert(isFunction(DNS.receive), true);
-
-	let url        = URL.parse('dns://1.0.0.1:53');
-	let connection = DNS.connect(url);
-
-	connection.once('@connect', () => {
-
-		DNS.receive(connection, PAYLOADS['CNAME']['REQUEST'], (request) => {
-
-			assert(request, {
-				headers: {
-					'@id':   22891,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: 'prophet.heise.de',
-						type:   'CNAME',
-						value:  null
-					}],
-					answers: []
-				}
-			});
-
-			connection.disconnect();
-
-		});
-
-	});
-
-});
-
 describe('DNS.receive()/client/MX', function(assert) {
 
 	assert(isFunction(DNS.receive), true);
@@ -615,53 +515,19 @@ describe('DNS.receive()/client/MX', function(assert) {
 					}, {
 						domain: 'github.com',
 						type:   'MX',
-						value:  'alt3.aspmx.l.google.com',
-						weight: 10
+						value:  'alt2.aspmx.l.google.com',
+						weight: 5
 					}, {
 						domain: 'github.com',
 						type:   'MX',
-						value:  'alt2.aspmx.l.google.com',
-						weight: 5
+						value:  'alt3.aspmx.l.google.com',
+						weight: 10
 					}, {
 						domain: 'github.com',
 						type:   'MX',
 						value:  'alt4.aspmx.l.google.com',
 						weight: 10
 					}]
-				}
-			});
-
-			connection.disconnect();
-
-		});
-
-	});
-
-});
-
-describe('DNS.receive()/server/MX', function(assert) {
-
-	assert(isFunction(DNS.receive), true);
-
-	let url        = URL.parse('dns://1.0.0.1:53');
-	let connection = DNS.connect(url);
-
-	connection.once('@connect', () => {
-
-		DNS.receive(connection, PAYLOADS['MX']['REQUEST'], (request) => {
-
-			assert(request, {
-				headers: {
-					'@id':   28754,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: 'github.com',
-						type:   'MX',
-						value:  null
-					}],
-					answers: []
 				}
 			});
 
@@ -715,40 +581,6 @@ describe('DNS.receive()/client/NS', function(assert) {
 
 });
 
-describe('DNS.receive()/server/NS', function(assert) {
-
-	assert(isFunction(DNS.receive), true);
-
-	let url        = URL.parse('dns://1.0.0.1:53');
-	let connection = DNS.connect(url);
-
-	connection.once('@connect', () => {
-
-		DNS.receive(connection, PAYLOADS['NS']['REQUEST'], (request) => {
-
-			assert(request, {
-				headers: {
-					'@id':   11074,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: 'example.com',
-						type:   'NS',
-						value:  null
-					}],
-					answers: []
-				}
-			});
-
-			connection.disconnect();
-
-		});
-
-	});
-
-});
-
 describe('DNS.receive()/client/PTR/v4', function(assert) {
 
 	assert(isFunction(DNS.receive), true);
@@ -776,40 +608,6 @@ describe('DNS.receive()/client/PTR/v4', function(assert) {
 						type:   'PTR',
 						value:  IP.parse('95.217.163.246')
 					}]
-				}
-			});
-
-			connection.disconnect();
-
-		});
-
-	});
-
-});
-
-describe('DNS.receive()/server/PTR/v4', function(assert) {
-
-	assert(isFunction(DNS.receive), true);
-
-	let url        = URL.parse('dns://1.0.0.1:53');
-	let connection = DNS.connect(url);
-
-	connection.once('@connect', () => {
-
-		DNS.receive(connection, PAYLOADS['PTR_IPV4']['REQUEST'], (request) => {
-
-			assert(request, {
-				headers: {
-					'@id':   6856,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: null,
-						type:   'PTR',
-						value:  IP.parse('95.217.163.246')
-					}],
-					answers: []
 				}
 			});
 
@@ -859,41 +657,6 @@ describe('DNS.receive()/client/PTR/v6', function(assert) {
 
 });
 
-describe('DNS.receive()/server/PTR/v6', function(assert) {
-
-	assert(isFunction(DNS.receive), true);
-
-	let url        = URL.parse('dns://1.0.0.1:53');
-	let connection = DNS.connect(url);
-
-	connection.once('@connect', () => {
-
-		DNS.receive(connection, PAYLOADS['PTR_IPV6']['REQUEST'], (request) => {
-
-			assert(request, {
-				headers: {
-					'@id':   49603,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: null,
-						type:   'PTR',
-						value:  IP.parse('2a01:04f9:c010:6b1f:0000:0000:0000:0001')
-					}],
-					answers: []
-				}
-			});
-
-			connection.disconnect();
-
-		});
-
-	});
-
-});
-
-
 describe('DNS.receive()/client/SRV', function(assert) {
 
 	assert(isFunction(DNS.receive), true);
@@ -923,40 +686,6 @@ describe('DNS.receive()/client/SRV', function(assert) {
 						weight: 0,
 						port:   65432
 					}]
-				}
-			});
-
-			connection.disconnect();
-
-		});
-
-	});
-
-});
-
-describe('DNS.receive()/server/SRV', function(assert) {
-
-	assert(isFunction(DNS.receive), true);
-
-	let url        = URL.parse('dns://1.0.0.1:53');
-	let connection = DNS.connect(url);
-
-	connection.once('@connect', () => {
-
-		DNS.receive(connection, PAYLOADS['SRV']['REQUEST'], (request) => {
-
-			assert(request, {
-				headers: {
-					'@id':   2831,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: '_stealth._wss.tholian.network',
-						type:   'SRV',
-						value:  null
-					}],
-					answers: []
 				}
 			});
 
@@ -1014,6 +743,278 @@ describe('DNS.receive()/client/TXT', function(assert) {
 
 });
 
+describe('DNS.receive()/server/A', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['A']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   38554,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: 'example.com',
+						type:   'A',
+						value:  null
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/AAAA', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['AAAA']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   26815,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: 'example.com',
+						type:   'AAAA',
+						value:  null
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/CNAME', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['CNAME']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   22891,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: 'prophet.heise.de',
+						type:   'CNAME',
+						value:  null
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/MX', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['MX']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   28754,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: 'github.com',
+						type:   'MX',
+						value:  null
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/NS', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['NS']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   11074,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: 'example.com',
+						type:   'NS',
+						value:  null
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/PTR/v4', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['PTR_IPV4']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   6856,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: null,
+						type:   'PTR',
+						value:  IP.parse('95.217.163.246')
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/PTR/v6', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['PTR_IPV6']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   49603,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: null,
+						type:   'PTR',
+						value:  IP.parse('2a01:04f9:c010:6b1f:0000:0000:0000:0001')
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/SRV', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		DNS.receive(connection, PAYLOADS['SRV']['REQUEST'], (request) => {
+
+			assert(request, {
+				headers: {
+					'@id':   2831,
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: '_stealth._wss.tholian.network',
+						type:   'SRV',
+						value:  null
+					}],
+					answers: []
+				}
+			});
+
+			connection.disconnect();
+
+		});
+
+	});
+
+});
+
 describe('DNS.receive()/server/TXT', function(assert) {
 
 	assert(isFunction(DNS.receive), true);
@@ -1048,7 +1049,7 @@ describe('DNS.receive()/server/TXT', function(assert) {
 
 });
 
-describe('DNS.send()/A', function(assert) {
+describe('DNS.send()/client/A', function(assert) {
 
 	assert(isFunction(DNS.send), true);
 
@@ -1102,41 +1103,479 @@ describe('DNS.send()/A', function(assert) {
 
 });
 
+describe('DNS.send()/client/AAAA', function(assert) {
 
-// describe('DNS.send()', function(assert) {
-//
-// 	assert(isFunction(DNS.send), true);
-//
-// 	let url        = URL.parse('dns://1.0.0.1:53');
-// 	let connection = DNS.connect(url);
-//
-// 	connection.once('response', (response) => {
-//
-// 		console.log(response);
-//
-// 	});
-//
-// 	connection.once('@connect', () => {
-//
-// 		DNS.send(connection, {
-// 			headers: {
-// 				'@type': 'request'
-// 			},
-// 			payload: {
-// 				questions: [{
-// 					name: 'example.com',
-// 					type: 'A'
-// 				}]
-// 			}
-// 		}, (result) => {
-//
-// 			assert(result, true);
-//
-// 		});
-//
-// 	});
-//
-// });
+	assert(isFunction(DNS.send), true);
+
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   13337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'example.com',
+					type:   'AAAA',
+					value:  null
+				}],
+				answers: [{
+					domain: 'example.com',
+					type:   'AAAA',
+					value:  IP.parse('2606:2800:220:1:248:1893:25c8:1946')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 13337
+			},
+			payload: {
+				questions: [{
+					domain: 'example.com',
+					type:   'AAAA',
+					value:  null
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
+
+describe('DNS.send()/client/CNAME', function(assert) {
+
+	assert(isFunction(DNS.send), true);
+
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   13337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'prophet.heise.de',
+					type:   'CNAME',
+					value:  null
+				}],
+				answers: [{
+					domain: 'prophet.heise.de',
+					type:   'CNAME',
+					value:  'heise02.webtrekk.net'
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 13337
+			},
+			payload: {
+				questions: [{
+					domain: 'prophet.heise.de',
+					type:   'CNAME',
+					value:  null
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
+
+describe('DNS.send()/client/MX', function(assert) {
+
+	assert(isFunction(DNS.send), true);
+
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   13337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'github.com',
+					type:   'MX',
+					value:  null
+				}],
+				answers: [{
+					domain: 'github.com',
+					type:   'MX',
+					value:  'aspmx.l.google.com',
+					weight: 1
+				}, {
+					domain: 'github.com',
+					type:   'MX',
+					value:  'alt1.aspmx.l.google.com',
+					weight: 5
+				}, {
+					domain: 'github.com',
+					type:   'MX',
+					value:  'alt2.aspmx.l.google.com',
+					weight: 5
+				}, {
+					domain: 'github.com',
+					type:   'MX',
+					value:  'alt3.aspmx.l.google.com',
+					weight: 10
+				}, {
+					domain: 'github.com',
+					type:   'MX',
+					value:  'alt4.aspmx.l.google.com',
+					weight: 10
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 13337
+			},
+			payload: {
+				questions: [{
+					domain: 'github.com',
+					type:   'MX',
+					value:  null
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
+
+describe('DNS.send()/client/NS', function(assert) {
+
+	assert(isFunction(DNS.send), true);
+
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   13337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'example.com',
+					type:   'NS',
+					value:  null
+				}],
+				answers: [{
+					domain: 'example.com',
+					type:   'NS',
+					value:  'a.iana-servers.net'
+				}, {
+					domain: 'example.com',
+					type:   'NS',
+					value:  'b.iana-servers.net'
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 13337
+			},
+			payload: {
+				questions: [{
+					domain: 'example.com',
+					type:   'NS',
+					value:  null
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
+
+describe('DNS.send()/client/SRV', function(assert) {
+
+	assert(isFunction(DNS.send), true);
+
+
+	let url         = URL.parse('dns://1.0.0.1:53');
+	let connection1 = DNS.connect(url);
+	let connection2 = DNS.connect(url);
+
+	connection1.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   13337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: '_stealth._wss.tholian.network',
+					type:   'SRV',
+					value:  null
+				}],
+				answers: [{
+					domain: '_stealth._wss.tholian.network',
+					type:   'SRV',
+					value:  'radar.tholian.network',
+					weight: 0,
+					port:   65432
+				}]
+			}
+		});
+
+	});
+
+	connection1.once('@connect', () => {
+
+		DNS.send(connection1, {
+			headers: {
+				'@id': 13337
+			},
+			payload: {
+				questions: [{
+					domain: '_stealth._wss.tholian.network',
+					type:   'SRV',
+					value:  null
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+	connection2.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: '_stealth._ws.tholian.network',
+					type:   'SRV',
+					value:  null
+				}],
+				answers: [{
+					domain: '_stealth._ws.tholian.network',
+					type:   'SRV',
+					value:  'radar.tholian.network',
+					weight: 1,
+					port:   65432
+				}]
+			}
+		});
+
+	});
+
+	connection2.once('@connect', () => {
+
+		DNS.send(connection2, {
+			headers: {
+				'@id': 1337
+			},
+			payload: {
+				questions: [{
+					domain: '_stealth._ws.tholian.network',
+					type:   'SRV',
+					value:  null
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
+
+describe('DNS.send()/client/TXT', function(assert) {
+
+	assert(isFunction(DNS.send), true);
+
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   137,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.network',
+					type:   'TXT',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.network',
+					type:   'TXT',
+					value:  Buffer.from('All your data are belong to you, the user.', 'utf8')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 137
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.network',
+					type:   'TXT',
+					value:  null
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
+
+describe('DNS.upgrade()', function(assert) {
+
+	let server      = dgram.createSocket('udp4');
+	let connection1 = DNS.upgrade(server);
+
+	connection1.once('@connect', () => {
+		assert(true);
+	});
+
+	connection1.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id': 1337
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'TXT',
+					value:  null
+				}]
+			}
+		});
+
+		connection1.once('@disconnect', () => {
+			assert(true);
+		});
+
+	});
+
+	server.bind(13337);
+
+
+	let url         = URL.parse('dns://localhost:13337');
+	let connection2 = DNS.connect(url);
+
+	connection2.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection2, {
+				headers: {
+					'@id': 1337
+				},
+				payload: {
+					questions: [{
+						domain: 'tholian.local',
+						type:   'TXT',
+						value:  null
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection2), true);
+		}, 500);
+
+	});
+
+	connection2.once('@disconnect', () => {
+		assert(true);
+	});
+
+	setTimeout(() => {
+		server.close();
+		assert(true);
+	}, 1000);
+
+});
 
 
 
