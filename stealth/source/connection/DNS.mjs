@@ -105,7 +105,7 @@ const decode_domain = function(dictionary, payload, labels) {
 
 			} else if (length > 64) {
 
-				let pointer = ((length - 192) << 8) + payload[bytes + 1];
+				let pointer = ((length - 0b11000000) << 8) + payload[bytes + 1];
 				if (pointer >= 12) {
 
 					let entry = dictionary.labels[pointer] || [];
@@ -577,9 +577,14 @@ const encode_domain = function(dictionary, domain) {
 
 	let buffer = null;
 
-	let pointer = dictionary.pointers[domain] || null;
-	if (pointer !== null) {
-		// TODO: Encode as Pointer
+	let index = dictionary.pointers[domain] || null;
+	if (index !== null) {
+
+		buffer = Buffer.from([
+			0b11000000 | (index >> 8),
+			index      & 0xff
+		]);
+
 	} else {
 
 		let chunks = [];
@@ -634,51 +639,89 @@ const encode_question = function(dictionary, question) {
 
 const encode_record = function(dictionary, record) {
 
-	let buffer = null;
-
-
-	console.log(record);
+	console.warn(record);
 
 	let domain_data = encode_domain(dictionary, record.domain);
 	if (domain_data !== null) {
 
-		console.log(domain_data);
+		let rclass = CLASSES['INTERNET'];
+		let type   = record.type;
+		let rtype  = TYPES[type] || null;
 
-		// TODO: Huh?
-	}
+		if (rtype !== null) {
 
-	let type  = record.type;
-	let rtype = TYPES[type] || null;
-	if (rtype !== null) {
+			let rdata = null;
+			let rhead = Buffer.concat([
+				domain_data,
+				Buffer.from([
+					(rtype >> 8)  & 0xff,
+					rtype         & 0xff,
+					(rclass >> 8) & 0xff,
+					rclass        & 0xff,
+					0x00, // TTL
+					0x00  // TTL
+				])
+			]);
 
-		buffer = Buffer.from([
-		]);
+			if (type === 'A') {
 
-		// TODO: Encode domain
-		// TODO: Encode rtype (2 bytes)
-		// TODO: Encode rclass (2 bytes)
-		// TODO: Encode TTL (2 bytes)
-		// TODO: Encode rdlength (2 bytes)
+				let ip = record.value || null;
 
-		if (type === 'A') {
-		} else if (type === 'AAAA') {
-		} else if (type === 'CNAME') {
-		} else if (type === 'MX') {
-		} else if (type === 'NS') {
-		} else if (type === 'PTR') {
-		} else if (type === 'SRV') {
-		} else if (type === 'TXT') {
+				if (IP.isIP(ip) === true && ip.type === 'v4') {
+
+					rdata = Buffer.from(ip.split('.').map((v) => {
+						return parseInt(v, 10);
+					}));
+
+				}
+
+			} else if (type === 'AAAA') {
+
+				// TODO: Encode AAAA
+
+			} else if (type === 'CNAME') {
+			} else if (type === 'MX') {
+			} else if (type === 'NS') {
+			} else if (type === 'PTR') {
+			} else if (type === 'SRV') {
+			} else if (type === 'TXT') {
+
+				rdata = encode_string(dictionary, record.value);
+
+			}
+
+
+			if (rdata !== null) {
+
+				return Buffer.concat([
+					rhead,
+					Buffer.from([
+						(rdata.length >> 8) & 0xff,
+						rdata.length        & 0xff
+					]),
+					rdata
+				]);
+
+			}
+
 		}
 
 	}
 
-	return buffer;
+
+	return null;
 
 	// TODO: Encode Record{domain, type, value}
 };
 
 const encode_string = function(dictionary, values) {
+
+	console.error('encode string nao!', values);
+
 	// TODO: Encode Buffer values[]
+
+	return null;
+
 };
 
 const encode = function(connection, data) {
@@ -841,8 +884,17 @@ const onupgrade = function(connection, url) {
 
 	connection.type = 'server';
 
-	connection.socket.on('message', (message) => {
+	connection.socket.on('message', (message, rinfo) => {
+
+		connection.remote = {
+			host: rinfo.address,
+			port: rinfo.port
+		};
+
 		onmessage(connection, url, message);
+
+		connection.remote = null;
+
 	});
 
 	setTimeout(() => {
@@ -974,7 +1026,12 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 			this.socket.removeAllListeners('error');
 			this.socket.removeAllListeners('close');
 
-			this.socket.close();
+			try {
+				this.socket.close();
+			} catch (err) {
+				// Do nothing
+			}
+
 			this.socket = null;
 
 			this.emit('@disconnect');
@@ -1225,15 +1282,49 @@ const DNS = {
 
 			if (buffer !== null) {
 
-				connection.socket.send(buffer, 0, buffer.length, (err) => {
+				if (connection.type === 'client') {
 
-					if (err === null) {
+					connection.socket.send(buffer, 0, buffer.length, (err) => {
 
-						connection.socket.setTTL(64);
+						if (err === null) {
 
-						if (callback !== null) {
-							callback(true);
+							connection.socket.setTTL(64);
+
+							if (callback !== null) {
+								callback(true);
+							}
+
+						} else {
+
+							if (callback !== null) {
+								callback(false);
+							}
+
 						}
+
+					});
+
+				} else if (connection.type === 'server') {
+
+					if (connection.remote !== null) {
+
+						connection.socket.send(buffer, 0, buffer.length, connection.remote.port, connection.remote.host, (err) => {
+
+							if (err === null) {
+
+								if (callback !== null) {
+									callback(true);
+								}
+
+							} else {
+
+								if (callback !== null) {
+									callback(false);
+								}
+
+							}
+
+						});
 
 					} else {
 
@@ -1243,7 +1334,7 @@ const DNS = {
 
 					}
 
-				});
+				}
 
 			} else {
 

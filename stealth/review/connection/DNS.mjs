@@ -1514,15 +1514,42 @@ describe('DNS.upgrade()', function(assert) {
 
 		assert(request, {
 			headers: {
-				'@id': 1337
+				'@id':   1337,
+				'@type': 'request'
 			},
 			payload: {
 				questions: [{
 					domain: 'tholian.local',
 					type:   'TXT',
 					value:  null
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(connection1, {
+			headers: {
+				'@id':   1337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'TXT',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.local',
+					type:   'TXT',
+					value:  [
+						Buffer.from('This is a test.', 'utf8')
+					]
 				}]
 			}
+		}, (result) => {
+
+			assert(result, true);
+
 		});
 
 		connection1.once('@disconnect', () => {
@@ -1563,6 +1590,31 @@ describe('DNS.upgrade()', function(assert) {
 		setTimeout(() => {
 			assert(DNS.disconnect(connection2), true);
 		}, 500);
+
+	});
+
+	connection2.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'TXT',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.local',
+					type:   'TXT',
+					value:  [
+						Buffer.from('This is a test.', 'utf8')
+					]
+				}]
+			}
+		});
 
 	});
 
