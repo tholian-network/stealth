@@ -1,32 +1,74 @@
 
 import dgram from 'dgram';
 
-import { console, Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                                                      } from '../../source/parser/IP.mjs';
-import { URL                                                                                     } from '../../source/parser/URL.mjs';
+import { console, Buffer, Emitter, isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                                                    } from '../../source/parser/IP.mjs';
+import { URL                                                                                   } from '../../source/parser/URL.mjs';
 
 
+
+const isDomain = function(domain) {
+
+	let tmp   = domain.split('.');
+	let check = domain.split('.').filter((label) => {
+		return label.length > 0 && label.length < 64;
+	});
+
+	return check.length === tmp.length;
+
+};
 
 const isAnswer = function(answer) {
 
 	if (
 		isObject(answer) === true
-		&& isString(answer.domain) === true
+		&& isDomain(answer.domain) === true
 		&& isString(answer.type) === true
 		&& Object.keys(TYPES).includes(answer.type) === true
-		&& (
-			isArray(answer.value) === true
-			|| isString(answer.value) === true
-		)
 	) {
 
-		let check1 = answer.domain.split('.');
-		let check2 = answer.domain.split('.').filter((label) => {
-			return label.length > 0 && label.length < 64;
-		});
+		if (answer.type === 'A') {
+			return IP.isIP(answer.value) === true && answer.value.type === 'v4';
+		} else if (answer.type === 'AAAA') {
+			return IP.isIP(answer.value) === true && answer.value.type === 'v6';
+		} else if (answer.type === 'CNAME') {
+			return isDomain(answer.value) === true;
+		} else if (answer.type === 'MX') {
 
-		if (check1.length === check2.length) {
-			return true;
+			if (
+				isDomain(answer.value) === true
+				&& isNumber(answer.weight) === true
+			) {
+				return true;
+			}
+
+		} else if (answer.type === 'NS') {
+			return isDomain(answer.value) === true;
+		} else if (answer.type === 'PTR') {
+			return IP.isIP(answer.value) === true;
+		} else if (answer.type === 'SRV') {
+
+			if (
+				isDomain(answer.value) === true
+				&& isNumber(answer.weight) === true
+				&& isNumber(answer.port) === true
+				&& answer.port > 0
+				&& answer.port < 65535
+			) {
+				return true;
+			}
+
+		} else if (answer.type === 'TXT') {
+
+			if (isArray(answer.value) === true) {
+
+				let check = answer.value.filter((v) => isBuffer(v));
+				if (check.length === answer.value.length) {
+					return true;
+				}
+
+			}
+
 		}
 
 	}
@@ -40,18 +82,22 @@ const isQuestion = function(question) {
 
 	if (
 		isObject(question) === true
-		&& isString(question.domain) === true
 		&& isString(question.type) === true
 		&& Object.keys(TYPES).includes(question.type) === true
 	) {
 
-		let check1 = question.domain.split('.');
-		let check2 = question.domain.split('.').filter((label) => {
-			return label.length > 0 && label.length < 64;
-		});
-
-		if (check1.length === check2.length) {
-			return true;
+		if (
+			question.type === 'A'
+			|| question.type === 'AAAA'
+			|| question.type === 'CNAME'
+			|| question.type === 'MX'
+			|| question.type === 'NS'
+			|| question.type === 'SRV'
+			|| question.type === 'TXT'
+		) {
+			return isDomain(question.domain) === true;
+		} else if (question.type === 'PTR') {
+			return question.domain === null && IP.isIP(question.value) === true;
 		}
 
 	}
@@ -274,6 +320,7 @@ const decode_record = function(dictionary, payload) {
 				}
 
 				return val;
+
 			};
 
 			let ip = [
@@ -654,36 +701,63 @@ const encode_record = function(dictionary, record) {
 			let rhead = Buffer.concat([
 				domain_data,
 				Buffer.from([
-					(rtype >> 8)  & 0xff,
-					rtype         & 0xff,
-					(rclass >> 8) & 0xff,
-					rclass        & 0xff,
-					0x00, // TTL
-					0x00  // TTL
+					(rtype >> 8)  & 0xff, rtype  & 0xff,
+					(rclass >> 8) & 0xff, rclass & 0xff,
+					0x00, 0x00, 0x00, 0x00 // TTL
 				])
 			]);
 
 			if (type === 'A') {
 
-				let ip = record.value || null;
-
-				if (IP.isIP(ip) === true && ip.type === 'v4') {
-
-					rdata = Buffer.from(ip.split('.').map((v) => {
-						return parseInt(v, 10);
-					}));
-
-				}
+				rdata = Buffer.from(record.value.ip.split('.').slice(0, 4).map((v) => {
+					return parseInt(v, 10);
+				}));
 
 			} else if (type === 'AAAA') {
 
-				// TODO: Encode AAAA
+				let ip  = record.value.ip.split(':').join('').split('');
+				let tmp = [];
+
+				for (let i = 0; i < ip.length; i += 2) {
+					tmp.push(parseInt(ip[i + 0] + ip[i + 1], 16));
+				}
+
+				rdata = Buffer.from(tmp);
 
 			} else if (type === 'CNAME') {
+
+				rdata = encode_domain(dictionary, record.value);
+
 			} else if (type === 'MX') {
+
+				rdata = Buffer.concat([
+					Buffer.from([
+						(record.weight >> 8) & 0xff,
+						record.weight        & 0xff
+					]),
+					encode_domain(dictionary, record.value)
+				]);
+
 			} else if (type === 'NS') {
+
+				rdata = encode_domain(dictionary, record.value);
+
 			} else if (type === 'PTR') {
+
+				if (record.value.type === 'v4') {
+
+					rdata = encode_domain(dictionary, record.value.ip.split('.').slice(0, 4).reverse() + '.in-addr.arpa');
+
+				} else if (record.value.type === 'v6') {
+
+					rdata = encode_domain(dictionary, record.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa');
+
+				}
+
 			} else if (type === 'SRV') {
+
+				// TODO: Encode SRV (priority, weight, port, domain)
+
 			} else if (type === 'TXT') {
 
 				rdata = encode_string(dictionary, record.value);
@@ -711,14 +785,33 @@ const encode_record = function(dictionary, record) {
 
 	return null;
 
-	// TODO: Encode Record{domain, type, value}
 };
 
 const encode_string = function(dictionary, values) {
 
-	console.error('encode string nao!', values);
+	let buffers = [];
 
-	// TODO: Encode Buffer values[]
+	for (let v = 0, vl = values.length; v < vl; v++) {
+
+		let value = values[v];
+
+		if (isBuffer(value) === true && value.length <= 255) {
+
+			let buffer = Buffer.alloc(value.length + 1);
+
+			buffer[0] = value.length;
+			value.copy(buffer, 1, 0, value.length);
+
+			buffers.push(buffer);
+
+		}
+
+	}
+
+	if (buffers.length > 0) {
+		return Buffer.concat(buffers);
+	}
+
 
 	return null;
 

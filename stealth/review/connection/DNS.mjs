@@ -1,11 +1,11 @@
 
 import dgram from 'dgram';
 
-import { Buffer, isFunction } from '../../../base/index.mjs';
-import { describe, finish   } from '../../../covert/index.mjs';
-import { DNS                } from '../../../stealth/source/connection/DNS.mjs';
-import { IP                 } from '../../../stealth/source/parser/IP.mjs';
-import { URL                } from '../../../stealth/source/parser/URL.mjs';
+import { Buffer, isFunction              } from '../../../base/index.mjs';
+import { after, before, describe, finish } from '../../../covert/index.mjs';
+import { DNS                             } from '../../../stealth/source/connection/DNS.mjs';
+import { IP                              } from '../../../stealth/source/parser/IP.mjs';
+import { URL                             } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -317,6 +317,19 @@ const PAYLOADS = {
 };
 
 
+
+before('DNS.upgrade()', function(assert) {
+
+	this.server     = dgram.createSocket('udp4');
+	this.connection = DNS.upgrade(this.server);
+
+	this.connection.once('@connect', () => {
+		assert(true);
+	});
+
+	this.server.bind(13337);
+
+});
 
 describe('DNS.connect()', function(assert) {
 
@@ -1471,7 +1484,9 @@ describe('DNS.send()/client/TXT', function(assert) {
 				answers: [{
 					domain: 'tholian.network',
 					type:   'TXT',
-					value:  Buffer.from('All your data are belong to you, the user.', 'utf8')
+					value:  [
+						Buffer.from('All your data are belong to you, the user.', 'utf8')
+					]
 				}]
 			}
 		});
@@ -1501,20 +1516,232 @@ describe('DNS.send()/client/TXT', function(assert) {
 
 });
 
-describe('DNS.upgrade()', function(assert) {
+describe('DNS.send()/server/A', function(assert) {
 
-	let server      = dgram.createSocket('udp4');
-	let connection1 = DNS.upgrade(server);
-
-	connection1.once('@connect', () => {
-		assert(true);
-	});
-
-	connection1.once('request', (request) => {
+	this.connection.once('request', (request) => {
 
 		assert(request, {
 			headers: {
 				'@id':   1337,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'A',
+					value:  null
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(this.connection, {
+			headers: {
+				'@id':   1337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'A',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.local',
+					type:   'A',
+					value:  IP.parse('192.168.0.123')
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection, {
+				headers: {
+					'@id': 1337
+				},
+				payload: {
+					questions: [{
+						domain: 'tholian.local',
+						type:   'A',
+						value:  null
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			DNS.disconnect(connection);
+		}, 500);
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'A',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.local',
+					type:   'A',
+					value:  IP.parse('192.168.0.123')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('DNS.send()/server/AAAA', function(assert) {
+
+	this.connection.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   1338,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'AAAA',
+					value:  null
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(this.connection, {
+			headers: {
+				'@id':   1338,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'AAAA',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.local',
+					type:   'AAAA',
+					value:  IP.parse('fe80::1337')
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection, {
+				headers: {
+					'@id': 1338
+				},
+				payload: {
+					questions: [{
+						domain: 'tholian.local',
+						type:   'AAAA',
+						value:  null
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			DNS.disconnect(connection);
+		}, 500);
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1338,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'AAAA',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.local',
+					type:   'AAAA',
+					value:  IP.parse('fe80::1337')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+// TODO: DNS.send()/server/CNAME (1339)
+// TODO: DNS.send()/server/MX (1340)
+// TODO: DNS.send()/server/NS (1341)
+// TODO: DNS.send()/server/PTR/v4 (1342)
+// TODO: DNS.send()/server/PTR/v6 (1343)
+// TODO: DNS.send()/server/PTR/SRV (1344)
+
+describe('DNS.send()/server/TXT', function(assert) {
+
+	this.connection.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   1345,
 				'@type': 'request'
 			},
 			payload: {
@@ -1527,9 +1754,9 @@ describe('DNS.upgrade()', function(assert) {
 			}
 		});
 
-		DNS.send(connection1, {
+		DNS.send(this.connection, {
 			headers: {
-				'@id':   1337,
+				'@id':   1345,
 				'@type': 'response'
 			},
 			payload: {
@@ -1552,25 +1779,19 @@ describe('DNS.upgrade()', function(assert) {
 
 		});
 
-		connection1.once('@disconnect', () => {
-			assert(true);
-		});
-
 	});
 
-	server.bind(13337);
 
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
 
-	let url         = URL.parse('dns://localhost:13337');
-	let connection2 = DNS.connect(url);
-
-	connection2.once('@connect', () => {
+	connection.once('@connect', () => {
 
 		setTimeout(() => {
 
-			DNS.send(connection2, {
+			DNS.send(connection, {
 				headers: {
-					'@id': 1337
+					'@id': 1345
 				},
 				payload: {
 					questions: [{
@@ -1588,16 +1809,16 @@ describe('DNS.upgrade()', function(assert) {
 		}, 100);
 
 		setTimeout(() => {
-			assert(DNS.disconnect(connection2), true);
+			DNS.disconnect(connection);
 		}, 500);
 
 	});
 
-	connection2.once('response', (response) => {
+	connection.once('response', (response) => {
 
 		assert(response, {
 			headers: {
-				'@id':   1337,
+				'@id':   1345,
 				'@type': 'response'
 			},
 			payload: {
@@ -1618,14 +1839,24 @@ describe('DNS.upgrade()', function(assert) {
 
 	});
 
-	connection2.once('@disconnect', () => {
+	connection.once('@disconnect', () => {
 		assert(true);
 	});
 
-	setTimeout(() => {
-		server.close();
+});
+
+after('DNS.disconnect()', function(assert) {
+
+	assert(true);
+
+	this.connection.once('@disconnect', () => {
 		assert(true);
-	}, 1000);
+	});
+
+	DNS.disconnect(this.connection);
+
+	this.connection = null;
+	this.server     = null;
 
 });
 
