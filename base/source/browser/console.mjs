@@ -178,8 +178,19 @@ export const console = (function(global) {
 
 			elements.style.appendChild(global.document.createTextNode(style.join('\n')));
 
-			global.document.head.appendChild(elements.style);
-			global.document.body.appendChild(elements.console);
+			if (global.document.head !== null && global.document.body !== null) {
+
+				global.document.head.appendChild(elements.style);
+				global.document.body.appendChild(elements.console);
+
+			} else {
+
+				global.document.addEventListener('DOMContentLoaded', () => {
+					global.document.head.appendChild(elements.style);
+					global.document.body.appendChild(elements.console);
+				}, true);
+
+			}
 
 			element = elements.console;
 
