@@ -10,10 +10,10 @@ import { build as build_base } from '../base/make.mjs';
 
 
 
-const CACHE   = {};
-const FILE    = url.fileURLToPath(import.meta.url);
-const ROOT    = path.dirname(path.resolve(FILE, '../'));
-const TARGET  = ROOT;
+const CACHE  = {};
+const FILE   = url.fileURLToPath(import.meta.url);
+const ROOT   = path.dirname(path.resolve(FILE, '../'));
+const TARGET = ROOT;
 
 const copy = (origin, target) => {
 
@@ -232,10 +232,15 @@ const write = (url, buffer) => {
 		result = false;
 	}
 
+	let pretty = path.resolve(url);
+	if (pretty.startsWith(ROOT) === true) {
+		pretty = pretty.substr(ROOT.length + 1);
+	}
+
 	if (result === true) {
-		console.info('browser: write("' + path.resolve(url).substr(ROOT.length + 1) + '")');
+		console.info('browser: write("' + pretty + '")');
 	} else {
-		console.error('browser: write("' + path.resolve(url).substr(ROOT.length + 1) + '")');
+		console.error('browser: write("' + pretty + '")');
 	}
 
 	return result;

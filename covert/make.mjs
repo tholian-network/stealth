@@ -5,14 +5,16 @@ import process from 'process';
 import url     from 'url';
 
 import { console                                        } from '../base/source/node/console.mjs';
+import { isString                                       } from '../base/source/String.mjs';
 import { build as build_base                            } from '../base/make.mjs';
 import { build as build_stealth, clean as clean_stealth } from '../stealth/make.mjs';
 
 
 
-let   CACHE = null;
-const FILE  = url.fileURLToPath(import.meta.url);
-const ROOT  = path.dirname(path.resolve(FILE, '../'));
+const CACHE  = {};
+const FILE   = url.fileURLToPath(import.meta.url);
+const ROOT   = path.dirname(path.resolve(FILE, '../'));
+const TARGET = ROOT;
 
 const copy = (origin, target) => {
 
@@ -139,53 +141,95 @@ const remove = (url) => {
 
 
 
-export const clean = () => {
+export const clean = (target) => {
 
-	if (CACHE === false) {
+	target = isString(target) ? target : TARGET;
 
-		return true;
 
-	} else {
+	if (CACHE[target] === true) {
 
-		console.log('covert: clean()');
+		CACHE[target] = false;
 
-		CACHE = false;
 
-		let results = [
-			clean_stealth(),
-			remove(ROOT + '/covert/extern/base.mjs')
-		];
+		let results = [];
+
+		if (target === TARGET) {
+
+			console.log('covert: clean()');
+
+			[
+				clean_stealth(),
+				remove(target + '/covert/extern/base.mjs')
+			].forEach((result) => results.push(result));
+
+		} else {
+
+			console.log('covert: clean("' + target + '")');
+
+			[
+				clean_stealth(target),
+				remove(target + '/covert/extern/base.mjs')
+			].forEach((result) => results.push(result));
+
+		}
+
 
 		if (results.includes(false) === false) {
 			return true;
 		}
 
+
+		return false;
+
 	}
 
 
-	return false;
+	return true;
 
 };
 
-export const build = () => {
+export const build = (target) => {
 
-	if (CACHE === true) {
+	target = isString(target) ? target : TARGET;
+
+
+	if (CACHE[target] === true) {
 
 		return true;
 
-	} else {
-
-		console.log('covert: build()');
+	} else if (CACHE[target] !== true) {
 
 		let results = [
-			build_base(),
-			build_stealth(),
-			copy(ROOT + '/base/build/node.mjs', ROOT + '/covert/extern/base.mjs'),
+			build_base()
 		];
 
+		if (target === TARGET) {
+
+			console.log('covert: build()');
+
+			[
+				build_stealth(),
+				copy(ROOT + '/base/build/node.mjs', target + '/covert/extern/base.mjs'),
+			].forEach((result) => results.push(result));
+
+		} else {
+
+			console.log('covert: build("' + target + '")');
+
+			[
+				build_stealth(target),
+				copy(ROOT + '/base/build/node.mjs', target + '/covert/extern/base.mjs'),
+			].forEach((result) => results.push(result));
+
+		}
+
+
 		if (results.includes(false) === false) {
-			CACHE = true;
+
+			CACHE[target] = true;
+
 			return true;
+
 		}
 
 	}
@@ -203,7 +247,7 @@ if (args.includes(FILE) === true) {
 	let results = [];
 
 	if (args.includes('clean')) {
-		CACHE = true;
+		CACHE[TARGET] = true;
 		results.push(clean());
 	}
 
@@ -212,7 +256,7 @@ if (args.includes(FILE) === true) {
 	}
 
 	if (results.length === 0) {
-		CACHE = true;
+		CACHE[TARGET] = true;
 		results.push(clean());
 		results.push(build());
 	}

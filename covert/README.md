@@ -46,7 +46,7 @@ transmit and receive of both UDP/TCP data:
 ```bash
 cd /path/to/stealth;
 
-# Build Covert
+# Build Stealth and Covert
 node ./covert/make.mjs;
 
 # Show Help

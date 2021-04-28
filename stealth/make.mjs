@@ -88,10 +88,18 @@ const copy = (origin, target) => {
 
 	}
 
+	if (origin.startsWith(ROOT) === true) {
+		origin = origin.substr(ROOT.length + 1);
+	}
+
+	if (target.startsWith(ROOT) === true) {
+		target = target.substr(ROOT.length + 1);
+	}
+
 	if (result === true) {
-		console.info('stealth: copy("' + origin.substr(ROOT.length + 1) + '", "' + target.substr(ROOT.length + 1) + '")');
+		console.info('stealth: copy("' + origin + '", "' + target + '")');
 	} else {
-		console.error('stealth: copy("' + origin.substr(ROOT.length + 1) + '", "' + target.substr(ROOT.length + 1) + '")');
+		console.error('stealth: copy("' + origin + '", "' + target + '")');
 	}
 
 	return result;
@@ -173,6 +181,7 @@ export const clean = (target) => {
 			].forEach((result) => results.push(result));
 
 		}
+
 
 		if (results.includes(false) === false) {
 			return true;

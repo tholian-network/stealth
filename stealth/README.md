@@ -18,7 +18,7 @@ Web App in fullscreen mode.
 ```bash
 cd /path/to/stealth;
 
-# Build Stealth (and Browser and Base)
+# Build Base, Browser and Stealth
 node ./stealth/make.mjs;
 
 # Show Help

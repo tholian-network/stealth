@@ -12,6 +12,7 @@ Currently, the Repository consists of these important folders:
 - [Base](/base) is a Library (`BASE.mjs`) containing Polyfills for both the Browser and Stealth.
 - [Browser](/browser) is the Web-Based Frontend for Stealth that can be used as a Progressive Web App.
 - [Covert](/covert) is the Test Runner.
+- [Profile](/profile) is the Tholian Vendor Profile.
 - [Stealth](/stealth) is the Stealth Service (that runs in node.js).
 
 

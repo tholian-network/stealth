@@ -21,7 +21,7 @@ Engine or Web View easily.
 ```bash
 cd /path/to/stealth;
 
-# Build Stealth (and Browser and Base)
+# Build Base, Browser and Stealth
 node ./stealth/make.mjs;
 
 # Start Stealth Service

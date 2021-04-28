@@ -4,13 +4,15 @@ import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { console } from './source/node/console.mjs';
+import { console  } from './source/node/console.mjs';
+import { isString } from './source/String.mjs';
 
 
 
-let   CACHE = null;
-const FILE  = url.fileURLToPath(import.meta.url);
-const ROOT  = path.dirname(path.resolve(FILE, './'));
+const CACHE  = {};
+const FILE   = url.fileURLToPath(import.meta.url);
+const ROOT   = path.dirname(path.resolve(FILE, '../'));
+const TARGET = ROOT;
 
 const generate = (target, files) => {
 
@@ -54,15 +56,19 @@ const generate = (target, files) => {
 		errors++;
 	}
 
+	if (target.startsWith(ROOT) === true) {
+		target = target.substr(ROOT.length + 1);
+	}
+
 	if (errors === 0) {
 
-		console.info('base: generate("base/' + target.substr(ROOT.length + 1) + '")');
+		console.info('base: generate("' + target + '")');
 
 		return true;
 
 	} else {
 
-		console.error('base: generate("base/' + target.substr(ROOT.length + 1) + '")');
+		console.error('base: generate("' + target + '")');
 
 		return false;
 
@@ -120,79 +126,120 @@ const remove = (url) => {
 
 
 const BASE_FILES = [
-	ROOT + '/source/Array.mjs',
-	ROOT + '/source/Boolean.mjs',
-	ROOT + '/source/Date.mjs',
-	ROOT + '/source/Function.mjs',
-	ROOT + '/source/Map.mjs',
-	ROOT + '/source/Number.mjs',
-	ROOT + '/source/Object.mjs',
-	ROOT + '/source/RegExp.mjs',
-	ROOT + '/source/Set.mjs',
-	ROOT + '/source/String.mjs',
-	ROOT + '/source/Emitter.mjs'
+	ROOT + '/base/source/Array.mjs',
+	ROOT + '/base/source/Boolean.mjs',
+	ROOT + '/base/source/Date.mjs',
+	ROOT + '/base/source/Function.mjs',
+	ROOT + '/base/source/Map.mjs',
+	ROOT + '/base/source/Number.mjs',
+	ROOT + '/base/source/Object.mjs',
+	ROOT + '/base/source/RegExp.mjs',
+	ROOT + '/base/source/Set.mjs',
+	ROOT + '/base/source/String.mjs',
+	ROOT + '/base/source/Emitter.mjs'
 ].map((path) => read(path));
 
 const BROWSER_FILES = [
-	ROOT + '/source/browser/Buffer.mjs',
-	ROOT + '/source/browser/console.mjs',
-	ROOT + '/source/MODULE.mjs'
+	ROOT + '/base/source/browser/Buffer.mjs',
+	ROOT + '/base/source/browser/console.mjs',
+	ROOT + '/base/source/MODULE.mjs'
 ].map((path) => read(path));
 
 const NODE_FILES = [
-	ROOT + '/source/node/Buffer.mjs',
-	ROOT + '/source/node/console.mjs',
-	ROOT + '/source/MODULE.mjs'
+	ROOT + '/base/source/node/Buffer.mjs',
+	ROOT + '/base/source/node/console.mjs',
+	ROOT + '/base/source/MODULE.mjs'
 ].map((path) => read(path));
 
 
 
-export const clean = () => {
+export const clean = (target) => {
 
-	if (CACHE === false) {
+	target = isString(target) ? target : TARGET;
 
-		return true;
 
-	} else {
+	if (CACHE[target] === true) {
 
-		console.log('base: clean()');
+		CACHE[target] = false;
 
-		CACHE = false;
 
-		let results = [
-			remove(ROOT + '/build/browser.mjs'),
-			remove(ROOT + '/build/node.mjs')
-		];
+		let results = [];
+
+		if (target === TARGET) {
+
+			console.log('base: clean()');
+
+			[
+				remove(target + '/base/build/browser.mjs'),
+				remove(target + '/base/build/node.mjs')
+			].forEach((result) => results.push(result));
+
+		} else {
+
+			console.log('base: clean("' + target + '")');
+
+			[
+				remove(target + '/base/build/browser.mjs'),
+				remove(target + '/base/build/node.mjs')
+			].forEach((result) => results.push(result));
+
+		}
+
 
 		if (results.includes(false) === false) {
 			return true;
 		}
 
+
+		return false;
+
 	}
 
 
-	return false;
+	return true;
 
 };
 
-export const build = () => {
+export const build = (target) => {
 
-	if (CACHE === true) {
+	target = isString(target) ? target : TARGET;
+
+
+	if (CACHE[target] === true) {
 
 		return true;
 
-	} else {
+	} else if (CACHE[target] !== true) {
 
-		console.log('base: build()');
+		let results = [];
 
-		let results = [
-			generate(ROOT + '/build/browser.mjs', [].concat(BASE_FILES).concat(BROWSER_FILES)),
-			generate(ROOT + '/build/node.mjs',    [].concat(BASE_FILES).concat(NODE_FILES))
-		];
+		if (target === TARGET) {
+
+			console.log('base: build()');
+
+			[
+				generate(target + '/base/build/browser.mjs', [].concat(BASE_FILES).concat(BROWSER_FILES)),
+				generate(target + '/base/build/node.mjs',    [].concat(BASE_FILES).concat(NODE_FILES))
+			].forEach((result) => results.push(result));
+
+		} else {
+
+			console.log('base: build("' + target + '")');
+
+			[
+				generate(target + '/base/build/browser.mjs', [].concat(BASE_FILES).concat(BROWSER_FILES)),
+				generate(target + '/base/build/node.mjs',    [].concat(BASE_FILES).concat(NODE_FILES))
+			].forEach((result) => results.push(result));
+
+		}
+
 
 		if (results.includes(false) === false) {
-			CACHE = true;
+
+			CACHE[target] = true;
+
 			return true;
+
 		}
 
 	}
@@ -210,7 +257,7 @@ if (args.includes(FILE) === true) {
 	let results = [];
 
 	if (args.includes('clean')) {
-		CACHE = true;
+		CACHE[TARGET] = true;
 		results.push(clean());
 	}
 
@@ -219,7 +266,7 @@ if (args.includes(FILE) === true) {
 	}
 
 	if (results.length === 0) {
-		CACHE = true;
+		CACHE[TARGET] = true;
 		results.push(clean());
 		results.push(build());
 	}
