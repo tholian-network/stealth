@@ -1,7 +1,5 @@
 
 import fs      from 'fs';
-import http    from 'http';
-import https   from 'https';
 import path    from 'path';
 import process from 'process';
 import url     from 'url';
@@ -13,10 +11,9 @@ import { build as build_base } from '../base/make.mjs';
 
 
 const CACHE   = {};
-const DOMAINS = {};
 const FILE    = url.fileURLToPath(import.meta.url);
 const ROOT    = path.dirname(path.resolve(FILE, '../'));
-const TARGET  = ROOT + '/browser';
+const TARGET  = ROOT;
 
 const copy = (origin, target) => {
 
@@ -108,136 +105,6 @@ const copy = (origin, target) => {
 
 };
 
-const download_adblock = (url, cache, callback) => {
-
-	let lib     = url.startsWith('https://') ? https : http;
-	let request = lib.request(url, (response) => {
-
-		if (response['statusCode'] === 200) {
-
-			let chunks = [];
-
-			response.on('data', (chunk) => {
-				chunks.push(chunk);
-			});
-
-			response.on('end', () => {
-
-				let hosts = Buffer.concat(chunks).toString('utf8').split('\n').map((line) => {
-
-					if (line.startsWith('||') && (line.endsWith('^') || line.endsWith('^$third-party'))) {
-
-						let domain = line.substr(2).split('^').shift();
-						if (domain.includes('*') === false) {
-							return domain;
-						}
-
-					}
-
-					return null;
-
-				}).filter((line) => line !== null);
-
-				if (hosts.length > 0) {
-
-					fs.writeFile(cache, hosts.join('\n'), 'utf8', (err) => {
-
-						if (err === null) {
-							callback(true);
-						} else {
-							callback(false);
-						}
-
-					});
-
-				} else {
-					callback(false);
-				}
-
-			});
-
-			response.resume();
-
-		} else {
-
-			response.destroy();
-			callback(false);
-
-		}
-
-	});
-
-	request.on('error', () => {
-		callback(false);
-	});
-
-	request.write('');
-	request.end();
-
-};
-
-const download_hosts = (url, cache, callback) => {
-
-	let lib     = url.startsWith('https://') ? https : http;
-	let request = lib.request(url, (response) => {
-
-		let cached = false;
-		let length = parseInt(response.headers['content-length'], 10);
-		if (Number.isNaN(length) === false) {
-
-			let stat = null;
-			try {
-				stat = fs.lstatSync(path.resolve(cache));
-			} catch (err) {
-				stat = null;
-			}
-
-			if (stat !== null) {
-
-				if (stat['size'] === length) {
-					cached = true;
-				}
-			}
-
-		}
-
-		if (cached === false && response['statusCode'] === 200) {
-
-			let file = fs.createWriteStream(path.resolve(cache));
-
-			response.on('data', (chunk) => {
-				file.write(chunk);
-			});
-
-			response.on('end', () => {
-				file.end();
-				callback(true);
-			});
-
-			file.on('error', () => {
-				fs.unlink(path.resolve(cache), () => callback(false));
-			});
-
-			response.resume();
-
-		} else {
-
-			response.destroy();
-			callback(false);
-
-		}
-
-	});
-
-	request.on('error', () => {
-		callback(false);
-	});
-
-	request.write('');
-	request.end();
-
-};
-
 const read = (url) => {
 
 	let buffer = null;
@@ -295,7 +162,7 @@ const remove = (url) => {
 
 const IGNORED = [
 	path.resolve(ROOT + '/browser/app'),
-	path.resolve(ROOT + '/browser.mjs'),
+	path.resolve(ROOT + '/browser/browser.mjs'),
 	path.resolve(ROOT + '/browser/README.md'),
 	path.resolve(ROOT + '/browser/make.mjs')
 ];
@@ -394,11 +261,11 @@ export const clean = (target) => {
 			console.log('browser: clean()');
 
 			[
-				remove(target + '/extern/base.mjs'),
-				remove(target + '/source/Browser.mjs'),
-				remove(target + '/source/Tab.mjs'),
-				remove(target + '/source/client'),
-				remove(target + '/source/parser')
+				remove(target + '/browser/extern/base.mjs'),
+				remove(target + '/browser/source/Browser.mjs'),
+				remove(target + '/browser/source/Tab.mjs'),
+				remove(target + '/browser/source/client'),
+				remove(target + '/browser/source/parser')
 			].forEach((result) => results.push(result));
 
 		} else {
@@ -406,7 +273,7 @@ export const clean = (target) => {
 			console.log('browser: clean("' + target + '")');
 
 			[
-				remove(target)
+				remove(target + '/browser')
 			].forEach((result) => results.push(result));
 
 		}
@@ -446,11 +313,11 @@ export const build = (target) => {
 			console.log('browser: build()');
 
 			[
-				copy(ROOT + '/base/build/browser.mjs',     target + '/extern/base.mjs'),
-				copy(ROOT + '/stealth/source/Browser.mjs', target + '/source/Browser.mjs'),
-				copy(ROOT + '/stealth/source/client',      target + '/source/client'),
-				copy(ROOT + '/stealth/source/parser',      target + '/source/parser'),
-				copy(ROOT + '/stealth/source/Tab.mjs',     target + '/source/Tab.mjs')
+				copy(ROOT + '/base/build/browser.mjs',     target + '/browser/extern/base.mjs'),
+				copy(ROOT + '/stealth/source/Browser.mjs', target + '/browser/source/Browser.mjs'),
+				copy(ROOT + '/stealth/source/client',      target + '/browser/source/client'),
+				copy(ROOT + '/stealth/source/parser',      target + '/browser/source/parser'),
+				copy(ROOT + '/stealth/source/Tab.mjs',     target + '/browser/source/Tab.mjs')
 			].forEach((result) => results.push(result));
 
 		} else {
@@ -458,30 +325,33 @@ export const build = (target) => {
 			console.log('browser: build("' + target + '")');
 
 			[
-				copy(ROOT + '/browser/app',                    target + '/app'),
-				copy(ROOT + '/browser/design',                 target + '/design'),
-				copy(ROOT + '/base/build/browser.mjs',         target + '/extern/base.mjs'),
-				copy(ROOT + '/browser/index.html',             target + '/index.html'),
-				copy(ROOT + '/browser/index.webmanifest',      target + '/index.webmanifest'),
-				copy(ROOT + '/browser/internal',               target + '/internal'),
-				copy(ROOT + '/browser/service.js',             target + '/service.js'),
-				copy(ROOT + '/stealth/source/Browser.mjs',     target + '/source/Browser.mjs'),
-				copy(ROOT + '/browser/source/Client.mjs',      target + '/source/Client.mjs'),
-				copy(ROOT + '/stealth/source/client',          target + '/source/client'),
-				copy(ROOT + '/browser/source/ENVIRONMENT.mjs', target + '/source/ENVIRONMENT.mjs'),
-				copy(ROOT + '/stealth/source/parser',          target + '/source/parser'),
-				copy(ROOT + '/stealth/source/Tab.mjs',         target + '/source/Tab.mjs')
+				copy(ROOT + '/browser/app',                    target + '/browser/app'),
+				copy(ROOT + '/browser/browser.mjs',            target + '/browser/browser.mjs'),
+				copy(ROOT + '/browser/design',                 target + '/browser/design'),
+				copy(ROOT + '/base/build/browser.mjs',         target + '/browser/extern/base.mjs'),
+				copy(ROOT + '/browser/index.html',             target + '/browser/index.html'),
+				copy(ROOT + '/browser/index.mjs',              target + '/browser/index.mjs'),
+				copy(ROOT + '/browser/index.webmanifest',      target + '/browser/index.webmanifest'),
+				copy(ROOT + '/browser/internal',               target + '/browser/internal'),
+				copy(ROOT + '/browser/service.js',             target + '/browser/service.js'),
+				copy(ROOT + '/stealth/source/Browser.mjs',     target + '/browser/source/Browser.mjs'),
+				copy(ROOT + '/browser/source/Client.mjs',      target + '/browser/source/Client.mjs'),
+				copy(ROOT + '/stealth/source/client',          target + '/browser/source/client'),
+				copy(ROOT + '/browser/source/ENVIRONMENT.mjs', target + '/browser/source/ENVIRONMENT.mjs'),
+				copy(ROOT + '/stealth/source/parser',          target + '/browser/source/parser'),
+				copy(ROOT + '/browser/source/Session.mjs',     target + '/browser/source/Session.mjs'),
+				copy(ROOT + '/stealth/source/Tab.mjs',         target + '/browser/source/Tab.mjs')
 			].forEach((result) => results.push(result));
 
 		}
 
 
-		let buffer = read(target + '/service.js');
+		let buffer = read(target + '/browser/service.js');
 		if (buffer !== null) {
 
 			let service = buffer.toString('utf8');
-			let files   = walk(target).map((url) => {
-				return url.substr(target.length + 1);
+			let files   = walk(target + '/browser').map((url) => {
+				return url.substr((target + '/browser').length + 1);
 			}).sort((a, b) => {
 				if (a < b) return -1;
 				if (b < a) return  1;
@@ -497,7 +367,7 @@ export const build = (target) => {
 					service = service.substr(0, index0) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + service.substr(index1);
 				}
 
-				results.push(write(target + '/service.js', Buffer.from(service, 'utf8')));
+				results.push(write(target + '/browser/service.js', Buffer.from(service, 'utf8')));
 
 			}
 
@@ -519,209 +389,33 @@ export const build = (target) => {
 
 };
 
-export const update = async (target) => {
-
-	target = isString(target) ? target : ROOT + '/profile';
-
-
-	if (target === ROOT + '/profile') {
-		console.log('browser: update()');
-	} else {
-		console.log('browser: update("' + target + '")');
-	}
-
-
-
-	// This dynamic import() allows calling the browser/make.mjs file
-	// without having a cyclic dependency for stealth/extern/base.mjs
-	let build_stealth = await import('../stealth/make.mjs').then((module) => module['build']);
-	if (build_stealth !== null) {
-		build_stealth();
-	}
-
-	const HOSTS = await import('../stealth/source/parser/HOSTS.mjs').then((module) => module['HOSTS']);
-	const URL   = await import('../stealth/source/parser/URL.mjs').then((module) => module['URL']);
-
-
-	let update_exists = false;
-
-	try {
-		update_exists = fs.existsSync(target + '/.update');
-	} catch (err) {
-		update_exists = false;
-	}
-
-	if (update_exists === false) {
-
-		try {
-			fs.mkdirSync(target + '/.update', {
-				recursive: true
-			});
-		} catch (err) {
-			// Do Nothing
-		}
-
-	}
-
-
-	let queue = [
-
-		download_adblock.bind(null, 'https://secure.fanboy.co.nz/easyprivacy.txt',         target + '/.update/fanboy_easyprivacy.txt'),
-		download_adblock.bind(null, 'https://secure.fanboy.co.nz/enhancedstats.txt',       target + '/.update/fanboy_enhancedstats.txt'),
-		download_adblock.bind(null, 'https://secure.fanboy.co.nz/fanboy-annoyance.txt',    target + '/.update/fanboy_annoyance.txt'),
-		download_adblock.bind(null, 'https://secure.fanboy.co.nz/fanboy-social.txt',       target + '/.update/fanboy_social.txt'),
-
-		download_hosts.bind(null, 'https://adaway.org/hosts.txt',                          target + '/.update/adaway_hosts.txt'),
-		download_hosts.bind(null, 'https://badmojr.github.io/1Hosts/complete/hosts.txt',   target + '/.update/badmojr_hosts.txt'),
-		download_hosts.bind(null, 'https://hostsfile.org/Downloads/hosts.txt',             target + '/.update/hostsfile_hosts.txt'),
-		download_hosts.bind(null, 'https://hostsfile.mine.nu/hosts0.txt',                  target + '/.update/hostsfile_hosts0.txt'),
-		download_hosts.bind(null, 'https://www.malwaredomainlist.com/hostslist/hosts.txt', target + '/.update/malwaredomainlist_hosts.txt'),
-		download_hosts.bind(null, 'https://someonewhocares.org/hosts/hosts',               target + '/.update/someonewhocares_hosts.txt'),
-		download_hosts.bind(null, 'https://sysctl.org/cameleon/hosts',                     target + '/.update/sysctl_hosts.txt'),
-		download_hosts.bind(null, 'https://v.firebog.net/hosts/BillStearns.txt',           target + '/.update/firebog_billstearns.txt'),
-		download_hosts.bind(null, 'https://v.firebog.net/hosts/Easylist.txt',              target + '/.update/firebog_easylist.txt'),
-		download_hosts.bind(null, 'https://v.firebog.net/hosts/Easyprivacy.txt',           target + '/.update/firebog_easyprivacy.txt'),
-		download_hosts.bind(null, 'https://v.firebog.net/hosts/Kowabit.txt',               target + '/.update/firebog_kowabit.txt'),
-		download_hosts.bind(null, 'https://v.firebog.net/hosts/Prigent-Ads.txt',           target + '/.update/firebog_prigent.txt'),
-		download_hosts.bind(null, 'https://winhelp2002.mvps.org/hosts.txt',                target + '/.update/winhelp_hosts.txt')
-
-	];
-
-	let results = new Array(queue.length).fill(null);
-
-	queue.forEach((entry, q) => {
-
-		entry((result) => {
-			results[q] = result;
-		});
-
-	});
-
-	let interval = setInterval(() => {
-
-		if (results.includes(null) === false) {
-
-			if (interval !== null) {
-				clearInterval(interval);
-				interval = null;
-			}
-
-			walk(target + '/.update').map((path) => ({
-				name:   path.split('/').pop(),
-				buffer: read(path)
-			})).forEach((file) => {
-
-				let hosts = HOSTS.parse(file.buffer);
-				if (hosts.length > 0) {
-
-					hosts.forEach((host) => {
-
-						let ref = URL.parse(host.domain);
-						if (ref !== null) {
-
-							let domain = DOMAINS[ref.domain] || null;
-							if (domain === null) {
-								domain = DOMAINS[ref.domain] = [];
-							}
-
-							let subdomain = ref.subdomain || null;
-							if (subdomain !== null) {
-
-								if (domain.includes(subdomain) === false) {
-									domain.push(subdomain);
-								}
-
-							}
-
-						}
-
-					});
-
-					console.log('> ' + file.name + ': ' + hosts.length + ' Hosts found.');
-
-				}
-
-			});
-
-
-			setTimeout(() => {
-
-				let blockers = [];
-				let count    = 0;
-
-				for (let domain in DOMAINS) {
-
-					let subdomains = DOMAINS[domain];
-					if (subdomains.length > 0) {
-
-						subdomains.forEach((subdomain) => {
-
-							blockers.push({
-								domain: subdomain + '.' + domain
-							});
-
-						});
-
-					}
-
-					count += subdomains.length;
-
-				}
-
-				console.info(count + ' Hosts resulted in ' + blockers.length + ' Blockers.');
-
-				write(target + '/blockers.json', Buffer.from(JSON.stringify(blockers.sort((a, b) => {
-
-					if (a.domain > b.domain) return  1;
-					if (b.domain > a.domain) return -1;
-
-					return 0;
-
-				}), null, '\t'), 'utf8'));
-
-			}, 2000);
-
-		}
-
-	}, 100);
-
-};
-
 
 
 let args = process.argv.slice(1);
 if (args.includes(FILE) === true) {
 
-	if (args.includes('update')) {
+	let results = [];
 
-		update();
+	if (args.includes('clean')) {
+		CACHE[TARGET] = true;
+		results.push(clean());
+	}
 
+	if (args.includes('build')) {
+		results.push(build());
+	}
+
+	if (results.length === 0) {
+		CACHE[TARGET] = true;
+		results.push(clean());
+		results.push(build());
+	}
+
+
+	if (results.includes(false) === false) {
+		process.exit(0);
 	} else {
-
-		let results = [];
-
-		if (args.includes('clean')) {
-			CACHE[TARGET] = true;
-			results.push(clean());
-		}
-
-		if (args.includes('build')) {
-			results.push(build());
-		}
-
-		if (results.length === 0) {
-			CACHE[TARGET] = true;
-			results.push(clean());
-			results.push(build());
-		}
-
-
-		if (results.includes(false) === false) {
-			process.exit(0);
-		} else {
-			process.exit(1);
-		}
-
+		process.exit(1);
 	}
 
 }

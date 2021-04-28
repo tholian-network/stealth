@@ -5,14 +5,16 @@ import process from 'process';
 import url     from 'url';
 
 import { console                                        } from '../base/source/node/console.mjs';
+import { isString                                       } from '../base/source/String.mjs';
 import { build as build_base                            } from '../base/make.mjs';
-import { build as build_browser, clean as clean_browser } from '../browser/make.mjs';
+import { clean as clean_browser, build as build_browser } from '../browser/make.mjs';
 
 
 
-let   CACHE = null;
-const FILE  = url.fileURLToPath(import.meta.url);
-const ROOT  = path.dirname(path.resolve(FILE, '../'));
+const CACHE  = {};
+const FILE   = url.fileURLToPath(import.meta.url);
+const ROOT   = path.dirname(path.resolve(FILE, '../'));
+const TARGET = ROOT;
 
 const copy = (origin, target) => {
 
@@ -139,25 +141,97 @@ const remove = (url) => {
 
 
 
-export const clean = () => {
+export const clean = (target) => {
 
-	if (CACHE === false) {
+	target = isString(target) ? target : TARGET;
 
-		return true;
 
-	} else {
+	if (CACHE[target] === true) {
 
-		console.log('stealth: clean()');
+		CACHE[target] = false;
 
-		CACHE = false;
 
-		let results = [
-			clean_browser(),
-			remove(ROOT + '/stealth/extern/base.mjs')
-		];
+		let results = [];
+
+		if (target === TARGET) {
+
+			console.log('stealth: clean()');
+
+			[
+				clean_browser(),
+				remove(target + '/stealth/extern/base.mjs')
+			].forEach((result) => results.push(result));
+
+		} else {
+
+			console.log('stealth: clean("' + target + '")');
+
+			[
+				clean_browser(target),
+				remove(target + '/stealth/extern/base.mjs'),
+				remove(target + '/stealth')
+			].forEach((result) => results.push(result));
+
+		}
 
 		if (results.includes(false) === false) {
 			return true;
+		}
+
+
+		return false;
+
+	}
+
+
+	return true;
+
+};
+
+export const build = (target) => {
+
+	target = isString(target) ? target : TARGET;
+
+
+	if (CACHE[target] === true) {
+
+		return true;
+
+	} else if (CACHE[target] !== true) {
+
+		let results = [
+			build_base()
+		];
+
+		if (target === TARGET) {
+
+			console.log('stealth: build()');
+
+			[
+				build_browser(),
+				copy(ROOT + '/base/build/node.mjs', target + '/stealth/extern/base.mjs')
+			].forEach((result) => results.push(result));
+
+		} else {
+
+			console.log('stealth: build("' + target + '")');
+
+			[
+				build_browser(target),
+				copy(ROOT + '/base/build/node.mjs', target + '/stealth/extern/base.mjs'),
+				copy(ROOT + '/stealth/stealth.mjs', target + '/stealth/stealth.mjs'),
+				copy(ROOT + '/stealth/source',      target + '/stealth/source'),
+			].forEach((result) => results.push(result));
+
+		}
+
+
+		if (results.includes(false) === false) {
+
+			CACHE[target] = true;
+
+			return true;
+
 		}
 
 	}
@@ -167,27 +241,20 @@ export const clean = () => {
 
 };
 
-export const build = () => {
+export const pack = (target) => {
 
-	if (CACHE === true) {
+	target = isString(target) ? target : TARGET;
 
+
+	let results = [
+		clean(target),
+		build(target)
+	];
+
+	// TODO: Minify code as single ESM?
+
+	if (results.includes(false) === false) {
 		return true;
-
-	} else {
-
-		console.log('stealth: build()');
-
-		let results = [
-			build_base(),
-			build_browser(),
-			copy(ROOT + '/base/build/node.mjs', ROOT + '/stealth/extern/base.mjs')
-		];
-
-		if (results.includes(false) === false) {
-			CACHE = true;
-			return true;
-		}
-
 	}
 
 
@@ -203,7 +270,7 @@ if (args.includes(FILE) === true) {
 	let results = [];
 
 	if (args.includes('clean')) {
-		CACHE = true;
+		CACHE[TARGET] = true;
 		results.push(clean());
 	}
 
@@ -211,10 +278,15 @@ if (args.includes(FILE) === true) {
 		results.push(build());
 	}
 
+	if (args.includes('pack')) {
+		results.push(pack());
+	}
+
 	if (results.length === 0) {
-		CACHE = true;
+		CACHE[TARGET] = true;
 		results.push(clean());
 		results.push(build());
+		// TODO: results.push(pack());
 	}
 
 

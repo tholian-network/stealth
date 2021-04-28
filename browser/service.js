@@ -5,7 +5,6 @@
 
 const VERSION = 'X0:2020-03';
 const ASSETS  = [
-	'browser.mjs',
 	'design/Element.mjs',
 	'design/Widget.mjs',
 	'design/appbar/Address.css',

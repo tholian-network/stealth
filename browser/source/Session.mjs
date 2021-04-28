@@ -1,7 +1,7 @@
 
 import { isArray, isNumber, isObject, isString } from '../extern/base.mjs';
-import { UA                                    } from './parser/UA.mjs';
-import { Tab                                   } from './Tab.mjs';
+import { UA                                    } from '../source/parser/UA.mjs';
+import { Tab                                   } from '../source/Tab.mjs';
 
 
 
