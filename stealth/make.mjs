@@ -295,7 +295,6 @@ if (args.includes(FILE) === true) {
 		CACHE[TARGET] = true;
 		results.push(clean());
 		results.push(build());
-		// TODO: results.push(pack());
 	}
 
 
