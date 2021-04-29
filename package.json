@@ -1,8 +1,8 @@
 {
 	"name": "stealth",
-	"description": "Stealth 2020-X0",
+	"description": "Stealth 2021-X0",
 	"private": true,
-	"version": "2020.0.0",
+	"version": "2021.0.0",
 	"module": "./stealth/index.mjs",
 	"bin": {
 		"browser": "./browser/browser.mjs",

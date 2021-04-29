@@ -1,13 +1,14 @@
 
-import path from 'path';
-import url  from 'url';
+import path    from 'path';
+import process from 'process';
+import url     from 'url';
 
 import { console } from './base/source/node/console.mjs';
 
-import { build as build_base,    clean as clean_base    } from './base/make.mjs';
-import { build as build_browser, clean as clean_browser } from './browser/make.mjs';
-import { build as build_covert,  clean as clean_covert  } from './covert/make.mjs';
-import { build as build_stealth, clean as clean_stealth } from './stealth/make.mjs';
+import { build as build_base,    clean as clean_base                          } from './base/make.mjs';
+import { build as build_browser, clean as clean_browser, pack as pack_browser } from './browser/make.mjs';
+import { build as build_covert,  clean as clean_covert                        } from './covert/make.mjs';
+import { build as build_stealth, clean as clean_stealth, pack as pack_stealth } from './stealth/make.mjs';
 
 
 const FILE = url.fileURLToPath(import.meta.url);
@@ -20,7 +21,7 @@ const isComparison = (line, chunk) => {
 
 		let is_true    = line.indexOf('=== true',  offset) !== -1;
 		let is_false   = line.indexOf('=== false', offset) !== -1;
-		let is_return  = line.substr(offset - 7, 6) === 'return';
+		// let is_return  = line.substr(offset - 7, 6) === 'return';
 		let is_ternary = line.indexOf('?', offset) !== -1 && line.indexOf(':', offset) !== -1;
 
 		if (is_true === true || is_false === true) {
@@ -37,13 +38,13 @@ const isComparison = (line, chunk) => {
 
 
 
-const clean = () => {
+const clean = async () => {
 
 	let results = [
-		clean_base(),
-		clean_browser(),
-		clean_covert(),
-		clean_stealth()
+		await clean_base(),
+		await clean_browser(),
+		await clean_covert(),
+		await clean_stealth()
 	];
 
 	if (results.includes(false) === false) {
@@ -55,13 +56,13 @@ const clean = () => {
 
 };
 
-const build = () => {
+const build = async () => {
 
 	let results = [
-		build_base(),
-		build_browser(),
-		build_covert(),
-		build_stealth()
+		await build_base(),
+		await build_browser(),
+		await build_covert(),
+		await build_stealth()
 	];
 
 	if (results.includes(false) === false) {
@@ -148,7 +149,7 @@ const lint = async () => {
 
 	let ignored = [];
 
-	let Filesystem = await import(ROOT + '/covert/source/Filesystem.mjs').then((mod) => mod['Filesystem']).catch((err) => {
+	let Filesystem = await import(ROOT + '/covert/source/Filesystem.mjs').then((mod) => mod['Filesystem']).catch(() => {
 		console.error('Please execute "make.mjs build" first.');
 		process.exit(1);
 	});
@@ -213,36 +214,89 @@ const lint = async () => {
 
 };
 
+const pack = async (target) => {
 
-
-let args = process.argv.slice(1);
-if (args.includes(FILE) === true) {
-
-	let results = [];
-
-	if (args.includes('clean')) {
-		results.push(clean());
-	}
-
-	if (args.includes('build')) {
-		results.push(build());
-	}
-
-	if (args.includes('lint')) {
-		results.push(await lint());
-	}
-
-	if (results.length === 0) {
-		results.push(clean());
-		results.push(build());
-	}
-
+	let results = [
+		await pack_browser(target),
+		await pack_stealth(target)
+	];
 
 	if (results.includes(false) === false) {
-		process.exit(0);
-	} else {
-		process.exit(1);
+		return true;
 	}
 
-}
+
+	return false;
+
+};
+
+
+
+(async (args) => {
+
+	if (args.includes(FILE) === true) {
+
+		let results = [];
+
+		if (args.includes('clean')) {
+			results.push(await clean());
+		}
+
+		if (args.includes('build')) {
+			results.push(await build());
+		}
+
+		if (args.includes('lint')) {
+			results.push(await lint());
+		}
+
+		if (args.includes('pack')) {
+
+			let folder = args.find((v) => v.includes('/') && v !== FILE) || null;
+			if (folder !== null) {
+
+				let sandbox = null;
+
+				try {
+					sandbox = path.resolve(ROOT, folder);
+				} catch (err) {
+					sandbox = null;
+				}
+
+				if (sandbox !== null) {
+
+					results.push(await pack(sandbox));
+
+				} else {
+
+					console.error('Invalid folder "' + folder + '".');
+					console.error('Please use a correct folder path.');
+
+					process.exit(1);
+
+				}
+
+			} else {
+				results.push(await pack());
+			}
+
+		}
+
+		if (results.length === 0) {
+			results.push(await clean());
+			results.push(await build());
+			results.push(await lint());
+			results.push(await pack());
+		}
+
+
+		if (results.includes(false) === false) {
+			process.exit(0);
+		} else {
+			process.exit(1);
+		}
+
+	}
+
+})(process.argv.slice(1));
 

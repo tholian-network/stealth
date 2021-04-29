@@ -4,10 +4,11 @@ import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { console                                        } from '../base/source/node/console.mjs';
-import { isString                                       } from '../base/source/String.mjs';
-import { build as build_base                            } from '../base/make.mjs';
-import { clean as clean_browser, build as build_browser } from '../browser/make.mjs';
+import { console                } from '../base/source/node/console.mjs';
+import { Buffer                 } from '../base/source/node/Buffer.mjs';
+import { isString               } from '../base/source/String.mjs';
+import { build as build_base    } from '../base/make.mjs';
+import { build as build_browser } from '../browser/make.mjs';
 
 
 
@@ -106,6 +107,68 @@ const copy = (origin, target) => {
 
 };
 
+const rebase = (url) => {
+
+	let buffer = null;
+
+	try {
+		buffer = fs.readFileSync(path.resolve(url));
+	} catch (err) {
+		buffer = null;
+	}
+
+	if (buffer !== null) {
+
+		let lines = [];
+
+		buffer.toString('utf8').split('\n').forEach((line) => {
+
+			if (line.startsWith('import') === true && line.includes(' from ') === true) {
+
+				let index0 = line.indexOf('\'', line.indexOf(' from '));
+				let index1 = line.indexOf('\'', index0 + 1);
+
+				if (index0 !== -1 && index1 !== -1) {
+
+					let source = line.substr(index0 + 1, index1 - index0 - 1);
+					if (source === '../base/index.mjs') {
+						source = './extern/base.mjs';
+					}
+
+					line = line.substr(0, index0 + 1) + source + line.substr(index1);
+
+				}
+
+			}
+
+			lines.push(line);
+
+		});
+
+		let result = false;
+
+		try {
+			fs.writeFileSync(path.resolve(url), Buffer.from(lines.join('\n'), 'utf8'));
+			result = true;
+		} catch (err) {
+			result = false;
+		}
+
+		if (result === true) {
+			console.info('stealth: rebase("' + url + '")');
+		} else {
+			console.error('stealth: rebase("' + url + '")');
+		}
+
+		return result;
+
+	}
+
+
+	return false;
+
+};
+
 const remove = (url) => {
 
 	let stat   = null;
@@ -149,12 +212,12 @@ const remove = (url) => {
 
 
 
-export const clean = (target) => {
+export const clean = async (target) => {
 
 	target = isString(target) ? target : TARGET;
 
 
-	if (CACHE[target] === true) {
+	if (CACHE[target] !== false) {
 
 		CACHE[target] = false;
 
@@ -166,7 +229,6 @@ export const clean = (target) => {
 			console.log('stealth: clean()');
 
 			[
-				clean_browser(),
 				remove(target + '/stealth/extern/base.mjs')
 			].forEach((result) => results.push(result));
 
@@ -175,7 +237,6 @@ export const clean = (target) => {
 			console.log('stealth: clean("' + target + '")');
 
 			[
-				clean_browser(target),
 				remove(target + '/stealth/extern/base.mjs'),
 				remove(target + '/stealth')
 			].forEach((result) => results.push(result));
@@ -197,7 +258,7 @@ export const clean = (target) => {
 
 };
 
-export const build = (target) => {
+export const build = async (target) => {
 
 	target = isString(target) ? target : TARGET;
 
@@ -228,6 +289,7 @@ export const build = (target) => {
 			[
 				build_browser(target),
 				copy(ROOT + '/base/build/node.mjs', target + '/stealth/extern/base.mjs'),
+				copy(ROOT + '/stealth/index.mjs',   target + '/stealth/index.mjs'),
 				copy(ROOT + '/stealth/stealth.mjs', target + '/stealth/stealth.mjs'),
 				copy(ROOT + '/stealth/source',      target + '/stealth/source'),
 			].forEach((result) => results.push(result));
@@ -250,14 +312,15 @@ export const build = (target) => {
 
 };
 
-export const pack = (target) => {
+export const pack = async (target) => {
 
 	target = isString(target) ? target : TARGET;
 
 
 	let results = [
 		clean(target),
-		build(target)
+		build(target),
+		rebase(target + '/stealth/stealth.mjs')
 	];
 
 	// TODO: Minify code as single ESM?
@@ -273,36 +336,40 @@ export const pack = (target) => {
 
 
 
-let args = process.argv.slice(1);
-if (args.includes(FILE) === true) {
+(async (args) => {
 
-	let results = [];
+	if (args.includes(FILE) === true) {
 
-	if (args.includes('clean')) {
-		CACHE[TARGET] = true;
-		results.push(clean());
+		let results = [];
+
+		if (args.includes('clean')) {
+			CACHE[TARGET] = true;
+			results.push(await clean());
+		}
+
+		if (args.includes('build')) {
+			results.push(await build());
+		}
+
+		if (args.includes('pack')) {
+			results.push(await pack());
+		}
+
+		if (results.length === 0) {
+			CACHE[TARGET] = true;
+			results.push(await clean());
+			results.push(await build());
+			results.push(await pack());
+		}
+
+
+		if (results.includes(false) === false) {
+			process.exit(0);
+		} else {
+			process.exit(1);
+		}
+
 	}
 
-	if (args.includes('build')) {
-		results.push(build());
-	}
-
-	if (args.includes('pack')) {
-		results.push(pack());
-	}
-
-	if (results.length === 0) {
-		CACHE[TARGET] = true;
-		results.push(clean());
-		results.push(build());
-	}
-
-
-	if (results.includes(false) === false) {
-		process.exit(0);
-	} else {
-		process.exit(1);
-	}
-
-}
+})(process.argv.slice(1));
 

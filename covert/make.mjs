@@ -4,10 +4,10 @@ import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { console                                        } from '../base/source/node/console.mjs';
-import { isString                                       } from '../base/source/String.mjs';
-import { build as build_base                            } from '../base/make.mjs';
-import { build as build_stealth, clean as clean_stealth } from '../stealth/make.mjs';
+import { console                } from '../base/source/node/console.mjs';
+import { isString               } from '../base/source/String.mjs';
+import { build as build_base    } from '../base/make.mjs';
+import { build as build_stealth } from '../stealth/make.mjs';
 
 
 
@@ -141,12 +141,12 @@ const remove = (url) => {
 
 
 
-export const clean = (target) => {
+export const clean = async (target) => {
 
 	target = isString(target) ? target : TARGET;
 
 
-	if (CACHE[target] === true) {
+	if (CACHE[target] !== false) {
 
 		CACHE[target] = false;
 
@@ -158,7 +158,6 @@ export const clean = (target) => {
 			console.log('covert: clean()');
 
 			[
-				clean_stealth(),
 				remove(target + '/covert/extern/base.mjs')
 			].forEach((result) => results.push(result));
 
@@ -167,7 +166,6 @@ export const clean = (target) => {
 			console.log('covert: clean("' + target + '")');
 
 			[
-				clean_stealth(target),
 				remove(target + '/covert/extern/base.mjs')
 			].forEach((result) => results.push(result));
 
@@ -188,7 +186,7 @@ export const clean = (target) => {
 
 };
 
-export const build = (target) => {
+export const build = async (target) => {
 
 	target = isString(target) ? target : TARGET;
 
@@ -241,32 +239,35 @@ export const build = (target) => {
 
 
 
-let args = process.argv.slice(1);
-if (args.includes(FILE) === true) {
+(async (args) => {
 
-	let results = [];
+	if (args.includes(FILE) === true) {
 
-	if (args.includes('clean')) {
-		CACHE[TARGET] = true;
-		results.push(clean());
+		let results = [];
+
+		if (args.includes('clean')) {
+			CACHE[TARGET] = true;
+			results.push(await clean());
+		}
+
+		if (args.includes('build')) {
+			results.push(await build());
+		}
+
+		if (results.length === 0) {
+			CACHE[TARGET] = true;
+			results.push(await clean());
+			results.push(await build());
+		}
+
+
+		if (results.includes(false) === false) {
+			process.exit(0);
+		} else {
+			process.exit(1);
+		}
+
 	}
 
-	if (args.includes('build')) {
-		results.push(build());
-	}
-
-	if (results.length === 0) {
-		CACHE[TARGET] = true;
-		results.push(clean());
-		results.push(build());
-	}
-
-
-	if (results.includes(false) === false) {
-		process.exit(0);
-	} else {
-		process.exit(1);
-	}
-
-}
+})(process.argv.slice(1));
 

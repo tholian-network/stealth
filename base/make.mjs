@@ -153,12 +153,12 @@ const NODE_FILES = [
 
 
 
-export const clean = (target) => {
+export const clean = async (target) => {
 
 	target = isString(target) ? target : TARGET;
 
 
-	if (CACHE[target] === true) {
+	if (CACHE[target] !== false) {
 
 		CACHE[target] = false;
 
@@ -200,7 +200,7 @@ export const clean = (target) => {
 
 };
 
-export const build = (target) => {
+export const build = async (target) => {
 
 	target = isString(target) ? target : TARGET;
 
@@ -251,32 +251,35 @@ export const build = (target) => {
 
 
 
-let args = process.argv.slice(1);
-if (args.includes(FILE) === true) {
+(async (args) => {
 
-	let results = [];
+	if (args.includes(FILE) === true) {
 
-	if (args.includes('clean')) {
-		CACHE[TARGET] = true;
-		results.push(clean());
+		let results = [];
+
+		if (args.includes('clean')) {
+			CACHE[TARGET] = true;
+			results.push(await clean());
+		}
+
+		if (args.includes('build')) {
+			results.push(await build());
+		}
+
+		if (results.length === 0) {
+			CACHE[TARGET] = true;
+			results.push(await clean());
+			results.push(await build());
+		}
+
+
+		if (results.includes(false) === false) {
+			process.exit(0);
+		} else {
+			process.exit(1);
+		}
+
 	}
 
-	if (args.includes('build')) {
-		results.push(build());
-	}
-
-	if (results.length === 0) {
-		CACHE[TARGET] = true;
-		results.push(clean());
-		results.push(build());
-	}
-
-
-	if (results.includes(false) === false) {
-		process.exit(0);
-	} else {
-		process.exit(1);
-	}
-
-}
+})(process.argv.slice(1));
 
