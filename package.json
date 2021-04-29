@@ -1,8 +1,8 @@
 {
 	"name": "stealth",
-	"description": "Stealth 2021-X0",
+	"description": "Tholian® Stealth - Secure, Peer-to-Peer, Private and Automatable Web Browser/Scraper/Proxy",
 	"private": true,
-	"version": "2021.0.0",
+	"version": "X0:2021-04",
 	"module": "./stealth/index.mjs",
 	"bin": {
 		"browser": "./browser/browser.mjs",

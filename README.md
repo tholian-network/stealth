@@ -1,7 +1,7 @@
 
-# Stealth - Secure, Peer-to-Peer, Private and Automatable Web Browser/Scraper/Proxy
+# Tholian® Stealth - Secure, Peer-to-Peer, Private and Automatable Web Browser/Scraper/Proxy
 
-Tholian&reg; Stealth is the automateable Web Browser for the Web of Knowledge.
+Tholian® Stealth is the automateable Web Browser for the Web of Knowledge.
 
 Its design goals are increased Privacy, increased Automation, adaptive Semantic
 Understanding and efficient Bandwidth Usage, no matter the cost.

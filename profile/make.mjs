@@ -6,11 +6,12 @@ import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { console  } from '../base/source/node/console.mjs';
-import { Buffer   } from '../base/source/node/Buffer.mjs';
-import { isString } from '../base/source/String.mjs';
-import { HOSTS    } from '../stealth/source/parser/HOSTS.mjs';
-import { URL      } from '../stealth/source/parser/URL.mjs';
+import { _, read, write } from '../base/make.mjs';
+import { console        } from '../base/source/node/console.mjs';
+import { Buffer         } from '../base/source/node/Buffer.mjs';
+import { isString       } from '../base/source/String.mjs';
+import { HOSTS          } from '../stealth/source/parser/HOSTS.mjs';
+import { URL            } from '../stealth/source/parser/URL.mjs';
 
 
 
@@ -23,7 +24,7 @@ const download_adblock = async (url, cache) => {
 
 	return new Promise((resolve) => {
 
-		console.log('> Download "' + url + '"');
+		console.log('profile: > download_adblock("' + url + '")');
 
 		let lib     = url.startsWith('https://') ? https : http;
 		let request = lib.request(url, (response) => {
@@ -82,8 +83,13 @@ const download_adblock = async (url, cache) => {
 
 		});
 
-		request.on('error', () => {
+		request.on('error', (err) => {
+
+			console.error('profile: > download_adblock("' + url + '"): fail');
+			console.error(err);
+
 			resolve(false);
+
 		});
 
 		request.write('');
@@ -97,7 +103,7 @@ const download_hosts = async (url, cache) => {
 
 	return new Promise((resolve) => {
 
-		console.log('> Download "' + url + '"');
+		console.log('profile: > download_hosts("' + url + '")');
 
 		let lib     = url.startsWith('https://') ? https : http;
 		let request = lib.request(url, (response) => {
@@ -148,8 +154,6 @@ const download_hosts = async (url, cache) => {
 
 			} else {
 
-				console.error(url + ' -> ' + response['statusCode']);
-
 				response.destroy();
 				resolve(false);
 
@@ -158,29 +162,18 @@ const download_hosts = async (url, cache) => {
 		});
 
 		request.on('error', (err) => {
-			console.error(url);
+
+			console.error('profile: > download_hosts("' + url + '"): fail');
 			console.error(err);
+
 			resolve(false);
+
 		});
 
 		request.write('');
 		request.end();
 
 	});
-
-};
-
-const read = (url) => {
-
-	let buffer = null;
-
-	try {
-		buffer = fs.readFileSync(path.resolve(url));
-	} catch(err) {
-		buffer = null;
-	}
-
-	return buffer;
 
 };
 
@@ -233,32 +226,6 @@ const walk = (url, result) => {
 
 };
 
-const write = (url, buffer) => {
-
-	let result = false;
-
-	try {
-		fs.writeFileSync(path.resolve(url), buffer);
-		result = true;
-	} catch (err) {
-		result = false;
-	}
-
-	let relative = path.resolve(url);
-	if (relative.startsWith(ROOT) === true) {
-		relative = relative.substr(ROOT.length);
-	}
-
-	if (result === true) {
-		console.info('profile: write("' + relative + '")');
-	} else {
-		console.error('profile: write("' + relative + '")');
-	}
-
-	return result;
-
-};
-
 
 
 export const update = async (target) => {
@@ -266,11 +233,7 @@ export const update = async (target) => {
 	target = isString(target) ? target : TARGET;
 
 
-	if (target === TARGET) {
-		console.log('profile: update()');
-	} else {
-		console.log('profile: update("' + target + '")');
-	}
+	console.info('profile: update("' + _(target) + '")');
 
 
 	let update_exists = false;
@@ -352,7 +315,7 @@ export const update = async (target) => {
 
 				});
 
-				console.log('> ' + file.name + ': ' + hosts.length + ' Hosts found.');
+				console.log('profile: > "' + file.name + '" contains ' + hosts.length + ' Hosts.');
 
 			}
 
@@ -381,7 +344,7 @@ export const update = async (target) => {
 
 		}
 
-		console.info(count + ' Hosts resulted in ' + blockers.length + ' Blockers.');
+		console.log('profile: ' + count + ' Hosts resulted in ' + blockers.length + ' Blockers.');
 
 		write(target + '/profile/blockers.json', Buffer.from(JSON.stringify(blockers.sort((a, b) => {
 
@@ -396,8 +359,8 @@ export const update = async (target) => {
 
 	} else {
 
-		console.error('Download Errors occured.');
-		console.error('Please verify update cache manually.');
+		console.error('profile: update("' + _(target) + '"): fail');
+		console.error('profile: Please verify update cache manually.');
 
 	}
 

@@ -14,6 +14,104 @@ const FILE   = url.fileURLToPath(import.meta.url);
 const ROOT   = path.dirname(path.resolve(FILE, '../'));
 const TARGET = ROOT;
 
+export const _ = (url) => {
+
+	if (url === TARGET) {
+		url = '$PWD';
+	} else if (url.startsWith(ROOT) === true) {
+		url = '$PWD/' + url.substr(ROOT.length + 1);
+	}
+
+	return url;
+
+};
+
+export const copy = (origin, target) => {
+
+	let stat   = null;
+	let result = false;
+
+	try {
+		stat = fs.statSync(path.resolve(origin));
+	} catch (err) {
+		stat = null;
+	}
+
+	if (stat !== null) {
+
+		if (stat.isDirectory() === true) {
+
+			let files = [];
+
+			try {
+				files = fs.readdirSync(path.resolve(origin));
+			} catch (err) {
+				files = [];
+			}
+
+			if (files.length > 0) {
+
+				let results = files.map((file) => {
+					return copy(origin + '/' + file, target + '/' + file);
+				});
+
+				if (results.includes(false) === false) {
+					result = true;
+				} else {
+					result = false;
+				}
+
+			} else {
+				result = true;
+			}
+
+		} else if (stat.isFile() === true) {
+
+			stat = null;
+
+			try {
+				stat = fs.statSync(path.dirname(target));
+			} catch (err) {
+				stat = null;
+			}
+
+			if (stat === null || stat.isDirectory() === false) {
+
+				try {
+					fs.mkdirSync(path.dirname(target), {
+						recursive: true
+					});
+				} catch (err) {
+					// Ignore
+				}
+
+			}
+
+			try {
+				fs.copyFileSync(path.resolve(origin), path.resolve(target));
+				result = true;
+			} catch (err) {
+				result = false;
+			}
+
+		}
+
+	}
+
+	if (result === true) {
+
+		return true;
+
+	} else {
+
+		console.error('> copy("' + _(origin) + '", "' + _(target) + '")');
+
+		return false;
+
+	}
+
+};
+
 const generate = (target, files) => {
 
 	let errors  = 0;
@@ -24,7 +122,6 @@ const generate = (target, files) => {
 		if (file.buffer !== null) {
 			buffers.push(file.buffer);
 		} else {
-			console.warn('> "' + file.path + '" is empty.');
 			errors++;
 		}
 
@@ -56,19 +153,13 @@ const generate = (target, files) => {
 		errors++;
 	}
 
-	if (target.startsWith(ROOT) === true) {
-		target = target.substr(ROOT.length + 1);
-	}
-
 	if (errors === 0) {
-
-		console.info('base: generate("' + target + '")');
 
 		return true;
 
 	} else {
 
-		console.error('base: generate("' + target + '")');
+		console.error('> generate("' + _(target) + '")');
 
 		return false;
 
@@ -76,7 +167,7 @@ const generate = (target, files) => {
 
 };
 
-const read = (url) => {
+export const read = (url) => {
 
 	let buffer = null;
 
@@ -93,7 +184,7 @@ const read = (url) => {
 
 };
 
-const remove = (url) => {
+export const remove = (url) => {
 
 	let stat   = null;
 	let result = false;
@@ -106,7 +197,18 @@ const remove = (url) => {
 
 	if (stat !== null) {
 
-		if (stat.isFile() === true) {
+		if (stat.isDirectory() === true) {
+
+			try {
+				fs.rmdirSync(path.resolve(url), {
+					recursive: true
+				});
+				result = true;
+			} catch (err) {
+				result = false;
+			}
+
+		} else if (stat.isFile() === true) {
 
 			try {
 				fs.unlinkSync(path.resolve(url));
@@ -117,9 +219,36 @@ const remove = (url) => {
 
 		}
 
+	} else {
+		result = true;
 	}
 
 	return result;
+
+};
+
+export const write = (url, buffer) => {
+
+	let result = false;
+
+	try {
+		fs.writeFileSync(path.resolve(url), buffer);
+		result = true;
+	} catch (err) {
+		result = false;
+	}
+
+	if (result === true) {
+
+		return true;
+
+	} else {
+
+		console.error('write("' + _(url) + '")');
+
+		return false;
+
+	}
 
 };
 
@@ -163,11 +292,11 @@ export const clean = async (target) => {
 		CACHE[target] = false;
 
 
+		console.info('base:    clean("' + _(target) + '")');
+
 		let results = [];
 
 		if (target === TARGET) {
-
-			console.log('base: clean()');
 
 			[
 				remove(target + '/base/build/browser.mjs'),
@@ -175,8 +304,6 @@ export const clean = async (target) => {
 			].forEach((result) => results.push(result));
 
 		} else {
-
-			console.log('base: clean("' + target + '")');
 
 			[
 				remove(target + '/base/build/browser.mjs'),
@@ -187,11 +314,16 @@ export const clean = async (target) => {
 
 
 		if (results.includes(false) === false) {
+
 			return true;
+
+		} else {
+
+			console.error('base:    clean("' + _(target) + '"): fail');
+
+			return false;
+
 		}
-
-
-		return false;
 
 	}
 
@@ -207,15 +339,17 @@ export const build = async (target) => {
 
 	if (CACHE[target] === true) {
 
+		console.warn('base:    build("' + _(target) + '"): skip');
+
 		return true;
 
 	} else if (CACHE[target] !== true) {
 
+		console.info('base:    build("' + _(target) + '")');
+
 		let results = [];
 
 		if (target === TARGET) {
-
-			console.log('base: build()');
 
 			[
 				generate(target + '/base/build/browser.mjs', [].concat(BASE_FILES).concat(BROWSER_FILES)),
@@ -223,8 +357,6 @@ export const build = async (target) => {
 			].forEach((result) => results.push(result));
 
 		} else {
-
-			console.log('base: build("' + target + '")');
 
 			[
 				generate(target + '/base/build/browser.mjs', [].concat(BASE_FILES).concat(BROWSER_FILES)),
@@ -239,6 +371,12 @@ export const build = async (target) => {
 			CACHE[target] = true;
 
 			return true;
+
+		} else {
+
+			console.error('base:    build("' + _(target) + '"): fail');
+
+			return false;
 
 		}
 

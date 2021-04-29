@@ -40,6 +40,10 @@ const isComparison = (line, chunk) => {
 
 const clean = async () => {
 
+	console.log('');
+	console.log('clean()');
+	console.log('');
+
 	let results = [
 		await clean_base(),
 		await clean_browser(),
@@ -57,6 +61,10 @@ const clean = async () => {
 };
 
 const build = async () => {
+
+	console.log('');
+	console.log('build()');
+	console.log('');
 
 	let results = [
 		await build_base(),
@@ -118,7 +126,7 @@ const lint_file = (file) => {
 			if (line.includes(chunk + '(') === true) {
 
 				if (isComparison(line, chunk) === false) {
-					console.error(file.name + '#L' + (l + 1) + ':' + line.trim());
+					console.error(' > ' + file.name + '#L' + (l + 1) + ':' + line.trim());
 					result = false;
 				}
 
@@ -131,7 +139,7 @@ const lint_file = (file) => {
 			if (line.includes(chunk + '(') === true) {
 
 				if (isComparison(line, chunk) === false) {
-					console.warn(file.name + '#L' + (l + 1) + ':' + line.trim());
+					console.warn(' > ' + file.name + '#L' + (l + 1) + ':' + line.trim());
 					result = false;
 				}
 
@@ -146,6 +154,10 @@ const lint_file = (file) => {
 };
 
 const lint = async () => {
+
+	console.log('');
+	console.log('lint()');
+	console.log('');
 
 	let ignored = [];
 
@@ -171,7 +183,6 @@ const lint = async () => {
 		}
 
 	});
-
 
 	let files = [
 		...FILESYSTEM.scan(ROOT + '/base/source',    true),
@@ -215,6 +226,10 @@ const lint = async () => {
 };
 
 const pack = async (target) => {
+
+	console.log('');
+	console.log('pack()');
+	console.log('');
 
 	let results = [
 		await pack_browser(target),
@@ -269,10 +284,8 @@ const pack = async (target) => {
 
 				} else {
 
-					console.error('Invalid folder "' + folder + '".');
-					console.error('Please use a correct folder path.');
-
-					process.exit(1);
+					console.error('Invalid parameter "' + folder + '". Please use a correct path.');
+					results.push(false);
 
 				}
 
@@ -283,10 +296,14 @@ const pack = async (target) => {
 		}
 
 		if (results.length === 0) {
+
 			results.push(await clean());
 			results.push(await build());
 			results.push(await lint());
-			results.push(await pack());
+
+			// XXX: Don't pack by default
+			// results.push(await pack());
+
 		}
 
 

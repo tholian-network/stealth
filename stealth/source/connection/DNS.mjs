@@ -62,7 +62,7 @@ const isAnswer = function(answer) {
 
 			if (isArray(answer.value) === true) {
 
-				let check = answer.value.filter((v) => isBuffer(v));
+				let check = answer.value.filter((v) => isBuffer(v) === true);
 				if (check.length === answer.value.length) {
 					return true;
 				}

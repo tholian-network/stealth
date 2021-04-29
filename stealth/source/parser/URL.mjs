@@ -516,19 +516,19 @@ const URL = {
 			let found = policy.policies.find((policy) => {
 
 				let pattern = policy.path;
-				if (pattern.startsWith('*')) {
+				if (pattern.startsWith('*') === true) {
 
-					return url.path.endsWith(pattern.substr(1));
+					return url.path.endsWith(pattern.substr(1)) === true;
 
-				} else if (pattern.endsWith('*')) {
+				} else if (pattern.endsWith('*') === true) {
 
-					return url.path.startsWith(pattern.substr(0, pattern.length - 1));
+					return url.path.startsWith(pattern.substr(0, pattern.length - 1)) === true;
 
-				} else if (pattern.includes('*')) {
+				} else if (pattern.includes('*') === true) {
 
 					return (
-						url.path.startsWith(pattern.split('*').shift())
-						&& url.path.endsWith(pattern.split('*').pop())
+						url.path.startsWith(pattern.split('*').shift()) === true
+						&& url.path.endsWith(pattern.split('*').pop()) === true
 					);
 
 				} else {
@@ -573,27 +573,27 @@ const URL = {
 
 						let pattern = patterns[p];
 
-						if (pattern.key.startsWith('*')) {
-							valid_key = parameter.key.endsWith(pattern.key.substr(1));
-						} else if (pattern.key.endsWith('*')) {
-							valid_key = parameter.key.startsWith(pattern.key.substr(0, pattern.key.length - 1));
-						} else if (pattern.key.includes('*')) {
+						if (pattern.key.startsWith('*') === true) {
+							valid_key = parameter.key.endsWith(pattern.key.substr(1)) === true;
+						} else if (pattern.key.endsWith('*') === true) {
+							valid_key = parameter.key.startsWith(pattern.key.substr(0, pattern.key.length - 1)) === true;
+						} else if (pattern.key.includes('*') === true) {
 							valid_key = (
-								parameter.key.startsWith(pattern.key.split('*')[0])
-								&& parameter.key.endsWith(pattern.key.split('*')[1])
+								parameter.key.startsWith(pattern.key.split('*')[0]) === true
+								&& parameter.key.endsWith(pattern.key.split('*')[1]) === true
 							);
 						} else {
 							valid_key = parameter.key === pattern.key;
 						}
 
-						if (pattern.val.startsWith('*')) {
-							valid_val = parameter.val.endsWith(pattern.val.substr(1));
-						} else if (pattern.val.endsWith('*')) {
-							valid_val = parameter.val.startsWith(pattern.val.substr(0, pattern.val.length - 1));
-						} else if (pattern.val.includes('*')) {
+						if (pattern.val.startsWith('*') === true) {
+							valid_val = parameter.val.endsWith(pattern.val.substr(1)) === true;
+						} else if (pattern.val.endsWith('*') === true) {
+							valid_val = parameter.val.startsWith(pattern.val.substr(0, pattern.val.length - 1)) === true;
+						} else if (pattern.val.includes('*') === true) {
 							valid_val = (
-								parameter.val.startsWith(pattern.val.split('*')[0])
-								&& parameter.val.endsWith(pattern.val.split('*')[1])
+								parameter.val.startsWith(pattern.val.split('*')[0]) === true
+								&& parameter.val.endsWith(pattern.val.split('*')[1]) === true
 							);
 						} else {
 							valid_val = parameter.val === pattern.val;

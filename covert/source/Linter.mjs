@@ -33,7 +33,7 @@ const init = function(settings) {
 	});
 
 	this.filesystem.scan(project + '/source', true).filter((file) => {
-		return file.endsWith('.mjs');
+		return file.endsWith('.mjs') === true;
 	}).map((file) => {
 
 		let path      = file.substr(project.length + '/source'.length + 1);
@@ -499,7 +499,7 @@ const update_source_index = async function() {
 
 		let exported = Object.keys(module);
 		let expected = this.filesystem.scan(this._settings.project + '/source').filter((path) => {
-			return path.endsWith('.mjs');
+			return path.endsWith('.mjs') === true;
 		}).map((path) => {
 			return path.split('/').pop().split('.').slice(0, -1).join('.');
 		}).filter((expect) => {

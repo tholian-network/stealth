@@ -4,9 +4,11 @@ import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { console             } from '../base/source/node/console.mjs';
-import { isString            } from '../base/source/String.mjs';
-import { build as build_base } from '../base/make.mjs';
+import { _, copy, read, remove, write } from '../base/make.mjs';
+import { console                      } from '../base/source/node/console.mjs';
+import { isObject                     } from '../base/source/Object.mjs';
+import { isString                     } from '../base/source/String.mjs';
+import { build as build_base          } from '../base/make.mjs';
 
 
 
@@ -15,150 +17,7 @@ const FILE   = url.fileURLToPath(import.meta.url);
 const ROOT   = path.dirname(path.resolve(FILE, '../'));
 const TARGET = ROOT;
 
-const copy = (origin, target) => {
 
-	let stat   = null;
-	let result = false;
-
-	try {
-		stat = fs.statSync(path.resolve(origin));
-	} catch (err) {
-		stat = null;
-	}
-
-	if (stat !== null) {
-
-		if (stat.isDirectory() === true) {
-
-			let files = [];
-
-			try {
-				files = fs.readdirSync(path.resolve(origin));
-			} catch (err) {
-				files = [];
-			}
-
-			if (files.length > 0) {
-
-				let results = files.map((file) => {
-					return copy(origin + '/' + file, target + '/' + file);
-				});
-
-				if (results.includes(false) === false) {
-					result = true;
-				} else {
-					result = false;
-				}
-
-			} else {
-				result = true;
-			}
-
-		} else if (stat.isFile() === true) {
-
-			stat = null;
-
-			try {
-				stat = fs.statSync(path.dirname(target));
-			} catch (err) {
-				stat = null;
-			}
-
-			if (stat === null || stat.isDirectory() === false) {
-
-				try {
-					fs.mkdirSync(path.dirname(target), {
-						recursive: true
-					});
-				} catch (err) {
-					// Ignore
-				}
-
-			}
-
-			try {
-				fs.copyFileSync(path.resolve(origin), path.resolve(target));
-				result = true;
-			} catch (err) {
-				result = false;
-			}
-
-		}
-
-	}
-
-	if (origin.startsWith(ROOT) === true) {
-		origin = origin.substr(ROOT.length + 1);
-	}
-
-	if (target.startsWith(ROOT) === true) {
-		target = target.substr(ROOT.length + 1);
-	}
-
-	if (result === true) {
-		console.info('browser: copy("' + origin + '", "' + target + '")');
-	} else {
-		console.error('browser: copy("' + origin + '", "' + target + '")');
-	}
-
-	return result;
-
-};
-
-const read = (url) => {
-
-	let buffer = null;
-
-	try {
-		buffer = fs.readFileSync(path.resolve(url));
-	} catch(err) {
-		buffer = null;
-	}
-
-	return buffer;
-
-};
-
-const remove = (url) => {
-
-	let stat   = null;
-	let result = false;
-
-	try {
-		stat = fs.statSync(path.resolve(url));
-	} catch (err) {
-		stat = null;
-	}
-
-	if (stat !== null) {
-
-		if (stat.isDirectory() === true) {
-
-			try {
-				fs.rmdirSync(path.resolve(url), {
-					recursive: true
-				});
-				result = true;
-			} catch (err) {
-				result = false;
-			}
-
-		} else if (stat.isFile() === true) {
-
-			try {
-				fs.unlinkSync(path.resolve(url));
-				result = true;
-			} catch (err) {
-				result = false;
-			}
-
-		}
-
-	}
-
-	return result;
-
-};
 
 const IGNORED = [
 	path.resolve(ROOT + '/browser/app'),
@@ -221,29 +80,49 @@ const walk = (url, result) => {
 
 };
 
-const write = (url, buffer) => {
+const patch = (text, target) => {
 
-	let result = false;
+	let meta  = read(ROOT + '/package.json');
+	let files = walk(target + '/browser').map((url) => {
+		return url.substr((target + '/browser').length + 1);
+	}).sort((a, b) => {
+		if (a < b) return -1;
+		if (b < a) return  1;
+		return 0;
+	});
+	let version = 'X0:SECRET';
 
-	try {
-		fs.writeFileSync(path.resolve(url), buffer);
-		result = true;
-	} catch (err) {
-		result = false;
+	if (meta.buffer !== null) {
+
+		try {
+
+			let object = JSON.parse(meta.buffer.toString('utf8'));
+
+			if (isObject(object) === true && isString(object.version) === true) {
+				version = object.version;
+			}
+
+		} catch (err) {
+			version = 'X0:SECRET';
+		}
+
 	}
 
-	let pretty = path.resolve(url);
-	if (pretty.startsWith(ROOT) === true) {
-		pretty = pretty.substr(ROOT.length + 1);
+	let index0 = text.indexOf('const VERSION = \'') + 17;
+	let index1 = text.indexOf('\';', index0);
+
+	if (index0 > 17 && index1 > 18) {
+		text = text.substr(0, index0) + version + text.substr(index1);
 	}
 
-	if (result === true) {
-		console.info('browser: write("' + pretty + '")');
-	} else {
-		console.error('browser: write("' + pretty + '")');
+	let index2 = text.indexOf('const ASSETS  = [') + 17;
+	let index3 = text.indexOf('];', index2);
+
+	if (index2 > 17 && index3 > 18) {
+		text = text.substr(0, index2) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + text.substr(index3);
 	}
 
-	return result;
+	return text;
 
 };
 
@@ -259,37 +138,55 @@ export const clean = async (target) => {
 		CACHE[target] = false;
 
 
+		console.info('browser: clean("' + _(target) + '")');
+
 		let results = [];
 
 		if (target === TARGET) {
 
-			console.log('browser: clean()');
-
 			[
 				remove(target + '/browser/extern/base.mjs'),
 				remove(target + '/browser/source/Browser.mjs'),
-				remove(target + '/browser/source/Tab.mjs'),
 				remove(target + '/browser/source/client'),
-				remove(target + '/browser/source/parser')
+				remove(target + '/browser/source/parser'),
+				remove(target + '/browser/source/Tab.mjs')
 			].forEach((result) => results.push(result));
 
 		} else {
 
-			console.log('browser: clean("' + target + '")');
-
 			[
-				remove(target + '/browser')
+				remove(target + '/browser/app'),
+				remove(target + '/browser/browser.mjs'),
+				remove(target + '/browser/design'),
+				remove(target + '/browser/extern/base.mjs'),
+				remove(target + '/browser/index.html'),
+				remove(target + '/browser/index.mjs'),
+				remove(target + '/browser/index.webmanifest'),
+				remove(target + '/browser/internal'),
+				remove(target + '/browser/service.js'),
+				remove(target + '/browser/source/Browser.mjs'),
+				remove(target + '/browser/source/Client.mjs'),
+				remove(target + '/browser/source/client'),
+				remove(target + '/browser/source/ENVIRONMENT.mjs'),
+				remove(target + '/browser/source/parser'),
+				remove(target + '/browser/source/Session.mjs'),
+				remove(target + '/browser/source/Tab.mjs')
 			].forEach((result) => results.push(result));
 
 		}
 
 
 		if (results.includes(false) === false) {
+
 			return true;
+
+		} else {
+
+			console.error('browser: clean("' + _(target) + '"): fail');
+
+			return false;
+
 		}
-
-
-		return false;
 
 	}
 
@@ -305,17 +202,19 @@ export const build = async (target) => {
 
 	if (CACHE[target] === true) {
 
+		console.warn('browser: build("' + _(target) + '"): skip');
+
 		return true;
 
 	} else if (CACHE[target] !== true) {
+
+		console.info('browser: build("' + _(target) + '")');
 
 		let results = [
 			build_base()
 		];
 
 		if (target === TARGET) {
-
-			console.log('browser: build()');
 
 			[
 				copy(ROOT + '/base/build/browser.mjs',     target + '/browser/extern/base.mjs'),
@@ -326,8 +225,6 @@ export const build = async (target) => {
 			].forEach((result) => results.push(result));
 
 		} else {
-
-			console.log('browser: build("' + target + '")');
 
 			[
 				copy(ROOT + '/browser/app',                    target + '/browser/app'),
@@ -351,29 +248,13 @@ export const build = async (target) => {
 		}
 
 
-		let buffer = read(target + '/browser/service.js');
-		if (buffer !== null) {
+		let service_worker = read(target + '/browser/service.js');
+		if (service_worker.buffer !== null) {
 
-			let service = buffer.toString('utf8');
-			let files   = walk(target + '/browser').map((url) => {
-				return url.substr((target + '/browser').length + 1);
-			}).sort((a, b) => {
-				if (a < b) return -1;
-				if (b < a) return  1;
-				return 0;
-			});
-
-			if (files.length > 0) {
-
-				let index0 = service.indexOf('const ASSETS  = [') + 17;
-				let index1 = service.indexOf('];', index0);
-
-				if (index0 > 17 && index1 > 18) {
-					service = service.substr(0, index0) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + service.substr(index1);
-				}
-
-				results.push(write(target + '/browser/service.js', Buffer.from(service, 'utf8')));
-
+			let old_text = service_worker.buffer.toString('utf8');
+			let new_text = patch(old_text, target);
+			if (new_text !== old_text) {
+				results.push(write(target + '/browser/service.js', Buffer.from(new_text, 'utf8')));
 			}
 
 		}
@@ -384,6 +265,12 @@ export const build = async (target) => {
 			CACHE[target] = true;
 
 			return true;
+
+		} else {
+
+			console.error('browser: build("' + _(target) + '"): fail');
+
+			return false;
 
 		}
 
@@ -399,6 +286,8 @@ export const pack = async (target) => {
 	target = isString(target) ? target : TARGET;
 
 
+	console.info('browser: pack("' + _(target) + '")');
+
 	let results = [
 		clean(target),
 		build(target)
@@ -407,11 +296,16 @@ export const pack = async (target) => {
 	// TODO: Copy binaries and bundle them?
 
 	if (results.includes(false) === false) {
+
 		return true;
+
+	} else {
+
+		console.error('browser: pack("' + _(target) + '"): fail');
+
+		return false;
+
 	}
-
-
-	return false;
 
 };
 

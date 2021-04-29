@@ -4,6 +4,7 @@ import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
+import { _, copy, remove        } from '../base/make.mjs';
 import { console                } from '../base/source/node/console.mjs';
 import { Buffer                 } from '../base/source/node/Buffer.mjs';
 import { isString               } from '../base/source/String.mjs';
@@ -11,101 +12,10 @@ import { build as build_base    } from '../base/make.mjs';
 import { build as build_browser } from '../browser/make.mjs';
 
 
-
 const CACHE  = {};
 const FILE   = url.fileURLToPath(import.meta.url);
 const ROOT   = path.dirname(path.resolve(FILE, '../'));
 const TARGET = ROOT;
-
-const copy = (origin, target) => {
-
-	let stat   = null;
-	let result = false;
-
-	try {
-		stat = fs.statSync(path.resolve(origin));
-	} catch (err) {
-		stat = null;
-	}
-
-	if (stat !== null) {
-
-		if (stat.isDirectory() === true) {
-
-			let files = [];
-
-			try {
-				files = fs.readdirSync(path.resolve(origin));
-			} catch (err) {
-				files = [];
-			}
-
-			if (files.length > 0) {
-
-				let results = files.map((file) => {
-					return copy(origin + '/' + file, target + '/' + file);
-				});
-
-				if (results.includes(false) === false) {
-					result = true;
-				} else {
-					result = false;
-				}
-
-			} else {
-				result = true;
-			}
-
-		} else if (stat.isFile() === true) {
-
-			stat = null;
-
-			try {
-				stat = fs.statSync(path.dirname(target));
-			} catch (err) {
-				stat = null;
-			}
-
-			if (stat === null || stat.isDirectory() === false) {
-
-				try {
-					fs.mkdirSync(path.dirname(target), {
-						recursive: true
-					});
-				} catch (err) {
-					// Ignore
-				}
-
-			}
-
-			try {
-				fs.copyFileSync(path.resolve(origin), path.resolve(target));
-				result = true;
-			} catch (err) {
-				result = false;
-			}
-
-		}
-
-	}
-
-	if (origin.startsWith(ROOT) === true) {
-		origin = origin.substr(ROOT.length + 1);
-	}
-
-	if (target.startsWith(ROOT) === true) {
-		target = target.substr(ROOT.length + 1);
-	}
-
-	if (result === true) {
-		console.info('stealth: copy("' + origin + '", "' + target + '")');
-	} else {
-		console.error('stealth: copy("' + origin + '", "' + target + '")');
-	}
-
-	return result;
-
-};
 
 const rebase = (url) => {
 
@@ -155,58 +65,21 @@ const rebase = (url) => {
 		}
 
 		if (result === true) {
-			console.info('stealth: rebase("' + url + '")');
-		} else {
-			console.error('stealth: rebase("' + url + '")');
-		}
 
-		return result;
+			return true;
+
+		} else {
+
+			console.error('stealth: rebase("' + _(url) + '")');
+
+			return false;
+
+		}
 
 	}
 
 
 	return false;
-
-};
-
-const remove = (url) => {
-
-	let stat   = null;
-	let result = false;
-
-	try {
-		stat = fs.statSync(path.resolve(url));
-	} catch (err) {
-		stat = null;
-	}
-
-	if (stat !== null) {
-
-		if (stat.isDirectory() === true) {
-
-			try {
-				fs.rmdirSync(path.resolve(url), {
-					recursive: true
-				});
-				result = true;
-			} catch (err) {
-				result = false;
-			}
-
-		} else if (stat.isFile() === true) {
-
-			try {
-				fs.unlinkSync(path.resolve(url));
-				result = true;
-			} catch (err) {
-				result = false;
-			}
-
-		}
-
-	}
-
-	return result;
 
 };
 
@@ -222,11 +95,11 @@ export const clean = async (target) => {
 		CACHE[target] = false;
 
 
+		console.info('stealth: clean("' + _(target) + '")');
+
 		let results = [];
 
 		if (target === TARGET) {
-
-			console.log('stealth: clean()');
 
 			[
 				remove(target + '/stealth/extern/base.mjs')
@@ -234,22 +107,27 @@ export const clean = async (target) => {
 
 		} else {
 
-			console.log('stealth: clean("' + target + '")');
-
 			[
 				remove(target + '/stealth/extern/base.mjs'),
-				remove(target + '/stealth')
+				remove(target + '/stealth/index.mjs'),
+				remove(target + '/stealth/stealth.mjs'),
+				remove(target + '/stealth/source')
 			].forEach((result) => results.push(result));
 
 		}
 
 
 		if (results.includes(false) === false) {
+
 			return true;
+
+		} else {
+
+			console.error('stealth: clean("' + _(target) + '"): fail');
+
+			return false;
+
 		}
-
-
-		return false;
 
 	}
 
@@ -265,9 +143,13 @@ export const build = async (target) => {
 
 	if (CACHE[target] === true) {
 
+		console.warn('stealth: build("' + _(target) + '"): skip');
+
 		return true;
 
 	} else if (CACHE[target] !== true) {
+
+		console.info('stealth: build("' + _(target) + '")');
 
 		let results = [
 			build_base()
@@ -275,16 +157,12 @@ export const build = async (target) => {
 
 		if (target === TARGET) {
 
-			console.log('stealth: build()');
-
 			[
 				build_browser(),
 				copy(ROOT + '/base/build/node.mjs', target + '/stealth/extern/base.mjs')
 			].forEach((result) => results.push(result));
 
 		} else {
-
-			console.log('stealth: build("' + target + '")');
 
 			[
 				build_browser(target),
@@ -303,6 +181,12 @@ export const build = async (target) => {
 
 			return true;
 
+		} else {
+
+			console.error('stealth: build("' + _(target) + '"): fail');
+
+			return false;
+
 		}
 
 	}
@@ -317,20 +201,37 @@ export const pack = async (target) => {
 	target = isString(target) ? target : TARGET;
 
 
+	console.info('stealth: pack("' + _(target) + '")');
+
 	let results = [
 		clean(target),
-		build(target),
-		rebase(target + '/stealth/stealth.mjs')
+		build(target)
 	];
 
-	// TODO: Minify code as single ESM?
+	if (target === TARGET) {
 
-	if (results.includes(false) === false) {
-		return true;
+		// Do Nothing
+
+	} else {
+
+		[
+			rebase(target + '/stealth/stealth.mjs')
+		].forEach((result) => results.push(result));
+
 	}
 
 
-	return false;
+	if (results.includes(false) === false) {
+
+		return true;
+
+	} else {
+
+		console.error('stealth: pack("' + _(target) + '"): fail');
+
+		return false;
+
+	}
 
 };
 
