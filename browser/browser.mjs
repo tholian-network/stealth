@@ -210,7 +210,8 @@ if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 			mkdir(TEMP),
 			spawn(electron, [
 				ROOT + '/browser/app/electron.js',
-				'--user-data-dir=' + TEMP
+				'--user-data-dir=' + TEMP,
+				'--app=http://localhost:65432/browser/index.html'
 			], {
 				cwd: TEMP
 			})
@@ -222,7 +223,8 @@ if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 			mkdir(TEMP),
 			spawn(gjs, [
 				ROOT + '/browser/app/gjs.js',
-				'--user-data-dir=' + TEMP
+				'--user-data-dir=' + TEMP,
+				'--app=http://localhost:65432/browser/index.html'
 			], {
 				cwd: TEMP
 			})

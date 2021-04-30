@@ -7,6 +7,7 @@ const process                = require('process');
 const FLAGS = (() => {
 
 	let flags = {
+		'app':           'http://localhost:65432',
 		'user-data-dir': '/tmp/browser-electron'
 	};
 
@@ -55,7 +56,7 @@ app.on('ready', () => {
 		height: 960
 	});
 
-	window.loadURL('http://localhost:65432/browser/index.html');
+	window.loadURL(FLAGS['app']);
 	window.setMenuBarVisibility(false);
 
 	window.on('closed', () => {

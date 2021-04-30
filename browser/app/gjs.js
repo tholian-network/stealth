@@ -13,6 +13,7 @@ const WebKit = imports.gi.WebKit2;
 const FLAGS = (function() {
 
 	let flags = {
+		'app':           'http://localhost:65432',
 		'user-data-dir': '/tmp/browser-gjs'
 	};
 
@@ -124,7 +125,7 @@ settings.set_property('enable-java',                false);
 settings.set_property('enable-smooth-scrolling',    true);
 
 webview.set_settings(settings);
-webview.load_uri('http://localhost:65432/browser/index.html');
+webview.load_uri(FLAGS['app']);
 inspector.attach();
 inspector.show();
 
