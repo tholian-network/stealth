@@ -197,7 +197,8 @@ if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 			mkdir(TEMP),
 			spawn(chromium, [
 				'--user-data-dir=' + TEMP,
-				'--app=http://localhost:65432/browser/index.html'
+				'--app=http://localhost:65432/browser/index.html',
+				'--new-window'
 			], {
 				cwd: TEMP
 			})
@@ -306,7 +307,7 @@ if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 } else if (platform === 'win32') {
 
 	let chromium = exists(process.env.USERPROFILE + '\\AppData\\Local\\Chromium\\Application\\chrome.exe');
-	let edgium   = null; // TODO: How to detect edgium in a failsafe manner?
+	let msedge   = exists('C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe') || exists('C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe');
 	let results  = [];
 
 	if (chromium !== null) {
@@ -315,15 +316,25 @@ if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 			mkdir(TEMP),
 			spawn(chromium, [
 				'--user-data-dir=' + TEMP,
-				'--app=http://localhost:65432/browser/index.html'
+				'--app=http://localhost:65432/browser/index.html',
+				'--new-window'
 			], {
 				cwd: TEMP
 			})
 		].forEach((result) => results.push(result));
 
-	} else if (edgium !== null) {
+	} else if (msedge !== null) {
 
-		// TODO: spawn edgium correctly
+		[
+			mkdir(TEMP),
+			spawn(msedge, [
+				'--user-data-dir=' + TEMP,
+				'--app=http://localhost:65432/browser/index.html',
+				'--new-window'
+			], {
+				cwd: TEMP
+			})
+		].forEach((result) => results.push(result));
 
 	}
 
