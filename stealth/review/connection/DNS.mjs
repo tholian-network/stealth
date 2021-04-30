@@ -1728,12 +1728,450 @@ describe('DNS.send()/server/AAAA', function(assert) {
 
 });
 
-// TODO: DNS.send()/server/CNAME (1339)
-// TODO: DNS.send()/server/MX (1340)
-// TODO: DNS.send()/server/NS (1341)
+describe('DNS.send()/server/CNAME', function(assert) {
+
+	this.connection.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   1339,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: 'peers.tholian.local',
+					type:   'CNAME',
+					value:  null
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(this.connection, {
+			headers: {
+				'@id':   1339,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'peers.tholian.local',
+					type:   'CNAME',
+					value:  null
+				}],
+				answers: [{
+					domain: 'peers.tholian.local',
+					type:   'CNAME',
+					value:  'peers.tholian.network'
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection, {
+				headers: {
+					'@id': 1339
+				},
+				payload: {
+					questions: [{
+						domain: 'peers.tholian.local',
+						type:   'CNAME',
+						value:  null
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			DNS.disconnect(connection);
+		}, 500);
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1339,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'peers.tholian.local',
+					type:   'CNAME',
+					value:  null
+				}],
+				answers: [{
+					domain: 'peers.tholian.local',
+					type:   'CNAME',
+					value:  'peers.tholian.network'
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('DNS.send()/server/MX', function(assert) {
+
+	this.connection.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   1340,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: 'mail.tholian.local',
+					type:   'MX',
+					value:  null
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(this.connection, {
+			headers: {
+				'@id':   1340,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'mail.tholian.local',
+					type:   'MX',
+					value:  null
+				}],
+				answers: [{
+					domain: 'mail.tholian.local',
+					type:   'MX',
+					value:  'mail.tholian.network',
+					weight: 1337
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection, {
+				headers: {
+					'@id': 1340
+				},
+				payload: {
+					questions: [{
+						domain: 'mail.tholian.local',
+						type:   'MX',
+						value:  null
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			DNS.disconnect(connection);
+		}, 500);
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1340,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'mail.tholian.local',
+					type:   'MX',
+					value:  null
+				}],
+				answers: [{
+					domain: 'mail.tholian.local',
+					type:   'MX',
+					value:  'mail.tholian.network',
+					weight: 1337
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('DNS.send()/server/NS', function(assert) {
+
+	this.connection.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   1341,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'NS',
+					value:  null
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(this.connection, {
+			headers: {
+				'@id':   1341,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'NS',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.local',
+					type:   'NS',
+					value:  'covert-one.tholian.local'
+				}, {
+					domain: 'tholian.local',
+					type:   'NS',
+					value:  'covert-two.tholian.local'
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection, {
+				headers: {
+					'@id': 1341
+				},
+				payload: {
+					questions: [{
+						domain: 'tholian.local',
+						type:   'NS',
+						value:  null
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			DNS.disconnect(connection);
+		}, 500);
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1341,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'NS',
+					value:  null
+				}],
+				answers: [{
+					domain: 'tholian.local',
+					type:   'NS',
+					value:  'covert-one.tholian.local'
+				}, {
+					domain: 'tholian.local',
+					type:   'NS',
+					value:  'covert-two.tholian.local'
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+
+
 // TODO: DNS.send()/server/PTR/v4 (1342)
 // TODO: DNS.send()/server/PTR/v6 (1343)
-// TODO: DNS.send()/server/PTR/SRV (1344)
+
+
+
+describe('DNS.send()/server/SRV', function(assert) {
+
+	this.connection.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   1344,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: '_stealth._wss.tholian.local',
+					type:   'SRV',
+					value:  null
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(this.connection, {
+			headers: {
+				'@id':   1344,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: '_stealth._wss.tholian.local',
+					type:   'SRV',
+					value:  null
+				}],
+				answers: [{
+					domain: '_stealth._wss.tholian.local',
+					type:   'SRV',
+					value:  'covert-one.tholian.local',
+					weight: 0,
+					port:   65432
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection, {
+				headers: {
+					'@id': 1344
+				},
+				payload: {
+					questions: [{
+						domain: '_stealth._wss.tholian.local',
+						type:   'SRV',
+						value:  null
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			DNS.disconnect(connection);
+		}, 500);
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1344,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: '_stealth._wss.tholian.local',
+					type:   'SRV',
+					value:  null
+				}],
+				answers: [{
+					domain: '_stealth._wss.tholian.local',
+					type:   'SRV',
+					value:  'covert-one.tholian.local',
+					weight: 0,
+					port:   65432
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
 
 describe('DNS.send()/server/TXT', function(assert) {
 

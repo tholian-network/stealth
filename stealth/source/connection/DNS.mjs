@@ -1,20 +1,27 @@
 
 import dgram from 'dgram';
 
-import { console, Buffer, Emitter, isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                                                    } from '../../source/parser/IP.mjs';
-import { URL                                                                                   } from '../../source/parser/URL.mjs';
+import { Buffer, Emitter, isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                                           } from '../../source/parser/IP.mjs';
+import { URL                                                                          } from '../../source/parser/URL.mjs';
 
 
 
 const isDomain = function(domain) {
 
-	let tmp   = domain.split('.');
-	let check = domain.split('.').filter((label) => {
-		return label.length > 0 && label.length < 64;
-	});
+	if (isString(domain) === true) {
 
-	return check.length === tmp.length;
+		let tmp   = domain.split('.');
+		let check = domain.split('.').filter((label) => {
+			return label.length > 0 && label.length < 64;
+		});
+
+		return check.length === tmp.length;
+
+	}
+
+
+	return false;
 
 };
 
@@ -435,10 +442,9 @@ const decode_record = function(dictionary, payload) {
 			let value    = [];
 			let bytes    = decode_domain(dictionary, payload.slice(offset + 6, offset + rdlength), value);
 
-			// XXX: RFC2782 is unclear.
-			// - sort by priority, then if same priority sort by weight
-			// - but always prefer priority=0
-			// = therefore priority is actually the weight
+			if (bytes > 0) {
+				// Do Nothing
+			}
 
 			return {
 				domain: domain,
@@ -452,6 +458,10 @@ const decode_record = function(dictionary, payload) {
 
 			let values = [];
 			let bytes  = decode_string(dictionary, payload.slice(offset, offset + rdlength), values);
+
+			if (bytes > 0) {
+				// Do Nothing
+			}
 
 			return {
 				domain: domain,
@@ -686,8 +696,6 @@ const encode_question = function(dictionary, question) {
 
 const encode_record = function(dictionary, record) {
 
-	console.warn(record);
-
 	let domain_data = encode_domain(dictionary, record.domain);
 	if (domain_data !== null) {
 
@@ -756,7 +764,17 @@ const encode_record = function(dictionary, record) {
 
 			} else if (type === 'SRV') {
 
-				// TODO: Encode SRV (priority, weight, port, domain)
+				rdata = Buffer.concat([
+					Buffer.from([
+						(record.weight >> 8) & 0xff,
+						record.weight        & 0xff,
+						0x00,
+						0x00,
+						(record.port >> 8) & 0xff,
+						record.port        & 0xff
+					]),
+					encode_domain(dictionary, record.value)
+				]);
 
 			} else if (type === 'TXT') {
 
@@ -1351,7 +1369,7 @@ const DNS = {
 					&& data.payload.answers.length > 0
 				) {
 
-					if (data.payload.questions.length === data.payload.answers.length) {
+					if (data.payload.questions.length > 0 && data.payload.answers.length > 0) {
 						payload = {
 							questions: data.payload.questions.filter((q) => isQuestion(q)),
 							answers:   data.payload.answers.filter((a) => isAnswer(a))
