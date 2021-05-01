@@ -9,6 +9,50 @@ import { URL                             } from '../../../stealth/source/parser/
 
 
 
+const NAMEWRECK = {
+
+	'client': Buffer.from([
+
+		0x00, 0x00, 0x81, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00,
+
+		// example.com (with NULL terminator)
+		0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d, 0x00,
+		0x00, 0x01, 0x00, 0x01,
+
+		// answer: example.com (without NULL terminator)
+		0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
+		0xc0, 12 + 17 + 26, // recursive pointer
+		0x00, 0x01, 0x00, 0x01,
+		0x00, 0x00, 0x00, 0x00,
+		0x01, 0x03, 0x03, 0x07,
+
+		// answer: example.com (without NULL terminator)
+		0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
+		0xc0, 12 + 17, // recursive pointer
+		0x00, 0x01, 0x00, 0x01,
+		0x00, 0x00, 0x00, 0x00,
+		0x01, 0x03, 0x03, 0x07
+
+	]),
+
+	'server': Buffer.from([
+
+		0x00, 0x00, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+
+		// question: example.com (without NULL terminator)
+		0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
+		0xc0, 12 + 18, // recursive pointer
+		0x00, 0x01, 0x00, 0x01,
+
+		// question: example.com (without NULL terminator)
+		0x07, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x03, 0x63, 0x6f, 0x6d,
+		0xc0, 12, // recursive pointer
+		0x00, 0x01, 0x00, 0x01
+
+	])
+
+};
+
 const PAYLOADS = {
 
 	'A': {
@@ -375,6 +419,31 @@ describe('DNS.disconnect()', function(assert) {
 
 	connection.once('@disconnect', () => {
 		assert(true);
+	});
+
+});
+
+describe('DNS.receive()/client/NAMEWRECK', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	DNS.receive(null, NAMEWRECK['client'], (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   0,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: 'example.com',
+					type:   'A',
+					value:  null
+				}],
+				answers: []
+			}
+		});
+
 	});
 
 });
@@ -1357,6 +1426,9 @@ describe('DNS.send()/client/NS', function(assert) {
 
 });
 
+// TODO: DNS.send()/client/PTR/v4
+// TODO: DNS.send()/client/PTR/v6
+
 describe('DNS.send()/client/SRV', function(assert) {
 
 	assert(isFunction(DNS.send), true);
@@ -1510,6 +1582,27 @@ describe('DNS.send()/client/TXT', function(assert) {
 
 			assert(result, true);
 
+		});
+
+	});
+
+});
+
+describe('DNS.receive()/server/NAMEWRECK', function(assert) {
+
+	assert(isFunction(DNS.receive), true);
+
+	DNS.receive(null, NAMEWRECK['server'], (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   0,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [],
+				answers:   []
+			}
 		});
 
 	});
@@ -2056,12 +2149,217 @@ describe('DNS.send()/server/NS', function(assert) {
 
 });
 
+describe('DNS.send()/server/PTR/v4', function(assert) {
+
+	this.connection.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   1342,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('192.168.0.123')
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(this.connection, {
+			headers: {
+				'@id':   1342,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('192.168.0.123')
+				}],
+				answers: [{
+					domain: 'cookiengineer.peers.tholian.network',
+					type:   'PTR',
+					value:  IP.parse('192.168.0.123')
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
 
 
-// TODO: DNS.send()/server/PTR/v4 (1342)
-// TODO: DNS.send()/server/PTR/v6 (1343)
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection, {
+				headers: {
+					'@id': 1342
+				},
+				payload: {
+					questions: [{
+						domain: null,
+						type:   'PTR',
+						value:  IP.parse('192.168.0.123')
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			DNS.disconnect(connection);
+		}, 500);
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1342,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('192.168.0.123')
+				}],
+				answers: [{
+					domain: 'cookiengineer.peers.tholian.network',
+					type:   'PTR',
+					value:  IP.parse('192.168.0.123')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('DNS.send()/server/PTR/v6', function(assert) {
+
+	this.connection.once('request', (request) => {
+
+		assert(request, {
+			headers: {
+				'@id':   1343,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('fe80::1337')
+				}],
+				answers: []
+			}
+		});
+
+		DNS.send(this.connection, {
+			headers: {
+				'@id':   1343,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('fe80::1337')
+				}],
+				answers: [{
+					domain: 'cookiengineer.peers.tholian.network',
+					type:   'PTR',
+					value:  IP.parse('fe80::1337')
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
 
 
+	let url        = URL.parse('dns://localhost:13337');
+	let connection = DNS.connect(url);
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			DNS.send(connection, {
+				headers: {
+					'@id': 1343
+				},
+				payload: {
+					questions: [{
+						domain: null,
+						type:   'PTR',
+						value:  IP.parse('fe80::1337')
+					}]
+				}
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		}, 100);
+
+		setTimeout(() => {
+			DNS.disconnect(connection);
+		}, 500);
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1343,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('fe80::1337')
+				}],
+				answers: [{
+					domain: 'cookiengineer.peers.tholian.network',
+					type:   'PTR',
+					value:  IP.parse('fe80::1337')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
 
 describe('DNS.send()/server/SRV', function(assert) {
 

@@ -7,6 +7,23 @@ import { URL                                                                    
 
 
 
+const TYPES = {
+	'A':      1,
+	'AAAA':  28,
+	'CNAME':  5,
+	'MX':    15,
+	'NS':     2,
+	'PTR':   12,
+	'SRV':   33,
+	'TXT':   16
+};
+
+const CLASSES = {
+	'INTERNET': 1
+};
+
+
+
 const isDomain = function(domain) {
 
 	if (isString(domain) === true) {
@@ -116,29 +133,17 @@ const isQuestion = function(question) {
 
 
 
-const TYPES = {
-	'A':      1,
-	'AAAA':  28,
-	'CNAME':  5,
-	'MX':    15,
-	'NS':     2,
-	'PTR':   12,
-	'SRV':   33,
-	'TXT':   16
-};
+const decode_domain = function(dictionary, payload, labels, stack) {
 
-const CLASSES = {
-	'INTERNET': 1
-};
+	stack = isArray(stack) ? stack : [];
 
-const decode_domain = function(dictionary, payload, labels) {
 
 	let bytes = 0;
 	let check = payload[bytes];
 
 	if (check !== 0) {
 
-		while (bytes < payload.length) {
+		while (bytes >= 0 && bytes < payload.length) {
 
 			let length = payload[bytes];
 			if (length === 0) {
@@ -166,13 +171,48 @@ const decode_domain = function(dictionary, payload, labels) {
 						entry.forEach((label) => labels.push(label));
 					} else {
 
-						let tmp_labels = [];
-						let tmp_bytes  = decode_domain(dictionary, dictionary.buffer.slice(pointer), tmp_labels);
+						if (stack.includes(pointer) === false) {
 
-						if (tmp_bytes > 0 && tmp_labels.length > 0) {
-							dictionary.labels[pointer] = tmp_labels.slice();
-							dictionary.labels[pointer].forEach((label) => labels.push(label));
-							dictionary.pointers[tmp_labels.join('.')] = pointer;
+							stack.push(pointer);
+
+
+							let tmp_labels = [];
+							let tmp_bytes  = decode_domain(dictionary, dictionary.buffer.slice(pointer), tmp_labels, stack);
+
+							if (tmp_bytes > 0 && tmp_labels.length > 0) {
+
+								dictionary.labels[pointer] = tmp_labels.slice();
+								dictionary.labels[pointer].forEach((label) => labels.push(label));
+								dictionary.pointers[tmp_labels.join('.')] = pointer;
+
+							} else {
+
+								// XXX: Malicious Packet
+								for (let l = 0, ll = labels.length; l < ll; l++) {
+									labels.splice(l, 1);
+									ll--;
+									l--;
+								}
+
+								bytes = -1;
+
+								break;
+
+							}
+
+						} else {
+
+							// XXX: Malicious Packet
+							for (let l = 0, ll = labels.length; l < ll; l++) {
+								labels.splice(l, 1);
+								ll--;
+								l--;
+							}
+
+							bytes = -1;
+
+							break;
+
 						}
 
 					}
@@ -665,134 +705,40 @@ const encode_domain = function(dictionary, domain) {
 
 const encode_question = function(dictionary, question) {
 
-	let buffer = null;
 	let offset = dictionary.offset;
 
-	let domain = question.domain;
-	let qtype  = TYPES[question.type];
+	let domain = null;
+	let qname  = null;
+	let type   = question.type;
+	let qtype  = TYPES[question.type] || null;
 	let qclass = CLASSES['INTERNET'];
-	let domain_data = encode_domain(dictionary, domain);
-	if (domain_data !== null) {
 
-		buffer = Buffer.concat([
-			domain_data,
-			Buffer.from([
-				(qtype >> 8)  & 0xff, qtype  & 0xff,
-				(qclass >> 8) & 0xff, qclass & 0xff
-			])
-		]);
+	if (type !== null && qtype !== null) {
 
-	}
+		if (
+			type === 'A'
+			|| type === 'AAAA'
+			|| type === 'CNAME'
+			|| type === 'MX'
+			|| type === 'NS'
+			|| type === 'SRV'
+			|| type === 'TXT'
+		) {
 
-	if (buffer !== null) {
-		dictionary.labels[offset]   = domain.split('.');
-		dictionary.pointers[domain] = offset;
-		dictionary.offset          += buffer.length;
-	}
+			domain = question.domain;
+			qname  = encode_domain(dictionary, domain);
 
-	return buffer;
+		} else if (type === 'PTR') {
 
-};
+			if (question.value.type === 'v4') {
 
-const encode_record = function(dictionary, record) {
+				domain = question.value.ip.split('.').slice(0, 4).reverse().join('.') + '.in-addr.arpa';
+				qname  = encode_domain(dictionary, domain);
 
-	let domain_data = encode_domain(dictionary, record.domain);
-	if (domain_data !== null) {
+			} else if (question.value.type === 'v6') {
 
-		let rclass = CLASSES['INTERNET'];
-		let type   = record.type;
-		let rtype  = TYPES[type] || null;
-
-		if (rtype !== null) {
-
-			let rdata = null;
-			let rhead = Buffer.concat([
-				domain_data,
-				Buffer.from([
-					(rtype >> 8)  & 0xff, rtype  & 0xff,
-					(rclass >> 8) & 0xff, rclass & 0xff,
-					0x00, 0x00, 0x00, 0x00 // TTL
-				])
-			]);
-
-			if (type === 'A') {
-
-				rdata = Buffer.from(record.value.ip.split('.').slice(0, 4).map((v) => {
-					return parseInt(v, 10);
-				}));
-
-			} else if (type === 'AAAA') {
-
-				let ip  = record.value.ip.split(':').join('').split('');
-				let tmp = [];
-
-				for (let i = 0; i < ip.length; i += 2) {
-					tmp.push(parseInt(ip[i + 0] + ip[i + 1], 16));
-				}
-
-				rdata = Buffer.from(tmp);
-
-			} else if (type === 'CNAME') {
-
-				rdata = encode_domain(dictionary, record.value);
-
-			} else if (type === 'MX') {
-
-				rdata = Buffer.concat([
-					Buffer.from([
-						(record.weight >> 8) & 0xff,
-						record.weight        & 0xff
-					]),
-					encode_domain(dictionary, record.value)
-				]);
-
-			} else if (type === 'NS') {
-
-				rdata = encode_domain(dictionary, record.value);
-
-			} else if (type === 'PTR') {
-
-				if (record.value.type === 'v4') {
-
-					rdata = encode_domain(dictionary, record.value.ip.split('.').slice(0, 4).reverse() + '.in-addr.arpa');
-
-				} else if (record.value.type === 'v6') {
-
-					rdata = encode_domain(dictionary, record.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa');
-
-				}
-
-			} else if (type === 'SRV') {
-
-				rdata = Buffer.concat([
-					Buffer.from([
-						(record.weight >> 8) & 0xff,
-						record.weight        & 0xff,
-						0x00,
-						0x00,
-						(record.port >> 8) & 0xff,
-						record.port        & 0xff
-					]),
-					encode_domain(dictionary, record.value)
-				]);
-
-			} else if (type === 'TXT') {
-
-				rdata = encode_string(dictionary, record.value);
-
-			}
-
-
-			if (rdata !== null) {
-
-				return Buffer.concat([
-					rhead,
-					Buffer.from([
-						(rdata.length >> 8) & 0xff,
-						rdata.length        & 0xff
-					]),
-					rdata
-				]);
+				domain = question.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa';
+				qname  = encode_domain(dictionary, domain);
 
 			}
 
@@ -800,6 +746,137 @@ const encode_record = function(dictionary, record) {
 
 	}
 
+
+	if (domain !== null && qname !== null && qtype !== null && qclass !== null) {
+
+		let buffer = Buffer.concat([
+			qname,
+			Buffer.from([
+				(qtype >> 8)  & 0xff, qtype  & 0xff,
+				(qclass >> 8) & 0xff, qclass & 0xff
+			])
+		]);
+
+		dictionary.labels[offset]   = domain.split('.');
+		dictionary.pointers[domain] = offset;
+		dictionary.offset          += buffer.length;
+
+		return buffer;
+
+	}
+
+
+	return null;
+
+};
+
+const encode_record = function(dictionary, record) {
+
+	let type   = record.type;
+	let rtype  = TYPES[record.type] || null;
+	let rclass = CLASSES['INTERNET'];
+
+	if (type !== null && rtype !== null) {
+
+		let rhead = null;
+		let rdata = null;
+
+		if (type === 'A') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = Buffer.from(record.value.ip.split('.').slice(0, 4).map((v) => {
+				return parseInt(v, 10);
+			}));
+
+		} else if (type === 'AAAA') {
+
+			let ip  = record.value.ip.split(':').join('').split('');
+			let tmp = [];
+
+			for (let i = 0; i < ip.length; i += 2) {
+				tmp.push(parseInt(ip[i + 0] + ip[i + 1], 16));
+			}
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = Buffer.from(tmp);
+
+		} else if (type === 'CNAME') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = encode_domain(dictionary, record.value);
+
+		} else if (type === 'MX') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = Buffer.concat([
+				Buffer.from([
+					(record.weight >> 8) & 0xff,
+					record.weight        & 0xff
+				]),
+				encode_domain(dictionary, record.value)
+			]);
+
+		} else if (type === 'NS') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = encode_domain(dictionary, record.value);
+
+		} else if (type === 'PTR') {
+
+			if (record.value.type === 'v4') {
+
+				rhead = encode_domain(dictionary, record.value.ip.split('.').slice(0, 4).reverse().join('.') + '.in-addr.arpa');
+				rdata = encode_domain(dictionary, record.domain);
+
+			} else if (record.value.type === 'v6') {
+
+				rhead = encode_domain(dictionary, record.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa');
+				rdata = encode_domain(dictionary, record.domain);
+
+			}
+
+		} else if (type === 'SRV') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = Buffer.concat([
+				Buffer.from([
+					(record.weight >> 8) & 0xff,
+					record.weight        & 0xff,
+					0x00,
+					0x00,
+					(record.port >> 8) & 0xff,
+					record.port        & 0xff
+				]),
+				encode_domain(dictionary, record.value)
+			]);
+
+		} else if (type === 'TXT') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = encode_string(dictionary, record.value);
+
+		}
+
+
+		if (rhead !== null && rdata !== null) {
+
+			return Buffer.concat([
+				rhead,
+				Buffer.from([
+					(rtype >> 8)  & 0xff, rtype  & 0xff,
+					(rclass >> 8) & 0xff, rclass & 0xff,
+					0x00, 0x00, 0x00, 0x00 // TTL
+				]),
+				Buffer.from([
+					(rdata.length >> 8) & 0xff,
+					rdata.length        & 0xff
+				]),
+				rdata
+			]);
+
+		}
+
+	}
 
 	return null;
 
