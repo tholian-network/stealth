@@ -1036,6 +1036,9 @@ const onmessage = function(connection, url, message) {
 
 		if (frame !== null) {
 
+			url.headers = frame.headers;
+			url.payload = frame.payload;
+
 			if (frame.headers['@type'] === 'request') {
 				connection.emit('request', [ frame ]);
 			} else if (frame.headers['@type'] === 'response') {
@@ -1052,13 +1055,7 @@ const ondisconnect = function(connection, url) {
 
 	if (connection.type === 'client') {
 
-		if (url.headers !== null) {
-
-			// TODO: Handle url.headers, url.payload
-			// If empty then emit('timeout');
-			// If not empty then emit('response');
-
-		} else {
+		if (url.headers === null) {
 			connection.emit('timeout', [ null ]);
 		}
 

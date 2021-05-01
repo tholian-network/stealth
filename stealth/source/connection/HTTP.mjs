@@ -438,6 +438,8 @@ const isUpgrade = function(url) {
 		return true;
 	}
 
+	return false;
+
 };
 
 const Connection = function(socket) {
@@ -618,8 +620,6 @@ const HTTP = {
 
 						if (connection.socket !== null) {
 
-							connection.socket = null;
-
 							let fragment = connection.fragment;
 							if (fragment.partial === true) {
 
@@ -630,6 +630,7 @@ const HTTP = {
 
 							} else {
 								connection.emit('timeout', [ null ]);
+								connection.disconnect();
 							}
 
 						}
@@ -640,8 +641,8 @@ const HTTP = {
 
 						if (connection.socket !== null) {
 
+							connection.emit('error', [{ type: 'request' }]);
 							ondisconnect(connection, url);
-							connection.socket = null;
 
 						}
 
@@ -650,10 +651,7 @@ const HTTP = {
 					connection.socket.on('end', () => {
 
 						if (connection.socket !== null) {
-
 							ondisconnect(connection, url);
-							connection.socket = null;
-
 						}
 
 					});

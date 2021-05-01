@@ -1,10 +1,10 @@
 
+import net from 'net';
 import tls from 'tls';
 
-import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
-import { HTTP                                  } from '../../source/connection/HTTP.mjs';
-import { IP                                    } from '../../source/parser/IP.mjs';
-import { URL                                   } from '../../source/parser/URL.mjs';
+import { Emitter, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
+import { IP                                      } from '../../source/parser/IP.mjs';
+import { URL                                     } from '../../source/parser/URL.mjs';
 
 
 
@@ -46,26 +46,107 @@ const lookup = function(host, options, callback) {
 
 };
 
+const onconnect = function(connection, url) {
+
+	let timeout = Date.now() + 1000;
+
+	connection.type = 'client';
+
+	connection.socket.on('data', (fragment) => {
+
+		ondata(connection, url, fragment);
+		timeout = Date.now();
+
+	});
+
+	connection.interval = setInterval(() => {
+
+		if ((Date.now() - timeout) > 1000) {
+			connection.disconnect();
+		}
+
+	}, 1000);
+
+	setTimeout(() => {
+		connection.emit('@connect');
+	}, 0);
+
+};
+
+const ondata = function(connection, url, chunk) {
+
+	// TODO: Is it possible to receive fragments?
+
+	DNSS.receive(connection, chunk, (frame) => {
+
+		if (frame !== null) {
+
+			url.headers = frame.headers;
+			url.payload = frame.payload;
+
+			if (frame.headers['@type'] === 'request') {
+				connection.emit('request', [ frame ]);
+			} else if (frame.headers['@type'] === 'response') {
+				connection.emit('response', [ frame ]);
+			}
+
+		}
+
+	});
+
+};
+
+const onupgrade = function(connection, url) {
+
+	connection.type = 'server';
+
+	connection.socket.on('data', (fragment) => {
+		ondata(connection, url, fragment);
+	});
+
+	connection.socket.resume();
+
+
+	setTimeout(() => {
+		connection.emit('@connect');
+	}, 0);
+
+};
+
 
 
 const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
 };
 
+const isSocket = function(obj) {
+
+	if (obj !== null && obj !== undefined) {
+		return obj instanceof net.Socket;
+	}
+
+	return false;
+
+};
+
+const isUpgrade = function(url) {
+
+	if (
+		isObject(url) === true
+		&& isObject(url.headers) === true
+	) {
+		return true;
+	}
+
+
+	return false;
+
+};
+
 const Connection = function(socket) {
 
-	this.socket   = socket || null;
-	this.fragment = {
-		encoding: 'identity',
-		headers:  null,
-		length:   null,
-		mode:     'headers',
-		partial:  false,
-		payload:  Buffer.from('', 'utf8'),
-		start:    0
-	};
-	this.interval = null;
-	this.type     = null;
+	this.socket = socket || null;
+	this.type   = null;
 
 
 	Emitter.call(this);
@@ -154,6 +235,11 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.socket !== null) {
 
+			this.socket.removeAllListeners('data');
+			this.socket.removeAllListeners('timeout');
+			this.socket.removeAllListeners('error');
+			this.socket.removeAllListeners('end');
+
 			this.socket.destroy();
 			this.socket = null;
 
@@ -167,7 +253,7 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 
 
-const HTTPS = {
+const DNSS = {
 
 	connect: function(url, connection) {
 
@@ -191,24 +277,26 @@ const HTTPS = {
 				}
 
 
-				let socket = connection.socket || null;
-				if (socket === null) {
+				if (connection.socket === null) {
 
 					try {
 
-						socket = tls.connect({
+						connection.socket = tls.connect({
 							host:           hostname,
-							port:           url.port || 443,
-							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+							port:           url.port || 853,
+							ALPNProtocols:  [ 'dns' ],
 							secureProtocol: 'TLS_method',
 							servername:     hostname,
 							lookup:         lookup.bind(url)
 						}, () => {
 
-							if (socket.authorized === true) {
+							if (connection.socket.authorized === true) {
 
-								connection.socket = socket;
-								HTTP.connect(url, connection);
+								connection.socket.setNoDelay(true);
+								connection.socket.setKeepAlive(false, 0);
+								connection.socket.allowHalfOpen = false;
+
+								onconnect(connection, url);
 
 							} else {
 
@@ -220,27 +308,30 @@ const HTTPS = {
 						});
 
 					} catch (err) {
-						socket = null;
+						connection.socket = null;
 					}
 
 				} else {
 
 					try {
 
-						socket = tls.connect({
+						connection.socket = tls.connect({
 							host:           hostname,
-							port:           url.port || 443,
-							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+							port:           url.port || 853,
+							ALPNProtocols:  [ 'dns' ],
 							secureProtocol: 'TLS_method',
 							servername:     hostname,
 							lookup:         lookup.bind(url),
 							socket:         connection.socket || null
 						}, () => {
 
-							if (socket.authorized === true) {
+							if (connection.socket.authorized === true) {
 
-								connection.socket = socket;
-								HTTP.connect(url, connection);
+								connection.socket.setNoDelay(true);
+								connection.socket.setKeepAlive(false, 0);
+								connection.socket.allowHalfOpen = false;
+
+								onconnect(connection, url);
 
 							} else {
 
@@ -252,17 +343,29 @@ const HTTPS = {
 						});
 
 					} catch (err) {
-						socket = null;
+						connection.socket = null;
 					}
 
 				}
 
 
-				if (socket !== null) {
+				if (connection.socket !== null) {
 
-					socket.removeAllListeners('error');
+					connection.socket.removeAllListeners('data');
+					connection.socket.removeAllListeners('timeout');
+					connection.socket.removeAllListeners('error');
+					connection.socket.removeAllListeners('end');
 
-					socket.on('error', (err) => {
+					connection.socket.on('timeout', () => {
+
+						if (connection.socket !== null) {
+							connection.emit('timeout', [ null ]);
+							connection.disconnect();
+						}
+
+					});
+
+					connection.socket.on('error', (err) => {
 
 						if (connection.socket !== null) {
 
@@ -274,8 +377,16 @@ const HTTPS = {
 							}
 
 							connection.emit('error', [ error ]);
-							HTTP.disconnect(connection);
+							connection.disconnect();
 
+						}
+
+					});
+
+					connection.socket.on('end', () => {
+
+						if (connection.socket !== null) {
+							connection.disconnect();
 						}
 
 					});
@@ -329,12 +440,47 @@ const HTTPS = {
 
 	},
 
-	receive: HTTP.receive,
-	send:    HTTP.send,
-	upgrade: HTTP.upgrade
+	receive: function(connection, buffer, callback) {
+
+		connection = isConnection(connection) ? connection : null;
+		buffer     = isBuffer(buffer)         ? buffer     : null;
+		callback   = isFunction(callback)     ? callback   : null;
+
+
+		if (buffer !== null) {
+
+			let data = decode(connection, buffer);
+			if (data !== null) {
+
+				if (callback !== null) {
+
+					callback({
+						headers: data.headers,
+						payload: data.payload
+					});
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(null);
+				}
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			}
+
+		}
+
+	},
+
+	// TODO: This is wrong!?
+	send:    DNS.send,
+	upgrade: DNS.upgrade
 
 };
-
-
-export { HTTPS };
-

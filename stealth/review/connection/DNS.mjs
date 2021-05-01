@@ -1426,7 +1426,60 @@ describe('DNS.send()/client/NS', function(assert) {
 
 });
 
-// TODO: DNS.send()/client/PTR/v4
+describe('DNS.send()/client/PTR/v4', function(assert) {
+
+	assert(isFunction(DNS.send), true);
+
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('95.217.163.246')
+				}],
+				answers: [{
+					domain: 'archlinux.org',
+					type:   'PTR',
+					value:  IP.parse('95.217.163.246')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1337
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('95.217.163.246')
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
+
 // TODO: DNS.send()/client/PTR/v6
 
 describe('DNS.send()/client/SRV', function(assert) {
