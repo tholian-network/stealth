@@ -44,7 +44,7 @@ const flags = (() => {
 			let val = tmp[1];
 
 			let num = parseInt(val, 10);
-			if (Number.isNaN(num) === true && (num).toString() === val) {
+			if (Number.isNaN(num) === false && (num).toString() === val) {
 				val = num;
 			} else if (val === 'true') {
 				val = true;
