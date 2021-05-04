@@ -9,6 +9,36 @@ const GREGORIAN = {
 	10: 31, 11: 30, 12: 31
 };
 
+const isIMF = function(str) {
+
+	if (isString(str) === true) {
+
+		let tmp      = str.split(' ');
+		let weekday  = tmp[0] || '';
+		let day      = tmp[1] || '';
+		let month    = tmp[2] || '';
+		let year     = tmp[3] || '';
+		let time     = tmp[4] || '';
+		let timezone = tmp[5] || '';
+
+		if (
+			/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),$/g.test(weekday) === true
+			&& /^([0-9]{2})$/g.test(day) === true
+			&& /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/g.test(month) === true
+			&& /^([0-9]{4})$/g.test(year) === true
+			&& /^([0-9]{2}):([0-9]{2}):([0-9]{2})$/g.test(time) === true
+			&& timezone === 'GMT'
+		) {
+			return true;
+		}
+
+	}
+
+
+	return false;
+
+};
+
 const toDays = (year, month) => {
 
 	let is_leap_year = false;
@@ -286,6 +316,17 @@ const DATETIME = {
 			&& date_or_num_or_str.includes('T') === true
 			&& date_or_num_or_str.endsWith('Z') === true
 		) {
+
+			let date = new Date(date_or_num_or_str);
+
+			year   = date.getUTCFullYear();
+			month  = date.getUTCMonth() + 1;
+			day    = date.getUTCDate();
+			hour   = date.getUTCHours();
+			minute = date.getUTCMinutes();
+			second = date.getUTCSeconds();
+
+		} else if (isIMF(date_or_num_or_str) === true) {
 
 			let date = new Date(date_or_num_or_str);
 

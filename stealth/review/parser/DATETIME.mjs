@@ -32,6 +32,31 @@ describe('DATETIME.isDate()/leapyear', function(assert) {
 
 });
 
+describe('DATETIME.parse()/IMF', function(assert) {
+
+	let date1 = DATETIME.parse('Sun, 14 Apr 2019 13:15:09 GMT');
+	let date2 = DATETIME.parse('Sat, 09 Aug 1997 23:54:35 GMT');
+
+	assert(date1, {
+		year:    2019,
+		month:   4,
+		day:     14,
+		hour:    13,
+		minute:  15,
+		second:  9
+	});
+
+	assert(date2, {
+		year:    1997,
+		month:   8,
+		day:     9,
+		hour:    23,
+		minute:  54,
+		second:  35
+	});
+
+});
+
 describe('DATETIME.parse()/iso8601', function(assert) {
 
 	let date1 = DATETIME.parse('2020-09-13T12:26:40Z');
@@ -354,6 +379,21 @@ describe('DATETIME.sort()', function(assert) {
 		time3,
 		time4
 	]);
+
+});
+
+describe('DATETIME.toIMF()', function(assert) {
+
+	let date1 = DATETIME.parse('Sun, 14 Apr 2019 13:15:09 GMT');
+	let date2 = DATETIME.parse('Fri, 09 Aug 1997 23:54:35 GMT');
+	let date3 = DATETIME.parse('Sun, 01 Dec 3001 23:59:59 GMT');
+	let imf1  = DATETIME.toIMF(date1);
+	let imf2  = DATETIME.toIMF(date2);
+	let imf3  = DATETIME.toIMF(date3);
+
+	assert(imf1, 'Sun, 14 Apr 2019 13:15:09 GMT');
+	assert(imf2, 'Sat, 09 Aug 1997 23:54:35 GMT');
+	assert(imf3, 'Tue, 01 Dec 3001 23:59:59 GMT');
 
 });
 
