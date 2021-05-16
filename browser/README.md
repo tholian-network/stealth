@@ -15,8 +15,8 @@ Engine or Web View easily.
 
 ## Quickstart
 
-- Install [node.js](https://nodejs.org/en/download) version `12+`.
-- Install [Ungoogled Chromium](https://github.com/Eloston/ungoogled-chromium/releases) version `70+`.
+- Install [node.js](https://nodejs.org/en/download) latest (minimum version `12`).
+- Install [Ungoogled Chromium](https://github.com/Eloston/ungoogled-chromium/releases) latest (minimum version `70`).
 
 ```bash
 cd /path/to/stealth;
@@ -25,7 +25,7 @@ cd /path/to/stealth;
 node ./stealth/make.mjs;
 
 # Start Stealth Service
-node ./stealth/stealth.mjs;
+node ./stealth/stealth.mjs serve;
 
 # Not necessary to Rebuild Browser again
 # node ./browser/make.mjs;

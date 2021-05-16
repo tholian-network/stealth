@@ -41,7 +41,7 @@ transmit and receive of both UDP/TCP data:
 
 ## Quickstart
 
-- Install [node.js](https://nodejs.org/en/download) version `12+`.
+- Install [node.js](https://nodejs.org/en/download) latest (minimum version `12`).
 
 ```bash
 cd /path/to/stealth;

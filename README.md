@@ -86,11 +86,11 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
 If you don't wanna deal with the native build toolchain, this
 is how to get started as quickly as possible:
 
-- Install [node.js](https://nodejs.org/en/download) version `12+`.
-- Install [Ungoogled Chromium](https://github.com/Eloston/ungoogled-chromium/releases) version `70+`.
-- (Only MacOS) Alternatively Install `Safari` version `12+`.
-- (Only Linux) Alternatively Install `electron` version `8+`.
-- (Only Linux) Alternatively Install `gjs` and `WebKit2 GTK` version `4+`.
+- Install [node.js](https://nodejs.org/en/download) latest (minimum version `12`).
+- Install [Ungoogled Chromium](https://github.com/Eloston/ungoogled-chromium/releases) latest (minimum version `70`).
+- (Only MacOS) Alternatively Install `Safari` latest (minimum version `12`).
+- (Only Linux) Alternatively Install `electron` latest (minimum version `8`).
+- (Only Linux) Alternatively Install `gjs` and `WebKit2 GTK` latest (minimum version `4`).
 
 ```bash
 git clone https://github.com/tholian-network/stealth.git;
