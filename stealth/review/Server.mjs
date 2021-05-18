@@ -1,4 +1,5 @@
 
+import { isFunction                      } from '../../base/index.mjs';
 import { after, before, describe, finish } from '../../covert/index.mjs';
 import { ENVIRONMENT as SANDBOX          } from '../../covert/index.mjs';
 import { Server, isServer                } from '../../stealth/source/Server.mjs';
@@ -40,7 +41,7 @@ describe('new Server()', function(assert) {
 
 describe('Server.isServer()', function(assert) {
 
-	assert(typeof Server.isServer, 'function');
+	assert(isFunction(Server.isServer), true);
 
 	assert(Server.isServer(this.server), true);
 
@@ -48,7 +49,7 @@ describe('Server.isServer()', function(assert) {
 
 describe('isServer()', function(assert) {
 
-	assert(typeof isServer, 'function');
+	assert(isFunction(isServer), true);
 
 	assert(isServer(this.server), true);
 

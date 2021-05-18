@@ -1,5 +1,5 @@
 
-import { isArray                } from '../../base/index.mjs';
+import { isArray, isFunction    } from '../../base/index.mjs';
 import { describe, finish       } from '../../covert/index.mjs';
 import { ENVIRONMENT as SANDBOX } from '../../covert/index.mjs';
 import { Filesystem             } from '../../covert/index.mjs';
@@ -52,6 +52,8 @@ describe('new Settings()', function(assert) {
 });
 
 describe('Settings.from()', function(assert) {
+
+	assert(isFunction(Settings.from), true);
 
 	let sandbox  = SANDBOX.mktemp('stealth/Settings', 8);
 	let settings = Settings.from({
@@ -182,7 +184,7 @@ describe('Settings.isSettings()', function(assert) {
 
 	let settings = new Settings();
 
-	assert(typeof Settings.isSettings, 'function');
+	assert(isFunction(Settings.isSettings), true);
 
 	assert(Settings.isSettings(settings), true);
 
@@ -192,7 +194,7 @@ describe('isSettings()', function(assert) {
 
 	let settings = new Settings();
 
-	assert(typeof isSettings, 'function');
+	assert(isFunction(isSettings), true);
 
 	assert(isSettings(settings), true);
 

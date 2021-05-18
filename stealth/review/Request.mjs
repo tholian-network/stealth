@@ -70,6 +70,8 @@ describe('new Request()', function(assert) {
 
 describe('Request.from()', function(assert) {
 
+	assert(isFunction(Request.from), true);
+
 	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
 	let request = Request.from({
 		type: 'Request',
@@ -101,7 +103,7 @@ describe('Request.isRequest()', function(assert) {
 
 	let request = new Request();
 
-	assert(typeof Request.isRequest, 'function');
+	assert(isFunction(Request.isRequest), true);
 
 	assert(Request.isRequest(request), true);
 
@@ -111,7 +113,7 @@ describe('isRequest()', function(assert) {
 
 	let request = new Request();
 
-	assert(typeof isRequest, 'function');
+	assert(isFunction(isRequest), true);
 
 	assert(isRequest(request), true);
 

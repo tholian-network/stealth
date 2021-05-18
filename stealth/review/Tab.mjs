@@ -1,4 +1,5 @@
 
+import { isFunction       } from '../../base/index.mjs';
 import { describe, finish } from '../../covert/index.mjs';
 import { Request          } from '../../stealth/source/Request.mjs';
 import { Tab, isTab       } from '../../stealth/source/Tab.mjs';
@@ -187,6 +188,8 @@ describe('new Tab()', function(assert) {
 
 describe('Tab.from()', function(assert) {
 
+	assert(isFunction(Tab.from), true);
+
 	let tab = Tab.from({
 		type: 'Tab',
 		data: {
@@ -244,7 +247,7 @@ describe('Tab.isTab()', function(assert) {
 
 	let tab = new Tab({ url: 'https://example.com/index.html' });
 
-	assert(typeof Tab.isTab, 'function');
+	assert(isFunction(Tab.isTab), true);
 
 	assert(Tab.isTab(tab), true);
 
@@ -254,13 +257,15 @@ describe('isTab()', function(assert) {
 
 	let tab = new Tab({ url: 'https://example.com/index.html' });
 
-	assert(typeof isTab, 'function');
+	assert(isFunction(isTab), true);
 
 	assert(isTab(tab), true);
 
 });
 
 describe('Tab.merge()', function(assert) {
+
+	assert(isFunction(Tab.merge), true);
 
 	let tab1 = new Tab();
 	let tab2 = Tab.from({

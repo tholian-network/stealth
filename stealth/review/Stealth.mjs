@@ -1,5 +1,5 @@
 
-import { Emitter                         } from '../../base/index.mjs';
+import { Emitter, isFunction             } from '../../base/index.mjs';
 import { after, before, describe, finish } from '../../covert/index.mjs';
 import { ENVIRONMENT as SANDBOX          } from '../../covert/index.mjs';
 import { ENVIRONMENT                     } from '../../stealth/source/ENVIRONMENT.mjs';
@@ -86,7 +86,7 @@ describe('new Stealth()', function(assert) {
 
 describe('Stealth.isStealth()', function(assert) {
 
-	assert(typeof Stealth.isStealth, 'function');
+	assert(isFunction(Stealth.isStealth), true);
 
 	assert(Stealth.isStealth(this.stealth), true);
 
@@ -94,7 +94,7 @@ describe('Stealth.isStealth()', function(assert) {
 
 describe('isStealth()', function(assert) {
 
-	assert(typeof isStealth, 'function');
+	assert(isFunction(isStealth), true);
 
 	assert(isStealth(this.stealth), true);
 

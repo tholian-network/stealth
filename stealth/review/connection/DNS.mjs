@@ -1135,7 +1135,6 @@ describe('DNS.send()/client/A', function(assert) {
 
 	assert(isFunction(DNS.send), true);
 
-
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
@@ -1188,7 +1187,6 @@ describe('DNS.send()/client/A', function(assert) {
 describe('DNS.send()/client/AAAA', function(assert) {
 
 	assert(isFunction(DNS.send), true);
-
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -1243,7 +1241,6 @@ describe('DNS.send()/client/CNAME', function(assert) {
 
 	assert(isFunction(DNS.send), true);
 
-
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
@@ -1296,7 +1293,6 @@ describe('DNS.send()/client/CNAME', function(assert) {
 describe('DNS.send()/client/MX', function(assert) {
 
 	assert(isFunction(DNS.send), true);
-
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -1372,7 +1368,6 @@ describe('DNS.send()/client/NS', function(assert) {
 
 	assert(isFunction(DNS.send), true);
 
-
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
@@ -1430,7 +1425,6 @@ describe('DNS.send()/client/PTR/v4', function(assert) {
 
 	assert(isFunction(DNS.send), true);
 
-
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
@@ -1480,12 +1474,62 @@ describe('DNS.send()/client/PTR/v4', function(assert) {
 
 });
 
-// TODO: DNS.send()/client/PTR/v6
+describe('DNS.send()/client/PTR/v6', function(assert) {
+
+	assert(isFunction(DNS.send), true);
+
+	let url        = URL.parse('dns://1.0.0.1:53');
+	let connection = DNS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@id':   1337,
+				'@type': 'response'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('2a01:04f9:c010:6b1f:0000:0000:0000:0001')
+				}],
+				answers: [{
+					domain: 'archlinux.org',
+					type:   'PTR',
+					value:  IP.parse('2a01:04f9:c010:6b1f:0000:0000:0000:0001')
+				}]
+			}
+		});
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1337
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('2a01:04f9:c010:6b1f:0000:0000:0000:0001')
+				}]
+			}
+		}, (result) => {
+
+			assert(result, true);
+
+		});
+
+	});
+
+});
 
 describe('DNS.send()/client/SRV', function(assert) {
 
 	assert(isFunction(DNS.send), true);
-
 
 	let url         = URL.parse('dns://1.0.0.1:53');
 	let connection1 = DNS.connect(url);
@@ -1588,7 +1632,6 @@ describe('DNS.send()/client/SRV', function(assert) {
 describe('DNS.send()/client/TXT', function(assert) {
 
 	assert(isFunction(DNS.send), true);
-
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);

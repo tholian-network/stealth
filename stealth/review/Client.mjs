@@ -1,4 +1,5 @@
 
+import { isFunction                                                   } from '../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../covert/index.mjs';
 import { Client, isClient                                             } from '../../stealth/source/Client.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from './Stealth.mjs';
@@ -39,7 +40,7 @@ describe('new Client()', function(assert) {
 
 describe('Client.isClient()', function(assert) {
 
-	assert(typeof Client.isClient, 'function');
+	assert(isFunction(Client.isClient), true);
 
 	assert(Client.isClient(this.client), true);
 
@@ -47,7 +48,7 @@ describe('Client.isClient()', function(assert) {
 
 describe('isClient()', function(assert) {
 
-	assert(typeof isClient, 'function');
+	assert(isFunction(isClient), true);
 
 	assert(isClient(this.client), true);
 

@@ -1,5 +1,5 @@
 
-import { isBuffer, isObject                                           } from '../../base/index.mjs';
+import { isBuffer, isFunction, isObject                               } from '../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../covert/index.mjs';
 import { Browser, isBrowser, isMode                                   } from '../../stealth/source/Browser.mjs';
 import { Request                                                      } from '../../stealth/source/Request.mjs';
@@ -74,6 +74,8 @@ describe('new Browser()', function(assert) {
 
 describe('Browser.from()', function(assert) {
 
+	assert(isFunction(Browser.from), true);
+
 	let browser = Browser.from({
 		type: 'Browser',
 		data: {
@@ -89,7 +91,7 @@ describe('Browser.from()', function(assert) {
 
 describe('Browser.isBrowser()', function(assert) {
 
-	assert(typeof Browser.isBrowser, 'function');
+	assert(isFunction(Browser.isBrowser), true);
 
 	assert(Browser.isBrowser(this.browser), true);
 
@@ -97,7 +99,7 @@ describe('Browser.isBrowser()', function(assert) {
 
 describe('isBrowser()', function(assert) {
 
-	assert(typeof isBrowser, 'function');
+	assert(isFunction(isBrowser), true);
 
 	assert(isBrowser(this.browser), true);
 
@@ -136,6 +138,8 @@ describe('Browser.prototype.toJSON()', function(assert) {
 
 describe('Browser.isMode()', function(assert) {
 
+	assert(isFunction(Browser.isMode), true);
+
 	let mode1 = {
 		domain: null
 	};
@@ -168,8 +172,6 @@ describe('Browser.isMode()', function(assert) {
 			other: false
 		}
 	};
-
-	assert(typeof Browser.isMode, 'function');
 
 	assert(Browser.isMode(mode1), false);
 	assert(Browser.isMode(mode2), false);
@@ -180,6 +182,8 @@ describe('Browser.isMode()', function(assert) {
 
 describe('isMode()', function(assert) {
 
+	assert(isFunction(isMode), true);
+
 	let mode1 = {
 		domain: null
 	};
@@ -212,8 +216,6 @@ describe('isMode()', function(assert) {
 			other: false
 		}
 	};
-
-	assert(typeof isMode, 'function');
 
 	assert(isMode(mode1), false);
 	assert(isMode(mode2), false);

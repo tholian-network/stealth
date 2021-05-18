@@ -1,10 +1,10 @@
 
-import { isArray, isString  } from '../../base/index.mjs';
-import { describe, finish   } from '../../covert/index.mjs';
-import { Request            } from '../../stealth/source/Request.mjs';
-import { Session, isSession } from '../../stealth/source/Session.mjs';
-import { isTab              } from '../../stealth/source/Tab.mjs';
-import { URL                } from '../../stealth/source/parser/URL.mjs';
+import { isArray, isFunction, isString } from '../../base/index.mjs';
+import { describe, finish              } from '../../covert/index.mjs';
+import { Request                       } from '../../stealth/source/Request.mjs';
+import { Session, isSession            } from '../../stealth/source/Session.mjs';
+import { isTab                         } from '../../stealth/source/Tab.mjs';
+import { URL                           } from '../../stealth/source/parser/URL.mjs';
 
 
 
@@ -16,7 +16,6 @@ const mock_date_prefix = () => {
 describe('new Session()', function(assert) {
 
 	let session = new Session(null);
-
 
 	assert(session.agent,                                 null);
 	assert(isString(session.domain),                      true);
@@ -31,6 +30,8 @@ describe('new Session()', function(assert) {
 });
 
 describe('Session.from()', function(assert) {
+
+	assert(isFunction(Session.from), true);
 
 	let session = Session.from({
 		type: 'Session',
@@ -109,6 +110,8 @@ describe('Session.from()', function(assert) {
 
 describe('Session.merge()', function(assert) {
 
+	assert(isFunction(Session.merge), true);
+
 	let session1 = new Session();
 	let session2 = Session.from({
 		type: 'Session',
@@ -177,7 +180,7 @@ describe('Session.isSession()', function(assert) {
 
 	let session = new Session(null);
 
-	assert(typeof Session.isSession, 'function');
+	assert(isFunction(Session.isSession), true);
 
 	assert(Session.isSession(session), true);
 
@@ -187,7 +190,7 @@ describe('isSession()', function(assert) {
 
 	let session = new Session(null);
 
-	assert(typeof isSession, 'function');
+	assert(isFunction(isSession), true);
 
 	assert(isSession(session), true);
 
