@@ -557,7 +557,7 @@ const decode = function(connection, buffer) {
 		},
 		payload: {
 			questions: [],
-			answers:   [],
+			answers:   []
 		}
 	};
 

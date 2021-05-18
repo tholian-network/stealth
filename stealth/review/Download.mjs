@@ -7,6 +7,26 @@ import { URL                                    } from '../../stealth/source/par
 
 
 
+const bind_events = (download) => {
+
+	let events = {
+		error:    false,
+		progress: false,
+		redirect: false,
+		response: false
+	};
+
+	download.once('error',    () => { events.error    = true; });
+	download.once('progress', () => { events.progress = true; });
+	download.once('redirect', () => { events.redirect = true; });
+	download.once('response', () => { events.response = true; });
+
+	return events;
+
+};
+
+
+
 describe('Download.from()', function(assert) {
 
 	assert(isFunction(Download.from), true);
@@ -36,8 +56,16 @@ describe('Download.prototype.start()', function(assert) {
 	let ua       = { engine: 'chrome', platform: 'browser', system: 'desktop', version: 88.0 };
 	let url      = Object.assign(URL.parse('http://example.com:80/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let download = new Download({ ua: ua, url: url });
+	let events   = bind_events(download);
 
 	download.once('response', (response) => {
+
+		assert(events, {
+			error:    false,
+			progress: false,
+			redirect: false,
+			response: true
+		});
 
 		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
@@ -63,7 +91,60 @@ describe('Download.prototype.start()', function(assert) {
 
 });
 
-describe('Download.prototype.start()/partial', function(assert, console) {
+describe('Download.prototype.stop()', function(assert, console) {
+
+	let ua       = { engine: 'chrome', platform: 'browser', system: 'desktop', version: 88.0 };
+	let url      = Object.assign(URL.parse('https://ia802609.us.archive.org/35/items/pdfy-RtCf3CYEbjKrXgFe/A%20Hacker%20Manifesto%20-%20McKenzie%20Wark.pdf'), { hosts: [ IP.parse('207.241.228.229') ] });
+
+	let download = new Download({ ua: ua, url: url });
+
+	download.once('error', (error) => {
+
+		assert(error, {
+			type:  'connection',
+			cause: 'socket-stability'
+		});
+
+		setTimeout(() => {
+			assert(download.start(), true);
+		}, 0);
+
+	});
+
+	download.once('progress', () => {
+
+		setTimeout(() => {
+			assert(download.stop(), true);
+		}, 0);
+
+	});
+
+	download.once('response', (response) => {
+
+		assert(isObject(response),         true);
+		assert(isObject(response.headers), true);
+
+		assert(response.headers['@status'],   '206 Partial Content');
+		assert(response.headers['@transfer'], {
+			'encoding': 'identity',
+			'length':   2498824,
+			'range':    [ 0, 3498823 ]
+		});
+
+		assert(response.headers['content-encoding'], 'identity');
+		assert(response.headers['content-length'],   3498824);
+		assert(response.headers['content-type'],     'application/pdf');
+
+		assert(isBuffer(response.payload), true);
+		assert(response.payload.length,    3498824);
+
+	});
+
+	assert(download.start(), true);
+
+});
+
+describe('Download.prototype.start()/206', function(assert, console) {
 
 	let ua       = { engine: 'chrome', platform: 'browser', system: 'desktop', version: 88.0 };
 	let url      = Object.assign(URL.parse('http://mirror.rackspace.com/archlinux/iso/2021.06.01/archlinux-2021.06.01-x86_64.iso'), { hosts: [ IP.parse('94.236.26.35') ] });

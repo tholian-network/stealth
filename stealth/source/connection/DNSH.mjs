@@ -1,10 +1,13 @@
-import tls from 'tls';
 
-import { Buffer, Emitter, isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import tls  from 'tls';
+import zlib from 'zlib';
+
+import { console, Buffer, Emitter, isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
 // import { HTTP                                                                         } from '../../source/connection/HTTPS.mjs';
 import { IP                                                                           } from '../../source/parser/IP.mjs';
 import { URL                                                                          } from '../../source/parser/URL.mjs';
 
+import { DNS as TEST } from './DNS.mjs';
 
 
 const EMPTYLINE = Buffer.from('\r\n\r\n', 'utf8');
@@ -23,6 +26,11 @@ const TYPES = {
 const CLASSES = {
 	'INTERNET': 1
 };
+
+const METHODS = [
+	'GET',
+	'POST'
+];
 
 const MIME = {
 	'dns':  { ext: 'dns',  type: 'other', binary: true,  format: 'application/dns-message' },
@@ -146,11 +154,6 @@ const decode_json = function(payload) {
 
 const decode_message = function(connection, buffer) {
 
-	if (buffer.length < 12) {
-		return null;
-	}
-
-
 	let chunk = {
 		headers: {
 			'@id':   0,
@@ -162,17 +165,240 @@ const decode_message = function(connection, buffer) {
 		}
 	};
 
-	// TODO: decode base64url encoded buffer to DNS buffer (for dictionary)
-
-	let dictionary = {
-		buffer:   buffer,
-		labels:   {},
-		pointers: {},
-		offset:   12
+	let frame = {
+		headers: {
+			'@transfer': {
+				'encoding': null,
+				'length':   null
+			}
+		},
+		payload: null
 	};
 
-	console.info('decode_message()');
-	console.log(buffer.toString('utf8'));
+
+	let msg_headers = null;
+	let msg_payload = null;
+
+
+	let msg_index = buffer.indexOf(EMPTYLINE);
+	if (msg_index !== -1) {
+
+		msg_headers = buffer.slice(0, msg_index);
+		msg_payload = buffer.slice(msg_index + 4);
+
+		if (msg_payload.slice(msg_payload.length - 4).toString('utf8') === EMPTYLINE.toString('utf8')) {
+			msg_payload = msg_payload.slice(0, msg_payload.length - 4);
+		}
+
+	} else {
+
+		msg_headers = buffer;
+
+	}
+
+
+	if (msg_headers !== null) {
+
+		let fields = msg_headers.toString('utf8').split('\r\n').map((line) => line.trim());
+		if (fields.length > 1) {
+
+			let start_line = fields.shift();
+			let check      = start_line.split(' ').shift();
+
+			if (METHODS.includes(check) === true) {
+
+				frame.headers['@method'] = check;
+
+				let url = start_line.split(' ').slice(1).shift();
+				if (url.startsWith('/') === true) {
+					frame.headers['@url'] = url;
+				}
+
+			} else if (check === 'HTTP/1.1' || check === 'HTTP/1.0' || check === 'HTTP/0.9') {
+
+				let status = start_line.split(' ').slice(1).join(' ').trim();
+				if (status !== '') {
+					frame.headers['@status'] = status;
+				}
+
+			}
+
+
+			fields.filter((line) => line !== '').forEach((line) => {
+
+				if (line.includes(':') === true) {
+
+					let key = line.split(':')[0].toLowerCase().trim();
+					let val = line.split(':').slice(1).join(':').trim();
+
+					if (key.length > 0 && val.length > 0) {
+
+						let num = parseInt(val, 10);
+
+						if (Number.isNaN(num) === false && (num).toString() === val) {
+							val = num;
+						} else if (val === 'true') {
+							val = true;
+						} else if (val === 'false') {
+							val = false;
+						} else if (val === 'null') {
+							val = null;
+						}
+
+						frame.headers[key] = val;
+
+					}
+
+				}
+
+			});
+
+		}
+
+
+		let content_length = frame.headers['content-length'] || null;
+
+		if (isNumber(content_length) === true && content_length > 0) {
+
+			frame.headers['@transfer']['length'] = content_length;
+
+		} else {
+
+			frame.headers['@transfer']['length'] = Infinity;
+
+		}
+
+		let sorted_headers = {};
+
+		Object.keys(frame.headers).sort((a, b) => {
+			if (a < b) return -1;
+			if (b < a) return  1;
+			return 0;
+		}).forEach((header) => {
+			sorted_headers[header] = frame.headers[header];
+		});
+
+		frame.headers = sorted_headers;
+
+	}
+
+
+	if (msg_payload !== null) {
+
+		let expected = frame.headers['@transfer']['length'];
+
+		if (expected === Infinity || expected === msg_payload.length) {
+
+			let content_encoding  = frame.headers['content-encoding']  || null;
+			let transfer_encoding = frame.headers['transfer-encoding'] || null;
+
+			if (content_encoding === 'gzip' || transfer_encoding === 'gzip') {
+
+				try {
+
+					frame.payload                          = zlib.gunzipSync(msg_payload);
+					frame.headers['content-encoding']      = 'identity';
+					frame.headers['@transfer']['encoding'] = 'gzip';
+
+				} catch (err) {
+
+					frame.payload                          = msg_payload;
+					frame.headers['content-encoding']      = 'gzip';
+					frame.headers['@transfer']['encoding'] = 'gzip';
+
+				}
+
+			} else if (content_encoding === 'deflate' || transfer_encoding === 'deflate') {
+
+				try {
+
+					frame.payload                          = zlib.deflateSync(msg_payload);
+					frame.headers['content-encoding']      = 'identity';
+					frame.headers['@transfer']['encoding'] = 'deflate';
+
+				} catch (err) {
+
+					frame.payload                          = msg_payload;
+					frame.headers['content-encoding']      = 'deflate';
+					frame.headers['@transfer']['encoding'] = 'deflate';
+
+				}
+
+			} else if (content_encoding === 'br' || transfer_encoding === 'br') {
+
+				try {
+
+					frame.payload                          = zlib.brotliDecompressSync(msg_payload);
+					frame.headers['content-encoding']      = 'identity';
+					frame.headers['@transfer']['encoding'] = 'br';
+
+				} catch (err) {
+
+					frame.payload                          = msg_payload;
+					frame.headers['content-encoding']      = 'br';
+					frame.headers['@transfer']['encoding'] = 'br';
+
+				}
+
+			} else if (transfer_encoding === 'chunked') {
+
+				frame.payload                          = decode_chunked(msg_payload);
+				frame.headers['content-encoding']      = 'identity';
+				frame.headers['@transfer']['encoding'] = 'chunked';
+
+			} else {
+
+				frame.payload                          = msg_payload;
+				frame.headers['content-encoding']      = 'identity';
+				frame.headers['@transfer']['encoding'] = 'identity';
+
+			}
+
+			if (expected === msg_payload.length && frame.payload !== null) {
+				frame.headers['content-length'] = frame.payload.length;
+			}
+
+		} else {
+
+			frame.payload                          = null;
+			frame.headers['@transfer']['encoding'] = null;
+
+		}
+
+	}
+
+
+	if (frame.payload !== null && frame.payload.length > 12) {
+
+		// TODO: Parse out DNS message payload correctly, embed DNS decode() method here
+
+		console.log('decode_message() DNS payload');
+		console.log(frame.payload);
+
+		TEST.receive(null, frame.payload, (data) => {
+			console.log(data);
+		});
+
+	}
+
+
+
+	// FIXME: This is from HTTP, but actual chunk is from DNS message parser that's missing
+	// if (Object.keys(chunk.headers).length > 0) {
+	// 	return chunk;
+	// }
+
+	// TODO: decode base64url encoded buffer to DNS buffer (for dictionary)
+
+	// let dictionary = {
+	// 	buffer:   buffer,
+	// 	labels:   {},
+	// 	pointers: {},
+	// 	offset:   12
+	// };
+
+	// console.info('decode_message()');
+	// console.log(buffer.toString('utf8'));
 
 	// TODO: Port DNS wireformat decoder
 
@@ -185,6 +411,9 @@ const decode_message = function(connection, buffer) {
 
 
 const encode_json = function(connection, data) {
+
+	// TODO: encode_json() for DNS via HTTPS JSON API
+
 };
 
 const encode_domain = function(dictionary, domain) {
@@ -535,23 +764,26 @@ const encode_message = function(connection, data) {
 
 		if (connection.type === 'server') {
 
-			let payload = Buffer.concat([ header_data, payload_data ]).toString('base64url');
+			let payload = Buffer.concat([ header_data, payload_data ]);
 
-			return Buffer.from([
-				'HTTP/1.1 200 OK',
-				'Content-Encoding: identity',
-				'Content-Type: application/dns-message',
-				'Content-Length: ' + payload.length,
-				'',
+			return Buffer.concat([
+				Buffer.from([
+					'HTTP/1.1 200 OK',
+					'Content-Encoding: identity',
+					'Content-Type: application/dns-message',
+					'Content-Length: ' + payload.length,
+					'',
+					''
+				].join('\r\n'), 'utf8'),
 				payload
-			].join('\r\n'));
+			]);
 
 		} else {
 
 			let hostname = null;
 			let domain   = URL.toDomain(connection.url);
 			let host     = URL.toHost(connection.url);
-			let payload  = Buffer.concat([ header_data, payload_data ]).toString('base64url');
+			let payload  = Buffer.concat([ header_data, payload_data ]);
 
 			if (domain !== null) {
 				hostname = domain;
@@ -559,14 +791,19 @@ const encode_message = function(connection, data) {
 				hostname = host;
 			}
 
-			return Buffer.from([
-				'GET ' + connection.url.path + '?dns=' + payload + ' HTTP/1.1',
-				'Accept: application/dns-message',
-				'Accept-Encoding: identity',
-				'Host: ' + hostname,
-				'',
-				''
-			].join('\r\n'));
+			return Buffer.concat([
+				Buffer.from([
+					'POST ' + connection.url.path + ' HTTP/1.1',
+					'Accept: application/dns-message',
+					'Accept-Encoding: identity',
+					'Content-Type: application/dns-message',
+					'Content-Length: ' + payload.length,
+					'Host: ' + hostname,
+					'',
+					''
+				].join('\r\n'), 'utf8'),
+				payload
+			]);
 
 		}
 
@@ -1204,18 +1441,12 @@ const DNSH = {
 
 			if (headers !== null && payload !== null) {
 
-				console.log('WTF', connection.url);
-
 				if (connection.url.mime.format === 'application/dns-message') {
 
 					buffer = encode_message(connection, {
 						headers: headers,
 						payload: payload
 					});
-
-					// TODO: Encode format is wrong
-					console.error('encoded format is wrong!?');
-					console.log(buffer.toString('utf8'));
 
 				} else if (connection.url.mime.format === 'application/dns-json') {
 

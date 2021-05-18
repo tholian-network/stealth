@@ -8,7 +8,7 @@ import { connect, disconnect             } from './Server.mjs';
 
 
 
-const mock_events = (request) => {
+const bind_events = (request) => {
 
 	let events = {
 
@@ -271,7 +271,7 @@ describe('Request.prototype.start()', function(assert) {
 		},
 		url: URL.parse('https://example.com/index.html')
 	}, this.server);
-	let events  = mock_events(request);
+	let events  = bind_events(request);
 
 	request.once('response', () => {
 
@@ -334,7 +334,7 @@ describe('Request.prototype.start()/cache', function(assert) {
 		},
 		url: URL.parse('https://example.com/index.html')
 	}, this.server);
-	let events  = mock_events(request);
+	let events  = bind_events(request);
 
 	setTimeout(() => {
 
@@ -418,7 +418,7 @@ describe('Request.prototype.start()/policy', function(assert) {
 		},
 		url: URL.parse('https://example.com/policy.html?foo=bar&bar123=456&track=123')
 	}, this.server);
-	let events  = mock_events(request);
+	let events  = bind_events(request);
 
 	setTimeout(() => {
 
@@ -567,7 +567,7 @@ describe('Request.prototype.stop()', function(assert) {
 		},
 		url: URL.parse('https://example.com/index.html')
 	}, this.server);
-	let events  = mock_events(request);
+	let events  = bind_events(request);
 
 
 	request.once('connect', () => {
