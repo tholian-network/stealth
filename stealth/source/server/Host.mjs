@@ -1,6 +1,6 @@
 
 import { Emitter, isArray, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { DNS                                              } from '../../source/connection/DNS.mjs';
+import { RESOLVER                                         } from '../../source/server/RESOLVER.mjs';
 import { IP                                               } from '../../source/parser/IP.mjs';
 
 
@@ -200,12 +200,12 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 		} else if (query !== null) {
 
-			DNS.resolve(query, (response) => {
+			RESOLVER.resolve(query, (response) => {
 
 				let host_old = null;
-				let host_new = Host.toHost(response.payload);
+				let host_new = Host.toHost(response);
 
-				let domain = toDomain(response.payload);
+				let domain = toDomain(response);
 				if (domain !== null) {
 					host_old = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
 				}
@@ -265,7 +265,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 		let query = toQuery(payload);
 		if (query !== null) {
 
-			DNS.resolve(query, (response) => {
+			RESOLVER.resolve(query, (response) => {
 
 				let host_old = null;
 				let host_new = Host.toHost(response.payload);
