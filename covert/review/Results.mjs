@@ -1,7 +1,7 @@
 
-import { console, Buffer    } from '../../covert/extern/base.mjs';
-import { describe, finish   } from '../../covert/index.mjs';
-import { Results, isResults } from '../../covert/source/Results.mjs';
+import { console, Buffer, isFunction } from '../../covert/extern/base.mjs';
+import { describe, finish            } from '../../covert/index.mjs';
+import { Results, isResults          } from '../../covert/source/Results.mjs';
 
 
 
@@ -36,13 +36,13 @@ describe('new Results()', function(assert) {
 
 describe('Results.isResults()', function(assert) {
 
+	assert(isFunction(Results.isResults), true);
+
 	let results1 = Results.from(null);
 	let results2 = Results.from(5);
 	let results3 = Results.from(TEMPLATE);
 	let results4 = Results.from([ true, false, null ]);
 	let results5 = Results.from([ null, {}, true ]);
-
-	assert(typeof Results.isResults, 'function');
 
 	assert(Results.isResults(results1), true);
 	assert(Results.isResults(results2), true);
@@ -54,13 +54,13 @@ describe('Results.isResults()', function(assert) {
 
 describe('isResults()', function(assert) {
 
+	assert(isFunction(isResults), true);
+
 	let results1 = Results.from(null);
 	let results2 = Results.from(5);
 	let results3 = Results.from(TEMPLATE);
 	let results4 = Results.from([ true, false, null ]);
 	let results5 = Results.from([ null, {}, true ]);
-
-	assert(typeof isResults, 'function');
 
 	assert(isResults(results1), true);
 	assert(isResults(results2), true);
@@ -71,6 +71,8 @@ describe('isResults()', function(assert) {
 });
 
 describe('Results.from()', function(assert) {
+
+	assert(isFunction(Results.from), true);
 
 	let results1 = Results.from(null);
 	let results2 = Results.from(5);

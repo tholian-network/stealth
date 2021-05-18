@@ -1,10 +1,12 @@
 
-import { console                                           } from '../../covert/extern/base.mjs';
+import { console, isFunction, isObject                     } from '../../covert/extern/base.mjs';
 import { after, before, describe, finish, Review, isReview } from '../../covert/source/Review.mjs';
 
 
 
 before('before()', function(assert, console) {
+
+	assert(isFunction(before), true);
 
 	console.log('before.synchronous');
 	assert(true);
@@ -17,6 +19,8 @@ before('before()', function(assert, console) {
 });
 
 describe('assert()', function(assert) {
+
+	assert(isFunction(assert), true);
 
 	assert(true);
 
@@ -51,18 +55,20 @@ describe('assert()/expect', function(assert) {
 
 describe('console', function(assert, console) {
 
-	assert(typeof console,       'object');
-	assert(typeof console.blink, 'function');
-	assert(typeof console.clear, 'function');
-	assert(typeof console.debug, 'function');
-	assert(typeof console.error, 'function');
-	assert(typeof console.info,  'function');
-	assert(typeof console.log,   'function');
-	assert(typeof console.warn,  'function');
+	assert(isObject(console),         true);
+	assert(isFunction(console.blink), true);
+	assert(isFunction(console.clear), true);
+	assert(isFunction(console.debug), true);
+	assert(isFunction(console.error), true);
+	assert(isFunction(console.info),  true);
+	assert(isFunction(console.log),   true);
+	assert(isFunction(console.warn),  true);
 
 });
 
 describe('describe()', function(assert, console) {
+
+	assert(isFunction(describe), true);
 
 	console.log('describe.synchronous');
 	assert(true);
@@ -95,9 +101,9 @@ describe('new Review()', function(assert) {
 
 describe('Review.isReview()', function(assert) {
 
-	let review = new Review();
+	assert(isFunction(Review.isReview), true);
 
-	assert(typeof Review.isReview, 'function');
+	let review = new Review();
 
 	assert(Review.isReview(review), true);
 	assert(Review.isReview(null),   false);
@@ -106,9 +112,9 @@ describe('Review.isReview()', function(assert) {
 
 describe('isReview()', function(assert) {
 
-	let review = new Review();
+	assert(isFunction(isReview), true);
 
-	assert(typeof isReview, 'function');
+	let review = new Review();
 
 	assert(isReview(review), true);
 	assert(isReview(null),   false);
@@ -125,6 +131,8 @@ describe('Review.prototype.toString()', function(assert) {
 });
 
 after('after()', function(assert, console) {
+
+	assert(isFunction(after), true);
 
 	console.log('after.synchronous');
 	assert(true);

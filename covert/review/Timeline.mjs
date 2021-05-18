@@ -1,6 +1,7 @@
 
-import { describe, finish     } from '../index.mjs';
-import { Timeline, isTimeline } from '../source/Timeline.mjs';
+import { isFunction           } from '../../covert/extern/base.mjs';
+import { describe, finish     } from '../../covert/index.mjs';
+import { Timeline, isTimeline } from '../../covert/source/Timeline.mjs';
 
 
 
@@ -37,9 +38,9 @@ describe('new Timeline()', function(assert) {
 
 describe('Timeline.isTimeline()', function(assert) {
 
-	let timeline = Timeline.from(5);
+	assert(isFunction(Timeline.isTimeline), true);
 
-	assert(typeof Timeline.isTimeline, 'function');
+	let timeline = Timeline.from(5);
 
 	assert(Timeline.isTimeline(timeline), true);
 
@@ -47,15 +48,17 @@ describe('Timeline.isTimeline()', function(assert) {
 
 describe('isTimeline()', function(assert) {
 
-	let timeline = Timeline.from(5);
+	assert(isFunction(isTimeline), true);
 
-	assert(typeof isTimeline, 'function');
+	let timeline = Timeline.from(5);
 
 	assert(isTimeline(timeline), true);
 
 });
 
 describe('Timeline.from()', function(assert) {
+
+	assert(isFunction(Timeline.from), true);
 
 	let timeline1 = Timeline.from(null);
 	let timeline2 = Timeline.from(5);
