@@ -48,11 +48,11 @@ const toSRC = function(url, id, refresh) {
 				}
 
 			} else {
-				src = '/browser/internal/fix-request.html?url=' + encodeURIComponent(url.link);
+				src = '/browser/internal/fix-connection.html?url=' + encodeURIComponent(url.link);
 			}
 
 		} else {
-			src = '/browser/internal/fix-request.html?url=' + encodeURIComponent(url.link);
+			src = '/browser/internal/fix-connection.html?url=' + encodeURIComponent(url.link);
 		}
 
 	}
@@ -70,7 +70,14 @@ const toURL = function(src) {
 
 	if (src !== null) {
 
-		if (src.startsWith('/browser/internal/fix-host.html?url=') === true) {
+		if (src.startsWith('/browser/internal/fix-connection.html?url=') === true) {
+
+			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
+			if (tmp !== null) {
+				url = URL.parse('stealth:fix-connection?url=' + decodeURIComponent(tmp));
+			}
+
+		} else if (src.startsWith('/browser/internal/fix-host.html?url=') === true) {
 
 			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
 			if (tmp !== null) {
@@ -82,13 +89,6 @@ const toURL = function(src) {
 			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
 			if (tmp !== null) {
 				url = URL.parse('stealth:fix-mode?url=' + decodeURIComponent(tmp));
-			}
-
-		} else if (src.startsWith('/browser/internal/fix-request.html?url=') === true) {
-
-			let tmp = (src.split('?url=').pop() || '').split('&').shift() || null;
-			if (tmp !== null) {
-				url = URL.parse('stealth:fix-request?url=' + decodeURIComponent(tmp));
 			}
 
 		} else if (src.startsWith('/browser/internal/media.html?url=') === true) {
@@ -311,9 +311,9 @@ Webview.prototype = Object.assign({}, Widget.prototype, {
 			let link = null;
 
 			if (ENVIRONMENT.secure === true) {
-				link = 'https://' + ENVIRONMENT.hostname + ':65432/browser/internal/fix-request.html';
+				link = 'https://' + ENVIRONMENT.hostname + ':65432/browser/internal/fix-connection.html';
 			} else {
-				link = 'http://' + ENVIRONMENT.hostname + ':65432/browser/internal/fix-request.html';
+				link = 'http://' + ENVIRONMENT.hostname + ':65432/browser/internal/fix-connection.html';
 			}
 
 			return URL.parse(link);

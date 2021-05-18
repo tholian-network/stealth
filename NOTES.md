@@ -1,10 +1,10 @@
 
 # Refactor
 
+- [ ] DNSH Connection is missing `headers['@transfer']` support for encode().
+- [ ] DNSH Connection is missing the DNS message decoder.
 - [ ] Fix `Server` or `SOCKS` Connection, Reviews don't work anymore.
-
 - [ ] Refactor `Request.mjs` with new HTTP Connection API.
-- [ ] Move `fix-request` error page to `fix-connection` (as all protocols now use this error in case of socket problems).
 - [ ] Refactor `WS` Connection with better encode() and decode() usage (as in DNS and HTTP implementations)
 
 # Notes

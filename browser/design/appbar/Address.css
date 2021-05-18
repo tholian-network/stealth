@@ -106,9 +106,9 @@ browser-appbar-address ul li[data-key="protocol"][title="stealth:media"]:before 
 browser-appbar-address ul li[data-key="protocol"][title="stealth:search"]:before   { content: '\e52e'; }
 browser-appbar-address ul li[data-key="protocol"][title="stealth:settings"]:before { content: '\e8b8'; }
 
-browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-host"]:before    { content: '\e869'; }
-browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-mode"]:before    { content: '\e869'; }
-browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-request"]:before { content: '\e869'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-connection"]:before { content: '\e869'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-host"]:before       { content: '\e869'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:fix-mode"]:before       { content: '\e869'; }
 
 browser-appbar-address input[data-key="url"] {
 	display: block;

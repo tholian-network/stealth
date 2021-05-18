@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>stealth:fix-connection</title>
+		<style>
+
+			@import url("../design/common/index.css");
+			@import url("../design/common/theme.css");
+			@import url("../design/common/elements.css");
+			@import url("../design/common/layout.css");
+
+		</style>
+	</head>
+	<body data-page="fix-connection">
+		<article>
+			<h3>Fix Connection</h3>
+			<p>
+				Stealth could not request the entered URL successfully,
+				because either the internet connection broke down or
+				the server is a <abbr title="also known as being an idiot">teapot</abbr>.
+			</p>
+			<p data-key="cause" data-val="headers">
+				The server responded with incorrect HTTP headers with status <code data-key="code">200</code>
+				that don't make sense.
+			</p>
+			<p data-key="cause" data-val="payload">
+				The server responded with a payload that seems to be incomplete or
+				injected by a third-party and therefore potentially malicious.
+			</p>
+			<p data-key="cause" data-val="socket-proxy">
+				The configured Proxy does not support anonymous <code>SOCKS5</code> tunnels.
+			</p>
+			<p data-key="cause" data-val="socket-stability">
+				The socket connection is too unstable to resume the download.
+				Please check the stability of your internet connection.
+			</p>
+			<p data-key="cause" data-val="socket-trust">
+				The socket encryption could not be verified. Please double-check your
+				backyard and windows, the Feds or some Blackhat might be listening.
+			</p>
+		</article>
+		<article>
+			<h3>Download via Peers</h3>
+			<p>
+				TODO: Peer Download
+			</p>
+		</article>
+		<article>
+			<h3>Download via Web Archive</h3>
+			<p>
+				TODO: Web Archive Download
+			</p>
+		</article>
+		<script type="module">
+
+			import { ENVIRONMENT } from '../source/ENVIRONMENT.mjs';
+			import { Element     } from '../design/Element.mjs';
+			import { URL         } from '../source/parser/URL.mjs';
+
+
+
+			let domain  = URL.toDomain(ENVIRONMENT.flags.url);
+			let browser = window.parent.BROWSER || null;
+
+			if (browser !== null && domain !== null) {
+
+				let body = Element.query('body');
+				if (body !== null) {
+
+					let code = ENVIRONMENT.flags.code  || null;
+					if (code !== null) {
+						body.query('[data-key="code"]').value(code);
+					}
+
+					let cause = ENVIRONMENT.flags.cause || null;
+					if (cause !== null) {
+
+						body.query('p[data-key="cause"]', true).forEach((element) => {
+
+							if (element.value() !== cause) {
+								element.erase();
+							}
+
+						});
+
+					} else {
+
+						body.query('p[data-key="cause"]', true).forEach((element) => {
+							element.erase();
+						});
+
+					}
+
+				}
+
+			}
+
+		</script>
+	</body>
+</html>
+

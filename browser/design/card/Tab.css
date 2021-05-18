@@ -145,24 +145,24 @@ browser-card-tab-header-history > button.active {
 	color: var(--element-active-color);
 }
 
-browser-card-tab-header-history > button[title^="file:"]:before               { content: '\e84f'; }
-browser-card-tab-header-history > button[title^="ftps:"]:before               { content: '\e897'; }
-browser-card-tab-header-history > button[title^="ftp:"]:before                { content: '\e898'; }
-browser-card-tab-header-history > button[title^="https:"]:before              { content: '\e897'; }
-browser-card-tab-header-history > button[title^="http:"]:before               { content: '\e898'; }
-browser-card-tab-header-history > button[title^="wss:"]:before                { content: '\e897'; }
-browser-card-tab-header-history > button[title^="ws:"]:before                 { content: '\e898'; }
-browser-card-tab-header-history > button[title^="socks:"]:before              { content: '\e32a'; }
-browser-card-tab-header-history > button[title^="stealth:blank"]:before       { content: '\e32a'; }
-browser-card-tab-header-history > button[title^="stealth:welcome"]:before     { content: '\e80c'; }
-browser-card-tab-header-history > button[title^="stealth:debug"]:before       { content: '\e868'; }
-browser-card-tab-header-history > button[title^="stealth:history"]:before     { content: '\e889'; }
-browser-card-tab-header-history > button[title^="stealth:media"]:before       { content: '\e038'; }
-browser-card-tab-header-history > button[title^="stealth:search"]:before      { content: '\e52e'; }
-browser-card-tab-header-history > button[title^="stealth:settings"]:before    { content: '\e8b8'; }
-browser-card-tab-header-history > button[title^="stealth:fix-host"]:before    { content: '\e869'; }
-browser-card-tab-header-history > button[title^="stealth:fix-mode"]:before    { content: '\e869'; }
-browser-card-tab-header-history > button[title^="stealth:fix-request"]:before { content: '\e869'; }
+browser-card-tab-header-history > button[title^="file:"]:before                  { content: '\e84f'; }
+browser-card-tab-header-history > button[title^="ftps:"]:before                  { content: '\e897'; }
+browser-card-tab-header-history > button[title^="ftp:"]:before                   { content: '\e898'; }
+browser-card-tab-header-history > button[title^="https:"]:before                 { content: '\e897'; }
+browser-card-tab-header-history > button[title^="http:"]:before                  { content: '\e898'; }
+browser-card-tab-header-history > button[title^="wss:"]:before                   { content: '\e897'; }
+browser-card-tab-header-history > button[title^="ws:"]:before                    { content: '\e898'; }
+browser-card-tab-header-history > button[title^="socks:"]:before                 { content: '\e32a'; }
+browser-card-tab-header-history > button[title^="stealth:blank"]:before          { content: '\e32a'; }
+browser-card-tab-header-history > button[title^="stealth:welcome"]:before        { content: '\e80c'; }
+browser-card-tab-header-history > button[title^="stealth:debug"]:before          { content: '\e868'; }
+browser-card-tab-header-history > button[title^="stealth:history"]:before        { content: '\e889'; }
+browser-card-tab-header-history > button[title^="stealth:media"]:before          { content: '\e038'; }
+browser-card-tab-header-history > button[title^="stealth:search"]:before         { content: '\e52e'; }
+browser-card-tab-header-history > button[title^="stealth:settings"]:before       { content: '\e8b8'; }
+browser-card-tab-header-history > button[title^="stealth:fix-connection"]:before { content: '\e869'; }
+browser-card-tab-header-history > button[title^="stealth:fix-host"]:before       { content: '\e869'; }
+browser-card-tab-header-history > button[title^="stealth:fix-mode"]:before       { content: '\e869'; }
 
 
 

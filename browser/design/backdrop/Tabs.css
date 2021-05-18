@@ -125,9 +125,9 @@ browser-backdrop-tabs button[title^="stealth:media"]:before    { content: '\e038
 browser-backdrop-tabs button[title^="stealth:search"]:before   { content: '\e52e'; }
 browser-backdrop-tabs button[title^="stealth:settings"]:before { content: '\e8b8'; }
 
-browser-backdrop-tabs button[title^="stealth:fix-host"]:before    { content: '\e869'; }
-browser-backdrop-tabs button[title^="stealth:fix-mode"]:before    { content: '\e869'; }
-browser-backdrop-tabs button[title^="stealth:fix-request"]:before { content: '\e869'; }
+browser-backdrop-tabs button[title^="stealth:fix-connection"]:before { content: '\e869'; }
+browser-backdrop-tabs button[title^="stealth:fix-host"]:before       { content: '\e869'; }
+browser-backdrop-tabs button[title^="stealth:fix-mode"]:before       { content: '\e869'; }
 
 
 
