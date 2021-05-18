@@ -1664,6 +1664,8 @@ describe('DNS.receive()/server/NAMEWRECK', function(assert) {
 
 describe('DNS.send()/server/A', function(assert) {
 
+	assert(isFunction(DNS.send), true);
+
 	this.connection.once('request', (request) => {
 
 		assert(request, {
@@ -1769,6 +1771,8 @@ describe('DNS.send()/server/A', function(assert) {
 });
 
 describe('DNS.send()/server/AAAA', function(assert) {
+
+	assert(isFunction(DNS.send), true);
 
 	this.connection.once('request', (request) => {
 
@@ -1876,6 +1880,8 @@ describe('DNS.send()/server/AAAA', function(assert) {
 
 describe('DNS.send()/server/CNAME', function(assert) {
 
+	assert(isFunction(DNS.send), true);
+
 	this.connection.once('request', (request) => {
 
 		assert(request, {
@@ -1981,6 +1987,8 @@ describe('DNS.send()/server/CNAME', function(assert) {
 });
 
 describe('DNS.send()/server/MX', function(assert) {
+
+	assert(isFunction(DNS.send), true);
 
 	this.connection.once('request', (request) => {
 
@@ -2089,6 +2097,8 @@ describe('DNS.send()/server/MX', function(assert) {
 });
 
 describe('DNS.send()/server/NS', function(assert) {
+
+	assert(isFunction(DNS.send), true);
 
 	this.connection.once('request', (request) => {
 
@@ -2204,6 +2214,8 @@ describe('DNS.send()/server/NS', function(assert) {
 
 describe('DNS.send()/server/PTR/v4', function(assert) {
 
+	assert(isFunction(DNS.send), true);
+
 	this.connection.once('request', (request) => {
 
 		assert(request, {
@@ -2310,6 +2322,8 @@ describe('DNS.send()/server/PTR/v4', function(assert) {
 
 describe('DNS.send()/server/PTR/v6', function(assert) {
 
+	assert(isFunction(DNS.send), true);
+
 	this.connection.once('request', (request) => {
 
 		assert(request, {
@@ -2415,6 +2429,8 @@ describe('DNS.send()/server/PTR/v6', function(assert) {
 });
 
 describe('DNS.send()/server/SRV', function(assert) {
+
+	assert(isFunction(DNS.send), true);
 
 	this.connection.once('request', (request) => {
 
@@ -2526,6 +2542,8 @@ describe('DNS.send()/server/SRV', function(assert) {
 
 describe('DNS.send()/server/TXT', function(assert) {
 
+	assert(isFunction(DNS.send), true);
+
 	this.connection.once('request', (request) => {
 
 		assert(request, {
@@ -2636,19 +2654,18 @@ describe('DNS.send()/server/TXT', function(assert) {
 
 after('DNS.disconnect()', function(assert) {
 
-	assert(true);
+	assert(isFunction(DNS.disconnect), true);
 
 	this.connection.once('@disconnect', () => {
 		assert(true);
 	});
 
-	DNS.disconnect(this.connection);
+	assert(DNS.disconnect(this.connection), true);
 
 	this.connection = null;
 	this.server     = null;
 
 });
-
 
 
 export default finish('stealth/connection/DNS', {

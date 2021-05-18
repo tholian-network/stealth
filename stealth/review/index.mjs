@@ -20,6 +20,7 @@ import client_Session     from './client/Session.mjs';
 import client_Settings    from './client/Settings.mjs';
 import client_Stash       from './client/Stash.mjs';
 import connection_DNS     from './connection/DNS.mjs';
+import connection_DNSS    from './connection/DNSS.mjs';
 import connection_HTTP    from './connection/HTTP.mjs';
 import connection_HTTPS   from './connection/HTTPS.mjs';
 import connection_SOCKS   from './connection/SOCKS.mjs';
@@ -42,6 +43,7 @@ import server_Mode        from './server/Mode.mjs';
 import server_Peer        from './server/Peer.mjs';
 import server_Policy      from './server/Policy.mjs';
 import server_Redirect    from './server/Redirect.mjs';
+// import server_RESOLVER    from './server/RESOLVER.mjs';
 import server_ROUTER      from './server/ROUTER.mjs';
 import server_Session     from './server/Session.mjs';
 import server_Settings    from './server/Settings.mjs';
@@ -66,6 +68,7 @@ export const REVIEWS = [
 
 	// Network
 	connection_DNS,
+	connection_DNSS,
 	connection_HTTP,
 	connection_HTTPS,
 	connection_SOCKS,
@@ -86,6 +89,7 @@ export const REVIEWS = [
 	Browser,
 
 	// Network Services
+	// server_RESOLVER,
 	server_ROUTER,
 	server_Beacon,
 	server_Blocker,

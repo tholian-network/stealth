@@ -12,7 +12,6 @@
 	"scripts": {
 		"lint": "npx eslint ./base ./browser ./covert ./stealth",
 		"postinstall": "node ./make.mjs build",
-		"test": "node ./covert/covert.mjs scan",
 		"clean": "node ./make.mjs clean",
 		"clean:base": "node ./base/make.mjs clean",
 		"clean:browser": "node ./browser/make.mjs clean",
