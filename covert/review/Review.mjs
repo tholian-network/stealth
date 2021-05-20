@@ -130,6 +130,25 @@ describe('Review.prototype.toString()', function(assert) {
 
 });
 
+describe('Review.prototype.matches()', function(assert) {
+
+	let review = new Review();
+
+	review.id = 'foo/bar/Qux';
+
+	assert(review.matches('foo/bar/Qux'), true);
+	assert(review.matches('foo/bar/*'),   true);
+	assert(review.matches('*/bar/Qux'),   true);
+	assert(review.matches('foo/*/Qux'),   true);
+
+	assert(review.matches('bar/Qux'),   false);
+	assert(review.matches('doo/bar/*'), false);
+	assert(review.matches('*/bar/Doo'), false);
+	assert(review.matches('doo/*/Qux'), false);
+	assert(review.matches('bar/*/Doo'), false);
+
+});
+
 after('after()', function(assert, console) {
 
 	assert(isFunction(after), true);

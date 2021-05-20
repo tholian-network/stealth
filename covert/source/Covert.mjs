@@ -143,51 +143,13 @@ const init = function(settings) {
 
 		filtered = true;
 
+		settings.reviews.forEach((review) => {
 
-		if (pattern.startsWith('*') === true) {
+			if (review.matches(pattern) === true) {
+				include[review.id] = true;
+			}
 
-			settings.reviews.forEach((review) => {
-
-				if (review.id.endsWith(pattern.substr(1)) === true) {
-					include[review.id] = true;
-				}
-
-			});
-
-		} else if (pattern.endsWith('*') === true) {
-
-			settings.reviews.forEach((review) => {
-
-				if (review.id.startsWith(pattern.substr(0, pattern.length - 1)) === true) {
-					include[review.id] = true;
-				}
-
-			});
-
-		} else if (pattern.includes('*') === true) {
-
-			let prefix = pattern.split('*').shift();
-			let suffix = pattern.split('*').pop();
-
-			settings.reviews.forEach((review) => {
-
-				if (review.id.startsWith(prefix) === true && review.id.endsWith(suffix) === true) {
-					include[review.id] = true;
-				}
-
-			});
-
-		} else {
-
-			settings.reviews.forEach((review) => {
-
-				if (review.id === pattern) {
-					include[review.id] = true;
-				}
-
-			});
-
-		}
+		});
 
 	});
 

@@ -114,6 +114,49 @@ Review.prototype = {
 
 		return array;
 
+	},
+
+	matches: function(pattern) {
+
+		pattern = isString(pattern) ? pattern : null;
+
+
+		if (pattern !== null) {
+
+			if (pattern.startsWith('*') === true) {
+
+				if (this.id.endsWith(pattern.substr(1)) === true) {
+					return true;
+				}
+
+			} else if (pattern.endsWith('*') === true) {
+
+				if (this.id.startsWith(pattern.substr(0, pattern.length - 1)) === true) {
+					return true;
+				}
+
+			} else if (pattern.includes('*') === true) {
+
+				let prefix = pattern.split('*').shift();
+				let suffix = pattern.split('*').pop();
+
+				if (this.id.startsWith(prefix) === true && this.id.endsWith(suffix) === true) {
+					return true;
+				}
+
+			} else {
+
+				if (this.id === pattern) {
+					return true;
+				}
+
+			}
+
+		}
+
+
+		return false;
+
 	}
 
 };

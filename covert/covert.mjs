@@ -217,9 +217,56 @@ init((result) => {
 
 			covert.connect();
 
-		} else {
+		} else if (patterns.length === 1) {
 
-			show_help();
+			let reviews = REVIEWS.filter((review) => review.matches(patterns[0]));
+			if (reviews.length > 0) {
+
+				console.info('Covert: Review Pattern matches ' + reviews.length + ' Review(s).');
+				console.error('Covert: No Test Pattern selected.');
+
+				console.log('');
+				console.log('Covert: Listing available Test(s) ...');
+				console.log('');
+
+				reviews.forEach((review) => {
+
+					let tests = review.flatten();
+
+					console.info('- Review "' + review.id + '" has ' + tests.length + ' tests.');
+
+					tests.forEach((test) => {
+						console.log('- Test "' + test.name + '" has ' + test.results.length + ' assert() calls.');
+					});
+
+				});
+
+			} else {
+
+				console.error('Covert: Review Pattern matches no Review(s).');
+				console.error('Covert: No Test Pattern selected.');
+
+			}
+
+			process.exit(1);
+
+		} else if (patterns.length === 0) {
+
+			console.error('Covert: No Review Pattern selected.');
+			console.error('Covert: No Test Pattern selected.');
+
+			console.log('');
+			console.log('Covert: Listing available Review(s) ...');
+			console.log('');
+
+			REVIEWS.forEach((review) => {
+
+				let tests = review.flatten();
+
+				console.log('- Review "' + review.id + '" has ' + tests.length + ' tests.');
+
+			});
+
 			process.exit(1);
 
 		}
