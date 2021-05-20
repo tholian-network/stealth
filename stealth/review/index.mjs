@@ -23,6 +23,7 @@ import connection_DNS     from './connection/DNS.mjs';
 import connection_DNSS    from './connection/DNSS.mjs';
 import connection_HTTP    from './connection/HTTP.mjs';
 import connection_HTTPS   from './connection/HTTPS.mjs';
+// import connection_MDNS    from './connection/MDNS.mjs';
 import connection_SOCKS   from './connection/SOCKS.mjs';
 import connection_WS      from './connection/WS.mjs';
 import connection_WSS     from './connection/WSS.mjs';
@@ -69,6 +70,8 @@ export const REVIEWS = [
 	// Network
 	connection_DNS,
 	connection_DNSS,
+	// connection_MDNS,
+
 	connection_HTTP,
 	connection_HTTPS,
 	connection_SOCKS,

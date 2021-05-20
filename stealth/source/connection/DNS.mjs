@@ -574,7 +574,6 @@ const decode = function(connection, buffer) {
 	let operator    = (buffer[2] & 0b01111000);
 	// let authorative = (buffer[2] & 4) === 4;
 	// let truncated   = (buffer[2] & 2) === 2;
-	// XXX: Recursion is unnecessary for our use-cases
 	// let r_desired   = (buffer[2] & 1) === 1;
 	// let r_available = (buffer[3] & 128) === 128;
 	// let status_code = (buffer[3] & 15);
@@ -1015,6 +1014,8 @@ const encode = function(connection, data) {
 	return null;
 
 };
+
+
 
 const onconnect = function(connection, url) {
 
