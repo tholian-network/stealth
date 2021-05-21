@@ -1084,24 +1084,38 @@ const onconnect = function(connection, url) {
 
 const ondata = function(connection, url, chunk) {
 
-	// TODO: Is it possible to receive fragments?
+	connection.fragment.buffer = Buffer.concat([ connection.fragment.buffer, chunk ]);
 
-	DNSS.receive(connection, chunk, (frame) => {
 
-		if (frame !== null) {
+	if (connection.fragment.buffer.length > 12 + 2) {
 
-			url.headers = frame.headers;
-			url.payload = frame.payload;
+		let length = (connection.fragment.buffer[0] << 8) + connection.fragment.buffer[1];
+		if (connection.fragment.buffer.length >= length + 2) {
 
-			if (frame.headers['@type'] === 'request') {
-				connection.emit('request', [ frame ]);
-			} else if (frame.headers['@type'] === 'response') {
-				connection.emit('response', [ frame ]);
-			}
+			let buffer                 = connection.fragment.buffer.slice(2, 2 + length);
+			connection.fragment.buffer = connection.fragment.buffer.slice(2 + length);
+
+
+			DNSS.receive(connection, buffer, (frame) => {
+
+				if (frame !== null) {
+
+					url.headers = frame.headers;
+					url.payload = frame.payload;
+
+					if (frame.headers['@type'] === 'request') {
+						connection.emit('request', [ frame ]);
+					} else if (frame.headers['@type'] === 'response') {
+						connection.emit('response', [ frame ]);
+					}
+
+				}
+
+			});
 
 		}
 
-	});
+	}
 
 };
 
@@ -1168,8 +1182,11 @@ const isUpgrade = function(url) {
 
 const Connection = function(socket) {
 
-	this.socket = socket || null;
-	this.type   = null;
+	this.fragment = {
+		buffer: Buffer.alloc(0)
+	};
+	this.socket   = socket || null;
+	this.type     = null;
 
 
 	Emitter.call(this);
@@ -1313,8 +1330,6 @@ const DNSS = {
 							lookup:         lookup.bind(url)
 						}, () => {
 
-							console.log('socket?', connection.socket);
-
 							if (connection.socket.authorized === true) {
 
 								connection.socket.setNoDelay(true);
@@ -1333,7 +1348,6 @@ const DNSS = {
 						});
 
 					} catch (err) {
-						console.error(err);
 						connection.socket = null;
 					}
 
@@ -1393,14 +1407,14 @@ const DNSS = {
 
 					connection.socket.on('error', (err) => {
 
-						console.log(err);
-
 						if (connection.socket !== null) {
 
 							let code  = (err.code || '');
 							let error = { type: 'request' };
 
-							if (code.startsWith('ERR_TLS') === true) {
+							if (code === 'ECONNREFUSED') {
+								error = { type: 'request', cause: 'socket-stability' };
+							} else if (code.startsWith('ERR_TLS') === true) {
 								error = { type: 'request', cause: 'socket-trust' };
 							}
 
@@ -1579,9 +1593,25 @@ const DNSS = {
 			if (buffer !== null) {
 
 				if (connection.type === 'client') {
-					connection.socket.write(buffer);
+
+					connection.socket.write(Buffer.concat([
+						Buffer.from([
+							(buffer.length >> 8) & 0xff,
+							buffer.length        & 0xff
+						]),
+						buffer
+					]));
+
 				} else {
-					connection.socket.end(buffer);
+
+					connection.socket.end(Buffer.concat([
+						Buffer.from([
+							(buffer.length >> 8) & 0xff,
+							buffer.length        & 0xff
+						]),
+						buffer
+					]));
+
 				}
 
 				if (callback !== null) {
