@@ -2,6 +2,7 @@
 import net from 'net';
 
 import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { DNSS                                                                                    } from '../../source/connection/DNSS.mjs';
 import { HTTP                                                                                    } from '../../source/connection/HTTP.mjs';
 import { HTTPS                                                                                   } from '../../source/connection/HTTPS.mjs';
 import { WS                                                                                      } from '../../source/connection/WS.mjs';
@@ -442,18 +443,31 @@ const onconnect = function(connection, url) {
 
 							try {
 
-								if (url.protocol === 'https') {
+								if (url.protocol === 'dnss') {
+
+									protocol = 'dnss';
+									tunnel   = DNSS.connect(url, connection);
+
+								} else if (url.protocol === 'https') {
+
 									protocol = 'https';
 									tunnel   = HTTPS.connect(url, connection);
+
 								} else if (url.protocol === 'http') {
+
 									protocol = 'http';
 									tunnel   = HTTP.connect(url, connection);
+
 								} else if (url.protocol === 'wss') {
+
 									protocol = 'wss';
 									tunnel   = WSS.connect(url, connection);
+
 								} else if (url.protocol === 'ws') {
+
 									protocol = 'ws';
 									tunnel   = WS.connect(url, connection);
+
 								}
 
 							} catch (err) {
@@ -954,14 +968,26 @@ const SOCKS = {
 
 			} else if (hosts.length > 0 && hosts[0].scope === 'private') {
 
-				if (url.protocol === 'https') {
+				if (url.protocol === 'dnss') {
+
+					return DNSS.connect(url, connection);
+
+				} else if (url.protocol === 'https') {
+
 					return HTTPS.connect(url, connection);
+
 				} else if (url.protocol === 'http') {
+
 					return HTTP.connect(url, connection);
+
 				} else if (url.protocol === 'wss') {
+
 					return WSS.connect(url, connection);
+
 				} else if (url.protocol === 'ws') {
+
 					return WS.connect(url, connection);
+
 				} else {
 
 					connection.socket = null;
@@ -1030,6 +1056,10 @@ const SOCKS = {
 					});
 
 				}
+
+			} else if (connection.protocol === 'dnss') {
+
+				DNSS.receive(connection, buffer, callback);
 
 			} else if (connection.protocol === 'https') {
 
@@ -1133,7 +1163,11 @@ const SOCKS = {
 
 			} else if (connection.tunnel !== null) {
 
-				if (connection.protocol === 'https') {
+				if (connection.protocol === 'dnss') {
+
+					DNSS.send(connection.tunnel, data, callback);
+
+				} else if (connection.protocol === 'https') {
 
 					HTTPS.send(connection.tunnel, data, callback);
 
