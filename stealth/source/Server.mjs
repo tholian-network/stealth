@@ -615,7 +615,7 @@ const upgrade_ws = function(socket, url) {
 
 		connection.once('@disconnect', () => {
 
-			if (this.__state.connections.includes(connection) === false) {
+			if (this.__state.connections.includes(connection) === true) {
 				this.__state.connections.remove(connection);
 			}
 

@@ -469,8 +469,12 @@ const read = function(profile, keepdata, callback) {
 				callback(check.length === 0);
 			}
 
-		} else if (callback !== null) {
-			callback(false);
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			}
+
 		}
 
 	});
@@ -565,8 +569,12 @@ const save = function(profile, keepdata, callback) {
 				callback(check.length === 0);
 			}
 
-		} else if (callback !== null) {
-			callback(false);
+		} else {
+
+			if (callback !== null) {
+				callback(false);
+			}
+
 		}
 
 	});
