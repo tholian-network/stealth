@@ -1057,7 +1057,7 @@ const ondisconnect = function(connection, url) {
 	if (connection.type === 'client') {
 
 		if (url.headers === null) {
-			connection.emit('timeout', [ null ]);
+			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 		}
 
 	}
@@ -1314,7 +1314,7 @@ const DNS = {
 				} else {
 
 					connection.socket = null;
-					connection.emit('error', [{ type: 'request' }]);
+					connection.emit('error', [{ type: 'connection' }]);
 
 					return null;
 
@@ -1332,7 +1332,7 @@ const DNS = {
 		} else {
 
 			connection.socket = null;
-			connection.emit('error', [{ type: 'request' }]);
+			connection.emit('error', [{ type: 'connection' }]);
 
 			return null;
 

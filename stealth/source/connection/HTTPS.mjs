@@ -213,7 +213,7 @@ const HTTPS = {
 							} else {
 
 								connection.socket = null;
-								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+								connection.emit('error', [{ type: 'connection', cause: 'socket-trust' }]);
 
 							}
 
@@ -245,7 +245,7 @@ const HTTPS = {
 							} else {
 
 								connection.socket = null;
-								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+								connection.emit('error', [{ type: 'connection', cause: 'socket-trust' }]);
 
 							}
 
@@ -267,10 +267,12 @@ const HTTPS = {
 						if (connection.socket !== null) {
 
 							let code  = (err.code || '');
-							let error = { type: 'request' };
+							let error = { type: 'connection' };
 
-							if (code.startsWith('ERR_TLS') === true) {
-								error = { type: 'request', cause: 'socket-trust' };
+							if (code === 'ECONNREFUSED') {
+								error = { type: 'connection', cause: 'socket-stability' };
+							} else if (code.startsWith('ERR_TLS') === true) {
+								error = { type: 'connection', cause: 'socket-trust' };
 							}
 
 							connection.emit('error', [ error ]);
@@ -285,7 +287,7 @@ const HTTPS = {
 				} else {
 
 					connection.socket = null;
-					connection.emit('error', [{ type: 'request' }]);
+					connection.emit('error', [{ type: 'connection' }]);
 
 					return null;
 
@@ -303,7 +305,7 @@ const HTTPS = {
 		} else {
 
 			connection.socket = null;
-			connection.emit('error', [{ type: 'request' }]);
+			connection.emit('error', [{ type: 'connection' }]);
 
 			return null;
 
@@ -331,7 +333,10 @@ const HTTPS = {
 
 	receive: HTTP.receive,
 	send:    HTTP.send,
-	upgrade: HTTP.upgrade
+
+	upgrade: function() {
+		// TODO: Implement integrated certificate workflow
+	}
 
 };
 

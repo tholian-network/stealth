@@ -332,7 +332,7 @@ Session.prototype = {
 				});
 
 				request.on('progress', (response, progress) => {
-					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url.link + '" (' + progress.bytes + '/' + progress.length + ').');
+					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url.link + '" (' + progress.bytes + '/' + progress.total + ').');
 				});
 
 				request.once('error',    () => remove_request.call(this, request));

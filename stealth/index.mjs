@@ -11,13 +11,14 @@ import { Session  as client_Session  } from './source/client/Session.mjs';
 import { Settings as client_Settings } from './source/client/Settings.mjs';
 import { Stash    as client_Stash    } from './source/client/Stash.mjs';
 
-import { DNS      as connection_DNS   } from './source/connection/DNS.mjs';
-// import { DNSS     as connection_DNSS  } from './source/connection/DNSS.mjs';
-import { HTTP     as connection_HTTP  } from './source/connection/HTTP.mjs';
-import { HTTPS    as connection_HTTPS } from './source/connection/HTTPS.mjs';
-import { SOCKS    as connection_SOCKS } from './source/connection/SOCKS.mjs';
-import { WS       as connection_WS    } from './source/connection/WS.mjs';
-import { WSS      as connection_WSS   } from './source/connection/WSS.mjs';
+import { DNS         as connection_DNS         } from './source/connection/DNS.mjs';
+import { DNSS        as connection_DNSS        } from './source/connection/DNSS.mjs';
+import { DNSviaHTTPS as connection_DNSviaHTTPS } from './source/connection/DNSviaHTTPS.mjs';
+import { HTTP        as connection_HTTP        } from './source/connection/HTTP.mjs';
+import { HTTPS       as connection_HTTPS       } from './source/connection/HTTPS.mjs';
+import { SOCKS       as connection_SOCKS       } from './source/connection/SOCKS.mjs';
+import { WS          as connection_WS          } from './source/connection/WS.mjs';
+import { WSS         as connection_WSS         } from './source/connection/WSS.mjs';
 
 import { CSS      as parser_CSS      } from './source/parser/CSS.mjs';
 import { DATETIME as parser_DATETIME } from './source/parser/DATETIME.mjs';
@@ -35,6 +36,7 @@ import { Mode     as server_Mode     } from './source/server/Mode.mjs';
 import { Peer     as server_Peer     } from './source/server/Peer.mjs';
 import { Policy   as server_Policy   } from './source/server/Policy.mjs';
 import { Redirect as server_Redirect } from './source/server/Redirect.mjs';
+import { RESOLVER as server_RESOLVER } from './source/server/RESOLVER.mjs';
 import { ROUTER   as server_ROUTER   } from './source/server/ROUTER.mjs';
 import { Session  as server_Session  } from './source/server/Session.mjs';
 import { Settings as server_Settings } from './source/server/Settings.mjs';
@@ -70,13 +72,14 @@ export const client = {
 
 export const connection = {
 
-	DNS:   connection_DNS,
-	// DNSS:  connection_DNSS,
-	HTTP:  connection_HTTP,
-	HTTPS: connection_HTTPS,
-	SOCKS: connection_SOCKS,
-	WS:    connection_WS,
-	WSS:   connection_WSS
+	DNS:         connection_DNS,
+	DNSS:        connection_DNSS,
+	DNSviaHTTPS: connection_DNSviaHTTPS,
+	HTTP:        connection_HTTP,
+	HTTPS:       connection_HTTPS,
+	SOCKS:       connection_SOCKS,
+	WS:          connection_WS,
+	WSS:         connection_WSS
 
 };
 
@@ -94,6 +97,7 @@ export const parser = {
 
 export const server = {
 
+	RESOLVER: server_RESOLVER,
 	ROUTER:   server_ROUTER,
 
 	Beacon:   server_Beacon,

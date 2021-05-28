@@ -2,11 +2,27 @@
 import net  from 'net';
 import zlib from 'zlib';
 
-import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                                   } from '../../source/parser/IP.mjs';
-import { URL                                                                  } from '../../source/parser/URL.mjs';
+import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { DATETIME                                                                                } from '../../source/parser/DATETIME.mjs';
+import { IP                                                                                      } from '../../source/parser/IP.mjs';
+import { URL                                                                                     } from '../../source/parser/URL.mjs';
 
 
+
+const METHODS = [
+	'CONNECT',
+	'DELETE',
+	'GET',
+	'HEAD',
+	'OPTIONS',
+	'PATCH',
+	'POST',
+	'PUT',
+	'TRACE'
+];
+
+
+const EMPTYLINE = Buffer.from('\r\n\r\n', 'utf8');
 
 const decode_chunked = function(payload) {
 
@@ -45,62 +61,508 @@ const decode_chunked = function(payload) {
 
 };
 
-const decode_gzip = function(payload) {
-	return zlib.gunzipSync(payload);
-};
+const decode = function(connection, buffer) {
 
-const encode_gzip = function(payload) {
-	return zlib.gzipSync(payload);
-};
+	if (buffer.length < 5) {
+		return null;
+	}
 
 
-
-const onconnect = function(connection, url) {
-
-	let fragment = connection.fragment;
-
-	fragment.encoding = 'identity';
-	fragment.headers  = null;
-	fragment.length   = null;
-	fragment.mode     = 'headers';
-	fragment.partial  = false;
-	fragment.payload  = Buffer.from('', 'utf8');
-	fragment.start    = 0;
+	let chunk = {
+		headers: {
+			'@encoding': null,
+			'@length':   null,
+			'@partial':  false,
+			'@range':    [ 0, Infinity ]
+		},
+		payload: null
+	};
 
 
-	if (url.headers !== null) {
+	let msg_headers      = null;
+	let msg_payload      = null;
+	let payload_complete = false;
 
-		let tmp0 = url.headers['content-length'] || null;
-		if (tmp0 !== null) {
 
-			let num = parseInt(tmp0, 10);
-			if (Number.isNaN(num) === false) {
-				fragment.length = num;
+	let msg_index = buffer.indexOf(EMPTYLINE);
+	if (msg_index !== -1) {
+
+		msg_headers = buffer.slice(0, msg_index);
+		msg_payload = buffer.slice(msg_index + 4);
+
+		if (msg_payload.slice(msg_payload.length - 4).toString('utf8') === EMPTYLINE.toString('utf8')) {
+			msg_payload      = msg_payload.slice(0, msg_payload.length - 4);
+			payload_complete = true;
+		}
+
+	} else {
+
+		msg_headers = buffer;
+
+	}
+
+
+	if (msg_headers !== null) {
+
+		let fields = msg_headers.toString('utf8').split('\r\n').map((line) => line.trim());
+		if (fields.length > 1) {
+
+			let start_line = fields.shift();
+			let check      = start_line.split(' ').shift();
+
+			if (METHODS.includes(check) === true) {
+
+				chunk.headers['@method'] = check;
+
+				let url = start_line.split(' ').slice(1).shift();
+				if (
+					url.startsWith('/') === true
+					|| url.startsWith('http://') === true
+					|| url.startsWith('https://') === true
+				) {
+					chunk.headers['@url'] = url;
+				}
+
+			} else if (check === 'HTTP/1.1' || check === 'HTTP/1.0' || check === 'HTTP/0.9') {
+
+				let status = start_line.split(' ').slice(1).join(' ').trim();
+				if (status !== '') {
+					chunk.headers['@status'] = status;
+				}
+
 			}
+
+
+			fields.filter((line) => line !== '').forEach((line) => {
+
+				if (line.includes(':') === true) {
+
+					let key = line.split(':')[0].toLowerCase().trim();
+					let val = line.split(':').slice(1).join(':').trim();
+
+					if (key.length > 0 && val.length > 0) {
+
+						let num = parseInt(val, 10);
+						let dat = DATETIME.parse(val);
+
+						if (Number.isNaN(num) === false && (num).toString() === val) {
+							val = num;
+						} else if (val === 'true') {
+							val = true;
+						} else if (val === 'false') {
+							val = false;
+						} else if (val === 'null') {
+							val = null;
+						} else if (DATETIME.isDATETIME(dat) === true) {
+							val = dat;
+						}
+
+						chunk.headers[key] = val;
+
+					}
+
+				}
+
+			});
 
 		}
 
 
-		let tmp1 = url.headers['@status']       || null;
-		let tmp2 = url.headers['content-range'] || null;
-		if (tmp1 === '206 Partial Content' && tmp2 !== null) {
+		let method         = chunk.headers['@method']        || null;
+		let status         = chunk.headers['@status']        || null;
+		let content_length = chunk.headers['content-length'] || null;
+		let content_range  = chunk.headers['content-range']  || null;
+		let range          = chunk.headers['range']          || null;
 
-			if (url.payload !== null) {
-				fragment.partial = true;
-				fragment.payload = Buffer.from(url.payload);
-				fragment.start   = url.payload.length;
-			} else {
-				fragment.partial = true;
-				fragment.payload = Buffer.from('', 'utf8');
-				fragment.start   = 0;
+		if (status === '206 Partial Content' && content_range !== null) {
+
+			let unit  = content_range.split(' ').shift();
+			let check = content_range.split('/').pop();
+
+			if (unit === 'bytes' && check !== '*') {
+
+				let tmp    = content_range.split(' ').pop().split('/').shift().split('-');
+				let length = parseInt(content_range.split('/').pop(), 10);
+				let start  = parseInt(tmp[0], 10);
+				let end    = parseInt(tmp[1], 10);
+
+				if (
+					Number.isNaN(length) === false
+					&& length > 0
+					&& Number.isNaN(start) === false
+					&& start >= 0
+					&& start < length
+					&& Number.isNaN(end) === false
+					&& end >= 0
+					&& end < length
+				) {
+
+					chunk.headers['@length']  = length;
+					chunk.headers['@partial'] = true;
+					chunk.headers['@range']   = [ start, end ];
+
+				}
+
+			} else if (unit === 'bytes' && check === '*') {
+
+				let tmp    = content_range.split(' ').pop().split('/').shift().split('-');
+				let start  = parseInt(tmp[0], 10);
+				let end    = parseInt(tmp[1], 10);
+
+				if (
+					Number.isNaN(start) === false
+					&& start >= 0
+					&& Number.isNaN(end) === false
+					&& end > start
+				) {
+
+					chunk.headers['@length']  = Infinity;
+					chunk.headers['@partial'] = true;
+					chunk.headers['@range']   = [ start, end ];
+
+				}
+
 			}
+
+		} else if (method === 'GET' && range !== null) {
+
+			if (isNumber(content_length) === true && content_length > 0) {
+				chunk.headers['@length'] = content_length;
+			} else {
+				chunk.headers['@length'] = Infinity;
+			}
+
+			let unit  = range.split('=').shift();
+			let check = range.split('=').pop().split(',').map((r) => r.trim()).filter((r) => r.includes('-'));
+			if (unit === 'bytes' && check.length === 1) {
+
+				let tmp   = check[0].split('-');
+				let start = null;
+				let end   = null;
+
+				if (tmp[0] !== '') {
+					start = parseInt(tmp[0], 10);
+				} else {
+					// XXX: RFC says negative ranges are allowed to note
+					// remaining bytes relative from size, but in practice
+					// all HTTP servers fallback to responding with 0-(size-1)
+					start = 0;
+				}
+
+				if (tmp[1] !== '') {
+					end = parseInt(tmp[1], 10);
+				} else {
+					end = Infinity;
+				}
+
+				if (
+					Number.isNaN(start) === false
+					&& start >= 0
+					&& (
+						Number.isNaN(end) === false
+						|| end === Infinity
+					)
+				) {
+					chunk.headers['@partial'] = true;
+					chunk.headers['@range']   = [ start, end ];
+				}
+
+			} else {
+
+				// TODO: Multiple Ranges are not supported by any publicly
+				// used web server software (apache, caddy, nginx etc are
+				// all broken)
+
+			}
+
+		} else if (isNumber(content_length) === true && content_length > 0) {
+
+			chunk.headers['@length'] = content_length;
+
+			if (msg_payload !== null && msg_payload.length < content_length) {
+				chunk.headers['@partial'] = true;
+			} else {
+				chunk.headers['@partial'] = false;
+			}
+
+			chunk.headers['@range'] = [ 0, content_length - 1 ];
+
+		} else if (payload_complete === true) {
+
+			chunk.headers['@length']  = msg_payload.length;
+			chunk.headers['@partial'] = false;
+			chunk.headers['@range']   = [ 0, msg_payload.length - 1 ];
+
+		} else {
+
+			chunk.headers['@length']  = Infinity;
+			chunk.headers['@partial'] = null;
+			chunk.headers['@range']   = [ 0, Infinity ];
+
+		}
+
+		let sorted_headers = {};
+
+		Object.keys(chunk.headers).sort((a, b) => {
+			if (a < b) return -1;
+			if (b < a) return  1;
+			return 0;
+		}).forEach((header) => {
+			sorted_headers[header] = chunk.headers[header];
+		});
+
+		chunk.headers = sorted_headers;
+
+	}
+
+
+	if (msg_payload !== null) {
+
+		let expected = chunk.headers['@length'];
+
+		let range = chunk.headers['@range'];
+		if (range[1] !== Infinity) {
+			// XXX: Ranges start with byte 0, so subtraction is off-by-one
+			expected = (range[1] + 1) - range[0];
+		}
+
+		if (expected === Infinity || expected === msg_payload.length) {
+
+			let content_encoding  = chunk.headers['content-encoding']  || null;
+			let transfer_encoding = chunk.headers['transfer-encoding'] || null;
+
+			if (content_encoding === 'gzip' || transfer_encoding === 'gzip') {
+
+				try {
+					chunk.payload              = zlib.gunzipSync(msg_payload);
+					chunk.headers['@encoding'] = 'identity';
+				} catch (err) {
+					chunk.payload              = msg_payload;
+					chunk.headers['@encoding'] = 'gzip';
+				}
+
+			} else if (transfer_encoding === 'chunked') {
+
+				chunk.payload              = decode_chunked(msg_payload);
+				chunk.headers['@encoding'] = 'identity';
+
+			} else {
+
+				chunk.payload              = msg_payload;
+				chunk.headers['@encoding'] = 'identity';
+
+			}
+
+		} else {
+
+			chunk.payload              = null;
+			chunk.headers['@encoding'] = null;
 
 		}
 
 	}
 
 
-	let timeout = Date.now() + 1000;
+	if (Object.keys(chunk.headers).length > 0) {
+		return chunk;
+	}
+
+
+	return null;
+
+};
+
+const encode_chunked = function(payload) {
+
+	return Buffer.concat([
+		Buffer.from((payload.length).toString(16), 'utf8'),
+		Buffer.from('\r\n', 'utf8'),
+		payload,
+		Buffer.from('\r\n', 'utf8'),
+		Buffer.from('\r\n', 'utf8')
+	]);
+
+};
+
+const encode = function(connection, data) {
+
+	if (Object.keys(data.headers).length === 0) {
+		return null;
+	}
+
+
+	let msg_payload = Buffer.alloc(0);
+
+	if (data.payload !== null) {
+
+		if (isArray(data.headers['@range']) === true) {
+
+			if (connection.type === 'client') {
+
+				if (data.headers['@range'][1] !== Infinity) {
+					data.headers['range'] = 'bytes=' + data.headers['@range'][0] + '-' + data.headers['@range'][1];
+				} else {
+					data.headers['range'] = 'bytes=' + data.headers['@range'][0] + '-';
+				}
+
+			} else if (connection.type === 'server') {
+
+				if (isNumber(data.headers['@length']) === true) {
+					data.headers['content-range'] = 'bytes ' + data.headers['@range'][0] + '-' + (data.headers['@range'][1] || '*') + '/' + data.headers['@length'];
+					delete data.headers['content-length'];
+				} else {
+					data.headers['content-range'] = 'bytes ' + data.headers['@range'][0] + '-' + (data.headers['@range'][1] || '*') + '/*';
+					delete data.headers['content-length'];
+				}
+
+			}
+
+		} else if (isNumber(data.headers['@length']) === true) {
+
+			data.headers['content-length'] = data.headers['@length'];
+
+		}
+
+
+		if (data.headers['@encoding'] === 'gzip') {
+
+			try {
+
+				msg_payload                      = zlib.gzipSync(data.payload);
+				data.headers['@encoding']        = 'gzip';
+				data.headers['content-encoding'] = 'gzip';
+
+				if (isString(data.headers['content-range']) === true) {
+					data.headers['content-range'] = data.headers['content-range'].split('/').shift() + '/' + msg_payload.length;
+				} else {
+					data.headers['content-length'] = msg_payload.length;
+				}
+
+				delete data.headers['transfer-encoding'];
+
+			} catch (err) {
+
+				msg_payload                      = data.payload;
+				data.headers['@encoding']        = 'identity';
+				data.headers['content-encoding'] = 'identity';
+
+				if (isString(data.headers['content-range']) === true) {
+					data.headers['content-range'] = data.headers['content-range'].split('/').shift() + '/' + msg_payload.length;
+				} else {
+					data.headers['content-length'] = msg_payload.length;
+				}
+
+				delete data.headers['transfer-encoding'];
+
+			}
+
+		} else if (data.headers['@encoding'] === 'chunked') {
+
+			msg_payload                       = encode_chunked(data.payload);
+			data.headers['@encoding']         = 'chunked';
+			data.headers['transfer-encoding'] = 'chunked';
+			delete data.headers['content-encoding'];
+			delete data.headers['content-length'];
+
+		} else {
+
+			msg_payload                      = data.payload;
+			data.headers['content-encoding'] = 'identity';
+			data.headers['content-length']   = msg_payload.length;
+			delete data.headers['transfer-encoding'];
+
+		}
+
+	}
+
+
+	let fields = [];
+
+	if (connection.type === 'client') {
+
+		let method = data.headers['@method'] || null;
+		if (METHODS.includes(method) === true && isString(data.headers['@url']) === true) {
+			fields.push(method + ' ' + data.headers['@url'] + ' HTTP/1.1');
+		} else if (METHODS.includes(method) === true) {
+			fields.push(method + ' / HTTP/1.1');
+		} else if (isString(data.headers['@url']) === true) {
+			fields.push('GET ' + data.headers['@url'] + ' HTTP/1.1');
+		} else {
+			fields.push('GET / HTTP/1.1');
+		}
+
+	} else if (connection.type === 'server') {
+
+		if (isString(data.headers['@status']) === true) {
+			fields.push('HTTP/1.1 ' + data.headers['@status']);
+		} else {
+			fields.push('HTTP/1.1 200 OK');
+		}
+
+	}
+
+	Object.keys(data.headers).filter((h) => h.startsWith('@') === false).sort().forEach((header) => {
+
+		let key = header.split('-').map((v) => v.charAt(0).toUpperCase() + v.substr(1).toLowerCase()).join('-');
+		let val = data.headers[header];
+
+		if (isNumber(val) === true) {
+			fields.push(key + ': ' + val);
+		} else if (isBoolean(val) === true) {
+			fields.push(key + ': ' + val);
+		} else if (val === null) {
+			fields.push(key + ': ' + val);
+		} else if (DATETIME.isDATETIME(val) === true) {
+			fields.push(key + ': ' + DATETIME.toIMF(val));
+		} else if (isString(val) === true) {
+			fields.push(key + ': ' + val);
+		}
+
+	});
+
+
+	let msg_headers = Buffer.from(fields.join('\r\n'), 'utf8');
+
+
+	return Buffer.concat([
+		msg_headers,
+		EMPTYLINE,
+		msg_payload,
+		data.headers['@encoding'] === 'chunked' ? Buffer.alloc(0) : EMPTYLINE
+	]);
+
+};
+
+
+
+const onconnect = function(connection, url) {
+
+	if (url.payload !== null) {
+
+		if (
+			isString(url.headers['@status']) === true
+			&& url.headers['@status'] === '206 Partial Content'
+		) {
+
+			connection.fragment = url.payload;
+
+			url.headers = {
+				'@encoding':       url.headers['@encoding'],
+				'@length':         null,
+				'@method':         'GET',
+				'@partial':        true,
+				'@range':          [ connection.fragment.length, Infinity ],
+				'@url':            URL.render(url),
+				'accept-encoding': url.headers['@encoding']
+			};
+			url.payload = null;
+
+		}
+
+	}
+
+
+	let timeout = Date.now() + 5000;
 
 	connection.type = 'client';
 
@@ -113,12 +575,8 @@ const onconnect = function(connection, url) {
 
 	connection.interval = setInterval(() => {
 
-		if (fragment.length === null) {
-
-			if ((Date.now() - timeout) > 1000) {
-				ondisconnect(connection, url);
-			}
-
+		if (url.payload === null && (Date.now() - timeout) > 1000) {
+			ondisconnect(connection, url);
 		}
 
 	}, 1000);
@@ -131,170 +589,81 @@ const onconnect = function(connection, url) {
 
 const ondata = function(connection, url, chunk) {
 
-	let fragment = connection.fragment;
-	if (fragment.mode === 'headers') {
-
-		if (fragment.headers !== null) {
-			fragment.headers = Buffer.concat([ fragment.headers, chunk ]);
-		} else {
-			fragment.headers = chunk;
-		}
+	connection.fragment = Buffer.concat([ connection.fragment, chunk ]);
 
 
-		let check = fragment.headers.indexOf(Buffer.from('\r\n\r\n', 'utf8'));
-		if (check !== -1) {
+	let header_index = connection.fragment.indexOf(EMPTYLINE);
 
-			HTTP.receive(connection, fragment.headers, (frame) => {
+	if (header_index !== -1) {
 
-				fragment.mode = 'payload';
-				url.headers   = frame.headers;
+		HTTP.receive(connection, connection.fragment, (frame) => {
 
+			if (frame !== null) {
 
-				let tmp0 = frame.headers['content-length'] || null;
-				let tmp1 = frame.headers['content-range']  || null;
-				if (tmp0 !== null && fragment.length === null) {
-
-					let num = parseInt(tmp0, 10);
-					if (Number.isNaN(num) === false) {
-						fragment.length = num;
-					}
-
-				} else if (tmp1 !== null && tmp1.includes('/') === true && fragment.length === null) {
-
-					let num = parseInt(tmp1.split('/').pop(), 10);
-					if (Number.isNaN(num) === false) {
-						fragment.length = num;
-					}
-
-				} else {
-
-					fragment.length = null;
-
-				}
-
-
-				let tmp2 = frame.headers['content-encoding']  || null;
-				let tmp3 = frame.headers['transfer-encoding'] || null;
-				if (tmp2 === 'gzip' || tmp3 === 'gzip') {
-					fragment.encoding = 'gzip';
-				} else if (tmp3 === 'chunked') {
-					fragment.encoding = 'chunked';
-				} else {
-					fragment.encoding = 'identity';
-				}
+				url.headers = frame.headers;
+				url.payload = frame.payload;
 
 
 				if (connection.type === 'client') {
 
-					let tmp4 = (frame.headers['@status'] || '').split(' ').shift();
-					let tmp5 = (frame.headers['content-range'] || null);
-					if (tmp4 === '206' && tmp5 !== null) {
-
-						fragment.partial = true;
+					if (frame.headers['@length'] !== Infinity) {
 
 						if (frame.payload !== null) {
 
-							if (fragment.payload !== null) {
-								fragment.payload = Buffer.concat([ fragment.payload, frame.payload ]);
-							} else {
-								fragment.payload = frame.payload;
-							}
+							connection.socket.end();
+
+						} else {
+
+							connection.emit('progress', [{
+								headers: frame.headers,
+								payload: frame.payload
+							}, {
+								bytes: connection.fragment.length - header_index - 4,
+								total: frame.headers['@length']
+							}]);
 
 						}
-
-					} else if (tmp4 === '200') {
-
-						fragment.partial = false;
-
-						if (frame.payload !== null) {
-							fragment.payload = frame.payload;
-						}
-
-					} else if (tmp4 === '416') {
-
-						connection.emit('error', [{ type: 'request', cause: 'headers-payload' }]);
 
 					} else {
 
-						fragment.partial = false;
+						// Unknown payload size, wait for timeout
 
-						if (frame.payload !== null) {
-							fragment.payload = frame.payload;
-						}
-
-						connection.socket.removeAllListeners('data');
-						connection.socket.end();
-
-					}
-
-
-					if (fragment.length !== null && fragment.length === fragment.payload.length) {
-						connection.socket.end();
 					}
 
 				} else if (connection.type === 'server') {
 
-					if (fragment.length !== null && fragment.length === fragment.payload.length) {
+					if (frame.headers['@length'] !== Infinity) {
 
-						connection.emit('request', [{
-							headers: url.headers,
-							payload: fragment.payload
-						}]);
+						if (frame.payload !== null) {
 
-					} else if (fragment.length === null) {
+							connection.emit('request', [{
+								headers: frame.headers,
+								payload: frame.payload
+							}]);
 
-						connection.emit('request', [{
-							headers: url.headers,
-							payload: fragment.payload
-						}]);
+						} else {
+
+							connection.emit('progress', [{
+								headers: frame.headers,
+								payload: frame.payload
+							}, {
+								bytes: connection.fragment.buffer.length - header_index - 4,
+								total: frame.headers['@length']
+							}]);
+
+						}
+
+					} else {
+
+						// Unknown payload size, wait for timeout
 
 					}
 
 				}
 
-			});
-
-		}
-
-	} else if (fragment.mode === 'payload') {
-
-		fragment.payload = Buffer.concat([ fragment.payload, chunk ]);
-
-
-		connection.emit('progress', [{
-			headers: url.headers,
-			payload: fragment.payload
-		}, {
-			bytes:  fragment.payload.length,
-			length: fragment.length
-		}]);
-
-
-		if (connection.type === 'client') {
-
-			if (fragment.length !== null && fragment.length === fragment.payload.length) {
-				connection.socket.end();
 			}
 
-		} else if (connection.type === 'server') {
-
-			if (fragment.length !== null && fragment.length === fragment.payload.length) {
-
-				connection.emit('request', [{
-					headers: url.headers,
-					payload: fragment.payload
-				}]);
-
-			} else if (fragment.length === null) {
-
-				connection.emit('request', [{
-					headers: url.headers,
-					payload: fragment.payload
-				}]);
-
-			}
-
-		}
+		});
 
 	}
 
@@ -302,91 +671,76 @@ const ondata = function(connection, url, chunk) {
 
 const ondisconnect = function(connection, url) {
 
-	let fragment = connection.fragment;
+	if (
+		url.headers === null
+		|| (
+			url.headers !== null
+			&& url.headers['@length'] === Infinity
+			&& url.payload === null
+		)
+	) {
 
-	if (fragment.length !== null && fragment.length !== fragment.payload.length && isBuffer(fragment.headers) === true) {
+		HTTP.receive(connection, connection.fragment, (frame) => {
 
-		let check = fragment.headers.indexOf(Buffer.from('\r\n\r\n', 'utf8'));
-		if (check !== -1) {
-
-			HTTP.receive(connection, fragment.headers, (frame) => {
+			if (frame !== null) {
 
 				url.headers = frame.headers;
+				url.payload = frame.payload;
 
-				if (frame.payload !== null) {
+			} else {
 
-					if (frame.payload.length === fragment.length) {
-						fragment.payload = frame.payload;
-					}
+				url.headers = {};
+				url.payload = null;
 
-				}
+			}
 
-			});
-
-		}
+		});
 
 	}
 
 
 	if (connection.type === 'client') {
 
-		if (url.headers !== null) {
+		let code = (url.headers['@status'] || '500').split(' ').shift();
+		if (code === '200' || code === '204' || code === '205' || code === '206') {
 
-			let code = (url.headers['@status'] || '500').split(' ').shift();
-			if (code === '200' || code === '204' || code === '205' || code === '206') {
+			if (url.payload !== null) {
 
-				if (fragment.length === null || fragment.length === fragment.payload.length) {
+				connection.emit('response', [{
+					headers: url.headers,
+					payload: url.payload
+				}]);
 
-					if (fragment.encoding === 'chunked') {
-						fragment.payload  = decode_chunked(fragment.payload);
-						fragment.encoding = 'identity';
-					} else if (fragment.encoding === 'gzip') {
-						fragment.payload  = decode_gzip(fragment.payload);
-						fragment.encoding = 'identity';
-					}
-
-
-					connection.emit('response', [{
-						headers: url.headers,
-						payload: fragment.payload
-					}]);
-
-				} else if (fragment.length < fragment.payload.length) {
-
-					if (fragment.partial === true) {
-
-						connection.emit('timeout', [{
-							headers: url.headers,
-							payload: fragment.payload
-						}]);
-
-					} else {
-						connection.emit('timeout', [ null ]);
-					}
-
-				} else {
-					connection.emit('error', [{ type: 'request', cause: 'headers-payload' }]);
-				}
-
-			} else if (code === '301' || code === '307' || code === '308') {
-
-				let tmp = url.headers['location'] || null;
-				if (tmp !== null) {
-					connection.emit('redirect', [{ headers: url.headers }]);
-				} else {
-					connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
-				}
-
-			} else if (code.startsWith('4') === true && code.length === 3) {
-				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
-			} else if (code.startsWith('5') === true && code.length === 3) {
-				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
 			} else {
-				connection.emit('error', [{ code: code, type: 'request', cause: 'headers-status' }]);
+
+				connection.emit('error', [{ type: 'connection', cause: 'headers-payload' }]);
+
 			}
 
+		} else if (code === '301' || code === '307' || code === '308') {
+
+			let tmp = url.headers['location'] || null;
+			if (tmp !== null) {
+				connection.emit('redirect', [{ headers: url.headers }]);
+			} else {
+				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+			}
+
+		} else if (code.startsWith('4') === true && code.length === 3) {
+			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+		} else if (code.startsWith('5') === true && code.length === 3) {
+			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
 		} else {
-			connection.emit('timeout', [ null ]);
+			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+		}
+
+	} else if (connection.type === 'server') {
+
+		let check = (url.headers['@url'] || '');
+		if (check !== '') {
+			// Do Nothing
+		} else {
+			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 		}
 
 	}
@@ -444,17 +798,9 @@ const isUpgrade = function(url) {
 
 const Connection = function(socket) {
 
-	this.socket   = socket || null;
-	this.fragment = {
-		encoding: 'identity',
-		headers:  null,
-		length:   null,
-		mode:     'headers',
-		partial:  false,
-		payload:  Buffer.from('', 'utf8'),
-		start:    0
-	};
+	this.fragment = Buffer.alloc(0);
 	this.interval = null;
+	this.socket   = socket || null;
 	this.type     = null;
 
 
@@ -619,20 +965,7 @@ const HTTP = {
 					connection.socket.on('timeout', () => {
 
 						if (connection.socket !== null) {
-
-							let fragment = connection.fragment;
-							if (fragment.partial === true) {
-
-								connection.emit('timeout', [{
-									headers: url.headers,
-									payload: fragment.payload
-								}]);
-
-							} else {
-								connection.emit('timeout', [ null ]);
-								connection.disconnect();
-							}
-
+							ondisconnect(connection, url);
 						}
 
 					});
@@ -640,10 +973,7 @@ const HTTP = {
 					connection.socket.on('error', () => {
 
 						if (connection.socket !== null) {
-
-							connection.emit('error', [{ type: 'request' }]);
 							ondisconnect(connection, url);
-
 						}
 
 					});
@@ -661,7 +991,7 @@ const HTTP = {
 				} else {
 
 					connection.socket = null;
-					connection.emit('error', [{ type: 'request' }]);
+					connection.emit('error', [{ type: 'connection' }]);
 
 					return null;
 
@@ -679,7 +1009,7 @@ const HTTP = {
 		} else {
 
 			connection.socket = null;
-			connection.emit('error', [{ type: 'request' }]);
+			connection.emit('error', [{ type: 'connection' }]);
 
 			return null;
 
@@ -714,73 +1044,23 @@ const HTTP = {
 
 		if (buffer !== null) {
 
-			let headers     = {};
-			let payload     = null;
-			let raw_headers = '';
-			let raw_payload = null;
+			let data = decode(connection, buffer);
+			if (data !== null) {
 
-			let raw   = buffer.toString('utf8');
-			let index = raw.indexOf('\r\n\r\n');
-			if (index !== -1) {
+				if (callback !== null) {
 
-				if (raw.endsWith('\r\n\r\n') === true) {
-					raw_headers = raw.substr(0, index);
-					raw_payload = buffer.slice(index + 4, buffer.length - 4);
-				} else {
-					raw_headers = raw.substr(0, index);
-					raw_payload = buffer.slice(index + 4);
+					callback({
+						headers: data.headers,
+						payload: data.payload
+					});
+
 				}
 
 			} else {
-				raw_headers = raw;
-			}
 
-
-			let tmp1 = raw_headers.split('\r\n').map((line) => line.trim());
-			if (tmp1.length > 1) {
-
-				let tmp2 = tmp1.shift().split(' ');
-				if (/^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PATCH)$/g.test(tmp2[0]) === true) {
-
-					headers['@method'] = tmp2[0];
-
-					if (tmp2[1].startsWith('/') === true) {
-						headers['@url'] = tmp2[1];
-					} else if (tmp2[1].startsWith('http://') === true || tmp2[1].startsWith('https://') === true) {
-						headers['@url'] = tmp2[1];
-					}
-
-				} else if (tmp2[0] === 'HTTP/1.1' || tmp2[0] === 'HTTP/1.0') {
-					headers['@status'] = tmp2.slice(1).join(' ');
+				if (callback !== null) {
+					callback(null);
 				}
-
-
-				tmp1.filter((line) => line !== '').forEach((line) => {
-
-					if (line.includes(':') === true) {
-
-						let key = line.split(':')[0].trim().toLowerCase();
-						let val = line.split(':').slice(1).join(':').trim();
-
-						headers[key] = val;
-
-					}
-
-				});
-
-			}
-
-			if (raw_payload !== null) {
-				payload = raw_payload;
-			}
-
-
-			if (callback !== null) {
-
-				callback({
-					headers: headers,
-					payload: payload
-				});
 
 			}
 
@@ -804,7 +1084,6 @@ const HTTP = {
 		if (connection !== null && connection.socket !== null) {
 
 			let buffer  = null;
-			let blob    = [];
 			let headers = {};
 			let payload = null;
 
@@ -814,76 +1093,29 @@ const HTTP = {
 
 			if (isBoolean(data.payload) === true) {
 				payload = data.payload;
-			} else {
-				payload = data.payload || null;
+			} else if (isBuffer(data.payload) === true) {
+				payload = data.payload;
+			} else if (isObject(data.payload) === true) {
+				payload = Buffer.from(JSON.stringify(payload, null, '\t'), 'utf8');
 			}
 
 
-			if (payload !== null) {
+			if (headers !== null) {
 
-				if (isBuffer(payload) === true) {
-					// Do nothing
-				} else if (isString(payload) === true) {
-					payload = Buffer.from(payload, 'utf8');
-				} else if (isObject(payload) === true) {
-					payload = Buffer.from(JSON.stringify(payload, null, '\t'), 'utf8');
-				}
-
-
-				let tmp1 = headers['content-encoding']  || null;
-				let tmp2 = headers['transfer-encoding'] || null;
-
-				if (tmp1 === 'gzip' || tmp2 === 'gzip') {
-
-					payload = encode_gzip(payload);
-
-				} else if (tmp2 === 'chunked') {
-
-					// Don't embrace Legacy Encoding
-					delete headers['transfer-encoding'];
-
-				}
+				buffer = encode(connection, {
+					headers: headers,
+					payload: payload
+				});
 
 			}
-
-
-			if (isString(headers['@method']) === true && isString(headers['@url']) === true) {
-				blob.push(headers['@method'] + ' ' + headers['@url'] + ' HTTP/1.1');
-			} else if (isString(headers['@status']) === true) {
-				blob.push('HTTP/1.1 ' + headers['@status']);
-			} else {
-				blob.push('HTTP/1.1 200 OK');
-			}
-
-
-			Object.keys(headers).filter((h) => h.startsWith('@') === false).forEach((name) => {
-
-				let key = name.split('-').map((v) => v.charAt(0).toUpperCase() + v.substr(1).toLowerCase()).join('-');
-				let val = headers[name];
-
-				blob.push(key + ': ' + val);
-
-			});
-
-
-			blob.push('');
-			blob.push('');
-
-			buffer = Buffer.from(blob.join('\r\n'), 'utf8');
 
 
 			if (buffer !== null) {
 
-				connection.socket.write(buffer);
-
-				if (connection.type === 'server') {
-
-					if (payload !== null) {
-						connection.socket.end(payload);
-					} else {
-						connection.socket.end();
-					}
-
+				if (connection.type === 'client') {
+					connection.socket.write(buffer);
+				} else if (connection.type === 'server') {
+					connection.socket.end(buffer);
 				}
 
 				if (callback !== null) {
@@ -936,21 +1168,7 @@ const HTTP = {
 			connection.socket.on('timeout', () => {
 
 				if (connection.socket !== null) {
-
-					connection.socket = null;
-
-					let fragment = connection.fragment;
-					if (fragment.partial === true) {
-
-						connection.emit('timeout', [{
-							headers: url.headers,
-							payload: fragment.payload
-						}]);
-
-					} else {
-						connection.emit('timeout', [ null ]);
-					}
-
+					ondisconnect(connection, url);
 				}
 
 			});
@@ -958,10 +1176,7 @@ const HTTP = {
 			connection.socket.on('error', () => {
 
 				if (connection.socket !== null) {
-
 					ondisconnect(connection, url);
-					connection.socket = null;
-
 				}
 
 			});
@@ -969,10 +1184,7 @@ const HTTP = {
 			connection.socket.on('end', () => {
 
 				if (connection.socket !== null) {
-
 					ondisconnect(connection, url);
-					connection.socket = null;
-
 				}
 
 			});

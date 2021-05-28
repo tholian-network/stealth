@@ -9,10 +9,114 @@ import { URL                                    } from '../../../stealth/source/
 
 
 
+const PAYLOADS = {
+
+	// TODO: gzip encodings
+	// TODO: chunked encodings
+
+	'200': {
+
+		'REQUEST': Buffer.from([
+			'GET /path/to/resource?param=value HTTP/1.1',
+			'Accept-Encoding: identity',
+			'',
+			'{"submitted":"data"}',
+			'',
+			''
+		].join('\r\n'), 'utf8'),
+
+		'RESPONSE': Buffer.from([
+			'HTTP/1.1 200 OK',
+			'Content-Encoding: identity',
+			'Cache-Control: max-age=604800',
+			'Content-Type: text/html; charset=UTF-8',
+			'Date: Sun, 14 Apr 2019 13:15:09 GMT',
+			'Etag: "1541025663"',
+			'Expires: Sun, 21 Apr 2019 13:15:09 GMT',
+			'Last-Modified: Fri, 09 Aug 2013 23:54:35 GMT',
+			'Server: ECS (dcb/7EED)',
+			'Vary: Accept-Encoding',
+			'X-Cache: HIT',
+			'Content-Length: 53',
+			'',
+			'<!doctype html>\n<html>\n<title>Example</title>\n</html>'
+		].join('\r\n'), 'utf8')
+
+	},
+
+	'206': {
+
+		'REQUEST1': Buffer.from([
+			'GET /path/to/stream?token=value HTTP/1.1',
+			'Accept-Encoding: identity',
+			'Range: bytes=0-127',
+			''
+		].join('\r\n'), 'utf8'),
+
+		'REQUEST2': Buffer.from([
+			'GET /path/to/stream?token=value HTTP/1.1',
+			'Accept-Encoding: identity',
+			'Range: bytes=128-255',
+			''
+		].join('\r\n'), 'utf8'),
+
+		'REQUEST3': Buffer.from([
+			'GET /path/to/stream?token=value HTTP/1.1',
+			'Accept-Encoding: identity',
+			'Range: bytes=256-',
+			'',
+			'{"submitted":"data"}',
+			'',
+			''
+		].join('\r\n'), 'utf8'),
+
+		'RESPONSE1': Buffer.from([
+			'HTTP/1.1 206 Partial Content',
+			'Content-Encoding: identity',
+			'Content-Range: bytes 0-127/512',
+			'',
+			[
+				'The sentence #1 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #2 inside the big buffer is exactly 64 bytes long.\n'
+			].join('')
+		].join('\r\n'), 'utf8'),
+
+		'RESPONSE2': Buffer.from([
+			'HTTP/1.1 206 Partial Content',
+			'Content-Encoding: identity',
+			'Content-Range: bytes 128-255/512',
+			'',
+			[
+				'The sentence #3 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #4 inside the big buffer is exactly 64 bytes long.\n'
+			].join('')
+		].join('\r\n'), 'utf8'),
+
+		'RESPONSE3': Buffer.from([
+			'HTTP/1.1 206 Partial Content',
+			'Content-Encoding: identity',
+			'Content-Range: bytes 256-511/512',
+			'',
+			[
+				'The sentence #5 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #6 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #7 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #8 inside the big buffer is exactly 64 bytes long.\n'
+			].join('')
+		].join('\r\n'), 'utf8')
+
+	},
+
+	'404': {
+	}
+
+};
+
+
+
 describe('HTTP.connect()', function(assert) {
 
 	assert(isFunction(HTTP.connect), true);
-
 
 	let url        = Object.assign(URL.parse('http://example.com:80/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTP.connect(url);
@@ -37,7 +141,6 @@ describe('HTTP.disconnect()', function(assert) {
 
 	assert(isFunction(HTTP.disconnect), true);
 
-
 	let url        = Object.assign(URL.parse('http://example.com:80/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTP.connect(url);
 
@@ -57,99 +160,186 @@ describe('HTTP.disconnect()', function(assert) {
 
 });
 
-describe('HTTP.receive()/client', function(assert) {
+describe('HTTP.receive()/client/200', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 
+	HTTP.receive(null, PAYLOADS['200']['RESPONSE'], (response) => {
 
-	let url        = Object.assign(URL.parse('http://example.com:80'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
-	let connection = HTTP.connect(url);
-
-	connection.once('@connect', () => {
-
-		HTTP.receive(connection, Buffer.from([
-			'HTTP/1.1 200 OK',
-			'Content-Encoding: identity',
-			'Cache-Control: max-age=604800',
-			'Content-Type: text/html; charset=UTF-8',
-			'Date: Sun, 14 Apr 2019 13:15:09 GMT',
-			'Etag: "1541025663"',
-			'Expires: Sun, 21 Apr 2019 13:15:09 GMT',
-			'Last-Modified: Fri, 09 Aug 2013 23:54:35 GMT',
-			'Server: ECS (dcb/7EED)',
-			'Vary: Accept-Encoding',
-			'X-Cache: HIT',
-			'Content-Length: 53',
-			'',
-			'<!doctype html>\n<html>\n<title>Example</title>\n</html>'
-		].join('\r\n'), 'utf8'), (response) => {
-
-			assert(response, {
-				headers: {
-					'@status':          '200 OK',
-					'content-encoding': 'identity',
-					'cache-control':    'max-age=604800',
-					'content-type':     'text/html; charset=UTF-8',
-					'date':             'Sun, 14 Apr 2019 13:15:09 GMT',
-					'etag':             '"1541025663"',
-					'expires':          'Sun, 21 Apr 2019 13:15:09 GMT',
-					'last-modified':    'Fri, 09 Aug 2013 23:54:35 GMT',
-					'server':           'ECS (dcb/7EED)',
-					'vary':             'Accept-Encoding',
-					'x-cache':          'HIT',
-					'content-length':   '53'
+		assert(response, {
+			headers: {
+				'@encoding':        'identity',
+				'@length':          53,
+				'@partial':         false,
+				'@range':           [ 0, 52 ],
+				'@status':          '200 OK',
+				'cache-control':    'max-age=604800',
+				'content-encoding': 'identity',
+				'content-length':   53,
+				'content-type':     'text/html; charset=UTF-8',
+				'date': {
+					year:    2019,
+					month:   4,
+					day:     14,
+					hour:    13,
+					minute:  15,
+					second:  9
 				},
-				payload: Buffer.from('<!doctype html>\n<html>\n<title>Example</title>\n</html>', 'utf8')
-			});
-
-			connection.disconnect();
-
+				'etag': '"1541025663"',
+				'expires': {
+					year:    2019,
+					month:   4,
+					day:     21,
+					hour:    13,
+					minute:  15,
+					second:  9
+				},
+				'last-modified': {
+					year:    2013,
+					month:   8,
+					day:     9,
+					hour:    23,
+					minute:  54,
+					second:  35
+				},
+				'server': 'ECS (dcb/7EED)',
+				'vary': 'Accept-Encoding',
+				'x-cache': 'HIT'
+			},
+			payload: Buffer.from('<!doctype html>\n<html>\n<title>Example</title>\n</html>', 'utf8')
 		});
 
 	});
 
 });
 
-describe('HTTP.receive()/server', function(assert) {
+describe('HTTP.receive()/client/200/partial', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 
+	HTTP.receive(null, PAYLOADS['200']['RESPONSE'].slice(0, 342), (response) => {
 
-	let connection = HTTP.upgrade(new net.Socket(), {});
-
-	connection.once('@connect', () => {
-
-		HTTP.receive(connection, Buffer.from([
-			'GET /index.html HTTP/1.1',
-			'Host: example.com',
-			'Accept-Encoding: gzip',
-			'Range: bytes=0-',
-			''
-		].join('\r\n'), 'utf8'), (request) => {
-
-			assert(request, {
-				headers: {
-					'@method':         'GET',
-					'@url':            '/index.html',
-					'host':            'example.com',
-					'accept-encoding': 'gzip',
-					'range':           'bytes=0-'
+		assert(response, {
+			headers: {
+				'@encoding':        null,
+				'@length':          53,
+				'@partial':         true,
+				'@range':           [ 0, 52 ],
+				'@status':          '200 OK',
+				'cache-control':    'max-age=604800',
+				'content-encoding': 'identity',
+				'content-length':   53,
+				'content-type':     'text/html; charset=UTF-8',
+				'date': {
+					year:    2019,
+					month:   4,
+					day:     14,
+					hour:    13,
+					minute:  15,
+					second:  9
 				},
-				payload: null
-			});
-
-			connection.disconnect();
-
+				'etag': '"1541025663"',
+				'expires': {
+					year:    2019,
+					month:   4,
+					day:     21,
+					hour:    13,
+					minute:  15,
+					second:  9
+				},
+				'last-modified': {
+					year:    2013,
+					month:   8,
+					day:     9,
+					hour:    23,
+					minute:  54,
+					second:  35
+				},
+				'server': 'ECS (dcb/7EED)',
+				'vary': 'Accept-Encoding',
+				'x-cache': 'HIT'
+			},
+			payload: null
 		});
 
 	});
 
 });
 
-describe('HTTP.send()', function(assert) {
+describe('HTTP.receive()/client/206', function(assert) {
+
+	assert(isFunction(HTTP.receive), true);
+
+	HTTP.receive(null, PAYLOADS['206']['RESPONSE1'], (response) => {
+
+		assert(response, {
+			headers: {
+				'@encoding':        'identity',
+				'@length':          512,
+				'@partial':         true,
+				'@range':           [ 0, 127 ],
+				'@status':          '206 Partial Content',
+				'content-encoding': 'identity',
+				'content-range':    'bytes 0-127/512'
+			},
+			payload: Buffer.from([
+				'The sentence #1 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #2 inside the big buffer is exactly 64 bytes long.\n'
+			].join(''), 'utf8')
+		});
+
+	});
+
+	HTTP.receive(null, PAYLOADS['206']['RESPONSE2'], (response) => {
+
+		assert(response, {
+			headers: {
+				'@encoding':        'identity',
+				'@length':          512,
+				'@partial':         true,
+				'@range':           [ 128, 255 ],
+				'@status':          '206 Partial Content',
+				'content-encoding': 'identity',
+				'content-range':    'bytes 128-255/512'
+			},
+			payload: Buffer.from([
+				'The sentence #3 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #4 inside the big buffer is exactly 64 bytes long.\n'
+			].join(''), 'utf8')
+		});
+
+	});
+
+	HTTP.receive(null, PAYLOADS['206']['RESPONSE3'], (response) => {
+
+		assert(response, {
+			headers: {
+				'@encoding':        'identity',
+				'@length':          512,
+				'@partial':         true,
+				'@range':           [ 256, 511 ],
+				'@status':          '206 Partial Content',
+				'content-encoding': 'identity',
+				'content-range':    'bytes 256-511/512'
+			},
+			payload: Buffer.from([
+				'The sentence #5 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #6 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #7 inside the big buffer is exactly 64 bytes long.\n',
+				'The sentence #8 inside the big buffer is exactly 64 bytes long.\n'
+			].join(''), 'utf8')
+		});
+
+	});
+
+	// TODO: Test case for Content-Range: */size
+	// TODO: Test case for Content-Range: from-to/*
+
+});
+
+describe('HTTP.send()/client/200', function(assert) {
 
 	assert(isFunction(HTTP.send), true);
-
 
 	let url        = Object.assign(URL.parse('http://example.com:80/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let connection = HTTP.connect(url);
@@ -160,12 +350,16 @@ describe('HTTP.send()', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
+		assert(response.headers['@encoding'],        'identity');
+		assert(response.headers['@length'],          648);
+		assert(response.headers['@partial'],         false);
+		assert(response.headers['@range'],           [ 0, 647 ]);
 		assert(response.headers['@status'],          '200 OK');
+
 		assert(response.headers['content-encoding'], 'gzip');
+		assert(response.headers['content-length'],   648);
 		assert(response.headers['content-type'],     'text/html; charset=UTF-8');
 		assert(response.headers['vary'],             'Accept-Encoding');
-
-		assert(response.payload.toString('utf8').includes('<title>Example Domain</title>'));
 
 	});
 
@@ -175,8 +369,8 @@ describe('HTTP.send()', function(assert) {
 			headers: {
 				'@method':         'GET',
 				'@url':            '/index.html',
+				'accept-encoding': 'gzip',
 				'host':            'example.com',
-				'accept-encoding': 'gzip'
 			},
 			payload: null
 		}, (result) => {
@@ -189,7 +383,116 @@ describe('HTTP.send()', function(assert) {
 
 });
 
-describe('HTTP.upgrade()', function(assert) {
+describe('HTTP.receive()/server/200', function(assert) {
+
+	assert(isFunction(HTTP.receive), true);
+
+	HTTP.receive(null, PAYLOADS['200']['REQUEST'], (request) => {
+
+		assert(request, {
+			headers: {
+				'@encoding':       'identity',
+				'@length':         20,
+				'@method':         'GET',
+				'@partial':        false,
+				'@range':          [ 0, 19 ],
+				'@url':            '/path/to/resource?param=value',
+				'accept-encoding': 'identity'
+			},
+			payload: Buffer.from('{"submitted":"data"}', 'utf8')
+		});
+
+	});
+
+});
+
+describe('HTTP.receive()/server/200/partial', function(assert) {
+
+	assert(isFunction(HTTP.receive), true);
+
+	HTTP.receive(null, PAYLOADS['200']['REQUEST'].slice(0, 73 + 5), (request) => {
+
+		assert(request, {
+			headers: {
+				'@encoding':       'identity',
+				'@length':          Infinity,
+				'@method':         'GET',
+				'@partial':         null,
+				'@range':          [ 0, Infinity ],
+				'@url':            '/path/to/resource?param=value',
+				'accept-encoding': 'identity'
+			},
+			payload: Buffer.from('{"sub', 'utf8')
+		});
+
+	});
+
+});
+
+describe('HTTP.receive()/server/206', function(assert) {
+
+	assert(isFunction(HTTP.receive), true);
+
+	HTTP.receive(null, PAYLOADS['206']['REQUEST1'], (request) => {
+
+		assert(request, {
+			headers: {
+				'@encoding':       null,
+				'@length':         Infinity,
+				'@method':         'GET',
+				'@partial':        true,
+				'@range':          [ 0, 127 ],
+				'@url':            '/path/to/stream?token=value',
+				'accept-encoding': 'identity',
+				'range':           'bytes=0-127'
+			},
+			payload: null
+		});
+
+	});
+
+	HTTP.receive(null, PAYLOADS['206']['REQUEST2'], (request) => {
+
+		assert(request, {
+			headers: {
+				'@encoding':       null,
+				'@length':         Infinity,
+				'@method':         'GET',
+				'@partial':        true,
+				'@range':          [ 128, 255 ],
+				'@url':            '/path/to/stream?token=value',
+				'accept-encoding': 'identity',
+				'range':           'bytes=128-255'
+			},
+			payload: null
+		});
+
+	});
+
+	HTTP.receive(null, PAYLOADS['206']['REQUEST3'], (request) => {
+
+		assert(request, {
+			headers: {
+				'@encoding':       'identity',
+				'@length':         Infinity,
+				'@method':         'GET',
+				'@partial':        true,
+				'@range':          [ 256, Infinity ],
+				'@url':            '/path/to/stream?token=value',
+				'accept-encoding': 'identity',
+				'range':           'bytes=256-'
+			},
+			payload: Buffer.from('{"submitted":"data"}', 'utf8')
+		});
+
+	});
+
+});
+
+describe('HTTP.send()/server/200', function(assert) {
+
+	assert(isFunction(HTTP.upgrade), true);
+	assert(isFunction(HTTP.send),    true);
 
 	let server = new net.Server({
 		allowHalfOpen:  true,
@@ -201,25 +504,35 @@ describe('HTTP.upgrade()', function(assert) {
 		let connection = HTTP.upgrade(socket);
 
 		connection.once('@connect', () => {
+
 			assert(true);
+
 		});
 
 		connection.once('request', (request) => {
 
 			assert(request, {
 				headers: {
-					'@method':         'GET',
-					'@url':            '/index.html',
-					'host':            'example.com',
-					'accept-encoding': 'gzip'
+					'@encoding':        'identity',
+					'@length':          15,
+					'@method':          'GET',
+					'@partial':         false,
+					'@range':           [ 0, 14 ],
+					'@url':             '/index.html',
+					'accept-encoding':  'gzip',
+					'content-encoding': 'identity',
+					'content-length':   15,
+					'host':             'covert.tholian.local'
 				},
-				payload: Buffer.from('', 'utf8')
+				payload: Buffer.from('{"status":1337}', 'utf8')
 			});
 
 		});
 
 		connection.once('@disconnect', () => {
+
 			assert(true);
+
 		});
 
 		socket.resume();
@@ -234,23 +547,19 @@ describe('HTTP.upgrade()', function(assert) {
 
 	connection.once('@connect', () => {
 
-		setTimeout(() => {
+		HTTP.send(connection, {
+			headers: {
+				'@method':         'GET',
+				'@url':            '/index.html',
+				'host':            'covert.tholian.local',
+				'accept-encoding': 'gzip'
+			},
+			payload: Buffer.from('{"status":1337}', 'utf8')
+		}, (result) => {
 
-			HTTP.send(connection, {
-				headers: {
-					'@method':         'GET',
-					'@url':            '/index.html',
-					'host':            'example.com',
-					'accept-encoding': 'gzip'
-				},
-				payload: null
-			}, (result) => {
+			assert(result, true);
 
-				assert(result, true);
-
-			});
-
-		}, 100);
+		});
 
 		setTimeout(() => {
 			assert(HTTP.disconnect(connection), true);
@@ -259,7 +568,9 @@ describe('HTTP.upgrade()', function(assert) {
 	});
 
 	connection.once('@disconnect', () => {
+
 		assert(true);
+
 	});
 
 	setTimeout(() => {

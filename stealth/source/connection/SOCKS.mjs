@@ -489,7 +489,7 @@ const onconnect = function(connection, url) {
 									connection.protocol = null;
 									connection.tunnel   = null;
 
-									connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+									connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
 
 								}
 
@@ -497,10 +497,10 @@ const onconnect = function(connection, url) {
 
 						} else if (response.headers['@status'] === 'error-blocked') {
 							connection.emit('error', [{ code: 403 }]);
-						} else if (response.headers['@status'] === 'error-network' || response.headers['@status'] === 'error-host') {
-							connection.emit('timeout', [ null ]);
+						} else if (response.headers['@status'] === 'error-network' || response.headers['@status'] === 'error-host' || response.headers['@status'] === 'error-connection') {
+							connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 						} else {
-							connection.emit('error', [{ type: 'request', cause: 'socket-stability' }]);
+							connection.emit('error', [{ type: 'connection' }]);
 						}
 
 					});
@@ -515,7 +515,7 @@ const onconnect = function(connection, url) {
 				});
 
 			} else {
-				connection.emit('error', [{ type: 'request', cause: 'socket-proxy' }]);
+				connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
 			}
 
 		});
@@ -926,8 +926,8 @@ const SOCKS = {
 
 						if (connection.socket !== null) {
 
+							ondisconnect(connection, url);
 							connection.socket = null;
-							connection.emit('timeout', [ null ]);
 
 						}
 
@@ -960,7 +960,7 @@ const SOCKS = {
 				} else {
 
 					connection.socket = null;
-					connection.emit('error', [{ type: 'request' }]);
+					connection.emit('error', [{ type: 'connection' }]);
 
 					return null;
 
@@ -991,7 +991,7 @@ const SOCKS = {
 				} else {
 
 					connection.socket = null;
-					connection.emit('error', [{ type: 'request' }]);
+					connection.emit('error', [{ type: 'connection' }]);
 
 					return null;
 
@@ -1009,7 +1009,7 @@ const SOCKS = {
 		} else {
 
 			connection.socket = null;
-			connection.emit('error', [{ type: 'request' }]);
+			connection.emit('error', [{ type: 'connection' }]);
 
 			return null;
 
@@ -1234,8 +1234,8 @@ const SOCKS = {
 
 					if (connection.socket !== null) {
 
+						ondisconnect(connection, url);
 						connection.socket = null;
-						connection.emit('timeout', [ null ]);
 
 					}
 

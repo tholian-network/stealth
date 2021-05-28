@@ -29,17 +29,17 @@ const show_help = () => {
 	console.log('');
 	console.log('Available Flags:');
 	console.log('');
-	console.log('    Flag       | Default | Values          | Description                                                         ');
-	console.log('    -----------|---------|-----------------|---------------------------------------------------------------------');
-	console.log('    --debug    | false   | true, false     | Enable/Disable stealth:debug page. Defaulted with false. [1]        ');
-	console.log('    --host     | null    | "(Host Name)"   | Overrides the Server Host to listen on. Defaulted with null.        ');
-	console.log('    --profile  | null    | "(Folder Path)" | Overrides the Stealth Profile folder path. Defaulted with null.     ');
+	console.log('    Flag       | Default | Values          | Description                                                    ');
+	console.log('    -----------|---------|-----------------|----------------------------------------------------------------');
+	console.log('    --debug    | false   | true, false     | Enable/Disable stealth:debug page. Defaulted with false. [1]   ');
+	console.log('    --host     | null    | "(Host Name)"   | Overrides the Server Host to listen on. Defaulted with null.   ');
+	console.log('    --profile  | null    | "(Folder Path)" | Overrides the Stealth Profile folder path. Defaulted with null.');
 	console.log('');
 	console.log('    [1] Additionally ensures that Browser Settings for the domain "tholian.network" are correct.');
 	console.log('');
 	console.log('Examples:');
 	console.log('');
-	console.log('    stealth serve --debug=true --host=mydomain.tld;');
+	console.log('    stealth serve --debug=true --host=myhostname;');
 	console.log('    stealth serve --profile=/tmp/stealth-profile;');
 	console.log('');
 

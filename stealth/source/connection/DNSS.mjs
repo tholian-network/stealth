@@ -1341,7 +1341,7 @@ const DNSS = {
 							} else {
 
 								connection.socket = null;
-								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+								connection.emit('error', [{ type: 'connection', cause: 'socket-trust' }]);
 
 							}
 
@@ -1376,7 +1376,7 @@ const DNSS = {
 							} else {
 
 								connection.socket = null;
-								connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+								connection.emit('error', [{ type: 'connection', cause: 'socket-trust' }]);
 
 							}
 
@@ -1410,12 +1410,12 @@ const DNSS = {
 						if (connection.socket !== null) {
 
 							let code  = (err.code || '');
-							let error = { type: 'request' };
+							let error = { type: 'connection' };
 
 							if (code === 'ECONNREFUSED') {
-								error = { type: 'request', cause: 'socket-stability' };
+								error = { type: 'connection', cause: 'socket-stability' };
 							} else if (code.startsWith('ERR_TLS') === true) {
-								error = { type: 'request', cause: 'socket-trust' };
+								error = { type: 'connection', cause: 'socket-trust' };
 							}
 
 							connection.emit('error', [ error ]);
@@ -1438,7 +1438,7 @@ const DNSS = {
 				} else {
 
 					connection.socket = null;
-					connection.emit('error', [{ type: 'request' }]);
+					connection.emit('error', [{ type: 'connection' }]);
 
 					return null;
 
@@ -1456,7 +1456,7 @@ const DNSS = {
 		} else {
 
 			connection.socket = null;
-			connection.emit('error', [{ type: 'request' }]);
+			connection.emit('error', [{ type: 'connection' }]);
 
 			return null;
 
