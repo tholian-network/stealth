@@ -635,15 +635,6 @@ const upgrade_ws = function(socket, url) {
 
 		});
 
-		connection.on('timeout', () => {
-
-			if (this.stealth !== null) {
-				this.stealth.untrack(connection.session);
-				connection.session = null;
-			}
-
-		});
-
 		connection.on('request', (request) => {
 
 			let event   = request.headers.event   || null;

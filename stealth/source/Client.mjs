@@ -264,10 +264,6 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				});
 
-				connection.on('timeout', () => {
-					this.disconnect();
-				});
-
 				connection.on('@disconnect', () => {
 					this.disconnect();
 				});

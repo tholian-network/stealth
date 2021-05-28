@@ -925,10 +925,7 @@ const SOCKS = {
 					socket.on('timeout', () => {
 
 						if (connection.socket !== null) {
-
 							ondisconnect(connection, url);
-							connection.socket = null;
-
 						}
 
 					});
@@ -936,10 +933,7 @@ const SOCKS = {
 					socket.on('error', () => {
 
 						if (connection.socket !== null) {
-
 							ondisconnect(connection, url);
-							connection.socket = null;
-
 						}
 
 					});
@@ -947,10 +941,7 @@ const SOCKS = {
 					socket.on('end', () => {
 
 						if (connection.socket !== null) {
-
 							ondisconnect(connection, url);
-							connection.socket = null;
-
 						}
 
 					});
@@ -1233,10 +1224,7 @@ const SOCKS = {
 				connection.socket.on('timeout', () => {
 
 					if (connection.socket !== null) {
-
 						ondisconnect(connection, url);
-						connection.socket = null;
-
 					}
 
 				});
@@ -1244,10 +1232,7 @@ const SOCKS = {
 				connection.socket.on('error', () => {
 
 					if (connection.socket !== null) {
-
 						ondisconnect(connection, url);
-						connection.socket = null;
-
 					}
 
 				});
@@ -1255,10 +1240,7 @@ const SOCKS = {
 				connection.socket.on('end', () => {
 
 					if (connection.socket !== null) {
-
 						ondisconnect(connection, url);
-						connection.socket = null;
-
 					}
 
 				});

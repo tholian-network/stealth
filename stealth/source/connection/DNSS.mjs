@@ -1124,7 +1124,7 @@ const ondisconnect = function(connection, url) {
 	if (connection.type === 'client') {
 
 		if (url.headers === null) {
-			connection.emit('timeout', [ null ]);
+			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 		}
 
 	}
@@ -1399,8 +1399,7 @@ const DNSS = {
 					connection.socket.on('timeout', () => {
 
 						if (connection.socket !== null) {
-							connection.emit('timeout', [ null ]);
-							connection.disconnect();
+							ondisconnect(connection, url);
 						}
 
 					});
@@ -1660,10 +1659,7 @@ const DNSS = {
 			connection.socket.on('error', () => {
 
 				if (connection.socket !== null) {
-
 					ondisconnect(connection, url);
-					connection.socket = null;
-
 				}
 
 			});
@@ -1671,10 +1667,7 @@ const DNSS = {
 			connection.socket.on('error', () => {
 
 				if (connection.socket !== null) {
-
 					ondisconnect(connection, url);
-					connection.socket = null;
-
 				}
 
 			});

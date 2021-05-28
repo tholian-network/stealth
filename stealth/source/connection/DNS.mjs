@@ -1290,10 +1290,7 @@ const DNS = {
 					connection.socket.on('error', () => {
 
 						if (connection.socket !== null) {
-
 							ondisconnect(connection, url);
-							connection.socket = null;
-
 						}
 
 					});
@@ -1301,10 +1298,7 @@ const DNS = {
 					connection.socket.on('close', () => {
 
 						if (connection.socket !== null) {
-
 							ondisconnect(connection, url);
-							connection.socket = null;
-
 						}
 
 					});
@@ -1564,10 +1558,7 @@ const DNS = {
 			connection.socket.on('error', () => {
 
 				if (connection.socket !== null) {
-
 					ondisconnect(connection, url);
-					connection.socket = null;
-
 				}
 
 			});
@@ -1575,10 +1566,7 @@ const DNS = {
 			connection.socket.on('close', () => {
 
 				if (connection.socket !== null) {
-
 					ondisconnect(connection, url);
-					connection.socket = null;
-
 				}
 
 			});

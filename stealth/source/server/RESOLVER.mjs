@@ -299,10 +299,6 @@ const resolve_domain = function(server, domain, callback) {
 				callback(null);
 			});
 
-			connection.once('timeout', () => {
-				callback(null);
-			});
-
 
 			let request = {
 				headers: {
