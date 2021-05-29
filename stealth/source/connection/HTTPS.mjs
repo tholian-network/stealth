@@ -54,17 +54,9 @@ const isConnection = function(obj) {
 
 const Connection = function(socket) {
 
-	this.socket   = socket || null;
-	this.fragment = {
-		encoding: 'identity',
-		headers:  null,
-		length:   null,
-		mode:     'headers',
-		partial:  false,
-		payload:  Buffer.from('', 'utf8'),
-		start:    0
-	};
+	this.fragment = Buffer.alloc(0);
 	this.interval = null;
+	this.socket   = socket || null;
 	this.type     = null;
 
 
@@ -99,15 +91,18 @@ Connection.from = function(json) {
 			let socket     = json.socket || null;
 			let connection = new Connection(socket);
 
-			for (let prop in json) {
+			Object.keys(connection).forEach((property) => {
 
-				if (prop !== 'socket') {
-					connection[prop] = json[prop];
+				if (
+					json[property] === undefined
+					|| json[property] === null
+				) {
+					json[property] = connection[property];
 				}
 
-			}
+			});
 
-			return connection;
+			return json;
 
 		}
 
@@ -191,78 +186,41 @@ const HTTPS = {
 				}
 
 
-				let socket = connection.socket || null;
-				if (socket === null) {
+				try {
 
-					try {
+					connection.socket = tls.connect({
+						host:           hostname,
+						port:           url.port || 443,
+						ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+						secureProtocol: 'TLS_method',
+						servername:     hostname,
+						lookup:         lookup.bind(url),
+						socket:         connection.socket || null
+					}, () => {
 
-						socket = tls.connect({
-							host:           hostname,
-							port:           url.port || 443,
-							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
-							secureProtocol: 'TLS_method',
-							servername:     hostname,
-							lookup:         lookup.bind(url)
-						}, () => {
+						if (connection.socket.authorized === true) {
 
-							if (socket.authorized === true) {
+							HTTP.connect(url, connection);
 
-								connection.socket = socket;
-								HTTP.connect(url, connection);
+						} else {
 
-							} else {
+							connection.socket = null;
+							connection.emit('error', [{ type: 'connection', cause: 'socket-trust' }]);
 
-								connection.socket = null;
-								connection.emit('error', [{ type: 'connection', cause: 'socket-trust' }]);
+						}
 
-							}
+					});
 
-						});
-
-					} catch (err) {
-						socket = null;
-					}
-
-				} else {
-
-					try {
-
-						socket = tls.connect({
-							host:           hostname,
-							port:           url.port || 443,
-							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
-							secureProtocol: 'TLS_method',
-							servername:     hostname,
-							lookup:         lookup.bind(url),
-							socket:         connection.socket || null
-						}, () => {
-
-							if (socket.authorized === true) {
-
-								connection.socket = socket;
-								HTTP.connect(url, connection);
-
-							} else {
-
-								connection.socket = null;
-								connection.emit('error', [{ type: 'connection', cause: 'socket-trust' }]);
-
-							}
-
-						});
-
-					} catch (err) {
-						socket = null;
-					}
-
+				} catch (err) {
+					connection.socket = null;
 				}
 
 
-				if (socket !== null) {
+				if (connection.socket !== null) {
 
-					socket.removeAllListeners('error');
+					connection.socket.removeAllListeners('error');
 
-					socket.on('error', (err) => {
+					connection.socket.on('error', (err) => {
 
 						if (connection.socket !== null) {
 

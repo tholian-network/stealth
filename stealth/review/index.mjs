@@ -18,7 +18,6 @@ import client_Policy      from './client/Policy.mjs';
 import client_Redirect    from './client/Redirect.mjs';
 import client_Session     from './client/Session.mjs';
 import client_Settings    from './client/Settings.mjs';
-import client_Stash       from './client/Stash.mjs';
 import connection_DNS     from './connection/DNS.mjs';
 import connection_DNSS    from './connection/DNSS.mjs';
 import connection_HTTP    from './connection/HTTP.mjs';
@@ -48,7 +47,6 @@ import server_Redirect    from './server/Redirect.mjs';
 import server_ROUTER      from './server/ROUTER.mjs';
 import server_Session     from './server/Session.mjs';
 import server_Settings    from './server/Settings.mjs';
-import server_Stash       from './server/Stash.mjs';
 
 
 
@@ -104,7 +102,6 @@ export const REVIEWS = [
 	server_Redirect,
 	server_Session,
 	server_Settings,
-	server_Stash,
 
 	client_Beacon,
 	client_Blocker,
@@ -116,7 +113,6 @@ export const REVIEWS = [
 	client_Redirect,
 	client_Session,
 	client_Settings,
-	client_Stash,
 
 	// Peer-to-Peer
 	peer_Cache

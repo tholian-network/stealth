@@ -593,7 +593,6 @@ const ondata = function(connection, url, chunk) {
 
 
 	let header_index = connection.fragment.indexOf(EMPTYLINE);
-
 	if (header_index !== -1) {
 
 		HTTP.receive(connection, connection.fragment, (frame) => {
@@ -835,15 +834,18 @@ Connection.from = function(json) {
 			let socket     = json.socket || null;
 			let connection = new Connection(socket);
 
-			for (let prop in json) {
+			Object.keys(connection).forEach((property) => {
 
-				if (prop !== 'socket') {
-					connection[prop] = json[prop];
+				if (
+					json[property] === undefined
+					|| json[property] === null
+				) {
+					json[property] = connection[property];
 				}
 
-			}
+			});
 
-			return connection;
+			return json;
 
 		}
 

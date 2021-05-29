@@ -21,7 +21,6 @@ import { Policy                                                   } from '../sou
 import { Redirect                                                 } from '../source/server/Redirect.mjs';
 import { Session                                                  } from '../source/server/Session.mjs';
 import { Settings                                                 } from '../source/server/Settings.mjs';
-import { Stash                                                    } from '../source/server/Stash.mjs';
 
 
 
@@ -733,7 +732,6 @@ const Server = function(settings, stealth) {
 		this.services['redirect'] = new Redirect(this.stealth);
 		this.services['session']  = new Session(this.stealth);
 		this.services['settings'] = new Settings(this.stealth);
-		this.services['stash']    = new Stash(this.stealth);
 
 	}
 

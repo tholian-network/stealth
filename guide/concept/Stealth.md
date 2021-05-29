@@ -119,8 +119,8 @@ These are the available Peer-to-Peer network services that can be used with the
 - [Host](/stealth/source/client/Host.mjs)
 - [Mode](/stealth/source/client/Mode.mjs)
 - [Peer](/stealth/source/client/Peer.mjs)
+- [Policy](/stealth/source/client/Policy.mjs)
 - [Redirect](/stealth/source/client/Redirect.mjs)
 - [Session](/stealth/source/client/Session.mjs)
 - [Settings](/stealth/source/client/Settings.mjs)
-- [Stash](/stealth/source/client/Stash.mjs)
 

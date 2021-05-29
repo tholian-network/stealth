@@ -9,7 +9,6 @@ import { Policy   as client_Policy   } from './source/client/Policy.mjs';
 import { Redirect as client_Redirect } from './source/client/Redirect.mjs';
 import { Session  as client_Session  } from './source/client/Session.mjs';
 import { Settings as client_Settings } from './source/client/Settings.mjs';
-import { Stash    as client_Stash    } from './source/client/Stash.mjs';
 
 import { DNS         as connection_DNS         } from './source/connection/DNS.mjs';
 import { DNSS        as connection_DNSS        } from './source/connection/DNSS.mjs';
@@ -40,12 +39,12 @@ import { RESOLVER as server_RESOLVER } from './source/server/RESOLVER.mjs';
 import { ROUTER   as server_ROUTER   } from './source/server/ROUTER.mjs';
 import { Session  as server_Session  } from './source/server/Session.mjs';
 import { Settings as server_Settings } from './source/server/Settings.mjs';
-import { Stash    as server_Stash    } from './source/server/Stash.mjs';
 
 
 
 export * from './source/Browser.mjs';
 export * from './source/Client.mjs';
+export * from './source/Download.mjs';
 export * from './source/ENVIRONMENT.mjs';
 export * from './source/Request.mjs';
 export * from './source/Server.mjs';
@@ -65,8 +64,7 @@ export const client = {
 	Policy:   client_Policy,
 	Redirect: client_Redirect,
 	Session:  client_Session,
-	Settings: client_Settings,
-	Stash:    client_Stash
+	Settings: client_Settings
 
 };
 
@@ -109,8 +107,7 @@ export const server = {
 	Policy:   server_Policy,
 	Redirect: server_Redirect,
 	Session:  server_Session,
-	Settings: server_Settings,
-	Stash:    server_Stash
+	Settings: server_Settings
 
 };
 

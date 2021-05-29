@@ -11,7 +11,6 @@ import { Policy                                  } from '../source/client/Policy
 import { Redirect                                } from '../source/client/Redirect.mjs';
 import { Session                                 } from '../source/client/Session.mjs';
 import { Settings                                } from '../source/client/Settings.mjs';
-import { Stash                                   } from '../source/client/Stash.mjs';
 import { URL                                     } from '../source/parser/URL.mjs';
 import { WS                                      } from '../source/connection/WS.mjs';
 import { WSS                                     } from '../source/connection/WSS.mjs';
@@ -57,7 +56,6 @@ const Client = function(settings, stealth) {
 	this.services['redirect'] = new Redirect(this);
 	this.services['session']  = new Session(this);
 	this.services['settings'] = new Settings(this);
-	this.services['stash']    = new Stash(this);
 
 
 	Emitter.call(this);
