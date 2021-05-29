@@ -651,7 +651,7 @@ const Linter = function(settings) {
 
 				let buffer = this.renderer.buffer(reviews, 'errors');
 				if (buffer !== null) {
-					this.filesystem.write(this._settings.report, buffer, 'utf8');
+					this.filesystem.write(this._settings.report + '.report', buffer, 'utf8');
 				}
 
 			}

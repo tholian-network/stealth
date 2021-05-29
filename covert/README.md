@@ -27,7 +27,7 @@ Covert requires these external packages on minimalistic Unix/Linux systems:
 
 ```bash
 # Install necessary packages
-pacman -S --needed iproute2 kmod net-tools sudo
+pacman -S --needed iproute2 kmod net-tools sudo tcpdump
 ```
 
 Additionally, the following ports have to be allowed in the Firewall to

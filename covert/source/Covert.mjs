@@ -2,11 +2,12 @@
 import process from 'process';
 
 import { console, Emitter, isBoolean, isNumber, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                                     } from './ENVIRONMENT.mjs';
-import { Filesystem                                      } from './Filesystem.mjs';
-import { Network                                         } from './Network.mjs';
-import { Renderer                                        } from './Renderer.mjs';
-import { isReview                                        } from './Review.mjs';
+import { ENVIRONMENT                                     } from '../source/ENVIRONMENT.mjs';
+import { Filesystem                                      } from '../source/Filesystem.mjs';
+import { Interceptor                                     } from '../source/Interceptor.mjs';
+import { Network                                         } from '../source/Network.mjs';
+import { Renderer                                        } from '../source/Renderer.mjs';
+import { isReview                                        } from '../source/Review.mjs';
 
 
 
@@ -86,7 +87,7 @@ const assert = function(timeline, results, result, expect) {
 
 };
 
-const rebind_console_method = function(method) {
+const sandbox_console_method = function(method) {
 
 	return function() {
 
@@ -108,19 +109,19 @@ const rebind_console_method = function(method) {
 
 };
 
-const console_sandbox = function() {
+const sandbox_console = function() {
 
 	return {
 
 		clear: () => {}, // No clear() allowed
 
-		blink: rebind_console_method('blink'),
-		debug: rebind_console_method('debug'),
-		diff:  rebind_console_method('diff'),
-		error: rebind_console_method('error'),
-		info:  rebind_console_method('info'),
-		log:   rebind_console_method('log'),
-		warn:  rebind_console_method('warn')
+		blink: sandbox_console_method('blink'),
+		debug: sandbox_console_method('debug'),
+		diff:  sandbox_console_method('diff'),
+		error: sandbox_console_method('error'),
+		info:  sandbox_console_method('info'),
+		log:   sandbox_console_method('log'),
+		warn:  sandbox_console_method('warn')
 
 	};
 
@@ -435,7 +436,7 @@ const update = function() {
 				test.callback.call(
 					review.scope,
 					assert.bind(review.scope, test.timeline, test.results),
-					console_sandbox()
+					sandbox_console()
 				);
 
 			} catch (err) {
@@ -588,11 +589,16 @@ const Covert = function(settings) {
 	console.log(prettify_settings(this._settings));
 
 
-	this.interval   = null;
-	this.filesystem = new Filesystem(this._settings);
-	this.network    = new Network(this._settings);
-	this.renderer   = new Renderer(this._settings);
-	this.reviews    = [];
+	this.interval    = null;
+	this.filesystem  = new Filesystem(this._settings);
+	this.network     = new Network(this._settings);
+	this.renderer    = new Renderer(this._settings);
+	this.reviews     = [];
+
+	this.interceptor = new Interceptor({
+		report:  this._settings.report,
+		reviews: this.reviews
+	});
 
 	this.__state = {
 		connected: false,
@@ -607,37 +613,48 @@ const Covert = function(settings) {
 
 	this.on('connect', (reviews) => {
 
-		let interval = this.interval;
-		if (interval === null) {
-
-			this.interval = setInterval(() => {
-
-				let is_busy = update.call(this);
-				if (is_busy === false) {
-
-					clearInterval(this.interval);
-					this.interval = null;
-
-					this.disconnect();
-
-				} else {
-					this.emit('render', [ this.reviews ]);
-				}
-
-			}, 100);
-
-		}
-
 		if (this.__state.connected === false) {
 
 			this.renderer.render(reviews, 'complete');
 
-			let peer_network = this.reviews.filter((review) => review.flags.network === true).length > 0;
-			if (peer_network === true) {
+			let need_network  = this.reviews.filter((review) => review.flags.network  === true).length > 0;
+			let need_internet = this.reviews.filter((review) => review.flags.internet === true).length > 0;
+
+			if (need_network === true) {
 				this.network.connect();
 			}
 
+			if (need_network === true || need_internet === true) {
+				this.interceptor.connect();
+			}
+
 			this.__state.connected = true;
+
+		}
+
+		let interval = this.interval;
+		if (interval === null) {
+
+			// XXX: Give the Network and Interceptor some time
+			setTimeout(() => {
+
+				this.interval = setInterval(() => {
+
+					let is_busy = update.call(this);
+					if (is_busy === false) {
+
+						clearInterval(this.interval);
+						this.interval = null;
+
+						this.disconnect();
+
+					} else {
+						this.emit('render', [ this.reviews ]);
+					}
+
+				}, 100);
+
+			}, 500);
 
 		}
 
@@ -682,7 +699,7 @@ const Covert = function(settings) {
 					test.callback.call(
 						review.scope,
 						assert.bind(review.scope, test.timeline, test.results),
-						console_sandbox()
+						sandbox_console()
 					);
 
 				} catch (err) {
@@ -717,7 +734,7 @@ const Covert = function(settings) {
 
 				let buffer = this.renderer.buffer(reviews, 'errors');
 				if (buffer !== null) {
-					this.filesystem.write(this._settings.report, buffer, 'utf8');
+					this.filesystem.write(this._settings.report + '.report', buffer, 'utf8');
 				}
 
 			}
@@ -727,6 +744,7 @@ const Covert = function(settings) {
 
 		if (this.__state.connected === true) {
 
+			this.interceptor.disconnect();
 			this.network.disconnect();
 
 			this.__state.connected = false;

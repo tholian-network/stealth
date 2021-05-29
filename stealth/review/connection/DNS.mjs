@@ -2713,6 +2713,7 @@ after('DNS.disconnect()', function(assert) {
 
 export default finish('stealth/connection/DNS', {
 	internet: true,
-	network:  false
+	network:  false,
+	ports:    [ 53 ]
 });
 

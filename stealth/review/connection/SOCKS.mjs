@@ -433,6 +433,7 @@ after(disconnect_stealth);
 
 export default finish('stealth/connection/SOCKS', {
 	internet: true,
-	network:  true
+	network:  true,
+	ports:    [ 80, 443, 853, 65432 ]
 });
 

@@ -1669,6 +1669,7 @@ describe('DNSS.receive()/server/NAMEWRECK', function(assert) {
 
 export default finish('stealth/connection/DNSS', {
 	internet: true,
-	network:  false
+	network:  false,
+	ports:    [ 853 ]
 });
 

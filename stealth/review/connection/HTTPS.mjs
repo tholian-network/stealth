@@ -104,6 +104,7 @@ describe('HTTPS.send()/client/200', function(assert) {
 
 export default finish('stealth/connection/HTTPS', {
 	internet: true,
-	network:  true
+	network:  true,
+	ports:    [ 443 ]
 });
 

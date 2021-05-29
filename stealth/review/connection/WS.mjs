@@ -300,6 +300,7 @@ describe('WS.upgrade()', function(assert) {
 
 export default finish('stealth/connection/WS', {
 	internet: true,
-	network:  true
+	network:  true,
+	ports:    [ 80, 13337 ]
 });
 

@@ -57,6 +57,7 @@ const scan_recursive = (url, results) => {
 };
 
 
+
 const Filesystem = function(settings) {
 
 	this._settings = Object.freeze(Object.assign({

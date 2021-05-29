@@ -1,52 +1,53 @@
 
-import Browser            from './Browser.mjs';
-import Client             from './Client.mjs';
-import MODULE             from './MODULE.mjs';
-import Request            from './Request.mjs';
-import Server             from './Server.mjs';
-import Session            from './Session.mjs';
-import Settings           from './Settings.mjs';
-import Stealth            from './Stealth.mjs';
-import Tab                from './Tab.mjs';
-import client_Beacon      from './client/Beacon.mjs';
-import client_Blocker     from './client/Blocker.mjs';
-import client_Cache       from './client/Cache.mjs';
-import client_Host        from './client/Host.mjs';
-import client_Mode        from './client/Mode.mjs';
-import client_Peer        from './client/Peer.mjs';
-import client_Policy      from './client/Policy.mjs';
-import client_Redirect    from './client/Redirect.mjs';
-import client_Session     from './client/Session.mjs';
-import client_Settings    from './client/Settings.mjs';
-import connection_DNS     from './connection/DNS.mjs';
-import connection_DNSS    from './connection/DNSS.mjs';
-import connection_HTTP    from './connection/HTTP.mjs';
-import connection_HTTPS   from './connection/HTTPS.mjs';
-// import connection_MDNS    from './connection/MDNS.mjs';
-import connection_SOCKS   from './connection/SOCKS.mjs';
-import connection_WS      from './connection/WS.mjs';
-import connection_WSS     from './connection/WSS.mjs';
-// import optimizer_CSS      from './optimizer/CSS.mjs';
-import parser_CSS         from './parser/CSS.mjs';
-import parser_DATETIME    from './parser/DATETIME.mjs';
-import parser_HOSTS       from './parser/HOSTS.mjs';
-import parser_IP          from './parser/IP.mjs';
-import parser_UA          from './parser/UA.mjs';
-import parser_URL         from './parser/URL.mjs';
-import peer_Cache         from './peer/Cache.mjs';
-import request_Unicode    from './request/Unicode.mjs';
-import server_Beacon      from './server/Beacon.mjs';
-import server_Blocker     from './server/Blocker.mjs';
-import server_Cache       from './server/Cache.mjs';
-import server_Host        from './server/Host.mjs';
-import server_Mode        from './server/Mode.mjs';
-import server_Peer        from './server/Peer.mjs';
-import server_Policy      from './server/Policy.mjs';
-import server_Redirect    from './server/Redirect.mjs';
-// import server_RESOLVER    from './server/RESOLVER.mjs';
-import server_ROUTER      from './server/ROUTER.mjs';
-import server_Session     from './server/Session.mjs';
-import server_Settings    from './server/Settings.mjs';
+import Browser          from './Browser.mjs';
+import Client           from './Client.mjs';
+import MODULE           from './MODULE.mjs';
+import Request          from './Request.mjs';
+import Server           from './Server.mjs';
+import Session          from './Session.mjs';
+import Settings         from './Settings.mjs';
+import Stealth          from './Stealth.mjs';
+import Tab              from './Tab.mjs';
+import client_Beacon    from './client/Beacon.mjs';
+import client_Blocker   from './client/Blocker.mjs';
+import client_Cache     from './client/Cache.mjs';
+import client_Host      from './client/Host.mjs';
+import client_Mode      from './client/Mode.mjs';
+import client_Peer      from './client/Peer.mjs';
+import client_Policy    from './client/Policy.mjs';
+import client_Redirect  from './client/Redirect.mjs';
+import client_Session   from './client/Session.mjs';
+import client_Settings  from './client/Settings.mjs';
+import connection_DNS   from './connection/DNS.mjs';
+import connection_DNSH  from './connection/DNSH.mjs';
+import connection_DNSS  from './connection/DNSS.mjs';
+import connection_HTTP  from './connection/HTTP.mjs';
+import connection_HTTPS from './connection/HTTPS.mjs';
+// import connection_MDNS  from './connection/MDNS.mjs';
+import connection_SOCKS from './connection/SOCKS.mjs';
+import connection_WS    from './connection/WS.mjs';
+import connection_WSS   from './connection/WSS.mjs';
+// import optimizer_CSS    from './optimizer/CSS.mjs';
+import parser_CSS       from './parser/CSS.mjs';
+import parser_DATETIME  from './parser/DATETIME.mjs';
+import parser_HOSTS     from './parser/HOSTS.mjs';
+import parser_IP        from './parser/IP.mjs';
+import parser_UA        from './parser/UA.mjs';
+import parser_URL       from './parser/URL.mjs';
+import peer_Cache       from './peer/Cache.mjs';
+import request_Unicode  from './request/Unicode.mjs';
+import server_Beacon    from './server/Beacon.mjs';
+import server_Blocker   from './server/Blocker.mjs';
+import server_Cache     from './server/Cache.mjs';
+import server_Host      from './server/Host.mjs';
+import server_Mode      from './server/Mode.mjs';
+import server_Peer      from './server/Peer.mjs';
+import server_Policy    from './server/Policy.mjs';
+import server_Redirect  from './server/Redirect.mjs';
+// import server_RESOLVER  from './server/RESOLVER.mjs';
+import server_ROUTER    from './server/ROUTER.mjs';
+import server_Session   from './server/Session.mjs';
+import server_Settings  from './server/Settings.mjs';
 
 
 
@@ -67,6 +68,7 @@ export const REVIEWS = [
 
 	// Network
 	connection_DNS,
+	connection_DNSH,
 	connection_DNSS,
 	// connection_MDNS,
 

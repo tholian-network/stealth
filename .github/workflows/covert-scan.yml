@@ -11,6 +11,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - run: |
+          sudo apt-get install tcpdump
+          sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump
       - uses: actions/setup-node@v1
         with:
           node-version: 14
@@ -18,11 +21,11 @@ jobs:
       - run: node ./make.mjs build
       - run: |
           cd ./base
-          node ../covert/covert.mjs scan "base/*" --debug=true --report=../.github/workflows/covert-scan-base.report
+          node ../covert/covert.mjs scan "base/*" --debug=true --report=../.github/workflows/covert-scan-base
       - uses: actions/upload-artifact@v2
         with:
           name: Report for Base
-          path: .github/workflows/covert-scan-base.report
+          path: .github/workflows/covert-scan-base.*
       - run: node .github/workflows/covert-scan.mjs .github/workflows/covert-scan-base.report
 
   scan-covert:
@@ -31,6 +34,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - run: |
+          sudo apt-get install tcpdump
+          sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump
       - uses: actions/setup-node@v1
         with:
           node-version: 14
@@ -38,11 +44,11 @@ jobs:
       - run: node ./make.mjs build
       - run: |
           cd ./covert
-          node ../covert/covert.mjs scan "covert/*" --debug=true --report=../.github/workflows/covert-scan-covert.report
+          node ../covert/covert.mjs scan "covert/*" --debug=true --report=../.github/workflows/covert-scan-covert
       - uses: actions/upload-artifact@v2
         with:
           name: Report for Covert
-          path: .github/workflows/covert-scan-covert.report
+          path: .github/workflows/covert-scan-covert.*
       - run: node .github/workflows/covert-scan.mjs .github/workflows/covert-scan-covert.report
 
   scan-stealth:
@@ -51,6 +57,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - run: |
+          sudo apt-get install tcpdump
+          sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump
       - uses: actions/setup-node@v1
         with:
           node-version: 14
@@ -58,10 +67,10 @@ jobs:
       - run: node ./make.mjs build
       - run: |
           cd ./stealth
-          node ../covert/covert.mjs scan "stealth/*" --debug=true --report=../.github/workflows/covert-scan-stealth.report
+          node ../covert/covert.mjs scan "stealth/*" --debug=true --report=../.github/workflows/covert-scan-stealth
       - uses: actions/upload-artifact@v2
         with:
           name: Report for Stealth
-          path: .github/workflows/covert-scan-stealth.report
+          path: .github/workflows/covert-scan-stealth.*
       - run: node .github/workflows/covert-scan.mjs .github/workflows/covert-scan-stealth.report
 

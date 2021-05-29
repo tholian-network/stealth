@@ -583,6 +583,7 @@ describe('HTTP.send()/server/200', function(assert) {
 
 export default finish('stealth/connection/HTTP', {
 	internet: true,
-	network:  true
+	network:  true,
+	ports:    [ 80, 13337 ]
 });
 

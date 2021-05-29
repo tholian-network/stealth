@@ -10,14 +10,14 @@ import { Redirect as client_Redirect } from './source/client/Redirect.mjs';
 import { Session  as client_Session  } from './source/client/Session.mjs';
 import { Settings as client_Settings } from './source/client/Settings.mjs';
 
-import { DNS         as connection_DNS         } from './source/connection/DNS.mjs';
-import { DNSS        as connection_DNSS        } from './source/connection/DNSS.mjs';
-import { DNSviaHTTPS as connection_DNSviaHTTPS } from './source/connection/DNSviaHTTPS.mjs';
-import { HTTP        as connection_HTTP        } from './source/connection/HTTP.mjs';
-import { HTTPS       as connection_HTTPS       } from './source/connection/HTTPS.mjs';
-import { SOCKS       as connection_SOCKS       } from './source/connection/SOCKS.mjs';
-import { WS          as connection_WS          } from './source/connection/WS.mjs';
-import { WSS         as connection_WSS         } from './source/connection/WSS.mjs';
+import { DNS   as connection_DNS   } from './source/connection/DNS.mjs';
+import { DNSH  as connection_DNSH  } from './source/connection/DNSH.mjs';
+import { DNSS  as connection_DNSS  } from './source/connection/DNSS.mjs';
+import { HTTP  as connection_HTTP  } from './source/connection/HTTP.mjs';
+import { HTTPS as connection_HTTPS } from './source/connection/HTTPS.mjs';
+import { SOCKS as connection_SOCKS } from './source/connection/SOCKS.mjs';
+import { WS    as connection_WS    } from './source/connection/WS.mjs';
+import { WSS   as connection_WSS   } from './source/connection/WSS.mjs';
 
 import { CSS      as parser_CSS      } from './source/parser/CSS.mjs';
 import { DATETIME as parser_DATETIME } from './source/parser/DATETIME.mjs';
@@ -70,14 +70,14 @@ export const client = {
 
 export const connection = {
 
-	DNS:         connection_DNS,
-	DNSS:        connection_DNSS,
-	DNSviaHTTPS: connection_DNSviaHTTPS,
-	HTTP:        connection_HTTP,
-	HTTPS:       connection_HTTPS,
-	SOCKS:       connection_SOCKS,
-	WS:          connection_WS,
-	WSS:         connection_WSS
+	DNS:   connection_DNS,
+	DNSH:  connection_DNSH,
+	DNSS:  connection_DNSS,
+	HTTP:  connection_HTTP,
+	HTTPS: connection_HTTPS,
+	SOCKS: connection_SOCKS,
+	WS:    connection_WS,
+	WSS:   connection_WSS
 
 };
 
