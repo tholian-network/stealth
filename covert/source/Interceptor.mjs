@@ -96,6 +96,15 @@ const connect_tcpdump = function(ports) {
 
 		});
 
+		process.on('error', (err) => {
+
+			if (err.code === 'ENOENT') {
+				console.error('Covert Interceptor: Cannot run tcpdump.');
+				console.error('Covert Interceptor: Please install "tcpdump" to intercept and save network traffic into the report file.');
+			}
+
+		});
+
 		process.on('close', () => {
 			this.__state.process = null;
 		});
