@@ -1503,12 +1503,21 @@ const DNSS = {
 						payload: data.payload
 					});
 
+				} else {
+
+					return {
+						headers: data.headers,
+						payload: data.payload
+					};
+
 				}
 
 			} else {
 
 				if (callback !== null) {
 					callback(null);
+				} else {
+					return null;
 				}
 
 			}
@@ -1517,6 +1526,8 @@ const DNSS = {
 
 			if (callback !== null) {
 				callback(null);
+			} else {
+				return null;
 			}
 
 		}
@@ -1618,12 +1629,16 @@ const DNSS = {
 
 				if (callback !== null) {
 					callback(true);
+				} else {
+					return true;
 				}
 
 			} else {
 
 				if (callback !== null) {
 					callback(false);
+				} else {
+					return false;
 				}
 
 			}
@@ -1632,6 +1647,8 @@ const DNSS = {
 
 			if (callback !== null) {
 				callback(false);
+			} else {
+				return false;
 			}
 
 		}

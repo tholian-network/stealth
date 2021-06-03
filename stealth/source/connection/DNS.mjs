@@ -1374,12 +1374,21 @@ const DNS = {
 						payload: data.payload
 					});
 
+				} else {
+
+					return {
+						headers: data.headers,
+						payload: data.payload
+					};
+
 				}
 
 			} else {
 
 				if (callback !== null) {
 					callback(null);
+				} else {
+					return null;
 				}
 
 			}
@@ -1388,6 +1397,8 @@ const DNS = {
 
 			if (callback !== null) {
 				callback(null);
+			} else {
+				return null;
 			}
 
 		}
@@ -1487,6 +1498,10 @@ const DNS = {
 
 					});
 
+					if (callback === null) {
+						return true;
+					}
+
 				} else if (connection.type === 'server') {
 
 					if (connection.remote !== null) {
@@ -1509,10 +1524,16 @@ const DNS = {
 
 						});
 
+						if (callback === null) {
+							return true;
+						}
+
 					} else {
 
 						if (callback !== null) {
 							callback(false);
+						} else {
+							return false;
 						}
 
 					}
@@ -1523,6 +1544,8 @@ const DNS = {
 
 				if (callback !== null) {
 					callback(false);
+				} else {
+					return false;
 				}
 
 			}
@@ -1531,6 +1554,8 @@ const DNS = {
 
 			if (callback !== null) {
 				callback(false);
+			} else {
+				return false;
 			}
 
 		}

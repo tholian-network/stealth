@@ -1,11 +1,11 @@
 
 import net from 'net';
 
-import { Buffer, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
-import { describe, finish                       } from '../../../covert/index.mjs';
-import { HTTP                                   } from '../../../stealth/source/connection/HTTP.mjs';
-import { IP                                     } from '../../../stealth/source/parser/IP.mjs';
-import { URL                                    } from '../../../stealth/source/parser/URL.mjs';
+import { Buffer, isArray, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
+import { describe, finish                                } from '../../../covert/index.mjs';
+import { HTTP                                            } from '../../../stealth/source/connection/HTTP.mjs';
+import { IP                                              } from '../../../stealth/source/parser/IP.mjs';
+import { URL                                             } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -45,6 +45,17 @@ const PAYLOADS = {
 	},
 
 	'206': {
+
+		'PAYLOAD': Buffer.from([
+			'The sentence #1 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #2 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #3 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #4 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #5 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #6 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #7 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #8 inside the big buffer is exactly 64 bytes long.\n'
+		].join(''), 'utf8'),
 
 		'REQUEST1': Buffer.from([
 			'GET /path/to/stream?token=value HTTP/1.1',
@@ -577,6 +588,135 @@ describe('HTTP.send()/server/200', function(assert) {
 		server.close();
 		assert(true);
 	}, 1000);
+
+});
+
+describe('HTTP.send()/server/206', function(assert) {
+
+	assert(isFunction(HTTP.upgrade), true);
+	assert(isFunction(HTTP.send),    true);
+
+	let server = new net.Server({
+		allowHalfOpen:  true,
+		pauseOnConnect: true
+	});
+
+	server.on('connection', (socket) => {
+
+		let connection = HTTP.upgrade(socket);
+
+		connection.once('@connect', () => {
+
+			assert(true);
+
+		});
+
+		connection.once('request', (request) => {
+
+			assert(isObject(request),                  true);
+			assert(isObject(request.headers),          true);
+			assert(isArray(request.headers['@range']), true);
+			assert(request.headers['@partial'],        true);
+			assert(request.payload,                    null);
+
+			HTTP.send(connection, {
+				headers: {
+					'@encoding': 'identity',
+					'@length':   PAYLOADS['206']['PAYLOAD'].length,
+					'@partial':  true,
+					'@range':    request.headers['@range'],
+					'@status':   '206 Partial Content'
+				},
+				payload: PAYLOADS['206']['PAYLOAD']
+			}, (result) => {
+
+				assert(result, true);
+
+			});
+
+		});
+
+		connection.once('@disconnect', () => {
+
+			assert(true);
+
+		});
+
+		socket.resume();
+
+	});
+
+	server.listen(13337, null);
+
+
+	setTimeout(() => {
+
+		let url        = URL.parse('http://localhost:13337');
+		let connection = HTTP.connect(url);
+
+		connection.once('@connect', () => {
+
+			HTTP.send(connection, HTTP.receive(null, PAYLOADS['206']['REQUEST1']), (result) => {
+				assert(result, true);
+			});
+
+		});
+
+		connection.once('progress', (frame /*, progress */) => {
+			assert(frame, HTTP.receive(null, PAYLOADS['206']['RESPONSE1']));
+		});
+
+		connection.once('@disconnect', () => {
+			assert(true);
+		});
+
+	}, 0);
+
+	setTimeout(() => {
+
+		let url        = URL.parse('http://localhost:13337');
+		let connection = HTTP.connect(url);
+
+		connection.once('@connect', () => {
+
+			HTTP.send(connection, HTTP.receive(null, PAYLOADS['206']['REQUEST2']), (result) => {
+				assert(result, true);
+			});
+
+		});
+
+		connection.once('progress', (frame /*, progress */) => {
+			assert(frame, HTTP.receive(null, PAYLOADS['206']['RESPONSE2']));
+		});
+
+		connection.once('@disconnect', () => {
+			assert(true);
+		});
+
+	}, 200);
+
+	setTimeout(() => {
+
+		let url        = URL.parse('http://localhost:13337');
+		let connection = HTTP.connect(url);
+
+		connection.once('@connect', () => {
+
+			HTTP.send(connection, HTTP.receive(null, PAYLOADS['206']['REQUEST3']), (result) => {
+				assert(result, true);
+			});
+
+		});
+
+		connection.once('progress', (frame /*, progress */) => {
+			assert(frame, HTTP.receive(null, PAYLOADS['206']['RESPONSE3']));
+		});
+
+		connection.once('@disconnect', () => {
+			assert(true);
+		});
+
+	}, 400);
 
 });
 

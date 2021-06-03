@@ -432,12 +432,6 @@ const encode = function(connection, data) {
 				data.headers['@encoding']        = 'gzip';
 				data.headers['content-encoding'] = 'gzip';
 
-				if (isString(data.headers['content-range']) === true) {
-					data.headers['content-range'] = data.headers['content-range'].split('/').shift() + '/' + msg_payload.length;
-				} else {
-					data.headers['content-length'] = msg_payload.length;
-				}
-
 				delete data.headers['transfer-encoding'];
 
 			} catch (err) {
@@ -445,12 +439,6 @@ const encode = function(connection, data) {
 				msg_payload                      = data.payload;
 				data.headers['@encoding']        = 'identity';
 				data.headers['content-encoding'] = 'identity';
-
-				if (isString(data.headers['content-range']) === true) {
-					data.headers['content-range'] = data.headers['content-range'].split('/').shift() + '/' + msg_payload.length;
-				} else {
-					data.headers['content-length'] = msg_payload.length;
-				}
 
 				delete data.headers['transfer-encoding'];
 
@@ -468,9 +456,25 @@ const encode = function(connection, data) {
 
 			msg_payload                      = data.payload;
 			data.headers['content-encoding'] = 'identity';
-			data.headers['content-length']   = msg_payload.length;
+
 			delete data.headers['transfer-encoding'];
 
+		}
+
+
+		if (isString(data.headers['content-range']) === true) {
+
+			let content_range = data.headers['content-range'].split('/').shift().split(' ').pop().split('-').map((v) => parseInt(v, 10));
+			if (Number.isNaN(content_range[0]) === false && Number.isNaN(content_range[1]) === false) {
+				data.headers['content-range'] = data.headers['content-range'].split('/').shift() + '/' + msg_payload.length;
+				msg_payload = msg_payload.slice(content_range[0], content_range[1] + 1);
+			} else {
+				data.headers['content-length'] = msg_payload.length;
+				delete data.headers['content-range'];
+			}
+
+		} else {
+			data.headers['content-length'] = msg_payload.length;
 		}
 
 	}
@@ -654,7 +658,10 @@ const ondata = function(connection, url, chunk) {
 
 					} else {
 
-						// Unknown payload size, wait for timeout
+						connection.emit('request', [{
+							headers: frame.headers,
+							payload: frame.payload
+						}]);
 
 					}
 
@@ -701,7 +708,7 @@ const ondisconnect = function(connection, url) {
 	if (connection.type === 'client') {
 
 		let code = (url.headers['@status'] || '500').split(' ').shift();
-		if (code === '200' || code === '204' || code === '205' || code === '206') {
+		if (code === '200') {
 
 			if (url.payload !== null) {
 
@@ -713,6 +720,36 @@ const ondisconnect = function(connection, url) {
 			} else {
 
 				connection.emit('error', [{ type: 'connection', cause: 'headers-payload' }]);
+
+			}
+
+		} else if (code === '204' || code === '205') {
+
+			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+
+		} else if (code === '206') {
+
+			if (
+				url.headers !== null
+				&& url.payload !== null
+				&& url.headers['@length'] !== Infinity
+				&& url.headers['@length'] === url.payload.length
+			) {
+
+				connection.emit('response', [{
+					headers: url.headers,
+					payload: url.payload
+				}]);
+
+			} else {
+
+				connection.emit('progress', [{
+					headers: url.headers,
+					payload: url.payload
+				}, {
+					bytes: url.payload.length,
+					total: url.headers['@length']
+				}]);
 
 			}
 
@@ -1056,12 +1093,21 @@ const HTTP = {
 						payload: data.payload
 					});
 
+				} else {
+
+					return {
+						headers: data.headers,
+						payload: data.payload
+					};
+
 				}
 
 			} else {
 
 				if (callback !== null) {
 					callback(null);
+				} else {
+					return null;
 				}
 
 			}
@@ -1070,6 +1116,8 @@ const HTTP = {
 
 			if (callback !== null) {
 				callback(null);
+			} else {
+				return null;
 			}
 
 		}
@@ -1122,12 +1170,16 @@ const HTTP = {
 
 				if (callback !== null) {
 					callback(true);
+				} else {
+					return true;
 				}
 
 			} else {
 
 				if (callback !== null) {
 					callback(false);
+				} else {
+					return false;
 				}
 
 			}
@@ -1136,6 +1188,8 @@ const HTTP = {
 
 			if (callback !== null) {
 				callback(false);
+			} else {
+				return false;
 			}
 
 		}
