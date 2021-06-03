@@ -1,7 +1,6 @@
 
 import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { HTTP                                   } from '../source/connection/HTTP.mjs';
-import { HTTPS                                  } from '../source/connection/HTTPS.mjs';
+import { Download                               } from '../source/Download.mjs';
 import { DATETIME                               } from '../source/parser/DATETIME.mjs';
 import { URL                                    } from '../source/parser/URL.mjs';
 import { isServer                               } from '../source/Server.mjs';
@@ -27,16 +26,6 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.connection.once('@connect', () => {
 
-					let hostname = null;
-					let domain   = URL.toDomain(url);
-					let host     = URL.toHost(url);
-
-					if (domain !== null) {
-						hostname = domain;
-					} else if (host !== null) {
-						hostname = host;
-					}
-
 
 					let headers = {
 						'@method': 'GET',
@@ -50,11 +39,6 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 						let accept = url.headers['accept'] || null;
 						if (accept !== null) {
 							headers['accept'] = accept;
-						}
-
-						let useragent = url.headers['user-agent'] || null;
-						if (useragent !== null) {
-							headers['user-agent'] = useragent;
 						}
 
 						let tmp1 = url.headers['@status']       || null;

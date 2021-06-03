@@ -1,6 +1,7 @@
 
 import Browser          from './Browser.mjs';
 import Client           from './Client.mjs';
+import Download         from './Download.mjs';
 import MODULE           from './MODULE.mjs';
 import Request          from './Request.mjs';
 import Server           from './Server.mjs';
@@ -79,6 +80,7 @@ export const REVIEWS = [
 	connection_WSS,
 
 	// Requests
+	Download,
 	Request,
 	request_Unicode,
 

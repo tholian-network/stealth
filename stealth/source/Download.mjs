@@ -17,15 +17,10 @@ const Download = function(url) {
 
 	this.__state = {
 		bandwidth: [],
-		frame:     {
-			headers: null,
-			payload: null
-		},
+		fragment:  Buffer.alloc(0),
+		frame:     { headers: null, payload: null },
 		interval:  null,
-		progress:  {
-			bytes: 0,
-			total: Infinity
-		}
+		progress:  { bytes: 0, total: Infinity }
 	};
 
 
@@ -108,6 +103,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.connection.on('progress', (frame, progress) => {
 
+					this.__state.fragment = this.connection.fragment;
 					this.__state.frame    = frame;
 					this.__state.progress = progress;
 
@@ -147,6 +143,50 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 						}
 
 					}, 1000);
+
+
+					let hostname = null;
+					let domain   = URL.toDomain(url);
+					let host     = URL.toHost(url);
+
+					if (domain !== null) {
+						hostname = domain;
+					} else if (host !== null) {
+						hostname = host;
+					}
+
+					let headers = {
+						'@method': 'GET',
+						'@url':    URL.render(this.url),
+						'accept':  this.url.mime.format,
+						'host':    hostname,
+						'range':   'bytes=0-'
+					};
+
+					if (this.__state.frame.headers !== null && this.__state.frame.payload !== null) {
+
+
+						if (this.__state.frame.headers['@status'] === '206 Partial Content') {
+
+							if (this.__state.fragment.length > 0) {
+								this.connection.fragment = this.__state.fragment;
+								headers['range']         = 'bytes=' + this.__state.frame.payload.length + '-';
+							}
+
+						}
+
+						let user_agent = this.url.headers['user-agent'] || null;
+						if (user_agent !== null) {
+							headers['user-agent'] = user_agent;
+						}
+
+						let content_encoding = this.url.headers['content-encoding'] || null;
+						if (content_encoding !== null) {
+							headers['content-encoding'] = content_encoding;
+						}
+
+					}
+
 
 				});
 
