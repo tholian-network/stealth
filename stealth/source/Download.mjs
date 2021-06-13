@@ -1,9 +1,9 @@
 
-import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { HTTP                                   } from '../source/connection/HTTP.mjs';
-import { HTTPS                                  } from '../source/connection/HTTPS.mjs';
-import { SOCKS                                  } from '../source/connection/SOCKS.mjs';
-import { URL                                    } from '../source/parser/URL.mjs';
+import { Buffer, Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
+import { HTTP                                           } from '../source/connection/HTTP.mjs';
+import { HTTPS                                          } from '../source/connection/HTTPS.mjs';
+import { SOCKS                                          } from '../source/connection/SOCKS.mjs';
+import { URL                                            } from '../source/parser/URL.mjs';
 
 
 
@@ -17,8 +17,8 @@ const Download = function(url) {
 
 	this.__state = {
 		bandwidth: [],
-		fragment:  Buffer.alloc(0),
 		frame:     { headers: null, payload: null },
+		frames:    [],
 		interval:  null,
 		progress:  { bytes: 0, total: Infinity }
 	};
@@ -95,15 +95,14 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.connection.on('error', (...args) => {
 
-					// TODO: ondisconnect() like frame caching
-
 					this.emit('error', args);
 
 				});
 
 				this.connection.on('progress', (frame, progress) => {
 
-					this.__state.fragment = this.connection.fragment;
+					// TODO: ondisconnect should push frames
+
 					this.__state.frame    = frame;
 					this.__state.progress = progress;
 
@@ -115,8 +114,36 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 					this.emit('redirect', args);
 				});
 
-				this.connection.on('response', (...args) => {
-					this.emit('response', args);
+				this.connection.on('response', (response) => {
+
+					if (response !== null) {
+
+						if (
+							response.headers['@length'] !== Infinity
+							&& response.headers['@range'][0] === 0
+							&& response.headers['@range'][1] === (response.headers['@length'] - 1)
+							&& response.payload !== null
+							&& response.payload.length === response.headers['@length']
+						) {
+
+							// XXX: Full Frame received, no re-download necessary
+
+						} else if (
+							response.headers['@length'] !== Infinity
+							&& response.headers['@range'][0] === 0
+							&& response.headers['@range'][1] < (response.headers['@length'] - 1)
+
+						) {
+						}
+
+
+					}
+					// TODO: response frame should be final nao
+					// TODO: If payload !== null, then
+					//       If @partial true and @range matches then concat payload together
+
+					this.emit('response', [ response ]);
+
 				});
 
 				this.connection.once('@connect', () => {
@@ -146,8 +173,8 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 
 					let hostname = null;
-					let domain   = URL.toDomain(url);
-					let host     = URL.toHost(url);
+					let domain   = URL.toDomain(this.url);
+					let host     = URL.toHost(this.url);
 
 					if (domain !== null) {
 						hostname = domain;
@@ -165,12 +192,10 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					if (this.__state.frame.headers !== null && this.__state.frame.payload !== null) {
 
-
 						if (this.__state.frame.headers['@status'] === '206 Partial Content') {
 
-							if (this.__state.fragment.length > 0) {
-								this.connection.fragment = this.__state.fragment;
-								headers['range']         = 'bytes=' + this.__state.frame.payload.length + '-';
+							if (this.__state.frame.payload.length > 0) {
+								headers['range'] = 'bytes=' + this.__state.frame.payload.length + '-';
 							}
 
 						}
@@ -187,6 +212,19 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					}
 
+					if (this.url.protocol === 'https') {
+
+						HTTPS.send(this.connection, {
+							headers: headers
+						});
+
+					} else if (this.url.protocol === 'http') {
+
+						HTTP.send(this.connection, {
+							headers: headers
+						});
+
+					}
 
 				});
 
@@ -227,7 +265,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 		if (this.connection !== null) {
 
 			// TODO: If not done with download, cache parsed fragment as
-			// this.__state.payload
+			// this.__state.frame.payload
 			this.connection.disconnect();
 			this.connection = null;
 

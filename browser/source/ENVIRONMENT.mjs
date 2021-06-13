@@ -1,5 +1,5 @@
 
-import { URL } from './parser/URL.mjs';
+import { URL } from '../source/parser/URL.mjs';
 
 
 

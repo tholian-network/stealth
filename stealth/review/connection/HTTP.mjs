@@ -179,11 +179,12 @@ describe('HTTP.receive()/client/200', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@encoding':        'identity',
-				'@length':          53,
-				'@partial':         false,
-				'@range':           [ 0, 52 ],
 				'@status':          '200 OK',
+				'@transfer':        {
+					'encoding': 'identity',
+					'length':   53,
+					'range':    [ 0, 52 ]
+				},
 				'cache-control':    'max-age=604800',
 				'content-encoding': 'identity',
 				'content-length':   53,
@@ -232,11 +233,12 @@ describe('HTTP.receive()/client/200/partial', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@encoding':        null,
-				'@length':          53,
-				'@partial':         true,
-				'@range':           [ 0, 52 ],
 				'@status':          '200 OK',
+				'@transfer':        {
+					'encoding': null,
+					'length':   53,
+					'range':    [ 0, 52 ]
+				},
 				'cache-control':    'max-age=604800',
 				'content-encoding': 'identity',
 				'content-length':   53,
@@ -285,12 +287,14 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@encoding':        'identity',
-				'@length':          512,
-				'@partial':         true,
-				'@range':           [ 0, 127 ],
 				'@status':          '206 Partial Content',
+				'@transfer':        {
+					'encoding': 'identity',
+					'length':   512,
+					'range':    [ 0, 127 ]
+				},
 				'content-encoding': 'identity',
+				'content-length':   128,
 				'content-range':    'bytes 0-127/512'
 			},
 			payload: Buffer.from([
@@ -305,12 +309,14 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@encoding':        'identity',
-				'@length':          512,
-				'@partial':         true,
-				'@range':           [ 128, 255 ],
 				'@status':          '206 Partial Content',
+				'@transfer':        {
+					'encoding': 'identity',
+					'length':   512,
+					'range':    [ 128, 255 ]
+				},
 				'content-encoding': 'identity',
+				'content-length':   128,
 				'content-range':    'bytes 128-255/512'
 			},
 			payload: Buffer.from([
@@ -325,12 +331,14 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@encoding':        'identity',
-				'@length':          512,
-				'@partial':         true,
-				'@range':           [ 256, 511 ],
 				'@status':          '206 Partial Content',
+				'@transfer':        {
+					'encoding': 'identity',
+					'length':   512,
+					'range':    [ 256, 511 ]
+				},
 				'content-encoding': 'identity',
+				'content-length':   256,
 				'content-range':    'bytes 256-511/512'
 			},
 			payload: Buffer.from([
@@ -359,18 +367,21 @@ describe('HTTP.send()/client/200', function(assert) {
 
 		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
-		assert(isBuffer(response.payload), true);
 
-		assert(response.headers['@encoding'],        'identity');
-		assert(response.headers['@length'],          648);
-		assert(response.headers['@partial'],         false);
-		assert(response.headers['@range'],           [ 0, 647 ]);
-		assert(response.headers['@status'],          '200 OK');
+		assert(response.headers['@status'],   '200 OK');
+		assert(response.headers['@transfer'], {
+			'encoding': 'gzip',
+			'length':   648,
+			'range':    [ 0, 647 ]
+		});
 
-		assert(response.headers['content-encoding'], 'gzip');
-		assert(response.headers['content-length'],   648);
+		assert(response.headers['content-encoding'], 'identity');
+		assert(response.headers['content-length'],   1256);
 		assert(response.headers['content-type'],     'text/html; charset=UTF-8');
 		assert(response.headers['vary'],             'Accept-Encoding');
+
+		assert(isBuffer(response.payload), true);
+		assert(response.payload.length,    1256);
 
 	});
 
@@ -402,13 +413,16 @@ describe('HTTP.receive()/server/200', function(assert) {
 
 		assert(request, {
 			headers: {
-				'@encoding':       'identity',
-				'@length':         20,
-				'@method':         'GET',
-				'@partial':        false,
-				'@range':          [ 0, 19 ],
-				'@url':            '/path/to/resource?param=value',
-				'accept-encoding': 'identity'
+				'@method':          'GET',
+				'@transfer':        {
+					'encoding': 'identity',
+					'length':   20,
+					'range':    [ 0, 19 ]
+				},
+				'@url':             '/path/to/resource?param=value',
+				'accept-encoding':  'identity',
+				'content-encoding': 'identity',
+				'content-length':   20
 			},
 			payload: Buffer.from('{"submitted":"data"}', 'utf8')
 		});
@@ -425,13 +439,15 @@ describe('HTTP.receive()/server/200/partial', function(assert) {
 
 		assert(request, {
 			headers: {
-				'@encoding':       'identity',
-				'@length':          Infinity,
-				'@method':         'GET',
-				'@partial':         null,
-				'@range':          [ 0, Infinity ],
-				'@url':            '/path/to/resource?param=value',
-				'accept-encoding': 'identity'
+				'@method':          'GET',
+				'@transfer':        {
+					'encoding': 'identity',
+					'length':   Infinity,
+					'range':    [ 0, Infinity ]
+				},
+				'@url':             '/path/to/resource?param=value',
+				'accept-encoding':  'identity',
+				'content-encoding': 'identity'
 			},
 			payload: Buffer.from('{"sub', 'utf8')
 		});
@@ -448,11 +464,12 @@ describe('HTTP.receive()/server/206', function(assert) {
 
 		assert(request, {
 			headers: {
-				'@encoding':       null,
-				'@length':         Infinity,
 				'@method':         'GET',
-				'@partial':        true,
-				'@range':          [ 0, 127 ],
+				'@transfer':       {
+					'encoding': null,
+					'length':   Infinity,
+					'range':    [ 0, 127 ]
+				},
 				'@url':            '/path/to/stream?token=value',
 				'accept-encoding': 'identity',
 				'range':           'bytes=0-127'
@@ -466,11 +483,12 @@ describe('HTTP.receive()/server/206', function(assert) {
 
 		assert(request, {
 			headers: {
-				'@encoding':       null,
-				'@length':         Infinity,
 				'@method':         'GET',
-				'@partial':        true,
-				'@range':          [ 128, 255 ],
+				'@transfer':       {
+					'encoding': null,
+					'length':   Infinity,
+					'range':    [ 128, 255 ]
+				},
 				'@url':            '/path/to/stream?token=value',
 				'accept-encoding': 'identity',
 				'range':           'bytes=128-255'
@@ -484,14 +502,16 @@ describe('HTTP.receive()/server/206', function(assert) {
 
 		assert(request, {
 			headers: {
-				'@encoding':       'identity',
-				'@length':         Infinity,
-				'@method':         'GET',
-				'@partial':        true,
-				'@range':          [ 256, Infinity ],
-				'@url':            '/path/to/stream?token=value',
-				'accept-encoding': 'identity',
-				'range':           'bytes=256-'
+				'@method':          'GET',
+				'@transfer':        {
+					'encoding': 'identity',
+					'length':   Infinity,
+					'range':    [ 256, Infinity ]
+				},
+				'@url':             '/path/to/stream?token=value',
+				'accept-encoding':  'identity',
+				'content-encoding': 'identity',
+				'range':            'bytes=256-'
 			},
 			payload: Buffer.from('{"submitted":"data"}', 'utf8')
 		});
@@ -524,11 +544,12 @@ describe('HTTP.send()/server/200', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@encoding':        'identity',
-					'@length':          15,
 					'@method':          'GET',
-					'@partial':         false,
-					'@range':           [ 0, 14 ],
+					'@transfer':        {
+						'encoding': 'identity',
+						'length':   15,
+						'range':    [ 0, 14 ]
+					},
 					'@url':             '/index.html',
 					'accept-encoding':  'gzip',
 					'content-encoding': 'identity',
@@ -557,6 +578,10 @@ describe('HTTP.send()/server/200', function(assert) {
 	let connection = HTTP.connect(url);
 
 	connection.once('@connect', () => {
+
+		// TODO: Verify this here, that send() results in correct frame
+		// Should be without range, without content-range, and with the
+		// length of payload
 
 		HTTP.send(connection, {
 			headers: {
@@ -613,19 +638,19 @@ describe('HTTP.send()/server/206', function(assert) {
 
 		connection.once('request', (request) => {
 
-			assert(isObject(request),                  true);
-			assert(isObject(request.headers),          true);
-			assert(isArray(request.headers['@range']), true);
-			assert(request.headers['@partial'],        true);
-			assert(request.payload,                    null);
+			assert(isObject(request),                              true);
+			assert(isObject(request.headers),                      true);
+			assert(isArray(request.headers['@transfer']['range']), true);
+			assert(request.payload,                                null);
 
 			HTTP.send(connection, {
 				headers: {
-					'@encoding': 'identity',
-					'@length':   PAYLOADS['206']['PAYLOAD'].length,
-					'@partial':  true,
-					'@range':    request.headers['@range'],
-					'@status':   '206 Partial Content'
+					'@status':   '206 Partial Content',
+					'@transfer': {
+						'encoding': 'identity',
+						'length':   PAYLOADS['206']['PAYLOAD'].length,
+						'range':    request.headers['@range']
+					}
 				},
 				payload: PAYLOADS['206']['PAYLOAD']
 			}, (result) => {

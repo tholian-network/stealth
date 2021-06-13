@@ -70,10 +70,11 @@ const decode = function(connection, buffer) {
 
 	let chunk = {
 		headers: {
-			'@encoding': null,
-			'@length':   null,
-			'@partial':  false,
-			'@range':    [ 0, Infinity ]
+			'@transfer': {
+				'encoding': null,
+				'length':   null,
+				'range':    [ 0, Infinity ]
+			}
 		},
 		payload: null
 	};
@@ -197,9 +198,8 @@ const decode = function(connection, buffer) {
 					&& end < length
 				) {
 
-					chunk.headers['@length']  = length;
-					chunk.headers['@partial'] = true;
-					chunk.headers['@range']   = [ start, end ];
+					chunk.headers['@transfer']['length'] = length;
+					chunk.headers['@transfer']['range']  = [ start, end ];
 
 				}
 
@@ -216,9 +216,8 @@ const decode = function(connection, buffer) {
 					&& end > start
 				) {
 
-					chunk.headers['@length']  = Infinity;
-					chunk.headers['@partial'] = true;
-					chunk.headers['@range']   = [ start, end ];
+					chunk.headers['@transfer']['length'] = Infinity;
+					chunk.headers['@transfer']['range']  = [ start, end ];
 
 				}
 
@@ -227,10 +226,15 @@ const decode = function(connection, buffer) {
 		} else if (method === 'GET' && range !== null) {
 
 			if (isNumber(content_length) === true && content_length > 0) {
-				chunk.headers['@length'] = content_length;
+
+				chunk.headers['@transfer']['length'] = content_length;
+
 			} else {
-				chunk.headers['@length'] = Infinity;
+
+				chunk.headers['@transfer']['length'] = Infinity;
+
 			}
+
 
 			let unit  = range.split('=').shift();
 			let check = range.split('=').pop().split(',').map((r) => r.trim()).filter((r) => r.includes('-'));
@@ -263,8 +267,9 @@ const decode = function(connection, buffer) {
 						|| end === Infinity
 					)
 				) {
-					chunk.headers['@partial'] = true;
-					chunk.headers['@range']   = [ start, end ];
+
+					chunk.headers['@transfer']['range'] = [ start, end ];
+
 				}
 
 			} else {
@@ -277,27 +282,18 @@ const decode = function(connection, buffer) {
 
 		} else if (isNumber(content_length) === true && content_length > 0) {
 
-			chunk.headers['@length'] = content_length;
-
-			if (msg_payload !== null && msg_payload.length < content_length) {
-				chunk.headers['@partial'] = true;
-			} else {
-				chunk.headers['@partial'] = false;
-			}
-
-			chunk.headers['@range'] = [ 0, content_length - 1 ];
+			chunk.headers['@transfer']['length'] = content_length;
+			chunk.headers['@transfer']['range']  = [ 0, content_length - 1 ];
 
 		} else if (payload_complete === true) {
 
-			chunk.headers['@length']  = msg_payload.length;
-			chunk.headers['@partial'] = false;
-			chunk.headers['@range']   = [ 0, msg_payload.length - 1 ];
+			chunk.headers['@transfer']['length'] = msg_payload.length;
+			chunk.headers['@transfer']['range']  = [ 0, msg_payload.length - 1 ];
 
 		} else {
 
-			chunk.headers['@length']  = Infinity;
-			chunk.headers['@partial'] = null;
-			chunk.headers['@range']   = [ 0, Infinity ];
+			chunk.headers['@transfer']['length'] = Infinity;
+			chunk.headers['@transfer']['range']  = [ 0, Infinity ];
 
 		}
 
@@ -318,9 +314,9 @@ const decode = function(connection, buffer) {
 
 	if (msg_payload !== null) {
 
-		let expected = chunk.headers['@length'];
+		let expected = chunk.headers['@transfer']['length'];
+		let range    = chunk.headers['@transfer']['range'];
 
-		let range = chunk.headers['@range'];
 		if (range[1] !== Infinity) {
 			// XXX: Ranges start with byte 0, so subtraction is off-by-one
 			expected = (range[1] + 1) - range[0];
@@ -334,29 +330,73 @@ const decode = function(connection, buffer) {
 			if (content_encoding === 'gzip' || transfer_encoding === 'gzip') {
 
 				try {
-					chunk.payload              = zlib.gunzipSync(msg_payload);
-					chunk.headers['@encoding'] = 'identity';
+
+					chunk.payload                          = zlib.gunzipSync(msg_payload);
+					chunk.headers['content-encoding']      = 'identity';
+					chunk.headers['@transfer']['encoding'] = 'gzip';
+
 				} catch (err) {
-					chunk.payload              = msg_payload;
-					chunk.headers['@encoding'] = 'gzip';
+
+					chunk.payload                          = msg_payload;
+					chunk.headers['content-encoding']      = 'gzip';
+					chunk.headers['@transfer']['encoding'] = 'gzip';
+
+				}
+
+			} else if (content_encoding === 'deflate' || transfer_encoding === 'deflate') {
+
+				try {
+
+					chunk.payload                          = zlib.deflateSync(msg_payload);
+					chunk.headers['content-encoding']      = 'identity';
+					chunk.headers['@transfer']['encoding'] = 'deflate';
+
+				} catch (err) {
+
+					chunk.payload                          = msg_payload;
+					chunk.headers['content-encoding']      = 'deflate';
+					chunk.headers['@transfer']['encoding'] = 'deflate';
+
+				}
+
+			} else if (content_encoding === 'br' || transfer_encoding === 'br') {
+
+				try {
+
+					chunk.payload                          = zlib.brotliDecompressSync(msg_payload);
+					chunk.headers['content-encoding']      = 'identity';
+					chunk.headers['@transfer']['encoding'] = 'br';
+
+				} catch (err) {
+
+					chunk.payload                          = msg_payload;
+					chunk.headers['content-encoding']      = 'br';
+					chunk.headers['@transfer']['encoding'] = 'br';
+
 				}
 
 			} else if (transfer_encoding === 'chunked') {
 
-				chunk.payload              = decode_chunked(msg_payload);
-				chunk.headers['@encoding'] = 'identity';
+				chunk.payload                          = decode_chunked(msg_payload);
+				chunk.headers['content-encoding']      = 'identity';
+				chunk.headers['@transfer']['encoding'] = 'chunked';
 
 			} else {
 
-				chunk.payload              = msg_payload;
-				chunk.headers['@encoding'] = 'identity';
+				chunk.payload                          = msg_payload;
+				chunk.headers['content-encoding']      = 'identity';
+				chunk.headers['@transfer']['encoding'] = 'identity';
 
+			}
+
+			if (expected === msg_payload.length && chunk.payload !== null) {
+				chunk.headers['content-length'] = chunk.payload.length;
 			}
 
 		} else {
 
-			chunk.payload              = null;
-			chunk.headers['@encoding'] = null;
+			chunk.payload                          = null;
+			chunk.headers['@transfer']['encoding'] = null;
 
 		}
 
@@ -391,71 +431,142 @@ const encode = function(connection, data) {
 	}
 
 
+	if (isObject(data.headers['@transfer']) === false) {
+
+		if (data.payload !== null) {
+
+			data.headers['@transfer'] = {
+				'encoding': 'identity',
+				'length':   data.payload.length
+			};
+
+		} else {
+
+			data.headers['@transfer'] = {};
+
+		}
+
+	}
+
+
 	let msg_payload = Buffer.alloc(0);
 
 	if (data.payload !== null) {
 
-		if (isArray(data.headers['@range']) === true) {
+		if (isArray(data.headers['@transfer']['range']) === true) {
 
 			if (connection.type === 'client') {
 
-				if (data.headers['@range'][1] !== Infinity) {
-					data.headers['range'] = 'bytes=' + data.headers['@range'][0] + '-' + data.headers['@range'][1];
+				if (data.headers['@transfer']['range'][1] !== Infinity) {
+					data.headers['range'] = 'bytes=' + data.headers['@transfer']['range'][0] + '-' + data.headers['@transfer']['range'][1];
 				} else {
-					data.headers['range'] = 'bytes=' + data.headers['@range'][0] + '-';
+					data.headers['range'] = 'bytes=' + data.headers['@transfer']['range'][0] + '-';
 				}
 
 			} else if (connection.type === 'server') {
 
-				if (isNumber(data.headers['@length']) === true) {
-					data.headers['content-range'] = 'bytes ' + data.headers['@range'][0] + '-' + (data.headers['@range'][1] || '*') + '/' + data.headers['@length'];
+				if (isNumber(data.headers['@transfer']['length']) === true) {
+					data.headers['content-range'] = 'bytes ' + data.headers['@transfer']['range'][0] + '-' + (data.headers['@transfer']['range'][1] || '*') + '/' + data.headers['@transfer']['length'];
 					delete data.headers['content-length'];
 				} else {
-					data.headers['content-range'] = 'bytes ' + data.headers['@range'][0] + '-' + (data.headers['@range'][1] || '*') + '/*';
+					data.headers['content-range'] = 'bytes ' + data.headers['@transfer']['range'][0] + '-' + (data.headers['@transfer']['range'][1] || '*') + '/*';
 					delete data.headers['content-length'];
 				}
 
 			}
 
-		} else if (isNumber(data.headers['@length']) === true) {
+		} else if (isNumber(data.headers['@transfer']['length']) === true) {
 
-			data.headers['content-length'] = data.headers['@length'];
+			data.headers['content-length'] = data.headers['@transfer']['length'];
 
 		}
 
 
-		if (data.headers['@encoding'] === 'gzip') {
+		if (isString(data.headers['@transfer']['encoding']) === true) {
 
-			try {
+			if (data.headers['@transfer']['encoding'] === 'gzip') {
 
-				msg_payload                      = zlib.gzipSync(data.payload);
-				data.headers['@encoding']        = 'gzip';
-				data.headers['content-encoding'] = 'gzip';
+				try {
 
-				delete data.headers['transfer-encoding'];
+					msg_payload                           = zlib.gzipSync(data.payload);
+					data.headers['@transfer']['encoding'] = 'gzip';
+					data.headers['content-encoding']      = 'gzip';
 
-			} catch (err) {
+					delete data.headers['transfer-encoding'];
 
-				msg_payload                      = data.payload;
-				data.headers['@encoding']        = 'identity';
-				data.headers['content-encoding'] = 'identity';
+				} catch (err) {
+
+					msg_payload                           = data.payload;
+					data.headers['@transfer']['encoding'] = 'identity';
+					data.headers['content-encoding']      = 'identity';
+
+					delete data.headers['transfer-encoding'];
+
+				}
+
+			} else if (data.headers['@transfer']['encoding'] === 'deflate') {
+
+				try {
+
+					msg_payload                           = zlib.deflateSync(data.payload);
+					data.headers['@transfer']['encoding'] = 'deflate';
+					data.headers['content-encoding']      = 'deflate';
+
+					delete data.headers['transfer-encoding'];
+
+				} catch (err) {
+
+					msg_payload                           = data.payload;
+					data.headers['@transfer']['encoding'] = 'identity';
+					data.headers['content-encoding']      = 'identity';
+
+					delete data.headers['transfer-encoding'];
+
+				}
+
+			} else if (data.headers['@transfer']['encoding'] === 'br') {
+
+				try {
+
+					msg_payload                           = zlib.brotliCompressSync(data.payload);
+					data.headers['@transfer']['encoding'] = 'br';
+					data.headers['content-encoding']      = 'br';
+
+					delete data.headers['transfer-encoding'];
+
+				} catch (err) {
+
+					msg_payload                           = data.payload;
+					data.headers['@transfer']['encoding'] = 'identity';
+					data.headers['content-encoding']      = 'identity';
+
+					delete data.headers['transfer-encoding'];
+
+				}
+
+			} else if (data.headers['@transfer']['encoding'] === 'chunked') {
+
+				msg_payload                           = encode_chunked(data.payload);
+				data.headers['@transfer']['encoding'] = 'chunked';
+				data.headers['transfer-encoding']     = 'chunked';
+
+				delete data.headers['content-encoding'];
+				delete data.headers['content-length'];
+
+			} else {
+
+				msg_payload                           = data.payload;
+				data.headers['@transfer']['encoding'] = 'identity';
+				data.headers['content-encoding']      = 'identity';
 
 				delete data.headers['transfer-encoding'];
 
 			}
 
-		} else if (data.headers['@encoding'] === 'chunked') {
-
-			msg_payload                       = encode_chunked(data.payload);
-			data.headers['@encoding']         = 'chunked';
-			data.headers['transfer-encoding'] = 'chunked';
-			delete data.headers['content-encoding'];
-			delete data.headers['content-length'];
-
 		} else {
 
-			msg_payload                      = data.payload;
-			data.headers['content-encoding'] = 'identity';
+			data.headers['@transfer']['encoding'] = 'identity';
+			data.headers['content-encoding']      = 'identity';
 
 			delete data.headers['transfer-encoding'];
 
@@ -466,15 +577,26 @@ const encode = function(connection, data) {
 
 			let content_range = data.headers['content-range'].split('/').shift().split(' ').pop().split('-').map((v) => parseInt(v, 10));
 			if (Number.isNaN(content_range[0]) === false && Number.isNaN(content_range[1]) === false) {
+
 				data.headers['content-range'] = data.headers['content-range'].split('/').shift() + '/' + msg_payload.length;
 				msg_payload = msg_payload.slice(content_range[0], content_range[1] + 1);
+
 			} else {
-				data.headers['content-length'] = msg_payload.length;
+
+				if (data.headers['@transfer']['encoding'] !== 'chunked') {
+					data.headers['content-length'] = msg_payload.length;
+				}
+
 				delete data.headers['content-range'];
+
 			}
 
 		} else {
-			data.headers['content-length'] = msg_payload.length;
+
+			if (data.headers['@transfer']['encoding'] !== 'chunked') {
+				data.headers['content-length'] = msg_payload.length;
+			}
+
 		}
 
 	}
@@ -532,7 +654,7 @@ const encode = function(connection, data) {
 		msg_headers,
 		EMPTYLINE,
 		msg_payload,
-		data.headers['@encoding'] === 'chunked' ? Buffer.alloc(0) : EMPTYLINE
+		data.headers['@transfer']['encoding'] === 'chunked' ? Buffer.alloc(0) : EMPTYLINE
 	]);
 
 };
@@ -550,15 +672,30 @@ const onconnect = function(connection, url) {
 
 			connection.fragment = url.payload;
 
+
+			let encoding = 'identity';
+
+			if (isObject(url.headers['@transfer']) === true) {
+
+				if (isString(url.headers['@transfer']['encoding']) === true) {
+					encoding = url.headers['@transfer']['encoding'];
+				}
+
+			}
+
 			url.headers = {
-				'@encoding':       url.headers['@encoding'],
-				'@length':         null,
+
+				'@transfer': {
+					'encoding': encoding,
+					'length':   null,
+					'range':    [ connection.fragment.length, Infinity ],
+				},
+
 				'@method':         'GET',
-				'@partial':        true,
-				'@range':          [ connection.fragment.length, Infinity ],
 				'@url':            URL.render(url),
-				'accept-encoding': url.headers['@encoding']
+				'accept-encoding': encoding
 			};
+
 			url.payload = null;
 
 		}
@@ -609,7 +746,7 @@ const ondata = function(connection, url, chunk) {
 
 				if (connection.type === 'client') {
 
-					if (frame.headers['@length'] !== Infinity) {
+					if (frame.headers['@transfer']['length'] !== Infinity) {
 
 						if (frame.payload !== null) {
 
@@ -622,7 +759,7 @@ const ondata = function(connection, url, chunk) {
 								payload: frame.payload
 							}, {
 								bytes: connection.fragment.length - header_index - 4,
-								total: frame.headers['@length']
+								total: frame.headers['@transfer']['length']
 							}]);
 
 						}
@@ -635,7 +772,7 @@ const ondata = function(connection, url, chunk) {
 
 				} else if (connection.type === 'server') {
 
-					if (frame.headers['@length'] !== Infinity) {
+					if (frame.headers['@transfer']['length'] !== Infinity) {
 
 						if (frame.payload !== null) {
 
@@ -651,7 +788,7 @@ const ondata = function(connection, url, chunk) {
 								payload: frame.payload
 							}, {
 								bytes: connection.fragment.buffer.length - header_index - 4,
-								total: frame.headers['@length']
+								total: frame.headers['@transfer']['length']
 							}]);
 
 						}
@@ -681,7 +818,7 @@ const ondisconnect = function(connection, url) {
 		url.headers === null
 		|| (
 			url.headers !== null
-			&& url.headers['@length'] === Infinity
+			&& url.headers['@transfer']['length'] === Infinity
 			&& url.payload === null
 		)
 	) {
@@ -732,8 +869,8 @@ const ondisconnect = function(connection, url) {
 			if (
 				url.headers !== null
 				&& url.payload !== null
-				&& url.headers['@length'] !== Infinity
-				&& url.headers['@length'] === url.payload.length
+				&& url.headers['@transfer']['length'] !== Infinity
+				&& url.headers['@transfer']['length'] === url.payload.length
 			) {
 
 				connection.emit('response', [{
@@ -748,7 +885,7 @@ const ondisconnect = function(connection, url) {
 					payload: url.payload
 				}, {
 					bytes: url.payload.length,
-					total: url.headers['@length']
+					total: url.headers['@transfer']['length']
 				}]);
 
 			}
