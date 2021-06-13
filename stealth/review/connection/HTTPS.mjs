@@ -68,14 +68,15 @@ describe('HTTPS.send()/client/200', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers['@encoding'],        'identity');
-		assert(response.headers['@length'],          648);
-		assert(response.headers['@partial'],         false);
-		assert(response.headers['@range'],           [ 0, 647 ]);
-		assert(response.headers['@status'],          '200 OK');
+		assert(response.headers['@status'],   '200 OK');
+		assert(response.headers['@transfer'], {
+			'encoding': 'gzip',
+			'length':   648,
+			'range':    [ 0, 647 ]
+		});
 
-		assert(response.headers['content-encoding'], 'gzip');
-		assert(response.headers['content-length'],   648);
+		assert(response.headers['content-encoding'], 'identity');
+		assert(response.headers['content-length'],   1256);
 		assert(response.headers['content-type'],     'text/html; charset=UTF-8');
 		assert(response.headers['vary'],             'Accept-Encoding');
 
