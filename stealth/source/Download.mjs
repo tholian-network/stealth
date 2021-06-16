@@ -1,24 +1,31 @@
 
-import { Buffer, Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { HTTP                                           } from '../source/connection/HTTP.mjs';
-import { HTTPS                                          } from '../source/connection/HTTPS.mjs';
-import { SOCKS                                          } from '../source/connection/SOCKS.mjs';
-import { URL                                            } from '../source/parser/URL.mjs';
+import { Buffer, Emitter, isBuffer, isObject } from '../extern/base.mjs';
+import { HTTP                                } from '../source/connection/HTTP.mjs';
+import { HTTPS                               } from '../source/connection/HTTPS.mjs';
+import { SOCKS                               } from '../source/connection/SOCKS.mjs';
+import { UA                                  } from '../source/parser/UA.mjs';
+import { URL                                 } from '../source/parser/URL.mjs';
 
 
 
-const Download = function(url) {
+const Download = function(settings) {
 
-	url = URL.isURL(url) ? url : null;
+	settings = isObject(settings) ? settings : {};
+
+
+	settings = Object.freeze({
+		ua:  UA.isUA(settings.ua)    ? settings.ua  : null,
+		url: URL.isURL(settings.url) ? settings.url : null
+	});
 
 
 	this.connection = null;
-	this.url        = url;
+	this.ua         = settings.ua;
+	this.url        = settings.url;
 
 	this.__state = {
 		bandwidth: [],
-		frame:     { headers: null, payload: null },
-		frames:    [],
+		frame:     null,
 		interval:  null,
 		progress:  { bytes: 0, total: Infinity }
 	};
@@ -82,7 +89,11 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.connection === null && this.url !== null) {
 
-			if (this.url.proxy !== null) {
+			let proxy = this.url.proxy || null;
+
+			console.log(this.url);
+
+			if (proxy !== null) {
 				this.connection = SOCKS.connect(this.url);
 			} else if (this.url.protocol === 'https') {
 				this.connection = HTTPS.connect(this.url);
@@ -93,15 +104,15 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (this.connection !== null) {
 
-				this.connection.on('error', (...args) => {
-
-					this.emit('error', args);
-
+				this.connection.once('error', (err) => {
+					this.emit('error', [ err ]);
 				});
 
 				this.connection.on('progress', (frame, progress) => {
 
-					// TODO: ondisconnect should push frames
+					if (frame.headers['@status'] === '206 Partial Content') {
+						this.__state.partial = true;
+					}
 
 					this.__state.frame    = frame;
 					this.__state.progress = progress;
@@ -110,40 +121,12 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 				});
 
-				this.connection.on('redirect', (...args) => {
+				this.connection.once('redirect', (...args) => {
 					this.emit('redirect', args);
 				});
 
-				this.connection.on('response', (response) => {
-
-					if (response !== null) {
-
-						if (
-							response.headers['@length'] !== Infinity
-							&& response.headers['@range'][0] === 0
-							&& response.headers['@range'][1] === (response.headers['@length'] - 1)
-							&& response.payload !== null
-							&& response.payload.length === response.headers['@length']
-						) {
-
-							// XXX: Full Frame received, no re-download necessary
-
-						} else if (
-							response.headers['@length'] !== Infinity
-							&& response.headers['@range'][0] === 0
-							&& response.headers['@range'][1] < (response.headers['@length'] - 1)
-
-						) {
-						}
-
-
-					}
-					// TODO: response frame should be final nao
-					// TODO: If payload !== null, then
-					//       If @partial true and @range matches then concat payload together
-
+				this.connection.once('response', (response) => {
 					this.emit('response', [ response ]);
-
 				});
 
 				this.connection.once('@connect', () => {
@@ -183,34 +166,36 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 					}
 
 					let headers = {
-						'@method': 'GET',
-						'@url':    URL.render(this.url),
-						'accept':  this.url.mime.format,
-						'host':    hostname,
-						'range':   'bytes=0-'
+						'@method':         'GET',
+						'@url':            URL.render(this.url),
+						'accept':          this.url.mime.format,
+						'accept-encoding': 'gzip, deflate, br',
+						'host':            hostname,
+						'range':           'bytes=0-'
 					};
 
-					if (this.__state.frame.headers !== null && this.__state.frame.payload !== null) {
+					if (this.url.headers !== null) {
 
-						if (this.__state.frame.headers['@status'] === '206 Partial Content') {
+						if (this.url.headers['@status'] === '206 Partial Content') {
 
-							if (this.__state.frame.payload.length > 0) {
-								headers['range'] = 'bytes=' + this.__state.frame.payload.length + '-';
+							if (isBuffer(this.url.payload) === true) {
+								headers['range'] = 'bytes=' + this.url.payload.length + '-';
 							}
 
 						}
 
-						let user_agent = this.url.headers['user-agent'] || null;
+						let user_agent = UA.render(this.ua);
 						if (user_agent !== null) {
 							headers['user-agent'] = user_agent;
 						}
 
 						let content_encoding = this.url.headers['content-encoding'] || null;
 						if (content_encoding !== null) {
-							headers['content-encoding'] = content_encoding;
+							headers['accept-encoding'] = content_encoding;
 						}
 
 					}
+
 
 					if (this.url.protocol === 'https') {
 
@@ -230,26 +215,76 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.connection.once('@disconnect', () => {
 
+					let valid = false;
+
+					if (this.__state.frame !== null) {
+
+						this.url.headers = this.__state.frame.headers;
+
+
+						let from = this.url.headers['@range'][0];
+						if (from > 0) {
+
+							// If payload.length = 13, then from = payload.length
+							// because first range byte is 0, not 1
+
+							if (this.url.payload === null) {
+								this.url.payload = this.__state.frame.payload;
+								valid = true;
+							} else if (isBuffer(this.url.payload) === true && from === this.url.payload.length) {
+								this.url.payload = Buffer.concat([ this.url.payload, this.__state.frame.payload ]);
+								valid = true;
+							} else {
+								this.emit('error', [{ type: 'connection', cause: 'headers-payload' }]);
+								valid = false;
+							}
+
+						} else {
+							this.url.payload = this.__state.frame.payload;
+							valid = true;
+						}
+
+					}
+
+
 					if (this.__state.interval !== null) {
 						clearInterval(this.__state.interval);
 						this.__state.interval = null;
 					}
 
-				});
+					// XXX: Reset every state
+					this.__state.frame    = { headers: null, payload: null };
+					this.__state.progress = { bytes: 0, total: Infinity };
 
+
+					if (valid === true) {
+
+						if (this.url.headers['@transfer']['length'] === this.url.payload.length) {
+
+							this.connection.emit('response', [{
+								headers: this.url.headers,
+								payload: this.url.payload
+							}]);
+
+						} else {
+
+							this.connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+
+						}
+
+					}
+
+				});
 
 				return true;
 
-
-				// TODO: How to bind ondisconnect() handler of HTTP which will lead to updated
-				// url.headers and url.payload properties?
-
-				// TODO: Then verify url.headers, if it is resumable, cache it
-				// as this.__state.payload
-
 			} else {
 
-				this.emit('error', [{ type: 'block' }]);
+				if (this.url.hosts.length === 0) {
+					this.emit('error', [{ type: 'host' }]);
+				} else {
+					this.emit('error', [{ type: 'block' }]);
+				}
 
 			}
 
@@ -264,8 +299,6 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.connection !== null) {
 
-			// TODO: If not done with download, cache parsed fragment as
-			// this.__state.frame.payload
 			this.connection.disconnect();
 			this.connection = null;
 

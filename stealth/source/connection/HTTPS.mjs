@@ -123,9 +123,12 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	toJSON: function() {
 
+		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
-			local:  null,
-			remote: null
+			local:   null,
+			remote:  null,
+			events:  blob.data.events,
+			journal: blob.data.journal
 		};
 
 		if (this.socket !== null) {
