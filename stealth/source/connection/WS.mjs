@@ -2,7 +2,7 @@
 import crypto from 'crypto';
 import net    from 'net';
 
-import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { console, Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
 import { HTTP                                                                 } from '../../source/connection/HTTP.mjs';
 import { IP                                                                   } from '../../source/parser/IP.mjs';
 import { URL                                                                  } from '../../source/parser/URL.mjs';
@@ -59,27 +59,13 @@ const decode_json = function(buffer) {
 
 };
 
-const encode_json = function(data) {
-
-	let buffer = null;
-
-	try {
-		let tmp = JSON.stringify(data, null, '\t');
-		buffer = Buffer.from(tmp, 'utf8');
-	} catch (err) {
-		buffer = null;
-	}
-
-	return buffer;
-
-};
-
 const decode = function(connection, buffer) {
 
 	if (buffer.length <= 2) {
 		return null;
 	}
 
+	console.log('decode()');
 
 	let chunk = {
 		close:    false,
@@ -100,6 +86,8 @@ const decode = function(connection, buffer) {
 	let payload_length = buffer[1] & 127;
 	let payload_data   = null;
 
+	console.log(fin, operator, mask, payload_length);
+
 	if (payload_length <= 125) {
 
 		if (mask === true) {
@@ -115,6 +103,8 @@ const decode = function(connection, buffer) {
 			overflow_data = buffer.slice(2 + payload_length);
 
 		}
+
+		console.log(payload_data.toString('utf8'));
 
 	} else if (payload_length === 126) {
 
@@ -315,106 +305,157 @@ const decode = function(connection, buffer) {
 	}
 
 
+	console.log(chunk);
+
 	return chunk;
 
 };
 
 const encode = function(connection, data) {
 
-	let buffer         = null;
-	let mask           = false;
-	let mask_data      = null;
-	let payload_data   = null;
-	let payload_length = data.length;
-
-
-	if (connection.type === 'server') {
-
-		mask         = false;
-		mask_data    = Buffer.alloc(4);
-		payload_data = data.map((value) => value);
-
-	} else {
-
-		mask      = true;
-		mask_data = Buffer.alloc(4);
-
-		mask_data[0] = (Math.random() * 0xff) | 0;
-		mask_data[1] = (Math.random() * 0xff) | 0;
-		mask_data[2] = (Math.random() * 0xff) | 0;
-		mask_data[3] = (Math.random() * 0xff) | 0;
-
-		payload_data = data.map((value, index) => value ^ mask_data[index % 4]);
-
+	if (Object.keys(data.headers).length === 0) {
+		return null;
 	}
 
 
-	if (payload_length > 0xffff) {
+	let buffer = null;
 
-		// 64 Bit Extended Payload Length
+	if (isNumber(data.headers['@status']) === true) {
 
-		let lo = (payload_length |  0);
-		let hi = (payload_length - lo) / 4294967296;
-
-		buffer = Buffer.alloc((mask === true ? 14 : 10) + payload_length);
-
-		buffer[0] = 128 + 0x01;
-		buffer[1] = (mask === true ? 128 : 0) + 127;
-		buffer[2] = (hi >> 24) & 0xff;
-		buffer[3] = (hi >> 16) & 0xff;
-		buffer[4] = (hi >>  8) & 0xff;
-		buffer[5] = (hi >>  0) & 0xff;
-		buffer[6] = (lo >> 24) & 0xff;
-		buffer[7] = (lo >> 16) & 0xff;
-		buffer[8] = (lo >>  8) & 0xff;
-		buffer[9] = (lo >>  0) & 0xff;
-
-		if (mask === true) {
-
-			mask_data.copy(buffer, 10);
-			payload_data.copy(buffer, 14);
-
-		} else {
-
-			payload_data.copy(buffer, 10);
-
-		}
-
-	} else if (payload_length > 125) {
-
-		// 16 Bit Extended Payload Length
-
-		buffer = Buffer.alloc((mask === true ? 8 : 4) + payload_length);
-
-		buffer[0] = 128 + 0x01;
-		buffer[1] = (mask === true ? 128 : 0) + 126;
-		buffer[2] = (payload_length >> 8) & 0xff;
-		buffer[3] = (payload_length >> 0) & 0xff;
-
-		if (mask === true) {
-			mask_data.copy(buffer, 4);
-			payload_data.copy(buffer, 8);
-		} else {
-			payload_data.copy(buffer, 4);
-		}
+		buffer = Buffer.from([
+			128 + 0x08, // close
+			0   + 0x02, // unmasked (client and server)
+			(data.headers['@status'] >> 8) & 0xff,
+			(data.headers['@status'] >> 0) & 0xff
+		]);
 
 	} else {
 
-		// 7 Bit Payload Length
+		let is_masked   = false;
+		let msg_mask    = Buffer.alloc(4);
+		let msg_payload = Buffer.alloc(0);
 
-		buffer = Buffer.alloc((mask === true ? 6 : 2) + payload_length);
 
-		buffer[0] = 128 + 0x01;
-		buffer[1] = (mask === true ? 128 : 0) + payload_length;
+		if (connection.type === 'client') {
 
-		if (mask === true) {
-			mask_data.copy(buffer, 2);
-			payload_data.copy(buffer, 6);
+			is_masked   = true;
+			msg_mask    = Buffer.alloc(4);
+			msg_mask[0] = (Math.random() * 0xff) | 0;
+			msg_mask[1] = (Math.random() * 0xff) | 0;
+			msg_mask[2] = (Math.random() * 0xff) | 0;
+			msg_mask[3] = (Math.random() * 0xff) | 0;
+
+
+			let payload = null;
+
+			try {
+				payload = Buffer.from(JSON.stringify(data, null, '\t'), 'utf8');
+			} catch (err) {
+				payload = null;
+			}
+
+			if (isBuffer(payload) === true) {
+				msg_payload = payload.map((value, index) => value ^ msg_mask[index % 4]);
+			}
+
+		} else if (connection.type === 'server') {
+
+			is_masked   = false;
+			msg_mask    = Buffer.alloc(4);
+
+
+			let payload = null;
+
+			try {
+				payload = Buffer.from(JSON.stringify(data, null, '\t'), 'utf8');
+			} catch (err) {
+				payload = null;
+			}
+
+			if (isBuffer(payload) === true) {
+				msg_payload = payload.map((value) => value);
+			}
+
+		}
+
+
+		if (msg_payload.length > 0xffff) {
+
+			// 64 Bit Extended Payload Length
+
+			let lo = (msg_payload.length |  0);
+			let hi = (msg_payload.length - lo) / 4294967296;
+
+			buffer = Buffer.alloc((is_masked === true ? 14 : 10) + msg_payload.length);
+
+			buffer[0] = 128 + 0x01;
+			buffer[1] = (is_masked === true ? 128 : 0) + 127;
+			buffer[2] = (hi >> 24) & 0xff;
+			buffer[3] = (hi >> 16) & 0xff;
+			buffer[4] = (hi >>  8) & 0xff;
+			buffer[5] = (hi >>  0) & 0xff;
+			buffer[6] = (lo >> 24) & 0xff;
+			buffer[7] = (lo >> 16) & 0xff;
+			buffer[8] = (lo >>  8) & 0xff;
+			buffer[9] = (lo >>  0) & 0xff;
+
+			if (is_masked === true) {
+
+				msg_mask.copy(buffer, 10);
+				msg_payload.copy(buffer, 14);
+
+			} else {
+
+				msg_payload.copy(buffer, 10);
+
+			}
+
+		} else if (msg_payload.length > 125) {
+
+			// 16 Bit Extended Payload Length
+
+			buffer = Buffer.alloc((is_masked === true ? 8 : 4) + msg_payload.length);
+
+			buffer[0] = 128 + 0x01;
+			buffer[1] = (is_masked === true ? 128 : 0) + 126;
+			buffer[2] = (msg_payload.length >> 8) & 0xff;
+			buffer[3] = (msg_payload.length >> 0) & 0xff;
+
+			if (is_masked === true) {
+
+				msg_mask.copy(buffer, 4);
+				msg_payload.copy(buffer, 8);
+
+			} else {
+
+				msg_payload.copy(buffer, 4);
+
+			}
+
 		} else {
-			payload_data.copy(buffer, 2);
+
+			// 7 Bit Payload Length
+
+			buffer = Buffer.alloc((is_masked === true ? 6 : 2) + msg_payload.length);
+
+			buffer[0] = 128 + 0x01;
+			buffer[1] = (is_masked === true ? 128 : 0) + msg_payload.length;
+
+			if (is_masked === true) {
+
+				msg_mask.copy(buffer, 2);
+				msg_payload.copy(buffer, 6);
+
+			} else {
+
+				msg_payload.copy(buffer, 2);
+
+			}
+
 		}
 
 	}
+
 
 	return buffer;
 
@@ -466,11 +507,11 @@ const onconnect = function(connection, url) {
 					connection.emit('@connect');
 
 				} else {
-					connection.emit('error', [{ type: 'request', cause: 'socket-trust' }]);
+					connection.emit('error', [{ type: 'connection', cause: 'socket-trust' }]);
 				}
 
 			} else {
-				connection.emit('error', [{ type: 'request' }]);
+				connection.emit('error', [{ type: 'connection' }]);
 			}
 
 		});
@@ -508,7 +549,7 @@ const ondisconnect = function(connection /*, url */) {
 
 	let fragment = connection.fragment;
 	if (fragment.payload.length > 0) {
-		connection.emit('error', [{ type: 'request' }]);
+		connection.emit('error', [{ type: 'connection' }]);
 	}
 
 
@@ -644,9 +685,12 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	toJSON: function() {
 
+		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
-			local:  null,
-			remote: null
+			local:   null,
+			remote:  null,
+			events:  blob.data.events,
+			journal: blob.data.journal
 		};
 
 		if (this.socket !== null) {
@@ -807,7 +851,7 @@ const WS = {
 				} else {
 
 					connection.socket = null;
-					connection.emit('error', [{ type: 'request' }]);
+					connection.emit('error', [{ type: 'connection' }]);
 
 					return null;
 
@@ -825,7 +869,7 @@ const WS = {
 		} else {
 
 			connection.socket = null;
-			connection.emit('error', [{ type: 'request' }]);
+			connection.emit('error', [{ type: 'connection' }]);
 
 			return null;
 
@@ -939,61 +983,52 @@ const WS = {
 		if (connection !== null && connection.socket !== null) {
 
 			let buffer  = null;
-			let headers = null;
+			let headers = {};
 			let payload = null;
 
 			if (isObject(data.headers) === true) {
 				headers = data.headers;
-			} else {
-				headers = {};
 			}
 
 			if (isBoolean(data.payload) === true) {
 				payload = data.payload;
-			} else {
-				payload = data.payload || null;
+			} else if (isBuffer(data.payload) === true) {
+				payload = data.payload;
+			} else if (isObject(data.payload) === true) {
+				payload = Buffer.from(JSON.stringify(payload, null, '\t'), 'utf8');
 			}
 
 
-			if (isNumber(headers['@status']) === true) {
+			if (headers !== null) {
 
-				buffer = Buffer.from([
-					128 + 0x08, // close
-					0   + 0x02, // unmasked (client and server)
-					(headers['@status'] >> 8) & 0xff,
-					(headers['@status'] >> 0) & 0xff
-				]);
-
-			} else {
-
-				let headers_keys = Object.keys(headers).filter((h) => h.startsWith('@') === false);
-				if (headers_keys.length > 0 || payload !== null) {
-
-					let tmp = { headers: {}, payload: payload };
-					headers_keys.forEach((key) => tmp.headers[key] = headers[key]);
-
-					let data = encode_json(tmp);
-					if (data !== null) {
-						buffer = encode(connection, data);
-					}
-
-				}
+				buffer = encode(connection, {
+					headers: headers,
+					payload: payload
+				});
 
 			}
 
 
 			if (buffer !== null) {
 
-				connection.socket.write(buffer);
+				if (connection.type === 'client') {
+					connection.socket.write(buffer);
+				} else if (connection.type === 'server') {
+					connection.socket.write(buffer);
+				}
 
 				if (callback !== null) {
 					callback(true);
+				} else {
+					return true;
 				}
 
 			} else {
 
 				if (callback !== null) {
 					callback(false);
+				} else {
+					return false;
 				}
 
 			}
@@ -1002,6 +1037,8 @@ const WS = {
 
 			if (callback !== null) {
 				callback(false);
+			} else {
+				return false;
 			}
 
 		}
