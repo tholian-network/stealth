@@ -61,6 +61,36 @@ const decode_json = function(buffer) {
 
 const decode = function(connection, buffer) {
 
+	if (buffer.length < 2) {
+		return null;
+	}
+
+
+	let chunk = {
+		headers: {
+			'@transfer': {
+				'encoding': null,
+				'length':   null
+			}
+		},
+		payload: null
+	};
+
+
+	let msg_headers      = null;
+	let msg_payload      = null;
+	let payload_complete = false;
+
+
+	let fin      = (buffer[0] & 128) === 128;
+	let operator = (buffer[0] &  15);
+	let mask     = (buffer[1] & 128) === 128;
+
+	// TODO: encoding can be utf8 (text frame) or binary (binary frame)
+
+
+
+
 	if (buffer.length <= 2) {
 		return null;
 	}
