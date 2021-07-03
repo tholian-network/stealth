@@ -1,10 +1,10 @@
 
-import { Buffer, Emitter, isBuffer, isObject } from '../extern/base.mjs';
-import { HTTP                                } from '../source/connection/HTTP.mjs';
-import { HTTPS                               } from '../source/connection/HTTPS.mjs';
-import { SOCKS                               } from '../source/connection/SOCKS.mjs';
-import { UA                                  } from '../source/parser/UA.mjs';
-import { URL                                 } from '../source/parser/URL.mjs';
+import { Buffer, Emitter, isArray, isBuffer, isObject } from '../extern/base.mjs';
+import { HTTP                                         } from '../source/connection/HTTP.mjs';
+import { HTTPS                                        } from '../source/connection/HTTPS.mjs';
+import { SOCKS                                        } from '../source/connection/SOCKS.mjs';
+import { UA                                           } from '../source/parser/UA.mjs';
+import { URL                                          } from '../source/parser/URL.mjs';
 
 
 
@@ -90,9 +90,6 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 		if (this.connection === null && this.url !== null) {
 
 			let proxy = this.url.proxy || null;
-
-			console.log(this.url);
-
 			if (proxy !== null) {
 				this.connection = SOCKS.connect(this.url);
 			} else if (this.url.protocol === 'https') {
@@ -110,10 +107,6 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.connection.on('progress', (frame, progress) => {
 
-					if (frame.headers['@status'] === '206 Partial Content') {
-						this.__state.partial = true;
-					}
-
 					this.__state.frame    = frame;
 					this.__state.progress = progress;
 
@@ -123,10 +116,6 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 				this.connection.once('redirect', (...args) => {
 					this.emit('redirect', args);
-				});
-
-				this.connection.once('response', (response) => {
-					this.emit('response', [ response ]);
 				});
 
 				this.connection.once('@connect', () => {
@@ -217,31 +206,41 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					let valid = false;
 
-					if (this.__state.frame !== null) {
+					if (
+						this.__state.frame !== null
+						&& isObject(this.__state.frame.headers)
+						&& isBuffer(this.__state.frame.payload)
+					) {
 
 						this.url.headers = this.__state.frame.headers;
 
 
-						let from = this.url.headers['@range'][0];
+						let from = 0;
+
+						if (
+							isObject(this.url.headers['@transfer']) === true
+							&& isArray(this.url.headers['@transfer']['range']) === true
+						) {
+							from = this.url.headers['@transfer']['range'][0];
+						}
+
 						if (from > 0) {
 
 							// If payload.length = 13, then from = payload.length
 							// because first range byte is 0, not 1
 
-							if (this.url.payload === null) {
-								this.url.payload = this.__state.frame.payload;
-								valid = true;
-							} else if (isBuffer(this.url.payload) === true && from === this.url.payload.length) {
+							if (isBuffer(this.url.payload) === true && from === this.url.payload.length) {
 								this.url.payload = Buffer.concat([ this.url.payload, this.__state.frame.payload ]);
 								valid = true;
 							} else {
-								this.emit('error', [{ type: 'connection', cause: 'headers-payload' }]);
 								valid = false;
 							}
 
 						} else {
+
 							this.url.payload = this.__state.frame.payload;
 							valid = true;
+
 						}
 
 					}
@@ -252,6 +251,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 						this.__state.interval = null;
 					}
 
+
 					// XXX: Reset every state
 					this.__state.frame    = { headers: null, payload: null };
 					this.__state.progress = { bytes: 0, total: Infinity };
@@ -259,7 +259,14 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					if (valid === true) {
 
-						if (this.url.headers['@transfer']['length'] === this.url.payload.length) {
+						if (
+							isObject(this.url.headers) === true
+							&& isObject(this.url.headers['@transfer']) === true
+							&& this.url.headers['@transfer']['length'] !== Infinity
+							&& this.url.headers['@transfer']['length'] === this.url.payload.length
+						) {
+
+							// TODO: Validate headers in regards to range and length for resumed downloads
 
 							this.connection.emit('response', [{
 								headers: this.url.headers,
@@ -271,6 +278,10 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 							this.connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 
 						}
+
+					} else {
+
+						this.connection.emit('error', [{ type: 'connection', cause: 'headers-payload' }]);
 
 					}
 

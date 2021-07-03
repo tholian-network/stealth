@@ -670,10 +670,12 @@ const onconnect = function(connection, url) {
 			&& url.headers['@status'] === '206 Partial Content'
 		) {
 
-			connection.fragment = url.payload;
-
-
 			let encoding = 'identity';
+			let from     = 0;
+
+			if (isBuffer(url.payload) === true) {
+				from = url.payload.length;
+			}
 
 			if (isObject(url.headers['@transfer']) === true) {
 
@@ -684,13 +686,11 @@ const onconnect = function(connection, url) {
 			}
 
 			url.headers = {
-
 				'@transfer': {
 					'encoding': encoding,
 					'length':   null,
-					'range':    [ connection.fragment.length, Infinity ],
+					'range':    [ from, Infinity ],
 				},
-
 				'@method':         'GET',
 				'@url':            URL.render(url),
 				'accept-encoding': encoding
@@ -754,11 +754,14 @@ const ondata = function(connection, url, chunk) {
 
 						} else {
 
+							let bytes   = connection.fragment.length - header_index - 4;
+							let partial = connection.fragment.slice(connection.fragment.indexOf(EMPTYLINE) + 4);
+
 							connection.emit('progress', [{
 								headers: frame.headers,
-								payload: frame.payload
+								payload: partial
 							}, {
-								bytes: connection.fragment.length - header_index - 4,
+								bytes: bytes,
 								total: frame.headers['@transfer']['length']
 							}]);
 
@@ -783,11 +786,14 @@ const ondata = function(connection, url, chunk) {
 
 						} else {
 
+							let bytes   = connection.fragment.length - header_index - 4;
+							let partial = connection.fragment.slice(connection.fragment.indexOf(EMPTYLINE) + 4);
+
 							connection.emit('progress', [{
 								headers: frame.headers,
-								payload: frame.payload
+								payload: partial
 							}, {
-								bytes: connection.fragment.buffer.length - header_index - 4,
+								bytes: bytes,
 								total: frame.headers['@transfer']['length']
 							}]);
 
@@ -890,11 +896,17 @@ const ondisconnect = function(connection, url) {
 
 			}
 
-		} else if (code === '301' || code === '307' || code === '308') {
+		} else if (code === '301' || code === '302' || code === '307' || code === '308') {
 
-			let tmp = url.headers['location'] || null;
-			if (tmp !== null) {
-				connection.emit('redirect', [{ headers: url.headers }]);
+			let location = URL.parse(url.headers['location']);
+
+			if (URL.isURL(location) === true) {
+
+				connection.emit('redirect', [{
+					headers: { 'location': location.link },
+					payload: null
+				}]);
+
 			} else {
 				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
 			}

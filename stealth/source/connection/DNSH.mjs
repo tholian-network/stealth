@@ -658,12 +658,21 @@ const DNSH = {
 						payload: frame.payload
 					});
 
+				} else {
+
+					return {
+						headers: frame.headers,
+						payload: frame.payload
+					};
+
 				}
 
 			} else {
 
 				if (callback !== null) {
 					callback(null);
+				} else {
+					return null;
 				}
 
 			}
@@ -672,6 +681,8 @@ const DNSH = {
 
 			if (callback !== null) {
 				callback(null);
+			} else {
+				return null;
 			}
 
 		}
@@ -768,12 +779,16 @@ const DNSH = {
 
 				if (callback !== null) {
 					callback(true);
+				} else {
+					return true;
 				}
 
 			} else {
 
 				if (callback !== null) {
 					callback(false);
+				} else {
+					return false;
 				}
 
 			}
@@ -782,6 +797,8 @@ const DNSH = {
 
 			if (callback !== null) {
 				callback(false);
+			} else {
+				return false;
 			}
 
 		}
@@ -789,6 +806,9 @@ const DNSH = {
 	},
 
 	upgrade: function(tunnel, url) {
+
+		// TODO: Implement upgrade()
+
 	},
 
 

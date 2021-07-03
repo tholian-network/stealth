@@ -686,15 +686,18 @@ Connection.from = function(json) {
 			let socket     = json.socket || null;
 			let connection = new Connection(socket);
 
-			for (let prop in json) {
+			Object.keys(connection).forEach((property) => {
 
-				if (prop !== 'socket') {
-					connection[prop] = json[prop];
+				if (
+					json[property] === undefined
+					|| json[property] === null
+				) {
+					json[property] = connection[property];
 				}
 
-			}
+			});
 
-			return connection;
+			return json;
 
 		}
 
@@ -976,11 +979,23 @@ const WS = {
 							payload: data.payload
 						});
 
-					}
+						// Special case: Network gave us multiple Buffers
+						if (data.overflow !== null) {
+							WS.receive(connection, data.overflow, callback);
+						}
 
-					// Special case: Network gave us multiple Buffers
-					if (data.overflow !== null) {
-						WS.receive(connection, data.overflow, callback);
+					} else {
+
+						// Special case: Network gave us multiple Buffers
+						if (data.overflow !== null) {
+							WS.receive(connection, data.overflow);
+						}
+
+						return {
+							headers: data.headers,
+							payload: data.payload
+						};
+
 					}
 
 				}
@@ -989,6 +1004,8 @@ const WS = {
 
 				if (callback !== null) {
 					callback(null);
+				} else {
+					return null;
 				}
 
 			}
@@ -997,6 +1014,8 @@ const WS = {
 
 			if (callback !== null) {
 				callback(null);
+			} else {
+				return null;
 			}
 
 		}

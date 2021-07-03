@@ -1052,32 +1052,41 @@ const SOCKS = {
 						payload: data.payload
 					});
 
+				} else {
+
+					return {
+						headers: data.headers,
+						payload: data.payload
+					};
+
 				}
 
 			} else if (connection.protocol === 'dnss') {
 
-				DNSS.receive(connection, buffer, callback);
+				return DNSS.receive(connection, buffer, callback);
 
 			} else if (connection.protocol === 'https') {
 
-				HTTPS.receive(connection, buffer, callback);
+				return HTTPS.receive(connection, buffer, callback);
 
 			} else if (connection.protocol === 'http') {
 
-				HTTP.receive(connection, buffer, callback);
+				return HTTP.receive(connection, buffer, callback);
 
 			} else if (connection.protocol === 'wss') {
 
-				WSS.receive(connection, buffer, callback);
+				return WSS.receive(connection, buffer, callback);
 
 			} else if (connection.protocol === 'ws') {
 
-				WS.receive(connection, buffer, callback);
+				return WS.receive(connection, buffer, callback);
 
 			} else {
 
 				if (callback !== null) {
 					callback(null);
+				} else {
+					return null;
 				}
 
 			}
@@ -1093,12 +1102,21 @@ const SOCKS = {
 					payload: data.payload
 				});
 
+			} else {
+
+				return {
+					headers: data.headers,
+					payload: data.payload
+				};
+
 			}
 
 		} else {
 
 			if (callback !== null) {
 				callback(null);
+			} else {
+				return null;
 			}
 
 		}
@@ -1148,12 +1166,16 @@ const SOCKS = {
 
 					if (callback !== null) {
 						callback(true);
+					} else {
+						return true;
 					}
 
 				} else {
 
 					if (callback !== null) {
 						callback(false);
+					} else {
+						return false;
 					}
 
 				}
@@ -1162,23 +1184,23 @@ const SOCKS = {
 
 				if (connection.protocol === 'dnss') {
 
-					DNSS.send(connection.tunnel, data, callback);
+					return DNSS.send(connection.tunnel, data, callback);
 
 				} else if (connection.protocol === 'https') {
 
-					HTTPS.send(connection.tunnel, data, callback);
+					return HTTPS.send(connection.tunnel, data, callback);
 
 				} else if (connection.protocol === 'http') {
 
-					HTTP.send(connection.tunnel, data, callback);
+					return HTTP.send(connection.tunnel, data, callback);
 
 				} else if (connection.protocol === 'wss') {
 
-					WSS.send(connection.tunnel, data, callback);
+					return WSS.send(connection.tunnel, data, callback);
 
 				} else if (connection.protocol === 'ws') {
 
-					WS.send(connection.tunnel, data, callback);
+					return WS.send(connection.tunnel, data, callback);
 
 				}
 
@@ -1186,6 +1208,8 @@ const SOCKS = {
 
 				if (callback !== null) {
 					callback(false);
+				} else {
+					return false;
 				}
 
 			}
@@ -1194,6 +1218,8 @@ const SOCKS = {
 
 			if (callback !== null) {
 				callback(false);
+			} else {
+				return false;
 			}
 
 		}
