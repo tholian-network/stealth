@@ -7,7 +7,13 @@ integrate a third-party build toolchain or build workflow.
 
 The intention of this library is to have an ECMAScript Modules abstraction
 that allows to include otherwise globally defined data types via a single
-file.
+file, and allows cross-context and cross-sandbox serialization of data
+types, which otherwise wouldn't be possible.
+
+As data type instances in ECMAScript runtimes are instanciated per-sandbox,
+this library also includes `is(Datatype)` replacements for `typeof` and
+`instanceof`, and it is recommended to use the `[Symbol.toStringTag]` on
+the prototype of custom Function Templates to stay compatible.
 
 
 ## Usage

@@ -862,13 +862,13 @@ const ondisconnect = function(connection, url) {
 
 			} else {
 
-				connection.emit('error', [{ type: 'connection', cause: 'headers-payload' }]);
+				connection.emit('error', [{ type: 'connection', cause: 'payload' }]);
 
 			}
 
 		} else if (code === '204' || code === '205') {
 
-			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 
 		} else if (code === '206') {
 
@@ -908,13 +908,13 @@ const ondisconnect = function(connection, url) {
 				}]);
 
 			} else {
-				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 			}
 
 		} else if (code.startsWith('4') === true && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 		} else if (code.startsWith('5') === true && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 		} else {
 			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 		}

@@ -7,6 +7,8 @@ import { URL                                                                    
 
 
 
+const EMPTYLINE = Buffer.from('\r\n\r\n', 'utf8');
+
 const TYPES = {
 	'A':      1,
 	'AAAA':  28,
@@ -20,6 +22,11 @@ const TYPES = {
 
 const CLASSES = {
 	'INTERNET': 1
+};
+
+const MIME = {
+	'dns':  { ext: 'dns',  type: 'other', binary: true,  format: 'application/dns-message' },
+	'json': { ext: 'json', type: 'text',  binary: false, format: 'application/dns-json'    }
 };
 
 
@@ -137,8 +144,437 @@ const decode_json = function(payload) {
 	// TODO: Implement DNS over HTTPS JSON decoder
 };
 
-const decode_message = function(dictionary, payload, labels, stack) {
+const decode_message = function(connection, buffer) {
+
+	if (buffer.length < 12) {
+		return null;
+	}
+
+
+	let chunk = {
+		headers: {
+			'@id':   0,
+			'@type': null
+		},
+		payload: {
+			questions: [],
+			answers:   []
+		}
+	};
+
+	// TODO: decode base64url encoded buffer to DNS buffer (for dictionary)
+
+	let dictionary = {
+		buffer:   buffer,
+		labels:   {},
+		pointers: {},
+		offset:   12
+	};
+
+	console.info('decode_message()');
+	console.log(buffer.toString('utf8'));
+
 	// TODO: Port DNS wireformat decoder
+
+	// return { headers: {}, payload: {} };
+
+	return null;
+
+};
+
+
+
+const encode_json = function(connection, data) {
+};
+
+const encode_domain = function(dictionary, domain) {
+
+	let check = domain.split('.').find((label) => label.length >= 64) || null;
+	if (check !== null) {
+		return null;
+	}
+
+
+	let buffer = null;
+
+	let index = dictionary.pointers[domain] || null;
+	if (index !== null) {
+
+		buffer = Buffer.from([
+			0b11000000 | (index >> 8),
+			index      & 0xff
+		]);
+
+	} else {
+
+		let chunks = [];
+
+		domain.split('.').forEach((label) => {
+
+			chunks.push(Buffer.from([ label.length ]));
+			chunks.push(Buffer.from(label, 'utf8'));
+
+		});
+
+		chunks.push(Buffer.from([ 0x00 ]));
+
+		buffer = Buffer.concat(chunks);
+
+	}
+
+	return buffer;
+
+};
+
+const encode_question = function(dictionary, question) {
+
+	let offset = dictionary.offset;
+
+	let domain = null;
+	let qname  = null;
+	let type   = question.type;
+	let qtype  = TYPES[question.type] || null;
+	let qclass = CLASSES['INTERNET'];
+
+	if (type !== null && qtype !== null) {
+
+		if (
+			type === 'A'
+			|| type === 'AAAA'
+			|| type === 'CNAME'
+			|| type === 'MX'
+			|| type === 'NS'
+			|| type === 'SRV'
+			|| type === 'TXT'
+		) {
+
+			domain = question.domain;
+			qname  = encode_domain(dictionary, domain);
+
+		} else if (type === 'PTR') {
+
+			if (question.value.type === 'v4') {
+
+				domain = question.value.ip.split('.').slice(0, 4).reverse().join('.') + '.in-addr.arpa';
+				qname  = encode_domain(dictionary, domain);
+
+			} else if (question.value.type === 'v6') {
+
+				domain = question.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa';
+				qname  = encode_domain(dictionary, domain);
+
+			}
+
+		}
+
+	}
+
+
+	if (domain !== null && qname !== null && qtype !== null && qclass !== null) {
+
+		let buffer = Buffer.concat([
+			qname,
+			Buffer.from([
+				(qtype >> 8)  & 0xff, qtype  & 0xff,
+				(qclass >> 8) & 0xff, qclass & 0xff
+			])
+		]);
+
+		dictionary.labels[offset]   = domain.split('.');
+		dictionary.pointers[domain] = offset;
+		dictionary.offset          += buffer.length;
+
+		return buffer;
+
+	}
+
+
+	return null;
+
+};
+
+const encode_record = function(dictionary, record) {
+
+	let type   = record.type;
+	let rtype  = TYPES[record.type] || null;
+	let rclass = CLASSES['INTERNET'];
+
+	if (type !== null && rtype !== null) {
+
+		let rhead = null;
+		let rdata = null;
+
+		if (type === 'A') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = Buffer.from(record.value.ip.split('.').slice(0, 4).map((v) => {
+				return parseInt(v, 10);
+			}));
+
+		} else if (type === 'AAAA') {
+
+			let ip  = record.value.ip.split(':').join('').split('');
+			let tmp = [];
+
+			for (let i = 0; i < ip.length; i += 2) {
+				tmp.push(parseInt(ip[i + 0] + ip[i + 1], 16));
+			}
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = Buffer.from(tmp);
+
+		} else if (type === 'CNAME') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = encode_domain(dictionary, record.value);
+
+		} else if (type === 'MX') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = Buffer.concat([
+				Buffer.from([
+					(record.weight >> 8) & 0xff,
+					record.weight        & 0xff
+				]),
+				encode_domain(dictionary, record.value)
+			]);
+
+		} else if (type === 'NS') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = encode_domain(dictionary, record.value);
+
+		} else if (type === 'PTR') {
+
+			if (record.value.type === 'v4') {
+
+				rhead = encode_domain(dictionary, record.value.ip.split('.').slice(0, 4).reverse().join('.') + '.in-addr.arpa');
+				rdata = encode_domain(dictionary, record.domain);
+
+			} else if (record.value.type === 'v6') {
+
+				rhead = encode_domain(dictionary, record.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa');
+				rdata = encode_domain(dictionary, record.domain);
+
+			}
+
+		} else if (type === 'SRV') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = Buffer.concat([
+				Buffer.from([
+					(record.weight >> 8) & 0xff,
+					record.weight        & 0xff,
+					0x00,
+					0x00,
+					(record.port >> 8) & 0xff,
+					record.port        & 0xff
+				]),
+				encode_domain(dictionary, record.value)
+			]);
+
+		} else if (type === 'TXT') {
+
+			rhead = encode_domain(dictionary, record.domain);
+			rdata = encode_string(dictionary, record.value);
+
+		}
+
+
+		if (rhead !== null && rdata !== null) {
+
+			return Buffer.concat([
+				rhead,
+				Buffer.from([
+					(rtype >> 8)  & 0xff, rtype  & 0xff,
+					(rclass >> 8) & 0xff, rclass & 0xff,
+					0x00, 0x00, 0x00, 0x00 // TTL
+				]),
+				Buffer.from([
+					(rdata.length >> 8) & 0xff,
+					rdata.length        & 0xff
+				]),
+				rdata
+			]);
+
+		}
+
+	}
+
+	return null;
+
+};
+
+const encode_string = function(dictionary, values) {
+
+	let buffers = [];
+
+	for (let v = 0, vl = values.length; v < vl; v++) {
+
+		let value = values[v];
+
+		if (isBuffer(value) === true && value.length <= 255) {
+
+			let buffer = Buffer.alloc(value.length + 1);
+
+			buffer[0] = value.length;
+			value.copy(buffer, 1, 0, value.length);
+
+			buffers.push(buffer);
+
+		}
+
+	}
+
+	if (buffers.length > 0) {
+		return Buffer.concat(buffers);
+	}
+
+
+	return null;
+
+};
+
+const encode_message = function(connection, data) {
+
+	let id         = data.headers['@id'] || 0;
+	let query      = connection.type === 'server' ? false : true;
+	let questions  = data.payload.questions || [];
+	let answers    = data.payload.answers   || [];
+	let dictionary = {
+		buffer:   Buffer.from([]),
+		labels:   {},
+		pointers: {},
+		offset:   12
+	};
+
+	if (data.headers['@type'] === 'request') {
+		query = true;
+	} else if (data.headers['@type'] === 'response') {
+		query = false;
+	}
+
+	let header_data  = Buffer.from([
+		(id >> 8) & 0xff, id & 0xff,
+		query === true ? 0b00000001 : 0b10000001, 0x00,
+		0x00, 0x00, // questions
+		0x00, 0x00, // answers
+		0x00, 0x00, // authorative
+		0x00, 0x00  // additional
+	]);
+	let payload_data = Buffer.from('', 'utf8');
+
+
+	let qdcount = questions.length;
+	let ancount = answers.length;
+
+	if (connection.type === 'server') {
+
+		if (qdcount > 0) {
+
+			questions.forEach((data) => {
+
+				let question = encode_question(dictionary, data);
+				if (question !== null) {
+					payload_data = Buffer.concat([ payload_data, question ]);
+				} else {
+					qdcount--;
+				}
+
+			});
+
+		}
+
+		if (ancount > 0) {
+
+			answers.forEach((data) => {
+
+				let answer = encode_record(dictionary, data);
+				if (answer !== null) {
+					payload_data = Buffer.concat([ payload_data, answer ]);
+				} else {
+					ancount--;
+				}
+
+			});
+
+		}
+
+	} else {
+
+		if (qdcount > 0) {
+
+			questions.forEach((data) => {
+
+				let question = encode_question(dictionary, data);
+				if (question !== null) {
+					payload_data = Buffer.concat([ payload_data, question ]);
+				} else {
+					qdcount--;
+				}
+
+			});
+
+		}
+
+	}
+
+
+	if (qdcount > 0) {
+		header_data[4] = (qdcount >> 8) & 0xff;
+		header_data[5] = qdcount        & 0xff;
+	}
+
+
+	if (ancount > 0) {
+		header_data[6] = (ancount >> 8) & 0xff;
+		header_data[7] = ancount        & 0xff;
+	}
+
+	if (payload_data.length > 0) {
+
+		if (connection.type === 'server') {
+
+			let payload = Buffer.concat([ header_data, payload_data ]).toString('base64url');
+
+			return Buffer.from([
+				'HTTP/1.1 200 OK',
+				'Content-Encoding: identity',
+				'Content-Type: application/dns-message',
+				'Content-Length: ' + payload.length,
+				'',
+				payload
+			].join('\r\n'));
+
+		} else {
+
+			let hostname = null;
+			let domain   = URL.toDomain(connection.url);
+			let host     = URL.toHost(connection.url);
+			let payload  = Buffer.concat([ header_data, payload_data ]).toString('base64url');
+
+			if (domain !== null) {
+				hostname = domain;
+			} else if (host !== null) {
+				hostname = host;
+			}
+
+			return Buffer.from([
+				'GET ' + connection.url.path + '?dns=' + payload + ' HTTP/1.1',
+				'Accept: application/dns-message',
+				'Accept-Encoding: identity',
+				'Host: ' + hostname,
+				'',
+				''
+			].join('\r\n'));
+
+		}
+
+	}
+
+
+	return null;
+
 };
 
 const lookup = function(host, options, callback) {
@@ -182,13 +618,7 @@ const lookup = function(host, options, callback) {
 const onconnect = function(connection, url) {
 
 	let timeout = Date.now() + 5000;
-	let format  = url.mime.format;
 
-	if (format === 'application/dns-message') {
-		connection.format = format;
-	} else if (format === 'application/dns-json') {
-		connection.format = format;
-	}
 
 	connection.type = 'client';
 
@@ -229,50 +659,52 @@ const ondata = function(connection, url, chunk) {
 				url.payload = frame.payload;
 
 
-				if (connection.type === 'client') {
+				console.log(url.headers, url.payload);
 
-					if (frame.headers['@length'] !== Infinity) {
+				// if (connection.type === 'client') {
 
-						if (frame.payload !== null) {
+				// 	if (frame.headers['@transfer']['length'] !== Infinity) {
 
-							connection.socket.end();
+				// 		if (frame.payload !== null) {
 
-						} else {
+				// 			connection.socket.end();
 
-							// Still downloading payload, wait for timeout
+				// 		} else {
 
-						}
+				// 			// Still downloading payload, wait for timeout
 
-					} else {
+				// 		}
 
-						// Unknown payload size, wait for timeout
+				// 	} else {
 
-					}
+				// 		// Unknown payload size, wait for timeout
 
-				} else if (connection.type === 'server') {
+				// 	}
 
-					if (frame.headers['@length'] !== Infinity) {
+				// } else if (connection.type === 'server') {
 
-						if (frame.payload !== null) {
+				// 	if (frame.headers['@transfer']['length'] !== Infinity) {
 
-							connection.emit('request', [{
-								headers: frame.headers,
-								payload: frame.payload
-							}]);
+				// 		if (frame.payload !== null) {
 
-						} else {
+				// 			connection.emit('request', [{
+				// 				headers: frame.headers,
+				// 				payload: frame.payload
+				// 			}]);
 
-							// Still downloading payload, wait for timeout
+				// 		} else {
 
-						}
+				// 			// Still downloading payload, wait for timeout
 
-					} else {
+				// 		}
 
-						// Unknown payload size, wait for timeout
+				// 	} else {
 
-					}
+				// 		// Unknown payload size, wait for timeout
 
-				}
+				// 	}
+
+				// }
 
 			}
 
@@ -288,7 +720,7 @@ const ondisconnect = function(connection, url) {
 		url.headers === null
 		|| (
 			url.headers !== null
-			&& url.headers['@length'] === Infinity
+			&& url.headers['@transfer']['length'] === Infinity
 			&& url.payload === null
 		)
 	) {
@@ -315,7 +747,7 @@ const ondisconnect = function(connection, url) {
 	if (connection.type === 'client') {
 
 		let code = (url.headers['@status'] || '500').split(' ').shift();
-		if (code === '200' || code === '204' || code === '205' || code === '206') {
+		if (code === '200') {
 
 			if (url.payload !== null) {
 
@@ -326,23 +758,31 @@ const ondisconnect = function(connection, url) {
 
 			} else {
 
-				connection.emit('error', [{ type: 'connection', cause: 'headers-payload' }]);
+				connection.emit('error', [{ type: 'connection', cause: 'payload' }]);
 
 			}
 
-		} else if (code === '301' || code === '307' || code === '308') {
+		} else if (code === '204' || code === '205') {
+
+			connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
+
+		} else if (code === '206') {
+
+			connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
+
+		} else if (code === '301' || code === '302' || code === '307' || code === '308') {
 
 			let tmp = url.headers['location'] || null;
 			if (tmp !== null) {
 				connection.emit('redirect', [{ headers: url.headers }]);
 			} else {
-				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 			}
 
 		} else if (code.startsWith('4') === true && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 		} else if (code.startsWith('5') === true && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers-status' }]);
+			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 		} else {
 			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 		}
@@ -372,10 +812,10 @@ const isConnection = function(obj) {
 const Connection = function(socket) {
 
 	this.fragment = Buffer.alloc(0);
-	this.format   = 'application/dns-message';
 	this.interval = null;
 	this.socket   = socket || null;
 	this.type     = null;
+	this.url      = null;
 
 
 	Emitter.call(this);
@@ -441,9 +881,12 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	toJSON: function() {
 
+		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
-			local:  null,
-			remote: null
+			local:   null,
+			remote:  null,
+			events:  blob.data.events,
+			journal: blob.data.journal
 		};
 
 		if (this.socket !== null) {
@@ -535,6 +978,16 @@ const DNSH = {
 
 				if (connection.socket !== null) {
 
+					if (url.path === '/dns-query') {
+						url.mime = Object.assign({}, MIME['dns']);
+					} else if (url.path === '/resolve') {
+						url.mime = Object.assign({}, MIME['json']);
+					} else {
+						url.mime = Object.assign({}, MIME['dns']);
+					}
+
+					connection.url = url;
+
 					connection.socket.removeAllListeners('data');
 					connection.socket.removeAllListeners('timeout');
 					connection.socket.removeAllListeners('error');
@@ -584,6 +1037,7 @@ const DNSH = {
 					// TODO: ondata might be necessary, to prevent request/response from being
 					// fired too early!?
 
+					return connection;
 
 				} else {
 
@@ -643,9 +1097,9 @@ const DNSH = {
 
 			let frame = null;
 
-			if (connection.format === 'application/dns-message') {
+			if (connection.url.mime.format === 'application/dns-message') {
 				frame = decode_message(connection, buffer);
-			} else if (connection.format === 'application/dns-json') {
+			} else if (connection.url.mime.format === 'application/dns-json') {
 				frame = decode_json(connection, buffer);
 			}
 
@@ -750,14 +1204,20 @@ const DNSH = {
 
 			if (headers !== null && payload !== null) {
 
-				if (connection.format === 'application/dns-message') {
+				console.log('WTF', connection.url);
+
+				if (connection.url.mime.format === 'application/dns-message') {
 
 					buffer = encode_message(connection, {
 						headers: headers,
 						payload: payload
 					});
 
-				} else if (connection.format === 'application/dns-json') {
+					// TODO: Encode format is wrong
+					console.error('encoded format is wrong!?');
+					console.log(buffer.toString('utf8'));
+
+				} else if (connection.url.mime.format === 'application/dns-json') {
 
 					buffer = encode_json(connection, {
 						headers: headers,
