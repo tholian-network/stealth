@@ -165,7 +165,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					if (this.url.headers !== null) {
 
-						if (this.url.headers['@status'] === '206 Partial Content') {
+						if (this.url.headers['@status'] === 206) {
 
 							if (isBuffer(this.url.payload) === true) {
 								headers['range'] = 'bytes=' + this.url.payload.length + '-';
