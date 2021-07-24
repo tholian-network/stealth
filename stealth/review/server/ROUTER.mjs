@@ -19,10 +19,9 @@ describe('ROUTER.error()', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@code':   501,
-				'@status': '501 Not Implemented'
+				'@status': 501
 			},
-			payload: null
+			payload: Buffer.from('All your errors are belong to us nao.', 'utf8')
 		});
 
 	});
@@ -31,8 +30,7 @@ describe('ROUTER.error()', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@code': 403,
-				'@status': '403 Forbidden'
+				'@status': 403
 			},
 			payload: Buffer.from('All your errors are belong to us nao.', 'utf8')
 		});
@@ -43,10 +41,9 @@ describe('ROUTER.error()', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@code':   501,
-				'@status': '501 Not Implemented'
+				'@status': 501
 			},
-			payload: null
+			payload: Buffer.from('All your errors are belong to us nao.', 'utf8')
 		});
 
 	});
@@ -55,8 +52,7 @@ describe('ROUTER.error()', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@code':    307,
-				'@status':  '307 Temporary Redirect',
+				'@status':  307,
 				'location': '/browser/internal/fix-host.html'
 			},
 			payload: null
@@ -68,8 +64,7 @@ describe('ROUTER.error()', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@code':    307,
-				'@status':  '307 Temporary Redirect',
+				'@status':  307,
 				'location': '/browser/internal/fix-mode.html?url=' + encodeURIComponent(err5.url)
 			},
 			payload: null
@@ -81,8 +76,7 @@ describe('ROUTER.error()', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@code':    307,
-				'@status':  '307 Temporary Redirect',
+				'@status':  307,
 				'location': '/browser/internal/fix-request.html?cause=socket-stability&url=' + encodeURIComponent(err6.url)
 			},
 			payload: null
@@ -109,8 +103,7 @@ describe('ROUTER.send()', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@code':   501,
-				'@status': '501 Not Implemented'
+				'@status': 501
 			},
 			payload: Buffer.from('All your errors are belong to us nao.', 'utf8')
 		});
@@ -121,8 +114,7 @@ describe('ROUTER.send()', function(assert) {
 
 		assert(response, Object.assign(URL.parse(ref2.link), {
 			headers: {
-				'@code':    301,
-				'@status':  '301 Moved Permanently',
+				'@status':  301,
 				'location': '/browser/index.html'
 			},
 			payload: null
@@ -134,9 +126,8 @@ describe('ROUTER.send()', function(assert) {
 
 		assert(response, Object.assign(URL.parse(ref3.link), {
 			headers: {
-				'@code':    301,
-				'@status':  '301 Moved Permanently',
-				'location': '/browser/design/common/stealth.ico'
+				'@status':  301,
+				'location': '/browser/design/common/tholian.ico'
 			},
 			payload: null
 		}));
@@ -149,8 +140,7 @@ describe('ROUTER.send()', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers['@code'],                    200);
-		assert(response.headers['@status'],                  '200 OK');
+		assert(response.headers['@status'],                  200);
 		assert(response.headers['content-type'],             'application/x-ns-proxy-autoconfig');
 		assert(isNumber(response.headers['content-length']), true);
 
@@ -164,8 +154,7 @@ describe('ROUTER.send()', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers['@code'],                   200);
-		assert(response.headers['@status'],                 '200 OK');
+		assert(response.headers['@status'],                 200);
 		assert(response.headers['content-type'],            'text/html');
 		assert(isNumber(response.headers['content-length']), true);
 		assert(response.headers['Content-Security-Policy'], 'worker-src \'self\'; script-src \'self\' \'unsafe-inline\'; frame-src \'self\'');
@@ -179,8 +168,7 @@ describe('ROUTER.send()', function(assert) {
 
 		assert(response, Object.assign(URL.parse(ref6.link), {
 			headers: {
-				'@code':    307,
-				'@status':  '307 Temporary Redirect',
+				'@status':  307,
 				'location': '/stealth/:1337,webview:/https://tholian.network/'
 			},
 			payload: null

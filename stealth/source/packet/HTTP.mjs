@@ -232,8 +232,11 @@ const HTTP = {
 
 					} else if (check === 'HTTP/1.1' || check === 'HTTP/1.0' || check === 'HTTP/0.9') {
 
-						let status = start_line.split(' ').slice(1).join(' ').trim();
-						if (status !== '') {
+						let status = parseInt(start_line.split(' ').slice(1).shift(), 10);
+						if (
+							Number.isNaN(status) === false
+							&& isString(STATUSES[status]) === true
+						) {
 							packet.headers['@status'] = status;
 						}
 
@@ -281,7 +284,7 @@ const HTTP = {
 				let content_range  = packet.headers['content-range']  || null;
 				let range          = packet.headers['range']          || null;
 
-				if (status === '206 Partial Content' && content_range !== null) {
+				if (status === 206 && content_range !== null) {
 
 					let unit  = content_range.split(' ').shift();
 					let check = content_range.split('/').pop();
@@ -763,8 +766,18 @@ const HTTP = {
 
 			} else if (connection.type === 'server') {
 
-				if (isString(headers['@status']) === true) {
-					fields.push('HTTP/1.1 ' + headers['@status']);
+				if (isNumber(headers['@status']) === true) {
+
+					let message = 'Internal Server Error';
+					let code    = 500;
+
+					if (isString(STATUSES[headers['@status']]) === true) {
+						code    = headers['@status'];
+						message = STATUSES[headers['@status']];
+					}
+
+					fields.push('HTTP/1.1 ' + code + ' ' + message);
+
 				} else {
 					fields.push('HTTP/1.1 200 OK');
 				}

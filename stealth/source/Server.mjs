@@ -224,8 +224,7 @@ const upgrade_http = function(socket, url) {
 
 					HTTP.send(connection, {
 						headers: {
-							'@code':    307,
-							'@status':  '307 Temporary Redirect',
+							'@status':  307,
 							'location': redirect.link
 						},
 						payload: null

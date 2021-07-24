@@ -1,10 +1,10 @@
 
 import net  from 'net';
 
-import { Buffer, Emitter, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                        } from '../../source/parser/IP.mjs';
-import { URL                                                       } from '../../source/parser/URL.mjs';
-import { HTTP as PACKET                                            } from '../../source/packet/HTTP.mjs';
+import { Buffer, Emitter, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                                  } from '../../source/parser/IP.mjs';
+import { URL                                                                 } from '../../source/parser/URL.mjs';
+import { HTTP as PACKET                                                      } from '../../source/packet/HTTP.mjs';
 
 
 
@@ -16,10 +16,7 @@ const onconnect = function(connection, url) {
 
 	if (url.payload !== null) {
 
-		if (
-			isString(url.headers['@status']) === true
-			&& url.headers['@status'] === '206 Partial Content'
-		) {
+		if (isNumber(url.headers['@status']) === true && url.headers['@status'] === 206) {
 
 			let encoding = 'identity';
 			let from     = 0;
@@ -201,8 +198,8 @@ const ondisconnect = function(connection, url) {
 
 	if (connection.type === 'client') {
 
-		let code = (url.headers['@status'] || '500').split(' ').shift();
-		if (code === '200') {
+		let code = url.headers['@status'] || 500;
+		if (code === 200) {
 
 			if (url.payload !== null) {
 
@@ -217,11 +214,11 @@ const ondisconnect = function(connection, url) {
 
 			}
 
-		} else if (code === '204' || code === '205') {
+		} else if (code === 204 || code === 205) {
 
 			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 
-		} else if (code === '206') {
+		} else if (code === 206) {
 
 			if (
 				url.headers !== null
@@ -247,7 +244,7 @@ const ondisconnect = function(connection, url) {
 
 			}
 
-		} else if (code === '301' || code === '302' || code === '307' || code === '308') {
+		} else if (code === 301 || code === 302 || code === 307 || code === 308) {
 
 			let location = URL.parse(url.headers['location']);
 
@@ -262,9 +259,7 @@ const ondisconnect = function(connection, url) {
 				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 			}
 
-		} else if (code.startsWith('4') === true && code.length === 3) {
-			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
-		} else if (code.startsWith('5') === true && code.length === 3) {
+		} else if (code >= 400 && code <= 599) {
 			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 		} else {
 			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);

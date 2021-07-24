@@ -179,7 +179,7 @@ describe('HTTP.receive()/client/200', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@status':          '200 OK',
+				'@status':          200,
 				'@transfer':        {
 					'encoding': 'identity',
 					'length':   53,
@@ -233,7 +233,7 @@ describe('HTTP.receive()/client/200/partial', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@status':          '200 OK',
+				'@status':          200,
 				'@transfer':        {
 					'encoding': null,
 					'length':   53,
@@ -287,7 +287,7 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@status':          '206 Partial Content',
+				'@status':          206,
 				'@transfer':        {
 					'encoding': 'identity',
 					'length':   512,
@@ -309,7 +309,7 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@status':          '206 Partial Content',
+				'@status':          206,
 				'@transfer':        {
 					'encoding': 'identity',
 					'length':   512,
@@ -331,7 +331,7 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 		assert(response, {
 			headers: {
-				'@status':          '206 Partial Content',
+				'@status':          206,
 				'@transfer':        {
 					'encoding': 'identity',
 					'length':   512,
@@ -368,7 +368,7 @@ describe('HTTP.send()/client/200', function(assert) {
 		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
 
-		assert(response.headers['@status'],   '200 OK');
+		assert(response.headers['@status'],   200);
 		assert(response.headers['@transfer'], {
 			'encoding': 'gzip',
 			'length':   648,
@@ -645,7 +645,7 @@ describe('HTTP.send()/server/206', function(assert) {
 
 			HTTP.send(connection, {
 				headers: {
-					'@status':   '206 Partial Content',
+					'@status':   206,
 					'@transfer': {
 						'encoding': 'identity',
 						'length':   PAYLOADS['206']['PAYLOAD'].length,

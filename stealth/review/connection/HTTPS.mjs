@@ -68,7 +68,7 @@ describe('HTTPS.send()/client/200', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers['@status'],   '200 OK');
+		assert(response.headers['@status'],   200);
 		assert(response.headers['@transfer'], {
 			'encoding': 'gzip',
 			'length':   648,

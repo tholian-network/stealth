@@ -8,56 +8,12 @@ import { URL                                              } from '../../source/p
 
 
 
-const STATUS = {
-	200: '200 OK',
-	201: '201 Created',
-	202: '202 Accepted',
-	203: '203 Non Authorative Information',
-	204: '204 No Content',
-	205: '205 Reset Content',
-	206: '206 Partial Content',
-	300: '300 Multiple Choices',
-	302: '302 Found',
-	303: '303 See Other',
-	304: '304 Not Modified',
-	305: '305 Use Proxy',
-	400: '400 Bad Request',
-	401: '401 Unauthorized',
-	402: '402 Payment Required',
-	403: '403 Forbidden',
-	404: '404 Not Found',
-	405: '405 Method Not Allowed',
-	406: '406 Not Acceptable',
-	408: '408 Request Timeout',
-	426: '426 Upgrade Required',
-	428: '428 Precondition Required',
-	429: '429 Too Many Requests',
-	500: '500 Internal Server Error',
-	501: '501 Not Implemented',
-	502: '502 Bad Gateway',
-	503: '503 Service Unavailable',
-	504: '504 Gateway Timeout',
-	505: '505 HTTP Version Not Supported',
-	511: '511 Network Authentication Required'
-};
-
-const toPayload = (code) => {
-
-	let status = STATUS[code] || null;
-	if (status === null) {
-		code   = 500;
-		status = STATUS[500];
-	}
-
-	return {
-		headers: {
-			'@code':   code,
-			'@status': status,
-		},
-		payload: Buffer.from('All your errors are belong to us nao.', 'utf8')
-	};
-
-};
+const toPayload = (status) => ({
+	headers: {
+		'@status': status
+	},
+	payload: Buffer.from('All your errors are belong to us nao.', 'utf8')
+});
 
 const send_file = (url, callback) => {
 
@@ -73,8 +29,7 @@ const send_file = (url, callback) => {
 
 				callback(Object.assign(url, {
 					headers: {
-						'@code':          200,
-						'@status':        '200 OK',
+						'@status':        200,
 						'content-type':   url.mime.format,
 						'content-length': Buffer.byteLength(buffer)
 					},
@@ -142,8 +97,7 @@ const send_pac = (url, callback) => {
 
 			callback(Object.assign(url, {
 				headers: {
-					'@code':          200,
-					'@status':        '200 OK',
+					'@status':        200,
 					'content-type':   url.mime.format,
 					'content-length': Buffer.byteLength(payload)
 				},
@@ -195,8 +149,7 @@ const ROUTER = {
 
 				callback({
 					headers: {
-						'@code':    307,
-						'@status':  '307 Temporary Redirect',
+						'@status':  307,
 						'location': link
 					},
 					payload: null
@@ -258,8 +211,7 @@ const ROUTER = {
 
 				callback(Object.assign(url, {
 					headers: {
-						'@code':    301,
-						'@status':  '301 Moved Permanently',
+						'@status':  301,
 						'location': '/browser/index.html' + (url.headers['@debug'] === true ? '?debug=true' : '')
 					},
 					payload: null
@@ -269,8 +221,7 @@ const ROUTER = {
 
 				callback(Object.assign(url, {
 					headers: {
-						'@code':    301,
-						'@status':  '301 Moved Permanently',
+						'@status':  301,
 						'location': '/browser/design/common/tholian.ico'
 					},
 					payload: null
@@ -303,8 +254,7 @@ const ROUTER = {
 
 				callback(Object.assign(url, {
 					headers: {
-						'@code':    307,
-						'@status':  '307 Temporary Redirect',
+						'@status':  307,
 						'location': url.path
 					},
 					payload: null
