@@ -296,7 +296,9 @@ const HTTPS = {
 	send:    HTTP.send,
 
 	upgrade: function() {
+
 		// TODO: Implement integrated certificate workflow
+
 	}
 
 };

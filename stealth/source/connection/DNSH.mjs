@@ -1,28 +1,20 @@
 
-import tls  from 'tls';
+import tls from 'tls';
 
-import { console, Buffer, Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { IP                                                       } from '../../source/parser/IP.mjs';
-import { URL                                                      } from '../../source/parser/URL.mjs';
-import { DNS  as PACKET                                           } from '../../source/packet/DNS.mjs';
-import { HTTP as WIREFORMAT                                       } from '../../source/packet/HTTP.mjs';
+import { Buffer, Emitter, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                        } from '../../source/parser/IP.mjs';
+import { URL                                                       } from '../../source/parser/URL.mjs';
+import { DNS  as PACKET                                            } from '../../source/packet/DNS.mjs';
+import { HTTP as WIREFORMAT                                        } from '../../source/packet/HTTP.mjs';
 
 
 
 const EMPTYLINE = Buffer.from('\r\n\r\n', 'utf8');
-
-const MIME = {
-	'dns':  { ext: 'dns',  type: 'other', binary: true,  format: 'application/dns-message' },
-	'json': { ext: 'json', type: 'text',  binary: false, format: 'application/dns-json'    }
-};
+const MIME      = { ext: 'dns', type: 'other',  binary: true, format: 'application/dns-message' };
 
 
 
-const decode_dns_json = function(connection, buffer) {
-	// TODO: Implement DNS over HTTPS JSON decoder
-};
-
-const decode_dns_message = function(connection, buffer) {
+const decode = function(connection, buffer) {
 
 	let frame = WIREFORMAT.decode(connection, buffer);
 	if (frame !== null && frame.payload !== null) {
@@ -33,19 +25,39 @@ const decode_dns_message = function(connection, buffer) {
 
 			let url = URL.parse(frame.headers['@url']);
 			if (url.query.startsWith('dns=') === true) {
-				data                    = PACKET.decode(connection, Buffer.from(url.substr(4).split('&').shift(), 'base64url'));
-				data.headers['@method'] = frame.headers['@method'];
+				data = PACKET.decode(connection, Buffer.from(url.substr(4).split('&').shift(), 'base64url'));
 			}
 
 		} else if (frame.headers['@method'] === 'POST' && frame.headers['content-type'] === 'application/dns-message') {
-			data                    = PACKET.decode(connection, frame.payload);
-			data.headers['@method'] = frame.headers['@method'];
+			data = PACKET.decode(connection, frame.payload);
 		} else if (frame.headers['@status'] === 200 && frame.headers['content-type'] === 'application/dns-message') {
-			data                    = PACKET.decode(connection, frame.payload);
+			data = PACKET.decode(connection, frame.payload);
+		}
+
+		if (data === null) {
+
+			data = {
+				headers: {},
+				payload: null
+			};
+
+		}
+
+		if (isString(frame.headers['@method']) === true) {
+			data.headers['@method'] = frame.headers['@method'];
+		}
+
+		if (isNumber(frame.headers['@status']) === true) {
 			data.headers['@status'] = frame.headers['@status'];
 		}
 
-		data.headers['@transfer'] = frame.headers['@transfer'];
+		if (isObject(frame.headers['@transfer']) === true) {
+			data.headers['@transfer'] = frame.headers['@transfer'];
+		}
+
+		if (isString(frame.headers['content-type']) === true) {
+			data.headers['content-type'] = frame.headers['content-type'];
+		}
 
 		return data;
 
@@ -56,13 +68,7 @@ const decode_dns_message = function(connection, buffer) {
 
 };
 
-
-
-const encode_dns_json = function(connection, data) {
-	// TODO: encode_json() for DNS via HTTPS JSON API
-};
-
-const encode_dns_message = function(connection, data) {
+const encode = function(connection, data) {
 
 	let payload = PACKET.encode(connection, {
 		headers: data.headers || {},
@@ -75,6 +81,7 @@ const encode_dns_message = function(connection, data) {
 		let hostname = null;
 		let domain   = URL.toDomain(connection.url);
 		let host     = URL.toHost(connection.url);
+		let encoding = 'identity';
 		let method   = 'POST';
 
 		if (domain !== null) {
@@ -87,6 +94,14 @@ const encode_dns_message = function(connection, data) {
 			method = data.headers['@method'];
 		}
 
+		if (isObject(data.headers['@transfer']) === true) {
+
+			if (isString(data.headers['@transfer']['encoding']) === true) {
+				encoding = data.headers['@transfer']['encoding'];
+			}
+
+		}
+
 		if (method === 'GET') {
 
 			return WIREFORMAT.encode(connection, {
@@ -94,7 +109,7 @@ const encode_dns_message = function(connection, data) {
 					'@method':         'GET',
 					'@url':            connection.url.path + '?dns=' + payload.toString('base64url'),
 					'accept':          'application/dns-message',
-					'accept-encoding': 'identity',
+					'accept-encoding': encoding,
 					'host':            hostname,
 				},
 				payload: null
@@ -107,11 +122,11 @@ const encode_dns_message = function(connection, data) {
 					'@method':   'POST',
 					'@url':      connection.url.path,
 					'@transfer': {
-						'encoding': 'identity',
+						'encoding': encoding,
 						'length':   payload.length
 					},
 					'accept':          'application/dns-message',
-					'accept-encoding': 'identity',
+					'accept-encoding': encoding,
 					'content-type':    'application/dns-message',
 					'host':            hostname,
 				},
@@ -122,11 +137,21 @@ const encode_dns_message = function(connection, data) {
 
 	} else if (connection.type === 'server') {
 
+		let encoding = 'identity';
+
+		if (isObject(data.headers['@transfer']) === true) {
+
+			if (isString(data.headers['@transfer']['encoding']) === true) {
+				encoding = data.headers['@transfer']['encoding'];
+			}
+
+		}
+
 		return WIREFORMAT.encode(connection, {
 			headers: {
 				'@status':   200,
 				'@transfer': {
-					'encoding': 'identity',
+					'encoding': encoding,
 					'length':   payload.length
 				},
 				'content-type': 'application/dns-message'
@@ -225,7 +250,15 @@ const ondata = function(connection, url, chunk) {
 
 				if (connection.type === 'client') {
 
-					if (frame.headers['@transfer']['length'] !== Infinity) {
+					if (frame.headers['@status'] >= 400 && frame.headers['@status'] <= 599) {
+
+						connection.socket.end();
+
+					} else if (frame.headers['content-type'] !== 'application/dns-message') {
+
+						connection.socket.end();
+
+					} else if (frame.headers['@transfer']['length'] !== Infinity) {
 
 						if (frame.payload !== null) {
 
@@ -362,6 +395,29 @@ const ondisconnect = function(connection, url) {
 
 const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
+};
+
+const isSocket = function(obj) {
+
+	if (obj !== null && obj !== undefined) {
+		return obj instanceof tls.TLSSocket;
+	}
+
+	return false;
+
+};
+
+const isUpgrade = function(url) {
+
+	if (
+		isObject(url) === true
+		&& isObject(url.headers) === true
+	) {
+		return true;
+	}
+
+	return false;
+
 };
 
 const Connection = function(socket) {
@@ -533,15 +589,8 @@ const DNSH = {
 
 				if (connection.socket !== null) {
 
-					if (url.path === '/dns-query') {
-						url.mime = Object.assign({}, MIME['dns']);
-					} else if (url.path === '/resolve') {
-						url.mime = Object.assign({}, MIME['json']);
-					} else {
-						url.mime = Object.assign({}, MIME['dns']);
-					}
-
-					connection.url = url;
+					connection.url      = url;
+					connection.url.mime = Object.assign({}, MIME);
 
 					connection.socket.removeAllListeners('data');
 					connection.socket.removeAllListeners('timeout');
@@ -559,20 +608,20 @@ const DNSH = {
 					connection.socket.on('error', (err) => {
 
 						if (connection.socket !== null) {
-							ondisconnect(connection, url);
-						}
 
-						// let code  = (err.code || '');
-						// let error = { type: 'connection' };
-                        //
-						// if (code === 'ECONNREFUSED') {
-						// 	error = { type: 'connection', cause: 'socket-stability' };
-						// } else if (code.startsWith('ERR_TLS') === true) {
-						// 	error = { type: 'connection', cause: 'socket-trust' };
-						// }
-                        //
-						// connection.emit('error', [ error ]);
-						// DNSH.disconnect(connection);
+							let code  = (err.code || '');
+							let error = { type: 'connection' };
+
+							if (code === 'ECONNREFUSED') {
+								error = { type: 'connection', cause: 'socket-stability' };
+							} else if (code.startsWith('ERR_TLS') === true) {
+								error = { type: 'connection', cause: 'socket-trust' };
+							}
+
+							connection.emit('error', [ error ]);
+							ondisconnect(connection, url);
+
+						}
 
 					});
 
@@ -583,14 +632,6 @@ const DNSH = {
 						}
 
 					});
-
-					// TODO: Migrate socket creation from HTTPS.connect()
-					// and implement custom HTTP.receive() workflow, because
-					// we need to prevent request and response events from firing
-
-					// TODO: request and response events
-					// TODO: ondata might be necessary, to prevent request/response from being
-					// fired too early!?
 
 					return connection;
 
@@ -653,9 +694,7 @@ const DNSH = {
 			let data = null;
 
 			if (connection.url.mime.format === 'application/dns-message') {
-				data = decode_dns_message(connection, buffer);
-			} else if (connection.url.mime.format === 'application/dns-json') {
-				data = decode_dns_json(connection, buffer);
+				data = decode(connection, buffer);
 			}
 
 			if (data !== null) {
@@ -710,9 +749,7 @@ const DNSH = {
 			let buffer = null;
 
 			if (connection.url.mime.format === 'application/dns-message') {
-				buffer = encode_dns_message(connection, data);
-			} else if (connection.url.mime.format === 'application/dns-json') {
-				buffer = encode_dns_json(connection, data);
+				buffer = encode(connection, data);
 			}
 
 			if (buffer !== null) {
@@ -753,102 +790,28 @@ const DNSH = {
 
 	upgrade: function(tunnel, url) {
 
-		// TODO: Implement upgrade()
-
-	},
+		url = isUpgrade(url) ? Object.assign(URL.parse(), url) : Object.assign(URL.parse(), { headers: {} });
 
 
+		let connection = null;
 
-	__OLD_resolve: function(query, callback) {
-
-		query    = isQuery(query)       ? query    : null;
-		callback = isFunction(callback) ? callback : null;
-
-
-		if (query !== null && callback !== null) {
-
-			let domain     = toDomain(query);
-			let server_url = null;
-
-			if (DNS.SERVER === null) {
-
-				server_url = DNS.SERVERS[DNS_RONIN];
-
-				DNS_RONIN += 1;
-				DNS_RONIN %= DNS.SERVERS.length;
-
-			} else if (DNS.SERVERS.includes(DNS.SERVER) === true) {
-
-				server_url = DNS.SERVER;
-
-			} else {
-
-				DNS.SERVER = null;
-				server_url = DNS.SERVERS[DNS_RONIN];
-
-				DNS_RONIN += 1;
-				DNS_RONIN %= DNS.SERVERS.length;
-
-			}
+		if (isSocket(tunnel) === true) {
+			connection = new Connection(tunnel);
+		} else if (isConnection(tunnel) === true) {
+			connection = Connection.from(tunnel);
+		}
 
 
-			if (domain !== null && server_url !== null) {
+		if (connection !== null) {
 
-				resolve(server_url, domain, 'A', (hosts_v4) => {
+			// TODO: Implement upgrade() for HTTPS socket
 
-					resolve(server_url, domain, 'AAAA', (hosts_v6) => {
-
-						let hosts = [];
-
-						if (hosts_v4 !== null) {
-							hosts_v4.forEach((h) => hosts.push(h));
-						}
-
-						if (hosts_v6 !== null) {
-							hosts_v6.forEach((h) => hosts.push(h));
-						}
-
-
-						if (hosts.length > 0) {
-
-							callback({
-								headers: {},
-								payload: {
-									domain: domain,
-									hosts:  hosts
-								}
-							});
-
-						} else {
-
-							callback({
-								headers: {},
-								payload: null
-							});
-
-						}
-
-					});
-
-				});
-
-			} else {
-
-				callback({
-					headers: {},
-					payload: null
-				});
-
-			}
-
-		} else if (callback !== null) {
-
-			callback({
-				headers: {},
-				payload: null
-			});
+			return connection;
 
 		}
+
+
+		return null;
 
 	}
 

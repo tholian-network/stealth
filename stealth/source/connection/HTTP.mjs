@@ -94,7 +94,11 @@ const ondata = function(connection, url, chunk) {
 
 				if (connection.type === 'client') {
 
-					if (frame.headers['@transfer']['length'] !== Infinity) {
+					if (frame.headers['@status'] >= 400 && frame.headers['@status'] <= 599) {
+
+						connection.socket.end();
+
+					} else if (frame.headers['@transfer']['length'] !== Infinity) {
 
 						if (frame.payload !== null) {
 

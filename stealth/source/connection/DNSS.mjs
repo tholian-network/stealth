@@ -609,7 +609,6 @@ const DNSS = {
 		if (connection !== null) {
 
 			connection.socket.removeAllListeners('listening');
-			connection.socket.removeAllListeners('asdasdsaasdsadas');
 			connection.socket.removeAllListeners('error');
 			connection.socket.removeAllListeners('close');
 
