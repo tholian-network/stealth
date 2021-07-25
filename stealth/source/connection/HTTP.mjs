@@ -259,7 +259,7 @@ const ondisconnect = function(connection, url) {
 				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 			}
 
-		} else if (code >= 400 && code <= 599) {
+		} else if (code >= 100 && code <= 599) {
 			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
 		} else {
 			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
