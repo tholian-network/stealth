@@ -1,12 +1,11 @@
 
 import tls  from 'tls';
 
-import { console, Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
-// import { HTTP                                          } from '../../source/connection/HTTPS.mjs';
-import { IP                                             } from '../../source/parser/IP.mjs';
-import { URL                                            } from '../../source/parser/URL.mjs';
-import { DNS  as PACKET                                 } from '../../source/packet/DNS.mjs';
-import { HTTP as WIREFORMAT                             } from '../../source/packet/HTTP.mjs';
+import { console, Buffer, Emitter, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { IP                                                       } from '../../source/parser/IP.mjs';
+import { URL                                                      } from '../../source/parser/URL.mjs';
+import { DNS  as PACKET                                           } from '../../source/packet/DNS.mjs';
+import { HTTP as WIREFORMAT                                       } from '../../source/packet/HTTP.mjs';
 
 
 
@@ -34,14 +33,19 @@ const decode_dns_message = function(connection, buffer) {
 
 			let url = URL.parse(frame.headers['@url']);
 			if (url.query.startsWith('dns=') === true) {
-				data = PACKET.decode(connection, Buffer.from(url.substr(4).split('&').shift(), 'base64url'));
+				data                    = PACKET.decode(connection, Buffer.from(url.substr(4).split('&').shift(), 'base64url'));
+				data.headers['@method'] = frame.headers['@method'];
 			}
 
 		} else if (frame.headers['@method'] === 'POST' && frame.headers['content-type'] === 'application/dns-message') {
-			data = PACKET.decode(connection, frame.payload);
+			data                    = PACKET.decode(connection, frame.payload);
+			data.headers['@method'] = frame.headers['@method'];
 		} else if (frame.headers['@status'] === 200 && frame.headers['content-type'] === 'application/dns-message') {
-			data = PACKET.decode(connection, frame.payload);
+			data                    = PACKET.decode(connection, frame.payload);
+			data.headers['@status'] = frame.headers['@status'];
 		}
+
+		data.headers['@transfer'] = frame.headers['@transfer'];
 
 		return data;
 
@@ -71,6 +75,7 @@ const encode_dns_message = function(connection, data) {
 		let hostname = null;
 		let domain   = URL.toDomain(connection.url);
 		let host     = URL.toHost(connection.url);
+		let method   = 'POST';
 
 		if (domain !== null) {
 			hostname = domain;
@@ -78,7 +83,11 @@ const encode_dns_message = function(connection, data) {
 			hostname = host;
 		}
 
-		if (data.headers['@method'] === 'GET') {
+		if (isString(data.headers['@method']) === true) {
+			method = data.headers['@method'];
+		}
+
+		if (method === 'GET') {
 
 			return WIREFORMAT.encode(connection, {
 				headers: {
@@ -91,7 +100,7 @@ const encode_dns_message = function(connection, data) {
 				payload: null
 			});
 
-		} else if (data.headers['@method'] === 'POST') {
+		} else if (method === 'POST') {
 
 			return WIREFORMAT.encode(connection, {
 				headers: {
@@ -214,52 +223,45 @@ const ondata = function(connection, url, chunk) {
 				url.payload = frame.payload;
 
 
-				console.log(url.headers, url.payload);
+				if (connection.type === 'client') {
 
-				// if (connection.type === 'client') {
+					if (frame.headers['@transfer']['length'] !== Infinity) {
 
-				// 	if (frame.headers['@transfer']['length'] !== Infinity) {
+						if (frame.payload !== null) {
 
-				// 		if (frame.payload !== null) {
+							connection.socket.end();
 
-				// 			connection.socket.end();
+						}
 
-				// 		} else {
+					} else {
 
-				// 			// Still downloading payload, wait for timeout
+						// Unknown payload size, wait for timeout
 
-				// 		}
+					}
 
-				// 	} else {
+				} else if (connection.type === 'server') {
 
-				// 		// Unknown payload size, wait for timeout
+					if (frame.headers['@transfer']['length'] !== Infinity) {
 
-				// 	}
+						if (frame.payload !== null) {
 
-				// } else if (connection.type === 'server') {
+							connection.emit('request', [{
+								headers: frame.headers,
+								payload: frame.payload
+							}]);
 
-				// 	if (frame.headers['@transfer']['length'] !== Infinity) {
+						}
 
-				// 		if (frame.payload !== null) {
+					} else {
 
-				// 			connection.emit('request', [{
-				// 				headers: frame.headers,
-				// 				payload: frame.payload
-				// 			}]);
+						connection.emit('request', [{
+							headers: frame.headers,
+							payload: frame.payload
+						}]);
 
-				// 		} else {
+					}
 
-				// 			// Still downloading payload, wait for timeout
-
-				// 		}
-
-				// 	} else {
-
-				// 		// Unknown payload size, wait for timeout
-
-				// 	}
-
-				// }
+				}
 
 			}
 

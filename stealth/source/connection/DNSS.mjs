@@ -75,16 +75,16 @@ const onconnect = function(connection, url) {
 
 const ondata = function(connection, url, chunk) {
 
-	connection.fragment.buffer = Buffer.concat([ connection.fragment.buffer, chunk ]);
+	connection.fragment = Buffer.concat([ connection.fragment, chunk ]);
 
 
-	if (connection.fragment.buffer.length > 12 + 2) {
+	if (connection.fragment.length > 12 + 2) {
 
-		let length = (connection.fragment.buffer[0] << 8) + connection.fragment.buffer[1];
-		if (connection.fragment.buffer.length >= length + 2) {
+		let length = (connection.fragment[0] << 8) + connection.fragment[1];
+		if (connection.fragment.length >= length + 2) {
 
-			let buffer                 = connection.fragment.buffer.slice(2, 2 + length);
-			connection.fragment.buffer = connection.fragment.buffer.slice(2 + length);
+			let buffer          = connection.fragment.slice(2, 2 + length);
+			connection.fragment = connection.fragment.slice(2 + length);
 
 
 			DNSS.receive(connection, buffer, (frame) => {
@@ -173,9 +173,7 @@ const isUpgrade = function(url) {
 
 const Connection = function(socket) {
 
-	this.fragment = {
-		buffer: Buffer.alloc(0)
-	};
+	this.fragment = Buffer.alloc(0);
 	this.socket   = socket || null;
 	this.type     = null;
 

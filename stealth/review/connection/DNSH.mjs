@@ -40,7 +40,13 @@ describe('DNSH.send()/client/A', function(assert) {
 		assert(response, {
 			headers: {
 				'@id':   13337,
-				'@type': 'response'
+				'@type': 'response',
+				'@status': 200,
+				'@transfer': {
+					'encoding': 'identity',
+					'length':   45,
+					'range':    [ 0, 44 ]
+				}
 			},
 			payload: {
 				questions: [{
