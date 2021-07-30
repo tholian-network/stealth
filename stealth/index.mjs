@@ -1,14 +1,14 @@
 
-import { Beacon   as client_Beacon   } from './source/client/Beacon.mjs';
-import { Blocker  as client_Blocker  } from './source/client/Blocker.mjs';
-import { Cache    as client_Cache    } from './source/client/Cache.mjs';
-import { Host     as client_Host     } from './source/client/Host.mjs';
-import { Mode     as client_Mode     } from './source/client/Mode.mjs';
-import { Peer     as client_Peer     } from './source/client/Peer.mjs';
-import { Policy   as client_Policy   } from './source/client/Policy.mjs';
-import { Redirect as client_Redirect } from './source/client/Redirect.mjs';
-import { Session  as client_Session  } from './source/client/Session.mjs';
-import { Settings as client_Settings } from './source/client/Settings.mjs';
+import { Beacon   as client_service_Beacon   } from './source/client/service/Beacon.mjs';
+import { Blocker  as client_service_Blocker  } from './source/client/service/Blocker.mjs';
+import { Cache    as client_service_Cache    } from './source/client/service/Cache.mjs';
+import { Host     as client_service_Host     } from './source/client/service/Host.mjs';
+import { Mode     as client_service_Mode     } from './source/client/service/Mode.mjs';
+import { Peer     as client_service_Peer     } from './source/client/service/Peer.mjs';
+import { Policy   as client_service_Policy   } from './source/client/service/Policy.mjs';
+import { Redirect as client_service_Redirect } from './source/client/service/Redirect.mjs';
+import { Session  as client_service_Session  } from './source/client/service/Session.mjs';
+import { Settings as client_service_Settings } from './source/client/service/Settings.mjs';
 
 import { DNS   as connection_DNS   } from './source/connection/DNS.mjs';
 import { DNSH  as connection_DNSH  } from './source/connection/DNSH.mjs';
@@ -27,18 +27,19 @@ import { IP       as parser_IP       } from './source/parser/IP.mjs';
 import { UA       as parser_UA       } from './source/parser/UA.mjs';
 import { URL      as parser_URL      } from './source/parser/URL.mjs';
 
-import { Beacon   as server_Beacon   } from './source/server/Beacon.mjs';
-import { Blocker  as server_Blocker  } from './source/server/Blocker.mjs';
-import { Cache    as server_Cache    } from './source/server/Cache.mjs';
-import { Host     as server_Host     } from './source/server/Host.mjs';
-import { Mode     as server_Mode     } from './source/server/Mode.mjs';
-import { Peer     as server_Peer     } from './source/server/Peer.mjs';
-import { Policy   as server_Policy   } from './source/server/Policy.mjs';
-import { Redirect as server_Redirect } from './source/server/Redirect.mjs';
+import { Beacon   as server_service_Beacon   } from './source/server/service/Beacon.mjs';
+import { Blocker  as server_service_Blocker  } from './source/server/service/Blocker.mjs';
+import { Cache    as server_service_Cache    } from './source/server/service/Cache.mjs';
+import { Host     as server_service_Host     } from './source/server/service/Host.mjs';
+import { Mode     as server_service_Mode     } from './source/server/service/Mode.mjs';
+import { Peer     as server_service_Peer     } from './source/server/service/Peer.mjs';
+import { Policy   as server_service_Policy   } from './source/server/service/Policy.mjs';
+import { Redirect as server_service_Redirect } from './source/server/service/Redirect.mjs';
+import { Session  as server_service_Session  } from './source/server/service/Session.mjs';
+import { Settings as server_service_Settings } from './source/server/service/Settings.mjs';
+
 import { RESOLVER as server_RESOLVER } from './source/server/RESOLVER.mjs';
 import { ROUTER   as server_ROUTER   } from './source/server/ROUTER.mjs';
-import { Session  as server_Session  } from './source/server/Session.mjs';
-import { Settings as server_Settings } from './source/server/Settings.mjs';
 
 
 
@@ -55,16 +56,20 @@ export * from './source/Tab.mjs';
 
 export const client = {
 
-	Beacon:   client_Beacon,
-	Blocker:  client_Blocker,
-	Cache:    client_Cache,
-	Host:     client_Host,
-	Mode:     client_Mode,
-	Peer:     client_Peer,
-	Policy:   client_Policy,
-	Redirect: client_Redirect,
-	Session:  client_Session,
-	Settings: client_Settings
+	service: {
+
+		Beacon:   client_service_Beacon,
+		Blocker:  client_service_Blocker,
+		Cache:    client_service_Cache,
+		Host:     client_service_Host,
+		Mode:     client_service_Mode,
+		Peer:     client_service_Peer,
+		Policy:   client_service_Policy,
+		Redirect: client_service_Redirect,
+		Session:  client_service_Session,
+		Settings: client_service_Settings
+
+	}
 
 };
 
@@ -98,16 +103,20 @@ export const server = {
 	RESOLVER: server_RESOLVER,
 	ROUTER:   server_ROUTER,
 
-	Beacon:   server_Beacon,
-	Blocker:  server_Blocker,
-	Cache:    server_Cache,
-	Host:     server_Host,
-	Mode:     server_Mode,
-	Peer:     server_Peer,
-	Policy:   server_Policy,
-	Redirect: server_Redirect,
-	Session:  server_Session,
-	Settings: server_Settings
+	service: {
+
+		Beacon:   server_service_Beacon,
+		Blocker:  server_service_Blocker,
+		Cache:    server_service_Cache,
+		Host:     server_service_Host,
+		Mode:     server_service_Mode,
+		Peer:     server_service_Peer,
+		Policy:   server_service_Policy,
+		Redirect: server_service_Redirect,
+		Session:  server_service_Session,
+		Settings: server_service_Settings
+
+	}
 
 };
 

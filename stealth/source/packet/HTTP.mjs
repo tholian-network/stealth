@@ -795,6 +795,10 @@ const HTTP = {
 					fields.push(key + ': ' + val);
 				} else if (val === null) {
 					fields.push(key + ': ' + val);
+				} else if (IP.isIP(val) === true) {
+					fields.push(key + ':' + IP.render(val));
+				} else if (URL.isURL(val) === true) {
+					fields.push(key + ':' + URL.render(val));
 				} else if (DATETIME.isDATETIME(val) === true) {
 					fields.push(key + ': ' + DATETIME.toIMF(val));
 				} else if (isString(val) === true) {
@@ -814,14 +818,55 @@ const HTTP = {
 				headers['@transfer']['encoding'] === 'chunked' ? Buffer.alloc(0) : EMPTYLINE
 			]);
 
-
-
-			// Embed encode() method here
-
 		}
 
 
 		return null;
+
+	},
+
+	isHTTP: function(buffer) {
+
+		buffer = isBuffer(buffer) ? buffer : null;
+
+
+		if (buffer !== null) {
+
+			let fields = buffer.toString('utf8').split('\r\n').map((line) => line.trim());
+			if (fields.length > 1) {
+
+				let start_line = fields.shift();
+				let check      = start_line.split(' ').shift();
+
+				if (METHODS.includes(check) === true) {
+
+					let url = start_line.split(' ').slice(1).shift();
+					if (
+						url.startsWith('/') === true
+						|| url.startsWith('http://') === true
+						|| url.startsWith('https://') === true
+					) {
+						return true;
+					}
+
+				} else if (check === 'HTTP/1.1' || check === 'HTTP/1.0' || check === 'HTTP/0.9') {
+
+					let status = parseInt(start_line.split(' ').slice(1).shift(), 10);
+					if (
+						Number.isNaN(status) === false
+						&& isString(STATUSES[status]) === true
+					) {
+						return true;
+					}
+
+				}
+
+			}
+
+		}
+
+
+		return false;
 
 	}
 

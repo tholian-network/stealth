@@ -4,13 +4,10 @@ import { ENVIRONMENT                    } from '../../source/ENVIRONMENT.mjs';
 import { DNS                            } from '../../source/connection/DNS.mjs';
 import { DNSH                           } from '../../source/connection/DNSH.mjs';
 import { DNSS                           } from '../../source/connection/DNSS.mjs';
-// import { MDNS                           } from '../../source/connection/MDNS.mjs';
+import { MDNS                           } from '../../source/connection/MDNS.mjs';
 import { IP                             } from '../../source/parser/IP.mjs';
 import { URL                            } from '../../source/parser/URL.mjs';
 
-
-// TODO: Remove once Implementation is ready
-const MDNS        = { connect: () => null, send: () => false };
 
 
 const BOOTSTRAP = {
@@ -366,9 +363,9 @@ const RESOLVER = {
 
 					if (supports_v4 === true && supports_v6 === true) {
 
-						resolve_domain(URL.parse('mdns://224.0.0.251'), domain, (v4) => {
+						resolve_domain(URL.parse('mdns://224.0.0.251:5353'), domain, (v4) => {
 
-							resolve_domain(URL.parse('mdns://[ff02::fb]'), domain, (v6) => {
+							resolve_domain(URL.parse('mdns://[ff02::fb]:5353'), domain, (v6) => {
 
 								let host = {
 									domain: domain,
@@ -391,13 +388,13 @@ const RESOLVER = {
 
 					} else if (supports_v4 === true) {
 
-						resolve_domain(URL.parse('mdns://224.0.0.251'), domain, (host) => {
+						resolve_domain(URL.parse('mdns://224.0.0.251:5353'), domain, (host) => {
 							callback(host);
 						});
 
 					} else if (supports_v6 === true) {
 
-						resolve_domain(URL.parse('mdns://[ff02::fb]'), domain, (host) => {
+						resolve_domain(URL.parse('mdns://[ff02::fb]:5353'), domain, (host) => {
 							callback(host);
 						});
 

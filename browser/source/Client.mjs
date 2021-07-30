@@ -1,17 +1,17 @@
 
 import { console, Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
 import { ENVIRONMENT                                              } from './ENVIRONMENT.mjs';
-import { Beacon                                                   } from './client/Beacon.mjs';
-import { Blocker                                                  } from './client/Blocker.mjs';
-import { Cache                                                    } from './client/Cache.mjs';
-import { Host                                                     } from './client/Host.mjs';
-import { Mode                                                     } from './client/Mode.mjs';
-import { Peer                                                     } from './client/Peer.mjs';
-import { Policy                                                   } from './client/Policy.mjs';
-import { Redirect                                                 } from './client/Redirect.mjs';
-import { Session                                                  } from './client/Session.mjs';
-import { Settings                                                 } from './client/Settings.mjs';
-import { Stash                                                    } from './client/Stash.mjs';
+import { Beacon                                                   } from './client/service/Beacon.mjs';
+import { Blocker                                                  } from './client/service/Blocker.mjs';
+import { Cache                                                    } from './client/service/Cache.mjs';
+import { Host                                                     } from './client/service/Host.mjs';
+import { Mode                                                     } from './client/service/Mode.mjs';
+import { Peer                                                     } from './client/service/Peer.mjs';
+import { Policy                                                   } from './client/service/Policy.mjs';
+import { Redirect                                                 } from './client/service/Redirect.mjs';
+import { Session                                                  } from './client/service/Session.mjs';
+import { Settings                                                 } from './client/service/Settings.mjs';
+import { Stash                                                    } from './client/service/Stash.mjs';
 import { URL                                                      } from './parser/URL.mjs';
 
 

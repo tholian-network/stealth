@@ -11,16 +11,16 @@ import { HTTP                                                     } from '../sou
 import { SOCKS                                                    } from '../source/connection/SOCKS.mjs';
 import { WS                                                       } from '../source/connection/WS.mjs';
 import { ROUTER                                                   } from '../source/server/ROUTER.mjs';
-import { Beacon                                                   } from '../source/server/Beacon.mjs';
-import { Blocker                                                  } from '../source/server/Blocker.mjs';
-import { Cache                                                    } from '../source/server/Cache.mjs';
-import { Host                                                     } from '../source/server/Host.mjs';
-import { Mode                                                     } from '../source/server/Mode.mjs';
-import { Peer                                                     } from '../source/server/Peer.mjs';
-import { Policy                                                   } from '../source/server/Policy.mjs';
-import { Redirect                                                 } from '../source/server/Redirect.mjs';
-import { Session                                                  } from '../source/server/Session.mjs';
-import { Settings                                                 } from '../source/server/Settings.mjs';
+import { Beacon                                                   } from '../source/server/service/Beacon.mjs';
+import { Blocker                                                  } from '../source/server/service/Blocker.mjs';
+import { Cache                                                    } from '../source/server/service/Cache.mjs';
+import { Host                                                     } from '../source/server/service/Host.mjs';
+import { Mode                                                     } from '../source/server/service/Mode.mjs';
+import { Peer                                                     } from '../source/server/service/Peer.mjs';
+import { Policy                                                   } from '../source/server/service/Policy.mjs';
+import { Redirect                                                 } from '../source/server/service/Redirect.mjs';
+import { Session                                                  } from '../source/server/service/Session.mjs';
+import { Settings                                                 } from '../source/server/service/Settings.mjs';
 
 
 

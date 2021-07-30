@@ -8,6 +8,7 @@ describe('MODULE', function(assert) {
 
 	assert(typeof STEALTH['Browser'],     'function');
 	assert(typeof STEALTH['Client'],      'function');
+	assert(typeof STEALTH['Download'],    'function');
 	assert(typeof STEALTH['ENVIRONMENT'], 'object');
 	assert(typeof STEALTH['Request'],     'function');
 	assert(typeof STEALTH['Server'],      'function');
@@ -18,6 +19,7 @@ describe('MODULE', function(assert) {
 
 	assert(typeof STEALTH['isBrowser'],  'function');
 	assert(typeof STEALTH['isClient'],   'function');
+	assert(typeof STEALTH['isDownload'], 'function');
 	assert(typeof STEALTH['isMode'],     'function');
 	assert(typeof STEALTH['isRequest'],  'function');
 	assert(typeof STEALTH['isServer'],   'function');
@@ -26,18 +28,18 @@ describe('MODULE', function(assert) {
 	assert(typeof STEALTH['isStealth'],  'function');
 	assert(typeof STEALTH['isTab'],      'function');
 
-	assert(typeof STEALTH['client'],             'object');
-	assert(typeof STEALTH['client']['Beacon'],   'function');
-	assert(typeof STEALTH['client']['Blocker'],  'function');
-	assert(typeof STEALTH['client']['Cache'],    'function');
-	assert(typeof STEALTH['client']['Host'],     'function');
-	assert(typeof STEALTH['client']['Mode'],     'function');
-	assert(typeof STEALTH['client']['Peer'],     'function');
-	assert(typeof STEALTH['client']['Policy'],   'function');
-	assert(typeof STEALTH['client']['Redirect'], 'function');
-	assert(typeof STEALTH['client']['Session'],  'function');
-	assert(typeof STEALTH['client']['Settings'], 'function');
-	assert(typeof STEALTH['client']['Stash'],    'function');
+	assert(typeof STEALTH['client'],                        'object');
+	assert(typeof STEALTH['client']['service'],             'object');
+	assert(typeof STEALTH['client']['service']['Beacon'],   'function');
+	assert(typeof STEALTH['client']['service']['Blocker'],  'function');
+	assert(typeof STEALTH['client']['service']['Cache'],    'function');
+	assert(typeof STEALTH['client']['service']['Host'],     'function');
+	assert(typeof STEALTH['client']['service']['Mode'],     'function');
+	assert(typeof STEALTH['client']['service']['Peer'],     'function');
+	assert(typeof STEALTH['client']['service']['Policy'],   'function');
+	assert(typeof STEALTH['client']['service']['Redirect'], 'function');
+	assert(typeof STEALTH['client']['service']['Session'],  'function');
+	assert(typeof STEALTH['client']['service']['Settings'], 'function');
 
 	assert(typeof STEALTH['connection'],          'object');
 	assert(typeof STEALTH['connection']['DNS'],   'object');
@@ -56,22 +58,25 @@ describe('MODULE', function(assert) {
 	assert(typeof STEALTH['parser']['UA'],       'object');
 	assert(typeof STEALTH['parser']['URL'],      'object');
 
-	assert(typeof STEALTH['server'],             'object');
-	assert(typeof STEALTH['server']['Beacon'],   'function');
-	assert(typeof STEALTH['server']['Blocker'],  'function');
-	assert(typeof STEALTH['server']['Cache'],    'function');
-	assert(typeof STEALTH['server']['Host'],     'function');
-	assert(typeof STEALTH['server']['Mode'],     'function');
-	assert(typeof STEALTH['server']['Peer'],     'function');
-	assert(typeof STEALTH['server']['Policy'],   'function');
-	assert(typeof STEALTH['server']['Redirect'], 'function');
-	assert(typeof STEALTH['server']['Session'],  'function');
-	assert(typeof STEALTH['server']['Settings'], 'function');
-	assert(typeof STEALTH['server']['Stash'],    'function');
+	assert(typeof STEALTH['server'],                        'object');
+	assert(typeof STEALTH['server']['RESOLVER'],            'object');
+	assert(typeof STEALTH['server']['ROUTER'],              'object');
+	assert(typeof STEALTH['server']['service'],             'object');
+	assert(typeof STEALTH['server']['service']['Beacon'],   'function');
+	assert(typeof STEALTH['server']['service']['Blocker'],  'function');
+	assert(typeof STEALTH['server']['service']['Cache'],    'function');
+	assert(typeof STEALTH['server']['service']['Host'],     'function');
+	assert(typeof STEALTH['server']['service']['Mode'],     'function');
+	assert(typeof STEALTH['server']['service']['Peer'],     'function');
+	assert(typeof STEALTH['server']['service']['Policy'],   'function');
+	assert(typeof STEALTH['server']['service']['Redirect'], 'function');
+	assert(typeof STEALTH['server']['service']['Session'],  'function');
+	assert(typeof STEALTH['server']['service']['Settings'], 'function');
 
 	assert(Object.keys(STEALTH).sort(), [
 		'Browser',
 		'Client',
+		'Download',
 		'ENVIRONMENT',
 		'Request',
 		'Server',
@@ -83,6 +88,7 @@ describe('MODULE', function(assert) {
 		'connection',
 		'isBrowser',
 		'isClient',
+		'isDownload',
 		'isMode',
 		'isRequest',
 		'isServer',

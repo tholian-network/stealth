@@ -4,9 +4,9 @@ import { Download                               } from '../source/Download.mjs';
 import { DATETIME                               } from '../source/parser/DATETIME.mjs';
 import { URL                                    } from '../source/parser/URL.mjs';
 import { isServer                               } from '../source/Server.mjs';
-import { Mode                                   } from '../source/server/Mode.mjs';
-import { Policy                                 } from '../source/server/Policy.mjs';
-import { Redirect                               } from '../source/server/Redirect.mjs';
+import { Mode                                   } from '../source/server/service/Mode.mjs';
+import { Policy                                 } from '../source/server/service/Policy.mjs';
+import { Redirect                               } from '../source/server/service/Redirect.mjs';
 
 
 

@@ -6,13 +6,13 @@ import { console, isArray, isBoolean, isFunction, isObject, isString } from '../
 import { ENVIRONMENT                                                 } from '../source/ENVIRONMENT.mjs';
 import { Session, isSession                                          } from '../source/Session.mjs';
 import { HOSTS                                                       } from '../source/parser/HOSTS.mjs';
-import { Beacon                                                      } from '../source/server/Beacon.mjs';
-import { Blocker                                                     } from '../source/server/Blocker.mjs';
-import { Host                                                        } from '../source/server/Host.mjs';
-import { Mode                                                        } from '../source/server/Mode.mjs';
-import { Peer                                                        } from '../source/server/Peer.mjs';
-import { Policy                                                      } from '../source/server/Policy.mjs';
-import { Redirect                                                    } from '../source/server/Redirect.mjs';
+import { Beacon                                                      } from '../source/server/service/Beacon.mjs';
+import { Blocker                                                     } from '../source/server/service/Blocker.mjs';
+import { Host                                                        } from '../source/server/service/Host.mjs';
+import { Mode                                                        } from '../source/server/service/Mode.mjs';
+import { Peer                                                        } from '../source/server/service/Peer.mjs';
+import { Policy                                                      } from '../source/server/service/Policy.mjs';
+import { Redirect                                                    } from '../source/server/service/Redirect.mjs';
 
 
 

@@ -10,6 +10,8 @@ import { DNS as PACKET                           } from '../../source/packet/DNS
 
 const onconnect = function(connection, url) {
 
+	// TODO: addMembership to multicast address()?
+
 	connection.type = 'client';
 
 	connection.socket.on('message', (message) => {
@@ -24,7 +26,7 @@ const onconnect = function(connection, url) {
 
 const onmessage = function(connection, url, message) {
 
-	DNS.receive(connection, message, (frame) => {
+	MDNS.receive(connection, message, (frame) => {
 
 		if (frame !== null) {
 
@@ -227,7 +229,7 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 
 
-const DNS = {
+const MDNS = {
 
 	connect: function(url, connection) {
 
@@ -261,7 +263,7 @@ const DNS = {
 
 						connection.socket.connect(url.port, hosts[0].ip, () => {
 
-							connection.socket.setTTL(64);
+							connection.socket.setTTL(1);
 
 							onconnect(connection, url);
 
@@ -279,7 +281,7 @@ const DNS = {
 					};
 
 					try {
-						connection.socket.setTTL(64);
+						connection.socket.setTTL(1);
 					} catch (err) {
 						connection.socket = null;
 					}
@@ -529,7 +531,7 @@ const DNS = {
 		if (connection !== null) {
 
 			try {
-				connection.socket.setTTL(64);
+				connection.socket.setTTL(1);
 			} catch (err) {
 				// Do Nothing
 			}
@@ -569,5 +571,5 @@ const DNS = {
 };
 
 
-export { DNS };
+export { MDNS };
 

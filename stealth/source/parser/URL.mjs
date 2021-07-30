@@ -787,6 +787,7 @@ const URL = {
 				|| protocol === 'ftp'
 				|| protocol === 'https'
 				|| protocol === 'http'
+				|| protocol === 'mdns'
 				|| protocol === 'wss'
 				|| protocol === 'ws'
 				|| protocol === 'socks'
@@ -1140,6 +1141,8 @@ const URL = {
 					port = 443;
 				} else if (protocol === 'http') {
 					port = 80;
+				} else if (protocol === 'mdns') {
+					port = 5353;
 				} else if (protocol === 'wss') {
 					port = 443;
 				} else if (protocol === 'ws') {
@@ -1262,6 +1265,12 @@ const URL = {
 				} else if (url.protocol === 'http') {
 
 					if (url.port !== 80) {
+						link += ':' + url.port;
+					}
+
+				} else if (url.protocol === 'mdns') {
+
+					if (url.port !== 5353) {
 						link += ':' + url.port;
 					}
 
@@ -1430,6 +1439,8 @@ const URL = {
 						port = 443;
 					} else if (protocol === 'http') {
 						port = 80;
+					} else if (protocol === 'mdns') {
+						port = 5353;
 					} else if (protocol === 'wss') {
 						port = 443;
 					} else if (protocol === 'ws') {

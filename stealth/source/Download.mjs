@@ -8,6 +8,12 @@ import { URL                                          } from '../source/parser/U
 
 
 
+export const isDownload = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Download]';
+};
+
+
+
 const Download = function(settings) {
 
 	settings = isObject(settings) ? settings : {};

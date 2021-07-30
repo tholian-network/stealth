@@ -1,16 +1,16 @@
 
 import { Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
 import { isStealth                               } from '../source/Stealth.mjs';
-import { Beacon                                  } from '../source/client/Beacon.mjs';
-import { Blocker                                 } from '../source/client/Blocker.mjs';
-import { Cache                                   } from '../source/client/Cache.mjs';
-import { Host                                    } from '../source/client/Host.mjs';
-import { Mode                                    } from '../source/client/Mode.mjs';
-import { Peer                                    } from '../source/client/Peer.mjs';
-import { Policy                                  } from '../source/client/Policy.mjs';
-import { Redirect                                } from '../source/client/Redirect.mjs';
-import { Session                                 } from '../source/client/Session.mjs';
-import { Settings                                } from '../source/client/Settings.mjs';
+import { Beacon                                  } from '../source/client/service/Beacon.mjs';
+import { Blocker                                 } from '../source/client/service/Blocker.mjs';
+import { Cache                                   } from '../source/client/service/Cache.mjs';
+import { Host                                    } from '../source/client/service/Host.mjs';
+import { Mode                                    } from '../source/client/service/Mode.mjs';
+import { Peer                                    } from '../source/client/service/Peer.mjs';
+import { Policy                                  } from '../source/client/service/Policy.mjs';
+import { Redirect                                } from '../source/client/service/Redirect.mjs';
+import { Session                                 } from '../source/client/service/Session.mjs';
+import { Settings                                } from '../source/client/service/Settings.mjs';
 import { URL                                     } from '../source/parser/URL.mjs';
 import { WS                                      } from '../source/connection/WS.mjs';
 import { WSS                                     } from '../source/connection/WSS.mjs';
