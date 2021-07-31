@@ -936,7 +936,7 @@ const DNS = {
 		packet     = isObject(packet)         ? packet     : null;
 
 
-		if (packet !== null) {
+		if (connection !== null && packet !== null) {
 
 			let headers = {};
 			let payload = null;
@@ -1086,6 +1086,37 @@ const DNS = {
 
 
 		return null;
+
+	},
+
+	isPacket: function(buffer) {
+
+		buffer = isBuffer(buffer) ? buffer : null;
+
+
+		if (buffer !== null) {
+
+			if (buffer.length >= 12) {
+
+				let id       = (buffer[0] << 8) + buffer[1];
+				let operator = (buffer[2] & 0b01111000);
+				let qdcount  = (buffer[4] << 8) + buffer[5];
+				let ancount  = (buffer[6] << 8) + buffer[7];
+
+				if (
+					id !== 0
+					&& operator === 0
+					&& (qdcount > 0 || ancount > 0)
+				) {
+					return true;
+				}
+
+			}
+
+		}
+
+
+		return false;
 
 	}
 

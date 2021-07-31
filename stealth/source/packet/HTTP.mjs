@@ -528,7 +528,7 @@ const HTTP = {
 		packet     = isObject(packet)         ? packet     : null;
 
 
-		if (packet !== null) {
+		if (connection !== null && packet !== null) {
 
 			let headers = {};
 			let payload = null;
@@ -825,7 +825,7 @@ const HTTP = {
 
 	},
 
-	isHTTP: function(buffer) {
+	isPacket: function(buffer) {
 
 		buffer = isBuffer(buffer) ? buffer : null;
 

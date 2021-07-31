@@ -1,11 +1,10 @@
 
 # Refactor
 
-- [ ] DNSH Connection is missing `headers['@transfer']` support for encode().
-- [ ] DNSH Connection is missing the DNS message decoder.
-- [ ] Fix `Server` or `SOCKS` Connection, Reviews don't work anymore.
 - [ ] Refactor `Request.mjs` with new HTTP Connection API.
-- [ ] Refactor `WS` Connection with better encode() and decode() usage (as in DNS and HTTP implementations)
+
+- [ ] HTTP Packet Parser needs support for `decode()` of HTTP header values that are IPs or URLs.
+
 
 # Notes
 
