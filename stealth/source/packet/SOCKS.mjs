@@ -250,9 +250,7 @@ const SOCKS = {
 
 
 			let packet = {
-				headers: {
-					'@version': null
-				},
+				headers: {},
 				payload: null
 			};
 
@@ -260,8 +258,6 @@ const SOCKS = {
 			if (type === 'client') {
 
 				if (buffer.length === 2) {
-
-					packet.headers['@version'] = buffer[0];
 
 					let auth = buffer[1];
 					if (auth === 0x00) {
@@ -275,8 +271,6 @@ const SOCKS = {
 					return packet;
 
 				} else if (buffer.length > 2) {
-
-					packet.headers['@version'] = buffer[0];
 
 					let status = buffer[1];
 					if (status === 0x00) {
@@ -302,8 +296,6 @@ const SOCKS = {
 
 				if (buffer.length === 3) {
 
-					packet.headers['@version'] = buffer[0];
-
 					let length  = buffer[1];
 					let methods = buffer.slice(2, 2 + length);
 
@@ -328,8 +320,6 @@ const SOCKS = {
 					return packet;
 
 				} else if (buffer.length > 3) {
-
-					packet.headers['@version'] = buffer[0];
 
 					let method = buffer[1];
 					if (method === 0x01) {
@@ -370,10 +360,6 @@ const SOCKS = {
 			if (connection.type === 'client') {
 
 				if (isObject(packet.headers) === true) {
-
-					if (packet.headers['@version'] === 0x05) {
-						headers['@version'] = packet.headers['@version'];
-					}
 
 					if (isArray(packet.headers['@auth']) === true) {
 
@@ -439,10 +425,6 @@ const SOCKS = {
 				}
 
 			} else if (connection.type === 'server') {
-
-				if (packet.headers['@version'] === 0x05) {
-					headers['@version'] = packet.headers['@version'];
-				}
 
 				if (
 					isString(packet.headers['@auth']) === true

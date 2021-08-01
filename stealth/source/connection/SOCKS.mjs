@@ -1,14 +1,15 @@
 
 import net from 'net';
 
-import { Buffer, Emitter, isArray, isBoolean, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { DNSS                                                                                    } from '../../source/connection/DNSS.mjs';
-import { HTTP                                                                                    } from '../../source/connection/HTTP.mjs';
-import { HTTPS                                                                                   } from '../../source/connection/HTTPS.mjs';
-import { WS                                                                                      } from '../../source/connection/WS.mjs';
-import { WSS                                                                                     } from '../../source/connection/WSS.mjs';
-import { IP                                                                                      } from '../../source/parser/IP.mjs';
-import { URL                                                                                     } from '../../source/parser/URL.mjs';
+import { Emitter, isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { DNSS                                                                 } from '../../source/connection/DNSS.mjs';
+import { HTTP                                                                 } from '../../source/connection/HTTP.mjs';
+import { HTTPS                                                                } from '../../source/connection/HTTPS.mjs';
+import { WS                                                                   } from '../../source/connection/WS.mjs';
+import { WSS                                                                  } from '../../source/connection/WSS.mjs';
+import { IP                                                                   } from '../../source/parser/IP.mjs';
+import { URL                                                                  } from '../../source/parser/URL.mjs';
+import { SOCKS as PACKET                                                      } from '../../source/packet/SOCKS.mjs';
 
 
 
@@ -33,34 +34,30 @@ const isPayload = function(payload) {
 
 };
 
-const ERRORS = [
-	'error',
-	'error-blocked',
-	'error-connection',
-	'error-host',
-	'error-method',
-	'error-network'
-];
+const isStatus = function(status) {
 
-const upgrade_request = (connection) => {
+	if (
+		isString(status) === true
+		&& isNumber(STATUSES[status]) === true
+	) {
+		return true;
+	}
 
-	return encode(connection, {
-		headers: {
-			'auth': [ 'none' ]
-		},
-		payload: null
-	});
+
+	return false;
 
 };
 
-const upgrade_response = (connection) => {
-
-	return encode(connection, {
-		headers: {
-			'auth': 'none'
-		}
-	});
-
+const STATUSES = {
+	'success':                           0x00,
+	'error':                             0x01,
+	'error:block':                       0x02,
+	'error:network':                     0x03,
+	'error:host':                        0x04,
+	'error:connection':                  0x05,
+	'error:connection:socket-stability': 0x06,
+	'error:unsupported-command':         0x07,
+	'error:unsupported-address':         0x08
 };
 
 
@@ -71,13 +68,13 @@ const onconnect = function(connection, url) {
 
 		SOCKS.receive(connection, data, (response) => {
 
-			if (response.headers['@version'] === 5 && response.headers['auth'] === 'none') {
+			if (response.headers['@version'] === 5 && response.headers['@auth'] === 'none') {
 
 				connection.socket.once('data', (data) => {
 
 					SOCKS.receive(connection, data, (response) => {
 
-						if (response.headers['@status'] === 'success') {
+						if (response.headers['@status'] === 0x00) {
 
 							let protocol = null;
 							let tunnel   = null;
@@ -136,10 +133,22 @@ const onconnect = function(connection, url) {
 
 							}, 100);
 
-						} else if (response.headers['@status'] === 'error-blocked') {
-							connection.emit('error', [{ code: 403 }]);
-						} else if (response.headers['@status'] === 'error-network' || response.headers['@status'] === 'error-host' || response.headers['@status'] === 'error-connection') {
+						} else if (response.headers['@status'] === 0x01) {
 							connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+						} else if (response.headers['@status'] === 0x02) {
+							connection.emit('error', [{ code: 403 }]);
+						} else if (response.headers['@status'] === 0x03) {
+							connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+						} else if (response.headers['@status'] === 0x04) {
+							connection.emit('error', [{ type: 'host' }]);
+						} else if (response.headers['@status'] === 0x05) {
+							connection.emit('error', [{ type: 'connection' }]);
+						} else if (response.headers['@status'] === 0x06) {
+							connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+						} else if (response.headers['@status'] === 0x07) {
+							connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
+						} else if (response.headers['@status'] === 0x08) {
+							connection.emit('error', [{ type: 'connection', cause: 'payload' }]);
 						} else {
 							connection.emit('error', [{ type: 'connection' }]);
 						}
@@ -164,9 +173,12 @@ const onconnect = function(connection, url) {
 	});
 
 	connection.type = 'client';
-	connection.socket.write(upgrade_request(
-		connection
-	));
+	connection.socket.write(PACKET.encode(connection, {
+		headers: {
+			'@auth': [ 'none' ]
+		},
+		payload: null
+	}));
 
 	setTimeout(() => {
 		connection.emit('@connect');
@@ -212,19 +224,19 @@ const ondisconnect = function(connection) {
 
 const onupgrade = function(connection, url) {
 
-	connection.socket.once('data', (data) => {
+	connection.socket.once('data', (fragment) => {
 
-		SOCKS.receive(connection, data, (response) => {
+		SOCKS.receive(connection, fragment, (request) => {
 
-			if (response.headers['@method'] === 'connect' && isPayload(response.payload) === true) {
+			if (request.headers['@method'] === 'connect' && isPayload(request.payload) === true) {
 
 				if (connection.has('@connect-tunnel') === true) {
 
-					connection.emit('@connect-tunnel', [ response, (status, reply, socket) => {
+					connection.emit('@connect-tunnel', [ request, (status, address, socket) => {
 
-						status = isString(status) ? status : null;
-						reply  = isPayload(reply) ? reply  : null;
-						socket = isSocket(socket) ? socket : null;
+						status  = isStatus(status)   ? status  : 'error';
+						address = isPayload(address) ? address : null;
+						socket  = isSocket(socket)   ? socket  : null;
 
 
 						if (connection.socket !== null) {
@@ -233,9 +245,9 @@ const onupgrade = function(connection, url) {
 
 								SOCKS.send(connection, {
 									headers: {
-										'@status': 'success'
+										'@status': 0x00
 									},
-									payload: reply
+									payload: address
 								});
 
 								if (socket !== null) {
@@ -255,11 +267,11 @@ const onupgrade = function(connection, url) {
 									connection.emit('@tunnel', [ null ]);
 								}, 0);
 
-							} else if (status !== null && ERRORS.includes(status) === true) {
+							} else if (isNumber(STATUSES[status]) === true) {
 
 								SOCKS.send(connection, {
 									headers: {
-										'@status': status
+										'@status': STATUSES[status]
 									},
 									payload: null
 								});
@@ -272,7 +284,7 @@ const onupgrade = function(connection, url) {
 
 								SOCKS.send(connection, {
 									headers: {
-										'@status': 'error'
+										'@status': 0x01
 									},
 									payload: null
 								});
@@ -297,7 +309,7 @@ const onupgrade = function(connection, url) {
 
 					SOCKS.send(connection, {
 						headers: {
-							'@status': 'success'
+							'@status': 0x00
 						},
 						payload: URL.parse('127.0.0.1:65432')
 					});
@@ -316,7 +328,7 @@ const onupgrade = function(connection, url) {
 
 				SOCKS.send(connection, {
 					headers: {
-						'@status': 'error-method'
+						'@status': 0x07
 					},
 					payload: null
 				});
@@ -334,9 +346,12 @@ const onupgrade = function(connection, url) {
 
 	connection.type = 'server';
 	connection.socket.resume();
-	connection.socket.write(upgrade_response(
-		connection
-	));
+	connection.socket.write(PACKET.encode(connection, {
+		headers: {
+			'@auth': 'none'
+		},
+		payload: null
+	}));
 
 	setTimeout(() => {
 		connection.emit('@connect');
@@ -365,7 +380,7 @@ const isUpgrade = function(url) {
 	if (
 		isObject(url) === true
 		&& isObject(url.headers) === true
-		&& (url.headers['auth'] || []).includes('none') === true
+		&& (url.headers['@auth'] || []).includes('none') === true
 	) {
 		return true;
 	}
@@ -562,12 +577,6 @@ const SOCKS = {
 					socket.removeAllListeners('timeout');
 					socket.removeAllListeners('error');
 					socket.removeAllListeners('end');
-
-					// This is wrong, onconnect() reflects the network
-					// flow for connection.type = 'client'
-					// socket.on('data', (fragment) => {
-					// 	ondata(connection, url, fragment);
-					// });
 
 					socket.on('timeout', () => {
 
@@ -766,31 +775,10 @@ const SOCKS = {
 
 			if (connection.protocol === 'socks') {
 
-				let buffer  = null;
-				let headers = null;
-				let payload = null;
-
-				if (isObject(data.headers) === true) {
-					headers = data.headers;
-				}
-
-				if (isBoolean(data.payload) === true) {
-					payload = data.payload;
-				} else {
-					payload = data.payload || null;
-				}
-
-
-				let headers_keys = Object.keys(headers);
-				if (headers_keys.length > 0 || payload !== null) {
-
-					buffer = encode(connection, {
-						headers: headers,
-						payload: payload
-					});
-
-				}
-
+				let buffer = PACKET.encode(connection, {
+					headers: data.headers || {},
+					payload: data.payload || null
+				});
 
 				if (buffer !== null) {
 
