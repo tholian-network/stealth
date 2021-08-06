@@ -280,19 +280,6 @@ const onupgrade = function(connection, url) {
 									connection.disconnect();
 								}, 0);
 
-							} else {
-
-								SOCKS.send(connection, {
-									headers: {
-										'@status': 0x01
-									},
-									payload: null
-								});
-
-								setTimeout(() => {
-									connection.disconnect();
-								}, 0);
-
 							}
 
 						} else {
