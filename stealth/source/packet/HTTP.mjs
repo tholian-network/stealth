@@ -528,12 +528,18 @@ const HTTP = {
 		packet     = isObject(packet)         ? packet     : null;
 
 
-		if (connection !== null && packet !== null) {
+		let type = 'server';
+
+		if (connection !== null) {
+			type = connection.type;
+		}
+
+		if (packet !== null) {
 
 			let headers = {};
 			let payload = null;
 
-			if (connection.type === 'client') {
+			if (type === 'client') {
 
 				if (isObject(packet.headers) === true) {
 
@@ -549,7 +555,7 @@ const HTTP = {
 
 				}
 
-			} else if (connection.type === 'server') {
+			} else if (type === 'server') {
 
 				if (isObject(packet.headers) === true) {
 
@@ -602,7 +608,7 @@ const HTTP = {
 
 				if (isArray(headers['@transfer']['range']) === true) {
 
-					if (connection.type === 'client') {
+					if (type === 'client') {
 
 						if (headers['@transfer']['range'][1] !== Infinity) {
 							headers['range'] = 'bytes=' + headers['@transfer']['range'][0] + '-' + headers['@transfer']['range'][1];
@@ -610,7 +616,7 @@ const HTTP = {
 							headers['range'] = 'bytes=' + headers['@transfer']['range'][0] + '-';
 						}
 
-					} else if (connection.type === 'server') {
+					} else if (type === 'server') {
 
 						if (isNumber(headers['@transfer']['length']) === true) {
 							headers['content-range'] = 'bytes ' + headers['@transfer']['range'][0] + '-' + (headers['@transfer']['range'][1] || '*') + '/' + headers['@transfer']['length'];
@@ -751,7 +757,7 @@ const HTTP = {
 
 			let fields = [];
 
-			if (connection.type === 'client') {
+			if (type === 'client') {
 
 				let method = headers['@method'] || null;
 				if (METHODS.includes(method) === true && isString(headers['@url']) === true) {
@@ -764,7 +770,7 @@ const HTTP = {
 					fields.push('GET / HTTP/1.1');
 				}
 
-			} else if (connection.type === 'server') {
+			} else if (type === 'server') {
 
 				if (isNumber(headers['@status']) === true) {
 
