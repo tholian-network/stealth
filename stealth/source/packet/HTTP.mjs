@@ -182,24 +182,35 @@ const HTTP = {
 						'range':    [ 0, Infinity ]
 					}
 				},
-				payload: null
+				overflow: null,
+				payload:  null
 			};
 
 
 			let msg_headers      = null;
 			let msg_payload      = null;
+			let msg_overflow     = null;
 			let payload_complete = false;
 
 
-			let msg_index = buffer.indexOf(EMPTYLINE);
-			if (msg_index !== -1) {
+			let msg_headers_index = buffer.indexOf(EMPTYLINE);
+			if (msg_headers_index !== -1) {
 
-				msg_headers = buffer.slice(0, msg_index);
-				msg_payload = buffer.slice(msg_index + 4);
+				msg_headers = buffer.slice(0, msg_headers_index);
+				msg_payload = buffer.slice(msg_headers_index + 4);
 
-				if (msg_payload.slice(msg_payload.length - 4).toString('utf8') === EMPTYLINE.toString('utf8')) {
-					msg_payload      = msg_payload.slice(0, msg_payload.length - 4);
+
+				let msg_payload_index = buffer.indexOf(EMPTYLINE, msg_headers_index + 4);
+				if (msg_payload_index !== -1) {
+					msg_headers      = buffer.slice(0, msg_headers_index);
+					msg_payload      = buffer.slice(msg_headers_index + 4, msg_payload_index);
+					msg_overflow     = buffer.slice(msg_payload_index + 4);
 					payload_complete = true;
+				} else {
+					msg_headers      = buffer.slice(0, msg_headers_index);
+					msg_payload      = buffer.slice(msg_headers_index + 4);
+					msg_overflow     = null;
+					payload_complete = false;
 				}
 
 			} else {
@@ -416,6 +427,15 @@ const HTTP = {
 				});
 
 				packet.headers = sorted_headers;
+
+			}
+
+
+			if (msg_overflow !== null) {
+
+				if (msg_overflow.length > 0) {
+					packet.overflow = msg_overflow;
+				}
 
 			}
 

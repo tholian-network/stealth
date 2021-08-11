@@ -1,11 +1,11 @@
 
 import net from 'net';
 
-import { Buffer, isArray, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
-import { describe, finish                                } from '../../../covert/index.mjs';
-import { HTTP                                            } from '../../../stealth/source/connection/HTTP.mjs';
-import { IP                                              } from '../../../stealth/source/parser/IP.mjs';
-import { URL                                             } from '../../../stealth/source/parser/URL.mjs';
+import { Buffer, isArray, isBuffer, isFunction, isObject, isString } from '../../../base/index.mjs';
+import { describe, finish                                          } from '../../../covert/index.mjs';
+import { HTTP                                                      } from '../../../stealth/source/connection/HTTP.mjs';
+import { IP                                                        } from '../../../stealth/source/parser/IP.mjs';
+import { URL                                                       } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -43,6 +43,7 @@ const PAYLOADS = {
 		].join('\r\n'), 'utf8')
 
 	},
+
 
 	'206': {
 
@@ -119,6 +120,69 @@ const PAYLOADS = {
 	},
 
 	'404': {
+	}
+
+};
+
+const DATA = {
+
+	'200-multiplex': {
+
+		'REQUEST': {
+
+			'/index.html': {
+				headers: {
+					'@method':         'GET',
+					'@url':            '/index.html',
+					'host':            'covert.tholian.local',
+					'accept-encoding': 'identity'
+				},
+				payload: Buffer.from('', 'utf8')
+			},
+
+			'/api/users': {
+				headers: {
+					'@method':         'POST',
+					'@url':            '/api/users',
+					'@transfer':       {
+						'encoding': 'gzip'
+					},
+					'host':            'covert.tholian.local',
+					'accept-encoding': 'gzip',
+					'content-type':    'application/json'
+				},
+				payload: Buffer.from('{"action":"search","value":"cookiengineer"}', 'utf8')
+			}
+
+		},
+
+		'RESPONSE': {
+
+			'/index.html': {
+				headers: {
+					'@status': 200,
+					'@transfer': {
+						'encoding': 'identity',
+						'length':   28
+					},
+					'content-type': 'text/html; charset=utf-8'
+				},
+				payload: Buffer.from('<!DOCTYPE html><html></html>', 'utf8')
+			},
+
+			'/api/users': {
+				headers: {
+					'@status': 200,
+					'@transfer': {
+						'encoding': 'gzip'
+					},
+					'content-type': 'application/json'
+				},
+				payload: Buffer.from('{"user":"cookiengineer"}', 'utf8')
+			}
+
+		}
+
 	}
 
 };
@@ -579,10 +643,6 @@ describe('HTTP.send()/server/200', function(assert) {
 
 	connection.once('@connect', () => {
 
-		// TODO: Verify this here, that send() results in correct frame
-		// Should be without range, without content-range, and with the
-		// length of payload
-
 		HTTP.send(connection, {
 			headers: {
 				'@method':         'GET',
@@ -607,6 +667,144 @@ describe('HTTP.send()/server/200', function(assert) {
 
 		assert(true);
 
+	});
+
+	setTimeout(() => {
+		server.close();
+		assert(true);
+	}, 1000);
+
+});
+
+describe('HTTP.send()/server/200/multiplex', function(assert) {
+
+	// TODO: Request multiple times
+	// connection: keep-alive
+	// keep-alive: timeout=5, max=3
+
+	assert(isFunction(HTTP.upgrade), true);
+	assert(isFunction(HTTP.send),    true);
+
+	let server = new net.Server({
+		allowHalfOpen:  true,
+		pauseOnConnect: true
+	});
+
+	server.once('connection', (socket) => {
+
+		let connection = HTTP.upgrade(socket);
+		let methods    = [];
+		let urls       = [];
+		let payloads   = [];
+
+		connection.once('@connect', () => {
+
+			assert(true);
+
+		});
+
+		connection.on('request', (request) => {
+
+			assert(isObject(request.headers), true);
+			assert(isBuffer(request.payload), true);
+
+			assert(isString(request.headers['@method']),   true);
+			assert(isObject(request.headers['@transfer']), true);
+			assert(isString(request.headers['@url']),      true);
+
+			methods.push(request.headers['@method']);
+			urls.push(request.headers['@url']);
+			payloads.push(request.payload);
+
+			HTTP.send(connection, DATA['200-multiplex']['RESPONSE'][request.headers['@url']] || null);
+
+		});
+
+		connection.once('@disconnect', () => {
+
+			assert(methods, [
+				'GET',
+				'POST'
+			]);
+
+			assert(urls, [
+				'/index.html',
+				'/api/users'
+			]);
+
+			assert(payloads, [
+				Buffer.from(''),
+				Buffer.from('{"action":"search","value":"cookiengineer"}', 'utf8')
+			]);
+
+			assert(true);
+
+		});
+
+		socket.resume();
+
+	});
+
+	server.listen(13337, null);
+
+
+	let url        = URL.parse('http://localhost:13337');
+	let connection = HTTP.connect(url);
+
+	connection.once('@connect', () => {
+
+		connection.once('response', (response1) => {
+
+			assert(response1, {
+				headers: {
+					'@status':   200,
+					'@transfer': {
+						'encoding': 'identity',
+						'length':   28,
+						'range':    [ 0, 27 ]
+					},
+					'content-encoding': 'identity',
+					'content-length':   28,
+					'content-type':     'text/html; charset=utf-8'
+				},
+				payload: Buffer.from('<!DOCTYPE html><html></html>', 'utf8')
+			});
+
+			connection.once('response', (response2) => {
+
+				assert(response2, {
+					headers: {
+						'@status':   200,
+						'@transfer': {
+							'encoding': 'identity',
+							'length':   24,
+							'range':    [ 0, 23 ]
+						},
+						'content-encoding': 'identity',
+						'content-length':   24,
+						'content-type':     'application/json'
+					},
+					payload: Buffer.from('{"user":"cookiengineer"}', 'utf8')
+				});
+
+				assert(HTTP.disconnect(connection), true);
+
+			});
+
+			HTTP.send(connection, DATA['200-multiplex']['REQUEST']['/api/users'] || null, (result) => {
+				assert(result, true);
+			});
+
+		});
+
+		HTTP.send(connection, DATA['200-multiplex']['REQUEST']['/index.html'] || null, (result) => {
+			assert(result, true);
+		});
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 	setTimeout(() => {

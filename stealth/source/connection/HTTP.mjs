@@ -91,6 +91,11 @@ const ondata = function(connection, url, chunk) {
 				url.headers = frame.headers;
 				url.payload = frame.payload;
 
+				if (frame.overflow !== null) {
+					connection.fragment = frame.overflow;
+				} else {
+					connection.fragment = Buffer.alloc(0);
+				}
 
 				if (connection.type === 'client') {
 
@@ -102,7 +107,10 @@ const ondata = function(connection, url, chunk) {
 
 						if (frame.payload !== null) {
 
-							connection.socket.end();
+							connection.emit('response', [{
+								headers: frame.headers,
+								payload: frame.payload
+							}]);
 
 						} else {
 
@@ -227,24 +235,29 @@ const ondisconnect = function(connection, url) {
 			if (
 				url.headers !== null
 				&& url.payload !== null
-				&& url.headers['@transfer']['length'] !== Infinity
-				&& url.headers['@transfer']['length'] === url.payload.length
 			) {
 
-				connection.emit('response', [{
-					headers: url.headers,
-					payload: url.payload
-				}]);
+				if (
+					url.headers['@transfer']['length'] !== Infinity
+					&& url.headers['@transfer']['length'] === url.payload.length
+				) {
 
-			} else {
+					connection.emit('response', [{
+						headers: url.headers,
+						payload: url.payload
+					}]);
 
-				connection.emit('progress', [{
-					headers: url.headers,
-					payload: url.payload
-				}, {
-					bytes: url.payload.length,
-					total: url.headers['@transfer']['length']
-				}]);
+				} else {
+
+					connection.emit('progress', [{
+						headers: url.headers,
+						payload: url.payload
+					}, {
+						bytes: url.payload.length,
+						total: url.headers['@transfer']['length']
+					}]);
+
+				}
 
 			}
 
@@ -300,6 +313,35 @@ const onupgrade = function(connection, url) {
 		connection.emit('@connect');
 	}, 0);
 
+
+	if (isObject(url.headers['@transfer']) === true) {
+
+		setTimeout(() => {
+
+			if (url.headers['@transfer']['length'] !== Infinity) {
+
+				if (url.payload !== null) {
+
+					connection.emit('request', [{
+						headers: url.headers,
+						payload: url.payload
+					}]);
+
+				}
+
+			} else {
+
+				connection.emit('request', [{
+					headers: url.headers,
+					payload: url.payload
+				}]);
+
+			}
+
+		}, 0);
+
+	}
+
 };
 
 
@@ -323,6 +365,7 @@ const isUpgrade = function(url) {
 	if (
 		isObject(url) === true
 		&& isObject(url.headers) === true
+		&& (isBuffer(url.payload) === true || url.payload === null)
 	) {
 		return true;
 	}
@@ -591,15 +634,17 @@ const HTTP = {
 				if (callback !== null) {
 
 					callback({
-						headers: data.headers,
-						payload: data.payload
+						headers:  data.headers,
+						overflow: data.overflow || null,
+						payload:  data.payload
 					});
 
 				} else {
 
 					return {
-						headers: data.headers,
-						payload: data.payload
+						headers:  data.headers,
+						overflow: data.overflow || null,
+						payload:  data.payload
 					};
 
 				}
@@ -645,7 +690,7 @@ const HTTP = {
 				if (connection.type === 'client') {
 					connection.socket.write(buffer);
 				} else if (connection.type === 'server') {
-					connection.socket.end(buffer);
+					connection.socket.write(buffer);
 				}
 
 				if (callback !== null) {
