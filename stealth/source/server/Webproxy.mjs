@@ -581,28 +581,32 @@ Webproxy.prototype = {
 
 		if (buffer !== null) {
 
-			let request = PACKET.decode(null, buffer);
-			if (request !== null) {
+			if (PACKET.isPacket(buffer) === true) {
 
-				if (
-					(
-						request.headers['@method'] === 'CONNECT'
-						&& isString(request.headers['host']) === true
-						&& (
-							request.headers['host'].endsWith(':80') === true
-							|| request.headers['host'].endsWith(':443') === true
+				let request = PACKET.decode(null, buffer);
+				if (request !== null) {
+
+					if (
+						(
+							request.headers['@method'] === 'CONNECT'
+							&& isString(request.headers['host']) === true
+							&& (
+								request.headers['host'].endsWith(':80') === true
+								|| request.headers['host'].endsWith(':443') === true
+							)
+						) || (
+							request.headers['@method'] === 'GET'
+							&& isString(request.headers['@url']) === true
+							&& (
+								request.headers['@url'].startsWith('http://') === true
+								|| request.headers['@url'].startsWith('https://') === true
+								|| request.headers['@url'].startsWith('/stealth/') === true
+							)
 						)
-					) || (
-						request.headers['@method'] === 'GET'
-						&& isString(request.headers['@url']) === true
-						&& (
-							request.headers['@url'].startsWith('http://') === true
-							|| request.headers['@url'].startsWith('https://') === true
-							|| request.headers['@url'].startsWith('/stealth/') === true
-						)
-					)
-				) {
-					return true;
+					) {
+						return true;
+					}
+
 				}
 
 			}

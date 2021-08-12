@@ -61,7 +61,16 @@ Proxy.prototype = {
 
 
 		if (buffer !== null) {
-			return PACKET.isPacket(buffer);
+
+			if (PACKET.isPacket(buffer) === true) {
+
+				let request = PACKET.decode(null, buffer);
+				if (request !== null) {
+					return true;
+				}
+
+			}
+
 		}
 
 

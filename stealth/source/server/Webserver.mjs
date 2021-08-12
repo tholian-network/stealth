@@ -347,20 +347,24 @@ Webserver.prototype = {
 
 		if (buffer !== null) {
 
-			let request = PACKET.decode(null, buffer);
-			if (request !== null) {
+			if (PACKET.isPacket(buffer) === true) {
 
-				if (
-					request.headers['@method'] === 'GET'
-					&& (request.headers['connection'] || '').toLowerCase() !== 'upgrade'
-					&& (
-						request.headers['@url'] === '/'
-						|| request.headers['@url'] === '/favicon.ico'
-						|| request.headers['@url'] === '/proxy.pac'
-						|| (request.headers['@url'] || '').startsWith('/browser')
-					)
-				) {
-					return true;
+				let request = PACKET.decode(null, buffer);
+				if (request !== null) {
+
+					if (
+						request.headers['@method'] === 'GET'
+						&& (request.headers['connection'] || '').toLowerCase() !== 'upgrade'
+						&& (
+							request.headers['@url'] === '/'
+							|| request.headers['@url'] === '/favicon.ico'
+							|| request.headers['@url'] === '/proxy.pac'
+							|| (request.headers['@url'] || '').startsWith('/browser')
+						)
+					) {
+						return true;
+					}
+
 				}
 
 			}
