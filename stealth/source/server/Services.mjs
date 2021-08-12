@@ -5,16 +5,16 @@ import { console, isBuffer, isFunction } from '../../extern/base.mjs';
 import { isStealth                     } from '../../source/Stealth.mjs';
 import { WS                            } from '../../source/connection/WS.mjs';
 import { HTTP as PACKET                } from '../../source/packet/HTTP.mjs';
-import { Beacon                        } from '../../source/service/Beacon.mjs';
-import { Blocker                       } from '../../source/service/Blocker.mjs';
-import { Cache                         } from '../../source/service/Cache.mjs';
-import { Host                          } from '../../source/service/Host.mjs';
-import { Mode                          } from '../../source/service/Mode.mjs';
-import { Peer                          } from '../../source/service/Peer.mjs';
-import { Policy                        } from '../../source/service/Policy.mjs';
-import { Redirect                      } from '../../source/service/Redirect.mjs';
-import { Session                       } from '../../source/service/Session.mjs';
-import { Settings                      } from '../../source/service/Settings.mjs';
+import { Beacon                        } from '../../source/server/service/Beacon.mjs';
+import { Blocker                       } from '../../source/server/service/Blocker.mjs';
+import { Cache                         } from '../../source/server/service/Cache.mjs';
+import { Host                          } from '../../source/server/service/Host.mjs';
+import { Mode                          } from '../../source/server/service/Mode.mjs';
+import { Peer                          } from '../../source/server/service/Peer.mjs';
+import { Policy                        } from '../../source/server/service/Policy.mjs';
+import { Redirect                      } from '../../source/server/service/Redirect.mjs';
+import { Session                       } from '../../source/server/service/Session.mjs';
+import { Settings                      } from '../../source/server/service/Settings.mjs';
 
 
 
@@ -291,4 +291,7 @@ Services.prototype = {
 	}
 
 };
+
+
+export { Services };
 

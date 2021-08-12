@@ -1,14 +1,15 @@
 
+import fs   from 'fs';
 import net  from 'net';
 import path from 'path';
 
-import { console, Buffer, isBuffer, isNumber, isString } from '../../extern/base.mjs';
-import { ENVIRONMENT                                   } from '../../source/ENVIRONMENT.mjs';
-import { isStealth                                     } from '../../source/Stealth.mjs';
-import { HTTP                                          } from '../../source/connection/HTTP.mjs';
-import { HTTP as PACKET                                } from '../../source/packet/HTTP.mjs';
-import { isServices                                    } from '../../source/server/Services.mjs';
-import { URL                                           } from '../../source/parser/URL.mjs';
+import { console, Buffer, isBuffer, isFunction, isString } from '../../extern/base.mjs';
+import { ENVIRONMENT                                     } from '../../source/ENVIRONMENT.mjs';
+import { isStealth                                       } from '../../source/Stealth.mjs';
+import { HTTP                                            } from '../../source/connection/HTTP.mjs';
+import { HTTP as PACKET                                  } from '../../source/packet/HTTP.mjs';
+import { isServices                                      } from '../../source/server/Services.mjs';
+import { URL                                             } from '../../source/parser/URL.mjs';
 
 
 
@@ -82,7 +83,7 @@ const toFile = function(url, callback) {
 
 			callback({
 				headers: {
-					'@status':   404,
+					'@status':   403,
 					'@transfer': {
 						'encoding': 'identity'
 					},
@@ -130,8 +131,8 @@ const toProxyAutoConfig = function(url, callback) {
 
 				let buffer = Buffer.from([
 					'function FindProxyForURL(url, host) {',
-					'\tif (host === "' + hostname + '") return "DIRECT";' : '',
-					(address !== null ? '\tif (host === "' + address  + '") return "DIRECT";' : ''),
+					'\tif (host === "' + hostname + '") return "DIRECT";',
+					(address !== null ? ('\tif (host === "' + address  + '") return "DIRECT";') : ''),
 					'\treturn "PROXY ' + hostname + ':' + port + '; DIRECT;',
 					'}'
 				].join('\n'), 'utf8');
@@ -210,7 +211,7 @@ const toResponse = function(request, callback) {
 
 		callback({
 			headers: {
-				'@status': 301,
+				'@status':  301,
 				'location': '/browser/index.html' + (debug === true ? '?debug=true': '')
 			},
 			payload: null
@@ -258,6 +259,8 @@ const toResponse = function(request, callback) {
 			pac_url = URL.parse('http://' + domain + ':65432/proxy.pac');
 		} else if (host !== null) {
 			pac_url = URL.parse('http://' + host + ':65432/proxy.pac');
+		} else {
+			pac_url = URL.parse('http://' + ENVIRONMENT.hostname + ':65432/proxy.pac');
 		}
 
 		if (pac_url !== null) {
@@ -274,10 +277,13 @@ const toResponse = function(request, callback) {
 
 			callback({
 				headers: {
-					'@status':   404,
+					'@status':   403,
 					'@transfer': {
 						'encoding': encoding
-					}
+					},
+					'connection':     'close',
+					'content-type':   url.mime.format,
+					'content-length': 0
 				},
 				payload: null
 			});
@@ -288,27 +294,29 @@ const toResponse = function(request, callback) {
 
 		callback({
 			headers: {
-				'@status':   404,
+				'@status':   403,
 				'@transfer': {
 					'encoding': encoding
-				}
+				},
+				'connection':     'close',
+				'content-type':   url.mime.format,
+				'content-length': 0
 			},
 			payload: null
 		});
 
 	}
 
-	// TODO: Generate /proxy.pac file
 	// TODO: Support 206 Partial Content requests
-	// TODO: Return HTTP response
 
 };
 
 
 
-const Webserver = function(stealth) {
+const Webserver = function(services, stealth) {
 
-	stealth = isStealth(stealth) ? stealth : null;
+	services = isServices(services) ? services : null;
+	stealth  = isStealth(stealth)   ? stealth  : null;
 
 
 	this.stealth = stealth;
@@ -417,26 +425,20 @@ Webserver.prototype = {
 
 						}
 
-						if (isString(request.headers['host']) === false) {
-							request.headers['host'] = ENVIRONMENT.hostname + ':65432';
-						}
-
-
-						let response = process_http_request.call(this, request);
-						if (response !== null) {
+						toResponse.call(this, request, (response) => {
 
 							HTTP.send(connection, response);
 
-						} else {
 
-							HTTP.send(connection, {
-								headers: {
-									'@status': 404
-								},
-								payload: null
-							});
+							if (response.headers['connection'] === 'close') {
 
-						}
+								setTimeout(() => {
+									connection.disconnect();
+								}, 0);
+
+							}
+
+						});
 
 					});
 
