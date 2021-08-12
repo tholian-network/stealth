@@ -1,13 +1,18 @@
 
-import net from 'net';
+import net  from 'net';
+import path from 'path';
 
 import { console, Buffer, isBuffer, isNumber, isString } from '../../extern/base.mjs';
+import { ENVIRONMENT                                   } from '../../source/ENVIRONMENT.mjs';
 import { isStealth                                     } from '../../source/Stealth.mjs';
 import { HTTP                                          } from '../../source/connection/HTTP.mjs';
 import { HTTP as PACKET                                } from '../../source/packet/HTTP.mjs';
 import { isServices                                    } from '../../source/server/Services.mjs';
 import { URL                                           } from '../../source/parser/URL.mjs';
 
+
+
+const ENCODINGS = [ 'br', 'chunked', 'deflate', 'gzip', 'identity' ];
 
 const isSocket = function(obj) {
 
@@ -25,12 +30,275 @@ export const isWebserver = function(obj) {
 
 
 
-const process_http_request = function(request) {
+const toFile = function(url, callback) {
 
-	// TODO: Redirect / to /browser/index.html
-	// TODO: Redirect /favicon to /browser/design/common/tholian.ico
+	url      = URL.isURL(url)       ? url      : null;
+	callback = isFunction(callback) ? callback : null;
+
+
+	if (url !== null) {
+
+		if (callback !== null) {
+
+			fs.readFile(path.resolve(ENVIRONMENT.root + url.path), (err, buffer) => {
+
+				if (err === null) {
+
+					callback(Object.assign(url, {
+						headers: {
+							'@status':        200,
+							'@transfer':      {
+								'encoding': 'identity'
+							},
+							'content-type':   url.mime.format,
+							'content-length': Buffer.byteLength(buffer)
+						},
+						payload: buffer
+					}));
+
+				} else {
+
+					callback({
+						headers: {
+							'@status':   404,
+							'@transfer': {
+								'encoding': 'identity'
+							},
+							'content-type':   url.mime.format,
+							'content-length': 0
+						},
+						payload: null
+					});
+
+				}
+
+			});
+
+		}
+
+	} else {
+
+		if (callback !== null) {
+
+			callback({
+				headers: {
+					'@status':   404,
+					'@transfer': {
+						'encoding': 'identity'
+					},
+					'content-type':   url.mime.format,
+					'content-length': 0
+				},
+				payload: null
+			});
+
+		}
+
+	}
+
+};
+
+const toProxyAutoConfig = function(url, callback) {
+
+	url      = URL.isURL(url)       ? url      : null;
+	callback = isFunction(callback) ? callback : null;
+
+
+	if (url !== null) {
+
+		if (callback !== null) {
+
+			let address  = null;
+			let domain   = URL.toDomain(url);
+			let host     = URL.toHost(url);
+			let hostname = null;
+			let port     = url.port;
+
+
+			if (isString(url.headers['@local']) === true) {
+				address = url.headers['@local'];
+			}
+
+			if (domain !== null) {
+				hostname = domain;
+			} else if (host !== null) {
+				hostname = host;
+			}
+
+
+			if (hostname !== null) {
+
+				let buffer = Buffer.from([
+					'function FindProxyForURL(url, host) {',
+					'\tif (host === "' + hostname + '") return "DIRECT";' : '',
+					(address !== null ? '\tif (host === "' + address  + '") return "DIRECT";' : ''),
+					'\treturn "PROXY ' + hostname + ':' + port + '; DIRECT;',
+					'}'
+				].join('\n'), 'utf8');
+
+				callback({
+					headers: {
+						'@status':   200,
+						'@transfer': {
+							'encoding': 'identity'
+						},
+						'content-type':   url.mime.format,
+						'content-length': Buffer.byteLength(buffer)
+					},
+					payload: buffer
+				});
+
+			} else {
+
+				callback({
+					headers: {
+						'@status':   404,
+						'@transfer': {
+							'encoding': 'identity'
+						},
+						'content-type':   url.mime.format,
+						'content-length': 0
+					},
+					payload: null
+				});
+
+			}
+
+		}
+
+	} else {
+
+		if (callback !== null) {
+
+			callback({
+				headers: {
+					'@status':   404,
+					'@transfer': {
+						'encoding': 'identity'
+					}
+				},
+				payload: null
+			});
+
+		}
+
+	}
+
+};
+
+const toResponse = function(request, callback) {
+
+	let encoding = 'identity';
+
+	if (isString(request.headers['accept-encoding']) === true) {
+
+		if (ENCODINGS.includes(request.headers['accept-encoding']) === true) {
+			encoding = request.headers['accept-encoding'];
+		}
+
+	}
+
+
+	let url = URL.parse(request.headers['@url']);
+	if (url.path === '/') {
+
+		let debug = false;
+
+		if (this.stealth !== null && this.stealth._settings.debug === true) {
+			debug = true;
+		}
+
+		callback({
+			headers: {
+				'@status': 301,
+				'location': '/browser/index.html' + (debug === true ? '?debug=true': '')
+			},
+			payload: null
+		});
+
+	} else if (url.path === '/browser/index.html') {
+
+		toFile(url, (response) => {
+
+			response.headers['@transfer']['encoding']   = encoding;
+			response.headers['Content-Security-Policy'] = 'worker-src \'self\'; script-src \'self\' \'unsafe-inline\'; frame-src \'self\'';
+			response.headers['Service-Worker-Allowed']  = '/browser';
+
+			callback(response);
+
+		});
+
+	} else if (url.path.startsWith('/browser/') === true) {
+
+		toFile(url, (response) => {
+
+			response.headers['@transfer']['encoding'] = encoding;
+
+			callback(response);
+
+		});
+
+	} else if (url.path === '/favicon.ico') {
+
+		callback({
+			headers: {
+				'@status':  301,
+				'location': '/browser/design/common/tholian.ico'
+			},
+			payload: null
+		});
+
+	} else if (url.path === '/proxy.pac') {
+
+		let domain  = URL.toDomain(url);
+		let host    = URL.toHost(url);
+		let pac_url = null;
+
+		if (domain !== null) {
+			pac_url = URL.parse('http://' + domain + ':65432/proxy.pac');
+		} else if (host !== null) {
+			pac_url = URL.parse('http://' + host + ':65432/proxy.pac');
+		}
+
+		if (pac_url !== null) {
+
+			toProxyAutoConfig(pac_url, (response) => {
+
+				response.headers['@transfer']['encoding'] = encoding;
+
+				callback(response);
+
+			});
+
+		} else {
+
+			callback({
+				headers: {
+					'@status':   404,
+					'@transfer': {
+						'encoding': encoding
+					}
+				},
+				payload: null
+			});
+
+		}
+
+	} else {
+
+		callback({
+			headers: {
+				'@status':   404,
+				'@transfer': {
+					'encoding': encoding
+				}
+			},
+			payload: null
+		});
+
+	}
+
 	// TODO: Generate /proxy.pac file
-	// TODO: Inject security/service worker headers for /browser/index.html
 	// TODO: Support 206 Partial Content requests
 	// TODO: Return HTTP response
 
@@ -133,6 +401,26 @@ Webserver.prototype = {
 						request.headers['@local']  = socket.localAddress  || null;
 						request.headers['@remote'] = socket.remoteAddress || null;
 
+						if (isString(request.headers['@local']) === true) {
+
+							if (request.headers['@local'].startsWith('::ffff:') === true) {
+								request.headers['@local'] = request.headers['@local'].substr(7);
+							}
+
+						}
+
+						if (isString(request.headers['@remote']) === true) {
+
+							if (request.headers['@remote'].startsWith('::ffff:') === true) {
+								request.headers['@remote'] = request.headers['@remote'].substr(7);
+							}
+
+						}
+
+						if (isString(request.headers['host']) === false) {
+							request.headers['host'] = ENVIRONMENT.hostname + ':65432';
+						}
+
 
 						let response = process_http_request.call(this, request);
 						if (response !== null) {
@@ -198,13 +486,6 @@ Webserver.prototype = {
 
 
 		return null;
-
-		// TODO: Serve Redirects if / or /favicon.ico
-		// TODO: Serve /proxy.pac file (generate based on headers)
-		// TODO: Serve files from filesystem directly if /browser/...
-
-		// TODO: Support and integrate request.headers['accept-encoding']
-		// TODO: Support and integrate 206 Partial Content requests (request.headers['@transfer']['range'])
 
 	}
 
