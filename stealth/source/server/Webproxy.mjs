@@ -197,23 +197,6 @@ const proxy_http_request = function(socket, request) {
 	let connection = HTTP.upgrade(socket, request);
 	if (connection !== null) {
 
-		connection.once('@connect', () => {
-
-			if (this.__state.connections.includes(connection) === false) {
-				this.__state.connections.push(connection);
-			}
-
-		});
-
-		connection.once('@disconnect', () => {
-
-			if (this.__state.connections.includes(connection) === true) {
-				this.__state.connections.remove(connection);
-			}
-
-		});
-
-
 		let link  = (request.headers['@url'] || '');
 		let flags = [];
 		let tab   = null;
@@ -518,6 +501,21 @@ const proxy_http_request = function(socket, request) {
 				session.track(request, tab);
 			}
 
+			connection.once('@connect', () => {
+
+				if (this.stealth !== null && this.stealth._settings.debug === true) {
+					console.log('Webproxy: Client "' + connection.toJSON().remote + '" connected.');
+				}
+
+			});
+
+			connection.once('@disconnect', () => {
+
+				if (this.stealth !== null && this.stealth._settings.debug === true) {
+					console.log('Webproxy: Client "' + connection.toJSON().remote + '" disconnected.');
+				}
+
+			});
 
 			request.start();
 
@@ -613,9 +611,6 @@ Webproxy.prototype = {
 
 
 		return false;
-
-		// TODO: Implement support for CONNECT request (https)
-		// TODO: Implement support for http:// requests
 
 	},
 

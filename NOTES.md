@@ -1,7 +1,18 @@
 
 # Refactor
 
+- [ ] Implement `Webserver`
+- [ ] Integrate 206 Partial Content support for `Webproxy`
+
+- [ ] HTTP.upgrade(socket, request) should trigger `request` event if it is a valid HTTP request.
+- [ ] Implement review for `HTTP.upgrade()` with parsed HTTP handshake packet that triggers `request` event.
+- [ ] Implement review for `HTTP.upgrade()` without a handshake packet.
+
+
+
+- [ ] Verify that `HTTP CONNECT` proxy requests work with `200 OK` instead of `200 Connection Established` responses.
 - [ ] Refactor `Request.mjs` with new HTTP Connection API.
+- [ ] `Request.mjs` has now `(settings, services)` constructor signature.
 
 - [ ] HTTP Packet Parser needs support for `decode()` of HTTP header values that are IPs or URLs.
 
