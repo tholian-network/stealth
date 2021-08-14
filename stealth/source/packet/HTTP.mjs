@@ -223,7 +223,7 @@ const HTTP = {
 			if (msg_headers !== null) {
 
 				let fields = msg_headers.toString('utf8').split('\r\n').map((line) => line.trim());
-				if (fields.length > 1) {
+				if (fields.length > 0) {
 
 					let start_line = fields.shift();
 					let check      = start_line.split(' ').shift();
