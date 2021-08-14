@@ -406,8 +406,13 @@ const HTTP = {
 
 				} else if (payload_complete === true) {
 
-					packet.headers['@transfer']['length'] = msg_payload.length;
-					packet.headers['@transfer']['range']  = [ 0, msg_payload.length - 1 ];
+					if (msg_payload.length > 0) {
+						packet.headers['@transfer']['length'] = msg_payload.length;
+						packet.headers['@transfer']['range']  = [ 0, msg_payload.length - 1 ];
+					} else {
+						packet.headers['@transfer']['length'] = 0;
+						packet.headers['@transfer']['range']  = [ 0, 0 ];
+					}
 
 				} else {
 
@@ -446,8 +451,12 @@ const HTTP = {
 				let range    = packet.headers['@transfer']['range'];
 
 				if (range[1] !== Infinity) {
-					// XXX: Ranges start with byte 0, so subtraction is off-by-one
-					expected = (range[1] + 1) - range[0];
+
+					if (range[1] > range[0]) {
+						// XXX: Ranges start with byte 0, so subtraction is off-by-one
+						expected = (range[1] + 1) - range[0];
+					}
+
 				}
 
 				if (expected === Infinity || expected === msg_payload.length) {

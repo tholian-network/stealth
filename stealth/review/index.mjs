@@ -38,7 +38,7 @@ import parser_URL               from './parser/URL.mjs';
 import peer_Cache               from './peer/Cache.mjs';
 import request_Unicode          from './request/Unicode.mjs';
 // import server_RESOLVER  from './server/RESOLVER.mjs';
-import server_ROUTER            from './server/ROUTER.mjs';
+import server_Webserver         from './server/Webserver.mjs';
 import server_service_Beacon    from './server/service/Beacon.mjs';
 import server_service_Blocker   from './server/service/Blocker.mjs';
 import server_service_Cache     from './server/service/Cache.mjs';
@@ -93,9 +93,14 @@ export const REVIEWS = [
 	Tab,
 	Browser,
 
-	// Network Services
-	// server_RESOLVER,
-	server_ROUTER,
+	// Stealth Server
+	// server_Proxy,
+	// server_Router,
+	// server_Services,
+	// server_Webproxy,
+	server_Webserver,
+
+	// Server Services
 	server_service_Beacon,
 	server_service_Blocker,
 	server_service_Cache,
@@ -107,6 +112,7 @@ export const REVIEWS = [
 	server_service_Session,
 	server_service_Settings,
 
+	// Client Services
 	client_service_Beacon,
 	client_service_Blocker,
 	client_service_Cache,

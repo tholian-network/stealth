@@ -38,9 +38,6 @@ import { Redirect as server_service_Redirect } from './source/server/service/Red
 import { Session  as server_service_Session  } from './source/server/service/Session.mjs';
 import { Settings as server_service_Settings } from './source/server/service/Settings.mjs';
 
-import { RESOLVER as server_RESOLVER } from './source/server/RESOLVER.mjs';
-import { ROUTER   as server_ROUTER   } from './source/server/ROUTER.mjs';
-
 
 
 export * from './source/Browser.mjs';
@@ -99,9 +96,6 @@ export const parser = {
 };
 
 export const server = {
-
-	RESOLVER: server_RESOLVER,
-	ROUTER:   server_ROUTER,
 
 	service: {
 

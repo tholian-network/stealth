@@ -3,13 +3,13 @@ import fs   from 'fs';
 import net  from 'net';
 import path from 'path';
 
-import { console, Buffer, isBuffer, isFunction, isString } from '../../extern/base.mjs';
-import { ENVIRONMENT                                     } from '../../source/ENVIRONMENT.mjs';
-import { isStealth                                       } from '../../source/Stealth.mjs';
-import { HTTP                                            } from '../../source/connection/HTTP.mjs';
-import { HTTP as PACKET                                  } from '../../source/packet/HTTP.mjs';
-import { isServices                                      } from '../../source/server/Services.mjs';
-import { URL                                             } from '../../source/parser/URL.mjs';
+import { console, Buffer, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { ENVIRONMENT                                               } from '../../source/ENVIRONMENT.mjs';
+import { isStealth                                                 } from '../../source/Stealth.mjs';
+import { HTTP                                                      } from '../../source/connection/HTTP.mjs';
+import { HTTP as PACKET                                            } from '../../source/packet/HTTP.mjs';
+import { isServices                                                } from '../../source/server/Services.mjs';
+import { URL                                                       } from '../../source/parser/URL.mjs';
 
 
 
@@ -262,6 +262,22 @@ const toResponse = function(request, callback) {
 		} else {
 			pac_url = URL.parse('http://' + ENVIRONMENT.hostname + ':65432/proxy.pac');
 		}
+
+
+		if (isObject(request.headers) === true) {
+
+			pac_url.headers = {};
+
+			if (isString(request.headers['@local']) === true) {
+				pac_url.headers['@local'] = request.headers['@local'];
+			}
+
+			if (isString(request.headers['@remote']) === true) {
+				pac_url.headers['@remote'] = request.headers['@remote'];
+			}
+
+		}
+
 
 		if (pac_url !== null) {
 
