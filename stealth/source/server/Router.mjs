@@ -35,8 +35,8 @@ Router.prototype = {
 
 			if (PACKET.isPacket(buffer) === true) {
 
-				let request = PACKET.decode(null, buffer);
-				if (request !== null) {
+				let packet = PACKET.decode(null, buffer);
+				if (packet !== null) {
 					return true;
 				}
 
@@ -54,8 +54,8 @@ Router.prototype = {
 		buffer = isBuffer(buffer) ? buffer : null;
 		socket = isSocket(socket) ? socket : null;
 
-		let request = PACKET.decode(null, buffer);
-		if (request !== null) {
+		let packet = PACKET.decode(null, buffer);
+		if (packet !== null) {
 
 			// TODO: Send response to remote address (in rinfo)
 

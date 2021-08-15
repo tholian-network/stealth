@@ -38,6 +38,7 @@ import parser_URL               from './parser/URL.mjs';
 import peer_Cache               from './peer/Cache.mjs';
 import request_Unicode          from './request/Unicode.mjs';
 // import server_RESOLVER  from './server/RESOLVER.mjs';
+import server_Webproxy          from './server/Webproxy.mjs';
 import server_Webserver         from './server/Webserver.mjs';
 import server_service_Beacon    from './server/service/Beacon.mjs';
 import server_service_Blocker   from './server/service/Blocker.mjs';
@@ -97,7 +98,7 @@ export const REVIEWS = [
 	// server_Proxy,
 	// server_Router,
 	// server_Services,
-	// server_Webproxy,
+	server_Webproxy,
 	server_Webserver,
 
 	// Server Services

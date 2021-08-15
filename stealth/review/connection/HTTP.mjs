@@ -447,6 +447,10 @@ describe('HTTP.send()/client/200', function(assert) {
 		assert(isBuffer(response.payload), true);
 		assert(response.payload.length,    1256);
 
+		setTimeout(() => {
+			connection.disconnect();
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -460,11 +464,13 @@ describe('HTTP.send()/client/200', function(assert) {
 			},
 			payload: null
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 });
@@ -599,9 +605,7 @@ describe('HTTP.send()/server/200', function(assert) {
 		let connection = HTTP.upgrade(socket);
 
 		connection.once('@connect', () => {
-
 			assert(true);
-
 		});
 
 		connection.once('request', (request) => {
@@ -626,13 +630,15 @@ describe('HTTP.send()/server/200', function(assert) {
 		});
 
 		connection.once('@disconnect', () => {
-
 			assert(true);
-
 		});
 
 		socket.resume();
 
+	});
+
+	server.once('close', () => {
+		assert(true);
 	});
 
 	server.listen(13337, null);
@@ -664,23 +670,20 @@ describe('HTTP.send()/server/200', function(assert) {
 	});
 
 	connection.once('@disconnect', () => {
-
 		assert(true);
-
 	});
 
 	setTimeout(() => {
-		server.close();
-		assert(true);
+
+		server.close(() => {
+			assert(true);
+		});
+
 	}, 1000);
 
 });
 
 describe('HTTP.send()/server/200/multiplex', function(assert) {
-
-	// TODO: Request multiple times
-	// connection: keep-alive
-	// keep-alive: timeout=5, max=3
 
 	assert(isFunction(HTTP.upgrade), true);
 	assert(isFunction(HTTP.send),    true);
@@ -698,19 +701,10 @@ describe('HTTP.send()/server/200/multiplex', function(assert) {
 		let payloads   = [];
 
 		connection.once('@connect', () => {
-
 			assert(true);
-
 		});
 
 		connection.on('request', (request) => {
-
-			assert(isObject(request.headers), true);
-			assert(isBuffer(request.payload), true);
-
-			assert(isString(request.headers['@method']),   true);
-			assert(isObject(request.headers['@transfer']), true);
-			assert(isString(request.headers['@url']),      true);
 
 			methods.push(request.headers['@method']);
 			urls.push(request.headers['@url']);
@@ -743,6 +737,10 @@ describe('HTTP.send()/server/200/multiplex', function(assert) {
 
 		socket.resume();
 
+	});
+
+	server.once('close', () => {
+		assert(true);
 	});
 
 	server.listen(13337, null);
@@ -808,8 +806,11 @@ describe('HTTP.send()/server/200/multiplex', function(assert) {
 	});
 
 	setTimeout(() => {
-		server.close();
-		assert(true);
+
+		server.close(() => {
+			assert(true);
+		});
+
 	}, 1000);
 
 });
@@ -829,9 +830,7 @@ describe('HTTP.send()/server/206', function(assert) {
 		let connection = HTTP.upgrade(socket);
 
 		connection.once('@connect', () => {
-
 			assert(true);
-
 		});
 
 		connection.once('request', (request) => {
@@ -852,21 +851,21 @@ describe('HTTP.send()/server/206', function(assert) {
 				},
 				payload: PAYLOADS['206']['PAYLOAD']
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		});
 
 		connection.once('@disconnect', () => {
-
 			assert(true);
-
 		});
 
 		socket.resume();
 
+	});
+
+	server.once('close', () => {
+		assert(true);
 	});
 
 	server.listen(13337, null);
@@ -940,6 +939,14 @@ describe('HTTP.send()/server/206', function(assert) {
 		});
 
 	}, 400);
+
+	setTimeout(() => {
+
+		server.close(() => {
+			assert(true);
+		});
+
+	}, 1000);
 
 });
 

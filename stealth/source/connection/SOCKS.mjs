@@ -66,109 +66,110 @@ const onconnect = function(connection, url) {
 
 	connection.socket.once('data', (data) => {
 
-		SOCKS.receive(connection, data, (response) => {
+		let response = PACKET.decode(connection, data);
+		if (response !== null && response.headers['@version'] === 5 && response.headers['@auth'] === 'none') {
 
-			if (response.headers['@version'] === 5 && response.headers['@auth'] === 'none') {
+			connection.socket.once('data', (data) => {
 
-				connection.socket.once('data', (data) => {
+				let response = PACKET.decode(connection, data);
 
-					SOCKS.receive(connection, data, (response) => {
+				if (response !== null) {
 
-						if (response.headers['@status'] === 0x00) {
+					if (response.headers['@status'] === 0x00) {
 
-							let protocol = null;
-							let tunnel   = null;
+						let protocol = null;
+						let tunnel   = null;
 
-							try {
+						try {
 
-								if (url.protocol === 'dnss') {
+							if (url.protocol === 'dnss') {
 
-									protocol = 'dnss';
-									tunnel   = DNSS.connect(url, connection);
+								protocol = 'dnss';
+								tunnel   = DNSS.connect(url, connection);
 
-								} else if (url.protocol === 'https') {
+							} else if (url.protocol === 'https') {
 
-									protocol = 'https';
-									tunnel   = HTTPS.connect(url, connection);
+								protocol = 'https';
+								tunnel   = HTTPS.connect(url, connection);
 
-								} else if (url.protocol === 'http') {
+							} else if (url.protocol === 'http') {
 
-									protocol = 'http';
-									tunnel   = HTTP.connect(url, connection);
+								protocol = 'http';
+								tunnel   = HTTP.connect(url, connection);
 
-								} else if (url.protocol === 'wss') {
+							} else if (url.protocol === 'wss') {
 
-									protocol = 'wss';
-									tunnel   = WSS.connect(url, connection);
+								protocol = 'wss';
+								tunnel   = WSS.connect(url, connection);
 
-								} else if (url.protocol === 'ws') {
+							} else if (url.protocol === 'ws') {
 
-									protocol = 'ws';
-									tunnel   = WS.connect(url, connection);
+								protocol = 'ws';
+								tunnel   = WS.connect(url, connection);
 
-								}
-
-							} catch (err) {
-								protocol = null;
-								tunnel   = null;
 							}
 
-							setTimeout(() => {
-
-								if (protocol !== null && tunnel !== null) {
-
-									connection.protocol = protocol;
-									connection.tunnel   = tunnel;
-
-									connection.emit('@tunnel', [ tunnel ]);
-
-								} else {
-
-									connection.protocol = null;
-									connection.tunnel   = null;
-
-									connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
-
-								}
-
-							}, 100);
-
-						} else if (response.headers['@status'] === 0x01) {
-							connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
-						} else if (response.headers['@status'] === 0x02) {
-							connection.emit('error', [{ code: 403 }]);
-						} else if (response.headers['@status'] === 0x03) {
-							connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
-						} else if (response.headers['@status'] === 0x04) {
-							connection.emit('error', [{ type: 'host' }]);
-						} else if (response.headers['@status'] === 0x05) {
-							connection.emit('error', [{ type: 'connection' }]);
-						} else if (response.headers['@status'] === 0x06) {
-							connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
-						} else if (response.headers['@status'] === 0x07) {
-							connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
-						} else if (response.headers['@status'] === 0x08) {
-							connection.emit('error', [{ type: 'connection', cause: 'payload' }]);
-						} else {
-							connection.emit('error', [{ type: 'connection' }]);
+						} catch (err) {
+							protocol = null;
+							tunnel   = null;
 						}
 
-					});
+						setTimeout(() => {
 
-				});
+							if (protocol !== null && tunnel !== null) {
 
-				SOCKS.send(connection, {
-					headers: {
-						'@method': 'connect'
-					},
-					payload: url
-				});
+								connection.protocol = protocol;
+								connection.tunnel   = tunnel;
 
-			} else {
-				connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
-			}
+								connection.emit('@tunnel', [ tunnel ]);
 
-		});
+							} else {
+
+								connection.protocol = null;
+								connection.tunnel   = null;
+
+								connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
+
+							}
+
+						}, 100);
+
+					} else if (response.headers['@status'] === 0x01) {
+						connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+					} else if (response.headers['@status'] === 0x02) {
+						connection.emit('error', [{ code: 403 }]);
+					} else if (response.headers['@status'] === 0x03) {
+						connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+					} else if (response.headers['@status'] === 0x04) {
+						connection.emit('error', [{ type: 'host' }]);
+					} else if (response.headers['@status'] === 0x05) {
+						connection.emit('error', [{ type: 'connection' }]);
+					} else if (response.headers['@status'] === 0x06) {
+						connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+					} else if (response.headers['@status'] === 0x07) {
+						connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
+					} else if (response.headers['@status'] === 0x08) {
+						connection.emit('error', [{ type: 'connection', cause: 'payload' }]);
+					} else {
+						connection.emit('error', [{ type: 'connection' }]);
+					}
+
+				} else {
+					connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
+				}
+
+			});
+
+			SOCKS.send(connection, {
+				headers: {
+					'@method': 'connect'
+				},
+				payload: url
+			});
+
+		} else {
+			connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
+		}
 
 	});
 
@@ -226,63 +227,54 @@ const onupgrade = function(connection, url) {
 
 	connection.socket.once('data', (fragment) => {
 
-		SOCKS.receive(connection, fragment, (request) => {
+		let request = PACKET.decode(connection, fragment);
+		if (request !== null && request.headers['@method'] === 'connect' && isPayload(request.payload) === true) {
 
-			if (request.headers['@method'] === 'connect' && isPayload(request.payload) === true) {
+			if (connection.has('@connect-tunnel') === true) {
 
-				if (connection.has('@connect-tunnel') === true) {
+				connection.emit('@connect-tunnel', [ request, (status, address, socket) => {
 
-					connection.emit('@connect-tunnel', [ request, (status, address, socket) => {
-
-						status  = isStatus(status)   ? status  : 'error';
-						address = isPayload(address) ? address : null;
-						socket  = isSocket(socket)   ? socket  : null;
+					status  = isStatus(status)   ? status  : 'error';
+					address = isPayload(address) ? address : null;
+					socket  = isSocket(socket)   ? socket  : null;
 
 
-						if (connection.socket !== null) {
+					if (connection.socket !== null) {
 
-							if (status === 'success') {
+						if (status === 'success') {
 
-								SOCKS.send(connection, {
-									headers: {
-										'@status': 0x00
-									},
-									payload: address
+							SOCKS.send(connection, {
+								headers: {
+									'@status': 0x00
+								},
+								payload: address
+							});
+
+							if (socket !== null) {
+
+								socket.pipe(connection.socket);
+								connection.socket.pipe(socket);
+
+							} else {
+
+								connection.socket.on('data', (fragment) => {
+									ondata(connection, url, fragment);
 								});
-
-								if (socket !== null) {
-
-									socket.pipe(connection.socket);
-									connection.socket.pipe(socket);
-
-								} else {
-
-									connection.socket.on('data', (fragment) => {
-										ondata(connection, url, fragment);
-									});
-
-								}
-
-								setTimeout(() => {
-									connection.emit('@tunnel', [ null ]);
-								}, 0);
-
-							} else if (isNumber(STATUSES[status]) === true) {
-
-								SOCKS.send(connection, {
-									headers: {
-										'@status': STATUSES[status]
-									},
-									payload: null
-								});
-
-								setTimeout(() => {
-									connection.disconnect();
-								}, 0);
 
 							}
 
-						} else {
+							setTimeout(() => {
+								connection.emit('@tunnel', [ null ]);
+							}, 0);
+
+						} else if (isNumber(STATUSES[status]) === true) {
+
+							SOCKS.send(connection, {
+								headers: {
+									'@status': STATUSES[status]
+								},
+								payload: null
+							});
 
 							setTimeout(() => {
 								connection.disconnect();
@@ -290,43 +282,49 @@ const onupgrade = function(connection, url) {
 
 						}
 
-					}]);
+					} else {
 
-				} else {
+						setTimeout(() => {
+							connection.disconnect();
+						}, 0);
 
-					SOCKS.send(connection, {
-						headers: {
-							'@status': 0x00
-						},
-						payload: URL.parse('127.0.0.1:65432')
-					});
+					}
 
-					connection.socket.on('data', (fragment) => {
-						ondata(connection, url, fragment);
-					});
-
-					setTimeout(() => {
-						connection.emit('@tunnel', [ null ]);
-					}, 0);
-
-				}
+				}]);
 
 			} else {
 
 				SOCKS.send(connection, {
 					headers: {
-						'@status': 0x07
+						'@status': 0x00
 					},
-					payload: null
+					payload: URL.parse('127.0.0.1:65432')
+				});
+
+				connection.socket.on('data', (fragment) => {
+					ondata(connection, url, fragment);
 				});
 
 				setTimeout(() => {
-					connection.disconnect();
+					connection.emit('@tunnel', [ null ]);
 				}, 0);
 
 			}
 
-		});
+		} else {
+
+			SOCKS.send(connection, {
+				headers: {
+					'@status': 0x07
+				},
+				payload: null
+			});
+
+			setTimeout(() => {
+				connection.disconnect();
+			}, 0);
+
+		}
 
 	});
 

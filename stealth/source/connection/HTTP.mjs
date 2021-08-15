@@ -84,95 +84,92 @@ const ondata = function(connection, url, chunk) {
 	let header_index = connection.fragment.indexOf(EMPTYLINE);
 	if (header_index !== -1) {
 
-		HTTP.receive(connection, connection.fragment, (frame) => {
+		let frame = PACKET.decode(connection, connection.fragment);
+		if (frame !== null) {
 
-			if (frame !== null) {
+			url.headers = frame.headers;
+			url.payload = frame.payload;
 
-				url.headers = frame.headers;
-				url.payload = frame.payload;
+			if (frame.overflow !== null) {
+				connection.fragment = frame.overflow;
+			} else {
+				connection.fragment = Buffer.alloc(0);
+			}
 
-				if (frame.overflow !== null) {
-					connection.fragment = frame.overflow;
-				} else {
-					connection.fragment = Buffer.alloc(0);
-				}
+			if (connection.type === 'client') {
 
-				if (connection.type === 'client') {
+				if (frame.headers['@status'] >= 400 && frame.headers['@status'] <= 599) {
 
-					if (frame.headers['@status'] >= 400 && frame.headers['@status'] <= 599) {
+					connection.socket.end();
 
-						connection.socket.end();
+				} else if (frame.headers['@transfer']['length'] !== Infinity) {
 
-					} else if (frame.headers['@transfer']['length'] !== Infinity) {
+					if (frame.payload !== null) {
 
-						if (frame.payload !== null) {
-
-							connection.emit('response', [{
-								headers: frame.headers,
-								payload: frame.payload
-							}]);
-
-						} else {
-
-							let bytes   = connection.fragment.length - header_index - 4;
-							let partial = connection.fragment.slice(connection.fragment.indexOf(EMPTYLINE) + 4);
-
-							connection.emit('progress', [{
-								headers: frame.headers,
-								payload: partial
-							}, {
-								bytes: bytes,
-								total: frame.headers['@transfer']['length']
-							}]);
-
-						}
+						connection.emit('response', [{
+							headers: frame.headers,
+							payload: frame.payload
+						}]);
 
 					} else {
 
-						// Unknown payload size, wait for timeout
+						let bytes   = connection.fragment.length - header_index - 4;
+						let partial = connection.fragment.slice(connection.fragment.indexOf(EMPTYLINE) + 4);
+
+						connection.emit('progress', [{
+							headers: frame.headers,
+							payload: partial
+						}, {
+							bytes: bytes,
+							total: frame.headers['@transfer']['length']
+						}]);
 
 					}
 
-				} else if (connection.type === 'server') {
+				} else {
 
-					if (frame.headers['@transfer']['length'] !== Infinity) {
+					// Unknown payload size, wait for timeout
 
-						if (frame.payload !== null) {
+				}
 
-							connection.emit('request', [{
-								headers: frame.headers,
-								payload: frame.payload
-							}]);
+			} else if (connection.type === 'server') {
 
-						} else {
+				if (frame.headers['@transfer']['length'] !== Infinity) {
 
-							let bytes   = connection.fragment.length - header_index - 4;
-							let partial = connection.fragment.slice(connection.fragment.indexOf(EMPTYLINE) + 4);
-
-							connection.emit('progress', [{
-								headers: frame.headers,
-								payload: partial
-							}, {
-								bytes: bytes,
-								total: frame.headers['@transfer']['length']
-							}]);
-
-						}
-
-					} else {
+					if (frame.payload !== null) {
 
 						connection.emit('request', [{
 							headers: frame.headers,
 							payload: frame.payload
 						}]);
 
+					} else {
+
+						let bytes   = connection.fragment.length - header_index - 4;
+						let partial = connection.fragment.slice(connection.fragment.indexOf(EMPTYLINE) + 4);
+
+						connection.emit('progress', [{
+							headers: frame.headers,
+							payload: partial
+						}, {
+							bytes: bytes,
+							total: frame.headers['@transfer']['length']
+						}]);
+
 					}
+
+				} else {
+
+					connection.emit('request', [{
+						headers: frame.headers,
+						payload: frame.payload
+					}]);
 
 				}
 
 			}
 
-		});
+		}
 
 	}
 
@@ -189,21 +186,24 @@ const ondisconnect = function(connection, url) {
 		)
 	) {
 
-		HTTP.receive(connection, connection.fragment, (frame) => {
+		let frame = PACKET.decode(connection, connection.fragment);
+		if (frame !== null) {
 
-			if (frame !== null) {
+			url.headers = frame.headers;
+			url.payload = frame.payload;
 
-				url.headers = frame.headers;
-				url.payload = frame.payload;
-
+			if (frame.overflow !== null) {
+				connection.fragment = frame.overflow;
 			} else {
-
-				url.headers = {};
-				url.payload = null;
-
+				connection.fragment = Buffer.alloc(0);
 			}
 
-		});
+		} else {
+
+			url.headers = {};
+			url.payload = null;
+
+		}
 
 	}
 
@@ -634,17 +634,15 @@ const HTTP = {
 				if (callback !== null) {
 
 					callback({
-						headers:  data.headers,
-						overflow: data.overflow || null,
-						payload:  data.payload
+						headers: data.headers,
+						payload: data.payload
 					});
 
 				} else {
 
 					return {
-						headers:  data.headers,
-						overflow: data.overflow || null,
-						payload:  data.payload
+						headers: data.headers,
+						payload: data.payload
 					};
 
 				}

@@ -192,12 +192,14 @@ const proxy_http_connect = function(socket, request) {
 
 };
 
-const proxy_http_request = function(socket, request) {
+const proxy_http_request = function(socket, packet) {
 
-	let connection = HTTP.upgrade(socket, request);
+	console.log(packet);
+
+	let connection = HTTP.upgrade(socket, packet);
 	if (connection !== null) {
 
-		let link  = (request.headers['@url'] || '');
+		let link  = (packet.headers['@url'] || '');
 		let flags = [];
 		let tab   = null;
 
@@ -250,7 +252,7 @@ const proxy_http_request = function(socket, request) {
 
 		if (this.stealth !== null) {
 
-			session = this.stealth.track(null, request.headers);
+			session = this.stealth.track(null, packet.headers);
 			request = this.stealth.open(link);
 
 		} else {
@@ -583,24 +585,24 @@ Webproxy.prototype = {
 
 			if (PACKET.isPacket(buffer) === true) {
 
-				let request = PACKET.decode(null, buffer);
-				if (request !== null) {
+				let packet = PACKET.decode(null, buffer);
+				if (packet !== null) {
 
 					if (
 						(
-							request.headers['@method'] === 'CONNECT'
-							&& isString(request.headers['host']) === true
+							packet.headers['@method'] === 'CONNECT'
+							&& isString(packet.headers['host']) === true
 							&& (
-								request.headers['host'].endsWith(':80') === true
-								|| request.headers['host'].endsWith(':443') === true
+								packet.headers['host'].endsWith(':80') === true
+								|| packet.headers['host'].endsWith(':443') === true
 							)
 						) || (
-							request.headers['@method'] === 'GET'
-							&& isString(request.headers['@url']) === true
+							packet.headers['@method'] === 'GET'
+							&& isString(packet.headers['@url']) === true
 							&& (
-								request.headers['@url'].startsWith('http://') === true
-								|| request.headers['@url'].startsWith('https://') === true
-								|| request.headers['@url'].startsWith('/stealth/') === true
+								packet.headers['@url'].startsWith('http://') === true
+								|| packet.headers['@url'].startsWith('https://') === true
+								|| packet.headers['@url'].startsWith('/stealth/') === true
 							)
 						)
 					) {
@@ -624,21 +626,21 @@ Webproxy.prototype = {
 		socket = isSocket(socket) ? socket : null;
 
 
-		let request = PACKET.decode(null, buffer);
-		if (request !== null) {
+		let packet = PACKET.decode(null, buffer);
+		if (packet !== null) {
 
 			if (
-				request.headers['@method'] === 'CONNECT'
-				&& isString(request.headers['host']) === true
+				packet.headers['@method'] === 'CONNECT'
+				&& isString(packet.headers['host']) === true
 				&& (
-					request.headers['host'].endsWith(':80') === true
-					|| request.headers['host'].endsWith(':443') === true
+					packet.headers['host'].endsWith(':80') === true
+					|| packet.headers['host'].endsWith(':443') === true
 				)
 			) {
 
 				if (this.services !== null) {
 
-					proxy_http_connect.call(this, socket, request);
+					proxy_http_connect.call(this, socket, packet);
 
 				} else {
 
@@ -655,18 +657,18 @@ Webproxy.prototype = {
 				}
 
 			} else if (
-				request.headers['@method'] === 'GET'
-				&& isString(request.headers['@url']) === true
+				packet.headers['@method'] === 'GET'
+				&& isString(packet.headers['@url']) === true
 				&& (
-					request.headers['@url'].startsWith('http://') === true
-					|| request.headers['@url'].startsWith('https://') === true
-					|| request.headers['@url'].startsWith('/stealth/') === true
+					packet.headers['@url'].startsWith('http://') === true
+					|| packet.headers['@url'].startsWith('https://') === true
+					|| packet.headers['@url'].startsWith('/stealth/') === true
 				)
 			) {
 
 				if (this.services !== null) {
 
-					return proxy_http_request.call(this, socket, request);
+					return proxy_http_request.call(this, socket, packet);
 
 				} else {
 

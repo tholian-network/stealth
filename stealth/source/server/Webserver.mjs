@@ -365,17 +365,17 @@ Webserver.prototype = {
 
 			if (PACKET.isPacket(buffer) === true) {
 
-				let request = PACKET.decode(null, buffer);
-				if (request !== null) {
+				let packet = PACKET.decode(null, buffer);
+				if (packet !== null) {
 
 					if (
-						request.headers['@method'] === 'GET'
-						&& (request.headers['connection'] || '').toLowerCase() !== 'upgrade'
+						packet.headers['@method'] === 'GET'
+						&& (packet.headers['connection'] || '').toLowerCase() !== 'upgrade'
 						&& (
-							request.headers['@url'] === '/'
-							|| request.headers['@url'] === '/favicon.ico'
-							|| request.headers['@url'] === '/proxy.pac'
-							|| (request.headers['@url'] || '').startsWith('/browser')
+							packet.headers['@url'] === '/'
+							|| packet.headers['@url'] === '/favicon.ico'
+							|| packet.headers['@url'] === '/proxy.pac'
+							|| (packet.headers['@url'] || '').startsWith('/browser')
 						)
 					) {
 						return true;
@@ -398,15 +398,15 @@ Webserver.prototype = {
 		socket = isSocket(socket) ? socket : null;
 
 
-		let request = PACKET.decode(null, buffer);
-		if (request !== null) {
+		let packet = PACKET.decode(null, buffer);
+		if (packet !== null) {
 
 			if (
-				request.headers['@method'] === 'GET'
-				&& (request.headers['connection'] || '').toLowerCase() !== 'upgrade'
+				packet.headers['@method'] === 'GET'
+				&& (packet.headers['connection'] || '').toLowerCase() !== 'upgrade'
 			) {
 
-				let connection = HTTP.upgrade(socket, request);
+				let connection = HTTP.upgrade(socket, packet);
 				if (connection !== null) {
 
 					connection.once('@connect', () => {

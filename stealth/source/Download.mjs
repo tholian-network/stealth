@@ -107,23 +107,6 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (this.connection !== null) {
 
-				this.connection.once('error', (err) => {
-					this.emit('error', [ err ]);
-				});
-
-				this.connection.on('progress', (frame, progress) => {
-
-					this.__state.frame    = frame;
-					this.__state.progress = progress;
-
-					this.emit('progress', [ frame, progress ]);
-
-				});
-
-				this.connection.once('redirect', (...args) => {
-					this.emit('redirect', args);
-				});
-
 				this.connection.once('@connect', () => {
 
 					let old_bytes = 0;
@@ -206,6 +189,27 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					}
 
+				});
+
+				this.connection.once('error', (err) => {
+					this.emit('error', [ err ]);
+				});
+
+				this.connection.on('progress', (frame, progress) => {
+
+					this.__state.frame    = frame;
+					this.__state.progress = progress;
+
+					this.emit('progress', [ frame, progress ]);
+
+				});
+
+				this.connection.once('redirect', (frame) => {
+					this.emit('redirect', [ frame ]);
+				});
+
+				this.connection.once('response', (frame) => {
+					this.emit('response', [ frame ]);
 				});
 
 				this.connection.once('@disconnect', () => {

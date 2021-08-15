@@ -353,7 +353,7 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 				request = new Request({
 					mode: toMode.call(this, url),
 					url:  url
-				}, this.server);
+				}, this.server.services);
 
 				request.on('error',    () => this.requests.remove(request));
 				request.on('redirect', () => this.requests.remove(request));

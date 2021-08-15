@@ -3,7 +3,7 @@ import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
 import { Download                               } from '../source/Download.mjs';
 import { DATETIME                               } from '../source/parser/DATETIME.mjs';
 import { URL                                    } from '../source/parser/URL.mjs';
-import { isServer                               } from '../source/Server.mjs';
+import { isServices                             } from '../source/server/Services.mjs';
 import { Mode                                   } from '../source/server/service/Mode.mjs';
 import { Policy                                 } from '../source/server/service/Policy.mjs';
 import { Redirect                               } from '../source/server/service/Redirect.mjs';
@@ -16,10 +16,10 @@ export const isRequest = function(obj) {
 
 
 
-const Request = function(settings, server) {
+const Request = function(settings, services) {
 
-	settings = isObject(settings) ? settings : {};
-	server   = isServer(server)   ? server   : null;
+	settings = isObject(settings)   ? settings : {};
+	services = isServices(services) ? services : null;
 
 
 	settings = Object.freeze({
@@ -87,10 +87,10 @@ const Request = function(settings, server) {
 	}
 
 
-	if (isServer(server) === true) {
-		this.server = server;
+	if (isServices(services) === true) {
+		this.services = services;
 	} else {
-		this.server = null;
+		this.services = null;
 	}
 
 
@@ -132,9 +132,9 @@ const Request = function(settings, server) {
 
 		this.timeline.start = DATETIME.parse(new Date());
 
-		if (this.server !== null) {
+		if (this.services !== null) {
 
-			this.server.services.redirect.read(this.url, (response) => {
+			this.services.redirect.read(this.url, (response) => {
 
 				if (response.payload !== null) {
 					this.redirect = response.payload;
@@ -228,9 +228,9 @@ const Request = function(settings, server) {
 
 		this.timeline.block = DATETIME.parse(new Date());
 
-		if (this.server !== null) {
+		if (this.services !== null) {
 
-			this.server.services.blocker.read({
+			this.services.blocker.read({
 				domain:    this.url.domain,
 				subdomain: this.url.subdomain,
 				host:      this.url.host
@@ -290,9 +290,9 @@ const Request = function(settings, server) {
 
 		this.timeline.policy = DATETIME.parse(new Date());
 
-		if (this.server !== null) {
+		if (this.services !== null) {
 
-			this.server.services.policy.read(this.url, (response) => {
+			this.services.policy.read(this.url, (response) => {
 
 				if (response.payload !== null) {
 					this.policy = response.payload;
@@ -344,9 +344,9 @@ const Request = function(settings, server) {
 
 		} else {
 
-			if (this.server !== null) {
+			if (this.services !== null) {
 
-				this.server.services.cache.read(this.url, (response) => {
+				this.services.cache.read(this.url, (response) => {
 
 					this.timeline.cache = DATETIME.parse(new Date());
 
@@ -381,9 +381,9 @@ const Request = function(settings, server) {
 
 			this.timeline.connect = DATETIME.parse(new Date());
 
-			if (this.server !== null) {
+			if (this.services !== null) {
 
-				this.server.services.host.read({
+				this.services.host.read({
 					domain:    this.url.domain,
 					subdomain: this.url.subdomain
 				}, (response) => {
@@ -603,8 +603,8 @@ const Request = function(settings, server) {
 
 				}
 
-				if (this.server !== null) {
-					this.server.services.redirect.save(this.redirect, () => {});
+				if (this.services !== null) {
+					this.services.redirect.save(this.redirect, () => {});
 				}
 
 			}
@@ -623,9 +623,9 @@ const Request = function(settings, server) {
 				this.response = response;
 			}
 
-			if (this.server !== null) {
+			if (this.services !== null) {
 
-				this.server.services.cache.save(Object.assign({}, this.url, response), () => {
+				this.services.cache.save(Object.assign({}, this.url, this.response), () => {
 					// Do Nothing
 				});
 

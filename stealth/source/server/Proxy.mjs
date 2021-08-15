@@ -64,8 +64,8 @@ Proxy.prototype = {
 
 			if (PACKET.isPacket(buffer) === true) {
 
-				let request = PACKET.decode(null, buffer);
-				if (request !== null) {
+				let packet = PACKET.decode(null, buffer);
+				if (packet !== null) {
 					return true;
 				}
 
@@ -84,14 +84,14 @@ Proxy.prototype = {
 		socket = isSocket(socket) ? socket : null;
 
 
-		let request = PACKET.decode(null, buffer);
-		if (request !== null) {
+		let packet = PACKET.decode(null, buffer);
+		if (packet !== null) {
 
 			if (this.stealth !== null) {
-				request.headers['@debug'] = this.stealth._settings.debug;
+				packet.headers['@debug'] = this.stealth._settings.debug;
 			}
 
-			let connection = SOCKS.upgrade(socket, request);
+			let connection = SOCKS.upgrade(socket, packet);
 			if (connection !== null) {
 
 				connection.once('@connect', () => {

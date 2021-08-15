@@ -147,13 +147,13 @@ Services.prototype = {
 
 			if (PACKET.isPacket(buffer) === true) {
 
-				let request = PACKET.decode(null, buffer);
-				if (request !== null) {
+				let packet = PACKET.decode(null, buffer);
+				if (packet !== null) {
 
 					if (
-						request.headers['@method'] === 'GET'
-						&& (request.headers['connection'] || '').toLowerCase() === 'upgrade'
-						&& (request.headers['upgrade'] || '').toLowerCase() === 'websocket'
+						packet.headers['@method'] === 'GET'
+						&& (packet.headers['connection'] || '').toLowerCase() === 'upgrade'
+						&& (packet.headers['upgrade'] || '').toLowerCase() === 'websocket'
 					) {
 						return true;
 					}
@@ -175,21 +175,21 @@ Services.prototype = {
 		socket = isSocket(socket) ? socket : null;
 
 
-		let request = PACKET.decode(null, buffer);
-		if (request !== null) {
+		let packet = PACKET.decode(null, buffer);
+		if (packet !== null) {
 
 			if (this.stealth !== null) {
-				request.headers['@debug'] = this.stealth._settings.debug;
+				packet.headers['@debug'] = this.stealth._settings.debug;
 			}
 
 
-			let connection = WS.upgrade(socket, request);
+			let connection = WS.upgrade(socket, packet);
 			if (connection !== null) {
 
 				connection.once('@connect', () => {
 
 					if (this.stealth !== null) {
-						connection.session = this.stealth.track(null, request.headers);
+						connection.session = this.stealth.track(null, packet.headers);
 					}
 
 					if (this.stealth !== null && this.stealth._settings.debug === true) {

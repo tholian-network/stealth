@@ -4,7 +4,7 @@ import { after, before, describe, finish } from '../../covert/index.mjs';
 import { Request, isRequest              } from '../../stealth/source/Request.mjs';
 import { DATETIME                        } from '../../stealth/source/parser/DATETIME.mjs';
 import { URL                             } from '../../stealth/source/parser/URL.mjs';
-import { connect, disconnect             } from './Server.mjs';
+import { connect, disconnect             } from '../../stealth/review/Server.mjs';
 
 
 
@@ -21,7 +21,6 @@ const bind_events = (request) => {
 		mode:     false,
 		policy:   false,
 		cache:    false,
-		stash:    false,
 		connect:  false,
 		download: false,
 		optimize: false,
@@ -38,7 +37,6 @@ const bind_events = (request) => {
 	request.once('mode',     () => { events.mode     = true; });
 	request.once('policy',   () => { events.policy   = true; });
 	request.once('cache',    () => { events.cache    = true; });
-	request.once('stash',    () => { events.stash    = true; });
 	request.once('connect',  () => { events.connect  = true; });
 	request.once('download', () => { events.download = true; });
 	request.once('optimize', () => { events.optimize = true; });
@@ -58,7 +56,7 @@ describe('new Request()', function(assert) {
 	let request = new Request({
 		mode: mode,
 		url:  URL.parse('https://example.com/index.html')
-	}, this.server);
+	}, this.server.services);
 
 	assert(request.mode,     mode);
 	assert(request.url.link, 'https://example.com/index.html');
@@ -180,38 +178,31 @@ describe('Request.prototype.toJSON()', function(assert) {
 			webview:   true
 		},
 		timeline: {
-
 			error:    null,
 			redirect: null,
 			stop:     null,
-
 			start:    null,
 			block:    null,
 			mode:     null,
 			policy:   null,
 			cache:    null,
-			stash:    null,
 			connect:  null,
 			download: null,
 			optimize: null,
 			response: null
-
 		},
 		events: [
-
 			'start',
 			'stop',
 			'block',
 			'mode',
 			'policy',
 			'cache',
-			'stash',
 			'connect',
 			'download',
 			'optimize',
 			'redirect',
 			'response'
-
 		],
 		journal: []
 	});
@@ -270,7 +261,7 @@ describe('Request.prototype.start()', function(assert) {
 			}
 		},
 		url: URL.parse('https://example.com/index.html')
-	}, this.server);
+	}, this.server.services);
 	let events  = bind_events(request);
 
 	request.once('response', () => {
@@ -278,22 +269,18 @@ describe('Request.prototype.start()', function(assert) {
 		setTimeout(() => {
 
 			assert(events, {
-
 				error:    false,
 				redirect: false,
 				stop:     false,
-
 				start:    true,
 				block:    true,
 				mode:     true,
 				policy:   true,
 				cache:    true,
-				stash:    true,
 				connect:  true,
 				download: true,
 				optimize: true,
 				response: true
-
 			});
 
 			assert(request.timeline.error,                         null);
@@ -305,7 +292,6 @@ describe('Request.prototype.start()', function(assert) {
 			assert(DATETIME.isDATETIME(request.timeline.mode),     true);
 			assert(DATETIME.isDATETIME(request.timeline.policy),   true);
 			assert(DATETIME.isDATETIME(request.timeline.cache),    true);
-			assert(DATETIME.isDATETIME(request.timeline.stash),    true);
 			assert(DATETIME.isDATETIME(request.timeline.connect),  true);
 			assert(DATETIME.isDATETIME(request.timeline.download), true);
 			assert(DATETIME.isDATETIME(request.timeline.optimize), true);
@@ -333,7 +319,7 @@ describe('Request.prototype.start()/cache', function(assert) {
 			}
 		},
 		url: URL.parse('https://example.com/index.html')
-	}, this.server);
+	}, this.server.services);
 	let events  = bind_events(request);
 
 	setTimeout(() => {
@@ -349,7 +335,6 @@ describe('Request.prototype.start()/cache', function(assert) {
 			mode:     true,
 			policy:   true,
 			cache:    true,
-			stash:    false,
 			connect:  false,
 			download: false,
 			optimize: true,
@@ -366,7 +351,6 @@ describe('Request.prototype.start()/cache', function(assert) {
 		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
 		assert(DATETIME.isDATETIME(request.timeline.policy),   true);
 		assert(DATETIME.isDATETIME(request.timeline.cache),    true);
-		assert(request.timeline.stash,                         null);
 		assert(request.timeline.connect,                       null);
 		assert(request.timeline.download,                      null);
 		assert(DATETIME.isDATETIME(request.timeline.optimize), true);
@@ -417,7 +401,7 @@ describe('Request.prototype.start()/policy', function(assert) {
 			}
 		},
 		url: URL.parse('https://example.com/policy.html?foo=bar&bar123=456&track=123')
-	}, this.server);
+	}, this.server.services);
 	let events  = bind_events(request);
 
 	setTimeout(() => {
@@ -433,7 +417,6 @@ describe('Request.prototype.start()/policy', function(assert) {
 			mode:     true,
 			policy:   true,
 			cache:    false,
-			stash:    false,
 			connect:  false,
 			download: false,
 			optimize: false,
@@ -450,7 +433,6 @@ describe('Request.prototype.start()/policy', function(assert) {
 		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
 		assert(DATETIME.isDATETIME(request.timeline.policy),   true);
 		assert(request.timeline.cache,                         null);
-		assert(request.timeline.stash,                         null);
 		assert(request.timeline.connect,                       null);
 		assert(request.timeline.download,                      null);
 		assert(request.timeline.optimize,                      null);
@@ -513,7 +495,7 @@ describe('Request.prototype.start()/redirect', function(assert) {
 			}
 		},
 		url: URL.parse('https://example.com/redirect')
-	}, this.server);
+	}, this.server.services);
 
 	request.once('redirect', (response) => {
 
@@ -566,7 +548,7 @@ describe('Request.prototype.stop()', function(assert) {
 			}
 		},
 		url: URL.parse('https://example.com/index.html')
-	}, this.server);
+	}, this.server.services);
 	let events  = bind_events(request);
 
 
@@ -588,7 +570,6 @@ describe('Request.prototype.stop()', function(assert) {
 			mode:     true,
 			policy:   true,
 			cache:    true,
-			stash:    true,
 			connect:  true,
 			download: true,
 			optimize: false,
@@ -605,7 +586,6 @@ describe('Request.prototype.stop()', function(assert) {
 		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
 		assert(DATETIME.isDATETIME(request.timeline.policy),   true);
 		assert(DATETIME.isDATETIME(request.timeline.cache),    true);
-		assert(DATETIME.isDATETIME(request.timeline.stash),    true);
 		assert(DATETIME.isDATETIME(request.timeline.connect),  true);
 		assert(DATETIME.isDATETIME(request.timeline.download), true);
 		assert(request.timeline.optimize,                      null);
