@@ -1,7 +1,7 @@
 
-# Stealth API
+# Stealth Service API
 
-Stealth's API can be accessed via `WS/13` Sockets.
+Stealth's Service API can be accessed via `WS/13` Sockets.
 
 
 ## Request Data and Response Data
@@ -24,7 +24,10 @@ The client-side and server-side Reviews can be run via Covert like this:
 ```bash
 cd ./path/to/stealth;
 
-node covert/covert.mjs scan stealth/client/* stealth/server/*;
+cd ./stealth;
+
+node ../covert/covert.mjs scan stealth/server/service/*;
+node ../covert/covert.mjs scan stealth/client/service/*;
 ```
 
 

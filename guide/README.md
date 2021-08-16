@@ -23,6 +23,7 @@ Currently, the Repository consists of these important folders:
 - [concept/Covert.md](./concept/Covert.md) explains the Covert Testrunner.
 - [concept/Stealth.md](./concept/Stealth.md) explains the Stealth Service.
 - [concept/Service.md](./concept/Service.md) explains the Stealth Service API.
+- [concept/Network.md](./concept/Network.md) explains Network Topology and Service Discovery Workflows.
 
 
 # Implementation Examples
