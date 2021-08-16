@@ -47,7 +47,14 @@ const isAnswer = function(answer) {
 		} else if (answer.type === 'NS') {
 			return isDomain(answer.value) === true;
 		} else if (answer.type === 'PTR') {
-			return IP.isIP(answer.value) === true;
+
+			if (
+				isDomain(answer.value) === true
+				|| IP.isIP(answer.value) === true
+			) {
+				return true;
+			}
+
 		} else if (answer.type === 'SRV') {
 
 			if (
@@ -121,7 +128,17 @@ const isQuestion = function(question) {
 		) {
 			return isDomain(question.domain) === true;
 		} else if (question.type === 'PTR') {
-			return question.domain === null && IP.isIP(question.value) === true;
+
+			if (
+				question.domain === null
+				&& (
+					isDomain(question.value) === true
+					|| IP.isIP(question.value) === true
+				)
+			) {
+				return true;
+			}
+
 		}
 
 	}
@@ -277,19 +294,19 @@ const decode_question = function(dictionary, payload) {
 
 		} else if (type === 'PTR') {
 
-			let ip = null;
+			let value = null;
 
 			if (domain.endsWith('.in-addr.arpa') === true) {
 
 				let tmp = domain.split('.').slice(0, 4).reverse();
 
-				ip = IP.parse(tmp.join('.'));
+				value = IP.parse(tmp.join('.'));
 
 			} else if (domain.endsWith('.ip6.arpa') === true) {
 
 				let tmp = domain.split('.').slice(0, 32).reverse();
 
-				ip = IP.parse([
+				value = IP.parse([
 					tmp.slice( 0,  4).join(''),
 					tmp.slice( 4,  8).join(''),
 					tmp.slice( 8, 12).join(''),
@@ -300,12 +317,16 @@ const decode_question = function(dictionary, payload) {
 					tmp.slice(28, 32).join('')
 				].join(':'));
 
+			} else {
+
+				value = domain;
+
 			}
 
 			return {
 				domain: null,
 				type:   type,
-				value:  ip
+				value:  value
 			};
 
 		}
@@ -611,15 +632,24 @@ const encode_question = function(dictionary, question) {
 
 		} else if (type === 'PTR') {
 
-			if (question.value.type === 'v4') {
+			if (isDomain(question.value) === true) {
 
-				domain = question.value.ip.split('.').slice(0, 4).reverse().join('.') + '.in-addr.arpa';
+				domain = question.value;
 				qname  = encode_domain(dictionary, domain);
 
-			} else if (question.value.type === 'v6') {
+			} else if (IP.isIP(question.value) === true) {
 
-				domain = question.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa';
-				qname  = encode_domain(dictionary, domain);
+				if (question.value.type === 'v4') {
+
+					domain = question.value.ip.split('.').slice(0, 4).reverse().join('.') + '.in-addr.arpa';
+					qname  = encode_domain(dictionary, domain);
+
+				} else if (question.value.type === 'v6') {
+
+					domain = question.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa';
+					qname  = encode_domain(dictionary, domain);
+
+				}
 
 			}
 
@@ -704,15 +734,24 @@ const encode_record = function(dictionary, record) {
 
 		} else if (type === 'PTR') {
 
-			if (record.value.type === 'v4') {
+			if (isDomain(record.value) === true) {
 
-				rhead = encode_domain(dictionary, record.value.ip.split('.').slice(0, 4).reverse().join('.') + '.in-addr.arpa');
+				rhead = encode_domain(dictionary, record.value);
 				rdata = encode_domain(dictionary, record.domain);
 
-			} else if (record.value.type === 'v6') {
+			} else if (IP.isIP(record.value) === true) {
 
-				rhead = encode_domain(dictionary, record.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa');
-				rdata = encode_domain(dictionary, record.domain);
+				if (record.value.type === 'v4') {
+
+					rhead = encode_domain(dictionary, record.value.ip.split('.').slice(0, 4).reverse().join('.') + '.in-addr.arpa');
+					rdata = encode_domain(dictionary, record.domain);
+
+				} else if (record.value.type === 'v6') {
+
+					rhead = encode_domain(dictionary, record.value.ip.split(':').join('').split('').slice(0, 32).reverse().join('.') + '.ip6.arpa');
+					rdata = encode_domain(dictionary, record.domain);
+
+				}
 
 			}
 
