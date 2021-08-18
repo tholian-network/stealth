@@ -2,7 +2,7 @@
 import crypto from 'crypto';
 import net    from 'net';
 
-import { console, Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
 import { HTTP                                                                 } from '../../source/connection/HTTP.mjs';
 import { IP                                                                   } from '../../source/parser/IP.mjs';
 import { URL                                                                  } from '../../source/parser/URL.mjs';
@@ -61,41 +61,10 @@ const decode_json = function(buffer) {
 
 const decode = function(connection, buffer) {
 
-	if (buffer.length < 2) {
-		return null;
-	}
-
-
-	let chunk = {
-		headers: {
-			'@transfer': {
-				'encoding': null,
-				'length':   null
-			}
-		},
-		payload: null
-	};
-
-
-	let msg_headers      = null;
-	let msg_payload      = null;
-	let payload_complete = false;
-
-
-	let fin      = (buffer[0] & 128) === 128;
-	let operator = (buffer[0] &  15);
-	let mask     = (buffer[1] & 128) === 128;
-
-	// TODO: encoding can be utf8 (text frame) or binary (binary frame)
-
-
-
-
 	if (buffer.length <= 2) {
 		return null;
 	}
 
-	console.log('decode()');
 
 	let chunk = {
 		close:    false,
@@ -116,8 +85,6 @@ const decode = function(connection, buffer) {
 	let payload_length = buffer[1] & 127;
 	let payload_data   = null;
 
-	console.log(fin, operator, mask, payload_length);
-
 	if (payload_length <= 125) {
 
 		if (mask === true) {
@@ -133,8 +100,6 @@ const decode = function(connection, buffer) {
 			overflow_data = buffer.slice(2 + payload_length);
 
 		}
-
-		console.log(payload_data.toString('utf8'));
 
 	} else if (payload_length === 126) {
 
@@ -334,8 +299,6 @@ const decode = function(connection, buffer) {
 
 	}
 
-
-	console.log(chunk);
 
 	return chunk;
 
