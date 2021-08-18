@@ -1,5 +1,7 @@
 
-import { Buffer, isBuffer, isObject, isString } from '../../extern/base.mjs';
+import dgram from 'dgram';
+
+import { console, Buffer, isBuffer, isObject, isString } from '../../extern/base.mjs';
 import { ENVIRONMENT                          } from '../../source/ENVIRONMENT.mjs';
 import { isStealth, VERSION                   } from '../../source/Stealth.mjs';
 import { MDNS                                 } from '../../source/connection/MDNS.mjs';
@@ -32,16 +34,34 @@ export const isRouter = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Proxy]';
 };
 
+const isSocket = function(obj) {
+
+	if (obj !== null && obj !== undefined) {
+		return obj instanceof dgram.Socket;
+	}
+
+	return false;
+
+};
+
 
 
 const isServiceDiscovery = function(packet) {
 
-	let check1 = packet.payload.questions.filter((q) => q.type === 'PTR');
-	if (check1.length === packet.payload.questions.length) {
+	if (packet.headers['@type'] === 'request') {
 
-		let check2 = check1.filter((q) => (q.value === '_stealth._wss.tholian.local' || q.value === '_stealth._ws.tholian.local'));
-		if (check2.length === check1.length) {
-			return true;
+		if (packet.payload.questions.length === 2 && packet.payload.answers.length === 0) {
+
+			let check1 = packet.payload.questions.filter((q) => q.type === 'PTR');
+			if (check1.length === packet.payload.questions.length) {
+
+				let check2 = check1.filter((q) => (q.value === '_stealth._wss.tholian.local' || q.value === '_stealth._ws.tholian.local'));
+				if (check2.length === check1.length) {
+					return true;
+				}
+
+			}
+
 		}
 
 	}
@@ -53,43 +73,52 @@ const isServiceDiscovery = function(packet) {
 
 const isResolvable = function(packet) {
 
-	let check1 = packet.payload.questions.filter((q) => (q.type === 'A' || q.type === 'AAAA'));
-	if (check1.length === packet.payload.questions.length) {
+	if (packet.headers['@type'] === 'request') {
 
-		let check2 = packet.payload.questions.filter((q) => {
+		if (packet.payload.questions.length > 0 && packet.payload.answers.length === 0) {
 
-			let url    = URL.parse(q.domain);
-			let domain = URL.toDomain(url);
-			if (domain !== null) {
+			let check1 = packet.payload.questions.filter((q) => (q.type === 'A' || q.type === 'AAAA'));
+			if (check1.length === packet.payload.questions.length) {
 
-				let valid  = true;
+				let check2 = packet.payload.questions.filter((q) => {
 
-				RESERVED_TLDS.forEach((tld) => {
+					let url    = URL.parse(q.domain);
+					let domain = URL.toDomain(url);
+					if (domain !== null) {
 
-					if (domain === tld || domain.endsWith('.' + tld)) {
-						valid = false;
+						let valid  = true;
+
+						RESERVED_TLDS.forEach((tld) => {
+
+							if (domain === tld || domain.endsWith('.' + tld)) {
+								valid = false;
+							}
+
+						});
+
+						HIGHRISK_TLDS.forEach((tld) => {
+
+							if (domain === tld || domain.endsWith('.' + tld)) {
+								valid = false;
+							}
+
+						});
+
+						return valid;
+
 					}
+
+
+					return false;
 
 				});
 
-				HIGHRISK_TLDS.forEach((tld) => {
-
-					if (domain === tld || domain.endsWith('.' + tld)) {
-						valid = false;
-					}
-
-				});
-
-				return valid;
+				if (check1.length === check2.length) {
+					return true;
+				}
 
 			}
 
-			return false;
-
-		});
-
-		if (check1.length === check2.length) {
-			return true;
 		}
 
 	}
@@ -250,7 +279,18 @@ Router.prototype = {
 
 				let packet = PACKET.decode(null, buffer);
 				if (packet !== null) {
-					return true;
+
+					if (packet.headers['@type'] === 'request') {
+
+						if (
+							isServiceDiscovery(packet) === true
+							|| isResolvable(packet) === true
+						) {
+							return true;
+						}
+
+					}
+
 				}
 
 			}
@@ -280,13 +320,62 @@ Router.prototype = {
 		let packet = PACKET.decode(null, buffer);
 		if (packet !== null) {
 
-			let A    = packet.payload.questions.filter((q) => q.type === 'A');
-			let AAAA = packet.payload.questions.filter((q) => q.type === 'AAAA');
-			let SRV  = packet.payload.questions.filter((q) => q.type === 'SRV');
-
 			if (packet.headers['@type'] === 'request') {
 
+				console.log(packet);
+
 				if (isServiceDiscovery(packet) === true) {
+
+					console.info('is service discovery!');
+
+					toServiceDiscoveryResponse.call(this, packet, (response) => {
+
+						console.log('response!', response);
+
+						if (response !== null) {
+
+							let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
+							if (has_ipv4 === true) {
+
+								let buffer = PACKET.encode(null, response);
+								if (buffer !== null) {
+
+									socket.send(buffer, 0, buffer.length, 5353, '244.0.0.251', (err) => {
+										console.error(err);
+									});
+
+								}
+
+								// let connection = MDNS.connect(URL.parse('mdns://224.0.0.251:5353'));
+
+								// connection.on('@connect', () => {
+
+								// 	MDNS.send(connection, response, () => {
+								// 		connection.disconnect();
+								// 	});
+
+								// });
+
+							}
+
+							let has_ipv6 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v6').length > 0;
+							if (has_ipv6 === true) {
+
+								// let connection = MDNS.connect(URL.parse('mdns://[ff02::fb]:5353'));
+
+								// connection.on('@connect', () => {
+
+								// 	MDNS.send(connection, response, () => {
+								// 		connection.disconnect();
+								// 	});
+
+								// });
+
+							}
+
+						}
+
+					});
 
 					// TODO: Check for QM for multicast response
 					// TODO: Check for QU for unicast response

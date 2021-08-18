@@ -1,20 +1,19 @@
 
 import dgram from 'dgram';
 
-import { Emitter, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
-import { IP                                      } from '../../source/parser/IP.mjs';
-import { URL                                     } from '../../source/parser/URL.mjs';
-import { DNS as PACKET                           } from '../../source/packet/DNS.mjs';
+import { console, Emitter, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { IP                                                } from '../../source/parser/IP.mjs';
+import { URL                                               } from '../../source/parser/URL.mjs';
+import { DNS as PACKET                                     } from '../../source/packet/DNS.mjs';
 
 
 
 const onconnect = function(connection, url) {
 
-	// TODO: addMembership to multicast address()?
-
 	connection.type = 'client';
 
 	connection.socket.on('message', (message) => {
+		console.log('got message!', message);
 		onmessage(connection, url, message);
 	});
 
@@ -27,6 +26,8 @@ const onconnect = function(connection, url) {
 const onmessage = function(connection, url, message) {
 
 	MDNS.receive(connection, message, (frame) => {
+
+		console.log(frame);
 
 		if (frame !== null) {
 
@@ -61,18 +62,25 @@ const ondisconnect = function(connection, url) {
 
 const onupgrade = function(connection, url) {
 
+	// TODO: Fix This
 	connection.type = 'server';
 
-	connection.socket.on('message', (message, rinfo) => {
+	connection.socket.bind(url.port, () => {
 
-		connection.remote = {
-			host: rinfo.address,
-			port: rinfo.port
-		};
+		// TODO: addMembership to multicast addresses
+		// connection.socket.addMemberShip(url.hosts[0].ip);
+
+	});
+
+	connection.socket.on('message', (message) => {
+
+		console.log('got message!', message);
+		// connection.remote = {
+		// 	host: rinfo.address,
+		// 	port: rinfo.port
+		// };
 
 		onmessage(connection, url, message);
-
-		connection.remote = null;
 
 	});
 
@@ -259,11 +267,14 @@ const MDNS = {
 							port: url.port
 						};
 
-						connection.socket = dgram.createSocket(type);
+						connection.socket = dgram.createSocket({
+							type:      type,
+							reuseAddr: true
+						});
 
-						connection.socket.connect(url.port, hosts[0].ip, () => {
+						connection.socket.bind(connection.remote.port, () => {
 
-							connection.socket.setTTL(1);
+							connection.socket.addMembership(connection.remote.host);
 
 							onconnect(connection, url);
 
@@ -432,7 +443,7 @@ const MDNS = {
 
 				if (connection.type === 'client') {
 
-					connection.socket.send(buffer, 0, buffer.length, (err) => {
+					connection.socket.send(buffer, connection.remote.port, connection.remote.host, (err) => {
 
 						if (err === null) {
 
@@ -456,38 +467,26 @@ const MDNS = {
 
 				} else if (connection.type === 'server') {
 
-					if (connection.remote !== null) {
+					connection.socket.send(buffer, connection.remote.port, connection.remote.host, (err) => {
 
-						connection.socket.send(buffer, 0, buffer.length, connection.remote.port, connection.remote.host, (err) => {
+						if (err === null) {
 
-							if (err === null) {
-
-								if (callback !== null) {
-									callback(true);
-								}
-
-							} else {
-
-								if (callback !== null) {
-									callback(false);
-								}
-
+							if (callback !== null) {
+								callback(true);
 							}
 
-						});
-
-						if (callback === null) {
-							return true;
-						}
-
-					} else {
-
-						if (callback !== null) {
-							callback(false);
 						} else {
-							return false;
+
+							if (callback !== null) {
+								callback(false);
+							}
+
 						}
 
+					});
+
+					if (callback === null) {
+						return true;
 					}
 
 				}
@@ -529,6 +528,34 @@ const MDNS = {
 
 
 		if (connection !== null) {
+
+			let hosts = IP.sort(url.hosts);
+			if (hosts.length > 0 && isNumber(url.port) === true) {
+
+				connection.remote = {
+					host: hosts[0].ip,
+					port: url.port
+				};
+
+			} else {
+
+				if (connection.socket.type === 'udp4') {
+
+					connection.remote = {
+						host: '224.0.0.251',
+						port: 5353
+					};
+
+				} else if (connection.socket.type === 'udp6') {
+
+					connection.remote = {
+						host: 'ff02::fb',
+						port: 5353
+					};
+
+				}
+
+			}
 
 			try {
 				connection.socket.setTTL(1);

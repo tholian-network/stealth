@@ -975,10 +975,19 @@ const DNS = {
 		packet     = isObject(packet)         ? packet     : null;
 
 
-		if (connection !== null && packet !== null) {
+		let type = 'server';
+
+		if (connection !== null) {
+			type = connection.type;
+		}
+
+		if (packet !== null) {
 
 			let headers = {};
-			let payload = null;
+			let payload = {
+				questions: [],
+				answers:   []
+			};
 
 			if (isObject(packet.headers) === true) {
 
@@ -992,42 +1001,28 @@ const DNS = {
 
 			}
 
-			if (connection.type === 'client') {
 
-				if (
-					isObject(packet.payload) === true
-					&& isArray(packet.payload.questions) === true
-					&& packet.payload.questions.length > 0
-				) {
-					payload = {
-						questions: packet.payload.questions.filter((q) => isQuestion(q))
-					};
-				}
+			if (
+				isObject(packet.payload) === true
+				&& isArray(packet.payload.questions) === true
+				&& packet.payload.questions.length > 0
+			) {
+				payload.questions = packet.payload.questions.filter((q) => isQuestion(q));
+			}
 
-			} else if (connection.type === 'server') {
-
-				if (
-					isObject(packet.payload) === true
-					&& isArray(packet.payload.questions) === true
-					&& packet.payload.questions.length > 0
-					&& isArray(packet.payload.answers) === true
-					&& packet.payload.answers.length > 0
-				) {
-
-					payload = {
-						questions: packet.payload.questions.filter((q) => isQuestion(q)),
-						answers:   packet.payload.answers.filter((a) => isAnswer(a))
-					};
-
-				}
-
+			if (
+				isObject(packet.payload) === true
+				&& isArray(packet.payload.answers) === true
+				&& packet.payload.answers.length > 0
+			) {
+				payload.answers = packet.payload.answers.filter((a) => isAnswer(a));
 			}
 
 
 			let id         = headers['@id'] || 0;
-			let query      = connection.type === 'server' ? false : true;
-			let questions  = payload.questions || [];
-			let answers    = payload.answers   || [];
+			let query      = type === 'server' ? false : true;
+			let questions  = payload.questions;
+			let answers    = payload.answers;
 			let dictionary = {
 				buffer:   Buffer.from([]),
 				labels:   {},
@@ -1055,7 +1050,24 @@ const DNS = {
 			let qdcount = questions.length;
 			let ancount = answers.length;
 
-			if (connection.type === 'server') {
+			if (type === 'client') {
+
+				if (qdcount > 0) {
+
+					questions.forEach((data) => {
+
+						let question = encode_question(dictionary, data);
+						if (question !== null) {
+							payload_data = Buffer.concat([ payload_data, question ]);
+						} else {
+							qdcount--;
+						}
+
+					});
+
+				}
+
+			} else if (type === 'server') {
 
 				if (qdcount > 0) {
 
@@ -1081,23 +1093,6 @@ const DNS = {
 							payload_data = Buffer.concat([ payload_data, answer ]);
 						} else {
 							ancount--;
-						}
-
-					});
-
-				}
-
-			} else {
-
-				if (qdcount > 0) {
-
-					questions.forEach((data) => {
-
-						let question = encode_question(dictionary, data);
-						if (question !== null) {
-							payload_data = Buffer.concat([ payload_data, question ]);
-						} else {
-							qdcount--;
 						}
 
 					});
@@ -1137,16 +1132,11 @@ const DNS = {
 
 			if (buffer.length >= 12) {
 
-				let id       = (buffer[0] << 8) + buffer[1];
 				let operator = (buffer[2] & 0b01111000);
 				let qdcount  = (buffer[4] << 8) + buffer[5];
 				let ancount  = (buffer[6] << 8) + buffer[7];
 
-				if (
-					id !== 0
-					&& operator === 0
-					&& (qdcount > 0 || ancount > 0)
-				) {
+				if (operator === 0 && (qdcount > 0 || ancount > 0)) {
 					return true;
 				}
 

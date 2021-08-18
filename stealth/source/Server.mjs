@@ -62,7 +62,9 @@ const toMulticastSocket = function(type, port, address) {
 			});
 
 		} else {
+
 			socket.bind(port);
+
 		}
 
 	}

@@ -1,8 +1,20 @@
 
 # Refactor
 
+- [ ] Fix stealth/source/Request (`stealth/review/Request` is broken)
+
+Request's `connect` event needs `services.host.read()` to work.
+Host Service is still broken, therefore the best course of action is to
+implement the `Router`.
+
+
+- [ ] Add connection.fragment support for DNSH Connection
+
+
 - [ ] Implement 206 Partial Content support for `Webserver`
 - [ ] Implement 206 Partial Content support for `Webproxy`
+
+- [ ] stealth/review/connection/HTTP needs connection.disconnect() calls everywhere!
 
 - [ ] Implement review for `HTTP.upgrade()` with parsed HTTP handshake packet that triggers `request` event.
 - [ ] Implement review for `HTTP.upgrade()` without a handshake packet.

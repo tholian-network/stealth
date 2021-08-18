@@ -12,6 +12,13 @@ import { URL                                  } from '../source/parser/URL.mjs';
 
 
 
+const RELEASE = 'X0';
+const DATE    = '2021-08-18';
+
+export const VERSION = RELEASE + ':' + DATE;
+
+
+
 export const isStealth = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Stealth]';
 };
