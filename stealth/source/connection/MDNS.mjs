@@ -1,7 +1,7 @@
 
 import dgram from 'dgram';
 
-import { console, Emitter, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { Emitter, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
 import { IP                                                } from '../../source/parser/IP.mjs';
 import { URL                                               } from '../../source/parser/URL.mjs';
 import { DNS as PACKET                                     } from '../../source/packet/DNS.mjs';
@@ -12,8 +12,13 @@ const onconnect = function(connection, url) {
 
 	connection.type = 'client';
 
+	try {
+		connection.socket.addMembership(connection.remote.host);
+	} catch (err) {
+		// Do Nothing
+	}
+
 	connection.socket.on('message', (message) => {
-		console.log('got message!', message);
 		onmessage(connection, url, message);
 	});
 
@@ -26,8 +31,6 @@ const onconnect = function(connection, url) {
 const onmessage = function(connection, url, message) {
 
 	MDNS.receive(connection, message, (frame) => {
-
-		console.log(frame);
 
 		if (frame !== null) {
 
@@ -62,26 +65,30 @@ const ondisconnect = function(connection, url) {
 
 const onupgrade = function(connection, url) {
 
-	// TODO: Fix This
 	connection.type = 'server';
 
-	connection.socket.bind(url.port, () => {
+	try {
 
-		// TODO: addMembership to multicast addresses
-		// connection.socket.addMemberShip(url.hosts[0].ip);
+		connection.socket.bind(connection.remote.port, () => {
+			connection.socket.addMembership(connection.remote.host);
+		});
 
-	});
+	} catch (err) {
+
+		if (err.code === 'ERR_SOCKET_ALREADY_BOUND') {
+
+			try {
+				connection.socket.addMembership(connection.remote.host);
+			} catch (err) {
+				// Do Nothing
+			}
+
+		}
+
+	}
 
 	connection.socket.on('message', (message) => {
-
-		console.log('got message!', message);
-		// connection.remote = {
-		// 	host: rinfo.address,
-		// 	port: rinfo.port
-		// };
-
 		onmessage(connection, url, message);
-
 	});
 
 	setTimeout(() => {
@@ -273,11 +280,7 @@ const MDNS = {
 						});
 
 						connection.socket.bind(connection.remote.port, () => {
-
-							connection.socket.addMembership(connection.remote.host);
-
 							onconnect(connection, url);
-
 						});
 
 					} catch (err) {

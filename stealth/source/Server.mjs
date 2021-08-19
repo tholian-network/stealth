@@ -6,9 +6,10 @@ import { console, Emitter, isNumber, isObject, isString } from '../extern/base.m
 import { ENVIRONMENT                                    } from '../source/ENVIRONMENT.mjs';
 import { isStealth                                      } from '../source/Stealth.mjs';
 import { IP                                             } from '../source/parser/IP.mjs';
-import { Services                                       } from '../source/server/Services.mjs';
+import { Compeer                                        } from '../source/server/Compeer.mjs';
 import { Proxy                                          } from '../source/server/Proxy.mjs';
 import { Router                                         } from '../source/server/Router.mjs';
+import { Services                                       } from '../source/server/Services.mjs';
 import { Webproxy                                       } from '../source/server/Webproxy.mjs';
 import { Webserver                                      } from '../source/server/Webserver.mjs';
 
@@ -42,9 +43,9 @@ const toMulticastSocket = function(type, port, address) {
 
 	socket.on('message', (buffer, rinfo) => {
 
-		if (this.router.can(buffer) === true) {
+		if (this.compeer.can(buffer) === true) {
 
-			this.router.upgrade(buffer, socket, {
+			this.compeer.upgrade(buffer, socket, {
 				host: rinfo.address,
 				port: rinfo.port
 			});
@@ -86,23 +87,36 @@ const Server = function(settings, stealth) {
 	}, settings));
 
 
-	this.stealth   = stealth;
-	this.services  = new Services(this.stealth);
-	this.proxy     = new Proxy(this.services, this.stealth);
-	this.router    = new Router(this.services, this.stealth);
-	this.webproxy  = new Webproxy(this.services, this.stealth);
-	this.webserver = new Webserver(this.services, this.stealth);
+	this.stealth    = stealth;
+	this.services   = new Services(this.stealth);
+	this.compeer    = new Compeer(this.services, this.stealth);
+	this.proxy      = new Proxy(this.services, this.stealth);
+	this.router     = new Router(this.services, this.stealth);
+	this.webproxy   = new Webproxy(this.services, this.stealth);
+	this.webserver  = new Webserver(this.services, this.stealth);
 
 
 	this.__state = {
 		connected:   false,
 		connections: [],
 		sockets:     [],
-		server:      null
+		server:      null,
+		timeout:     null
 	};
 
 
 	Emitter.call(this);
+
+
+	this.on('explore', () => {
+
+		this.compeer.announce();
+
+		this.__state.timeout = setTimeout(() => {
+			this.emit('explore');
+		}, 60 * 1000 + Math.random() * 120 * 1000);
+
+	});
 
 };
 
@@ -315,6 +329,10 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			this.__state.connected = true;
 			this.emit('connect');
 
+			setTimeout(() => {
+				this.emit('explore');
+			}, 1000);
+
 			this.__state.server.listen(65432, host);
 
 
@@ -367,6 +385,15 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 				this.__state.server = null;
 
 				server.close();
+
+			}
+
+			let timeout = this.__state.timeout;
+			if (timeout !== null) {
+
+				this.__state.timeout = null;
+
+				clearTimeout(timeout);
 
 			}
 
