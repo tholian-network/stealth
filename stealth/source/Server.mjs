@@ -34,7 +34,7 @@ const toMulticastSocket = function(type, port, address) {
 	});
 
 	socket.on('listening', () => {
-		console.info('Server: ' + type.toUpperCase() + ' Service started on mdns+dns://' + (type === 'udp6' ? '[' + address + ']' : address) + ':' + port + '.');
+		console.info('Server: ' + type.toUpperCase() + ' Service started on dns+mdns://' + (type === 'udp6' ? '[' + address + ']' : address) + ':' + port + '.');
 	});
 
 	socket.on('close', () => {
@@ -46,6 +46,13 @@ const toMulticastSocket = function(type, port, address) {
 		if (this.compeer.can(buffer) === true) {
 
 			this.compeer.upgrade(buffer, socket, {
+				host: rinfo.address,
+				port: rinfo.port
+			});
+
+		} else if (this.router.can(buffer) === true) {
+
+			this.router.upgrade(buffer, socket, {
 				host: rinfo.address,
 				port: rinfo.port
 			});

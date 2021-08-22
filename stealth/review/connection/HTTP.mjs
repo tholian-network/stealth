@@ -1,11 +1,11 @@
 
 import net from 'net';
 
-import { Buffer, isArray, isBuffer, isFunction, isObject, isString } from '../../../base/index.mjs';
-import { describe, finish                                          } from '../../../covert/index.mjs';
-import { HTTP                                                      } from '../../../stealth/source/connection/HTTP.mjs';
-import { IP                                                        } from '../../../stealth/source/parser/IP.mjs';
-import { URL                                                       } from '../../../stealth/source/parser/URL.mjs';
+import { Buffer, isArray, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
+import { describe, finish                                } from '../../../covert/index.mjs';
+import { HTTP                                            } from '../../../stealth/source/connection/HTTP.mjs';
+import { IP                                              } from '../../../stealth/source/parser/IP.mjs';
+import { URL                                             } from '../../../stealth/source/parser/URL.mjs';
 
 
 
@@ -774,9 +774,9 @@ describe('HTTP.send()/server/200/multiplex', function(assert) {
 					headers: {
 						'@status':   200,
 						'@transfer': {
-							'encoding': 'identity',
-							'length':   24,
-							'range':    [ 0, 23 ]
+							'encoding': 'gzip',
+							'length':   42,
+							'range':    [ 0, 41 ]
 						},
 						'content-encoding': 'identity',
 						'content-length':   24,

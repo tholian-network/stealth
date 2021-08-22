@@ -4,305 +4,12 @@ import net    from 'net';
 
 import { Buffer, Emitter, isBoolean, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
 import { HTTP                                                                 } from '../../source/connection/HTTP.mjs';
+import { HTTP as HANDSHAKE                                                    } from '../../source/packet/HTTP.mjs';
+import { WS as PACKET                                                         } from '../../source/packet/WS.mjs';
 import { IP                                                                   } from '../../source/parser/IP.mjs';
 import { URL                                                                  } from '../../source/parser/URL.mjs';
 
 
-
-const upgrade_request = (host, port, nonce) => {
-
-	return Buffer.from([
-		'GET / HTTP/1.1',
-		'Host: ' + host + ':' + port,
-		'Connection: Upgrade',
-		'Upgrade: WebSocket',
-		'Sec-WebSocket-Key: ' + nonce.toString('base64'),
-		'Sec-WebSocket-Protocol: stealth',
-		'Sec-WebSocket-Version: 13',
-		'',
-		''
-	].join('\r\n'), 'utf8');
-
-};
-
-const upgrade_response = (nonce) => {
-
-	let hash   = crypto.createHash('sha1').update(nonce + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
-	let accept = Buffer.from(hash, 'hex');
-
-	return Buffer.from([
-		'HTTP/1.1 101 WebSocket Protocol Handshake',
-		'Connection: Upgrade',
-		'Upgrade: WebSocket',
-		'Sec-WebSocket-Accept: ' + accept.toString('base64'),
-		'Sec-WebSocket-Protocol: stealth',
-		'Sec-WebSocket-Version: 13',
-		'',
-		''
-	].join('\r\n'), 'utf8');
-
-};
-
-
-
-const decode_json = function(buffer) {
-
-	let data = null;
-
-	try {
-		data = JSON.parse(buffer.toString('utf8'));
-	} catch (err) {
-		data = null;
-	}
-
-	return data;
-
-};
-
-const decode = function(connection, buffer) {
-
-	if (buffer.length <= 2) {
-		return null;
-	}
-
-
-	let chunk = {
-		close:    false,
-		fragment: false,
-		headers:  {},
-		payload:  null,
-		response: null,
-		overflow: null
-	};
-
-
-	let fragment       = connection.fragment;
-	let fin            = (buffer[0] & 128) === 128;
-	let operator       = (buffer[0] &  15);
-	let mask           = (buffer[1] & 128) === 128;
-	let mask_data      = Buffer.alloc(4);
-	let overflow_data  = null;
-	let payload_length = buffer[1] & 127;
-	let payload_data   = null;
-
-	if (payload_length <= 125) {
-
-		if (mask === true) {
-
-			mask_data     = buffer.slice(2, 6);
-			payload_data  = buffer.slice(6, 6 + payload_length);
-			overflow_data = buffer.slice(6 + payload_length);
-
-		} else {
-
-			mask_data     = null;
-			payload_data  = buffer.slice(2, 2 + payload_length);
-			overflow_data = buffer.slice(2 + payload_length);
-
-		}
-
-	} else if (payload_length === 126) {
-
-		payload_length = (buffer[2] << 8) + buffer[3];
-
-		if (payload_length > buffer.length) {
-			chunk.fragment = true;
-			return chunk;
-		}
-
-		if (mask === true) {
-
-			mask_data     = buffer.slice(4, 8);
-			payload_data  = buffer.slice(8, 8 + payload_length);
-			overflow_data = buffer.slice(8 + payload_length);
-
-		} else {
-
-			mask_data     = null;
-			payload_data  = buffer.slice(4, 4 + payload_length);
-			overflow_data = buffer.slice(4 + payload_length);
-
-		}
-
-	} else if (payload_length === 127) {
-
-		let hi = (buffer[2] * 0x1000000) + ((buffer[3] << 16) | (buffer[4] << 8) | buffer[5]);
-		let lo = (buffer[6] * 0x1000000) + ((buffer[7] << 16) | (buffer[8] << 8) | buffer[9]);
-
-
-		payload_length = (hi * 4294967296) + lo;
-
-		if (payload_length > buffer.length) {
-			chunk.fragment = true;
-			return chunk;
-		}
-
-		if (mask === true) {
-
-			mask_data     = buffer.slice(10, 14);
-			payload_data  = buffer.slice(14, 14 + payload_length);
-			overflow_data = buffer.slice(14 + payload_length);
-
-		} else {
-
-			mask_data     = null;
-			payload_data  = buffer.slice(10, 10 + payload_length);
-			overflow_data = buffer.slice(10 + payload_length);
-
-		}
-
-	}
-
-
-	if (mask_data !== null) {
-		payload_data = payload_data.map((value, index) => value ^ mask_data[index % 4]);
-	}
-
-	if (overflow_data !== null && overflow_data.length > 0) {
-		chunk.overflow = overflow_data;
-	}
-
-
-	if (operator === 0x00) {
-
-		// 0x00: Continuation Frame (Fragmentation Packet)
-
-		if (payload_data !== null) {
-
-			let payload = Buffer.alloc(fragment.payload.length + payload_length);
-
-			fragment.payload.copy(payload, 0);
-			payload_data.copy(payload, fragment.payload.length);
-
-			fragment.payload = payload;
-
-		}
-
-
-		if (fin === true) {
-
-			let tmp = decode_json(fragment.payload);
-			if (tmp !== null) {
-
-				if (isObject(tmp.headers) === true) {
-					chunk.headers = tmp.headers;
-				}
-
-				if (isBoolean(tmp.payload) === true) {
-					chunk.payload = tmp.payload;
-				} else {
-					chunk.payload = tmp.payload || null;
-				}
-
-			}
-
-			fragment.operator = 0x00;
-			fragment.payload  = Buffer.alloc(0);
-
-		}
-
-	} else if (operator === 0x01) {
-
-		// 0x01: Text Frame (possibly fragmented)
-
-		if (fin === true) {
-
-			let tmp = decode_json(payload_data);
-			if (tmp !== null) {
-
-				if (isObject(tmp.headers) === true) {
-					chunk.headers = tmp.headers;
-				}
-
-				if (isBoolean(tmp.payload) === true) {
-					chunk.payload = tmp.payload;
-				} else {
-					chunk.payload = tmp.payload || null;
-				}
-
-			}
-
-		} else if (payload_data !== null) {
-
-			let payload = Buffer.alloc(fragment.payload.length + payload_length);
-
-			fragment.payload.copy(payload, 0);
-			payload_data.copy(payload, fragment.payload.length);
-
-			fragment.payload  = payload;
-			fragment.operator = operator;
-
-		}
-
-	} else if (operator === 0x02) {
-
-		// 0x02: Binary Frame (possibly fragmented)
-
-		let buffer = Buffer.alloc(4);
-		let code   = 1002; // protocol error
-
-		buffer[0] = 128 + 0x08; // close
-		buffer[1] =   0 + 0x02; // unmasked (client and server)
-
-		buffer[1] = (code >> 8) & 0xff;
-		buffer[2] = (code >> 0) & 0xff;
-
-		chunk.close    = true;
-		chunk.response = buffer;
-
-	} else if (operator === 0x08) {
-
-		// 0x08: Connection Close Frame
-
-		let buffer = Buffer.alloc(4);
-		let code   = 1000; // normal connection close
-
-		buffer[0] = 128 + 0x08; // close
-		buffer[1] =   0 + 0x02; // unmasked (client and server)
-
-		buffer[1] = (code >> 8) & 0xff;
-		buffer[2] = (code >> 0) & 0xff;
-
-		chunk.close    = true;
-		chunk.response = buffer;
-
-	} else if (operator === 0x09) {
-
-		// 0x09: Ping Frame
-
-		let buffer = Buffer.alloc(2);
-
-		buffer[0] = 128 + 0x0a; // fin, pong
-		buffer[1] =   0 + 0x00; // unmasked
-
-		chunk.response = buffer;
-
-	} else if (operator === 0x0a) {
-
-		// 0x0a: Pong Frame
-
-		chunk.fragment = true;
-
-	} else {
-
-		let buffer = Buffer.alloc(4);
-		let code   = 1002; // protocol error
-
-		buffer[0] = 128 + 0x08; // close
-		buffer[1] =   0 + 0x02; // unmasked (client and server)
-
-		buffer[1] = (code >> 8) & 0xff;
-		buffer[2] = (code >> 0) & 0xff;
-
-		chunk.close    = true;
-		chunk.response = buffer;
-
-	}
-
-
-	return chunk;
-
-};
 
 const encode = function(connection, data) {
 
@@ -478,12 +185,13 @@ const onconnect = function(connection, url) {
 
 	connection.socket.once('data', (data) => {
 
-		HTTP.receive(connection, data, (response) => {
+		let response = HANDSHAKE.decode(null, data);
+		if (response !== null) {
 
-			let tmp1 = (response.headers['connection'] || '').toLowerCase();
-			let tmp2 = (response.headers['upgrade'] || '').toLowerCase();
+			let connection_header = (response.headers['connection'] || '').toLowerCase();
+			let upgrade_header    = (response.headers['upgrade'] || '').toLowerCase();
 
-			if (tmp1.includes('upgrade') === true && tmp2.includes('websocket') === true) {
+			if (connection_header.includes('upgrade') === true && upgrade_header.includes('websocket') === true) {
 
 				let accept = response.headers['sec-websocket-accept'] || '';
 				let hash   = crypto.createHash('sha1').update(nonce.toString('base64') + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
@@ -507,32 +215,166 @@ const onconnect = function(connection, url) {
 				connection.emit('error', [{ type: 'connection' }]);
 			}
 
-		});
+		}
 
 	});
 
 
-	connection.socket.write(upgrade_request(
-		hostname,
-		url.port || 80,
-		nonce
-	));
+	let handshake_request = HANDSHAKE.encode(null, {
+		headers: {
+			'@method':                'GET',
+			'@url':                   '/',
+			'Connection':             'Upgrade',
+			'Host':                   hostname + ':' + url.port,
+			'Origin':                 url.link,
+			'Upgrade':                'websocket',
+			'Sec-WebSocket-Key':      nonce.toString('base64'),
+			'Sec-WebSocket-Version':  13
+		},
+		payload: null
+	});
+
+	if (handshake_request !== null) {
+		connection.socket.write(handshake_request);
+	}
 
 };
 
 const ondata = function(connection, url, chunk) {
 
-	if (connection.type === 'client') {
+	connection.fragment = Buffer.concat([ connection.fragment, chunk ]);
 
-		WS.receive(connection, chunk, (frame) => {
-			connection.emit('response', [ frame ]);
-		});
 
-	} else if (connection.type === 'server') {
+	let frame = PACKET.decode(connection, connection.fragment);
+	if (frame !== null) {
 
-		WS.receive(connection, chunk, (frame) => {
-			connection.emit('request', [ frame ]);
-		});
+		url.headers = frame.headers;
+		url.payload = frame.payload;
+
+		if (frame.overflow !== null) {
+			connection.fragment = frame.overflow;
+		} else {
+			connection.fragment = Buffer.alloc(0);
+		}
+
+
+		if (
+			(
+				frame.headers['@operator'] === 0x00
+				|| frame.headers['@operator'] === 0x01
+				|| frame.headers['@operator'] === 0x02
+			) && frame.headers['@transfer']['length'] === Infinity
+		) {
+
+			if (frame.headers['@operator'] === 0x00) {
+				connection.framestack.push(frame);
+			} else if (frame.headers['@operator'] === 0x01) {
+				connection.framestack = [ frame ];
+			} else if (frame.headers['@operator'] === 0x02) {
+				connection.framestack = [ frame ];
+			}
+
+		} else if (
+			frame.headers['@operator'] === 0x00
+			&& frame.headers['@transfer']['length'] !== Infinity
+		) {
+
+			let first = connection.framestack[0] || null;
+			if (
+				first !== null
+				&& isObject(first) === true
+				&& isObject(first.headers) === true
+				&& first.headers['@operator'] !== 0x00
+				&& isBuffer(first.payload) === true
+			) {
+
+				let headers = first.headers;
+				let payload = first.payload;
+
+				connection.framestack.push(frame);
+				connection.framestack.slice(1).forEach((frame) => {
+
+					if (isBuffer(frame.payload) === true) {
+						payload = Buffer.concat([ payload, frame.payload ]);
+					}
+
+				});
+
+				headers['@transfer']['length'] = payload.length;
+				headers['@transfer']['range']  = [ 0, payload.length ];
+
+				connection.framestack = [];
+
+				if (connection.type === 'client') {
+					connection.emit('response', [{ headers: headers, payload: payload }]);
+				} else if (connection.type === 'server') {
+					connection.emit('request', [{ headers: headers, payload: payload }]);
+				}
+
+			} else {
+
+				connection.framestack = [];
+
+			}
+
+		} else if (
+			(
+				frame.headers['@operator'] === 0x01
+				|| frame.headers['@operator'] === 0x02
+			)
+			&& frame.headers['@transfer']['length'] !== Infinity
+		) {
+
+			if (connection.type === 'client') {
+				connection.emit('response', [ frame ]);
+			} else if (connection.type === 'server') {
+				connection.emit('request', [ frame ]);
+			}
+
+		} else if (frame.headers['@operator'] === 0x08) {
+
+			if (connection.type === 'client') {
+
+				if (frame.headers['@status'] === 1000) {
+					connection.disconnect();
+				} else if (frame.headers['@status'] === 1002) {
+					connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
+				} else {
+					connection.disconnect();
+				}
+
+			} else if (connection.type === 'server') {
+
+				if (frame.headers['@status'] === 1000) {
+					connection.disconnect();
+				} else if (frame.headers['@status'] === 1002) {
+					connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
+				} else {
+					connection.disconnect();
+				}
+
+			}
+
+		} else if (frame.headers['@operator'] === 0x09) {
+
+			if (connection.type === 'server') {
+
+				WS.send(connection, {
+					headers: {
+						'@operator': 0x0a,
+						'@status':   null,
+						'@type':     'response'
+					},
+					payload: null
+				});
+
+			}
+
+		} else if (frame.headers['@operator'] === 0x0a) {
+
+			// Do Nothing
+
+		}
 
 	}
 
@@ -552,8 +394,6 @@ const ondisconnect = function(connection /*, url */) {
 
 const onupgrade = function(connection, url) {
 
-	let nonce = url.headers['sec-websocket-key'] || '';
-
 	connection.type = 'server';
 
 	connection.socket.on('data', (fragment) => {
@@ -561,8 +401,35 @@ const onupgrade = function(connection, url) {
 	});
 
 
-	connection.socket.resume();
-	connection.socket.write(upgrade_response(nonce));
+	let nonce = url.headers['sec-websocket-key'] || '';
+	if (nonce !== '') {
+
+		let hash   = crypto.createHash('sha1').update(nonce + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
+		let accept = Buffer.from(hash, 'hex');
+
+		let handshake_response = HANDSHAKE.encode(null, {
+			headers: {
+				'@status':               101,
+				'Connection':            'Upgrade',
+				'Upgrade':               'WebSocket',
+				'Sec-WebSocket-Accept':  accept.toString('base64'),
+				'Sec-WebSocket-Version': 13
+
+			},
+			payload: null
+		});
+
+		if (handshake_response !== null) {
+			connection.socket.resume();
+			connection.socket.write(handshake_response);
+		}
+
+	} else {
+
+		connection.socket.resume();
+
+	}
+
 
 	setTimeout(() => {
 		connection.emit('@connect');
@@ -593,7 +460,6 @@ const isUpgrade = function(url) {
 		&& isObject(url.headers) === true
 		&& (url.headers['connection'] || '').toLowerCase().includes('upgrade') === true
 		&& (url.headers['upgrade'] || '').toLowerCase().includes('websocket') === true
-		&& (url.headers['sec-websocket-protocol'] || '').includes('stealth') === true
 		&& (url.headers['sec-websocket-key'] || '') !== ''
 	) {
 		return true;
@@ -608,14 +474,11 @@ const Connection = function(socket) {
 	socket = isSocket(socket) ? socket : null;
 
 
-	this.socket   = socket;
-	this.fragment = {
-		buffer:   null,
-		operator: 0x00,
-		payload:  Buffer.alloc(0)
-	};
-	this.interval = null;
-	this.type     = null;
+	this.fragment   = Buffer.alloc(0);
+	this.framestack = [];
+	this.interval   = null;
+	this.socket     = socket;
+	this.type       = null;
 
 
 	Emitter.call(this);
@@ -724,6 +587,8 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
+	// TODO: Rewrite ping() method into interval that uses WS.send() directly
+	// without that Buffer crap
 	ping: function() {
 
 		if (this.type === 'client') {
@@ -898,68 +763,24 @@ const WS = {
 		callback   = isFunction(callback)     ? callback   : null;
 
 
-		if (buffer !== null) {
+		if (connection !== null && buffer !== null) {
 
-			if (connection.fragment.buffer !== null) {
-				buffer = Buffer.concat([ connection.fragment.buffer, buffer ]);
-				connection.fragment.buffer = null;
-			}
-
-
-			let data = decode(connection, buffer);
+			let data = PACKET.decode(connection, buffer);
 			if (data !== null) {
 
-				if (data.close === true) {
-					connection.socket.end();
-				}
+				if (callback !== null) {
 
-				if (data.response !== null) {
-
-					if (connection.socket !== null) {
-						connection.socket.write(data.response);
-					}
-
-				} else if (data.fragment === true) {
-
-					connection.fragment.buffer = buffer;
+					callback({
+						headers: data.headers,
+						payload: data.payload
+					});
 
 				} else {
 
-					// Special case: Deserialize Buffer instances
-					if (isObject(data.payload) === true) {
-
-						if (data.payload.type === 'Buffer') {
-							data.payload = Buffer.from(data.payload.data);
-						}
-
-					}
-
-
-					if (callback !== null) {
-
-						callback({
-							headers: data.headers,
-							payload: data.payload
-						});
-
-						// Special case: Network gave us multiple Buffers
-						if (data.overflow !== null) {
-							WS.receive(connection, data.overflow, callback);
-						}
-
-					} else {
-
-						// Special case: Network gave us multiple Buffers
-						if (data.overflow !== null) {
-							WS.receive(connection, data.overflow);
-						}
-
-						return {
-							headers: data.headers,
-							payload: data.payload
-						};
-
-					}
+					return {
+						headers: data.headers,
+						payload: data.payload
+					};
 
 				}
 
@@ -988,38 +809,16 @@ const WS = {
 	send: function(connection, data, callback) {
 
 		connection = isConnection(connection) ? connection : null;
-		data       = isObject(data)           ? data       : {};
+		data       = isObject(data)           ? data       : { headers: {}, payload: null };
 		callback   = isFunction(callback)     ? callback   : null;
 
 
 		if (connection !== null && connection.socket !== null) {
 
-			let buffer  = null;
-			let headers = {};
-			let payload = null;
-
-			if (isObject(data.headers) === true) {
-				headers = data.headers;
-			}
-
-			if (isBoolean(data.payload) === true) {
-				payload = data.payload;
-			} else if (isBuffer(data.payload) === true) {
-				payload = data.payload;
-			} else if (isObject(data.payload) === true) {
-				payload = Buffer.from(JSON.stringify(payload, null, '\t'), 'utf8');
-			}
-
-
-			if (headers !== null) {
-
-				buffer = encode(connection, {
-					headers: headers,
-					payload: payload
-				});
-
-			}
-
+			let buffer = PACKET.encode(connection, {
+				headers: data.headers || {},
+				payload: data.payload || null
+			});
 
 			if (buffer !== null) {
 
@@ -1123,15 +922,12 @@ const WS = {
 
 				connection.socket.once('data', (data) => {
 
-					HTTP.receive(null, data, (request) => {
-
-						if (isUpgrade(request) === true) {
-							WS.upgrade(connection, request);
-						} else {
-							connection.disconnect();
-						}
-
-					});
+					let request = HANDSHAKE.decode(null, data);
+					if (isUpgrade(request) === true) {
+						WS.upgrade(connection, request);
+					} else {
+						connection.disconnect();
+					}
 
 				});
 

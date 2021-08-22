@@ -609,22 +609,63 @@ const HTTP = {
 				payload = Buffer.from(JSON.stringify(packet.payload, null, '\t'), 'utf8');
 			}
 
-			if (isObject(headers['@transfer']) === false) {
+			if (payload !== null) {
 
-				if (payload !== null) {
+				headers['@transfer'] = {
+					'encoding': 'identity',
+					'length':   payload.length
+				};
 
-					headers['@transfer'] = {
-						'encoding': 'identity',
-						'length':   payload.length
-					};
+			} else {
 
-				} else {
+				headers['@transfer'] = {
+					'encoding': 'identity'
+				};
 
-					headers['@transfer'] = {};
+			}
+
+			if (isObject(packet.headers['@transfer']) === true) {
+
+				if (isString(packet.headers['@transfer']['encoding']) === true) {
+					headers['@transfer']['encoding'] = packet.headers['@transfer']['encoding'];
+				}
+
+				if (isArray(packet.headers['@transfer']['range']) === true) {
+
+					if (payload !== null) {
+
+						headers['@transfer']['range'] = [ 0, payload.length ];
+
+
+						let from = packet.headers['@transfer']['range'][0] || 0;
+						let to   = packet.headers['@transfer']['range'][1] || null;
+
+						if (
+							isNumber(from) === true
+							&& from >= 0
+							&& from < payload.length
+							&& from !== -Infinity
+							&& from !== Infinity
+						) {
+							headers['@transfer']['range'][0] = from;
+						}
+
+						if (
+							isNumber(to) === true
+							&& to > from
+							&& to < payload.length
+							&& to !== -Infinity
+							&& to !== Infinity
+						) {
+							headers['@transfer']['range'][1] = to;
+						}
+
+					}
 
 				}
 
 			}
+
 
 			if (Object.keys(headers).length === 0) {
 				return null;
