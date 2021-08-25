@@ -1,8 +1,5 @@
 
-import { Buffer, isArray, isBoolean, isBuffer, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { DATETIME                                                           } from '../../source/parser/DATETIME.mjs';
-import { IP                                                                 } from '../../source/parser/IP.mjs';
-import { URL                                                                } from '../../source/parser/URL.mjs';
+import { Buffer, isArray, isBuffer, isNumber, isObject, isString } from '../../extern/base.mjs';
 
 
 
@@ -254,7 +251,6 @@ const WS = {
 
 	},
 
-
 	encode: function(connection, packet) {
 
 		connection = isConnection(connection) ? connection : null;
@@ -291,8 +287,14 @@ const WS = {
 						headers['@status'] = packet.headers['@status'];
 					}
 
-					// TODO: Validate @transfer headers
-					// TODO: Validate @type
+					if (
+						packet.headers['@type'] === 'request'
+						|| packet.headers['@type'] === 'response'
+					) {
+						headers['@type'] = packet.headers['@type'];
+					} else {
+						headers['@type'] = 'request';
+					}
 
 				}
 
@@ -305,7 +307,15 @@ const WS = {
 				) {
 					headers['@status'] = packet.headers['@status'];
 				}
-				// TODO: Validate headers
+
+				if (
+					packet.headers['@type'] === 'request'
+					|| packet.headers['@type'] === 'response'
+				) {
+					headers['@type'] = packet.headers['@type'];
+				} else {
+					headers['@type'] = 'response';
+				}
 
 			}
 
@@ -378,21 +388,173 @@ const WS = {
 			}
 
 
+			let fin_payload = true;
 			let msg_payload = Buffer.alloc(0);
+			let msk_payload = Buffer.alloc(0);
 
 			if (payload !== null) {
 
-				// TODO: Implement range based encoding as in HTTP Packet Parser
-				// but in WS it's the 0x02 and then 0x00 frames sent separately
-				// depending on from and to in [range] header
+				if (isArray(headers['@transfer']['range']) === true) {
+
+					if (type === 'client') {
+
+						// XXX: What to do here? There's no possibility to resume downloads
+						delete headers['@transfer']['range'];
+						msg_payload = payload;
+
+					} else if (type === 'server') {
+
+						let content_range = headers['@transfer']['range'];
+						if (Number.isNaN(content_range[0]) === false && Number.isNaN(content_range[1]) === false) {
+
+							if (content_range[1] < msg_payload.length - 1) {
+								fin_payload = false;
+							}
+
+							msg_payload = payload.slice(content_range[0], content_range[1] + 1);
+
+						} else {
+
+							delete headers['@transfer']['range'];
+							msg_payload = payload;
+
+						}
+
+					}
+
+				} else {
+
+					msg_payload = payload;
+
+				}
+
+
+				if (headers['@type'] === 'request') {
+
+					msk_payload = Buffer.alloc(4);
+					msk_payload[0] = (Math.random() * 0xff) | 0;
+					msk_payload[1] = (Math.random() * 0xff) | 0;
+					msk_payload[2] = (Math.random() * 0xff) | 0;
+					msk_payload[3] = (Math.random() * 0xff) | 0;
+
+				} else if (headers['@type'] === 'response') {
+
+					msk_payload = Buffer.alloc(0);
+
+				}
+
+				if (msk_payload.length > 0) {
+					msg_payload = msg_payload.map((value, index) => value ^ msk_payload[index % msk_payload.length]);
+				}
 
 			}
 
 
-			// TODO: Encoding of range[ from, to ]
-			// - If packet.payload > range[1] then 0x02 Frame, then 0x00 Frame for rest
+			let msg_headers = Buffer.alloc(0);
 
-			// Max frame size seems to be around 128kB, but it's lower down the network
+			if (
+				headers['@operator'] === 0x00
+				|| headers['@operator'] === 0x01
+				|| headers['@operator'] === 0x02
+			) {
+
+				if (msg_payload.length > 0xffff) {
+
+					let lo = (msg_payload.length |  0);
+					let hi = (msg_payload.length - lo) / 4294967296;
+
+					msg_headers    = Buffer.alloc(10 + msk_payload.length);
+					msg_headers[0] = (fin_payload === true   ? 128 : 0) + headers['@operator'];
+					msg_headers[1] = (msk_payload.length > 0 ? 128 : 0) + 127;
+					msg_headers[2] = (hi >> 24) & 0xff;
+					msg_headers[3] = (hi >> 16) & 0xff;
+					msg_headers[4] = (hi >>  8) & 0xff;
+					msg_headers[5] = (hi >>  0) & 0xff;
+					msg_headers[6] = (lo >> 24) & 0xff;
+					msg_headers[7] = (lo >> 16) & 0xff;
+					msg_headers[8] = (lo >>  8) & 0xff;
+					msg_headers[9] = (lo >>  0) & 0xff;
+
+					if (msk_payload.length > 0) {
+						msk_payload.copy(msg_headers, 10);
+					}
+
+				} else if (msg_payload.length > 125) {
+
+					msg_headers    = Buffer.alloc(4 + msk_payload.length);
+					msg_headers[0] = (fin_payload === true   ? 128 : 0) + headers['@operator'];
+					msg_headers[1] = (msk_payload.length > 0 ? 128 : 0) + 126;
+					msg_headers[2] = (msg_payload.length >> 8) & 0xff;
+					msg_headers[3] = (msg_payload.length >> 0) & 0xff;
+
+					if (msk_payload.length > 0) {
+						msk_payload.copy(msg_headers, 4);
+					}
+
+				} else {
+
+					msg_headers    = Buffer.alloc(2 + msk_payload.length);
+					msg_headers[0] = (fin_payload === true   ? 128 : 0) + headers['@operator'];
+					msg_headers[1] = (msk_payload.length > 0 ? 128 : 0) + msg_payload.length;
+
+					if (msk_payload.length > 0) {
+						msk_payload.copy(msg_headers, 2);
+					}
+
+				}
+
+			} else if (headers['@operator'] === 0x08) {
+
+				let code = 1000;
+
+				if (isNumber(headers['@status']) === true) {
+					code = headers['@status'];
+				}
+
+				msg_headers    = Buffer.alloc(4);
+				msg_headers[0] = 128 + headers['@operator'];
+				msg_headers[1] = 0   + 0x02;
+				msg_headers[2] = (code >> 8) & 0xff;
+				msg_headers[3] = (code >> 0) & 0xff;
+				msg_payload    = Buffer.alloc(0);
+				msk_payload    = Buffer.alloc(0);
+
+			} else if (headers['@operator'] === 0x09) {
+
+				msg_headers    = Buffer.alloc(2);
+				msg_headers[0] = 128 + headers['@operator'];
+				msg_headers[1] = 0   + 0x00;
+				msg_payload    = Buffer.alloc(0);
+				msk_payload    = Buffer.alloc(0);
+
+			} else if (headers['@operator'] === 0x0a) {
+
+				msg_headers    = Buffer.alloc(2);
+				msg_headers[0] = 128 + headers['@operator'];
+				msg_headers[1] = 0   + 0x00;
+				msg_payload    = Buffer.alloc(0);
+				msk_payload    = Buffer.alloc(0);
+
+			} else {
+
+				msg_headers    = Buffer.alloc(4);
+				msg_headers[0] = 128 + headers['@operator'];
+				msg_headers[1] = 0   + 0x02;
+				msg_headers[2] = (1002 >> 8) & 0xff;
+				msg_headers[3] = (1002 >> 0) & 0xff;
+				msg_payload    = Buffer.alloc(0);
+				msk_payload    = Buffer.alloc(0);
+
+			}
+
+
+			return Buffer.concat([
+				msg_headers,
+				msg_payload
+			]);
+
+
+			// XXX: Max frame size seems to be around 128kB, but it's lower down the network
 			// stack and actually related to the Operating System and not the Browser's
 			// Network Stack (chromium-net has no limitations in the code, but 112kB is the limit)
 
