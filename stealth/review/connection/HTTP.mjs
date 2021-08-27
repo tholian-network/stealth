@@ -14,7 +14,20 @@ const PAYLOADS = {
 	// TODO: gzip encodings
 	// TODO: chunked encodings
 
-	'200': {
+	'ERROR': {
+
+		'RESPONSE': Buffer.from([
+			'HTTP/1.1 404 Not Found',
+			'Content-Encoding: identity',
+			'Content-Length: 20',
+			'Content-Type: text/plain',
+			'',
+			'Error 404: Not Found'
+		].join('\r\n'), 'utf8')
+
+	},
+
+	'SIMPLE': {
 
 		'REQUEST': Buffer.from([
 			'GET /path/to/resource?param=value HTTP/1.1',
@@ -44,8 +57,18 @@ const PAYLOADS = {
 
 	},
 
+	'REDIRECT': {
 
-	'206': {
+		'RESPONSE': Buffer.from([
+			'HTTP/1.1 301 Moved Permanently',
+			'Location: /browser/index.html',
+			'',
+			''
+		].join('\r\n'), 'utf8')
+
+	},
+
+	'PARTIAL': {
 
 		'PAYLOAD': Buffer.from([
 			'The sentence #1 inside the big buffer is exactly 64 bytes long.\n',
@@ -117,16 +140,27 @@ const PAYLOADS = {
 			].join('')
 		].join('\r\n'), 'utf8')
 
-	},
-
-	'404': {
 	}
 
 };
 
-const DATA = {
+const PACKETS = {
 
-	'200-multiplex': {
+	'SIMPLE': {
+
+		'REQUEST': {
+			headers: {
+				'@method':         'GET',
+				'@url':            '/index.html',
+				'host':            'covert.tholian.local',
+				'accept-encoding': 'gzip'
+			},
+			payload: Buffer.from('{"status":1337}', 'utf8')
+		}
+
+	},
+
+	'MULTIPLEX': {
 
 		'REQUEST': {
 
@@ -142,9 +176,9 @@ const DATA = {
 
 			'/api/users': {
 				headers: {
-					'@method':         'POST',
-					'@url':            '/api/users',
-					'@transfer':       {
+					'@method':   'POST',
+					'@url':      '/api/users',
+					'@transfer': {
 						'encoding': 'gzip'
 					},
 					'host':            'covert.tholian.local',
@@ -160,7 +194,7 @@ const DATA = {
 
 			'/index.html': {
 				headers: {
-					'@status': 200,
+					'@status':   200,
 					'@transfer': {
 						'encoding': 'identity',
 						'length':   28
@@ -172,7 +206,7 @@ const DATA = {
 
 			'/api/users': {
 				headers: {
-					'@status': 200,
+					'@status':   200,
 					'@transfer': {
 						'encoding': 'gzip'
 					},
@@ -181,6 +215,20 @@ const DATA = {
 				payload: Buffer.from('{"user":"cookiengineer"}', 'utf8')
 			}
 
+		}
+
+	},
+
+	'ONLINE': {
+
+		'REQUEST': {
+			headers: {
+				'@method':         'GET',
+				'@url':            '/index.html',
+				'accept-encoding': 'gzip',
+				'host':            'example.com',
+			},
+			payload: null
 		}
 
 	}
@@ -235,16 +283,41 @@ describe('HTTP.disconnect()', function(assert) {
 
 });
 
-describe('HTTP.receive()/client/200', function(assert) {
+describe('HTTP.receive()/client/error', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 
-	HTTP.receive(null, PAYLOADS['200']['RESPONSE'], (response) => {
+	HTTP.receive(null, PAYLOADS['ERROR']['RESPONSE'], (response) => {
 
 		assert(response, {
 			headers: {
-				'@status':          200,
-				'@transfer':        {
+				'@status':   404,
+				'@transfer': {
+					'encoding': 'identity',
+					'length':   20,
+					'range':    [ 0, 19 ]
+				},
+				'content-encoding': 'identity',
+				'content-length':   20,
+				'content-type':     'text/plain'
+			},
+			payload: Buffer.from('Error 404: Not Found', 'utf8')
+		});
+
+	});
+
+});
+
+describe('HTTP.receive()/client/simple', function(assert) {
+
+	assert(isFunction(HTTP.receive), true);
+
+	HTTP.receive(null, PAYLOADS['SIMPLE']['RESPONSE'], (response) => {
+
+		assert(response, {
+			headers: {
+				'@status':   200,
+				'@transfer': {
 					'encoding': 'identity',
 					'length':   53,
 					'range':    [ 0, 52 ]
@@ -289,16 +362,16 @@ describe('HTTP.receive()/client/200', function(assert) {
 
 });
 
-describe('HTTP.receive()/client/200/partial', function(assert) {
+describe('HTTP.receive()/client/simple/partial', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 
-	HTTP.receive(null, PAYLOADS['200']['RESPONSE'].slice(0, 342), (response) => {
+	HTTP.receive(null, PAYLOADS['SIMPLE']['RESPONSE'].slice(0, 342), (response) => {
 
 		assert(response, {
 			headers: {
-				'@status':          200,
-				'@transfer':        {
+				'@status':   200,
+				'@transfer': {
 					'encoding': null,
 					'length':   53,
 					'range':    [ 0, 52 ]
@@ -343,16 +416,40 @@ describe('HTTP.receive()/client/200/partial', function(assert) {
 
 });
 
-describe('HTTP.receive()/client/206', function(assert) {
+describe('HTTP.receive()/client/redirect', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 
-	HTTP.receive(null, PAYLOADS['206']['RESPONSE1'], (response) => {
+	HTTP.receive(null, PAYLOADS['REDIRECT']['RESPONSE'], (response) => {
 
 		assert(response, {
 			headers: {
-				'@status':          206,
-				'@transfer':        {
+				'@status':   301,
+				'@transfer': {
+					'encoding': 'identity',
+					'length':   Infinity,
+					'range':    [ 0, Infinity ]
+				},
+				'content-encoding': 'identity',
+				'location':         '/browser/index.html'
+			},
+			payload: Buffer.from('', 'utf8')
+		});
+
+	});
+
+});
+
+describe('HTTP.receive()/client/partial', function(assert) {
+
+	assert(isFunction(HTTP.receive), true);
+
+	HTTP.receive(null, PAYLOADS['PARTIAL']['RESPONSE1'], (response) => {
+
+		assert(response, {
+			headers: {
+				'@status':   206,
+				'@transfer': {
 					'encoding': 'identity',
 					'length':   512,
 					'range':    [ 0, 127 ]
@@ -369,12 +466,12 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 	});
 
-	HTTP.receive(null, PAYLOADS['206']['RESPONSE2'], (response) => {
+	HTTP.receive(null, PAYLOADS['PARTIAL']['RESPONSE2'], (response) => {
 
 		assert(response, {
 			headers: {
-				'@status':          206,
-				'@transfer':        {
+				'@status':   206,
+				'@transfer': {
 					'encoding': 'identity',
 					'length':   512,
 					'range':    [ 128, 255 ]
@@ -391,12 +488,12 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 	});
 
-	HTTP.receive(null, PAYLOADS['206']['RESPONSE3'], (response) => {
+	HTTP.receive(null, PAYLOADS['PARTIAL']['RESPONSE3'], (response) => {
 
 		assert(response, {
 			headers: {
-				'@status':          206,
-				'@transfer':        {
+				'@status':   206,
+				'@transfer': {
 					'encoding': 'identity',
 					'length':   512,
 					'range':    [ 256, 511 ]
@@ -420,7 +517,7 @@ describe('HTTP.receive()/client/206', function(assert) {
 
 });
 
-describe('HTTP.send()/client/200', function(assert) {
+describe('HTTP.send()/client/online', function(assert) {
 
 	assert(isFunction(HTTP.send), true);
 
@@ -455,15 +552,7 @@ describe('HTTP.send()/client/200', function(assert) {
 
 	connection.once('@connect', () => {
 
-		HTTP.send(connection, {
-			headers: {
-				'@method':         'GET',
-				'@url':            '/index.html',
-				'accept-encoding': 'gzip',
-				'host':            'example.com',
-			},
-			payload: null
-		}, (result) => {
+		HTTP.send(connection, PACKETS['ONLINE']['REQUEST'], (result) => {
 			assert(result, true);
 		});
 
@@ -475,16 +564,16 @@ describe('HTTP.send()/client/200', function(assert) {
 
 });
 
-describe('HTTP.receive()/server/200', function(assert) {
+describe('HTTP.receive()/server/simple', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 
-	HTTP.receive(null, PAYLOADS['200']['REQUEST'], (request) => {
+	HTTP.receive(null, PAYLOADS['SIMPLE']['REQUEST'], (request) => {
 
 		assert(request, {
 			headers: {
-				'@method':          'GET',
-				'@transfer':        {
+				'@method':   'GET',
+				'@transfer': {
 					'encoding': 'identity',
 					'length':   20,
 					'range':    [ 0, 19 ]
@@ -501,16 +590,16 @@ describe('HTTP.receive()/server/200', function(assert) {
 
 });
 
-describe('HTTP.receive()/server/200/partial', function(assert) {
+describe('HTTP.receive()/server/simple/partial', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 
-	HTTP.receive(null, PAYLOADS['200']['REQUEST'].slice(0, 73 + 5), (request) => {
+	HTTP.receive(null, PAYLOADS['SIMPLE']['REQUEST'].slice(0, 73 + 5), (request) => {
 
 		assert(request, {
 			headers: {
-				'@method':          'GET',
-				'@transfer':        {
+				'@method':   'GET',
+				'@transfer': {
 					'encoding': 'identity',
 					'length':   Infinity,
 					'range':    [ 0, Infinity ]
@@ -526,16 +615,16 @@ describe('HTTP.receive()/server/200/partial', function(assert) {
 
 });
 
-describe('HTTP.receive()/server/206', function(assert) {
+describe('HTTP.receive()/server/partial', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
 
-	HTTP.receive(null, PAYLOADS['206']['REQUEST1'], (request) => {
+	HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST1'], (request) => {
 
 		assert(request, {
 			headers: {
-				'@method':         'GET',
-				'@transfer':       {
+				'@method':   'GET',
+				'@transfer': {
 					'encoding': null,
 					'length':   Infinity,
 					'range':    [ 0, 127 ]
@@ -549,12 +638,12 @@ describe('HTTP.receive()/server/206', function(assert) {
 
 	});
 
-	HTTP.receive(null, PAYLOADS['206']['REQUEST2'], (request) => {
+	HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST2'], (request) => {
 
 		assert(request, {
 			headers: {
-				'@method':         'GET',
-				'@transfer':       {
+				'@method':   'GET',
+				'@transfer': {
 					'encoding': null,
 					'length':   Infinity,
 					'range':    [ 128, 255 ]
@@ -568,12 +657,12 @@ describe('HTTP.receive()/server/206', function(assert) {
 
 	});
 
-	HTTP.receive(null, PAYLOADS['206']['REQUEST3'], (request) => {
+	HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST3'], (request) => {
 
 		assert(request, {
 			headers: {
-				'@method':          'GET',
-				'@transfer':        {
+				'@method':   'GET',
+				'@transfer': {
 					'encoding': 'identity',
 					'length':   Infinity,
 					'range':    [ 256, Infinity ]
@@ -590,7 +679,7 @@ describe('HTTP.receive()/server/206', function(assert) {
 
 });
 
-describe('HTTP.send()/server/200', function(assert) {
+describe('HTTP.send()/server/simple', function(assert) {
 
 	assert(isFunction(HTTP.upgrade), true);
 	assert(isFunction(HTTP.send),    true);
@@ -612,8 +701,8 @@ describe('HTTP.send()/server/200', function(assert) {
 
 			assert(request, {
 				headers: {
-					'@method':          'GET',
-					'@transfer':        {
+					'@method':   'GET',
+					'@transfer': {
 						'encoding': 'identity',
 						'length':   15,
 						'range':    [ 0, 14 ]
@@ -649,18 +738,8 @@ describe('HTTP.send()/server/200', function(assert) {
 
 	connection.once('@connect', () => {
 
-		HTTP.send(connection, {
-			headers: {
-				'@method':         'GET',
-				'@url':            '/index.html',
-				'host':            'covert.tholian.local',
-				'accept-encoding': 'gzip'
-			},
-			payload: Buffer.from('{"status":1337}', 'utf8')
-		}, (result) => {
-
+		HTTP.send(connection, PACKETS['SIMPLE']['REQUEST'], (result) => {
 			assert(result, true);
-
 		});
 
 		setTimeout(() => {
@@ -683,7 +762,7 @@ describe('HTTP.send()/server/200', function(assert) {
 
 });
 
-describe('HTTP.send()/server/200/multiplex', function(assert) {
+describe('HTTP.send()/server/multiplex', function(assert) {
 
 	assert(isFunction(HTTP.upgrade), true);
 	assert(isFunction(HTTP.send),    true);
@@ -710,7 +789,7 @@ describe('HTTP.send()/server/200/multiplex', function(assert) {
 			urls.push(request.headers['@url']);
 			payloads.push(request.payload);
 
-			HTTP.send(connection, DATA['200-multiplex']['RESPONSE'][request.headers['@url']] || null);
+			HTTP.send(connection, PACKETS['MULTIPLEX']['RESPONSE'][request.headers['@url']] || null);
 
 		});
 
@@ -789,13 +868,13 @@ describe('HTTP.send()/server/200/multiplex', function(assert) {
 
 			});
 
-			HTTP.send(connection, DATA['200-multiplex']['REQUEST']['/api/users'] || null, (result) => {
+			HTTP.send(connection, PACKETS['MULTIPLEX']['REQUEST']['/api/users'] || null, (result) => {
 				assert(result, true);
 			});
 
 		});
 
-		HTTP.send(connection, DATA['200-multiplex']['REQUEST']['/index.html'] || null, (result) => {
+		HTTP.send(connection, PACKETS['MULTIPLEX']['REQUEST']['/index.html'] || null, (result) => {
 			assert(result, true);
 		});
 
@@ -815,7 +894,7 @@ describe('HTTP.send()/server/200/multiplex', function(assert) {
 
 });
 
-describe('HTTP.send()/server/206', function(assert) {
+describe('HTTP.send()/server/partial', function(assert) {
 
 	assert(isFunction(HTTP.upgrade), true);
 	assert(isFunction(HTTP.send),    true);
@@ -845,11 +924,11 @@ describe('HTTP.send()/server/206', function(assert) {
 					'@status':   206,
 					'@transfer': {
 						'encoding': 'identity',
-						'length':   PAYLOADS['206']['PAYLOAD'].length,
+						'length':   PAYLOADS['PARTIAL']['PAYLOAD'].length,
 						'range':    request.headers['@range']
 					}
 				},
-				payload: PAYLOADS['206']['PAYLOAD']
+				payload: PAYLOADS['PARTIAL']['PAYLOAD']
 			}, (result) => {
 				assert(result, true);
 			});
@@ -878,14 +957,14 @@ describe('HTTP.send()/server/206', function(assert) {
 
 		connection.once('@connect', () => {
 
-			HTTP.send(connection, HTTP.receive(null, PAYLOADS['206']['REQUEST1']), (result) => {
+			HTTP.send(connection, HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST1']), (result) => {
 				assert(result, true);
 			});
 
 		});
 
 		connection.once('progress', (frame /*, progress */) => {
-			assert(frame, HTTP.receive(null, PAYLOADS['206']['RESPONSE1']));
+			assert(frame, HTTP.receive(null, PAYLOADS['PARTIAL']['RESPONSE1']));
 		});
 
 		connection.once('@disconnect', () => {
@@ -901,14 +980,14 @@ describe('HTTP.send()/server/206', function(assert) {
 
 		connection.once('@connect', () => {
 
-			HTTP.send(connection, HTTP.receive(null, PAYLOADS['206']['REQUEST2']), (result) => {
+			HTTP.send(connection, HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST2']), (result) => {
 				assert(result, true);
 			});
 
 		});
 
 		connection.once('progress', (frame /*, progress */) => {
-			assert(frame, HTTP.receive(null, PAYLOADS['206']['RESPONSE2']));
+			assert(frame, HTTP.receive(null, PAYLOADS['PARTIAL']['RESPONSE2']));
 		});
 
 		connection.once('@disconnect', () => {
@@ -924,14 +1003,14 @@ describe('HTTP.send()/server/206', function(assert) {
 
 		connection.once('@connect', () => {
 
-			HTTP.send(connection, HTTP.receive(null, PAYLOADS['206']['REQUEST3']), (result) => {
+			HTTP.send(connection, HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST3']), (result) => {
 				assert(result, true);
 			});
 
 		});
 
 		connection.once('progress', (frame /*, progress */) => {
-			assert(frame, HTTP.receive(null, PAYLOADS['206']['RESPONSE3']));
+			assert(frame, HTTP.receive(null, PAYLOADS['PARTIAL']['RESPONSE3']));
 		});
 
 		connection.once('@disconnect', () => {
