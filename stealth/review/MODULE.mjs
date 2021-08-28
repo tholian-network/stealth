@@ -16,6 +16,7 @@ describe('MODULE', function(assert) {
 	assert(typeof STEALTH['Settings'],    'function');
 	assert(typeof STEALTH['Stealth'],     'function');
 	assert(typeof STEALTH['Tab'],         'function');
+	assert(typeof STEALTH['VERSION'],    'string');
 
 	assert(typeof STEALTH['isBrowser'],  'function');
 	assert(typeof STEALTH['isClient'],   'function');
@@ -43,11 +44,20 @@ describe('MODULE', function(assert) {
 
 	assert(typeof STEALTH['connection'],          'object');
 	assert(typeof STEALTH['connection']['DNS'],   'object');
+	assert(typeof STEALTH['connection']['DNSH'],  'object');
+	assert(typeof STEALTH['connection']['DNSS'],  'object');
 	assert(typeof STEALTH['connection']['HTTP'],  'object');
 	assert(typeof STEALTH['connection']['HTTPS'], 'object');
+	assert(typeof STEALTH['connection']['MDNS'],  'object');
 	assert(typeof STEALTH['connection']['SOCKS'], 'object');
 	assert(typeof STEALTH['connection']['WS'],    'object');
 	assert(typeof STEALTH['connection']['WSS'],   'object');
+
+	assert(typeof STEALTH['packet'],          'object');
+	assert(typeof STEALTH['packet']['DNS'],   'object');
+	assert(typeof STEALTH['packet']['HTTP'],  'object');
+	assert(typeof STEALTH['packet']['SOCKS'], 'object');
+	assert(typeof STEALTH['packet']['WS'],    'object');
 
 	assert(typeof STEALTH['parser'],             'object');
 	assert(typeof STEALTH['parser']['CSS'],      'object');
@@ -59,8 +69,12 @@ describe('MODULE', function(assert) {
 	assert(typeof STEALTH['parser']['URL'],      'object');
 
 	assert(typeof STEALTH['server'],                        'object');
-	assert(typeof STEALTH['server']['RESOLVER'],            'object');
-	assert(typeof STEALTH['server']['ROUTER'],              'object');
+	assert(typeof STEALTH['server']['Compeer'],             'function');
+	assert(typeof STEALTH['server']['Proxy'],               'function');
+	assert(typeof STEALTH['server']['Router'],              'function');
+	assert(typeof STEALTH['server']['Services'],            'function');
+	assert(typeof STEALTH['server']['Webproxy'],            'function');
+	assert(typeof STEALTH['server']['Webserver'],           'function');
 	assert(typeof STEALTH['server']['service'],             'object');
 	assert(typeof STEALTH['server']['service']['Beacon'],   'function');
 	assert(typeof STEALTH['server']['service']['Blocker'],  'function');
@@ -84,6 +98,7 @@ describe('MODULE', function(assert) {
 		'Settings',
 		'Stealth',
 		'Tab',
+		'VERSION',
 		'client',
 		'connection',
 		'isBrowser',
@@ -96,6 +111,7 @@ describe('MODULE', function(assert) {
 		'isSettings',
 		'isStealth',
 		'isTab',
+		'packet',
 		'parser',
 		'server'
 	]);

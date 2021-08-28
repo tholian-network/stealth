@@ -15,9 +15,15 @@ import { DNSH  as connection_DNSH  } from './source/connection/DNSH.mjs';
 import { DNSS  as connection_DNSS  } from './source/connection/DNSS.mjs';
 import { HTTP  as connection_HTTP  } from './source/connection/HTTP.mjs';
 import { HTTPS as connection_HTTPS } from './source/connection/HTTPS.mjs';
+import { MDNS  as connection_MDNS  } from './source/connection/MDNS.mjs';
 import { SOCKS as connection_SOCKS } from './source/connection/SOCKS.mjs';
 import { WS    as connection_WS    } from './source/connection/WS.mjs';
 import { WSS   as connection_WSS   } from './source/connection/WSS.mjs';
+
+import { DNS   as packet_DNS   } from './source/packet/DNS.mjs';
+import { HTTP  as packet_HTTP  } from './source/packet/HTTP.mjs';
+import { SOCKS as packet_SOCKS } from './source/packet/SOCKS.mjs';
+import { WS    as packet_WS    } from './source/packet/WS.mjs';
 
 import { CSS      as parser_CSS      } from './source/parser/CSS.mjs';
 import { DATETIME as parser_DATETIME } from './source/parser/DATETIME.mjs';
@@ -26,6 +32,13 @@ import { HTML     as parser_HTML     } from './source/parser/HTML.mjs';
 import { IP       as parser_IP       } from './source/parser/IP.mjs';
 import { UA       as parser_UA       } from './source/parser/UA.mjs';
 import { URL      as parser_URL      } from './source/parser/URL.mjs';
+
+import { Compeer   as server_Compeer   } from './source/server/Compeer.mjs';
+import { Proxy     as server_Proxy     } from './source/server/Proxy.mjs';
+import { Router    as server_Router    } from './source/server/Router.mjs';
+import { Services  as server_Services  } from './source/server/Services.mjs';
+import { Webproxy  as server_Webproxy  } from './source/server/Webproxy.mjs';
+import { Webserver as server_Webserver } from './source/server/Webserver.mjs';
 
 import { Beacon   as server_service_Beacon   } from './source/server/service/Beacon.mjs';
 import { Blocker  as server_service_Blocker  } from './source/server/service/Blocker.mjs';
@@ -77,9 +90,19 @@ export const connection = {
 	DNSS:  connection_DNSS,
 	HTTP:  connection_HTTP,
 	HTTPS: connection_HTTPS,
+	MDNS:  connection_MDNS,
 	SOCKS: connection_SOCKS,
 	WS:    connection_WS,
 	WSS:   connection_WSS
+
+};
+
+export const packet = {
+
+	DNS:   packet_DNS,
+	HTTP:  packet_HTTP,
+	SOCKS: packet_SOCKS,
+	WS:    packet_WS
 
 };
 
@@ -96,6 +119,13 @@ export const parser = {
 };
 
 export const server = {
+
+	Compeer:   server_Compeer,
+	Proxy:     server_Proxy,
+	Router:    server_Router,
+	Services:  server_Services,
+	Webproxy:  server_Webproxy,
+	Webserver: server_Webserver,
 
 	service: {
 
