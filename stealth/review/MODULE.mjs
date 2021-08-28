@@ -16,7 +16,7 @@ describe('MODULE', function(assert) {
 	assert(typeof STEALTH['Settings'],    'function');
 	assert(typeof STEALTH['Stealth'],     'function');
 	assert(typeof STEALTH['Tab'],         'function');
-	assert(typeof STEALTH['VERSION'],    'string');
+	assert(typeof STEALTH['VERSION'],     'string');
 
 	assert(typeof STEALTH['isBrowser'],  'function');
 	assert(typeof STEALTH['isClient'],   'function');
