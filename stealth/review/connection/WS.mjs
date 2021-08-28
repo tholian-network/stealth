@@ -9,6 +9,70 @@ import { WS                 } from '../../../stealth/source/connection/WS.mjs';
 
 
 
+const PAYLOADS = {
+
+	'CLOSE': {
+
+		'ERROR': Buffer.from([
+			128 + 0x08,
+			0   + 0x02,
+			(1002 >> 8) & 0xff,
+			(1002 >> 0) & 0xff
+		]),
+
+		'NORMAL': Buffer.from([
+			128 + 0x08,
+			0   + 0x02,
+			(1000 >> 8) & 0xff,
+			(1000 >> 0) & 0xff
+		])
+
+	},
+
+	'SIMPLE': {
+
+		'REQUEST1': Buffer.from([
+			// TODO: fin TEXT frame with masked payload
+		]),
+
+		'REQUEST2': Buffer.from([
+			// TODO: fin BINARY frame with masked payload
+		]),
+
+		'RESPONSE1': Buffer.from([
+			// TODO: fin TEXT frame with unmasked payload
+		]),
+
+		'RESPONSE2': Buffer.from([
+			// TODO: fin BINARY frame with unmasked payload
+		])
+
+	},
+
+	'PARTIAL': {
+
+		// TODO: fragmented TEXT frame followed by fin CONTINUE frame
+
+	},
+
+	'PINGPONG': {
+
+		'PING': Buffer.from([
+			128 + 0x09,
+			0   + 0x00
+		]),
+
+		'PONG': Buffer.from([
+			128 + 0x0a,
+			0   + 0x00
+		])
+
+	}
+
+};
+
+
+
 const mock_frame = (type) => {
 
 	let mask = [
