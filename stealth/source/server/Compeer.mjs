@@ -361,6 +361,7 @@ Compeer.prototype = {
 		buffer = isBuffer(buffer) ? buffer : null;
 		socket = isSocket(socket) ? socket : null;
 
+
 		let packet = PACKET.decode(null, buffer);
 		if (packet !== null) {
 

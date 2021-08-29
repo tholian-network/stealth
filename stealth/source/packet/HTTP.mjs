@@ -887,12 +887,23 @@ const HTTP = {
 			let msg_headers = Buffer.from(fields.join('\r\n'), 'utf8');
 
 
-			return Buffer.concat([
-				msg_headers,
-				EMPTYLINE,
-				msg_payload,
-				headers['@transfer']['encoding'] === 'chunked' ? Buffer.alloc(0) : EMPTYLINE
-			]);
+			if (msg_payload.length > 0) {
+
+				return Buffer.concat([
+					msg_headers,
+					EMPTYLINE,
+					msg_payload,
+					headers['@transfer']['encoding'] === 'chunked' ? Buffer.alloc(0) : EMPTYLINE
+				]);
+
+			} else {
+
+				return Buffer.concat([
+					msg_headers,
+					EMPTYLINE
+				]);
+
+			}
 
 		}
 

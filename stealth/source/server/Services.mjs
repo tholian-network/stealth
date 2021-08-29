@@ -41,6 +41,8 @@ const Services = function(stealth) {
 
 	if (stealth !== null) {
 
+		this.stealth     = stealth;
+
 		this['beacon']   = new Beacon(stealth);
 		this['blocker']  = new Blocker(stealth);
 		this['cache']    = new Cache(stealth);
@@ -53,6 +55,8 @@ const Services = function(stealth) {
 		this['settings'] = new Settings(stealth);
 
 	} else {
+
+		this.stealth     = null;
 
 		this['beacon']   = null;
 		this['blocker']  = null;
@@ -213,7 +217,7 @@ Services.prototype = {
 					let method  = request.headers.method  || null;
 					let service = request.headers.service || null;
 
-					if (service !== null && event !== null) {
+					if (service !== null && service !== 'stealth' && event !== null) {
 
 						let instance = this[service] || null;
 						if (instance !== null && instance.has(event) === true) {
@@ -234,7 +238,7 @@ Services.prototype = {
 
 						}
 
-					} else if (service !== null && method !== null) {
+					} else if (service !== null && service !== 'stealth' && method !== null) {
 
 						let instance = this[service] || null;
 						if (instance !== null && isFunction(instance[method]) === true) {

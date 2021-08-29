@@ -10,7 +10,7 @@ import { URL                                             } from '../../source/pa
 
 
 
-const toExpect = (nonce) => {
+const toWebSocketHash = (nonce) => {
 	return Buffer.from(crypto.createHash('sha1').update(nonce.toString('base64') + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex'), 'hex').toString('base64');
 };
 
@@ -46,7 +46,7 @@ const onconnect = function(connection, url) {
 			if (status_header === 101 && connection_header.includes('upgrade') === true && upgrade_header.includes('websocket') === true) {
 
 				let accept = response.headers['sec-websocket-accept'] || '';
-				let expect = toExpect(nonce);
+				let expect = toWebSocketHash(nonce);
 
 				if (accept === expect) {
 
@@ -263,32 +263,37 @@ const onupgrade = function(connection, url) {
 	});
 
 
-	let nonce = url.headers['sec-websocket-key'] || '';
-	if (nonce !== '') {
+	let key = url.headers['sec-websocket-key'] || '';
+	if (key !== '') {
 
-		let hash   = crypto.createHash('sha1').update(nonce + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
-		let accept = Buffer.from(hash, 'hex');
-
-		let handshake_response = HANDSHAKE.encode(null, {
+		let nonce    = Buffer.from(key, 'base64');
+		let accept   = toWebSocketHash(nonce);
+		let response = {
 			headers: {
 				'@status':               101,
 				'Connection':            'Upgrade',
 				'Upgrade':               'WebSocket',
-				'Sec-WebSocket-Accept':  accept.toString('base64'),
+				'Sec-WebSocket-Accept':  accept,
 				'Sec-WebSocket-Version': 13
-
 			},
 			payload: null
-		});
+		};
 
-		if (handshake_response !== null) {
+		if (url.headers['sec-websocket-protocol'] === 'stealth') {
+			response.headers['Sec-WebSocket-Protocol'] = 'stealth';
+		}
+
+		let buffer = HANDSHAKE.encode(null, response);
+		if (buffer !== null) {
 			connection.socket.resume();
-			connection.socket.write(handshake_response);
+			connection.socket.write(buffer);
+		} else {
+			connection.emit('error', [{ type: 'connection' }]);
 		}
 
 	} else {
 
-		connection.socket.resume();
+		connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
 
 	}
 

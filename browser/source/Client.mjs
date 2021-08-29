@@ -11,7 +11,6 @@ import { Policy                                                   } from './clie
 import { Redirect                                                 } from './client/service/Redirect.mjs';
 import { Session                                                  } from './client/service/Session.mjs';
 import { Settings                                                 } from './client/service/Settings.mjs';
-import { Stash                                                    } from './client/service/Stash.mjs';
 import { URL                                                      } from './parser/URL.mjs';
 
 
@@ -114,7 +113,6 @@ const Client = function(settings, browser) {
 	this.services['redirect'] = new Redirect(this);
 	this.services['session']  = new Session(this);
 	this.services['settings'] = new Settings(this);
-	this.services['stash']    = new Stash(this);
 
 
 	Emitter.call(this);

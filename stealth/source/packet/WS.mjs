@@ -206,7 +206,7 @@ const WS = {
 					// 0x08: Connection Close Frame
 
 					packet.headers['@operator'] = 0x08;
-					packet.headers['@status']   = (buffer[2] << 8) + (buffer[3]);
+					packet.headers['@status']   = (msg_payload[0] << 8) + (msg_payload[1]);
 					packet.headers['@type']     = mask === true ? 'request' : 'response';
 					packet.payload              = null;
 
@@ -431,7 +431,7 @@ const WS = {
 
 				if (headers['@type'] === 'request') {
 
-					msk_payload = Buffer.alloc(4);
+					msk_payload    = Buffer.alloc(4);
 					msk_payload[0] = (Math.random() * 0xff) | 0;
 					msk_payload[1] = (Math.random() * 0xff) | 0;
 					msk_payload[2] = (Math.random() * 0xff) | 0;
@@ -513,11 +513,12 @@ const WS = {
 
 				msg_headers    = Buffer.alloc(4);
 				msg_headers[0] = 128 + headers['@operator'];
-				msg_headers[1] = 0   + 0x02;
-				msg_headers[2] = (code >> 8) & 0xff;
-				msg_headers[3] = (code >> 0) & 0xff;
-				msg_payload    = Buffer.alloc(0);
-				msk_payload    = Buffer.alloc(0);
+				msg_headers[1] = (msk_payload.length > 0 ? 128 : 0) + 0x02;
+
+				msg_payload = Buffer.from([
+					(code >> 8) & 0xff,
+					(code >> 0) & 0xff
+				]);
 
 			} else if (headers['@operator'] === 0x09) {
 
