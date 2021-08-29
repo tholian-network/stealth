@@ -157,7 +157,7 @@ const WS = {
 						packet.headers['@operator']           = 0x00;
 						packet.headers['@status']             = null;
 						packet.headers['@transfer']['length'] = msg_payload.length;
-						packet.headers['@transfer']['range']  = [ 0, msg_payload.length ];
+						packet.headers['@transfer']['range']  = [ 0, msg_payload.length - 1 ];
 						packet.headers['@type']               = mask === true ? 'request' : 'response';
 						packet.payload                        = msg_payload;
 
@@ -182,7 +182,7 @@ const WS = {
 						packet.headers['@operator']           = operator;
 						packet.headers['@status']             = null;
 						packet.headers['@transfer']['length'] = msg_payload.length;
-						packet.headers['@transfer']['range']  = [ 0, msg_payload.length ];
+						packet.headers['@transfer']['range']  = [ 0, msg_payload.length - 1 ];
 						packet.headers['@type']               = mask === true ? 'request' : 'response';
 						packet.payload                        = msg_payload;
 
@@ -216,7 +216,7 @@ const WS = {
 
 					packet.headers['@operator'] = 0x09;
 					packet.headers['@status']   = null;
-					packet.headers['@type']     = mask === true ? 'request' : 'response';
+					packet.headers['@type']     = 'request';
 					packet.payload              = null;
 
 				} else if (operator === 0x0a) {
@@ -225,7 +225,7 @@ const WS = {
 
 					packet.headers['@operator'] = 0x0a;
 					packet.headers['@status']   = null;
-					packet.headers['@type']     = mask === true ? 'request' : 'response';
+					packet.headers['@type']     = 'response';
 					packet.payload              = null;
 
 				} else {

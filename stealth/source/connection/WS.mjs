@@ -610,7 +610,7 @@ const WS = {
 		callback   = isFunction(callback)     ? callback   : null;
 
 
-		if (connection !== null && buffer !== null) {
+		if (buffer !== null) {
 
 			let data = PACKET.decode(connection, buffer);
 			if (data !== null) {
