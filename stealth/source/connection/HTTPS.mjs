@@ -52,11 +52,24 @@ const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
 };
 
+const isSocket = function(obj) {
+
+	if (obj !== null && obj !== undefined) {
+		return obj instanceof tls.Socket;
+	}
+
+	return false;
+
+};
+
 const Connection = function(socket) {
+
+	socket = isSocket(socket) ? socket : null;
+
 
 	this.fragment = Buffer.alloc(0);
 	this.interval = null;
-	this.socket   = socket || null;
+	this.socket   = socket;
 	this.type     = null;
 
 
@@ -295,9 +308,28 @@ const HTTPS = {
 	receive: HTTP.receive,
 	send:    HTTP.send,
 
-	upgrade: function() {
+	upgrade: function(tunnel, url) {
 
-		// TODO: Implement integrated certificate workflow
+		url = isUpgrade(url) ? Object.assign(URL.parse(), url) : Object.assign(URL.parse(), { headers: {} });
+
+
+		let connection = null;
+
+		if (isSocket(tunnel) === true) {
+			connection = new Connection(tunnel);
+		} else if (isConnection(tunnel) === true) {
+			connection = Connection.from(tunnel);
+		}
+
+
+		if (connection !== null) {
+
+			// TODO: Implement integrated certificate workflow
+
+		}
+
+
+		return null;
 
 	}
 

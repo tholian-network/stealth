@@ -376,9 +376,12 @@ const isUpgrade = function(url) {
 
 const Connection = function(socket) {
 
+	socket = isSocket(socket) ? socket : null;
+
+
 	this.fragment = Buffer.alloc(0);
 	this.interval = null;
-	this.socket   = socket || null;
+	this.socket   = socket;
 	this.type     = null;
 
 
@@ -554,10 +557,20 @@ const HTTP = {
 
 					});
 
-					connection.socket.on('error', () => {
+					connection.socket.on('error', (err) => {
 
 						if (connection.socket !== null) {
+
+							let code  = (err.code || '');
+							let error = { type: 'connection' };
+
+							if (code === 'ECONNREFUSED') {
+								error = { type: 'connection', cause: 'socket-stability' };
+							}
+
+							connection.emit('error', [ error ]);
 							ondisconnect(connection, url);
+
 						}
 
 					});

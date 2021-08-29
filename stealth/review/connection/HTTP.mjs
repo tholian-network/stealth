@@ -552,6 +552,8 @@ describe('HTTP.send()/client/online', function(assert) {
 
 	connection.once('@connect', () => {
 
+		assert(true);
+
 		HTTP.send(connection, PACKETS['ONLINE']['REQUEST'], (result) => {
 			assert(result, true);
 		});

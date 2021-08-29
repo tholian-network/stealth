@@ -10,6 +10,10 @@ import { URL                                             } from '../../source/pa
 
 
 
+const toExpect = (nonce) => {
+	return Buffer.from(crypto.createHash('sha1').update(nonce.toString('base64') + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex'), 'hex').toString('base64');
+};
+
 const onconnect = function(connection, url) {
 
 	let hosts    = IP.sort(url.hosts);
@@ -35,19 +39,30 @@ const onconnect = function(connection, url) {
 		let response = HANDSHAKE.decode(null, data);
 		if (response !== null) {
 
+			let status_header     = response.headers['@status'] || 400;
 			let connection_header = (response.headers['connection'] || '').toLowerCase();
 			let upgrade_header    = (response.headers['upgrade'] || '').toLowerCase();
 
-			if (connection_header.includes('upgrade') === true && upgrade_header.includes('websocket') === true) {
+			if (status_header === 101 && connection_header.includes('upgrade') === true && upgrade_header.includes('websocket') === true) {
 
 				let accept = response.headers['sec-websocket-accept'] || '';
-				let hash   = crypto.createHash('sha1').update(nonce.toString('base64') + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('hex');
-				let expect = Buffer.from(hash, 'hex').toString('base64');
+				let expect = toExpect(nonce);
 
 				if (accept === expect) {
 
 					connection.type     = 'client';
-					connection.interval = setInterval(() => connection.ping(), 60000);
+					connection.interval = setInterval(() => {
+
+						WS.send(connection, {
+							headers: {
+								'@operator': 0x09,
+								'@type':     'request'
+							},
+							payload: null
+						});
+
+					}, 60000);
+
 					connection.socket.on('data', (fragment) => {
 						ondata(connection, url, fragment);
 					});
@@ -173,9 +188,9 @@ const ondata = function(connection, url, chunk) {
 		) {
 
 			if (connection.type === 'client') {
-				connection.emit('response', [ frame ]);
+				connection.emit('response', [{ headers: frame.headers, payload: frame.payload }]);
 			} else if (connection.type === 'server') {
-				connection.emit('request', [ frame ]);
+				connection.emit('request', [{ headers: frame.headers, payload: frame.payload }]);
 			}
 
 		} else if (frame.headers['@operator'] === 0x08) {
@@ -230,8 +245,8 @@ const ondata = function(connection, url, chunk) {
 const ondisconnect = function(connection /*, url */) {
 
 	let fragment = connection.fragment;
-	if (fragment.payload.length > 0) {
-		connection.emit('error', [{ type: 'connection' }]);
+	if (fragment.length > 0) {
+		connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 	}
 
 
@@ -432,34 +447,6 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
-	},
-
-	// TODO: Rewrite ping() method into interval that uses WS.send() directly
-	// without that Buffer crap
-	ping: function() {
-
-		if (this.type === 'client') {
-
-			if (this.socket !== null) {
-
-				this.socket.write(Buffer.from([
-					128 + 0x09, // Ping Frame
-					128 + 0x00,
-					(Math.random() * 0xff) | 0,
-					(Math.random() * 0xff) | 0,
-					(Math.random() * 0xff) | 0,
-					(Math.random() * 0xff) | 0
-				]));
-
-			} else if (this.interval !== null) {
-
-				clearInterval(this.interval);
-				this.interval = null;
-
-			}
-
-		}
-
 	}
 
 });
@@ -532,9 +519,18 @@ const WS = {
 
 					});
 
-					connection.socket.on('error', () => {
+					connection.socket.on('error', (err) => {
 
 						if (connection.socket !== null) {
+
+							let code  = (err.code || '');
+							let error = { type: 'connection' };
+
+							if (code === 'ECONNREFUSED') {
+								error = { type: 'connection', cause: 'socket-stability' };
+							}
+
+							connection.emit('error', [ error ]);
 
 							ondisconnect(connection, url);
 							connection.socket = null;
@@ -592,7 +588,38 @@ const WS = {
 
 		if (connection !== null) {
 
-			connection.disconnect();
+			if (connection.type === 'client') {
+
+				WS.send(connection, {
+					headers: {
+						'@operator': 0x08,
+						'@status':   1000,
+						'@type':     'request'
+					},
+					payload: null
+				}, () => {
+					connection.disconnect();
+				});
+
+			} else if (connection.type === 'server') {
+
+				WS.send(connection, {
+					headers: {
+						'@operator': 0x08,
+						'@status':   1000,
+						'@type':     'response'
+					},
+					payload: null
+				}, () => {
+					connection.disconnect();
+				});
+
+			} else {
+
+				connection.disconnect();
+
+			}
+
 
 			return true;
 

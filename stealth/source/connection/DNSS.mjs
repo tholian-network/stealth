@@ -173,8 +173,11 @@ const isUpgrade = function(url) {
 
 const Connection = function(socket) {
 
+	socket = isSocket(socket) ? socket : null;
+
+
 	this.fragment = Buffer.alloc(0);
-	this.socket   = socket || null;
+	this.socket   = socket;
 	this.type     = null;
 
 
@@ -608,9 +611,22 @@ const DNSS = {
 
 		if (connection !== null) {
 
-			connection.socket.removeAllListeners('listening');
+			connection.socket.setNoDelay(true);
+			connection.socket.setKeepAlive(false, 0);
+			connection.socket.allowHalfOpen = false;
+
+			connection.socket.removeAllListeners('data');
+			connection.socket.removeAllListeners('timeout');
 			connection.socket.removeAllListeners('error');
-			connection.socket.removeAllListeners('close');
+			connection.socket.removeAllListeners('end');
+
+			connection.socket.on('timeout', () => {
+
+				if (connection.socket !== null) {
+					ondisconnect(connection, url);
+				}
+
+			});
 
 			connection.socket.on('error', () => {
 
@@ -620,7 +636,7 @@ const DNSS = {
 
 			});
 
-			connection.socket.on('error', () => {
+			connection.socket.on('end', () => {
 
 				if (connection.socket !== null) {
 					ondisconnect(connection, url);
