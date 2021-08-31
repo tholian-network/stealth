@@ -252,6 +252,7 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 				socket.onmessage = (e) => {
 
 					let response = toResponse(e.data);
+
 					if (
 						isObject(response) === true
 						&& isObject(response.headers) === true

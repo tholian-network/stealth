@@ -301,6 +301,13 @@ const WS = {
 			} else if (type === 'server') {
 
 				if (
+					isNumber(packet.headers['@operator']) === true
+					&& OPERATORS.includes(packet.headers['@operator']) === true
+				) {
+					headers['@operator'] = packet.headers['@operator'];
+				}
+
+				if (
 					packet.headers['@operator'] === 0x08
 					&& isNumber(packet.headers['@status']) === true
 					&& isString(STATUSES[packet.headers['@status']]) === true
