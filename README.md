@@ -1,13 +1,10 @@
 
 # Tholian® Stealth - Secure, Peer-to-Peer, Private and Automatable Web Browser/Scraper/Proxy
 
-Tholian® Stealth is the automateable Web Browser for the Web of Knowledge.
+Tholian® Stealth is the automateable Web Browser for the Web of Truth and Knowledge.
 
 Its design goals are increased Privacy, increased Automation, adaptive Semantic
 Understanding and efficient Bandwidth Usage, no matter the cost.
-
-It is built by a former contributor to both Chromium and Firefox, and is built out
-of personal opinion on how Web Browsers should try to understand the Semantic Web.
 
 Stealth empowers its Users, not Website Developers that could (,will ,and did) abuse
 technologies to compromise the freedom and rights of Web Browser End-Users.
@@ -22,10 +19,19 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
   and uses explicitly `https://` first, and falls back to `http://` only when
   necessary and only when the website was not MITM-ed.
 
-- It is peer-to-peer and always uses the most efficient way to share resources
-  and to reduce bandwidth, which means that once a Site is downloaded it can be
-  shared with trusted Peers and continues to be readable, even when being
+- It is peer-to-peer and all its features can be reused by standardized network
+  protocols in order to share resources and reduce bandwidth everywhere. It can
+  be used as a `SOCKS Proxy`, as an adblocking `DNS Proxy`, and even as a peer-to-peer
+  `DNS Resolver` or as a peer-to-peer `HTTP/S Proxy` that acts as a transparent
+  reverse caching proxy for its networked external clients.
+
+- It always prioritizes efficient bandwidth use and optimizes for sharing local
+  resources with Trusted Peers. Sites continue to be readable, even when being
   completely offline.
+
+- It is multicast [DNS-based Service Discovery](https://dns-sd.org) compatible,
+  so it's able to discover other (local) Peers without any centralized network
+  service which could be potentially blocked and/or compromised.
 
 - It uses `Blockers` that is on feature-parity with AdBlock Plus, AdGuard, Pi-Hole,
   uBlock Origin and uMatrix (in the sense of "all of the above").
@@ -73,12 +79,18 @@ User Interface ("Browser UI") that is implemented using Web Technologies.
 
 ## Upcoming Features
 
-- Stealth in combination with a connected Radar instance will allow to discover Peers, and
-  to share and reuse `Beacons` and `Echoes` that help to automate even more on the Web.
+- Stealth will receive an easy-to-follow Wizard for synchronizing cached content with other
+  Peers in a Wi-Fi / Meshnet setup, so that users can easily select which Sites to backup
+  and synchronize to other Peers.
 
-- Stealth will allow Peer-to-Peer TLS encryption by using intermediary certificates that are
-  shipped with each release and allow to sign Content that was downloaded via another Peer
-  in a trustless manner.
+- Stealth in combination with a connected Radar instance will allow to discover global Peers,
+  and will allow to share and reuse `Beacons` and `Echoes` that help to automate even more
+  tasks on the Web.
+
+- Stealth will allow peer-to-peer TLS encryption by using intermediary certificates which are
+  shipped with each release and allow to download cached content in a trustless manner by
+  implementing a TLS-based notary mechanism for signing and validating the correctness of
+  content (additionally to the encrypted transport layer).
 
 
 ## Quickstart

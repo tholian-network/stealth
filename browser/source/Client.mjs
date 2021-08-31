@@ -1,19 +1,23 @@
 
-import { console, Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                                              } from './ENVIRONMENT.mjs';
-import { Beacon                                                   } from './client/service/Beacon.mjs';
-import { Blocker                                                  } from './client/service/Blocker.mjs';
-import { Cache                                                    } from './client/service/Cache.mjs';
-import { Host                                                     } from './client/service/Host.mjs';
-import { Mode                                                     } from './client/service/Mode.mjs';
-import { Peer                                                     } from './client/service/Peer.mjs';
-import { Policy                                                   } from './client/service/Policy.mjs';
-import { Redirect                                                 } from './client/service/Redirect.mjs';
-import { Session                                                  } from './client/service/Session.mjs';
-import { Settings                                                 } from './client/service/Settings.mjs';
-import { URL                                                      } from './parser/URL.mjs';
+import { Buffer, Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                     } from '../source/ENVIRONMENT.mjs';
+import { Beacon                                          } from '../source/client/service/Beacon.mjs';
+import { Blocker                                         } from '../source/client/service/Blocker.mjs';
+import { Cache                                           } from '../source/client/service/Cache.mjs';
+import { Host                                            } from '../source/client/service/Host.mjs';
+import { Mode                                            } from '../source/client/service/Mode.mjs';
+import { Peer                                            } from '../source/client/service/Peer.mjs';
+import { Policy                                          } from '../source/client/service/Policy.mjs';
+import { Redirect                                        } from '../source/client/service/Redirect.mjs';
+import { Session                                         } from '../source/client/service/Session.mjs';
+import { Settings                                        } from '../source/client/service/Settings.mjs';
+import { URL                                             } from '../source/parser/URL.mjs';
 
 
+
+const isArrayBuffer = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object ArrayBuffer]';
+};
 
 const isEvent = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Event]';
@@ -31,51 +35,53 @@ export const isClient = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Client]';
 };
 
-const receive = function(data) {
+const toResponse = function(data) {
 
 	let response = null;
 
-	if (isString(data) === true) {
+	if (isArrayBuffer(data) === true) {
 
 		try {
-			response = JSON.parse(data);
+			response = JSON.parse(Buffer.from(data));
+		} catch (err) {
+			response = null;
+		}
+
+	} else if (isString(data) === true) {
+
+		try {
+			response = JSON.parse(Buffer.from(data, 'utf8'));
 		} catch (err) {
 			response = null;
 		}
 
 	}
 
-	return response;
+	if (response !== null) {
 
-};
+		// Special case: Deserialize Buffer instances
+		if (
+			isObject(response) === true
+			&& isObject(response.headers) === true
+			&& isObject(response.payload) === true
+		) {
 
-const send = function(socket, request) {
+			let tmp_headers = response.payload.headers || null;
+			let tmp_payload = response.payload.payload || null;
 
-	let data = null;
+			if (tmp_headers !== null && tmp_payload !== null) {
 
-	try {
-		data = JSON.stringify(request, null, '\t');
-	} catch (err) {
-		data = null;
-	}
+				if (tmp_payload.type === 'Buffer') {
+					response.payload.payload = Buffer.from(tmp_payload.data);
+				}
 
-	if (data !== null) {
+			}
 
-		let result = false;
-
-		try {
-			socket.send(data);
-			result = true;
-		} catch (err) {
-			result = false;
 		}
 
-		return result;
-
 	}
 
-
-	return false;
+	return response;
 
 };
 
@@ -241,53 +247,34 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				socket[Symbol.for('local')]  = ENVIRONMENT.hostname;
 				socket[Symbol.for('remote')] = server;
+				socket.binaryType            = 'arraybuffer';
 
 				socket.onmessage = (e) => {
 
-					let response = receive(e.data);
-					if (response !== null) {
+					let response = toResponse(e.data);
+					if (
+						isObject(response) === true
+						&& isObject(response.headers) === true
+						&& response.payload !== undefined
+					) {
 
-						// Special case: Deserialize Buffer instances
-						if (isObject(response.payload) === true) {
+						let event   = response.headers['event']   || null;
+						let service = response.headers['service'] || null;
+						let method  = response.headers['method']  || null;
 
-							let tmp_headers = response.payload.headers || null;
-							let tmp_payload = response.payload.payload || null;
-
-							if (tmp_headers !== null && tmp_payload !== null) {
-
-								if (tmp_payload.type === 'Buffer') {
-									response.payload.payload = Buffer.from(tmp_payload.data);
-								}
-
-							}
-
-						}
-
-
-						let event   = response.headers.event   || null;
-						let service = response.headers.service || null;
-						let method  = response.headers.method  || null;
-
-						if (service !== null && event !== null) {
+						if (isString(service) === true && isString(event) === true) {
 
 							let instance = this.services[service] || null;
 							if (instance !== null && instance.has(event) === true) {
 
 								let request = instance.emit(event, [ response.payload ]);
 								if (request !== null) {
-									send(socket, request);
-								}
-
-							} else {
-
-								let request = this.emit('response', [ response ]);
-								if (request !== null) {
-									send(socket, request);
+									this.send(request);
 								}
 
 							}
 
-						} else if (service !== null && method !== null) {
+						} else if (isString(service) === true && isString(method) === true) {
 
 							let instance = this.services[service] || null;
 							if (instance !== null && isFunction(instance[method]) === true) {
@@ -295,17 +282,10 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 								instance[method](response.payload, (request) => {
 
 									if (request !== null) {
-										send(socket, request);
+										this.send(request);
 									}
 
 								});
-
-							} else {
-
-								let request = this.emit('response', [ response ]);
-								if (request !== null) {
-									send(socket, request);
-								}
 
 							}
 
@@ -326,9 +306,6 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 				socket.onerror = (event) => {
 
 					if (isErrorEvent(event) === true) {
-
-						console.error('Client: Socket Error');
-						console.error(event.error);
 
 						this.__state.connected = false;
 						this.__state.socket    = null;
@@ -421,9 +398,36 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (data !== null) {
 
-			let socket = this.__state.socket;
-			if (socket !== null) {
-				return send(socket, data);
+			let payload = null;
+			let socket  = this.__state.socket;
+
+			try {
+
+				let buffer = Buffer.from(JSON.stringify(data, null, '\t'), 'utf8');
+
+				payload = new Uint8Array(buffer.length);
+
+				for (let b = 0, bl = buffer.length; b < bl; b++) {
+					payload[b] = buffer[b];
+				}
+
+			} catch (err) {
+				payload = null;
+			}
+
+			if (socket !== null && payload !== null) {
+
+				let result = false;
+
+				try {
+					socket.send(payload);
+					result = true;
+				} catch (err) {
+					result = false;
+				}
+
+				return result;
+
 			}
 
 		}

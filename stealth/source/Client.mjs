@@ -1,19 +1,19 @@
 
-import { Emitter, isFunction, isObject, isString } from '../extern/base.mjs';
-import { isStealth                               } from '../source/Stealth.mjs';
-import { Beacon                                  } from '../source/client/service/Beacon.mjs';
-import { Blocker                                 } from '../source/client/service/Blocker.mjs';
-import { Cache                                   } from '../source/client/service/Cache.mjs';
-import { Host                                    } from '../source/client/service/Host.mjs';
-import { Mode                                    } from '../source/client/service/Mode.mjs';
-import { Peer                                    } from '../source/client/service/Peer.mjs';
-import { Policy                                  } from '../source/client/service/Policy.mjs';
-import { Redirect                                } from '../source/client/service/Redirect.mjs';
-import { Session                                 } from '../source/client/service/Session.mjs';
-import { Settings                                } from '../source/client/service/Settings.mjs';
-import { URL                                     } from '../source/parser/URL.mjs';
-import { WS                                      } from '../source/connection/WS.mjs';
-import { WSS                                     } from '../source/connection/WSS.mjs';
+import { Buffer, Emitter, isBuffer, isFunction, isObject, isString } from '../extern/base.mjs';
+import { isStealth                                                 } from '../source/Stealth.mjs';
+import { Beacon                                                    } from '../source/client/service/Beacon.mjs';
+import { Blocker                                                   } from '../source/client/service/Blocker.mjs';
+import { Cache                                                     } from '../source/client/service/Cache.mjs';
+import { Host                                                      } from '../source/client/service/Host.mjs';
+import { Mode                                                      } from '../source/client/service/Mode.mjs';
+import { Peer                                                      } from '../source/client/service/Peer.mjs';
+import { Policy                                                    } from '../source/client/service/Policy.mjs';
+import { Redirect                                                  } from '../source/client/service/Redirect.mjs';
+import { Session                                                   } from '../source/client/service/Session.mjs';
+import { Settings                                                  } from '../source/client/service/Settings.mjs';
+import { URL                                                       } from '../source/parser/URL.mjs';
+import { WS                                                        } from '../source/connection/WS.mjs';
+import { WSS                                                       } from '../source/connection/WSS.mjs';
 
 
 
@@ -30,7 +30,8 @@ const Client = function(settings, stealth) {
 
 
 	this._settings = Object.freeze(Object.assign({
-		host: null
+		host:   null,
+		secure: false
 	}, settings));
 
 
@@ -170,78 +171,57 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 
 				});
 
-				connection.on('response', (response) => {
+				connection.on('response', (frame) => {
 
-					if (response !== null) {
+					if (
+						isObject(frame.headers) === true
+						&& frame.headers['@type'] === 'response'
+						&& (frame.headers['@operator'] === 0x01 || frame.headers['@operator'] === 0x02)
+						&& isBuffer(frame.payload) === true
+					) {
 
-						let event   = response.headers.event   || null;
-						let method  = response.headers.method  || null;
-						let service = response.headers.service || null;
+						let response = null;
 
-						if (service !== null && event !== null) {
+						try {
+							response = JSON.parse(frame.payload.toString('utf8'));
+						} catch (err) {
+							response = null;
+						}
 
-							let instance = this.services[service] || null;
-							if (instance !== null && instance.has(event) === true) {
+						if (
+							isObject(response) === true
+							&& isObject(response.headers) === true
+							&& response.payload !== undefined
+						) {
 
-								let request = instance.emit(event, [ response.payload ]);
-								if (request !== null) {
+							let event   = response.headers['event']   || null;
+							let method  = response.headers['method']  || null;
+							let service = response.headers['service'] || null;
 
-									if (url.protocol === 'wss') {
-										WSS.send(connection, request);
-									} else if (url.protocol === 'ws') {
-										WS.send(connection, request);
+							if (isString(service) === true && isString(event) === true) {
+
+								let instance = this.services[service] || null;
+								if (instance !== null && instance.has(event) === true) {
+
+									let request = instance.emit(event, [ response.payload ]);
+									if (request !== null) {
+										this.send(request);
 									}
 
 								}
 
-							} else {
+							} else if (isString(service) === true && isString(method) === true) {
 
-								let request = this.emit('response', [ response ]);
-								if (request !== null) {
+								let instance = this.services[service] || null;
+								if (instance !== null && isFunction(instance[method]) === true) {
 
-									if (url.protocol === 'wss') {
-										WSS.send(connection, request);
-									} else if (url.protocol === 'ws') {
-										WS.send(connection, request);
-									}
+									instance[method](response.payload, (request) => {
 
-								}
-
-							}
-
-						} else if (service !== null && method !== null) {
-
-							let instance = this.services[service] || null;
-							if (instance !== null && isFunction(instance[method]) === true) {
-
-								instance[method](response.payload, (request) => {
-
-									if (request !== null) {
-
-										if (url.protocol === 'wss') {
-											WSS.send(connection, request);
-										} else if (url.protocol === 'ws') {
-											WS.send(connection, request);
+										if (request !== null) {
+											this.send(request);
 										}
 
-									}
-
-								});
-
-							} else {
-
-								let request = this.emit('response', [ response ]);
-								if (request !== null) {
-
-									if (request !== null) {
-
-										if (url.protocol === 'wss') {
-											WSS.send(connection, request);
-										} else if (url.protocol === 'ws') {
-											WS.send(connection, request);
-										}
-
-									}
+									});
 
 								}
 
@@ -328,12 +308,37 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 		if (data !== null) {
 
 			let connection = this.__state.connection || null;
-			if (connection !== null && this.url !== null) {
+			let payload    = null;
+			let url        = this.url;
 
-				if (this.url.protocol === 'wss') {
-					WSS.send(connection, data);
-				} else if (this.url.protocol === 'ws') {
-					WS.send(connection, data);
+			try {
+				payload = Buffer.from(JSON.stringify(data, null, '\t'), 'utf8');
+			} catch (err) {
+				payload = null;
+			}
+
+			if (connection !== null && payload !== null && url !== null) {
+
+				if (url.protocol === 'wss') {
+
+					WSS.send(connection, {
+						headers: {
+							'@operator': 0x02,
+							'@type':     'request'
+						},
+						payload: payload
+					});
+
+				} else if (url.protocol === 'ws') {
+
+					WS.send(connection, {
+						headers: {
+							'@operator': 0x02,
+							'@type':     'request'
+						},
+						payload: payload
+					});
+
 				}
 
 				return true;

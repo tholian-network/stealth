@@ -1,20 +1,20 @@
 
 import net from 'net';
 
-import { console, isBuffer, isFunction } from '../../extern/base.mjs';
-import { isStealth                     } from '../../source/Stealth.mjs';
-import { WS                            } from '../../source/connection/WS.mjs';
-import { HTTP as PACKET                } from '../../source/packet/HTTP.mjs';
-import { Beacon                        } from '../../source/server/service/Beacon.mjs';
-import { Blocker                       } from '../../source/server/service/Blocker.mjs';
-import { Cache                         } from '../../source/server/service/Cache.mjs';
-import { Host                          } from '../../source/server/service/Host.mjs';
-import { Mode                          } from '../../source/server/service/Mode.mjs';
-import { Peer                          } from '../../source/server/service/Peer.mjs';
-import { Policy                        } from '../../source/server/service/Policy.mjs';
-import { Redirect                      } from '../../source/server/service/Redirect.mjs';
-import { Session                       } from '../../source/server/service/Session.mjs';
-import { Settings                      } from '../../source/server/service/Settings.mjs';
+import { console, Buffer, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { isStealth                                                 } from '../../source/Stealth.mjs';
+import { WS                                                        } from '../../source/connection/WS.mjs';
+import { HTTP as PACKET                                            } from '../../source/packet/HTTP.mjs';
+import { Beacon                                                    } from '../../source/server/service/Beacon.mjs';
+import { Blocker                                                   } from '../../source/server/service/Blocker.mjs';
+import { Cache                                                     } from '../../source/server/service/Cache.mjs';
+import { Host                                                      } from '../../source/server/service/Host.mjs';
+import { Mode                                                      } from '../../source/server/service/Mode.mjs';
+import { Peer                                                      } from '../../source/server/service/Peer.mjs';
+import { Policy                                                    } from '../../source/server/service/Policy.mjs';
+import { Redirect                                                  } from '../../source/server/service/Redirect.mjs';
+import { Session                                                   } from '../../source/server/service/Session.mjs';
+import { Settings                                                  } from '../../source/server/service/Settings.mjs';
 
 
 
@@ -211,54 +211,124 @@ Services.prototype = {
 
 				});
 
-				connection.on('request', (request) => {
+				connection.on('request', (frame) => {
 
-					let event   = request.headers.event   || null;
-					let method  = request.headers.method  || null;
-					let service = request.headers.service || null;
+					if (
+						isObject(frame.headers) === true
+						&& frame.headers['@type'] === 'request'
+						&& (frame.headers['@operator'] === 0x01 || frame.headers['@operator'] === 0x02)
+						&& isBuffer(frame.payload) === true
+					) {
 
-					if (service !== null && service !== 'stealth' && event !== null) {
+						let request = null;
 
-						let instance = this[service] || null;
-						if (instance !== null && instance.has(event) === true) {
-
-							let response = instance.emit(event, [ request.payload, connection.session ]);
-							if (response !== null) {
-								WS.send(connection, response);
-							}
-
-							if (response !== null && response._warn_ === true) {
-
-								let session = connection.session || null;
-								if (session !== null) {
-									session.warn(service, method, null);
-								}
-
-							}
-
+						try {
+							request = JSON.parse(frame.payload.toString('utf8'));
+						} catch (err) {
+							request = null;
 						}
 
-					} else if (service !== null && service !== 'stealth' && method !== null) {
+						if (
+							isObject(request) === true
+							&& isObject(request.headers) === true
+							&& request.payload !== undefined
+						) {
 
-						let instance = this[service] || null;
-						if (instance !== null && isFunction(instance[method]) === true) {
+							let event   = request.headers['event']   || null;
+							let method  = request.headers['method']  || null;
+							let service = request.headers['service'] || null;
 
-							instance[method](request.payload, (response) => {
+							// XXX: Nice try though
+							if (service === 'stealth') {
+								service = null;
+							}
 
-								if (response !== null) {
-									WS.send(connection, response);
-								}
+							if (isString(service) === true && isString(event) === true) {
 
-								if (response !== null && response._warn_ === true) {
+								let instance = this[service] || null;
+								if (instance !== null && instance.has(event) === true) {
 
-									let session = connection.session || null;
-									if (session !== null) {
-										session.warn(service, method, null);
+									let response = instance.emit(event, [ request.payload, connection.session ]);
+									if (response !== null) {
+
+										let payload = null;
+
+										try {
+											payload = Buffer.from(JSON.stringify(response, null, '\t'), 'utf8');
+										} catch (err) {
+											payload = null;
+										}
+
+										if (payload !== null) {
+
+											WS.send(connection, {
+												headers: {
+													'@operator': frame.headers['@operator'],
+													'@type':     'response'
+												},
+												payload: payload
+											});
+
+										}
+
+										if (response._warn_ === true) {
+
+											let session = connection.session || null;
+											if (session !== null) {
+												session.warn(service, null, event);
+											}
+
+										}
+
 									}
 
 								}
 
-							}, connection.session);
+							} else if (isString(service) === true && isString(method) === true) {
+
+								let instance = this[service] || null;
+								if (instance !== null && isFunction(instance[method]) === true) {
+
+									instance[method](request.payload, (response) => {
+
+										if (response !== null) {
+
+											let payload = null;
+
+											try {
+												payload = Buffer.from(JSON.stringify(response, null, '\t'), 'utf8');
+											} catch (err) {
+												payload = null;
+											}
+
+											if (payload !== null) {
+
+												WS.send(connection, {
+													headers: {
+														'@operator': frame.headers['@operator'],
+														'@type':     'response'
+													},
+													payload: payload
+												});
+
+											}
+
+											if (response._warn_ === true) {
+
+												let session = connection.session || null;
+												if (session !== null) {
+													session.warn(service, method, null);
+												}
+
+											}
+
+										}
+
+									}, connection.session);
+
+								}
+
+							}
 
 						}
 
