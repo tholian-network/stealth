@@ -10,21 +10,49 @@ import { isServices                                    } from '../../source/serv
 
 
 
-export const isCompeer = function(obj) {
-	return Object.prototype.toString.call(obj) === '[object Compeer]';
+const RESERVED_SUBDOMAINS = [
+
+	// *.tholian.network
+	'admin',
+	'beacon',
+	'browser',
+	'radar',
+	'recon',
+	'sonar',
+	'stealth',
+	'www'
+
+];
+
+export const isPeerer = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Peerer]';
 };
 
-const isSocket = function(obj) {
+const isQuery = function(payload) {
 
-	if (obj !== null && obj !== undefined) {
-		return obj instanceof dgram.Socket;
+	if (
+		isObject(payload) === true
+		&& isString(payload.subdomain) === true
+		&& payload.subdomain.includes('.') === false
+	) {
+
+		if (payload.domain === 'tholian.local') {
+
+			return true;
+
+		} else if (payload.domain === 'tholian.network') {
+
+			if (RESERVED_SUBDOMAINS.includes(payload.subdomain) === false) {
+				return true;
+			}
+
+		}
+
 	}
 
 	return false;
 
 };
-
-
 
 const isServiceDiscoveryRequest = function(packet) {
 
@@ -98,6 +126,16 @@ const isServiceDiscoveryResponse = function(packet) {
 
 	}
 
+
+	return false;
+
+};
+
+const isSocket = function(obj) {
+
+	if (obj !== null && obj !== undefined) {
+		return obj instanceof dgram.Socket;
+	}
 
 	return false;
 
@@ -251,7 +289,7 @@ const toServiceDiscoveryResponse = function(request) {
 
 
 
-const Compeer = function(services, stealth) {
+const Peerer = function(services, stealth) {
 
 	services = isServices(services) ? services : null;
 	stealth  = isStealth(stealth)   ? stealth  : null;
@@ -263,9 +301,9 @@ const Compeer = function(services, stealth) {
 };
 
 
-Compeer.prototype = {
+Peerer.prototype = {
 
-	[Symbol.toStringTag]: 'Compeer',
+	[Symbol.toStringTag]: 'Peerer',
 
 	toJSON: function() {
 
@@ -273,7 +311,7 @@ Compeer.prototype = {
 
 
 		return {
-			'type': 'Compeer',
+			'type': 'Peerer',
 			'data': data
 		};
 
@@ -292,7 +330,7 @@ Compeer.prototype = {
 				MDNS.send(connection, request, (result) => {
 
 					if (result === true) {
-						console.warn('Compeer: Announced this machine as Local IPv4 Peer.');
+						console.warn('Peerer: Announced this machine as Local IPv4 Peer.');
 					}
 
 				});
@@ -312,7 +350,7 @@ Compeer.prototype = {
 				MDNS.send(connection, request, (result) => {
 
 					if (result === true) {
-						console.warn('Compeer: Announced this machine as Local IPv6 Peer.');
+						console.warn('Peerer: Announced this machine as Local IPv6 Peer.');
 					}
 
 				});
@@ -356,6 +394,28 @@ Compeer.prototype = {
 
 	},
 
+	resolve: function(query, callback) {
+
+		query    = isQuery(query)       ? query    : null;
+		callback = isFunction(callback) ? callback : null;
+
+
+		if (
+			query !== null
+			&& ENVIRONMENT.ips.length > 0
+		) {
+
+
+		}
+
+
+		// TODO: Iterate via settings.peers
+		// else announce this host and wait 3 seconds for replies.
+		// If no reply has arrived by then, then callback(null);
+		// If a reply has arrived by then, then callback({ domain, hosts })
+
+	},
+
 	upgrade: function(buffer, socket, remote) {
 
 		buffer = isBuffer(buffer) ? buffer : null;
@@ -376,7 +436,7 @@ Compeer.prototype = {
 						MDNS.send(connection, response, (result) => {
 
 							if (result === true) {
-								console.warn('Compeer: Discovered a Peer at "' + remote.host + '".');
+								console.warn('Peerer: "' + remote.host + '" asked for Peers.');
 							}
 
 						});
@@ -412,5 +472,5 @@ Compeer.prototype = {
 };
 
 
-export { Compeer };
+export { Peerer };
 

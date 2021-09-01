@@ -6,7 +6,7 @@ import { console, Emitter, isNumber, isObject, isString } from '../extern/base.m
 import { ENVIRONMENT                                    } from '../source/ENVIRONMENT.mjs';
 import { isStealth                                      } from '../source/Stealth.mjs';
 import { IP                                             } from '../source/parser/IP.mjs';
-import { Compeer                                        } from '../source/server/Compeer.mjs';
+import { Peerer                                         } from '../source/server/Peerer.mjs';
 import { Proxy                                          } from '../source/server/Proxy.mjs';
 import { Router                                         } from '../source/server/Router.mjs';
 import { Services                                       } from '../source/server/Services.mjs';
@@ -43,9 +43,9 @@ const toMulticastSocket = function(type, port, address) {
 
 	socket.on('message', (buffer, rinfo) => {
 
-		if (this.compeer.can(buffer) === true) {
+		if (this.peerer.can(buffer) === true) {
 
-			this.compeer.upgrade(buffer, socket, {
+			this.peerer.upgrade(buffer, socket, {
 				host: rinfo.address,
 				port: rinfo.port
 			});
@@ -94,13 +94,13 @@ const Server = function(settings, stealth) {
 	}, settings));
 
 
-	this.stealth    = stealth;
-	this.services   = new Services(this.stealth);
-	this.compeer    = new Compeer(this.services, this.stealth);
-	this.proxy      = new Proxy(this.services, this.stealth);
-	this.router     = new Router(this.services, this.stealth);
-	this.webproxy   = new Webproxy(this.services, this.stealth);
-	this.webserver  = new Webserver(this.services, this.stealth);
+	this.stealth   = stealth;
+	this.services  = new Services(this.stealth);
+	this.peerer    = new Peerer(this.services, this.stealth);
+	this.proxy     = new Proxy(this.services, this.stealth);
+	this.router    = new Router(this.services, this.stealth);
+	this.webproxy  = new Webproxy(this.services, this.stealth);
+	this.webserver = new Webserver(this.services, this.stealth);
 
 
 	this.__state = {
@@ -117,7 +117,7 @@ const Server = function(settings, stealth) {
 
 	this.on('explore', () => {
 
-		this.compeer.announce();
+		this.peerer.announce();
 
 		this.__state.timeout = setTimeout(() => {
 			this.emit('explore');

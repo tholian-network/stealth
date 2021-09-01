@@ -1,6 +1,5 @@
 
 import { Emitter, isArray, isFunction, isObject, isString } from '../../../extern/base.mjs';
-import { RESOLVER                                         } from '../../../source/server/RESOLVER.mjs';
 import { IP                                               } from '../../../source/parser/IP.mjs';
 
 
