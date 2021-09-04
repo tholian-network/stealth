@@ -199,30 +199,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 		} else if (query !== null) {
 
-			RESOLVER.resolve(query, (response) => {
-
-				let host_old = null;
-				let host_new = Host.toHost(response);
-
-				let domain = toDomain(response);
-				if (domain !== null) {
-					host_old = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
-				}
-
-				if (host_new !== null) {
-
-					if (host_old !== null) {
-
-						host_old.hosts = host_new.hosts;
-
-					} else {
-						this.stealth.settings.hosts.push(host_new);
-					}
-
-					this.stealth.settings.save();
-
-				}
-
+			this.resolve(payload, (response) => {
 
 				if (callback !== null) {
 
@@ -231,7 +208,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 							service: 'host',
 							event:   'read'
 						},
-						payload: host_new
+						payload: response.payload
 					});
 
 				}
@@ -256,47 +233,96 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	refresh: function(payload, callback) {
+	resolve: function(payload, callback) {
 
 		callback = isFunction(callback) ? callback : null;
 
 
-		let query = toQuery(payload);
-		if (query !== null) {
+		let domain = toDomain(payload);
+		let query  = toQuery(payload);
 
-			RESOLVER.resolve(query, (response) => {
+		if (domain !== null && query !== null) {
 
-				let host_old = null;
-				let host_new = Host.toHost(response.payload);
+			this.stealth.server.peerer.resolve(query, (local_response) => {
 
-				let domain = toDomain(response.payload);
-				if (domain !== null) {
-					host_old = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
-				}
+				if (local_response !== null) {
 
-				if (host_new !== null) {
+					let host_old = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+					let host_new = Host.toHost(local_response);
 
-					if (host_old !== null) {
+					if (host_new !== null) {
 
-						host_old.hosts = host_new.hosts;
+						if (host_old !== null) {
+							host_old.hosts = host_new.hosts;
+						} else {
+							this.stealth.settings.hosts.push(host_new);
+						}
 
-					} else {
-						this.stealth.settings.hosts.push(host_new);
+						this.stealth.settings.save();
+
 					}
 
-					this.stealth.settings.save();
+					if (callback !== null) {
 
-				}
+						callback({
+							headers: {
+								service: 'host',
+								event:   'resolve'
+							},
+							payload: host_new
+						});
 
+					}
 
-				if (callback !== null) {
+				} else {
 
-					callback({
-						headers: {
-							service: 'host',
-							event:   'refresh'
-						},
-						payload: host_new
+					this.stealth.router.resolve(query, (remote_response) => {
+
+						if (remote_response !== null) {
+
+							let host_old = this.stealth.settings.hosts.find((h) => h.domain === domain) || null;
+							let host_new = Host.toHost(remote_response);
+
+							if (host_new !== null) {
+
+								if (host_old !== null) {
+									host_old.hosts = host_new.hosts;
+								} else {
+									this.stealth.settings.hosts.push(host_new);
+								}
+
+								this.stealth.settings.save();
+
+							}
+
+							if (callback !== null) {
+
+								callback({
+									headers: {
+										service: 'host',
+										event:   'resolve'
+									},
+									payload: host_new
+								});
+
+							}
+
+						} else {
+
+							if (callback !== null) {
+
+								callback({
+									headers: {
+										service: 'host',
+										event:   'resolve'
+									},
+									payload: null
+								});
+
+							}
+
+						}
+
 					});
 
 				}
@@ -310,7 +336,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 				callback({
 					headers: {
 						service: 'host',
-						event:   'refresh'
+						event:   'resolve'
 					},
 					payload: null
 				});

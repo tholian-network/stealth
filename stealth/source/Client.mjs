@@ -35,7 +35,6 @@ const Client = function(settings, stealth) {
 	}, settings));
 
 
-	this.address  = null;
 	this.browser  = null; // API compatibility
 	this.services = {};
 	this.stealth  = stealth;
@@ -159,10 +158,6 @@ Client.prototype = Object.assign({}, Emitter.prototype, {
 			if (connection !== null) {
 
 				connection.on('@connect', () => {
-
-					if (connection.socket !== null) {
-						this.address = connection.socket.remoteAddress || null;
-					}
 
 					this.__state.connected  = true;
 					this.__state.connection = connection;

@@ -186,7 +186,6 @@ Services.prototype = {
 				packet.headers['@debug'] = this.stealth._settings.debug;
 			}
 
-
 			let connection = WS.upgrade(socket, packet);
 			if (connection !== null) {
 

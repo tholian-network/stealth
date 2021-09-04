@@ -248,6 +248,7 @@ const isQuery = function(payload) {
 
 	}
 
+
 	return false;
 
 };
@@ -257,6 +258,7 @@ const isSocket = function(obj) {
 	if (obj !== null && obj !== undefined) {
 		return obj instanceof dgram.Socket;
 	}
+
 
 	return false;
 
@@ -285,6 +287,7 @@ const isValid = (record) => {
 		}
 
 	}
+
 
 	return false;
 
@@ -500,15 +503,25 @@ Router.prototype = {
 
 					});
 
-					callback({
-						domain: domain,
-						hosts:  hosts
-					});
+					if (callback !== null) {
+
+						callback({
+							domain: domain,
+							hosts:  hosts
+						});
+
+					}
+
+					connection.disconnect();
 
 				});
 
 				connection.once('error', () => {
-					callback(null);
+
+					if (callback !== null) {
+						callback(null);
+					}
+
 				});
 
 
@@ -541,11 +554,19 @@ Router.prototype = {
 				});
 
 			} else {
-				callback(null);
+
+				if (callback !== null) {
+					callback(null);
+				}
+
 			}
 
 		} else {
-			callback(null);
+
+			if (callback !== null) {
+				callback(null);
+			}
+
 		}
 
 	},

@@ -1,14 +1,16 @@
 
 # Refactor
 
+- [ ] Fix stealth/source/server/Host.mjs's Resolver integration
+- [ ] Fix stealth/review/server/Host.mjs
+- [ ] Fix stealth/review/client/Host.mjs
+
+
 - [ ] Fix stealth/source/Request (`stealth/review/Request` is broken)
 
 Request's `connect` event needs `services.host.read()` to work.
 Host Service is still broken, therefore the best course of action is to
 implement the `Router`.
-
-
-- [ ] Add connection.fragment support for DNSH Connection
 
 
 - [ ] Implement 206 Partial Content support for `Webserver`

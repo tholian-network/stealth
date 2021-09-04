@@ -33,6 +33,7 @@ const onconnect = function(connection, url) {
 		nonce[n] = Math.round(Math.random() * 0xff);
 	}
 
+	connection.type = 'client';
 
 	connection.socket.once('data', (data) => {
 
@@ -50,7 +51,6 @@ const onconnect = function(connection, url) {
 
 				if (accept === expect) {
 
-					connection.type     = 'client';
 					connection.interval = setInterval(() => {
 
 						WS.send(connection, {
@@ -82,7 +82,7 @@ const onconnect = function(connection, url) {
 	});
 
 
-	let handshake_request = HANDSHAKE.encode(null, {
+	let handshake_request = HANDSHAKE.encode(connection, {
 		headers: {
 			'@method':                'GET',
 			'@url':                   '/',
@@ -236,6 +236,12 @@ const ondata = function(connection, url, chunk) {
 
 			// Do Nothing
 
+		}
+
+
+		// XXX: Client sent more than a single Websocket frame
+		if (connection.fragment.length > 0) {
+			ondata(connection, url, Buffer.alloc(0));
 		}
 
 	}
@@ -420,8 +426,15 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 		};
 
 		if (this.socket !== null) {
-			data.local  = this.socket.localAddress  + ':' + this.socket.localPort;
-			data.remote = this.socket.remoteAddress + ':' + this.socket.remotePort;
+
+			if (this.socket.localAddress !== undefined) {
+				data.local  = this.socket.localAddress  + ':' + this.socket.localPort;
+			}
+
+			if (this.socket.remoteAddress !== undefined) {
+				data.remote = this.socket.remoteAddress + ':' + this.socket.remotePort;
+			}
+
 		}
 
 		return {

@@ -15,10 +15,7 @@ export const connect = before('Client.prototype.connect()', function(assert) {
 	});
 
 	this.client.once('connect', () => {
-
-		this.client.services['mockup'] = null;
 		assert(true);
-
 	});
 
 	assert(this.client.connect());
@@ -67,6 +64,10 @@ describe('Client.prototype.toJSON()', function(assert) {
 		browser: null,
 		events: [],
 		journal: [],
+		settings: {
+			host:   '127.0.0.3',
+			secure: false
+		},
 		services: {
 			beacon: {
 				type: 'Beacon Service',
@@ -137,17 +138,7 @@ describe('Client.prototype.toJSON()', function(assert) {
 					events: [],
 					journal: []
 				}
-			},
-			stash: {
-				type: 'Stash Service',
-				data: {
-					events: [],
-					journal: []
-				}
 			}
-		},
-		settings: {
-			host: '127.0.0.3'
 		},
 		state: {
 			connected: false,
@@ -162,42 +153,6 @@ describe('Client.prototype.toJSON()', function(assert) {
 describe('Client.prototype.is()', function(assert) {
 
 	assert(this.client.is('connected'), true);
-
-});
-
-describe('Client.prototype.send()/event', function(assert) {
-
-	this.client.once('response', (response) => {
-		assert(response.headers.service, 'mockup');
-		assert(response.headers.event,   'event');
-		assert(response.payload,         'payload');
-	});
-
-	this.client.send({
-		headers: {
-			service: 'mockup',
-			event:   'event'
-		},
-		payload: 'payload'
-	});
-
-});
-
-describe('Client.prototype.send()/method', function(assert) {
-
-	this.client.once('response', (response) => {
-		assert(response.headers.service, 'mockup');
-		assert(response.headers.method,  'method');
-		assert(response.payload,         'payload');
-	});
-
-	this.client.send({
-		headers: {
-			service: 'mockup',
-			method:  'method'
-		},
-		payload: 'payload'
-	});
 
 });
 

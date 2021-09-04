@@ -1,12 +1,12 @@
 
 import dgram from 'dgram';
 
-import { console, Buffer, isBuffer, isObject, isString } from '../../extern/base.mjs';
-import { ENVIRONMENT                                   } from '../../source/ENVIRONMENT.mjs';
-import { isStealth, VERSION                            } from '../../source/Stealth.mjs';
-import { MDNS                                          } from '../../source/connection/MDNS.mjs';
-import { DNS as PACKET                                 } from '../../source/packet/DNS.mjs';
-import { isServices                                    } from '../../source/server/Services.mjs';
+import { console, Buffer, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { ENVIRONMENT                                               } from '../../source/ENVIRONMENT.mjs';
+import { isStealth, VERSION                                        } from '../../source/Stealth.mjs';
+import { MDNS                                                      } from '../../source/connection/MDNS.mjs';
+import { DNS as PACKET                                             } from '../../source/packet/DNS.mjs';
+import { isServices                                                } from '../../source/server/Services.mjs';
 
 
 
@@ -138,6 +138,47 @@ const isSocket = function(obj) {
 	}
 
 	return false;
+
+};
+
+const toDomain = function(payload) {
+
+	let domain = null;
+
+	if (isObject(payload) === true) {
+
+		if (isString(payload.domain) === true) {
+			domain = payload.domain;
+		}
+
+	}
+
+	return domain;
+
+};
+
+const toUsername = function(payload) {
+
+	let username = null;
+
+	if (isObject(payload) === true) {
+
+		if (
+			isString(payload.domain) === true
+			&& (
+				payload.domain === 'tholian.local'
+				|| payload.domain === 'tholian.network'
+			)
+			&& isString(payload.subdomain) === true
+			&& payload.subdomain.includes('.') === false
+			&& RESERVED_SUBDOMAINS.includes(payload.subdomain) === false
+		) {
+			username = payload.subdomain;
+		}
+
+	}
+
+	return username;
 
 };
 
@@ -405,6 +446,48 @@ Peerer.prototype = {
 			&& ENVIRONMENT.ips.length > 0
 		) {
 
+			let domain   = toDomain(query);
+			let username = toUsername(query);
+
+			if (domain !== null && username !== null) {
+
+				if (domain === 'tholian.local') {
+
+					// TODO: Remove per-connection resolving mechanism
+					// and move it to a resolver that is passive and
+					// processes incoming responses automatically
+
+					// TODO: Use cached peers settings to resolve an
+					// (at the time already) resolved Peer
+
+				} else if (domain === 'tholian.network') {
+
+					// TODO: Use Radar Service API to resolve username.tholian.network
+
+				} else {
+
+					// XXX: Currently it never goes there due to isQuery()
+					// filtering it out
+
+
+					// TODO: Use Multicast DNS request to other Peers
+					// to resolve cached host entry for domains
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback(null);
+				}
+
+			}
+
+		} else {
+
+			if (callback !== null) {
+				callback(null);
+			}
 
 		}
 
@@ -450,9 +533,11 @@ Peerer.prototype = {
 				if (this.stealth !== null) {
 
 					// TODO: Verify A entries in terms of subnet (and reachability)
-					// TODO: Add Peers to this.stealth
 
-					console.log('TODO: Add peers to this.stealth', packet);
+					// TODO: Add peer to this.stealth.settings.peers
+					// TODO: Add host to this.stealth.settings.hosts
+
+					console.warn('TODO: Process Peer', packet);
 
 				}
 

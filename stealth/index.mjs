@@ -33,7 +33,7 @@ import { IP       as parser_IP       } from './source/parser/IP.mjs';
 import { UA       as parser_UA       } from './source/parser/UA.mjs';
 import { URL      as parser_URL      } from './source/parser/URL.mjs';
 
-import { Compeer   as server_Compeer   } from './source/server/Compeer.mjs';
+import { Peerer    as server_Peerer    } from './source/server/Peerer.mjs';
 import { Proxy     as server_Proxy     } from './source/server/Proxy.mjs';
 import { Router    as server_Router    } from './source/server/Router.mjs';
 import { Services  as server_Services  } from './source/server/Services.mjs';
@@ -120,7 +120,7 @@ export const parser = {
 
 export const server = {
 
-	Compeer:   server_Compeer,
+	Peerer:    server_Peerer,
 	Proxy:     server_Proxy,
 	Router:    server_Router,
 	Services:  server_Services,

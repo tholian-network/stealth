@@ -52,7 +52,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	refresh: function(payload, callback) {
+	resolve: function(payload, callback) {
 
 		payload  = isObject(payload)    ? payload  : null;
 		callback = isFunction(callback) ? callback : null;
@@ -60,12 +60,12 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null && callback !== null) {
 
-			this.once('refresh', (response) => callback(response));
+			this.once('resolve', (response) => callback(response));
 
 			this.client.send({
 				headers: {
 					service: 'host',
-					method:  'refresh'
+					method:  'resolve'
 				},
 				payload: payload
 			});

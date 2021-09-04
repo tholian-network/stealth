@@ -97,7 +97,6 @@ const Client = function(settings, browser) {
 	}, settings));
 
 
-	this.address  = null;
 	this.browser  = browser;
 	this.services = {};
 	this.stealth  = null; // API compatibility
