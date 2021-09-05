@@ -386,7 +386,7 @@ const SOCKS = {
 
 				if (isArray(headers['@auth']) === true) {
 
-					let methods = headers['auth'].map((v) => {
+					let methods = headers['@auth'].map((v) => {
 
 						if (v === 'none') {
 							return 0x00;

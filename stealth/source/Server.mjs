@@ -1,17 +1,19 @@
 
-import dgram from 'dgram';
-import net   from 'net';
+import net from 'net';
 
-import { console, Emitter, isNumber, isObject, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                                    } from '../source/ENVIRONMENT.mjs';
-import { isStealth                                      } from '../source/Stealth.mjs';
-import { IP                                             } from '../source/parser/IP.mjs';
-import { Peerer                                         } from '../source/server/Peerer.mjs';
-import { Proxy                                          } from '../source/server/Proxy.mjs';
-import { Router                                         } from '../source/server/Router.mjs';
-import { Services                                       } from '../source/server/Services.mjs';
-import { Webproxy                                       } from '../source/server/Webproxy.mjs';
-import { Webserver                                      } from '../source/server/Webserver.mjs';
+import { console, Emitter, isObject, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                          } from '../source/ENVIRONMENT.mjs';
+import { isStealth                            } from '../source/Stealth.mjs';
+import { DNS                                  } from '../source/connection/DNS.mjs';
+import { MDNS                                 } from '../source/connection/MDNS.mjs';
+import { IP                                   } from '../source/parser/IP.mjs';
+import { URL                                  } from '../source/parser/URL.mjs';
+import { Peerer                               } from '../source/server/Peerer.mjs';
+import { Proxy                                } from '../source/server/Proxy.mjs';
+import { Router                               } from '../source/server/Router.mjs';
+import { Services                             } from '../source/server/Services.mjs';
+import { Webproxy                             } from '../source/server/Webproxy.mjs';
+import { Webserver                            } from '../source/server/Webserver.mjs';
 
 
 
@@ -19,65 +21,21 @@ export const isServer = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Server]';
 };
 
+const toHostname = function(ip) {
 
+	let hostname = 'localhost';
 
-const toMulticastSocket = function(type, port, address) {
+	if (IP.isIP(ip) === true) {
 
-	type    = [ 'udp4', 'udp6' ].includes(type) ? type    : 'udp4';
-	port    = isNumber(port)                    ? port    : null;
-	address = isString(address)                 ? address : null;
-
-
-	let socket = dgram.createSocket({
-		type:      type,
-		reuseAddr: true
-	});
-
-	socket.on('listening', () => {
-		console.info('Server: ' + type.toUpperCase() + ' Service started on dns+mdns://' + (type === 'udp6' ? '[' + address + ']' : address) + ':' + port + '.');
-	});
-
-	socket.on('close', () => {
-		console.warn('Server: ' + type.toUpperCase() + ' Service on port ' + port + ' stopped.');
-	});
-
-	socket.on('message', (buffer, rinfo) => {
-
-		if (this.peerer.can(buffer) === true) {
-
-			this.peerer.upgrade(buffer, socket, {
-				host: rinfo.address,
-				port: rinfo.port
-			});
-
-		} else if (this.router.can(buffer) === true) {
-
-			this.router.upgrade(buffer, socket, {
-				host: rinfo.address,
-				port: rinfo.port
-			});
-
-		}
-
-	});
-
-	if (port !== null) {
-
-		if (address !== null) {
-
-			socket.bind(port, () => {
-				socket.addMembership(address);
-			});
-
-		} else {
-
-			socket.bind(port);
-
+		if (ip.type === 'v4') {
+			hostname = IP.render(ip);
+		} else if (ip.type === 'v6') {
+			hostname = '[' + IP.render(ip) + ']';
 		}
 
 	}
 
-	return socket;
+	return hostname;
 
 };
 
@@ -106,7 +64,6 @@ const Server = function(settings, stealth) {
 	this.__state = {
 		connected:   false,
 		connections: [],
-		sockets:     [],
 		server:      null,
 		timeout:     null
 	};
@@ -183,10 +140,10 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			if (ipv4s.length > 0) {
 
 				[
-					toMulticastSocket.call(this, 'udp4', 5353,  '224.0.0.251'),
-					toMulticastSocket.call(this, 'udp4', 65432, '224.0.0.251')
-				].forEach((socket) => {
-					this.__state.sockets.push(socket);
+					MDNS.upgrade(null, URL.parse('mdns://224.0.0.251:5353')),
+					DNS.upgrade(null,  URL.parse('dns://127.0.0.1:65432'))
+				].filter((c) => c !== null).forEach((connection) => {
+					this.__state.connections.push(connection);
 				});
 
 			}
@@ -194,10 +151,32 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			if (ipv6s.length > 0) {
 
 				[
-					toMulticastSocket.call(this, 'udp6', 5353,  'ff02::fb'),
-					toMulticastSocket.call(this, 'udp6', 65432, 'ff02::fb')
-				].forEach((socket) => {
-					this.__state.sockets.push(socket);
+					MDNS.upgrade(null, URL.parse('mdns://[ff02::fb]:5353')),
+					DNS.upgrade(null,  URL.parse('dns://[::1]:65432')),
+				].filter((c) => c !== null).forEach((connection) => {
+					this.__state.connections.push(connection);
+				});
+
+			}
+
+
+			if (this.__state.connections.length > 0) {
+
+				console.info('Server: UDP Service for mdns://localhost:5353 started.');
+				console.info('Server: UDP Service for dns://localhost:65432 started.');
+
+				this.__state.connections.forEach((connection) => {
+
+					connection.on('request', (packet) => {
+
+						if (this.peerer.can(packet) === true) {
+							this.peerer.receive(connection, packet);
+						} else if (this.router.can(packet) === true) {
+							this.router.receive(connection, packet);
+						}
+
+					});
+
 				});
 
 			}
@@ -283,29 +262,18 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.__state.server.on('listening', () => {
 
-				let host = 'localhost';
+				let host = isString(this._settings.host) ? this._settings.host : 'localhost';
 
-				if (isString(this._settings.host) === true) {
-					host = this._settings.host;
-				}
-
-				console.info('Server: TCP Service started on http+socks+ws://' + host + ':65432.');
-				console.info('Server: > http://' + host + ':65432.');
+				console.info('Server: TCP Service for http+socks+ws://' + host + ':65432 started.');
+				console.info('Server: > http://' + host + ':65432');
 
 				if (ENVIRONMENT.ips.length > 0) {
 
 					ENVIRONMENT.ips.forEach((ip) => {
 
-						let hostname = null;
-
-						if (ip.type === 'v4') {
-							hostname = IP.render(ip);
-						} else if (ip.type === 'v6') {
-							hostname = '[' + IP.render(ip) + ']';
-						}
-
-						if (hostname !== null) {
-							console.info('Server: > http://' + hostname + ':65432.');
+						let hostname = toHostname(ip);
+						if (hostname !== 'localhost') {
+							console.info('Server: > http://' + hostname + ':65432');
 						}
 
 					});
@@ -316,11 +284,20 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.__state.server.on('close', () => {
 
-				console.warn('Server: TCP Service on port 65432 stopped.');
+				let host = isString(this._settings.host) ? this._settings.host : 'localhost';
+				console.warn('Server: TCP Service for http+socks+ws://' + host + ':65432 stopped.');
 
 				this.disconnect();
 
 			});
+
+
+			this.__state.connected = true;
+			this.emit('connect');
+
+			setTimeout(() => {
+				this.emit('explore');
+			}, 1000);
 
 
 			let host = null;
@@ -332,13 +309,6 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 				}
 
 			}
-
-			this.__state.connected = true;
-			this.emit('connect');
-
-			setTimeout(() => {
-				this.emit('explore');
-			}, 1000);
 
 			this.__state.server.listen(65432, host);
 
@@ -354,35 +324,21 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 	disconnect: function() {
 
-		if (this.__state.connections.length > 0) {
-
-			for (let c = 0, cl = this.__state.connections.length; c < cl; c++) {
-
-				let connection = this.__state.connections[c] || null;
-				if (connection !== null) {
-					connection.disconnect();
-				}
-
-				this.__state.connections.splice(c, 1);
-				cl--;
-				c--;
-
-			}
-
-		}
-
 		if (this.__state.connected === true) {
 
 			this.__state.connected = false;
 
-			let sockets = this.__state.sockets;
-			if (sockets.length > 0) {
+			let connections = this.__state.connections;
+			if (connections.length > 0) {
 
-				this.__state.sockets = [];
+				for (let c = 0, cl = connections.length; c < cl; c++) {
 
-				sockets.forEach((socket) => {
-					socket.close();
-				});
+					connections[c].disconnect();
+					connections.splice(c, 1);
+					cl--;
+					c--;
+
+				}
 
 			}
 

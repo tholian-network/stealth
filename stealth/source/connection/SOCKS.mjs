@@ -2,6 +2,7 @@
 import net from 'net';
 
 import { Emitter, isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { DNSH                                                                 } from '../../source/connection/DNSH.mjs';
 import { DNSS                                                                 } from '../../source/connection/DNSS.mjs';
 import { HTTP                                                                 } from '../../source/connection/HTTP.mjs';
 import { HTTPS                                                                } from '../../source/connection/HTTPS.mjs';
@@ -81,7 +82,12 @@ const onconnect = function(connection, url) {
 
 						try {
 
-							if (url.protocol === 'dnss') {
+							if (url.protocol === 'dnsh') {
+
+								protocol = 'dnsh';
+								tunnel   = DNSH.connect(url, connection);
+
+							} else if (url.protocol === 'dnss') {
 
 								protocol = 'dnss';
 								tunnel   = DNSS.connect(url, connection);
@@ -120,7 +126,7 @@ const onconnect = function(connection, url) {
 								connection.protocol = protocol;
 								connection.tunnel   = tunnel;
 
-								connection.emit('@tunnel', [ tunnel ]);
+								connection.emit('@connect', [ tunnel ]);
 
 							} else {
 
@@ -180,10 +186,6 @@ const onconnect = function(connection, url) {
 		},
 		payload: null
 	}));
-
-	setTimeout(() => {
-		connection.emit('@connect');
-	}, 0);
 
 };
 
@@ -264,7 +266,7 @@ const onupgrade = function(connection, url) {
 							}
 
 							setTimeout(() => {
-								connection.emit('@tunnel', [ null ]);
+								connection.emit('@connect', [ null ]);
 							}, 0);
 
 						} else if (isNumber(STATUSES[status]) === true) {
@@ -306,7 +308,7 @@ const onupgrade = function(connection, url) {
 				});
 
 				setTimeout(() => {
-					connection.emit('@tunnel', [ null ]);
+					connection.emit('@connect', [ null ]);
 				}, 0);
 
 			}
@@ -337,10 +339,6 @@ const onupgrade = function(connection, url) {
 		},
 		payload: null
 	}));
-
-	setTimeout(() => {
-		connection.emit('@connect');
-	}, 0);
 
 };
 
@@ -600,7 +598,11 @@ const SOCKS = {
 
 			} else if (hosts.length > 0 && hosts[0].scope === 'private') {
 
-				if (url.protocol === 'dnss') {
+				if (url.protocol === 'dnsh') {
+
+					return DNSH.connect(url, connection);
+
+				} else if (url.protocol === 'dnss') {
 
 					return DNSS.connect(url, connection);
 
@@ -707,6 +709,10 @@ const SOCKS = {
 
 				}
 
+			} else if (connection.protocol === 'dnsh') {
+
+				return DNSH.receive(connection, buffer, callback);
+
 			} else if (connection.protocol === 'dnss') {
 
 				return DNSS.receive(connection, buffer, callback);
@@ -787,7 +793,11 @@ const SOCKS = {
 
 			} else if (connection.tunnel !== null) {
 
-				if (connection.protocol === 'dnss') {
+				if (connection.protocol === 'dnsh') {
+
+					return DNSH.send(connection.tunnel, data, callback);
+
+				} else if (connection.protocol === 'dnss') {
 
 					return DNSS.send(connection.tunnel, data, callback);
 

@@ -21,8 +21,7 @@
 				the server is a <abbr title="also known as being an idiot">teapot</abbr>.
 			</p>
 			<p data-key="cause" data-val="headers">
-				The server responded with incorrect HTTP headers with status <code data-key="code">200</code>
-				that don't make sense.
+				The server responded with incorrect HTTP headers with status that don't make sense.
 			</p>
 			<p data-key="cause" data-val="payload">
 				The server responded with a payload that seems to be incomplete or
@@ -67,11 +66,6 @@
 
 				let body = Element.query('body');
 				if (body !== null) {
-
-					let code = ENVIRONMENT.flags.code  || null;
-					if (code !== null) {
-						body.query('[data-key="code"]').value(code);
-					}
 
 					let cause = ENVIRONMENT.flags.cause || null;
 					if (cause !== null) {

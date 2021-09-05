@@ -1,19 +1,16 @@
 
-import dgram from 'dgram';
-
-import { console, Buffer, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { console, Buffer, isArray, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
 import { ENVIRONMENT                                               } from '../../source/ENVIRONMENT.mjs';
 import { isStealth, VERSION                                        } from '../../source/Stealth.mjs';
 import { MDNS                                                      } from '../../source/connection/MDNS.mjs';
 import { DNS as PACKET                                             } from '../../source/packet/DNS.mjs';
+import { URL                                                       } from '../../source/parser/URL.mjs';
 import { isServices                                                } from '../../source/server/Services.mjs';
 
 
 
-const RESERVED_SUBDOMAINS = [
+const RESERVED = [
 
-	// *.tholian.network
-	'admin',
 	'beacon',
 	'browser',
 	'radar',
@@ -24,6 +21,10 @@ const RESERVED_SUBDOMAINS = [
 
 ];
 
+const isConnection = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Connection]';
+};
+
 export const isPeerer = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Peerer]';
 };
@@ -32,17 +33,27 @@ const isQuery = function(payload) {
 
 	if (
 		isObject(payload) === true
-		&& isString(payload.subdomain) === true
-		&& payload.subdomain.includes('.') === false
+		&& isString(payload.domain) === true
+		&& (isString(payload.subdomain) === true || payload.subdomain === null)
 	) {
 
-		if (payload.domain === 'tholian.local') {
+		if (
+			(payload.domain === 'tholian.local' || payload.domain === 'tholian.network')
+			&& isString(payload.subdomain) === true
+			&& payload.subdomain.includes('.') === false
+		) {
 
-			return true;
+			if (RESERVED.includes(payload.subdomain) === false) {
+				return true;
+			}
 
-		} else if (payload.domain === 'tholian.network') {
+		} else {
 
-			if (RESERVED_SUBDOMAINS.includes(payload.subdomain) === false) {
+			let domain1 = isString(payload.subdomain) ? (payload.subdomain + '.' + payload.domain) : payload.domain;
+			let url     = URL.parse('https://' + domain1 + '/');
+			let domain2 = URL.toDomain(url);
+
+			if (domain1 === domain2) {
 				return true;
 			}
 
@@ -56,18 +67,23 @@ const isQuery = function(payload) {
 
 const isServiceDiscoveryRequest = function(packet) {
 
-	if (packet.headers['@type'] === 'request') {
+	if (
+		isObject(packet) === true
+		&& isObject(packet.headers) === true
+		&& packet.headers['@type'] === 'request'
+		&& isObject(packet.payload) === true
+		&& isArray(packet.payload.questions) === true
+		&& isArray(packet.payload.answers) === true
+		&& packet.payload.questions.length === 2
+		&& packet.payload.answers.length === 0
+	) {
 
-		if (packet.payload.questions.length === 2 && packet.payload.answers.length === 0) {
+		let check1 = packet.payload.questions.filter((q) => q.type === 'PTR');
+		if (check1.length === packet.payload.questions.length) {
 
-			let check1 = packet.payload.questions.filter((q) => q.type === 'PTR');
-			if (check1.length === packet.payload.questions.length) {
-
-				let check2 = check1.filter((q) => (q.value === '_stealth._wss.tholian.local' || q.value === '_stealth._ws.tholian.local'));
-				if (check2.length === check1.length) {
-					return true;
-				}
-
+			let check2 = check1.filter((q) => (q.value === '_stealth._wss.tholian.local' || q.value === '_stealth._ws.tholian.local'));
+			if (check2.length === check1.length) {
+				return true;
 			}
 
 		}
@@ -81,61 +97,55 @@ const isServiceDiscoveryRequest = function(packet) {
 
 const isServiceDiscoveryResponse = function(packet) {
 
-	if (packet.headers['@type'] === 'response') {
+	if (
+		isObject(packet) === true
+		&& isObject(packet.headers) === true
+		&& packet.headers['@type'] === 'response'
+		&& isObject(packet.payload) === true
+		&& isArray(packet.payload.questions) === true
+		&& isArray(packet.payload.answers) === true
+		&& packet.payload.questions.length === 2
+		&& packet.payload.answers.length > 3
+	) {
 
-		if (packet.payload.questions.length === 2 && packet.payload.answers.length > 3) {
+		let ptr = packet.payload.answers.find((a) => a.type === 'PTR') || null;
+		let srv = packet.payload.answers.find((a) => a.type === 'SRV') || null;
+		let txt = packet.payload.answers.find((a) => a.type === 'TXT') || null;
 
-			let ptr = packet.payload.answers.find((a) => a.type === 'PTR') || null;
-			let srv = packet.payload.answers.find((a) => a.type === 'SRV') || null;
-			let txt = packet.payload.answers.find((a) => a.type === 'TXT') || null;
+		if (
+			ptr !== null
+			&& (
+				ptr.value === '_stealth._ws.tholian.local'
+				|| ptr.value === '_stealth._ws.tholian.local'
+			)
+			&& srv !== null
+			&& srv.port === 65432
+			&& srv.weight === 0
+			&& txt !== null
+			&& isBuffer(txt.value[0]) === true
+			&& txt.value[0].toString('utf8') === 'version=' + VERSION
+		) {
 
+			let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
+			let ipv4s    = packet.payload.answers.filter((a) => a.type === 'A');
 
-			if (
-				ptr !== null
-				&& (
-					ptr.value === '_stealth._ws.tholian.local'
-					|| ptr.value === '_stealth._ws.tholian.local'
-				)
-				&& srv !== null
-				&& srv.port === 65432
-				&& srv.weight === 0
-				&& txt !== null
-				&& isBuffer(txt.value[0]) === true
-				&& txt.value[0].toString('utf8') === 'version=' + VERSION
-			) {
+			// TODO: IPv4 have to be verified in terms of subnet masks
 
-				let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
-				let ipv4s    = packet.payload.answers.filter((a) => a.type === 'A');
+			if (has_ipv4 === true && ipv4s.length > 0) {
+				return true;
+			}
 
-				// TODO: IPv4 have to be verified in terms of subnet masks
+			let has_ipv6 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v6').length > 0;
+			let ipv6s    = packet.payload.answers.filter((a) => a.type === 'AAAA');
 
-				if (has_ipv4 === true && ipv4s.length > 0) {
-					return true;
-				}
-
-				let has_ipv6 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v6').length > 0;
-				let ipv6s    = packet.payload.answers.filter((a) => a.type === 'AAAA');
-
-				if (has_ipv6 === true && ipv6s.length > 0) {
-					return true;
-				}
-
+			if (has_ipv6 === true && ipv6s.length > 0) {
+				return true;
 			}
 
 		}
 
 	}
 
-
-	return false;
-
-};
-
-const isSocket = function(obj) {
-
-	if (obj !== null && obj !== undefined) {
-		return obj instanceof dgram.Socket;
-	}
 
 	return false;
 
@@ -171,7 +181,7 @@ const toUsername = function(payload) {
 			)
 			&& isString(payload.subdomain) === true
 			&& payload.subdomain.includes('.') === false
-			&& RESERVED_SUBDOMAINS.includes(payload.subdomain) === false
+			&& RESERVED.includes(payload.subdomain) === false
 		) {
 			username = payload.subdomain;
 		}
@@ -402,36 +412,59 @@ Peerer.prototype = {
 
 	},
 
-	can: function(buffer) {
+	can: function(packet) {
 
-		buffer = isBuffer(buffer) ? buffer : null;
+		packet = isObject(packet) ? packet : null;
 
 
-		if (buffer !== null) {
+		if (isServiceDiscoveryRequest(packet) === true) {
+			return true;
+		} else if (isServiceDiscoveryResponse(packet) === true) {
+			return true;
+		}
 
-			if (PACKET.isPacket(buffer) === true) {
 
-				let packet = PACKET.decode(null, buffer);
-				if (packet !== null) {
+		return false;
 
-					if (packet.headers['@type'] === 'request') {
+	},
 
-						if (isServiceDiscoveryRequest(packet) === true) {
-							return true;
-						} else if (isServiceDiscoveryResponse(packet) === true) {
-							return true;
-						}
+	receive: function(connection, packet) {
 
+		connection = isConnection(connection) ? connection : null;
+
+
+		if (isServiceDiscoveryRequest(packet) === true) {
+
+			let response = toServiceDiscoveryResponse.call(this, packet);
+			if (response !== null) {
+
+				MDNS.send(connection, response, (result) => {
+
+					if (result === true) {
+						console.warn('Peerer: A Stealth Browser asked for local Peers.');
 					}
 
-				}
+				});
+
+			}
+
+		} else if (isServiceDiscoveryResponse(packet) === true) {
+
+			if (this.stealth !== null) {
+
+				// TODO: Verify A entries in terms of subnet (and reachability)
+
+				// TODO: Add peer to this.stealth.settings.peers
+				// TODO: Add host to this.stealth.settings.hosts
+
+				console.warn('TODO: Process Peer', packet);
 
 			}
 
 		}
 
 
-		return false;
+		return null;
 
 	},
 
@@ -475,6 +508,10 @@ Peerer.prototype = {
 
 				}
 
+				if (callback !== null) {
+					callback(null);
+				}
+
 			} else {
 
 				if (callback !== null) {
@@ -496,61 +533,6 @@ Peerer.prototype = {
 		// else announce this host and wait 3 seconds for replies.
 		// If no reply has arrived by then, then callback(null);
 		// If a reply has arrived by then, then callback({ domain, hosts })
-
-	},
-
-	upgrade: function(buffer, socket, remote) {
-
-		buffer = isBuffer(buffer) ? buffer : null;
-		socket = isSocket(socket) ? socket : null;
-
-
-		let packet = PACKET.decode(null, buffer);
-		if (packet !== null) {
-
-			if (isServiceDiscoveryRequest(packet) === true) {
-
-				let connection = MDNS.upgrade(socket);
-				if (connection !== null) {
-
-					let response = toServiceDiscoveryResponse.call(this, packet);
-					if (response !== null) {
-
-						MDNS.send(connection, response, (result) => {
-
-							if (result === true) {
-								console.warn('Peerer: "' + remote.host + '" asked for Peers.');
-							}
-
-						});
-
-					}
-
-				}
-
-			} else if (isServiceDiscoveryResponse(packet) === true) {
-
-				if (this.stealth !== null) {
-
-					// TODO: Verify A entries in terms of subnet (and reachability)
-
-					// TODO: Add peer to this.stealth.settings.peers
-					// TODO: Add host to this.stealth.settings.hosts
-
-					console.warn('TODO: Process Peer', packet);
-
-				}
-
-			}
-
-		} else {
-
-			// Do Nothing
-
-		}
-
-
-		return null;
 
 	}
 

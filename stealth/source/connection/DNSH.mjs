@@ -366,11 +366,11 @@ const ondisconnect = function(connection, url) {
 			if (tmp !== null) {
 				connection.emit('redirect', [{ headers: url.headers }]);
 			} else {
-				connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
+				connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
 			}
 
 		} else if (code >= 100 && code <= 599) {
-			connection.emit('error', [{ code: code, type: 'connection', cause: 'headers' }]);
+			connection.emit('error', [{ type: 'connection', cause: 'headers' }]);
 		} else {
 			connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
 		}
@@ -542,7 +542,10 @@ const DNSH = {
 		connection = isConnection(connection) ? Connection.from(connection)     : new Connection();
 
 
-		if (url !== null && url.protocol === 'https') {
+		if (
+			url !== null
+			&& (url.protocol === 'https' || url.protocol === 'dnsh')
+		) {
 
 			let hosts = IP.sort(url.hosts);
 			if (hosts.length > 0) {
@@ -563,7 +566,7 @@ const DNSH = {
 					connection.socket = tls.connect({
 						host:           hostname,
 						port:           url.port || 443,
-						ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+						ALPNProtocols:  [ 'http/1.1' ],
 						secureProtocol: 'TLS_method',
 						servername:     hostname,
 						lookup:         lookup.bind(url)

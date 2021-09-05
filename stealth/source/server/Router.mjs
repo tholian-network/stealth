@@ -1,22 +1,19 @@
 
-import dgram from 'dgram';
-
-import { isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { isStealth                                } from '../../source/Stealth.mjs';
-import { ENVIRONMENT                              } from '../../source/ENVIRONMENT.mjs';
-import { DNSH                                     } from '../../source/connection/DNSH.mjs';
-import { DNSS                                     } from '../../source/connection/DNSS.mjs';
-import { DNS as PACKET                            } from '../../source/packet/DNS.mjs';
-import { isServices                               } from '../../source/server/Services.mjs';
-import { IP                                       } from '../../source/parser/IP.mjs';
-import { URL                                      } from '../../source/parser/URL.mjs';
-
+import { console, isArray, isFunction, isObject, isString } from '../../extern/base.mjs';
+import { isStealth                               } from '../../source/Stealth.mjs';
+import { ENVIRONMENT                             } from '../../source/ENVIRONMENT.mjs';
+import { DNS                                     } from '../../source/connection/DNS.mjs';
+import { DNSH                                    } from '../../source/connection/DNSH.mjs';
+import { DNSS                                    } from '../../source/connection/DNSS.mjs';
+import { SOCKS                                   } from '../../source/connection/SOCKS.mjs';
+import { isServices                              } from '../../source/server/Services.mjs';
+import { IP                                      } from '../../source/parser/IP.mjs';
+import { URL                                     } from '../../source/parser/URL.mjs';
 
 
-const RESERVED_SUBDOMAINS = [
 
-	// *.tholian.network
-	'admin',
+const RESERVED = [
+
 	'beacon',
 	'browser',
 	'radar',
@@ -27,32 +24,10 @@ const RESERVED_SUBDOMAINS = [
 
 ];
 
-const RESERVED_DOMAINS = [
-
-	// DNS RFC
-	'domain',
-	'example',
-	'invalid',
-	'local',
-	'localhost',
-	'test',
-
-	// Basically RFC-violating companies
-	'belkin',
-	'corp',
-	'home',
-	'lan',
-	'localdomain',
-	'mail',
-	'wpad',
-	'workgroup'
-
-];
-
 const RONIN = [];
 
 const SERVERS = [
-	Object.assign(URL.parse('https://cloudflare-dns.com:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://cloudflare-dns.com:443/dns-query'), {
 		hosts: [
 			IP.parse('1.1.1.1'),
 			IP.parse('2606:4700:4700::1111'),
@@ -68,7 +43,7 @@ const SERVERS = [
 			IP.parse('2001:4860:4860::8888')
 		]
 	}),
-	Object.assign(URL.parse('https://dns.google:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://dns.google:443/dns-query'), {
 		hosts: [
 			IP.parse('8.8.4.4'),
 			IP.parse('2001:4860:4860::8844'),
@@ -84,7 +59,7 @@ const SERVERS = [
 			IP.parse('2a05:fc84::43')
 		]
 	}),
-	Object.assign(URL.parse('https://dns.digitale-gesellschaft.ch:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://dns.digitale-gesellschaft.ch:443/dns-query'), {
 		hosts: [
 			IP.parse('185.95.218.42'),
 			IP.parse('2a05:fc84::42'),
@@ -100,49 +75,49 @@ const SERVERS = [
 			IP.parse('2a01:04f8:0141:316d::0117')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.au.ahadns.net:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.au.ahadns.net:443/dns-query'), {
 		hosts: [
 			IP.parse('103.73.64.132'),
 			IP.parse('2406:ef80:0100:0011::0011')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.es.ahadns.net:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.es.ahadns.net:443/dns-query'), {
 		hosts: [
 			IP.parse('45.132.74.167'),
 			IP.parse('2a0e:0dc0:0009:0017::0017')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.it.ahadns.net:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.it.ahadns.net:443/dns-query'), {
 		hosts: [
 			IP.parse('45.91.95.12'),
 			IP.parse('2a0e:0dc0:0008:0012::0012')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.la.ahadns.net:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.la.ahadns.net:443/dns-query'), {
 		hosts: [
 			IP.parse('45.67.219.208'),
 			IP.parse('2a04:bdc7:0100:0070::0070')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.nl.ahadns.net:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.nl.ahadns.net:443/dns-query'), {
 		hosts: [
 			IP.parse('5.2.75.75'),
 			IP.parse('2a04:52c0:0101:0075::0075')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.no.ahadns.net:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.no.ahadns.net:443/dns-query'), {
 		hosts: [
 			IP.parse('185.175.56.133'),
 			IP.parse('2a0d:5600:0030:0028:0028')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.ny.ahadns.net:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.ny.ahadns.net:443/dns-query'), {
 		hosts: [
 			IP.parse('185.213.26.187'),
 			IP.parse('2a0d:5600:0033:0003::0003')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.pl.ahadns.net:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.pl.ahadns.net:443/dns-query'), {
 		hosts: [
 			IP.parse('45.132.75.16'),
 			IP.parse('2a0e:0dc0:0007:000d::000d')
@@ -166,7 +141,7 @@ const SERVERS = [
 			IP.parse('2a09::0000')
 		]
 	}),
-	Object.assign(URL.parse('https://doh.dns.sb:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://doh.dns.sb:443/dns-query'), {
 		hosts: [
 			IP.parse('104.18.56.150'),
 			IP.parse('2606:4700:0030::6812:3896'),
@@ -174,13 +149,13 @@ const SERVERS = [
 			IP.parse('2606:4700:0030::6812:3996')
 		]
 	}),
-	Object.assign(URL.parse('https://dns.quad9.net:5053/dns-query'), {
+	Object.assign(URL.parse('dnsh://dns.quad9.net:5053/dns-query'), {
 		hosts: [
 			IP.parse('9.9.9.9'),
 			IP.parse('2620:00fe::00fe')
 		]
 	}),
-	Object.assign(URL.parse('https://dns.rubyfish.cn:443/dns-query'), {
+	Object.assign(URL.parse('dnsh://dns.rubyfish.cn:443/dns-query'), {
 		hosts: [
 			IP.parse('118.89.110.78'),
 			IP.parse('47.96.179.163')
@@ -196,6 +171,10 @@ const SERVERS = [
 	})
 ];
 
+const isConnection = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Connection]';
+};
+
 export const isRouter = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Router]';
 };
@@ -208,16 +187,6 @@ const isQuery = function(payload) {
 		&& (isString(payload.subdomain) === true || payload.subdomain === null)
 	) {
 
-		let valid = true;
-
-		RESERVED_DOMAINS.forEach((tld) => {
-
-			if (payload.domain.endsWith('.' + tld) || payload.domain === tld) {
-				valid = false;
-			}
-
-		});
-
 		if (
 			isString(payload.domain) === true
 			&& payload.domain === 'tholian.network'
@@ -225,38 +194,22 @@ const isQuery = function(payload) {
 
 			if (isString(payload.subdomain) === true) {
 
-				if (RESERVED_SUBDOMAINS.includes(payload.subdomain) === true) {
-					valid = true;
-				} else {
-					valid = false;
+				if (RESERVED.includes(payload.subdomain) === true) {
+					return true;
 				}
 
 			} else if (payload.subdomain === null) {
-				valid = true;
+				return true;
 			}
 
-		}
-
-		if (
+		} else if (
 			isString(payload.domain) === true
-			&& payload.domain === 'tholian.local'
+			&& payload.domain !== 'tholian.local'
+			&& payload.domain !== 'tholian.network'
 		) {
-			valid = false;
+			return true;
 		}
 
-		return valid;
-
-	}
-
-
-	return false;
-
-};
-
-const isSocket = function(obj) {
-
-	if (obj !== null && obj !== undefined) {
-		return obj instanceof dgram.Socket;
 	}
 
 
@@ -268,22 +221,10 @@ const isValid = (record) => {
 
 	if (record.type === 'A' || record.type === 'AAAA') {
 
-		let url    = URL.parse(record.domain);
+		let url    = URL.parse('https://' + record.domain + '/');
 		let domain = URL.toDomain(url);
 		if (domain !== null) {
-
-			let valid = true;
-
-			RESERVED_DOMAINS.forEach((tld) => {
-
-				if (domain === tld || domain.endsWith('.' + tld)) {
-					valid = false;
-				}
-
-			});
-
-			return valid;
-
+			return true;
 		}
 
 	}
@@ -295,15 +236,20 @@ const isValid = (record) => {
 
 const isResolveRequest = function(packet) {
 
-	if (packet.headers['@type'] === 'request') {
+	if (
+		isObject(packet) === true
+		&& isObject(packet.headers) === true
+		&& packet.headers['@type'] === 'request'
+		&& isObject(packet.payload) === true
+		&& isArray(packet.payload.questions) === true
+		&& isArray(packet.payload.answers) === true
+		&& packet.payload.questions.length > 0
+		&& packet.payload.answers.length === 0
+	) {
 
-		if (packet.payload.questions.length > 0 && packet.payload.answers.length === 0) {
-
-			let check1 = packet.payload.questions.filter((q) => isValid(q));
-			if (check1.length === packet.payload.questions.length) {
-				return true;
-			}
-
+		let check1 = packet.payload.questions.filter((q) => isValid(q));
+		if (check1.length === packet.payload.questions.length) {
+			return true;
 		}
 
 	}
@@ -315,20 +261,25 @@ const isResolveRequest = function(packet) {
 
 const isResolveResponse = function(packet) {
 
-	if (packet.headers['@type'] === 'response') {
+	if (
+		isObject(packet) === true
+		&& isObject(packet.headers) === true
+		&& packet.headers['@type'] === 'response'
+		&& isObject(packet.payload) === true
+		&& isArray(packet.payload.questions) === true
+		&& isArray(packet.payload.answers) === true
+		&& packet.payload.questions.length > 0
+		&& packet.payload.answers.length > 0
+	) {
 
-		if (packet.payload.questions.length > 0 && packet.payload.answers.length > 0) {
+		let check1 = packet.payload.questions.filter((q) => isValid(q));
+		let check2 = packet.payload.answers.filter((a) => isValid(a));
 
-			let check1 = packet.payload.questions.filter((q) => isValid(q));
-			let check2 = packet.payload.answers.filter((a) => isValid(a));
-
-			if (
-				check1.length === packet.payload.questions.length
-				&& check2.length === packet.payload.answers.length
-			) {
-				return true;
-			}
-
+		if (
+			check1.length === packet.payload.questions.length
+			&& check2.length === packet.payload.answers.length
+		) {
+			return true;
 		}
 
 	}
@@ -391,36 +342,183 @@ Router.prototype = {
 
 	},
 
-	can: function(buffer) {
+	can: function(packet) {
 
-		buffer = isBuffer(buffer) ? buffer : null;
+		packet = isObject(packet) ? packet : null;
 
 
-		if (buffer !== null) {
-
-			if (PACKET.isPacket(buffer) === true) {
-
-				let packet = PACKET.decode(null, buffer);
-				if (packet !== null) {
-
-					if (packet.headers['@type'] === 'request') {
-
-						if (isResolveRequest(packet) === true) {
-							return true;
-						} else if (isResolveResponse(packet) === true) {
-							return true;
-						}
-
-					}
-
-				}
-
-			}
-
+		if (isResolveRequest(packet) === true) {
+			return true;
+		} else if (isResolveResponse(packet) === true) {
+			return true;
 		}
 
 
 		return false;
+
+	},
+
+	receive: function(connection, packet) {
+
+		connection = isConnection(connection) ? connection : null;
+		packet     = isObject(packet)         ? packet     : null;
+
+
+		if (packet !== null) {
+
+			if (isResolveRequest(packet) === true) {
+
+				let hosts      = [];
+				let remote     = connection.remote;
+				let unresolved = [];
+
+				if (this.stealth !== null) {
+					hosts = this.stealth.settings.hosts;
+				}
+
+				packet.payload.questions.forEach((question) => {
+
+					let domain = question.domain;
+					let type   = question.type;
+					let host   = hosts.find((h) => h.domain === domain) || null;
+
+					if (host !== null) {
+
+						if (type === 'A') {
+
+							host.hosts.filter((ip) => ip.type === 'v4').forEach((ip) => {
+								packet.payload.answers.push({
+									domain: domain,
+									type:   'A',
+									value:  ip
+								});
+							});
+
+						} else if (type === 'AAAA') {
+
+							host.hosts.filter((ip) => ip.type === 'v6').forEach((ip) => {
+								packet.payload.answers.push({
+									domain: domain,
+									type:   'AAAA',
+									value:  ip
+								});
+							});
+
+						}
+
+					} else {
+
+						unresolved.push(question);
+
+					}
+
+				});
+
+
+				if (unresolved.length > 0) {
+
+					let remaining = unresolved.length;
+
+					unresolved.forEach((question) => {
+
+						let domain = question.domain;
+						let type   = question.type;
+						let url    = URL.parse('https://' + domain + '/');
+
+						this.resolve({
+							domain:    url.domain,
+							subdomain: url.subdomain
+						}, (host) => {
+
+							if (host !== null) {
+
+								if (type === 'A') {
+
+									host.hosts.filter((ip) => ip.type === 'v4').forEach((ip) => {
+										packet.payload.answers.push({
+											domain: domain,
+											type:   'A',
+											value:  ip
+										});
+									});
+
+								} else if (type === 'AAAA') {
+
+									host.hosts.filter((ip) => ip.type === 'v6').forEach((ip) => {
+										packet.payload.answers.push({
+											domain: domain,
+											type:   'AAAA',
+											value:  ip
+										});
+									});
+
+								}
+
+								if (this.stealth !== null) {
+									this.stealth.server.services.host.save(host);
+								}
+
+							}
+
+							remaining--;
+
+						});
+
+					});
+
+					let interval = setInterval(() => {
+
+						if (remaining === 0) {
+
+							clearInterval(interval);
+							interval = null;
+
+							connection.remote = remote;
+
+							DNS.send(connection, {
+								headers: {
+									'@id':   packet.headers['@id'],
+									'@type': 'response'
+								},
+								payload: packet.payload
+							});
+
+						}
+
+					}, 100);
+
+				} else {
+
+					connection.remote = remote;
+
+					DNS.send(connection, {
+						headers: {
+							'@id':   packet.headers['@id'],
+							'@type': 'response'
+						},
+						payload: packet.payload
+					});
+
+				}
+
+			} else if (isResolveResponse(packet) === true) {
+
+				console.log('need to cache response nao');
+				console.log(packet);
+
+				// TODO: Verify A and AAAA entries
+				// TODO: Add hosts to settings.hosts[]
+
+			}
+
+		} else {
+
+			// Do Nothing
+
+		}
+
+
+		return null;
 
 	},
 
@@ -430,19 +528,15 @@ Router.prototype = {
 		callback = isFunction(callback) ? callback : null;
 
 
-		let connection = null;
-
-		if (this.stealth !== null) {
-			connection = this.stealth.settings.internet.connection;
-		}
+		let internet = this.stealth.settings.internet;
 
 		if (
 			query !== null
 			&& ENVIRONMENT.ips.length > 0
 			&& (
-				connection === 'mobile'
-				|| connection === 'broadband'
-				|| connection === 'tor'
+				internet.connection === 'mobile'
+				|| internet.connection === 'broadband'
+				|| internet.connection === 'tor'
 			)
 		) {
 
@@ -472,18 +566,93 @@ Router.prototype = {
 
 			}
 
+
 			let url        = RONIN.shift();
 			let connection = null;
+			let request    = {
+				headers: {
+					'@type': 'request'
+				},
+				payload: {
+					questions: [{
+						domain: domain,
+						type:   'A',
+						value:  null
+					}, {
+						domain: domain,
+						type:   'AAAA',
+						value:  null
+					}],
+					answers:   []
+				}
+			};
 
-			if (url.protocol === 'https') {
-				connection = DNSH.connect(url);
-			} else if (url.protocol === 'dnss') {
-				connection = DNSS.connect(url);
+
+			if (
+				internet.connection === 'mobile'
+				|| internet.connection === 'broadband'
+			) {
+
+				if (url.protocol === 'dnsh') {
+					connection = DNSH.connect(url);
+				} else if (url.protocol === 'dnss') {
+					connection = DNSS.connect(url);
+				} else if (url.protocol === 'dns') {
+					connection = DNS.connect(url);
+				}
+
+			} else if (internet.connection === 'tor') {
+
+				url.proxy  = { host: '127.0.0.1', port: 9050 };
+				connection = SOCKS.connect(url);
+
 			}
+
 
 			if (connection !== null) {
 
+				connection.once('@connect', () => {
+
+					if (url.protocol === 'dnsh') {
+						DNSH.send(connection, request);
+					} else if (url.protocol === 'dnss') {
+						DNSS.send(connection, request);
+					} else if (url.protocol === 'dns') {
+						DNS.send(connection, request);
+					}
+
+				});
+
 				connection.once('response', (response) => {
+
+					let cname = response.payload.answers.find((a) => {
+						return (a.type === 'CNAME' && a.domain === domain);
+					}) || null;
+
+					if (cname !== null) {
+
+						response.payload.answers.remove(cname);
+
+						response.payload.answers.filter((a) => a.type !== 'CNAME').forEach((answer) => {
+
+							if (answer.type === 'PTR') {
+
+								if (answer.value === cname.value) {
+									answer.value = domain;
+								}
+
+							} else {
+
+								if (answer.domain === cname.value) {
+									answer.domain = domain;
+								}
+
+							}
+
+						});
+
+					}
+
 
 					let hosts = [];
 
@@ -516,39 +685,12 @@ Router.prototype = {
 
 				});
 
-				connection.once('error', () => {
+				connection.once('error', (err) => {
+
+					console.error(err);
 
 					if (callback !== null) {
 						callback(null);
-					}
-
-				});
-
-
-				let request = {
-					headers: {
-						'@type': 'request'
-					},
-					payload: {
-						questions: [{
-							domain: domain,
-							type:   'A',
-							value:  null
-						}, {
-							domain: domain,
-							type:   'AAAA',
-							value:  null
-						}],
-						answers:   []
-					}
-				};
-
-				connection.once('@connect', () => {
-
-					if (connection.protocol === 'https') {
-						DNSH.send(request);
-					} else if (connection.protocol === 'dnss') {
-						DNSS.send(request);
 					}
 
 				});
@@ -568,42 +710,6 @@ Router.prototype = {
 			}
 
 		}
-
-	},
-
-	upgrade: function(buffer, socket, remote) {
-
-		buffer = isBuffer(buffer) ? buffer : null;
-		socket = isSocket(socket) ? socket : null;
-
-
-		let packet = PACKET.decode(null, buffer);
-		if (packet !== null) {
-
-			if (isResolveRequest(packet) === true) {
-
-				// TODO: Try to resolve via Hosts Service's read() method
-				// which automatically leads to caching and automatically
-				// uses the resolve() method if necessary
-
-				// TODO: Only resolve hosts if internet settings
-				// allow to do so (broadband, mobile)
-
-			} else if (isResolveResponse(packet) === true) {
-
-				// TODO: Verify A and AAAA entries
-				// TODO: Add hosts to settings.hosts[]
-
-			}
-
-		} else {
-
-			// Do Nothing
-
-		}
-
-
-		return null;
 
 	}
 

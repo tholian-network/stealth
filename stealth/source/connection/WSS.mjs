@@ -195,7 +195,7 @@ const WSS = {
 						socket = tls.connect({
 							host:           hostname,
 							port:           url.port || 443,
-							ALPNProtocols:  [ 'http/1.1', 'http/1.0' ],
+							ALPNProtocols:  [ 'http/1.1' ],
 							secureProtocol: 'TLS_method',
 							servername:     hostname,
 							lookup:         lookup.bind(url)

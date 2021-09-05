@@ -1,13 +1,13 @@
 
 import net from 'net';
 
-import { console, Buffer, isBuffer, isNumber, isString } from '../../extern/base.mjs';
-import { isStealth                                     } from '../../source/Stealth.mjs';
-import { HTTP                                          } from '../../source/connection/HTTP.mjs';
-import { HTTP as PACKET                                } from '../../source/packet/HTTP.mjs';
-import { isServices                                    } from '../../source/server/Services.mjs';
-import { URL                                           } from '../../source/parser/URL.mjs';
-import { Request                                       } from '../../source/Request.mjs';
+import { console, Buffer, isBuffer, isString } from '../../extern/base.mjs';
+import { isStealth                           } from '../../source/Stealth.mjs';
+import { HTTP                                } from '../../source/connection/HTTP.mjs';
+import { HTTP as PACKET                      } from '../../source/packet/HTTP.mjs';
+import { isServices                          } from '../../source/server/Services.mjs';
+import { URL                                 } from '../../source/parser/URL.mjs';
+import { Request                             } from '../../source/Request.mjs';
 
 
 
@@ -317,10 +317,6 @@ const proxy_http_request = function(socket, packet) {
 
 						if (isString(err.cause) === true) {
 							params.push('cause=' + encodeURIComponent(err.cause));
-						}
-
-						if (isNumber(err.code) === true) {
-							params.push('code=' + encodeURIComponent(err.code));
 						}
 
 						if (isString(link) === true) {

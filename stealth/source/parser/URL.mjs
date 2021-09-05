@@ -804,6 +804,7 @@ const URL = {
 
 			} else if (
 				protocol === 'dns'
+				|| protocol === 'dnsh'
 				|| protocol === 'dnss'
 				|| protocol === 'ftps'
 				|| protocol === 'ftp'
@@ -1173,6 +1174,8 @@ const URL = {
 					// Do nothing
 				} else if (protocol === 'dns') {
 					port = 53;
+				} else if (protocol === 'dnsh') {
+					port = 443;
 				} else if (protocol === 'dnss') {
 					port = 853;
 				} else if (protocol === 'ftps') {
@@ -1277,6 +1280,12 @@ const URL = {
 				} else if (url.protocol === 'dns') {
 
 					if (url.port !== 53) {
+						link += ':' + url.port;
+					}
+
+				} else if (url.protocol === 'dnsh') {
+
+					if (url.port !== 443) {
 						link += ':' + url.port;
 					}
 
@@ -1471,6 +1480,8 @@ const URL = {
 						// Do nothing
 					} else if (protocol === 'dns') {
 						port = 53;
+					} else if (protocol === 'dnsh') {
+						port = 443;
 					} else if (protocol === 'dnss') {
 						port = 853;
 					} else if (protocol === 'ftps') {
