@@ -4,7 +4,7 @@ import { IP                                                         } from '../.
 
 
 
-const TOPLEVELDOMAINS = [
+const DOUBLE_TOPLEVELDOMAINS = [
 	'aba.ae',
 	'ac.id',
 	'ac.in',
@@ -179,6 +179,28 @@ const TOPLEVELDOMAINS = [
 	'za.pl',
 	'zyr.su',
 	'zz.mu'
+];
+
+const INVALID_TOPLEVELDOMAINS = [
+
+	// DNS RFC
+	'domain',
+	'example',
+	'invalid',
+	'local',
+	'localhost',
+	'test',
+
+	// Basically RFC-violating companies
+	'belkin',
+	'corp',
+	'home',
+	'lan',
+	'localdomain',
+	'mail',
+	'wpad',
+	'workgroup'
+
 ];
 
 const MIME_DEFAULT = {
@@ -1048,7 +1070,7 @@ const URL = {
 				let tmp_tld = domain.split('.').slice(-2).join('.');
 				let tmp_sub = domain.split('.').slice(0, -2);
 
-				if (TOPLEVELDOMAINS.includes(tmp_tld) === true && tmp_sub.length > 0) {
+				if (DOUBLE_TOPLEVELDOMAINS.includes(tmp_tld) === true && tmp_sub.length > 0) {
 
 					domain = tmp_sub.pop() + '.' + tmp_tld;
 
@@ -1099,6 +1121,26 @@ const URL = {
 
 			}
 
+			if (domain !== null && domain !== 'localhost') {
+
+				if (domain.includes('.') === true) {
+
+					let tld = domain.split('.').pop();
+					if (INVALID_TOPLEVELDOMAINS.includes(tld) === true) {
+						domain    = null;
+						subdomain = null;
+					}
+
+				} else {
+
+					if (INVALID_TOPLEVELDOMAINS.includes(domain) === true) {
+						domain    = null;
+						subdomain = null;
+					}
+
+				}
+
+			}
 
 			if (path !== null && path.includes('.') === true) {
 

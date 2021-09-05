@@ -96,17 +96,6 @@ const isSocket = function(obj) {
 
 };
 
-const isUpgrade = function(url) {
-
-	if (
-		isObject(url) === true
-		&& isObject(url.headers) === true
-	) {
-		return true;
-	}
-
-};
-
 const Connection = function(socket) {
 
 	this.socket = socket || null;
@@ -186,7 +175,19 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 		};
 
 		if (this.socket !== null) {
-			data.local = this.socket.address().address + ':' + this.socket.address().port;
+
+			let address = null;
+
+			try {
+				address = this.socket.address();
+			} catch (err) {
+				address = null;
+			}
+
+			if (address !== null) {
+				data.local = address.address + ':' + address.port;
+			}
+
 		}
 
 		if (this.remote !== null) {
@@ -514,12 +515,41 @@ const DNS = {
 
 	upgrade: function(tunnel, url) {
 
-		url = isUpgrade(url) ? Object.assign(URL.parse(), url) : Object.assign(URL.parse(), { headers: {} });
+		if (URL.isURL(url) !== true) {
+			url = Object.assign(URL.parse(), { headers: {} }, url);
+		}
 
 
 		let connection = null;
 
-		if (isSocket(tunnel) === true) {
+		if (tunnel === null) {
+
+			if (URL.isURL(url) === true && url.protocol === 'dns') {
+
+				let hosts = IP.sort(url.hosts);
+				if (hosts.length > 0) {
+
+					if (url.hosts[0].type === 'v4') {
+
+						connection = new Connection(dgram.createSocket({
+							type:      'udp4',
+							reuseAddr: true
+						}));
+
+					} else if (url.hosts[0].type === 'v6') {
+
+						connection = new Connection(dgram.createSocket({
+							type:      'udp6',
+							reuseAddr: true
+						}));
+
+					}
+
+				}
+
+			}
+
+		} else if (isSocket(tunnel) === true) {
 			connection = new Connection(tunnel);
 		} else if (isConnection(tunnel) === true) {
 			connection = Connection.from(tunnel);
