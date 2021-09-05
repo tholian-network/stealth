@@ -141,7 +141,12 @@ const validate_ipv4 = function(ipv4) {
 		valid = false;
 	}
 
-	return valid === true ? ipv4 : null;
+	if (valid === true) {
+		return ipv4;
+	}
+
+
+	return null;
 
 };
 
@@ -217,6 +222,9 @@ const validate_ipv6 = function(ipv6) {
 
 	}
 
+	if (chunk.length !== 8) {
+		valid = false;
+	}
 
 	if (valid === true) {
 		return chunk.join(':');
@@ -291,14 +299,14 @@ const IP = {
 					if (ip.includes(':') === true) {
 
 						let check = validate_ipv6(ip);
-						if (check !== null) {
+						if (check === ip) {
 							return true;
 						}
 
 					} else if (ip.includes('.') === true) {
 
 						let check = validate_ipv4(ip);
-						if (check !== null) {
+						if (check === ip) {
 							return true;
 						}
 

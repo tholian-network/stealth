@@ -420,7 +420,7 @@ Webserver.prototype = {
 					connection.once('error', () => {
 
 						connection.off('request');
-						connection.close();
+						connection.disconnect();
 
 					});
 

@@ -1,10 +1,10 @@
 
 import dgram from 'dgram';
 
-import { Emitter, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
-import { IP                                      } from '../../source/parser/IP.mjs';
-import { URL                                     } from '../../source/parser/URL.mjs';
-import { DNS as PACKET                           } from '../../source/packet/DNS.mjs';
+import { Emitter, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { IP                                                } from '../../source/parser/IP.mjs';
+import { URL                                               } from '../../source/parser/URL.mjs';
+import { DNS as PACKET                                     } from '../../source/packet/DNS.mjs';
 
 
 
@@ -60,6 +60,16 @@ const ondisconnect = function(connection, url) {
 const onupgrade = function(connection, url) {
 
 	connection.type = 'server';
+
+	if (isNumber(url.port) === true) {
+
+		try {
+			connection.socket.bind(url.port);
+		} catch (err) {
+			// Do Nothing
+		}
+
+	}
 
 	connection.socket.on('message', (message, rinfo) => {
 
