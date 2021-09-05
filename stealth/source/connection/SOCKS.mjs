@@ -67,12 +67,11 @@ const onconnect = function(connection, url) {
 	connection.socket.once('data', (data) => {
 
 		let response = PACKET.decode(connection, data);
-		if (response !== null && response.headers['@version'] === 5 && response.headers['@auth'] === 'none') {
+		if (response !== null && response.headers['@auth'] === 'none') {
 
 			connection.socket.once('data', (data) => {
 
 				let response = PACKET.decode(connection, data);
-
 				if (response !== null) {
 
 					if (response.headers['@status'] === 0x00) {
@@ -159,6 +158,7 @@ const onconnect = function(connection, url) {
 				}
 
 			});
+
 
 			SOCKS.send(connection, {
 				headers: {
