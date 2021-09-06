@@ -202,12 +202,12 @@ const toServiceDiscoveryRequest = function() {
 		},
 		payload: {
 			questions: [{
-				type:   'PTR',
 				domain: null,
+				type:   'PTR',
 				value:  '_stealth._wss.tholian.local'
 			}, {
-				type:   'PTR',
 				domain: null,
+				type:   'PTR',
 				value:  '_stealth._ws.tholian.local'
 			}],
 			answers: []
@@ -418,19 +418,13 @@ Peerer.prototype = {
 		connection = isConnection(connection) ? connection : null;
 
 
+		console.log(packet);
+
 		if (isServiceDiscoveryRequest(packet) === true) {
 
 			let response = toServiceDiscoveryResponse.call(this, packet);
 			if (response !== null) {
-
-				MDNS.send(connection, response, (result) => {
-
-					if (result === true) {
-						console.warn('Peerer: A Stealth Browser asked for local Peers.');
-					}
-
-				});
-
+				MDNS.send(connection, response);
 			}
 
 		} else if (isServiceDiscoveryResponse(packet) === true) {

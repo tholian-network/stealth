@@ -177,6 +177,16 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 					});
 
+					connection.on('response', (packet) => {
+
+						if (this.peerer.can(packet) === true) {
+							this.peerer.receive(connection, packet);
+						} else if (this.router.can(packet) === true) {
+							this.router.receive(connection, packet);
+						}
+
+					});
+
 				});
 
 			}
