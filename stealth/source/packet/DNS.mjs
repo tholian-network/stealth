@@ -487,6 +487,10 @@ const decode_record = function(dictionary, payload) {
 					tmp.slice(28, 32).join('')
 				].join(':'));
 
+			} else {
+
+				ip = domain;
+
 			}
 
 			return {
