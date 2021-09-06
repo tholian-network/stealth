@@ -368,48 +368,85 @@ Router.prototype = {
 
 			if (isResolveRequest(packet) === true) {
 
-				let hosts      = [];
 				let remote     = connection.remote;
 				let unresolved = [];
 
-				if (this.stealth !== null) {
-					hosts = this.stealth.settings.hosts;
-				}
 
 				packet.payload.questions.forEach((question) => {
 
 					let domain = question.domain;
 					let type   = question.type;
-					let host   = hosts.find((h) => h.domain === domain) || null;
 
-					if (host !== null) {
+					if (this.services !== null) {
 
-						if (type === 'A') {
+						this.services.blocker.read({
+							domain: domain
+						}, (response) => {
 
-							host.hosts.filter((ip) => ip.type === 'v4').forEach((ip) => {
-								packet.payload.answers.push({
-									domain: domain,
-									type:   'A',
-									value:  ip
+							let blocker = response.payload;
+							if (blocker !== null) {
+
+								if (type === 'A') {
+
+									packet.payload.answers.push({
+										domain: domain,
+										type:   'A',
+										value:  IP.parse('0.0.0.0')
+									});
+
+								} else if (type === 'AAAA') {
+
+									packet.payload.answers.push({
+										domain: domain,
+										type:   'A',
+										value:  IP.parse('::')
+									});
+
+								}
+
+							} else {
+
+								this.services.host.read({
+									domain: domain
+								}, (response) => {
+
+									let host = response.payload;
+									if (host !== null) {
+
+										if (type === 'A') {
+
+											host.hosts.filter((ip) => ip.type === 'v4').forEach((ip) => {
+												packet.payload.answers.push({
+													domain: domain,
+													type:   'A',
+													value:  ip
+												});
+											});
+
+										} else if (type === 'AAAA') {
+
+											host.hosts.filter((ip) => ip.type === 'v6').forEach((ip) => {
+												packet.payload.answers.push({
+													domain: domain,
+													type:   'AAAA',
+													value:  ip
+												});
+											});
+
+										}
+
+									} else {
+										unresolved.push(question);
+									}
+
 								});
-							});
 
-						} else if (type === 'AAAA') {
+							}
 
-							host.hosts.filter((ip) => ip.type === 'v6').forEach((ip) => {
-								packet.payload.answers.push({
-									domain: domain,
-									type:   'AAAA',
-									value:  ip
-								});
-							});
-
-						}
+						});
 
 					} else {
-
 						unresolved.push(question);
-
 					}
 
 				});
@@ -454,8 +491,8 @@ Router.prototype = {
 
 								}
 
-								if (this.stealth !== null) {
-									this.stealth.server.services.host.save(host);
+								if (this.services !== null) {
+									this.services.host.save(host);
 								}
 
 							}
@@ -685,9 +722,7 @@ Router.prototype = {
 
 				});
 
-				connection.once('error', (err) => {
-
-					console.error(err);
+				connection.once('error', () => {
 
 					if (callback !== null) {
 						callback(null);

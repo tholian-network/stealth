@@ -6,6 +6,7 @@ import { isArray, isBuffer, isObject, isString } from '../../extern/base.mjs';
 const PRIVATE_V4 = [
 
 	// RFC1122
+	'0.0.0.0',
 	'127.',
 
 	// RFC1918
@@ -71,6 +72,7 @@ const PRIVATE_V4 = [
 const PRIVATE_V6 = [
 
 	// RFC3513
+	'0000:0000:0000:0000:0000:0000:0000:0000',
 	'0000:0000:0000:0000:0000:0000:0000:0001',
 	'fe80:0000:0000:0000'
 
@@ -132,8 +134,17 @@ const validate_ipv4 = function(ipv4) {
 
 		});
 
-		let class_d = tmp[tmp.length - 1];
-		if (class_d === 0 || class_d === 255) {
+		if (
+			tmp[0] === 0
+			&& tmp[1] === 0
+			&& tmp[2] === 0
+			&& tmp[3] === 0
+		) {
+			// Do Nothing
+		} else if (
+			tmp[3] === 0
+			|| tmp[3] === 255
+		) {
 			valid = false;
 		}
 
