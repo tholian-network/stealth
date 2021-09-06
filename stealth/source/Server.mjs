@@ -72,12 +72,12 @@ const Server = function(settings, stealth) {
 	Emitter.call(this);
 
 
-	this.on('explore', () => {
+	this.on('discover', () => {
 
-		this.peerer.announce();
+		this.peerer.discover();
 
 		this.__state.timeout = setTimeout(() => {
-			this.emit('explore');
+			this.emit('discover');
 		}, 60 * 1000 + Math.random() * 120 * 1000);
 
 	});
@@ -296,7 +296,7 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			this.emit('connect');
 
 			setTimeout(() => {
-				this.emit('explore');
+				this.emit('discover');
 			}, 1000);
 
 
