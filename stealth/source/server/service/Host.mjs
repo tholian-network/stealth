@@ -87,6 +87,15 @@ const Host = function(stealth) {
 };
 
 
+/*
+ * {
+ *   "domain": "example.com",
+ *   "hosts":  [
+ *     IP.parse("1.3.3.7")
+ *   ]
+ * }
+ */
+
 Host.isHost = function(payload) {
 
 	if (
@@ -106,7 +115,6 @@ Host.isHost = function(payload) {
 	return false;
 
 };
-
 
 Host.toHost = function(payload) {
 

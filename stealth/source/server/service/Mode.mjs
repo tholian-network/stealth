@@ -37,6 +37,19 @@ const Mode = function(stealth) {
 };
 
 
+/*
+ * {
+ *   "domain": "example.com",
+ *   "mode":   {
+ *     "text":  true,
+ *     "image": true,
+ *     "audio": false,
+ *     "video": false,
+ *     "other": true
+ *   }
+ * }
+ */
+
 Mode.isMode = function(payload) {
 
 	if (
@@ -56,7 +69,6 @@ Mode.isMode = function(payload) {
 	return false;
 
 };
-
 
 Mode.toMode = function(payload) {
 

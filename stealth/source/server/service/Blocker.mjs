@@ -37,6 +37,12 @@ const Blocker = function(stealth) {
 };
 
 
+/*
+ * {
+ *   "domain": "ads.example.com"
+ * }
+ */
+
 Blocker.isBlocker = function(payload) {
 
 	if (
@@ -50,7 +56,6 @@ Blocker.isBlocker = function(payload) {
 	return false;
 
 };
-
 
 Blocker.toBlocker = function(payload) {
 

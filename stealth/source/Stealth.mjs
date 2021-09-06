@@ -91,7 +91,6 @@ const Stealth = function(settings) {
 
 
 	this.interval = null;
-	this.peers    = [];
 	this.requests = [];
 	this.server   = new Server({
 		host: this._settings.host
@@ -179,20 +178,6 @@ const Stealth = function(settings) {
 
 			clearInterval(interval);
 			this.interval = null;
-
-		}
-
-		if (this.peers.length > 0) {
-
-			for (let p = 0, pl = this.peers.length; p < pl; p++) {
-
-				this.peers[p].disconnect();
-
-				this.peers.splice(p, 1);
-				pl--;
-				p--;
-
-			}
 
 		}
 

@@ -3,7 +3,6 @@ import { console, Buffer, isArray, isBuffer, isFunction, isObject, isString } fr
 import { ENVIRONMENT                                               } from '../../source/ENVIRONMENT.mjs';
 import { isStealth, VERSION                                        } from '../../source/Stealth.mjs';
 import { MDNS                                                      } from '../../source/connection/MDNS.mjs';
-import { DNS as PACKET                                             } from '../../source/packet/DNS.mjs';
 import { URL                                                       } from '../../source/parser/URL.mjs';
 import { isServices                                                } from '../../source/server/Services.mjs';
 
@@ -13,6 +12,7 @@ const RESERVED = [
 
 	'beacon',
 	'browser',
+	'intel',
 	'radar',
 	'recon',
 	'sonar',
@@ -74,15 +74,16 @@ const isServiceDiscoveryRequest = function(packet) {
 		&& isObject(packet.payload) === true
 		&& isArray(packet.payload.questions) === true
 		&& isArray(packet.payload.answers) === true
-		&& packet.payload.questions.length === 2
+		&& packet.payload.questions.length > 0
 		&& packet.payload.answers.length === 0
 	) {
 
-		let check1 = packet.payload.questions.filter((q) => q.type === 'PTR');
-		if (check1.length === packet.payload.questions.length) {
+		let ptr1 = packet.payload.questions.find((q) => (q.type === 'PTR' && q.value === '_stealth._wss.tholian.local')) || null;
+		let ptr2 = packet.payload.questions.find((q) => (q.type === 'PTR' && q.value === '_stealth._ws.tholian.local'))  || null;
+		if (ptr1 !== null || ptr2 !== null) {
 
-			let check2 = check1.filter((q) => (q.value === '_stealth._wss.tholian.local' || q.value === '_stealth._ws.tholian.local'));
-			if (check2.length === check1.length) {
+			let rest = packet.payload.questions.filter((q) => (q !== ptr1 && q !== ptr2));
+			if (rest.length === 0) {
 				return true;
 			}
 
@@ -261,21 +262,21 @@ const toServiceDiscoveryResponse = function(request) {
 		if (hostname.endsWith('.tholian.local') === true) {
 
 			response.payload.answers.push({
-				type:   'PTR',
 				domain: hostname,
+				type:   'PTR',
 				value:  '_stealth._wss.tholian.local'
 			});
 
 			response.payload.answers.push({
-				type:   'SRV',
 				domain: hostname,
+				type:   'SRV',
 				port:   65432,
 				weight: 0
 			});
 
 			response.payload.answers.push({
-				type:   'TXT',
 				domain: hostname,
+				type:   'TXT',
 				value:  [
 					Buffer.from('version=' + VERSION)
 				]
@@ -368,7 +369,7 @@ Peerer.prototype = {
 
 	},
 
-	announce: function() {
+	discover: function() {
 
 		let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
 		if (has_ipv4 === true) {
@@ -377,15 +378,7 @@ Peerer.prototype = {
 			let request    = toServiceDiscoveryRequest.call(this);
 
 			if (connection !== null && request !== null) {
-
-				MDNS.send(connection, request, (result) => {
-
-					if (result === true) {
-						console.warn('Peerer: Announced this machine as Local IPv4 Peer.');
-					}
-
-				});
-
+				MDNS.send(connection, request);
 			}
 
 		}
@@ -397,15 +390,7 @@ Peerer.prototype = {
 			let request    = toServiceDiscoveryRequest.call(this);
 
 			if (connection !== null && request !== null) {
-
-				MDNS.send(connection, request, (result) => {
-
-					if (result === true) {
-						console.warn('Peerer: Announced this machine as Local IPv6 Peer.');
-					}
-
-				});
-
+				MDNS.send(connection, request);
 			}
 
 		}

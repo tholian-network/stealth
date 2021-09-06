@@ -37,6 +37,18 @@ const Policy = function(stealth) {
 };
 
 
+/*
+ * {
+ *   "domain":   "example.com",
+ *   "policies": [
+ *     {
+ *       "path":  "/search",
+ *       "query": "q&type"
+ *     }
+ *   ]
+ * }
+ */
+
 Policy.isPolicy = function(payload) {
 
 	if (
@@ -69,7 +81,6 @@ Policy.isPolicy = function(payload) {
 	return false;
 
 };
-
 
 Policy.toPolicy = function(payload) {
 

@@ -38,6 +38,19 @@ const Redirect = function(stealth) {
 };
 
 
+/*
+ * {
+ *   "domain":    "example.com",
+ *   "redirects": [
+ *     {
+ *       "path":     "/download.php",
+ *       "query":    "id=1337",
+ *       "location": "https://example.com/downloads/1337.tar.gz"
+ *     }
+ *   ]
+ * }
+ */
+
 Redirect.isRedirect = function(payload) {
 
 	if (
@@ -76,7 +89,6 @@ Redirect.isRedirect = function(payload) {
 	return false;
 
 };
-
 
 Redirect.toRedirect = function(payload) {
 
