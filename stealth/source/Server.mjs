@@ -72,12 +72,20 @@ const Server = function(settings, stealth) {
 
 	}
 
-
 	this.__state = {
 		connected: false,
+		interval:  null,
 		server:    null,
-		timeout:   null
 	};
+
+
+	if (this._settings.action === 'discover') {
+
+		this.__state.interval = setInterval(() => {
+			this.peerer.discover();
+		}, 10 * 1000);
+
+	}
 
 
 	Emitter.call(this);
@@ -87,12 +95,6 @@ const Server = function(settings, stealth) {
 
 		this.peerer.connect();
 		this.router.connect();
-
-		if (this._settings.action === 'discover') {
-			this.__state.timeout = setTimeout(() => {
-				this.emit('discover');
-			}, 10 * 1000);
-		}
 
 	});
 
@@ -290,21 +292,21 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			this.__state.connected = false;
 
 
+			let interval = this.__state.interval;
+			if (interval !== null) {
+
+				this.__state.interval = null;
+
+				clearInterval(interval);
+
+			}
+
 			let server = this.__state.server;
 			if (server !== null) {
 
 				this.__state.server = null;
 
 				server.close();
-
-			}
-
-			let timeout = this.__state.timeout;
-			if (timeout !== null) {
-
-				this.__state.timeout = null;
-
-				clearTimeout(timeout);
 
 			}
 

@@ -116,10 +116,15 @@ const isServiceDiscoveryResponse = function(packet) {
 		if (
 			ptr !== null
 			&& (
-				ptr.value === '_stealth._ws.tholian.local'
+				ptr.value === '_stealth._wss.tholian.local'
 				|| ptr.value === '_stealth._ws.tholian.local'
 			)
 			&& srv !== null
+			&& (
+				srv.domain === '_stealth._wss.tholian.local'
+				|| srv.domain === '_stealth._ws.tholian.local'
+			)
+			&& isString(srv.value) === true
 			&& srv.port === 65432
 			&& srv.weight === 0
 			&& txt !== null
@@ -268,7 +273,8 @@ const toServiceDiscoveryResponse = function(request) {
 			});
 
 			response.payload.answers.push({
-				domain: hostname,
+				domain: '_stealth._wss.tholian.local',
+				value:  hostname,
 				type:   'SRV',
 				port:   65432,
 				weight: 0
@@ -291,8 +297,9 @@ const toServiceDiscoveryResponse = function(request) {
 			});
 
 			response.payload.answers.push({
+				domain: '_stealth._ws.tholian.local',
 				type:   'SRV',
-				domain: hostname,
+				value:  hostname,
 				port:   65432,
 				weight: 0
 			});
@@ -565,10 +572,9 @@ Peerer.prototype = {
 		connection = isConnection(connection) ? connection : null;
 
 
-		console.warn('DNS-SD request:  ' + isServiceDiscoveryRequest(packet));
-		console.warn('DNS-SD response: ' + isServiceDiscoveryResponse(packet));
-
 		if (isServiceDiscoveryRequest(packet) === true) {
+
+			console.warn('DNS-SD Request');
 
 			let response = toServiceDiscoveryResponse.call(this, packet);
 			if (response !== null) {
@@ -576,6 +582,8 @@ Peerer.prototype = {
 			}
 
 		} else if (isServiceDiscoveryResponse(packet) === true) {
+
+			console.warn('DNS-SD Response');
 
 			if (this.stealth !== null) {
 
