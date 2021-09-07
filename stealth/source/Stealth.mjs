@@ -79,6 +79,7 @@ const Stealth = function(settings) {
 
 
 	this._settings = Object.freeze(Object.assign({
+		action:  null,
 		debug:   false,
 		host:    null,
 		profile: null
@@ -93,7 +94,8 @@ const Stealth = function(settings) {
 	this.interval = null;
 	this.requests = [];
 	this.server   = new Server({
-		host: this._settings.host
+		action: this._settings.action,
+		host:   this._settings.host
 	}, this);
 	this.settings = new Settings({
 		debug:   this._settings.debug,

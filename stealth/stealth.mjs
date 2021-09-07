@@ -25,7 +25,8 @@ const show_help = () => {
 	console.log('');
 	console.log('    Action     | Description                                                     ');
 	console.log('    -----------|-----------------------------------------------------------------');
-	console.log('    serve      | Serves the stealth service, proxy service and websocket service.');
+	console.log('    discover   | Discovers Network Topology and connects to local Peers.         ');
+	console.log('    serve      | Serves the Stealth Service and the Browser UI.                  ');
 	console.log('');
 	console.log('Available Flags:');
 	console.log('');
@@ -47,9 +48,10 @@ const show_help = () => {
 
 
 
-if (ENVIRONMENT.action === 'serve') {
+if (ENVIRONMENT.action === 'discover') {
 
 	let stealth = new Stealth({
+		action:  'discover',
 		debug:   ENVIRONMENT.flags.debug   || false,
 		host:    ENVIRONMENT.flags.host    || null,
 		profile: ENVIRONMENT.flags.profile || null
@@ -61,6 +63,20 @@ if (ENVIRONMENT.action === 'serve') {
 
 	stealth.connect();
 
+} else if (ENVIRONMENT.action === 'serve') {
+
+	let stealth = new Stealth({
+		action:  'serve',
+		debug:   ENVIRONMENT.flags.debug   || false,
+		host:    ENVIRONMENT.flags.host    || null,
+		profile: ENVIRONMENT.flags.profile || null
+	});
+
+	stealth.on('disconnect', (result) => {
+		process.exit(result === true ? 0 : 1);
+	});
+
+	stealth.connect();
 
 } else {
 

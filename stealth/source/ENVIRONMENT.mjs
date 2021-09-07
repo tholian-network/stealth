@@ -12,7 +12,9 @@ const action = (() => {
 
 	let value = Array.from(process.argv).slice(2).filter((v) => v.startsWith('--') === false).shift() || '';
 
-	if (/^([serve]{5})$/g.test(value) === true) {
+	if (/^([discover]{8})$/g.test(value) === true) {
+		return 'discover';
+	} else if (/^([serve]{5})$/g.test(value) === true) {
 		return 'serve';
 	}
 

@@ -48,17 +48,33 @@ const Server = function(settings, stealth) {
 
 
 	this._settings = Object.freeze(Object.assign({
-		host: null
+		action: null,
+		host:   null
 	}, settings));
 
 
-	this.stealth   = stealth;
-	this.services  = new Services(this.stealth);
-	this.peerer    = new Peerer(this.services, this.stealth);
-	this.proxy     = new Proxy(this.services, this.stealth);
-	this.router    = new Router(this.services, this.stealth);
-	this.webproxy  = new Webproxy(this.services, this.stealth);
-	this.webserver = new Webserver(this.services, this.stealth);
+	if (this._settings.action === 'discover') {
+
+		this.stealth   = stealth;
+		this.services  = new Services(this.stealth);
+		this.peerer    = new Peerer(this.services, this.stealth);
+		this.proxy     = null;
+		this.router    = new Router(this.services, this.router);
+		this.webproxy  = null;
+		this.webserver = null;
+
+
+	} else if (this._settings.action === 'serve') {
+
+		this.stealth   = stealth;
+		this.services  = new Services(this.stealth);
+		this.peerer    = new Peerer(this.services, this.stealth);
+		this.proxy     = new Proxy(this.services, this.stealth);
+		this.router    = new Router(this.services, this.stealth);
+		this.webproxy  = new Webproxy(this.services, this.stealth);
+		this.webserver = new Webserver(this.services, this.stealth);
+
+	}
 
 
 	this.__state = {
@@ -72,13 +88,20 @@ const Server = function(settings, stealth) {
 	Emitter.call(this);
 
 
+	this.on('connect', () => {
+		this.emit('discover');
+	});
+
+
 	this.on('discover', () => {
 
 		this.peerer.discover();
 
-		this.__state.timeout = setTimeout(() => {
-			this.emit('discover');
-		}, 60 * 1000 + Math.random() * 120 * 1000);
+		if (this._settings.action === 'discover') {
+			this.__state.timeout = setTimeout(() => {
+				this.emit('discover');
+			}, 10 * 1000);
+		}
 
 	});
 
@@ -169,9 +192,9 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 					connection.on('request', (packet) => {
 
-						if (this.peerer.can(packet) === true) {
+						if (this.peerer !== null && this.peerer.can(packet) === true) {
 							this.peerer.receive(connection, packet);
-						} else if (this.router.can(packet) === true) {
+						} else if (this.router !== null && this.router.can(packet) === true) {
 							this.router.receive(connection, packet);
 						}
 
@@ -179,9 +202,9 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 					connection.on('response', (packet) => {
 
-						if (this.peerer.can(packet) === true) {
+						if (this.peerer !== null && this.peerer.can(packet) === true) {
 							this.peerer.receive(connection, packet);
-						} else if (this.router.can(packet) === true) {
+						} else if (this.router !== null && this.router.can(packet) === true) {
 							this.router.receive(connection, packet);
 						}
 
@@ -226,19 +249,19 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 						socket.end();
 
-					} else if (this.proxy.can(buffer) === true) {
+					} else if (this.proxy !== null && this.proxy.can(buffer) === true) {
 
 						this.proxy.upgrade(buffer, socket);
 
-					} else if (this.services.can(buffer) === true) {
+					} else if (this.services !== null && this.services.can(buffer) === true) {
 
 						this.services.upgrade(buffer, socket);
 
-					} else if (this.webproxy.can(buffer) === true) {
+					} else if (this.webproxy !== null && this.webproxy.can(buffer) === true) {
 
 						this.webproxy.upgrade(buffer, socket);
 
-					} else if (this.webserver.can(buffer) === true) {
+					} else if (this.webserver !== null && this.webserver.can(buffer) === true) {
 
 						this.webserver.upgrade(buffer, socket);
 
@@ -302,14 +325,6 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			});
 
 
-			this.__state.connected = true;
-			this.emit('connect');
-
-			setTimeout(() => {
-				this.emit('discover');
-			}, 1000);
-
-
 			let host = null;
 
 			if (isString(this._settings.host) === true) {
@@ -321,6 +336,11 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			this.__state.server.listen(65432, host);
+			this.__state.connected = true;
+
+			setTimeout(() => {
+				this.emit('connect');
+			}, 0);
 
 
 			return true;
