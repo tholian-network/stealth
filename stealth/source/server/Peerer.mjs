@@ -347,8 +347,9 @@ const Peerer = function(services, stealth) {
 	stealth  = isStealth(stealth)   ? stealth  : null;
 
 
-	this.services = services;
-	this.stealth  = stealth;
+	this.connections = { ipv4: null, ipv6: null };
+	this.services    = services;
+	this.stealth     = stealth;
 
 };
 
@@ -359,8 +360,20 @@ Peerer.prototype = {
 
 	toJSON: function() {
 
-		let data = {};
+		let data = {
+			connections: {
+				ipv4: null,
+				ipv6: null
+			}
+		};
 
+		if (this.connections.ipv4 !== null) {
+			data.connections.ipv4 = this.connections.ipv4.toJSON();
+		}
+
+		if (this.connections.ipv6 !== null) {
+			data.connections.ipv6 = this.connections.ipv6.toJSON();
+		}
 
 		return {
 			'type': 'Peerer',
@@ -369,16 +382,49 @@ Peerer.prototype = {
 
 	},
 
-	discover: function() {
+	connect: function() {
 
 		let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
 		if (has_ipv4 === true) {
 
-			let connection = MDNS.connect(URL.parse('mdns://224.0.0.251:5353'));
-			let request    = toServiceDiscoveryRequest.call(this);
+			let connection = this.connections.ipv4 || null;
+			if (connection === null) {
 
-			if (connection !== null && request !== null) {
-				MDNS.send(connection, request);
+				connection = MDNS.upgrade(null, URL.parse('mdns://224.0.0.251:5353'));
+
+				connection.once('@connect', () => {
+
+					console.info('Peerer: UDP Service for mdns://224.0.0.251:5353 started.');
+
+					let request = toServiceDiscoveryRequest.call(this);
+					if (connection !== null && request !== null) {
+						MDNS.send(connection, request);
+					}
+
+				});
+
+				connection.once('disconnect', () => {
+					console.warn('Peerer: UDP Service for mdns://224.0.0.251:5353 stopped.');
+				});
+
+				connection.on('request', (packet) => {
+
+					if (this.can(packet) === true) {
+						this.receive(connection, packet);
+					}
+
+				});
+
+				connection.on('response', (packet) => {
+
+					if (this.can(packet) === true) {
+						this.receive(connection, packet);
+					}
+
+				});
+
+				this.connections.ipv4 = connection;
+
 			}
 
 		}
@@ -386,14 +432,115 @@ Peerer.prototype = {
 		let has_ipv6 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v6').length > 0;
 		if (has_ipv6 === true) {
 
-			let connection = MDNS.connect(URL.parse('mdns://[ff02::fb]:5353'));
-			let request    = toServiceDiscoveryRequest.call(this);
+			let connection = this.connections.ipv6 || null;
+			if (connection === null) {
+				connection = MDNS.upgrade(null, URL.parse('mdns://[ff02::fb]:5353'));
 
-			if (connection !== null && request !== null) {
-				MDNS.send(connection, request);
+				connection.once('@connect', () => {
+
+					console.info('Peerer: UDP Service for mdns://[ff02::fb]:5353 started.');
+
+					let request = toServiceDiscoveryRequest.call(this);
+					if (connection !== null && request !== null) {
+						MDNS.send(connection, request);
+					}
+
+				});
+
+				connection.once('disconnect', () => {
+					console.warn('Peerer: UDP Service for mdns://[ff02::fb]:5353 stopped.');
+				});
+
+				connection.on('request', (packet) => {
+
+					if (this.can(packet) === true) {
+						this.receive(connection, packet);
+					}
+
+				});
+
+				connection.on('response', (packet) => {
+
+					if (this.can(packet) === true) {
+						this.receive(connection, packet);
+					}
+
+				});
+
+				this.connections.ipv6 = connection;
+
 			}
 
 		}
+
+
+		if (has_ipv4 === true || has_ipv6 === true) {
+			return true;
+		}
+
+
+		return false;
+
+	},
+
+	disconnect: function() {
+
+		let connection_ipv4 = this.connections.ipv4 || null;
+		if (connection_ipv4 !== null) {
+			connection_ipv4.disconnect();
+			this.connections.ipv4 = null;
+		}
+
+		let connection_ipv6 = this.connections.ipv6 || null;
+		if (connection_ipv6 !== null) {
+			connection_ipv6.disconnect();
+			this.connections.ipv6 = null;
+		}
+
+
+		return true;
+
+	},
+
+	discover: function() {
+
+		let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
+		if (has_ipv4 === true) {
+
+			let connection = this.connections.ipv4 || null;
+			if (connection !== null) {
+
+				let request = toServiceDiscoveryRequest.call(this);
+				if (connection !== null && request !== null) {
+					MDNS.send(connection, request);
+				}
+
+			}
+
+		}
+
+		let has_ipv6 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v6').length > 0;
+		if (has_ipv6 === true) {
+
+			let connection = this.connections.ipv6 || null;
+			if (connection !== null) {
+
+				let request = toServiceDiscoveryRequest.call(this);
+				if (connection !== null && request !== null) {
+					MDNS.send(connection, request);
+				}
+
+			}
+
+		}
+
+
+		if (has_ipv4 === true || has_ipv6 === true) {
+			return true;
+		}
+
+
+		return false;
 
 	},
 
@@ -418,7 +565,6 @@ Peerer.prototype = {
 		connection = isConnection(connection) ? connection : null;
 
 
-		console.log(packet);
 		console.warn('DNS-SD request:  ' + isServiceDiscoveryRequest(packet));
 		console.warn('DNS-SD response: ' + isServiceDiscoveryResponse(packet));
 

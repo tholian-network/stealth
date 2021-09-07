@@ -4,10 +4,7 @@ import net from 'net';
 import { console, Emitter, isObject, isString } from '../extern/base.mjs';
 import { ENVIRONMENT                          } from '../source/ENVIRONMENT.mjs';
 import { isStealth                            } from '../source/Stealth.mjs';
-import { DNS                                  } from '../source/connection/DNS.mjs';
-import { MDNS                                 } from '../source/connection/MDNS.mjs';
 import { IP                                   } from '../source/parser/IP.mjs';
-import { URL                                  } from '../source/parser/URL.mjs';
 import { Peerer                               } from '../source/server/Peerer.mjs';
 import { Proxy                                } from '../source/server/Proxy.mjs';
 import { Router                               } from '../source/server/Router.mjs';
@@ -63,7 +60,6 @@ const Server = function(settings, stealth) {
 		this.webproxy  = null;
 		this.webserver = null;
 
-
 	} else if (this._settings.action === 'serve') {
 
 		this.stealth   = stealth;
@@ -78,10 +74,9 @@ const Server = function(settings, stealth) {
 
 
 	this.__state = {
-		connected:   false,
-		connections: [],
-		server:      null,
-		timeout:     null
+		connected: false,
+		server:    null,
+		timeout:   null
 	};
 
 
@@ -89,19 +84,22 @@ const Server = function(settings, stealth) {
 
 
 	this.on('connect', () => {
-		this.emit('discover');
-	});
 
-
-	this.on('discover', () => {
-
-		this.peerer.discover();
+		this.peerer.connect();
+		this.router.connect();
 
 		if (this._settings.action === 'discover') {
 			this.__state.timeout = setTimeout(() => {
 				this.emit('discover');
 			}, 10 * 1000);
 		}
+
+	});
+
+	this.on('disconnect', () => {
+
+		this.peerer.disconnect();
+		this.router.disconnect();
 
 	});
 
@@ -125,8 +123,7 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 			settings: Object.assign({}, this._settings),
 			stealth:  null,
 			state:    {
-				connected:   false,
-				connections: []
+				connected: false
 			}
 		};
 
@@ -136,14 +133,6 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.__state.connected === true) {
 			data.state.connected = this.__state.connected;
-		}
-
-		if (this.__state.connections.length > 0) {
-
-			this.__state.connections.forEach((connection) => {
-				data.state.connections.push(connection.toJSON());
-			});
-
 		}
 
 		return {
@@ -156,64 +145,6 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 	connect: function() {
 
 		if (this.__state.connected === false) {
-
-			let ipv4s = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4');
-			let ipv6s = ENVIRONMENT.ips.filter((ip) => ip.type === 'v6');
-
-			if (ipv4s.length > 0) {
-
-				[
-					MDNS.upgrade(null, URL.parse('mdns://224.0.0.251:5353')),
-					DNS.upgrade(null,  URL.parse('dns://127.0.0.1:65432'))
-				].filter((c) => c !== null).forEach((connection) => {
-					this.__state.connections.push(connection);
-				});
-
-			}
-
-			if (ipv6s.length > 0) {
-
-				[
-					MDNS.upgrade(null, URL.parse('mdns://[ff02::fb]:5353')),
-					DNS.upgrade(null,  URL.parse('dns://[::1]:65432')),
-				].filter((c) => c !== null).forEach((connection) => {
-					this.__state.connections.push(connection);
-				});
-
-			}
-
-
-			if (this.__state.connections.length > 0) {
-
-				console.info('Server: UDP Service for mdns://localhost:5353 started.');
-				console.info('Server: UDP Service for dns://localhost:65432 started.');
-
-				this.__state.connections.forEach((connection) => {
-
-					connection.on('request', (packet) => {
-
-						if (this.peerer !== null && this.peerer.can(packet) === true) {
-							this.peerer.receive(connection, packet);
-						} else if (this.router !== null && this.router.can(packet) === true) {
-							this.router.receive(connection, packet);
-						}
-
-					});
-
-					connection.on('response', (packet) => {
-
-						if (this.peerer !== null && this.peerer.can(packet) === true) {
-							this.peerer.receive(connection, packet);
-						} else if (this.router !== null && this.router.can(packet) === true) {
-							this.router.receive(connection, packet);
-						}
-
-					});
-
-				});
-
-			}
-
 
 			this.__state.server = new net.Server({
 				allowHalfOpen:  true,
@@ -358,19 +289,6 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 			this.__state.connected = false;
 
-			let connections = this.__state.connections;
-			if (connections.length > 0) {
-
-				for (let c = 0, cl = connections.length; c < cl; c++) {
-
-					connections[c].disconnect();
-					connections.splice(c, 1);
-					cl--;
-					c--;
-
-				}
-
-			}
 
 			let server = this.__state.server;
 			if (server !== null) {

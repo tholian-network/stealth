@@ -30,22 +30,30 @@ const onconnect = function(connection, url) {
 
 const onmessage = function(connection, url, message) {
 
-	MDNS.receive(connection, message, (frame) => {
+	if (connection.silent === true) {
 
-		if (frame !== null) {
+		connection.silent = false;
 
-			url.headers = frame.headers;
-			url.payload = frame.payload;
+	} else if (connection.silent === false) {
 
-			if (frame.headers['@type'] === 'request') {
-				connection.emit('request', [ frame ]);
-			} else if (frame.headers['@type'] === 'response') {
-				connection.emit('response', [ frame ]);
+		MDNS.receive(connection, message, (frame) => {
+
+			if (frame !== null) {
+
+				url.headers = frame.headers;
+				url.payload = frame.payload;
+
+				if (frame.headers['@type'] === 'request') {
+					connection.emit('request', [ frame ]);
+				} else if (frame.headers['@type'] === 'response') {
+					connection.emit('response', [ frame ]);
+				}
+
 			}
 
-		}
+		});
 
-	});
+	}
 
 };
 
@@ -115,6 +123,7 @@ const isSocket = function(obj) {
 
 const Connection = function(socket) {
 
+	this.silent = false;
 	this.socket = socket || null;
 	this.remote = null;
 	this.type   = null;
@@ -438,14 +447,31 @@ const MDNS = {
 
 		if (connection !== null && connection.socket !== null) {
 
+			let old_type = connection.type;
+			let tmp_type = connection.type;
+
+			if (data.headers['@type'] === 'request') {
+				tmp_type = 'client';
+			} else if (data.headers['@type'] === 'response') {
+				tmp_type = 'server';
+			}
+
+			connection.type = tmp_type;
+
 			let buffer = PACKET.encode(connection, {
 				headers: data.headers || {},
 				payload: data.payload || null
 			});
 
+			connection.type = old_type;
+
+
 			if (buffer !== null) {
 
+
 				if (connection.type === 'client') {
+
+					connection.silent = true;
 
 					connection.socket.send(buffer, connection.remote.port, connection.remote.host, (err) => {
 
@@ -470,6 +496,8 @@ const MDNS = {
 					}
 
 				} else if (connection.type === 'server') {
+
+					connection.silent = true;
 
 					connection.socket.send(buffer, connection.remote.port, connection.remote.host, (err) => {
 

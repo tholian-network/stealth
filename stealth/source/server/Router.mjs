@@ -319,8 +319,9 @@ const Router = function(services, stealth) {
 	stealth  = isStealth(stealth)   ? stealth  : null;
 
 
-	this.services = services;
-	this.stealth  = stealth;
+	this.connections = { ipv4: null, ipv6: null };
+	this.services    = services;
+	this.stealth     = stealth;
 
 };
 
@@ -355,6 +356,113 @@ Router.prototype = {
 
 
 		return false;
+
+	},
+
+	connect: function() {
+
+		let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
+		if (has_ipv4 === true) {
+
+			let connection = this.connections.ipv4 || null;
+			if (connection === null) {
+
+				connection = DNS.upgrade(null, URL.parse('dns://127.0.0.1:65432'));
+
+				connection.once('@connect', () => {
+					console.info('Router: UDP Service for dns://127.0.0.1:65432 started.');
+				});
+
+				connection.once('disconnect', () => {
+					console.warn('Router: UDP Service for dns://127.0.0.1:65432 stopped.');
+				});
+
+				connection.on('request', (packet) => {
+
+					if (this.can(packet) === true) {
+						this.receive(connection, packet);
+					}
+
+				});
+
+				connection.on('response', (packet) => {
+
+					if (this.can(packet) === true) {
+						this.receive(connection, packet);
+					}
+
+				});
+
+				this.connections.ipv4 = connection;
+
+			}
+
+		}
+
+		let has_ipv6 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v6').length > 0;
+		if (has_ipv6 === true) {
+
+			let connection = this.connections.ipv6 || null;
+			if (connection === null) {
+
+				connection = DNS.upgrade(null, URL.parse('dns://[::1]:65432'));
+
+				connection.once('@connect', () => {
+					console.info('Router: UDP Service for dns://[::1]:65432 started.');
+				});
+
+				connection.once('disconnect', () => {
+					console.warn('Router: UDP Service for dns://[::1]:65432 stopped.');
+				});
+
+				connection.on('request', (packet) => {
+
+					if (this.can(packet) === true) {
+						this.receive(connection, packet);
+					}
+
+				});
+
+				connection.on('response', (packet) => {
+
+					if (this.can(packet) === true) {
+						this.receive(connection, packet);
+					}
+
+				});
+
+				this.connections.ipv6 = connection;
+
+			}
+
+		}
+
+
+		if (has_ipv4 === true || has_ipv6 === true) {
+			return true;
+		}
+
+
+		return false;
+
+	},
+
+	disconnect: function() {
+
+		let connection_ipv4 = this.connections.ipv4 || null;
+		if (connection_ipv4 !== null) {
+			connection_ipv4.disconnect();
+			this.connections.ipv4 = null;
+		}
+
+		let connection_ipv6 = this.connections.ipv6 || null;
+		if (connection_ipv6 !== null) {
+			connection_ipv6.disconnect();
+			this.connections.ipv6 = null;
+		}
+
+
+		return true;
 
 	},
 
