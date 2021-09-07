@@ -374,7 +374,7 @@ Peerer.prototype = {
 		let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
 		if (has_ipv4 === true) {
 
-			let connection = MDNS.connect('mdns://224.0.0.251:5353');
+			let connection = MDNS.connect(URL.parse('mdns://224.0.0.251:5353'));
 			let request    = toServiceDiscoveryRequest.call(this);
 
 			if (connection !== null && request !== null) {
@@ -386,7 +386,7 @@ Peerer.prototype = {
 		let has_ipv6 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v6').length > 0;
 		if (has_ipv6 === true) {
 
-			let connection = MDNS.connect('mdns://[ff02::fb]:5353');
+			let connection = MDNS.connect(URL.parse('mdns://[ff02::fb]:5353'));
 			let request    = toServiceDiscoveryRequest.call(this);
 
 			if (connection !== null && request !== null) {
@@ -419,6 +419,8 @@ Peerer.prototype = {
 
 
 		console.log(packet);
+		console.warn('DNS-SD request:  ' + isServiceDiscoveryRequest(packet));
+		console.warn('DNS-SD response: ' + isServiceDiscoveryResponse(packet));
 
 		if (isServiceDiscoveryRequest(packet) === true) {
 
