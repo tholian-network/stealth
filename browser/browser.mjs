@@ -184,7 +184,7 @@ console.info('');
 let platform = os.platform();
 if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 
-	let chromium = which('chromium');
+	let chromium = which('ungoogled-chromium') || which('chromium');
 	let electron = which('electron');
 	let gjs      = which('gjs');
 	let xdg_open = which('xdg-open');
