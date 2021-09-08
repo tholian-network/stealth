@@ -1,10 +1,10 @@
 
 import tls from 'tls';
 
-import { Buffer, Emitter, isFunction, isObject } from '../../extern/base.mjs';
-import { WS                                    } from '../../source/connection/WS.mjs';
-import { IP                                    } from '../../source/parser/IP.mjs';
-import { URL                                   } from '../../source/parser/URL.mjs';
+import { Buffer, Emitter, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { WS                                              } from '../../source/connection/WS.mjs';
+import { IP                                              } from '../../source/parser/IP.mjs';
+import { URL                                             } from '../../source/parser/URL.mjs';
 
 
 
@@ -130,8 +130,31 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 		};
 
 		if (this.socket !== null) {
-			data.local  = this.socket.localAddress  + ':' + this.socket.localPort;
-			data.remote = this.socket.remoteAddress + ':' + this.socket.remotePort;
+
+			let local = {
+				host: IP.parse(this.socket.localAddress),
+				port: this.socket.localPort
+			};
+
+			if (
+				IP.isIP(local.host) === true
+				&& isNumber(local.port) === true
+			) {
+				data.local = local;
+			}
+
+			let remote = {
+				host: IP.parse(this.socket.remoteAddress),
+				port: this.socket.remotePort
+			};
+
+			if (
+				IP.isIP(remote.host) === true
+				&& isNumber(remote.port) === true
+			) {
+				data.remote = remote;
+			}
+
 		}
 
 		return {

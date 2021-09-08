@@ -13,7 +13,7 @@ const onconnect = function(connection, url) {
 	connection.type = 'client';
 
 	try {
-		connection.socket.addMembership(connection.remote.host);
+		connection.socket.addMembership(connection.multicast.host.ip);
 	} catch (err) {
 		// Do Nothing
 	}
@@ -30,11 +30,12 @@ const onconnect = function(connection, url) {
 
 const onmessage = function(connection, url, message) {
 
-	if (connection.silent === true) {
+	if (connection.multicast.silent === true) {
 
-		connection.silent = false;
+		// XXX: This was us, ignore message
+		connection.multicast.silent = false;
 
-	} else if (connection.silent === false) {
+	} else {
 
 		MDNS.receive(connection, message, (frame) => {
 
@@ -77,8 +78,8 @@ const onupgrade = function(connection, url) {
 
 	try {
 
-		connection.socket.bind(connection.remote.port, () => {
-			connection.socket.addMembership(connection.remote.host);
+		connection.socket.bind(connection.multicast.port, () => {
+			connection.socket.addMembership(connection.multicast.host.ip);
 		});
 
 	} catch (err) {
@@ -86,7 +87,7 @@ const onupgrade = function(connection, url) {
 		if (err.code === 'ERR_SOCKET_ALREADY_BOUND') {
 
 			try {
-				connection.socket.addMembership(connection.remote.host);
+				connection.socket.addMembership(connection.multicast.host.ip);
 			} catch (err) {
 				// Do Nothing
 			}
@@ -95,8 +96,26 @@ const onupgrade = function(connection, url) {
 
 	}
 
-	connection.socket.on('message', (message) => {
+	connection.socket.on('message', (message, rinfo) => {
+
+		connection.remote = null;
+
+		let host = IP.parse(rinfo.address);
+		let port = rinfo.port;
+		if (
+			IP.isIP(host) === true
+			&& isNumber(port) === true
+		) {
+			connection.remote = {
+				host: host,
+				port: port
+			};
+		}
+
 		onmessage(connection, url, message);
+
+		connection.remote = null;
+
 	});
 
 	setTimeout(() => {
@@ -123,10 +142,29 @@ const isSocket = function(obj) {
 
 const Connection = function(socket) {
 
-	this.silent = false;
-	this.socket = socket || null;
+	socket = isSocket(socket) ? socket : null;
+
+
+	this.multicast = {
+		host:   null,
+		port:   5353,
+		silent: false
+	};
+
+	this.socket = socket;
 	this.remote = null;
 	this.type   = null;
+
+	if (this.socket !== null) {
+
+		if (this.socket.type === 'udp4') {
+			this.multicast.host = IP.parse('224.0.0.251');
+		} else if (this.socket.type === 'udp6') {
+			this.multicast.host = IP.parse('ff02::fb');
+		}
+
+	}
+
 
 
 	Emitter.call(this);
@@ -194,10 +232,11 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
-			local:   null,
-			remote:  null,
-			events:  blob.data.events,
-			journal: blob.data.journal
+			local:     null,
+			multicast: null,
+			remote:    null,
+			events:    blob.data.events,
+			journal:   blob.data.journal
 		};
 
 		if (this.socket !== null) {
@@ -211,13 +250,45 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			if (address !== null) {
-				data.local = address.address + ':' + address.port;
+
+				let local = {
+					host: IP.parse(address.address),
+					port: address.port
+				};
+
+				if (
+					IP.isIP(local.host) === true
+					&& isNumber(local.port) === true
+				) {
+					data.local = local;
+				}
+
 			}
 
 		}
 
-		if (this.remote !== null) {
-			data.remote = this.remote.host + ':' + this.remote.port;
+		let multicast = this.multicast || null;
+		if (multicast !== null) {
+
+			if (
+				IP.isIP(multicast.host) === true
+				&& isNumber(multicast.port) === true
+			) {
+				data.multicast = multicast;
+			}
+
+		}
+
+		let remote = this.remote || null;
+		if (remote !== null) {
+
+			if (
+				IP.isIP(remote.host) === true
+				&& isNumber(remote.port) === true
+			) {
+				data.remote = remote;
+			}
+
 		}
 
 		return {
@@ -279,9 +350,9 @@ const MDNS = {
 
 					try {
 
-						connection.remote = {
-							host: hosts[0].ip,
-							port: url.port
+						connection.multicast = {
+							host: hosts[0],
+							port: url.port || 5353
 						};
 
 						connection.socket = dgram.createSocket({
@@ -289,8 +360,14 @@ const MDNS = {
 							reuseAddr: true
 						});
 
-						connection.socket.bind(connection.remote.port, () => {
+						connection.socket.bind(connection.multicast.port, () => {
+
+							connection.socket.setMulticastLoopback(false);
+							connection.socket.setMulticastTTL(1);
+							connection.socket.setTTL(1);
+
 							onconnect(connection, url);
+
 						});
 
 					} catch (err) {
@@ -299,12 +376,14 @@ const MDNS = {
 
 				} else {
 
-					connection.remote = {
-						host: hosts[0].ip,
-						port: url.port
+					connection.multicast = {
+						host: hosts[0],
+						port: url.port || 5353
 					};
 
 					try {
+						connection.socket.setMulticastLoopback(false);
+						connection.socket.setMulticastTTL(1);
 						connection.socket.setTTL(1);
 					} catch (err) {
 						connection.socket = null;
@@ -471,9 +550,9 @@ const MDNS = {
 
 				if (connection.type === 'client') {
 
-					connection.silent = true;
+					connection.multicast.silent = true;
 
-					connection.socket.send(buffer, connection.remote.port, connection.remote.host, (err) => {
+					connection.socket.send(buffer, connection.multicast.port, connection.multicast.host.ip, (err) => {
 
 						if (err === null) {
 
@@ -497,9 +576,9 @@ const MDNS = {
 
 				} else if (connection.type === 'server') {
 
-					connection.silent = true;
+					connection.multicast.silent = true;
 
-					connection.socket.send(buffer, connection.remote.port, connection.remote.host, (err) => {
+					connection.socket.send(buffer, connection.multicast.port, connection.multicast.host.ip, (err) => {
 
 						if (err === null) {
 
@@ -561,20 +640,30 @@ const MDNS = {
 				let hosts = IP.sort(url.hosts);
 				if (hosts.length > 0) {
 
-					if (url.hosts[0].type === 'v4') {
+					let host = hosts[0];
+					if (host.type === 'v4') {
 
 						connection = new Connection(dgram.createSocket({
 							type:      'udp4',
 							reuseAddr: true
 						}));
 
-					} else if (url.hosts[0].type === 'v6') {
+						connection.multicast.host = host;
+
+					} else if (host.type === 'v6') {
 
 						connection = new Connection(dgram.createSocket({
 							type:      'udp6',
 							reuseAddr: true
 						}));
 
+						connection.multicast.host = host;
+
+					}
+
+					let port = url.port;
+					if (isNumber(port) === true) {
+						connection.multicast.port = port;
 					}
 
 				}
@@ -590,35 +679,9 @@ const MDNS = {
 
 		if (connection !== null) {
 
-			let hosts = IP.sort(url.hosts);
-			if (hosts.length > 0 && isNumber(url.port) === true) {
-
-				connection.remote = {
-					host: hosts[0].ip,
-					port: url.port
-				};
-
-			} else {
-
-				if (connection.socket.type === 'udp4') {
-
-					connection.remote = {
-						host: '224.0.0.251',
-						port: 5353
-					};
-
-				} else if (connection.socket.type === 'udp6') {
-
-					connection.remote = {
-						host: 'ff02::fb',
-						port: 5353
-					};
-
-				}
-
-			}
-
 			try {
+				connection.socket.setMulticastLoopback(false);
+				connection.socket.setMulticastTTL(1);
 				connection.socket.setTTL(1);
 			} catch (err) {
 				// Do Nothing

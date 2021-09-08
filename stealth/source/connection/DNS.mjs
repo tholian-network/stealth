@@ -73,10 +73,19 @@ const onupgrade = function(connection, url) {
 
 	connection.socket.on('message', (message, rinfo) => {
 
-		connection.remote = {
-			host: rinfo.address,
-			port: rinfo.port
-		};
+		connection.remote = null;
+
+		let host = IP.parse(rinfo.address);
+		let port = rinfo.port;
+		if (
+			IP.isIP(host) === true
+			&& isNumber(port) === true
+		) {
+			connection.remote = {
+				host: host,
+				port: port
+			};
+		}
 
 		onmessage(connection, url, message);
 
@@ -195,13 +204,33 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 			}
 
 			if (address !== null) {
-				data.local = address.address + ':' + address.port;
+
+				let local = {
+					host: IP.parse(address.address),
+					port: address.port
+				};
+
+				if (
+					IP.isIP(local.host) === true
+					&& isNumber(local.port) === true
+				) {
+					data.local = local;
+				}
+
 			}
 
 		}
 
-		if (this.remote !== null) {
-			data.remote = this.remote.host + ':' + this.remote.port;
+		let remote = this.remote || null;
+		if (remote !== null) {
+
+			if (
+				IP.isIP(remote.host) === true
+				&& isNumber(remote.port) === true
+			) {
+				data.remote = remote;
+			}
+
 		}
 
 		return {
@@ -264,8 +293,8 @@ const DNS = {
 					try {
 
 						connection.remote = {
-							host: hosts[0].ip,
-							port: url.port
+							host: hosts[0],
+							port: url.port || 53
 						};
 
 						connection.socket = dgram.createSocket(type);
@@ -285,8 +314,8 @@ const DNS = {
 				} else {
 
 					connection.remote = {
-						host: hosts[0].ip,
-						port: url.port
+						host: hosts[0],
+						port: url.port || 53
 					};
 
 					try {
@@ -467,7 +496,7 @@ const DNS = {
 
 					if (connection.remote !== null) {
 
-						connection.socket.send(buffer, 0, buffer.length, connection.remote.port, connection.remote.host, (err) => {
+						connection.socket.send(buffer, 0, buffer.length, connection.remote.port, connection.remote.host.ip, (err) => {
 
 							if (err === null) {
 

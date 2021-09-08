@@ -574,7 +574,7 @@ Peerer.prototype = {
 
 		if (isServiceDiscoveryRequest(packet) === true) {
 
-			console.warn('DNS-SD Request');
+			console.warn('DNS-SD Request from ', connection.remote);
 
 			let response = toServiceDiscoveryResponse.call(this, packet);
 			if (response !== null) {
@@ -583,7 +583,7 @@ Peerer.prototype = {
 
 		} else if (isServiceDiscoveryResponse(packet) === true) {
 
-			console.warn('DNS-SD Response');
+			console.warn('DNS-SD Response from ', connection.remote);
 
 			if (this.stealth !== null) {
 
@@ -592,7 +592,7 @@ Peerer.prototype = {
 				// TODO: Add peer to this.stealth.settings.peers
 				// TODO: Add host to this.stealth.settings.hosts
 
-				console.warn('TODO: Process Peer', packet);
+				// console.log(packet);
 
 			}
 

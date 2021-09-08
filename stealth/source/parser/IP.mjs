@@ -355,6 +355,10 @@ const IP = {
 				raw = raw.substr(7);
 			}
 
+			if (raw.includes('%') === true) {
+				raw = raw.substr(0, raw.indexOf('%'));
+			}
+
 			if (raw.includes(':') === true) {
 
 				let check = validate_ipv6(raw);

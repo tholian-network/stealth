@@ -2,11 +2,11 @@
 import crypto from 'crypto';
 import net    from 'net';
 
-import { Buffer, Emitter, isBuffer, isFunction, isObject } from '../../extern/base.mjs';
-import { HTTP as HANDSHAKE                               } from '../../source/packet/HTTP.mjs';
-import { WS as PACKET                                    } from '../../source/packet/WS.mjs';
-import { IP                                              } from '../../source/parser/IP.mjs';
-import { URL                                             } from '../../source/parser/URL.mjs';
+import { Buffer, Emitter, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { HTTP as HANDSHAKE                                         } from '../../source/packet/HTTP.mjs';
+import { WS as PACKET                                              } from '../../source/packet/WS.mjs';
+import { IP                                                        } from '../../source/parser/IP.mjs';
+import { URL                                                       } from '../../source/parser/URL.mjs';
 
 
 
@@ -427,12 +427,28 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (this.socket !== null) {
 
-			if (this.socket.localAddress !== undefined) {
-				data.local  = this.socket.localAddress  + ':' + this.socket.localPort;
+			let local = {
+				host: IP.parse(this.socket.localAddress),
+				port: this.socket.localPort
+			};
+
+			if (
+				IP.isIP(local.host) === true
+				&& isNumber(local.port) === true
+			) {
+				data.local = local;
 			}
 
-			if (this.socket.remoteAddress !== undefined) {
-				data.remote = this.socket.remoteAddress + ':' + this.socket.remotePort;
+			let remote = {
+				host: IP.parse(this.socket.remoteAddress),
+				port: this.socket.remotePort
+			};
+
+			if (
+				IP.isIP(remote.host) === true
+				&& isNumber(remote.port) === true
+			) {
+				data.remote = remote;
 			}
 
 		}
