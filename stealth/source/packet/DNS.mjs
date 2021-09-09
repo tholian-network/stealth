@@ -941,17 +941,19 @@ const DNS = {
 					let result = URL.compare(URL.parse(a.domain), URL.parse(b.domain));
 					if (result === 0) {
 
-						if (a.weight !== undefined && b.weight !== undefined) {
+						let a_weight = 0;
+						let b_weight = 0;
 
-							if (a.weight < b.weight) return -1;
-							if (b.weight < a.weight) return  1;
-
-						} else {
-
-							if (a.weight !== undefined) return  1;
-							if (b.weight !== undefined) return -1;
-
+						if (isNumber(a.weight) === true) {
+							a_weight = a.weight;
 						}
+
+						if (isNumber(b.weight) === true) {
+							b_weight = b.weight;
+						}
+
+						if (a_weight < b_weight) return -1;
+						if (b_weight < a_weight) return  1;
 
 						return 0;
 

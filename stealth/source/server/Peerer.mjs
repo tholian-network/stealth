@@ -202,7 +202,7 @@ const toServiceDiscoveryRequest = function() {
 
 	return {
 		headers: {
-			'@id':   (Math.random() * 0xff) | 0,
+			'@id':   (Math.random() * 0xffff) | 0,
 			'@type': 'request'
 		},
 		payload: {

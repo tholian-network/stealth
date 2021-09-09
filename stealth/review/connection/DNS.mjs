@@ -1,6 +1,4 @@
 
-import dgram from 'dgram';
-
 import { Buffer, isFunction              } from '../../../base/index.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { DNS                             } from '../../../stealth/source/connection/DNS.mjs';
@@ -364,14 +362,11 @@ const PAYLOADS = {
 
 before('DNS.upgrade()', function(assert) {
 
-	this.server     = dgram.createSocket('udp4');
-	this.connection = DNS.upgrade(this.server);
+	this.connection = DNS.upgrade(null, URL.parse('dns://127.0.0.1:13337'));
 
 	this.connection.once('@connect', () => {
 		assert(true);
 	});
-
-	this.server.bind(13337);
 
 });
 
@@ -427,9 +422,9 @@ describe('DNS.receive()/client/NAMEWRECK', function(assert) {
 
 	assert(isFunction(DNS.receive), true);
 
-	DNS.receive(null, NAMEWRECK['RESPONSE'], (request) => {
+	DNS.receive(null, NAMEWRECK['RESPONSE'], (response) => {
 
-		assert(request, {
+		assert(response, {
 			headers: {
 				'@id':   0,
 				'@type': 'response'
@@ -1175,9 +1170,7 @@ describe('DNS.send()/client/A', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1228,9 +1221,7 @@ describe('DNS.send()/client/AAAA', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1281,9 +1272,7 @@ describe('DNS.send()/client/CNAME', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1355,9 +1344,7 @@ describe('DNS.send()/client/MX', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1412,9 +1399,7 @@ describe('DNS.send()/client/NS', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1465,9 +1450,7 @@ describe('DNS.send()/client/PTR/v4', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1518,9 +1501,7 @@ describe('DNS.send()/client/PTR/v6', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1574,9 +1555,7 @@ describe('DNS.send()/client/SRV', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1620,9 +1599,7 @@ describe('DNS.send()/client/SRV', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1675,9 +1652,7 @@ describe('DNS.send()/client/TXT', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1744,9 +1719,7 @@ describe('DNS.send()/server/A', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1771,9 +1744,7 @@ describe('DNS.send()/server/A', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
@@ -1852,9 +1823,7 @@ describe('DNS.send()/server/AAAA', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1879,9 +1848,7 @@ describe('DNS.send()/server/AAAA', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
@@ -1960,9 +1927,7 @@ describe('DNS.send()/server/CNAME', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -1987,9 +1952,7 @@ describe('DNS.send()/server/CNAME', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
@@ -2069,9 +2032,7 @@ describe('DNS.send()/server/MX', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -2096,9 +2057,7 @@ describe('DNS.send()/server/MX', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
@@ -2182,9 +2141,7 @@ describe('DNS.send()/server/NS', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -2209,9 +2166,7 @@ describe('DNS.send()/server/NS', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
@@ -2294,9 +2249,7 @@ describe('DNS.send()/server/PTR/v4', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -2321,9 +2274,7 @@ describe('DNS.send()/server/PTR/v4', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
@@ -2402,9 +2353,7 @@ describe('DNS.send()/server/PTR/v6', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -2429,9 +2378,7 @@ describe('DNS.send()/server/PTR/v6', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
@@ -2512,9 +2459,7 @@ describe('DNS.send()/server/SRV', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -2539,9 +2484,7 @@ describe('DNS.send()/server/SRV', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
@@ -2624,9 +2567,7 @@ describe('DNS.send()/server/TXT', function(assert) {
 				}]
 			}
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -2651,9 +2592,7 @@ describe('DNS.send()/server/TXT', function(assert) {
 					}]
 				}
 			}, (result) => {
-
 				assert(result, true);
-
 			});
 
 		}, 100);
