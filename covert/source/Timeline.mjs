@@ -1,5 +1,5 @@
 
-import { isArray, isFunction, isNumber } from '../extern/base.mjs';
+import { isArray, isFunction, isNumber, isObject, isString } from '../extern/base.mjs';
 
 
 
@@ -30,17 +30,98 @@ const prettify = (milliseconds) => {
 
 };
 
+const trace_reference = function() {
+
+	let stack = [];
+
+	try {
+		throw new Error();
+	} catch (err) {
+		stack = err.stack.trim().split('\n');
+		// Remove unnecessary function calls
+		stack = stack.slice(4);
+	}
+
+	if (stack.length > 0) {
+
+		let origin = null;
+
+		for (let s = 0, sl = stack.length; s < sl; s++) {
+
+			let line = stack[s].trim();
+			if (line.includes('(file://') === true && line.includes(')') === true) {
+
+				let tmp = line.split('(file://')[1].split(')').shift().trim();
+				if (tmp.includes('/review/') === true && tmp.includes('.mjs') === true) {
+					origin = tmp;
+					break;
+				}
+
+			} else if (line.includes('file://') === true) {
+
+				let tmp = line.split('file://')[1].trim();
+				if (tmp.includes('/review/') === true && tmp.includes('.mjs') === true) {
+					origin = tmp;
+					break;
+				}
+
+			}
+
+		}
+
+		if (origin !== null) {
+
+			let file = origin.split(':')[0] || null;
+			let line = origin.split(':')[1] || null;
+
+			if (line !== null) {
+				line = parseInt(line, 10);
+			}
+
+			if (
+				file !== null
+				&& file.endsWith('.mjs') === true
+				&& line !== null
+				&& Number.isNaN(line) === false
+			) {
+
+				return {
+					file: file,
+					line: line
+				};
+
+			}
+
+		}
+
+	}
 
 
-const Timeline = function(length) {
+	return null;
 
-	length = isNumber(length) ? length : 0;
+};
 
 
-	this.data   = new Array(length).fill(null);
-	this.index  = 0;
-	this.length = length;
+
+const Timeline = function(stack) {
+
+	stack = isArray(stack) ? stack : [];
+
+
+	this.count  = null;
+	this.data   = new Array(stack.length).fill(null);
+	this.length = stack.length;
+	this.stack  = stack;
 	this.start  = null;
+
+
+	if (stack.length > 0) {
+
+		if (stack[0].code === null) {
+			this.count = 0;
+		}
+
+	}
 
 };
 
@@ -48,54 +129,58 @@ const Timeline = function(length) {
 Timeline.isTimeline = isTimeline;
 
 
-Timeline.from = function(data) {
+Timeline.from = function(func, link) {
 
-	if (isFunction(data) === true) {
+	if (
+		isFunction(func) === true
+		&& isObject(link) === true
+		&& isString(link.file) === true
+		&& isNumber(link.line) === true
+	) {
 
-		let length = 0;
-		let body   = data.toString().split('\n').slice(1, -1);
+		let body  = func.toString().split('\n').slice(1, -1);
+		let stack = [];
 
 		if (body.length > 0) {
 
-			body.map((line) => line.trim()).forEach((line) => {
+			body.map((line) => line.trim()).forEach((line, l) => {
 
 				if (line.startsWith('assert(') === true) {
-					length++;
+
+					stack.push({
+						code: line,
+						file: link.file,
+						line: link.line + (l + 1)
+					});
+
 				}
 
 			});
 
 		}
 
-		return new Timeline(length);
+		return new Timeline(stack);
 
-	} else if (isArray(data) === true) {
+	} else if (isNumber(func) === true) {
 
-		let length   = data.length;
-		let timeline = new Timeline(length);
+		let stack = [];
 
-		data.forEach((value, d) => {
+		for (let s = 0; s < func; s++) {
 
-			if (isNumber(value) === true) {
-				timeline.data[d] = value;
-			} else {
-				timeline.data[d] = null;
-			}
+			stack.push({
+				code: null,
+				file: null,
+				line: (s + 1)
+			});
 
-		});
-
-		return timeline;
-
-	} else if (isNumber(data) === true) {
-
-		if (Number.isNaN(data) === false) {
-			return new Timeline((data | 0));
 		}
+
+		return new Timeline(stack);
 
 	}
 
 
-	return new Timeline(0);
+	return null;
 
 };
 
@@ -115,17 +200,34 @@ Timeline.prototype = {
 
 	complete: function() {
 
-		if (this.index < this.data.length) {
-			return false;
+		let complete = true;
+
+		for (let s = 0, sl = this.stack.length; s < sl; s++) {
+
+			if (this.data[s] === null) {
+				complete = false;
+				break;
+			}
+
 		}
 
-		return true;
+		return complete;
 
 	},
 
 	current: function() {
 
-		return this.index;
+		let index = null;
+
+		if (this.count !== null) {
+			index = this.count;
+		} else {
+			index = this.stack.findIndex((entry, e) => {
+				return this.data[e] === null;
+			}) || null;
+		}
+
+		return index;
 
 	},
 
@@ -195,7 +297,10 @@ Timeline.prototype = {
 			this.data[d] = null;
 		}
 
-		this.index = 0;
+		if (this.count !== null) {
+			this.count = 0;
+		}
+
 		this.start = null;
 
 	},
@@ -208,9 +313,60 @@ Timeline.prototype = {
 
 		} else {
 
-			if (this.index < this.data.length) {
-				this.data[this.index] = (Date.now() - this.start);
-				this.index++;
+			let entry = null;
+			let index = -1;
+			let link  = trace_reference();
+
+			if (link !== null) {
+
+				index = this.stack.findIndex((other) => {
+
+					if (
+						other.file === link.file
+						&& other.line === link.line
+					) {
+						return true;
+					}
+
+					return false;
+
+				});
+
+			}
+
+
+			if (index !== -1) {
+
+				// Timeline.from(Function) Mode
+				entry = this.stack[index];
+
+			} else if (this.count !== null) {
+
+				// Timeline.from(Number) Mode
+				index = this.count;
+				entry = this.stack[index];
+
+				this.count++;
+
+			}
+
+
+			if (
+				entry !== null
+				&& index !== -1
+				&& this.data[index] === null
+			) {
+
+				this.data[index] = (Date.now() - this.start);
+
+			} else if (
+				entry !== null
+				&& index !== -1
+				&& this.data[index] !== null
+			) {
+
+				// Results already throwing a SyntaxError
+
 			}
 
 		}

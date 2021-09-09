@@ -5,6 +5,11 @@ import { Results, isResults          } from '../../covert/source/Results.mjs';
 
 
 
+const LINK = {
+	file: '/tmp/Results.mjs',
+	line: 3
+};
+
 const TEMPLATE = function(assert) {
 
 	let bar = 132;
@@ -15,22 +20,34 @@ const TEMPLATE = function(assert) {
 		assert(true);
 	}, 1000);
 
+	assert(true);
+
 };
 
 
 
 describe('new Results()', function(assert) {
 
-	let results = new Results(5);
+	let results = new Results([{
+		code: 'assert(bar, 123);',
+		diff: null,
+		file: '/tmp/whatever.mjs',
+		line: 4
+	}, {
+		code: 'assert(true);',
+		diff: null,
+		file: '/tmp/whatever.mjs',
+		line: 7
+	}, {
+		code: 'assert(true);',
+		diff: null,
+		file: '/tmp/whatever.mjs',
+		line: 10
+	}]);
 
-	assert(results.index,  0);
-	assert(results.length, 5);
-
-	assert(results.data[0], null);
-	assert(results.data[1], null);
-	assert(results.data[2], null);
-	assert(results.data[3], null);
-	assert(results.data[4], null);
+	assert(results.length,       3);
+	assert(results.data.length,  3);
+	assert(results.stack.length, 3);
 
 });
 
@@ -40,15 +57,11 @@ describe('Results.isResults()', function(assert) {
 
 	let results1 = Results.from(null);
 	let results2 = Results.from(5);
-	let results3 = Results.from(TEMPLATE);
-	let results4 = Results.from([ true, false, null ]);
-	let results5 = Results.from([ null, {}, true ]);
+	let results3 = Results.from(TEMPLATE, LINK);
 
-	assert(Results.isResults(results1), true);
+	assert(Results.isResults(results1), false);
 	assert(Results.isResults(results2), true);
 	assert(Results.isResults(results3), true);
-	assert(Results.isResults(results4), true);
-	assert(Results.isResults(results5), true);
 
 });
 
@@ -58,15 +71,11 @@ describe('isResults()', function(assert) {
 
 	let results1 = Results.from(null);
 	let results2 = Results.from(5);
-	let results3 = Results.from(TEMPLATE);
-	let results4 = Results.from([ true, false, null ]);
-	let results5 = Results.from([ null, {}, true ]);
+	let results3 = Results.from(TEMPLATE, LINK);
 
-	assert(isResults(results1), true);
+	assert(isResults(results1), false);
 	assert(isResults(results2), true);
 	assert(isResults(results3), true);
-	assert(isResults(results4), true);
-	assert(isResults(results5), true);
 
 });
 
@@ -76,44 +85,31 @@ describe('Results.from()', function(assert) {
 
 	let results1 = Results.from(null);
 	let results2 = Results.from(5);
-	let results3 = Results.from(TEMPLATE);
-	let results4 = Results.from([ true, false, null ]);
-	let results5 = Results.from([ null, {}, true ]);
+	let results3 = Results.from(TEMPLATE, LINK);
 
-	assert(results1.index, 0);
-	assert(results2.index, 0);
-	assert(results3.index, 0);
-	assert(results4.index, 0);
-	assert(results5.index, 0);
+	assert(results1, null);
 
-	assert(results1.length, 0);
-	assert(results2.length, 5);
-	assert(results3.length, 2);
-	assert(results4.length, 3);
-	assert(results5.length, 3);
+	assert(results2.length,       5);
+	assert(results2.data.length,  5);
+	assert(results2.data[0],      null);
+	assert(results2.data[1],      null);
+	assert(results2.data[2],      null);
+	assert(results2.data[3],      null);
+	assert(results2.data[4],      null);
+	assert(results2.stack.length, 5);
 
-	assert(results2.data[0], null);
-	assert(results2.data[1], null);
-	assert(results2.data[2], null);
-	assert(results2.data[3], null);
-	assert(results2.data[4], null);
-
-	assert(results3.data[0], null);
-	assert(results3.data[1], null);
-
-	assert(results4.data[0], true);
-	assert(results4.data[1], false);
-	assert(results4.data[2], null);
-
-	assert(results5.data[0], null);
-	assert(results5.data[1], null);
-	assert(results5.data[2], true);
+	assert(results3.length,       3);
+	assert(results3.data.length,  3);
+	assert(results3.data[0],      null);
+	assert(results3.data[1],      null);
+	assert(results3.data[2],      null);
+	assert(results3.stack.length, 3);
 
 });
 
 describe('Results.prototype.toString()', function(assert) {
 
-	let results = Results.from(null);
+	let results = Results.from(TEMPLATE, LINK);
 
 	assert(results.toString(),                      '[object Results]');
 	assert(Object.prototype.toString.call(results), '[object Results]');
@@ -730,32 +726,43 @@ describe('Results.prototype.current()', function(assert) {
 	let results = Results.from(4);
 
 	assert(results.current(), 0);
-	assert(results.index,     0);
 
 	results.assert(true);
 	assert(results.current(), 1);
-	assert(results.index,     1);
 
 	results.assert(false);
 	assert(results.current(), 2);
-	assert(results.index,     2);
 
 	results.assert(null);
 	assert(results.current(), 3);
-	assert(results.index,     3);
 
 	results.assert(null);
 	assert(results.current(), 4);
-	assert(results.index,     4);
 
 });
 
 describe('Results.prototype.includes()', function(assert) {
 
-	let results1 = Results.from([ true,  false, null  ]);
-	let results2 = Results.from([ true,  false, true  ]);
-	let results3 = Results.from([ true,  null,  true  ]);
-	let results4 = Results.from([ false, null,  false ]);
+	let results1 = Results.from(3);
+	let results2 = Results.from(3);
+	let results3 = Results.from(3);
+	let results4 = Results.from(3);
+
+	results1.assert(true);
+	results1.assert(false);
+	results1.assert(null);
+
+	results2.assert(true);
+	results2.assert(false);
+	results2.assert(true);
+
+	results3.assert(true);
+	results3.assert(null);
+	results3.assert(true);
+
+	results4.assert(false);
+	results4.assert(null);
+	results4.assert(false);
 
 	assert(results1.includes(true),  true);
 	assert(results1.includes(false), true);
@@ -777,12 +784,32 @@ describe('Results.prototype.includes()', function(assert) {
 
 describe('Results.prototype.render()', function(assert) {
 
-	let results1 = Results.from([ true,  false, null  ]);
-	let results2 = Results.from([ true,  false, true  ]);
-	let results3 = Results.from([ true,  null,  true  ]);
-	let results4 = Results.from([ false, null,  false ]);
-	let results5 = Results.from([ true,  null,  null  ]);
+	let results1 = Results.from(3);
+	let results2 = Results.from(3);
+	let results3 = Results.from(3);
+	let results4 = Results.from(3);
+	let results5 = Results.from(3);
 	let results6 = Results.from(0);
+
+	results1.assert(true);
+	results1.assert(false);
+	results1.assert(null);
+
+	results2.assert(true);
+	results2.assert(false);
+	results2.assert(true);
+
+	results3.assert(true);
+	results3.assert(null);
+	results3.assert(true);
+
+	results4.assert(false);
+	results4.assert(null);
+	results4.assert(false);
+
+	results5.assert(true);
+	results5.assert(null);
+	results5.assert(null);
 
 	assert(results1.render(), '|+-?|');
 	assert(results2.render(), '|+-+|');
@@ -797,29 +824,32 @@ describe('Results.prototype.reset()', function(assert) {
 
 	let results = Results.from(3);
 
-	assert(results.index,   0);
-	assert(results.data[0], null);
-	assert(results.data[1], null);
-	assert(results.data[2], null);
-	assert(results.length,  3);
+	assert(results.data[0],      null);
+	assert(results.data[1],      null);
+	assert(results.data[2],      null);
+	assert(results.length,       3);
+	assert(results.data.length,  3);
+	assert(results.stack.length, 3);
 
 	results.assert(true);
 	results.assert(false);
 	results.assert(null);
 
-	assert(results.index,   3);
-	assert(results.data[0], true);
-	assert(results.data[1], false);
-	assert(results.data[2], null);
-	assert(results.length,  3);
+	assert(results.data[0],      true);
+	assert(results.data[1],      false);
+	assert(results.data[2],      null);
+	assert(results.length,       3);
+	assert(results.data.length,  3);
+	assert(results.stack.length, 3);
 
 	results.reset();
 
-	assert(results.index,   0);
-	assert(results.data[0], null);
-	assert(results.data[1], null);
-	assert(results.data[2], null);
-	assert(results.length,  3);
+	assert(results.data[0],      null);
+	assert(results.data[1],      null);
+	assert(results.data[2],      null);
+	assert(results.length,       3);
+	assert(results.data.length,  3);
+	assert(results.stack.length, 3);
 
 });
 

@@ -12,6 +12,79 @@ export const isReview = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Review]';
 };
 
+const trace_reference = function() {
+
+	let stack = [];
+
+	try {
+		throw new Error();
+	} catch (err) {
+		stack = err.stack.trim().split('\n');
+		// Remove unnecessary function calls
+		stack = stack.slice(3);
+	}
+
+	if (stack.length > 0) {
+
+		let origin = null;
+
+		for (let s = 0, sl = stack.length; s < sl; s++) {
+
+			let line = stack[s].trim();
+			if (line.includes('(file://') === true && line.includes(')') === true) {
+
+				let tmp = line.split('(file://')[1].split(')').shift().trim();
+				if (tmp.includes('/review/') === true && tmp.includes('.mjs') === true) {
+					origin = tmp;
+					break;
+				}
+
+			} else if (line.includes('file://') === true) {
+
+				let tmp = line.split('file://')[1].trim();
+				if (tmp.includes('/review/') === true && tmp.includes('.mjs') === true) {
+					origin = tmp;
+					break;
+				}
+
+			}
+
+		}
+
+		if (origin !== null) {
+
+			let file = origin.split(':')[0] || null;
+			let line = origin.split(':')[1] || null;
+
+			if (line !== null) {
+				line = parseInt(line, 10);
+			}
+
+			if (
+				file !== null
+				&& file.endsWith('.mjs') === true
+				&& line !== null
+				&& Number.isNaN(line) === false
+			) {
+
+				return {
+					file: file,
+					line: line
+				};
+
+			}
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
+
 export const Review = function() {
 
 	this.id     = ('Review-' + REVIEW_ID++);
@@ -176,12 +249,13 @@ export const after = function(name, callback) {
 
 	if (name !== null && callback !== null) {
 
+		let link = trace_reference(callback);
 		let test = {
 			name:     name,
 			callback: callback,
-			results:  Results.from(callback),
+			results:  Results.from(callback, link),
 			state:    null,
-			timeline: Timeline.from(callback)
+			timeline: Timeline.from(callback, link)
 		};
 
 		if (CURRENT_REVIEW !== null) {
@@ -217,12 +291,13 @@ export const before = function(name, callback) {
 
 	if (name !== null && callback !== null) {
 
+		let link = trace_reference(callback);
 		let test = {
 			name:     name,
 			callback: callback,
-			results:  Results.from(callback),
+			results:  Results.from(callback, link),
 			state:    null,
-			timeline: Timeline.from(callback)
+			timeline: Timeline.from(callback, link)
 		};
 
 		if (CURRENT_REVIEW !== null) {
@@ -267,12 +342,13 @@ export const describe = function(name, callback) {
 
 	if (name !== null && callback !== null) {
 
+		let link = trace_reference(callback);
 		let test = {
 			name:     name,
 			callback: callback,
-			results:  Results.from(callback),
+			results:  Results.from(callback, link),
 			state:    null,
-			timeline: Timeline.from(callback)
+			timeline: Timeline.from(callback, link),
 		};
 
 		if (CURRENT_REVIEW !== null) {

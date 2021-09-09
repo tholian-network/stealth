@@ -1,14 +1,11 @@
 
 import { Buffer, isArray, isBoolean, isBuffer, isDate, isFunction, isMap, isNumber, isObject, isRegExp, isSet, isString } from '../extern/base.mjs';
-import { Filesystem                                                                                                     } from './Filesystem.mjs';
 
 
 
 export const isResults = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Results]';
 };
-
-const FILESYSTEM = new Filesystem();
 
 const isArrayBuffer = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object ArrayBuffer]';
@@ -394,7 +391,7 @@ const diff = function(aobject, bobject) {
 
 };
 
-const trace_assert = function() {
+const trace_reference = function() {
 
 	let stack = [];
 
@@ -438,21 +435,21 @@ const trace_assert = function() {
 			let file = origin.split(':')[0] || null;
 			let line = origin.split(':')[1] || null;
 
-			if (file !== null && file.endsWith('.mjs') === true && line !== null) {
+			if (line !== null) {
+				line = parseInt(line, 10);
+			}
 
-				let code = FILESYSTEM.read(file, 'utf8');
-				if (code !== null) {
+			if (
+				file !== null
+				&& file.endsWith('.mjs') === true
+				&& line !== null
+				&& Number.isNaN(line) === false
+			) {
 
-					let lines = code.split('\n');
-					let check = lines[line - 1].trim();
-
-					if (check.startsWith('assert(') === true && check.endsWith(');') === true) {
-						return check.substr(0, check.length - 1) + ' in line #' + line;
-					} else if (check.startsWith('assert(') === true) {
-						return 'assert() in line #' + line;
-					}
-
-				}
+				return {
+					file: file,
+					line: line
+				};
 
 			}
 
@@ -467,15 +464,24 @@ const trace_assert = function() {
 
 
 
-const Results = function(length) {
+const Results = function(stack) {
 
-	length = isNumber(length) ? length : 0;
+	stack = isArray(stack) ? stack : [];
 
 
-	this.data   = new Array(length).fill(null);
-	this.index  = 0;
-	this.length = length;
-	this.stack  = new Array(length).fill(null);
+	this.count  = null;
+	this.data   = new Array(stack.length).fill(null);
+	this.length = stack.length;
+	this.stack  = stack;
+
+
+	if (stack.length > 0) {
+
+		if (stack[0].code === null) {
+			this.count = 0;
+		}
+
+	}
 
 };
 
@@ -483,54 +489,60 @@ const Results = function(length) {
 Results.isResults = isResults;
 
 
-Results.from = function(data) {
+Results.from = function(func, link) {
 
-	if (isFunction(data) === true) {
+	if (
+		isFunction(func) === true
+		&& isObject(link) === true
+		&& isString(link.file) === true
+		&& isNumber(link.line) === true
+	) {
 
-		let length = 0;
-		let body   = data.toString().split('\n').slice(1, -1);
+		let body  = func.toString().split('\n').slice(1, -1);
+		let stack = [];
 
 		if (body.length > 0) {
 
-			body.map((line) => line.trim()).forEach((line) => {
+			body.map((line) => line.trim()).forEach((line, l) => {
 
 				if (line.startsWith('assert(') === true) {
-					length++;
+
+					stack.push({
+						code: line,
+						diff: null,
+						file: link.file,
+						line: link.line + (l + 1)
+					});
+
 				}
 
 			});
 
 		}
 
-		return new Results(length);
+		return new Results(stack);
 
-	} else if (isArray(data) === true) {
+	} else if (isNumber(func) === true) {
 
-		let length  = data.length;
-		let results = new Results(length);
+		let stack = [];
 
-		data.forEach((value, d) => {
+		for (let s = 0; s < func; s++) {
 
-			if (isBoolean(value) === true) {
-				results.data[d] = value;
-			} else {
-				results.data[d] = null;
-			}
+			stack.push({
+				code: null,
+				diff: null,
+				file: null,
+				line: (s + 1)
+			});
 
-		});
-
-		return results;
-
-	} else if (isNumber(data) === true) {
-
-		if (Number.isNaN(data) === false) {
-			return new Results((data | 0));
 		}
+
+		return new Results(stack);
 
 	}
 
 
-	return new Results(0);
+	return null;
 
 };
 
@@ -554,85 +566,100 @@ Results.prototype = {
 		expect = expect !== undefined ? expect : undefined;
 
 
-		if (result !== undefined && expect !== undefined) {
+		let entry = null;
+		let index = -1;
+		let link  = trace_reference();
 
-			if (this.index < this.data.length) {
+		if (link !== null) {
+
+			index = this.stack.findIndex((other) => {
+
+				if (
+					other.file === link.file
+					&& other.line === link.line
+				) {
+					return true;
+				}
+
+				return false;
+
+			});
+
+		}
+
+
+		if (index !== -1) {
+
+			// Results.from(Function) Mode
+			entry = this.stack[index];
+
+		} else if (this.count !== null) {
+
+			// Results.from(Number) Mode
+			index = this.count;
+			entry = this.stack[index];
+
+			this.count++;
+
+		}
+
+
+		if (
+			entry !== null
+			&& index !== -1
+			&& this.data[index] === null
+		) {
+
+			if (result !== undefined && expect !== undefined) {
 
 				if (diff(result, expect) === true) {
-
-					this.data[this.index]  = false;
-					this.stack[this.index] = {
-						assert: trace_assert(),
-						diff:   [ clone(result), clone(expect) ]
-					};
-
+					this.stack[index].diff = [ clone(result), clone(expect) ];
+					this.data[index]       = false;
 				} else {
-
-					this.data[this.index]  = true;
-					this.stack[this.index] = {
-						assert: null,
-						diff:   null
-					};
-
+					this.stack[index].diff = null;
+					this.data[index]       = true;
 				}
 
-				this.index++;
+			} else if (expect !== undefined) {
 
-			}
+				this.stack[index].diff = [ null, clone(expect) ];
+				this.data[index]       = false;
 
-		} else if (expect !== undefined) {
-
-			if (this.index < this.data.length) {
-
-				this.data[this.index]  = false;
-				this.stack[this.index] = {
-					assert: trace_assert(),
-					diff:   [ null, clone(expect) ]
-				};
-
-				this.index++;
-
-			}
-
-		} else if (result === true || result === false) {
-
-			if (this.index < this.data.length) {
+			} else if (result === true || result === false) {
 
 				if (result === false) {
-
-					this.data[this.index]  = false;
-					this.stack[this.index] = {
-						assert: trace_assert(),
-						diff:   [ false, true ]
-					};
-
+					this.stack[index].diff = [ false, true ];
+					this.data[index]       = false;
 				} else {
-
-					this.data[this.index]  = true;
-					this.stack[this.index] = {
-						assert: null,
-						diff:   null
-					};
-
+					this.stack[index].diff = null;
+					this.data[index]       = true;
 				}
 
-				this.index++;
+			} else {
+
+				this.stack[index].diff = [ null, true ];
+				this.data[index]       = null;
 
 			}
 
-		} else {
+		} else if (
+			entry !== null
+			&& index !== -1
+			&& (
+				this.data[index] !== null
+				|| this.stack[index].diff !== null
+			)
+		) {
 
-			if (this.index < this.data.length) {
+			let message = null;
 
-				this.data[this.index]  = null;
-				this.stack[this.index] = {
-					assert: trace_assert(),
-					diff:   [ null, true ]
-				};
-
-				this.index++;
-
+			if (entry.code !== null) {
+				message = '"' + entry.code + '" in ' + entry.file + '#L' + entry.line + ' called more than once!';
+			} else {
+				message = '"assert()" in ' + entry.file + '#L' + entry.line + ' called more than once!';
 			}
+
+			throw new SyntaxError('Results: ' + message);
 
 		}
 
@@ -640,17 +667,34 @@ Results.prototype = {
 
 	complete: function() {
 
-		if (this.index < this.data.length) {
-			return false;
+		let complete = true;
+
+		for (let s = 0, sl = this.stack.length; s < sl; s++) {
+
+			if (this.stack[s].diff === null && this.data[s] === null) {
+				complete = false;
+				break;
+			}
+
 		}
 
-		return true;
+		return complete;
 
 	},
 
 	current: function() {
 
-		return this.index;
+		let index = null;
+
+		if (this.count !== null) {
+			index = this.count;
+		} else {
+			index = this.stack.findIndex((entry, e) => {
+				return this.data[e] === null && this.stack[e].diff === null;
+			}) || null;
+		}
+
+		return index;
 
 	},
 
@@ -709,7 +753,13 @@ Results.prototype = {
 			this.data[d] = null;
 		}
 
-		this.index = 0;
+		for (let s = 0, sl = this.stack.length; s < sl; s++) {
+			this.stack[s].diff = null;
+		}
+
+		if (this.count !== null) {
+			this.count = 0;
+		}
 
 	}
 

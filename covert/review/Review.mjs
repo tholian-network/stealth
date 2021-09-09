@@ -53,6 +53,26 @@ describe('assert()/expect', function(assert) {
 
 });
 
+describe('assert()/timeout', function(assert) {
+
+	setTimeout(() => {
+		assert(1, 1);
+	}, 1000);
+
+	assert(2, 2);
+
+	setTimeout(() => {
+		assert(false, false);
+	}, 3000);
+
+	setTimeout(() => {
+		assert(true);
+	}, 2000);
+
+	assert({ foo: 'bar' }, { foo: 'bar' });
+
+});
+
 describe('console', function(assert, console) {
 
 	assert(isObject(console),         true);
