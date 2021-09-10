@@ -70,6 +70,16 @@ const Server = function(settings, stealth) {
 		this.webproxy  = new Webproxy(this.services, this.stealth);
 		this.webserver = new Webserver(this.services, this.stealth);
 
+	} else {
+
+		this.stealth   = stealth;
+		this.services  = null;
+		this.peerer    = null;
+		this.proxy     = null;
+		this.router    = null;
+		this.webproxy  = null;
+		this.webserver = null;
+
 	}
 
 	this.__state = {
@@ -93,15 +103,25 @@ const Server = function(settings, stealth) {
 
 	this.on('connect', () => {
 
-		this.peerer.connect();
-		this.router.connect();
+		if (this.peerer !== null) {
+			this.peerer.connect();
+		}
+
+		if (this.router !== null) {
+			this.router.connect();
+		}
 
 	});
 
 	this.on('disconnect', () => {
 
-		this.peerer.disconnect();
-		this.router.disconnect();
+		if (this.peerer !== null) {
+			this.peerer.disconnect();
+		}
+
+		if (this.router !== null) {
+			this.router.disconnect();
+		}
 
 	});
 

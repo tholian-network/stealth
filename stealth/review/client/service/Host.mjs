@@ -73,12 +73,12 @@ describe('Host.prototype.read()/success', function(assert) {
 
 });
 
-describe('Host.prototype.refresh()', function(assert) {
+describe('Host.prototype.resolve()', function(assert) {
 
 	assert(this.client !== null);
-	assert(isFunction(this.client.services.host.refresh), true);
+	assert(isFunction(this.client.services.host.resolve), true);
 
-	this.client.services.host.refresh({
+	this.client.services.host.resolve({
 		domain: 'example.com'
 	}, (response) => {
 

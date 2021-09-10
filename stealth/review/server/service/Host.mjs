@@ -133,19 +133,19 @@ describe('Host.prototype.read()/success', function(assert) {
 
 });
 
-describe('Host.prototype.refresh()', function(assert) {
+describe('Host.prototype.resolve()', function(assert) {
 
 	assert(this.server !== null);
-	assert(isFunction(this.server.services.host.refresh), true);
+	assert(isFunction(this.server.services.host.resolve), true);
 
-	this.server.services.host.refresh({
+	this.server.services.host.resolve({
 		domain: 'example.com'
 	}, (response) => {
 
 		assert(response, {
 			headers: {
 				service: 'host',
-				event:   'refresh'
+				event:   'resolve'
 			},
 			payload: {
 				domain: 'example.com',

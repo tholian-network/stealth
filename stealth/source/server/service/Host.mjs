@@ -284,7 +284,7 @@ Host.prototype = Object.assign({}, Emitter.prototype, {
 
 				} else {
 
-					this.stealth.router.resolve(query, (remote_response) => {
+					this.stealth.server.router.resolve(query, (remote_response) => {
 
 						if (remote_response !== null) {
 

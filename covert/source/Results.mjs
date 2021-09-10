@@ -469,19 +469,10 @@ const Results = function(stack) {
 	stack = isArray(stack) ? stack : [];
 
 
-	this.count  = null;
+	this.count  = 0;
 	this.data   = new Array(stack.length).fill(null);
 	this.length = stack.length;
 	this.stack  = stack;
-
-
-	if (stack.length > 0) {
-
-		if (stack[0].code === null) {
-			this.count = 0;
-		}
-
-	}
 
 };
 
@@ -593,6 +584,8 @@ Results.prototype = {
 			// Results.from(Function) Mode
 			entry = this.stack[index];
 
+			this.count++;
+
 		} else if (this.count !== null) {
 
 			// Results.from(Number) Mode
@@ -684,17 +677,7 @@ Results.prototype = {
 
 	current: function() {
 
-		let index = null;
-
-		if (this.count !== null) {
-			index = this.count;
-		} else {
-			index = this.stack.findIndex((entry, e) => {
-				return this.data[e] === null && this.stack[e].diff === null;
-			}) || null;
-		}
-
-		return index;
+		return this.count;
 
 	},
 
@@ -757,9 +740,7 @@ Results.prototype = {
 			this.stack[s].diff = null;
 		}
 
-		if (this.count !== null) {
-			this.count = 0;
-		}
+		this.count = 0;
 
 	}
 

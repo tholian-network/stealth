@@ -11,7 +11,8 @@ export const connect = before('Server.prototype.connect()', function(assert) {
 
 	this.server  = null;
 	this.stealth = new Stealth({
-		profile: SANDBOX.mktemp('stealth/Server', 8)
+		profile: SANDBOX.mktemp('stealth/Server', 8),
+		action:  'serve'
 	});
 
 	this.stealth.once('connect', () => {

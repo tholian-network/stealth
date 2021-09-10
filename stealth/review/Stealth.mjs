@@ -1,5 +1,5 @@
 
-import { Emitter, isFunction             } from '../../base/index.mjs';
+import { isFunction                      } from '../../base/index.mjs';
 import { after, before, describe, finish } from '../../covert/index.mjs';
 import { ENVIRONMENT as SANDBOX          } from '../../covert/index.mjs';
 import { ENVIRONMENT                     } from '../../stealth/source/ENVIRONMENT.mjs';
@@ -10,47 +10,12 @@ import { URL                             } from '../../stealth/source/parser/URL
 
 
 
-const Service = function() {
-
-	Emitter.call(this);
-
-	this.on('event', (payload) => {
-
-		return {
-			headers: {
-				service: 'mockup',
-				event:   'event'
-			},
-			payload: payload
-		};
-
-	});
-
-};
-
-Service.prototype = Object.assign({}, Emitter.prototype, {
-
-	'method': function(payload, callback) {
-
-		callback({
-			headers: {
-				service: 'mockup',
-				method:  'method'
-			},
-			payload: payload
-		});
-
-	}
-
-});
-
-
-
 export const connect = before('Stealth.prototype.connect()', function(assert) {
 
 	this.server  = null;
 	this.stealth = new Stealth({
-		profile: SANDBOX.mktemp('stealth/Stealth', 8)
+		profile: SANDBOX.mktemp('stealth/Stealth', 8),
+		action:  'serve'
 	});
 
 	assert(this.stealth._settings.debug, false);
@@ -59,7 +24,6 @@ export const connect = before('Stealth.prototype.connect()', function(assert) {
 	this.stealth.once('connect', () => {
 
 		this.server = this.stealth.server;
-		this.server.services['mockup'] = new Service();
 
 		assert(true);
 
