@@ -311,6 +311,164 @@ const toDomain = function(payload) {
 
 };
 
+// XXX: Most DNS resolvers don't support multiple DNS questions :(
+const resolve = function(url, domain, type, callback) {
+
+	let connection = null;
+	let internet   = this.stealth.settings.internet;
+	let request    = {
+		headers: {
+			'@type': 'request'
+		},
+		payload: {
+			questions: [{
+				domain: domain,
+				type:   type,
+				value:  null
+			}],
+			answers: []
+		}
+	};
+
+	if (
+		internet.connection === 'mobile'
+		|| internet.connection === 'broadband'
+	) {
+
+		if (url.protocol === 'dnsh') {
+			connection = DNSH.connect(url);
+		} else if (url.protocol === 'dnss') {
+			connection = DNSS.connect(url);
+		} else if (url.protocol === 'dns') {
+			connection = DNS.connect(url);
+		}
+
+	} else if (internet.connection === 'tor') {
+
+		url.proxy  = { host: '127.0.0.1', port: 9050 };
+		connection = SOCKS.connect(url);
+
+	}
+
+	if (connection !== null) {
+
+		connection.once('@connect', () => {
+
+			if (url.protocol === 'dnsh') {
+				DNSH.send(connection, request);
+			} else if (url.protocol === 'dnss') {
+				DNSS.send(connection, request);
+			} else if (url.protocol === 'dns') {
+				DNS.send(connection, request);
+			}
+
+		});
+
+		connection.once('response', (response) => {
+
+			callback(response);
+
+			connection.disconnect();
+
+		});
+
+		connection.once('error', () => {
+			callback(null);
+		});
+
+	} else {
+
+		callback(null);
+
+	}
+
+};
+
+const toHost = function(response, domain) {
+
+	let cnames = response.payload.answers.filter((a) => {
+		return (a.type === 'CNAME' && a.domain === domain);
+	});
+
+	if (cnames.length > 0) {
+
+		let is_blocked = false;
+
+		cnames.forEach((cname) => {
+
+			response.payload.answers.remove(cname);
+
+			if (this.services !== null) {
+
+				this.services.blocker.read({
+					domain: cname.value
+				}, (response) => {
+
+					if (response !== null) {
+
+						is_blocked = true;
+
+					} else {
+
+						response.payload.answers.filter((a) => a.type !== 'CNAME').forEach((answer) => {
+
+							if (answer.type === 'PTR') {
+
+								if (answer.value === cname.value) {
+									answer.value = domain;
+								}
+
+							} else {
+
+								if (answer.domain === cname.value) {
+									answer.domain = domain;
+								}
+
+							}
+
+						});
+
+					}
+
+				});
+
+			}
+
+		});
+
+		if (is_blocked === true) {
+			response.payload.answers = [];
+		}
+
+	}
+
+
+	let hosts = [];
+
+	response.payload.answers.filter((a) => a.type === 'A').forEach((answer) => {
+
+		if (IP.isIP(answer.value) === true) {
+			hosts.push(answer.value);
+		}
+
+	});
+
+	response.payload.answers.filter((a) => a.type === 'AAAA').forEach((answer) => {
+
+		if (IP.isIP(answer.value) === true) {
+			hosts.push(answer.value);
+		}
+
+	});
+
+
+	return {
+		domain: domain,
+		hosts:  hosts
+	};
+
+};
+
 
 
 const Router = function(services, stealth) {
@@ -712,139 +870,43 @@ Router.prototype = {
 			}
 
 
-			let url        = RONIN.shift();
-			let connection = null;
-			let request    = {
-				headers: {
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: domain,
-						type:   'A',
-						value:  null
-					}, {
-						domain: domain,
-						type:   'AAAA',
-						value:  null
-					}],
-					answers:   []
-				}
-			};
+			let url = RONIN.shift();
 
+			resolve.call(this, Object.clone({}, url), domain, 'A', (response_v4) => {
 
-			if (
-				internet.connection === 'mobile'
-				|| internet.connection === 'broadband'
-			) {
+				resolve.call(this, Object.clone({}, url), domain, 'AAAA', (response_v6) => {
 
-				if (url.protocol === 'dnsh') {
-					connection = DNSH.connect(url);
-				} else if (url.protocol === 'dnss') {
-					connection = DNSS.connect(url);
-				} else if (url.protocol === 'dns') {
-					connection = DNS.connect(url);
-				}
+					let response = {
+						headers: {
+							'@type': 'response',
+						},
+						payload: {
+							questions: [],
+							answers:   []
+						}
+					};
 
-			} else if (internet.connection === 'tor') {
-
-				url.proxy  = { host: '127.0.0.1', port: 9050 };
-				connection = SOCKS.connect(url);
-
-			}
-
-
-			if (connection !== null) {
-
-				connection.once('@connect', () => {
-
-					if (url.protocol === 'dnsh') {
-						DNSH.send(connection, request);
-					} else if (url.protocol === 'dnss') {
-						DNSS.send(connection, request);
-					} else if (url.protocol === 'dns') {
-						DNS.send(connection, request);
+					if (response_v4 !== null) {
+						response_v4.payload.questions.forEach((q) => response.payload.questions.push(q));
+						response_v4.payload.answers.forEach((a) => response.payload.answers.push(a));
 					}
 
-				});
-
-				connection.once('response', (response) => {
-
-					let cname = response.payload.answers.find((a) => {
-						return (a.type === 'CNAME' && a.domain === domain);
-					}) || null;
-
-					if (cname !== null) {
-
-						response.payload.answers.remove(cname);
-
-						response.payload.answers.filter((a) => a.type !== 'CNAME').forEach((answer) => {
-
-							if (answer.type === 'PTR') {
-
-								if (answer.value === cname.value) {
-									answer.value = domain;
-								}
-
-							} else {
-
-								if (answer.domain === cname.value) {
-									answer.domain = domain;
-								}
-
-							}
-
-						});
-
+					if (response_v6 !== null) {
+						response_v6.payload.questions.forEach((q) => response.payload.questions.push(q));
+						response_v6.payload.answers.forEach((a) => response.payload.answers.push(a));
 					}
 
-
-					let hosts = [];
-
-					response.payload.answers.filter((a) => a.type === 'A').forEach((answer) => {
-
-						if (IP.isIP(answer.value) === true) {
-							hosts.push(answer.value);
-						}
-
-					});
-
-					response.payload.answers.filter((a) => a.type === 'AAAA').forEach((answer) => {
-
-						if (IP.isIP(answer.value) === true) {
-							hosts.push(answer.value);
-						}
-
-					});
 
 					if (callback !== null) {
-
-						callback({
-							domain: domain,
-							hosts:  hosts
-						});
-
+						callback(toHost(response, domain));
 					}
 
-					connection.disconnect();
+					// TODO: Reuse toHost() inside receive() for A/AAAA entries
+					// XXX: Detect malicious DNS response or cloaked domains
 
 				});
 
-				connection.once('error', () => {
-
-					if (callback !== null) {
-						callback(null);
-					}
-
-				});
-
-			} else {
-
-				if (callback !== null) {
-					callback(null);
-				}
-
-			}
+			});
 
 		} else {
 

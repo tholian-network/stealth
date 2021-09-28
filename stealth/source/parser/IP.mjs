@@ -117,7 +117,7 @@ const render_ipv6 = function(ipv6) {
 
 };
 
-const validate_ipv4 = function(ipv4) {
+const parse_ipv4 = function(ipv4) {
 
 	let tmp   = ipv4.split('.').map((v) => parseInt(v, 10));
 	let valid = true;
@@ -161,7 +161,7 @@ const validate_ipv4 = function(ipv4) {
 
 };
 
-const validate_ipv6 = function(ipv6) {
+const parse_ipv6 = function(ipv6) {
 
 	let valid = true;
 	let chunk = [];
@@ -309,14 +309,14 @@ const IP = {
 					let ip = payload.ip || '';
 					if (ip.includes(':') === true) {
 
-						let check = validate_ipv6(ip);
+						let check = parse_ipv6(ip);
 						if (check === ip) {
 							return true;
 						}
 
 					} else if (ip.includes('.') === true) {
 
-						let check = validate_ipv4(ip);
+						let check = parse_ipv4(ip);
 						if (check === ip) {
 							return true;
 						}
@@ -361,7 +361,7 @@ const IP = {
 
 			if (raw.includes(':') === true) {
 
-				let check = validate_ipv6(raw);
+				let check = parse_ipv6(raw);
 				if (check !== null) {
 
 					ip   = check;
@@ -381,7 +381,7 @@ const IP = {
 
 			} else if (raw.includes('.') === true) {
 
-				let check = validate_ipv4(raw);
+				let check = parse_ipv4(raw);
 				if (check !== null) {
 
 					ip   = check;
