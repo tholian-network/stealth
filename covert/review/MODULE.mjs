@@ -1,6 +1,6 @@
 
 import { describe, finish } from '../../covert/index.mjs';
-import * as COVERT          from '../../covert/index.mjs';
+import COVERT               from '../../covert/index.mjs';
 
 
 
@@ -31,6 +31,21 @@ describe('MODULE', function(assert) {
 	assert(typeof COVERT['isTimeline'],   'function');
 
 	assert(Object.keys(COVERT), [
+
+		'after',
+		'before',
+		'describe',
+		'finish',
+
+		'isCovert',
+		'isFilesystem',
+		'isLinter',
+		'isNetwork',
+		'isRenderer',
+		'isResults',
+		'isReview',
+		'isTimeline',
+
 		'Covert',
 		'ENVIRONMENT',
 		'Filesystem',
@@ -39,19 +54,8 @@ describe('MODULE', function(assert) {
 		'Renderer',
 		'Results',
 		'Review',
-		'Timeline',
-		'after',
-		'before',
-		'describe',
-		'finish',
-		'isCovert',
-		'isFilesystem',
-		'isLinter',
-		'isNetwork',
-		'isRenderer',
-		'isResults',
-		'isReview',
-		'isTimeline'
+		'Timeline'
+
 	]);
 
 });

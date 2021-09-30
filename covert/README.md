@@ -53,3 +53,23 @@ node ./covert/make.mjs;
 node ./covert/covert.mjs;
 ```
 
+
+## ECMAScript Usage
+
+The Covert Library exports a `default` export that contains a namespaced
+`Object`. Due to otherwise conflicting names, there are no separately
+named exports available.
+
+```javascript
+// Import Covert Library
+import covert from './covert/index.mjs';
+```
+
+
+## NPM Usage
+
+```javascript
+// Import Covert Library
+import covert from 'stealth/covert';
+```
+

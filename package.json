@@ -30,7 +30,7 @@
 			"node": "./base/build/node.mjs"
 		},
 		"./browser": {
-			"import": "./browser/index.mjs"
+			"browser": "./browser/index.mjs"
 		},
 		"./covert": {
 			"import": "./covert/index.mjs"

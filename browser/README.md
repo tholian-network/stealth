@@ -37,3 +37,21 @@ node ./browser/browser.mjs;
 # gio open http://localhost:65432;
 ```
 
+
+## ECMAScript Usage
+
+The Browser Library exports a `default` export that contains a namespaced
+`Object`. Due to otherwise conflicting names, there are no separately
+named exports available.
+
+As the [extern/base.mjs](./extern/base.mjs) file uses the HTML5 Polyfills
+variant of the [Base Library](../base), the Browser Library is also only
+compatible with HTML5 Environments.
+
+```html
+<script type="module">
+// Import Browser Library
+import browser from './browser/index.mjs';
+</script>
+```
+

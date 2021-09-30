@@ -25,3 +25,22 @@ node ./stealth/make.mjs;
 node ./stealth/stealth.mjs;
 ```
 
+
+## ECMAScript Usage
+
+The Stealth Library exports a `default` export that contains an `Object` with
+namespaces. Due to otherwise conflicting names, there are no other named exports.
+
+```javascript
+// Import Stealth Library
+import stealth from './stealth/index.mjs';
+```
+
+
+## NPM Usage
+
+```javascript
+// Import Stealth Library
+import stealth from 'stealth/stealth';
+```
+

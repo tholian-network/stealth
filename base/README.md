@@ -39,3 +39,29 @@ node ./base/make.mjs;
 # cp ./base/build/node.mjs    ./to/a/node/project/extern/base.mjs;
 ```
 
+
+## ECMAScript Usage
+
+The Base Library exports a `default` export that contains an `Object` with
+all exports. Additionally, all methods and data types are exported as named
+exports.
+
+```javascript
+// Import Base Library
+import base from './base/index.mjs';
+
+// Import selected named exports
+import { console, Emitter, isEmitter } from './base/index.mjs';
+```
+
+
+## NPM Usage
+
+```javascript
+// Import Base Library
+import base from 'stealth/base';
+
+// Import selected named exports
+import { console, Emitter, isEmitter } from 'stealth/base';
+```
+

@@ -52,97 +52,113 @@ import { Redirect as server_service_Redirect } from './source/server/service/Red
 import { Session  as server_service_Session  } from './source/server/service/Session.mjs';
 import { Settings as server_service_Settings } from './source/server/service/Settings.mjs';
 
+import { Browser, isBrowser, isMode  } from './source/Browser.mjs';
+import { Client, isClient            } from './source/Client.mjs';
+import { Download, isDownload        } from './source/Download.mjs';
+import { ENVIRONMENT                 } from './source/ENVIRONMENT.mjs';
+import { Request, isRequest          } from './source/Request.mjs';
+import { Server, isServer            } from './source/Server.mjs';
+import { Session, isSession          } from './source/Session.mjs';
+import { Settings, isSettings        } from './source/Settings.mjs';
+import { Stealth, isStealth, VERSION } from './source/Stealth.mjs';
+import { Tab, isTab                  } from './source/Tab.mjs';
 
 
-export * from './source/Browser.mjs';
-export * from './source/Client.mjs';
-export * from './source/Download.mjs';
-export * from './source/ENVIRONMENT.mjs';
-export * from './source/Request.mjs';
-export * from './source/Server.mjs';
-export * from './source/Session.mjs';
-export * from './source/Settings.mjs';
-export * from './source/Stealth.mjs';
-export * from './source/Tab.mjs';
 
-export const client = {
+export default {
 
-	service: {
+	client: {
+		service: {
+			Beacon:   client_service_Beacon,
+			Blocker:  client_service_Blocker,
+			Cache:    client_service_Cache,
+			Host:     client_service_Host,
+			Mode:     client_service_Mode,
+			Peer:     client_service_Peer,
+			Policy:   client_service_Policy,
+			Redirect: client_service_Redirect,
+			Session:  client_service_Session,
+			Settings: client_service_Settings
+		}
+	},
 
-		Beacon:   client_service_Beacon,
-		Blocker:  client_service_Blocker,
-		Cache:    client_service_Cache,
-		Host:     client_service_Host,
-		Mode:     client_service_Mode,
-		Peer:     client_service_Peer,
-		Policy:   client_service_Policy,
-		Redirect: client_service_Redirect,
-		Session:  client_service_Session,
-		Settings: client_service_Settings
+	connection: {
+		DNS:   connection_DNS,
+		DNSH:  connection_DNSH,
+		DNSS:  connection_DNSS,
+		HTTP:  connection_HTTP,
+		HTTPS: connection_HTTPS,
+		MDNS:  connection_MDNS,
+		SOCKS: connection_SOCKS,
+		WS:    connection_WS,
+		WSS:   connection_WSS
+	},
 
-	}
+	packet: {
+		DNS:   packet_DNS,
+		HTTP:  packet_HTTP,
+		SOCKS: packet_SOCKS,
+		WS:    packet_WS
+	},
 
-};
+	parser: {
+		CSS:      parser_CSS,
+		DATETIME: parser_DATETIME,
+		HOSTS:    parser_HOSTS,
+		HTML:     parser_HTML,
+		IP:       parser_IP,
+		SUBNET:   parser_SUBNET,
+		UA:       parser_UA,
+		URL:      parser_URL
+	},
 
-export const connection = {
+	server: {
 
-	DNS:   connection_DNS,
-	DNSH:  connection_DNSH,
-	DNSS:  connection_DNSS,
-	HTTP:  connection_HTTP,
-	HTTPS: connection_HTTPS,
-	MDNS:  connection_MDNS,
-	SOCKS: connection_SOCKS,
-	WS:    connection_WS,
-	WSS:   connection_WSS
+		Peerer:    server_Peerer,
+		Proxy:     server_Proxy,
+		Router:    server_Router,
+		Services:  server_Services,
+		Webproxy:  server_Webproxy,
+		Webserver: server_Webserver,
 
-};
+		service: {
+			Beacon:   server_service_Beacon,
+			Blocker:  server_service_Blocker,
+			Cache:    server_service_Cache,
+			Host:     server_service_Host,
+			Mode:     server_service_Mode,
+			Peer:     server_service_Peer,
+			Policy:   server_service_Policy,
+			Redirect: server_service_Redirect,
+			Session:  server_service_Session,
+			Settings: server_service_Settings
+		}
 
-export const packet = {
+	},
 
-	DNS:   packet_DNS,
-	HTTP:  packet_HTTP,
-	SOCKS: packet_SOCKS,
-	WS:    packet_WS
+	isBrowser:  isBrowser,
+	isClient:   isClient,
+	isDownload: isDownload,
+	isMode:     isMode,
+	isRequest:  isRequest,
+	isServer:   isServer,
+	isSession:  isSession,
+	isSettings: isSettings,
+	isStealth:  isStealth,
+	isTab:      isTab,
 
-};
+	Browser:     Browser,
+	Client:      Client,
+	Download:    Download,
+	ENVIRONMENT: ENVIRONMENT,
+	Request:     Request,
+	Server:      Server,
+	Session:     Session,
+	Settings:    Settings,
+	Stealth:     Stealth,
+	Tab:         Tab,
 
-export const parser = {
-
-	CSS:      parser_CSS,
-	DATETIME: parser_DATETIME,
-	HOSTS:    parser_HOSTS,
-	HTML:     parser_HTML,
-	IP:       parser_IP,
-	SUBNET:   parser_SUBNET,
-	UA:       parser_UA,
-	URL:      parser_URL
-
-};
-
-export const server = {
-
-	Peerer:    server_Peerer,
-	Proxy:     server_Proxy,
-	Router:    server_Router,
-	Services:  server_Services,
-	Webproxy:  server_Webproxy,
-	Webserver: server_Webserver,
-
-	service: {
-
-		Beacon:   server_service_Beacon,
-		Blocker:  server_service_Blocker,
-		Cache:    server_service_Cache,
-		Host:     server_service_Host,
-		Mode:     server_service_Mode,
-		Peer:     server_service_Peer,
-		Policy:   server_service_Policy,
-		Redirect: server_service_Redirect,
-		Session:  server_service_Session,
-		Settings: server_service_Settings
-
-	}
+	VERSION:     VERSION
 
 };
 

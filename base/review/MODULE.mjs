@@ -1,6 +1,6 @@
 
 import { describe, finish } from '../../covert/index.mjs';
-import * as BASE            from '../../base/index.mjs';
+import BASE                 from '../../base/index.mjs';
 
 
 
@@ -36,6 +36,8 @@ describe('MODULE', function(assert) {
 
 	assert(Object.keys(BASE), [
 
+		'console',
+
 		'Array',
 		'Boolean',
 		'Buffer',
@@ -48,8 +50,6 @@ describe('MODULE', function(assert) {
 		'RegExp',
 		'Set',
 		'String',
-
-		'console',
 
 		'isArray',
 		'isBoolean',

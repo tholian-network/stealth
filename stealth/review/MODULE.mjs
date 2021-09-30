@@ -1,6 +1,6 @@
 
 import { describe, finish } from '../../covert/index.mjs';
-import * as STEALTH         from '../../stealth/index.mjs';
+import STEALTH              from '../../stealth/index.mjs';
 
 
 
@@ -69,7 +69,7 @@ describe('MODULE', function(assert) {
 	assert(typeof STEALTH['parser']['URL'],      'object');
 
 	assert(typeof STEALTH['server'],                        'object');
-	assert(typeof STEALTH['server']['Compeer'],             'function');
+	assert(typeof STEALTH['server']['Peerer'] ,             'function');
 	assert(typeof STEALTH['server']['Proxy'],               'function');
 	assert(typeof STEALTH['server']['Router'],              'function');
 	assert(typeof STEALTH['server']['Services'],            'function');
@@ -87,20 +87,14 @@ describe('MODULE', function(assert) {
 	assert(typeof STEALTH['server']['service']['Session'],  'function');
 	assert(typeof STEALTH['server']['service']['Settings'], 'function');
 
-	assert(Object.keys(STEALTH).sort(), [
-		'Browser',
-		'Client',
-		'Download',
-		'ENVIRONMENT',
-		'Request',
-		'Server',
-		'Session',
-		'Settings',
-		'Stealth',
-		'Tab',
-		'VERSION',
+	assert(Object.keys(STEALTH), [
+
 		'client',
 		'connection',
+		'packet',
+		'parser',
+		'server',
+
 		'isBrowser',
 		'isClient',
 		'isDownload',
@@ -111,9 +105,19 @@ describe('MODULE', function(assert) {
 		'isSettings',
 		'isStealth',
 		'isTab',
-		'packet',
-		'parser',
-		'server'
+
+		'Browser',
+		'Client',
+		'Download',
+		'ENVIRONMENT',
+		'Request',
+		'Server',
+		'Session',
+		'Settings',
+		'Stealth',
+		'Tab',
+		'VERSION'
+
 	]);
 
 });
