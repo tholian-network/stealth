@@ -898,7 +898,7 @@ Router.prototype = {
 
 
 					if (callback !== null) {
-						callback(toHost(response, domain));
+						callback(toHost.call(this, response, domain));
 					}
 
 					// TODO: Reuse toHost() inside receive() for A/AAAA entries
