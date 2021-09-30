@@ -24,10 +24,20 @@
 		"build:stealth": "node ./stealth/make.mjs build"
 	},
 	"exports": {
-		".": "./stealth/index.mjs",
-		"./base": "./base/index.mjs",
-		"./covert": "./covert/index.mjs",
-		"./stealth": "./stealth/index.mjs"
+		"./base": {
+			"import": "./base/index.mjs",
+			"browser": "./base/build/browser.mjs",
+			"node": "./base/build/node.mjs"
+		},
+		"./browser": {
+			"import": "./browser/index.mjs"
+		},
+		"./covert": {
+			"import": "./covert/index.mjs"
+		},
+		"./stealth": {
+			"import": "./stealth/index.mjs"
+		}
 	},
 	"devDependencies": {
 		"babel-eslint": "^10.1.0",
