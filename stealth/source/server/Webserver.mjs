@@ -412,7 +412,12 @@ Webserver.prototype = {
 					connection.once('@connect', () => {
 
 						if (this.stealth !== null && this.stealth._settings.debug === true) {
-							console.log('Webserver: Client "' + connection.toJSON().remote + '" connected.');
+
+							let info = connection.toJSON();
+							if (info.remote !== null) {
+								console.log('Webserver: Client "' + info.remote.host + '" connected.');
+							}
+
 						}
 
 					});
@@ -465,7 +470,12 @@ Webserver.prototype = {
 					connection.once('@disconnect', () => {
 
 						if (this.stealth !== null && this.stealth._settings.debug === true) {
-							console.log('Webserver: Client "' + connection.toJSON().remote + '" disconnected.');
+
+							let info = connection.toJSON();
+							if (info.remote !== null) {
+								console.log('Webserver: Client "' + info.remote.host + '" disconnected.');
+							}
+
 						}
 
 					});

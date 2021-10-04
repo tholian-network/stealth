@@ -2,22 +2,25 @@
 import { isArray, isFunction    } from '../../base/index.mjs';
 import { describe, finish       } from '../../covert/index.mjs';
 import { ENVIRONMENT as SANDBOX } from '../../covert/index.mjs';
-import { Filesystem             } from '../../covert/index.mjs';
 import { ENVIRONMENT            } from '../../stealth/source/ENVIRONMENT.mjs';
 import { Settings, isSettings   } from '../../stealth/source/Settings.mjs';
+import { VERSION                } from '../../stealth/source/Stealth.mjs';
 
 
 
-const FILESYSTEM = new Filesystem();
-
-const read_file = (path) => {
+const read = (sandbox, url) => {
 
 	let data = null;
 
-	try {
-		data = JSON.parse(FILESYSTEM.read(path));
-	} catch (err) {
-		data = null;
+	let buffer = SANDBOX.read(sandbox, url);
+	if (buffer !== null) {
+
+		try {
+			data = JSON.parse(buffer);
+		} catch (err) {
+			data = null;
+		}
+
 	}
 
 	return data;
@@ -85,7 +88,9 @@ describe('Settings.from()', function(assert) {
 			'peers': [{
 				domain: 'covert.localdomain',
 				peer:   {
-					connection: 'mobile'
+					certificate: null,
+					connection: 'mobile',
+					version:    VERSION
 				}
 			}],
 			'policies': [{
@@ -119,9 +124,10 @@ describe('Settings.from()', function(assert) {
 	assert(settings['vendor'],  null);
 
 	assert(settings['interface'], {
-		theme:   'dark',
-		enforce: false,
-		opentab: 'stealth:welcome'
+		assistant: false,
+		theme:     'dark',
+		enforce:   false,
+		opentab:   'stealth:welcome'
 	});
 
 	assert(settings['internet'], {
@@ -153,7 +159,9 @@ describe('Settings.from()', function(assert) {
 	assert(settings['peers'], [{
 		domain: 'covert.localdomain',
 		peer:   {
-			connection: 'mobile'
+			certificate: null,
+			connection: 'mobile',
+			version:    VERSION
 		}
 	}]);
 
@@ -207,9 +215,10 @@ describe('Settings.prototype.toJSON()', function(assert) {
 		type: 'Settings',
 		data: {
 			'interface': {
-				theme:   'light',
-				enforce: true,
-				opentab: 'stealth:blank'
+				assistant: true,
+				theme:     'light',
+				enforce:   true,
+				opentab:   'stealth:blank'
 			},
 			'internet': {
 				connection: 'mobile',
@@ -281,9 +290,10 @@ describe('Settings.prototype.toJSON()', function(assert) {
 	assert(json.type, 'Settings');
 	assert(json.data, {
 		'interface': {
-			theme:   'light',
-			enforce: true,
-			opentab: 'stealth:blank'
+			assistant: true,
+			theme:     'light',
+			enforce:   true,
+			opentab:   'stealth:blank'
 		},
 		'internet': {
 			connection: 'mobile',
@@ -361,9 +371,10 @@ describe('Settings.prototype.read()', function(assert) {
 		type: 'Settings',
 		data: {
 			'interface': {
-				theme:   'light',
-				enforce: true,
-				opentab: 'stealth:welcome'
+				assistant: true,
+				theme:     'light',
+				enforce:   true,
+				opentab:   'stealth:welcome'
 			},
 			'internet': {
 				connection: 'mobile',
@@ -439,19 +450,20 @@ describe('Settings.prototype.read()', function(assert) {
 
 	setTimeout(() => {
 
-		assert(read_file(sandbox + '/interface.json'), {
-			theme:   'light',
-			enforce: true,
-			opentab: 'stealth:welcome'
+		assert(read(sandbox, '/interface.json'), {
+			assistant: true,
+			theme:     'light',
+			enforce:   true,
+			opentab:   'stealth:welcome'
 		});
 
-		assert(read_file(sandbox + '/internet.json'), {
+		assert(read(sandbox, '/internet.json'), {
 			connection: 'mobile',
 			history:    'forever',
 			useragent:  'spider-desktop'
 		});
 
-		assert(read_file(sandbox + '/beacons.json'), [{
+		assert(read(sandbox, '/beacons.json'), [{
 			domain: 'covert.localdomain',
 			beacons: [{
 				path:   '/news/*',
@@ -461,11 +473,11 @@ describe('Settings.prototype.read()', function(assert) {
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/blockers.json'), [{
+		assert(read(sandbox, '/blockers.json'), [{
 			domain: 'malicious.example.com'
 		}]);
 
-		assert(read_file(sandbox + '/hosts.json'), [{
+		assert(read(sandbox, '/hosts.json'), [{
 			domain: 'covert.localdomain',
 			hosts: [{
 				ip:    '127.0.0.1',
@@ -474,7 +486,7 @@ describe('Settings.prototype.read()', function(assert) {
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/modes.json'), [{
+		assert(read(sandbox, '/modes.json'), [{
 			domain: 'covert.localdomain',
 			mode: {
 				text:  true,
@@ -485,14 +497,14 @@ describe('Settings.prototype.read()', function(assert) {
 			}
 		}]);
 
-		assert(read_file(sandbox + '/peers.json'), [{
+		assert(read(sandbox, '/peers.json'), [{
 			domain: 'covert.localdomain',
 			peer:   {
 				connection: 'mobile'
 			}
 		}]);
 
-		assert(read_file(sandbox + '/policies.json'), [{
+		assert(read(sandbox, '/policies.json'), [{
 			domain:   'covert.localdomain',
 			policies: [{
 				path:  '/policy',
@@ -500,7 +512,7 @@ describe('Settings.prototype.read()', function(assert) {
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/redirects.json'), [{
+		assert(read(sandbox, '/redirects.json'), [{
 			domain:   'covert.localdomain',
 			redirects: [{
 				path:     '/redirect',
@@ -509,7 +521,7 @@ describe('Settings.prototype.read()', function(assert) {
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/sessions.json'), [{
+		assert(read(sandbox, '/sessions.json'), [{
 			type: 'Session',
 			data: {
 				agent:   null,
@@ -540,38 +552,40 @@ describe('Settings.prototype.save()', function(assert) {
 
 	setTimeout(() => {
 
-		assert(read_file(sandbox + '/interface.json'), {
-			theme:   'dark',
-			enforce: false,
-			opentab: 'stealth:welcome'
+		assert(read(sandbox, '/interface.json'), {
+			assistant: false,
+			theme:     'dark',
+			enforce:   false,
+			opentab:   'stealth:welcome'
 		});
 
-		assert(read_file(sandbox + '/internet.json'), {
+		assert(read(sandbox, '/internet.json'), {
 			connection: 'mobile',
 			history:    'stealth',
 			useragent:  'stealth'
 		});
 
-		assert(read_file(sandbox + '/beacons.json'),   []);
-		assert(read_file(sandbox + '/blockers.json'),  []);
+		assert(read(sandbox, '/beacons.json'),   []);
+		assert(read(sandbox, '/blockers.json'),  []);
 
 		// Native Hosts (/etc/hosts) differ on machines
-		assert(isArray(read_file(sandbox + '/hosts.json')), true);
+		assert(isArray(read(sandbox, '/hosts.json')), true);
 
-		assert(read_file(sandbox + '/modes.json'),     []);
-		assert(read_file(sandbox + '/peers.json'),     []);
-		assert(read_file(sandbox + '/policies.json'),  []);
-		assert(read_file(sandbox + '/redirects.json'), []);
-		assert(read_file(sandbox + '/sessions.json'),  []);
+		assert(read(sandbox, '/modes.json'),     []);
+		assert(read(sandbox, '/peers.json'),     []);
+		assert(read(sandbox, '/policies.json'),  []);
+		assert(read(sandbox, '/redirects.json'), []);
+		assert(read(sandbox, '/sessions.json'),  []);
 
 	}, 100);
 
 	setTimeout(() => {
 
 		settings['interface'] = {
-			theme:   'light',
-			enforce: true,
-			opentab: 'stealth:blank'
+			assistant: true,
+			theme:     'light',
+			enforce:   true,
+			opentab:   'stealth:blank'
 		};
 
 		settings['internet'] = {
@@ -617,7 +631,9 @@ describe('Settings.prototype.save()', function(assert) {
 		settings['peers'] = [{
 			domain: 'covert.localdomain',
 			peer:   {
-				connection: 'mobile'
+				certificate: null,
+				connection: 'broadband',
+				version:    VERSION
 			}
 		}];
 
@@ -654,19 +670,20 @@ describe('Settings.prototype.save()', function(assert) {
 
 	setTimeout(() => {
 
-		assert(read_file(sandbox + '/interface.json'), {
-			theme:   'light',
-			enforce: true,
-			opentab: 'stealth:blank'
+		assert(read(sandbox, '/interface.json'), {
+			assistant: true,
+			theme:     'light',
+			enforce:   true,
+			opentab:   'stealth:blank'
 		});
 
-		assert(read_file(sandbox + '/internet.json'), {
+		assert(read(sandbox, '/internet.json'), {
 			connection: 'mobile',
 			history:    'forever',
 			useragent:  'spider-desktop'
 		});
 
-		assert(read_file(sandbox + '/beacons.json'), [{
+		assert(read(sandbox, '/beacons.json'), [{
 			domain: 'covert.localdomain',
 			beacons: [{
 				path:   '/news/*',
@@ -676,9 +693,9 @@ describe('Settings.prototype.save()', function(assert) {
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/blockers.json'), []);
+		assert(read(sandbox, '/blockers.json'), []);
 
-		assert(read_file(sandbox + '/hosts.json'), [{
+		assert(read(sandbox, '/hosts.json'), [{
 			domain: 'covert.localdomain',
 			hosts: [{
 				ip:    '127.0.0.1',
@@ -687,7 +704,7 @@ describe('Settings.prototype.save()', function(assert) {
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/modes.json'), [{
+		assert(read(sandbox, '/modes.json'), [{
 			domain: 'covert.localdomain',
 			mode: {
 				text:  true,
@@ -698,14 +715,16 @@ describe('Settings.prototype.save()', function(assert) {
 			}
 		}]);
 
-		assert(read_file(sandbox + '/peers.json'), [{
+		assert(read(sandbox, '/peers.json'), [{
 			domain: 'covert.localdomain',
 			peer:   {
-				connection: 'mobile'
+				certificate: null,
+				connection: 'broadband',
+				version:    VERSION
 			}
 		}]);
 
-		assert(read_file(sandbox + '/policies.json'), [{
+		assert(read(sandbox, '/policies.json'), [{
 			domain:   'covert.localdomain',
 			policies: [{
 				path:  '/policy',
@@ -713,7 +732,7 @@ describe('Settings.prototype.save()', function(assert) {
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/redirects.json'), [{
+		assert(read(sandbox, '/redirects.json'), [{
 			domain:   'covert.localdomain',
 			redirects: [{
 				path:     '/redirect',
@@ -722,7 +741,7 @@ describe('Settings.prototype.save()', function(assert) {
 			}]
 		}]);
 
-		assert(read_file(sandbox + '/sessions.json'), [{
+		assert(read(sandbox, '/sessions.json'), [{
 			type: 'Session',
 			data: {
 				agent:   null,

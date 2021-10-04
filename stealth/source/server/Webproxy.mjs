@@ -502,7 +502,12 @@ const proxy_http_request = function(socket, packet) {
 			connection.once('@connect', () => {
 
 				if (this.stealth !== null && this.stealth._settings.debug === true) {
-					console.log('Webproxy: Client "' + connection.toJSON().remote + '" connected.');
+
+					let info = connection.toJSON();
+					if (info.remote !== null) {
+						console.log('Webproxy: Client "' + info.remote.host + '" connected.');
+					}
+
 				}
 
 			});
@@ -510,7 +515,12 @@ const proxy_http_request = function(socket, packet) {
 			connection.once('@disconnect', () => {
 
 				if (this.stealth !== null && this.stealth._settings.debug === true) {
-					console.log('Webproxy: Client "' + connection.toJSON().remote + '" disconnected.');
+
+					let info = connection.toJSON();
+					if (info.remote !== null) {
+						console.log('Webproxy: Client "' + info.remote.host + '" disconnected.');
+					}
+
 				}
 
 			});

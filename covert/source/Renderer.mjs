@@ -1,7 +1,7 @@
 
 import { console, Buffer, isArray, isBoolean, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                   } from './ENVIRONMENT.mjs';
 import { isReview                                      } from './Review.mjs';
-
 
 
 export const isRenderer = function(obj) {
@@ -113,12 +113,7 @@ const buffer_summary = function(review) {
 				if (entry !== null && entry.diff !== null) {
 
 					lines.push('(!)');
-
-					if (entry.assert !== null) {
-						lines.push('(!) > ' + test.name + div(test.name) + ' ' + entry.assert + ' differs ...');
-					} else {
-						lines.push('(!) > ' + test.name + div(test.name) + ' assert() #' + e + ' differs ...');
-					}
+					lines.push('(!) > ' + test.name + div(test.name) + ' ' + format_reference(entry, e) + ' differs ...');
 
 					let diff0 = null;
 					try {
@@ -180,6 +175,49 @@ const indent = (data) => {
 		return '';
 
 	};
+
+};
+
+const format_reference = function(entry, e) {
+
+	let str = '';
+
+	if (entry.code !== null) {
+
+		if (entry.code.endsWith(';') === true) {
+			str += '"' + entry.code + '"';
+		} else {
+			str += '"' + entry.code + ' /*...*/);"';
+		}
+
+	} else {
+		str = '"assert();" #' + e;
+	}
+
+	if (entry.file !== null) {
+
+		if (entry.file.startsWith(ENVIRONMENT.project) === true) {
+
+			if (entry.line !== null) {
+				str += ' at "' + entry.file.substr(ENVIRONMENT.project.length) + '#' + entry.line + '"';
+			} else {
+				str += ' in "' + entry.file.substr(ENVIRONMENT.project.length) + '"';
+			}
+
+		} else {
+
+			if (entry.line !== null) {
+				str += ' at "' + entry.file + '#' + entry.line + '"';
+			} else {
+				str += ' in "' + entry.file + '"';
+			}
+
+		}
+
+
+	}
+
+	return str.trim();
 
 };
 
@@ -560,14 +598,8 @@ const render_summary = function(review, is_current) {
 				if (entry !== null && entry.diff !== null) {
 
 					console.log('');
-
-					if (entry.assert !== null) {
-						console.error('> ' + test.name + div(test.name) + ' ' + entry.assert + ' differs ...');
-						console.diff(entry.diff[0], entry.diff[1]);
-					} else {
-						console.error('> ' + test.name + div(test.name) + ' assert() #' + e + ' differs ...');
-						console.diff(entry.diff[0], entry.diff[1]);
-					}
+					console.error('> ' + test.name + div(test.name) + ' ' + format_reference(entry, e) + ' differs ...');
+					console.diff(entry.diff[0], entry.diff[1]);
 
 				}
 

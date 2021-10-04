@@ -3,10 +3,13 @@ import { console, Buffer, isArray, isBuffer, isFunction, isObject, isString } fr
 import { ENVIRONMENT                                               } from '../../source/ENVIRONMENT.mjs';
 import { isStealth, VERSION                                        } from '../../source/Stealth.mjs';
 import { MDNS                                                      } from '../../source/connection/MDNS.mjs';
+import { IP                                                        } from '../../source/parser/IP.mjs';
 import { URL                                                       } from '../../source/parser/URL.mjs';
 import { isServices                                                } from '../../source/server/Services.mjs';
 
 
+
+const CONNECTION = [ 'mobile', 'broadband', 'peer', 'tor' ];
 
 const RESERVED = [
 
@@ -20,6 +23,25 @@ const RESERVED = [
 	'www'
 
 ];
+
+const find_option = (packet, key) => {
+
+	return packet.payload.answers.find((record) => {
+
+		if (
+			record.type === 'TXT'
+			&& isArray(record.value) === true
+			&& isBuffer(record.value[0]) === true
+			&& record.value[0].toString('utf8').startsWith(key + '=') === true
+		) {
+			return true;
+		}
+
+		return false;
+
+	}) || null;
+
+};
 
 const isConnection = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Connection]';
@@ -111,7 +133,9 @@ const isServiceDiscoveryResponse = function(packet) {
 
 		let ptr = packet.payload.answers.find((a) => a.type === 'PTR') || null;
 		let srv = packet.payload.answers.find((a) => a.type === 'SRV') || null;
-		let txt = packet.payload.answers.find((a) => a.type === 'TXT') || null;
+		let txt1 = find_option(packet.payload.answers, 'version');
+		let txt2 = find_option(packet.payload.answers, 'certificate');
+		let txt3 = find_option(packet.payload.answers, 'connection');
 
 		if (
 			ptr !== null
@@ -125,17 +149,18 @@ const isServiceDiscoveryResponse = function(packet) {
 				|| srv.domain === '_stealth._ws.tholian.local'
 			)
 			&& isString(srv.value) === true
+			&& srv.value.endsWith('.tholian.local') === true
 			&& srv.port === 65432
 			&& srv.weight === 0
-			&& txt !== null
-			&& isBuffer(txt.value[0]) === true
-			&& txt.value[0].toString('utf8') === 'version=' + VERSION
+			&& txt1 !== null
+			&& txt2 !== null
+			&& txt3 !== null
+			&& txt1.value[0].toString('utf8').substr(8) === VERSION
+			&& CONNECTION.includes(txt3.value[0].toString('utf8').substr(11)) === true
 		) {
 
 			let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
 			let ipv4s    = packet.payload.answers.filter((a) => a.type === 'A');
-
-			// TODO: IPv4 have to be verified in terms of subnet masks
 
 			if (has_ipv4 === true && ipv4s.length > 0) {
 				return true;
@@ -223,12 +248,19 @@ const toServiceDiscoveryRequest = function() {
 
 const toServiceDiscoveryResponse = function(request) {
 
-	let hostname = ENVIRONMENT.hostname;
+	let certificate = null;
+	let connection  = 'offline';
+	let hostname    = ENVIRONMENT.hostname;
 
 	if (this.stealth !== null) {
 
 		if (isObject(this.stealth._settings.account) === true) {
-			hostname = this.stealth._settings.account.username + '.tholian.local';
+			certificate = this.stealth._settings.account.certificate;
+			hostname    = this.stealth._settings.account.username + '.tholian.local';
+		}
+
+		if (isObject(this.stealth._settings.internet) === true) {
+			connection = this.stealth._settings.internet.connection;
 		}
 
 	}
@@ -267,25 +299,17 @@ const toServiceDiscoveryResponse = function(request) {
 		if (hostname.endsWith('.tholian.local') === true) {
 
 			response.payload.answers.push({
-				domain: hostname,
 				type:   'PTR',
+				domain: hostname,
 				value:  '_stealth._wss.tholian.local'
 			});
 
 			response.payload.answers.push({
 				domain: '_stealth._wss.tholian.local',
-				value:  hostname,
 				type:   'SRV',
+				value:  hostname,
 				port:   65432,
 				weight: 0
-			});
-
-			response.payload.answers.push({
-				domain: hostname,
-				type:   'TXT',
-				value:  [
-					Buffer.from('version=' + VERSION)
-				]
 			});
 
 		} else {
@@ -304,15 +328,31 @@ const toServiceDiscoveryResponse = function(request) {
 				weight: 0
 			});
 
-			response.payload.answers.push({
-				type:   'TXT',
-				domain: hostname,
-				value:  [
-					Buffer.from('version=' + VERSION)
-				]
-			});
-
 		}
+
+		response.payload.answers.push({
+			type:   'TXT',
+			domain: hostname,
+			value:  [
+				Buffer.from('version=' + VERSION)
+			]
+		});
+
+		response.payload.answers.push({
+			domain: hostname,
+			type:   'TXT',
+			value:  [
+				Buffer.from('certificate=' + certificate)
+			]
+		});
+
+		response.payload.answers.push({
+			domain: hostname,
+			type:   'TXT',
+			value:  [
+				Buffer.from('connection=' + connection)
+			]
+		});
 
 		ENVIRONMENT.ips.forEach((ip) => {
 
@@ -574,7 +614,14 @@ Peerer.prototype = {
 
 		if (isServiceDiscoveryRequest(packet) === true) {
 
-			console.warn('DNS-SD Request from ', connection.remote);
+			if (this.stealth !== null && this.stealth._settings.debug === true) {
+
+				let info = connection.toJSON();
+				if (info.remote !== null) {
+					console.log('Peerer: Client "' + info.remote.host + '" sent a Multicast DNS-SD Request.');
+				}
+
+			}
 
 			let response = toServiceDiscoveryResponse.call(this, packet);
 			if (response !== null) {
@@ -583,16 +630,139 @@ Peerer.prototype = {
 
 		} else if (isServiceDiscoveryResponse(packet) === true) {
 
-			console.warn('DNS-SD Response from ', connection.remote);
+			if (this.stealth !== null && this.stealth._settings.debug === true) {
+
+				let info = connection.toJSON();
+				if (info.remote !== null) {
+					console.log('Peerer: Client "' + info.remote.host + '" sent a Multicast DNS-SD Response.');
+				}
+
+			}
 
 			if (this.stealth !== null) {
 
-				// TODO: Verify A entries in terms of subnet (and reachability)
+				if (this.services !== null) {
 
-				// TODO: Add peer to this.stealth.settings.peers
-				// TODO: Add host to this.stealth.settings.hosts
+					let host = {
+						domain: null,
+						hosts: []
+					};
 
-				// console.log(packet);
+					let peer = {
+						domain: null,
+						peer: {
+							connection:  null,
+							certificate: null,
+							version:     null
+						}
+					};
+
+					let srv = packet.payload.answers.find((a) => a.type === 'SRV') || null;
+					if (srv !== null) {
+
+						if (srv.value.endsWith('.tholian.local') === true) {
+							host.domain = srv.value;
+							peer.domain = srv.value;
+						}
+
+					}
+
+					let txt1 = find_option(packet.payload.answers, 'version');
+					if (txt1 !== null) {
+
+						let value = txt1.value[0].toString('utf8').substr(8);
+						if (value === VERSION) {
+							peer.peer.version = value;
+						}
+
+					}
+
+					let txt2 = find_option(packet.payload.answers, 'certificate');
+					if (txt2 !== null) {
+
+						let value = txt2.value[0].toString('utf8').substr(12);
+						if (value !== 'null') {
+							peer.peer.certificate = value;
+						}
+
+					}
+
+					let txt3 = find_option(packet.payload.answers, 'connection');
+					if (txt3 !== null) {
+
+						let value = txt3.value[0].toString('utf8').substr(11);
+						if (CONNECTION.includes(value) === true) {
+							peer.peer.connection = value;
+						}
+
+					}
+
+					let ipv4s = packet.payload.answers.filter((a) => a.type === 'A').map((a) => a.value);
+					if (ipv4s.length > 0) {
+
+						// TODO: Verify A entries in terms of subnet (and reachability)
+						ipv4s.forEach((ip) => {
+
+							if (IP.isIP(ip) === true) {
+								host.hosts.push(ip);
+							}
+
+						});
+
+					}
+
+					let ipv6s = packet.payload.answers.filter((a) => a.type === 'AAAA').map((a) => a.value);
+					if (ipv6s.length > 0) {
+
+						// TODO: Verify AAAA entries in terms of subnet (and reachability)
+						ipv6s.forEach((ip) => {
+
+							if (IP.isIP(ip) === true) {
+								host.hosts.push(ip);
+							}
+
+						});
+
+					}
+
+					if (
+						host.domain !== null
+						&& peer.domain !== null
+					) {
+
+						this.services.read({
+							domain: host.domain
+						}, (response) => {
+
+							if (response === null) {
+
+								this.services.peer.read({
+									domain: peer.domain
+								}, (response) => {
+
+									if (response.payload !== null) {
+
+										if (response.payload.peer.certificate === peer.peer.certificate) {
+											this.services.host.save(host);
+											this.services.peer.save(peer);
+										}
+
+									} else if (response.payload === null) {
+
+										this.services.host.save(host);
+										this.services.peer.save(peer);
+
+									}
+
+								});
+
+							}
+
+						});
+
+					}
+
+				}
 
 			}
 
@@ -621,30 +791,47 @@ Peerer.prototype = {
 
 				if (domain === 'tholian.local') {
 
-					// TODO: Remove per-connection resolving mechanism
-					// and move it to a resolver that is passive and
-					// processes incoming responses automatically
+					if (this.stealth !== null) {
 
-					// TODO: Use cached peers settings to resolve an
-					// (at the time already) resolved Peer
+						let host = this.stealth.settings.hosts.find((h) => h.domain === username + '.' + domain) || null;
+						if (host !== null) {
+
+							if (callback !== null) {
+								callback(host);
+							}
+
+						} else {
+
+							if (callback !== null) {
+								callback(null);
+							}
+
+						}
+
+					} else {
+
+						if (callback !== null) {
+							callback(null);
+						}
+
+					}
 
 				} else if (domain === 'tholian.network') {
 
 					// TODO: Use Radar Service API to resolve username.tholian.network
 
+					if (callback !== null) {
+						callback(null);
+					}
+
 				} else {
 
-					// XXX: Currently it never goes there due to isQuery()
-					// filtering it out
+					// TODO: Do Multicast DNS request to resolve via local Peers
 
+					if (callback !== null) {
+						callback(null);
+					}
 
-					// TODO: Use Multicast DNS request to other Peers
-					// to resolve cached host entry for domains
-
-				}
-
-				if (callback !== null) {
-					callback(null);
 				}
 
 			} else {
@@ -662,12 +849,6 @@ Peerer.prototype = {
 			}
 
 		}
-
-
-		// TODO: Iterate via settings.peers
-		// else announce this host and wait 3 seconds for replies.
-		// If no reply has arrived by then, then callback(null);
-		// If a reply has arrived by then, then callback({ domain, hosts })
 
 	}
 

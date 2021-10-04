@@ -1,10 +1,13 @@
 
 import child_process from 'child_process';
+import fs            from 'fs';
 import os            from 'os';
 import path          from 'path';
 import process       from 'process';
 
 
+
+const TEMPORARY = {};
 
 const action = (() => {
 
@@ -136,6 +139,41 @@ const project = (() => {
 
 })();
 
+const read = (sandbox, url) => {
+
+	let found = false;
+
+	for (let tmp in TEMPORARY) {
+
+		if (tmp === sandbox) {
+			found = true;
+			break;
+		}
+
+	}
+
+	if (found === true) {
+
+		if (url.startsWith('/') === true) {
+			url = url.substr(1);
+		}
+
+		let buffer = null;
+
+		try {
+			buffer = fs.readFileSync(sandbox + '/' + url);
+		} catch (err) {
+			buffer = null;
+		}
+
+		return buffer;
+
+	}
+
+	return null;
+
+};
+
 const temp = (() => {
 
 	let user     = process.env.SUDO_USER || process.env.USER || process.env.USERNAME;
@@ -159,8 +197,6 @@ const temp = (() => {
 	return folder;
 
 })();
-
-const TEMPORARY = {};
 
 const randomize = (length) => {
 
@@ -234,6 +270,7 @@ const ENVIRONMENT = {
 	mktemp:   mktemp,
 	patterns: patterns,
 	project:  project,
+	read:     read,
 	temp:     temp
 
 };

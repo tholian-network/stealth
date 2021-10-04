@@ -806,11 +806,11 @@ Router.prototype = {
 
 			} else if (isResolveResponse(packet) === true) {
 
+				// TODO: If origin is a trusted Peer with a certificate, then cache response.
+				// TODO: Reuse toHost() for A/AAAA entries
+
 				console.log('need to cache response nao');
 				console.log(packet);
-
-				// TODO: Verify A and AAAA entries
-				// TODO: Add hosts to settings.hosts[]
 
 			}
 
@@ -900,9 +900,6 @@ Router.prototype = {
 					if (callback !== null) {
 						callback(toHost.call(this, response, domain));
 					}
-
-					// TODO: Reuse toHost() inside receive() for A/AAAA entries
-					// XXX: Detect malicious DNS response or cloaked domains
 
 				});
 

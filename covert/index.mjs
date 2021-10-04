@@ -1,4 +1,5 @@
 
+import { after, before, describe, finish } from './source/Review.mjs';
 import { Covert, isCovert                } from './source/Covert.mjs';
 import { ENVIRONMENT                     } from './source/ENVIRONMENT.mjs';
 import { Filesystem, isFilesystem        } from './source/Filesystem.mjs';
@@ -9,8 +10,8 @@ import { Results, isResults              } from './source/Results.mjs';
 import { Review, isReview                } from './source/Review.mjs';
 import { Timeline, isTimeline            } from './source/Timeline.mjs';
 
-import { after, before, describe, finish } from './source/Review.mjs';
 export { after, before, describe, finish } from './source/Review.mjs';
+export { ENVIRONMENT                     } from './source/ENVIRONMENT.mjs';
 
 
 
