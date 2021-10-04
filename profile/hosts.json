@@ -21,24 +21,6 @@
 			}
 		]
 	}, {
-		"domain": "radar.tholian.network",
-		"hosts": [
-			{
-				"ip": "93.95.228.18",
-				"scope": "public",
-				"type": "v4"
-			}
-		]
-	}, {
-		"domain": "sonar.tholian.network",
-		"hosts": [
-			{
-				"ip": "93.95.228.18",
-				"scope": "public",
-				"type": "v4"
-			}
-		]
-	}, {
 		"domain": "searx.prvcy.eu",
 		"hosts": [
 			{
