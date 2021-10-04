@@ -1,8 +1,19 @@
 
-import { Element } from '../Element.mjs';
-import { Widget  } from '../Widget.mjs';
+import { Assistant } from '../Assistant.mjs';
+import { Element   } from '../Element.mjs';
+import { Widget    } from '../Widget.mjs';
 
 
+
+const ASSISTANT = new Assistant({
+	name:   'Settings',
+	widget: 'appbar/Settings',
+	events: {
+		'browser': 'Navigating to Browser Settings.',
+		'show':    'Showing Sidebar.',
+		'hide':    'Hiding all Sidebars.'
+	}
+});
 
 const update = function(tab) {
 
@@ -94,6 +105,8 @@ const Settings = function(browser) {
 
 	this.buttons.browser.on('click', () => {
 
+		ASSISTANT.emit('browser');
+
 		if (this.sheets.site !== null) {
 			this.sheets.site.emit('hide');
 		}
@@ -136,8 +149,10 @@ const Settings = function(browser) {
 
 					if (this.sheets.session.state() === 'active') {
 						this.sheets.session.emit('hide');
+						ASSISTANT.emit('hide');
 					} else {
 						this.sheets.session.emit('show');
+						ASSISTANT.emit('show');
 					}
 
 				}
@@ -173,8 +188,10 @@ const Settings = function(browser) {
 
 					if (this.sheets.site.state() === 'active') {
 						this.sheets.site.emit('hide');
+						ASSISTANT.emit('hide');
 					} else {
 						this.sheets.site.emit('show');
+						ASSISTANT.emit('show');
 					}
 
 				}

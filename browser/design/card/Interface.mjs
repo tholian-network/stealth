@@ -61,6 +61,18 @@ const Interface = function(browser, actions) {
 		'<label for="browser-card-interface-opentab-' + uid + '-5">Use <a href="stealth:search">stealth:search</a>.</label>',
 		'</li>',
 		'</ul>',
+		'<h4>Assistive Technologies</h4>',
+		'<p>Stealth has experimental support for an Assistant that uses Sounds to represent User Interface states and interactions.</p>',
+		'<ul>',
+		'<li>',
+		'<input id="browser-card-interface-assistant-' + uid + '-1" name="assistant" type="radio" value="true">',
+		'<label for="browser-card-interface-assistant-' + uid + '-1">Enable sound signals.</label>',
+		'</li>',
+		'<li>',
+		'<input id="browser-card-interface-assistant-' + uid + '-2" name="assistant" type="radio" value="false">',
+		'<label for="browser-card-interface-assistant-' + uid + '-2">Disable sound signals.</label>',
+		'</li>',
+		'</ul>',
 		'</browser-card-interface-article>',
 		'<browser-card-interface-footer>',
 		'<button title="Save" data-action="save"></button>',
@@ -73,9 +85,10 @@ const Interface = function(browser, actions) {
 	};
 
 	this.model = {
-		theme:   this.element.query('input[name="theme"]'),
-		enforce: this.element.query('input[name="enforce"]'),
-		opentab: this.element.query('input[name="opentab"]')
+		theme:     this.element.query('input[name="theme"]'),
+		enforce:   this.element.query('input[name="enforce"]'),
+		opentab:   this.element.query('input[name="opentab"]'),
+		assistant: this.element.query('input[name="assistant"]')
 	};
 
 	Widget.call(this);
@@ -120,6 +133,10 @@ const Interface = function(browser, actions) {
 				input.state('enabled');
 			});
 
+			Object.values(this.model.assistant).forEach((input) => {
+				input.state('enabled');
+			});
+
 		} else {
 
 			Object.values(this.model.theme).forEach((input) => {
@@ -131,6 +148,10 @@ const Interface = function(browser, actions) {
 			});
 
 			Object.values(this.model.opentab).forEach((input) => {
+				input.state('disabled');
+			});
+
+			Object.values(this.model.assistant).forEach((input) => {
 				input.state('disabled');
 			});
 

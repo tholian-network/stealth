@@ -701,9 +701,10 @@ const Settings = function(settings) {
 	});
 
 	this['interface'] = {
-		theme:   'dark',
-		enforce: false,
-		opentab: 'stealth:welcome'
+		assistant: false,
+		theme:     'dark',
+		enforce:   false,
+		opentab:   'stealth:welcome'
 	};
 	this['internet']  = {
 		connection: 'mobile',

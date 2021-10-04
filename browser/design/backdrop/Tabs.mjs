@@ -1,9 +1,19 @@
 
-import { Element } from '../Element.mjs';
-import { Widget  } from '../Widget.mjs';
-import { URL     } from '../../source/parser/URL.mjs';
+import { Assistant } from '../Assistant.mjs';
+import { Element   } from '../Element.mjs';
+import { Widget    } from '../Widget.mjs';
+import { URL       } from '../../source/parser/URL.mjs';
 
 
+
+const ASSISTANT = new Assistant({
+	name:   'Tabs',
+	widget: 'backdrop/Tabs',
+	events: {
+		'close':  'Closing selected Tab.',
+		'select': 'Showing selected Tab.'
+	}
+});
 
 const update_area = function() {
 
@@ -217,6 +227,7 @@ const Tabs = function(browser) {
 				if (tab !== null) {
 
 					browser.show(tab);
+					ASSISTANT.emit('select');
 
 					if (this.__state.mobile === true) {
 
@@ -330,6 +341,7 @@ const Tabs = function(browser) {
 				let tab = browser.tabs.find((t) => t.id === '' + button.attr('data-id')) || null;
 				if (tab !== null) {
 					browser.close(tab);
+					ASSISTANT.emit('close');
 				}
 
 			}
@@ -347,6 +359,7 @@ const Tabs = function(browser) {
 
 			if (this.prev !== null) {
 				this.prev.emit('click');
+				ASSISTANT.emit('select');
 			}
 
 		} else if (
@@ -359,6 +372,7 @@ const Tabs = function(browser) {
 				let tab = browser.tabs.find((t) => t.id === '' + this.curr.attr('data-id')) || null;
 				if (tab !== null) {
 					browser.close(tab);
+					ASSISTANT.emit('close');
 				}
 
 			}
@@ -370,6 +384,7 @@ const Tabs = function(browser) {
 
 			if (this.next !== null) {
 				this.next.emit('click');
+				ASSISTANT.emit('select');
 			}
 
 		}
