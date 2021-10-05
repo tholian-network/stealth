@@ -1,8 +1,17 @@
 
-import { Element } from '../Element.mjs';
-import { Widget  } from '../Widget.mjs';
+import { Assistant } from '../Assistant.mjs';
+import { Element   } from '../Element.mjs';
+import { Widget    } from '../Widget.mjs';
 
 
+
+const ASSISTANT = new Assistant({
+	name:   'Site Mode',
+	widget: 'appbar/Mode',
+	events: {
+		'click': 'Site Mode changed for current Tab.'
+	}
+});
 
 const update = function(tab) {
 
@@ -122,6 +131,8 @@ const Mode = function(browser) {
 	Object.values(this.model.mode).forEach((button) => {
 
 		button.on('click', () => {
+
+			ASSISTANT.emit('click');
 
 			let val = button.value();
 			if (val === true) {

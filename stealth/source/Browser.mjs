@@ -133,9 +133,10 @@ const Browser = function(settings) {
 	}, this);
 	this.settings = {
 		'interface': {
-			theme:   'dark',
-			enforce: false,
-			opentab: 'stealth:welcome'
+			assistant: false,
+			theme:     'dark',
+			enforce:   false,
+			opentab:   'stealth:welcome'
 		},
 		'internet':  {
 			connection: 'mobile',

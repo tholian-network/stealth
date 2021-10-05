@@ -1,8 +1,21 @@
 
-import { Element } from '../Element.mjs';
-import { Widget  } from '../Widget.mjs';
+import { Assistant } from '../Assistant.mjs';
+import { Element   } from '../Element.mjs';
+import { Widget    } from '../Widget.mjs';
 
 
+
+const ASSISTANT = new Assistant({
+	name:   'History',
+	widget: 'appbar/History',
+	events: {
+		'back':    'Visiting earlier Site in Tab History.',
+		'next':    'Visiting later Site in Tab History.',
+		'open':    'Opening new Tab.',
+		'pause':   'Pausing current Tab.',
+		'refresh': 'Refreshing Tab.'
+	}
+});
 
 const update = function(tab) {
 
@@ -92,10 +105,12 @@ const History = function(browser) {
 	});
 
 	this.buttons.back.on('click', () => {
+		ASSISTANT.emit('back');
 		browser.back();
 	});
 
 	this.buttons.next.on('click', () => {
+		ASSISTANT.emit('next');
 		browser.next();
 	});
 
@@ -103,8 +118,9 @@ const History = function(browser) {
 
 		let val = this.buttons.action.value();
 		if (val === 'refresh') {
-			browser.refresh();
+			ASSISTANT.emit('refresh');
 		} else if (val === 'pause') {
+			ASSISTANT.emit('pause');
 			browser.pause();
 		}
 
@@ -115,6 +131,7 @@ const History = function(browser) {
 
 		let tab = browser.open(browser.settings['interface'].opentab);
 		if (tab !== null) {
+			ASSISTANT.emit('open');
 			browser.show(tab);
 		}
 

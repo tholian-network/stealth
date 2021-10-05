@@ -127,6 +127,8 @@ browser-card-interface-article > ul li input[type="radio"][name="opentab"][value
 browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:media"]:before   { content: '\e038'; }
 browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:search"]:before  { content: '\e52e'; }
 browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:welcome"]:before { content: '\e80c'; }
+browser-card-interface-article > ul li input[type="radio"][name="assistant"][value="false"]:before         { content: '\e04f'; }
+browser-card-interface-article > ul li input[type="radio"][name="assistant"][value="true"]:before          { content: '\e050'; }
 
 browser-card-interface-article > ul li input[type="radio"]:focus + label,
 browser-card-interface-article > ul li input[type="radio"]:hover + label {

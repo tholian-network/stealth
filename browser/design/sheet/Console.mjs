@@ -1,8 +1,18 @@
 
-import { Element } from '../Element.mjs';
-import { Widget  } from '../Widget.mjs';
+import { Assistant } from '../Assistant.mjs';
+import { Element   } from '../Element.mjs';
+import { Widget    } from '../Widget.mjs';
 
 
+
+const ASSISTANT = new Assistant({
+	name:   'Console',
+	widget: 'sheet/Console',
+	events: {
+		'hide': 'Hiding Console.',
+		'show': 'Showing Console.'
+	}
+});
 
 const Console = function(/* browser */) {
 
@@ -71,6 +81,7 @@ const Console = function(/* browser */) {
 
 		this.element.state('active');
 		this.button.state('active');
+		ASSISTANT.emit('show');
 
 	});
 
@@ -84,8 +95,11 @@ const Console = function(/* browser */) {
 			this.console.state('');
 		}
 
-		this.element.state('');
-		this.button.state('');
+		if (this.element.state() === 'active') {
+			this.element.state('');
+			this.button.state('');
+			ASSISTANT.emit('hide');
+		}
 
 	});
 

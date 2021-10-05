@@ -1,10 +1,21 @@
 
+import { Assistant                                                  } from '../Assistant.mjs';
 import { Element                                                    } from '../Element.mjs';
 import { Widget                                                     } from '../Widget.mjs';
 import { console, isArray, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
 import { URL                                                        } from '../../source/parser/URL.mjs';
 
 
+
+const ASSISTANT = new Assistant({
+	name:   'Context Menu',
+	widget: 'menu/Context',
+	events: {
+		'hide':   'Hiding Context Menu.',
+		'show':   'Showing Context Menu.',
+		'select': 'Executing selected Action.'
+	}
+});
 
 const isTab = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Tab]';
@@ -293,6 +304,8 @@ const Context = function(browser) {
 	this.element.on('click', (e) => {
 
 		let target = Element.toElement(e.target);
+		let result = false;
+
 		if (target !== null) {
 
 			let button = this.buttons.find((b) => b === target) || null;
@@ -303,11 +316,18 @@ const Context = function(browser) {
 					action.callback.call(null, browser, action.value || null);
 				}
 
+				result = true;
+
 			}
 
 		}
 
-		this.element.emit('hide');
+		if (result === true) {
+			ASSISTANT.emit('select');
+			this.element.emit('hide');
+		} else {
+			this.element.emit('hide');
+		}
 
 	});
 
@@ -315,12 +335,17 @@ const Context = function(browser) {
 
 		if (key.name === 'tab') {
 
-			this.select(key.mods.includes('shift') ? 'prev' : 'next');
+			if (key.mods.includes('shift') === true) {
+				this.select('prev');
+			} else {
+				this.select('next');
+			}
 
 		} else if (key.name === ' ' || key.name === 'enter') {
 
 			let select = this.__state.select;
 			if (select !== null) {
+				ASSISTANT.emit('select');
 				select.emit('click');
 			} else {
 				this.element.emit('hide');
@@ -351,6 +376,8 @@ const Context = function(browser) {
 			this.__state.select.state('active');
 		}
 
+		ASSISTANT.emit('show');
+
 	});
 
 	this.element.on('hide', () => {
@@ -363,6 +390,7 @@ const Context = function(browser) {
 
 		if (this.element.state() === 'active') {
 			this.element.state('');
+			ASSISTANT.emit('hide');
 		}
 
 	});
@@ -449,7 +477,7 @@ Context.prototype = Object.assign({}, Widget.prototype, {
 
 			if (direction === 'next') {
 
-				let index = this.buttons.indexOf(this.___state.select);
+				let index = this.buttons.indexOf(this.__state.select);
 				if (index !== -1) {
 
 					index += 1;

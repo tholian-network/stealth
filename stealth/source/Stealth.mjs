@@ -13,7 +13,7 @@ import { URL                                  } from '../source/parser/URL.mjs';
 
 
 const RELEASE = 'X0';
-const DATE    = '2021-08-18';
+const DATE    = '2021-10-04';
 
 export const VERSION = RELEASE + ':' + DATE;
 

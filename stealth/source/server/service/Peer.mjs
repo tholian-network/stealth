@@ -60,7 +60,7 @@ Peer.isPeer = function(payload) {
 		&& isObject(payload.peer) === true
 		&& isString(payload.peer.connection) === true
 		&& CONNECTION.includes(payload.peer.connection) === true
-		&& isString(payload.peer.certificate) === true
+		&& isString(payload.peer.certificate) === true || payload.peer.certificate === null
 		&& isString(payload.peer.version) === true
 	) {
 		return true;

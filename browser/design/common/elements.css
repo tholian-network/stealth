@@ -44,7 +44,7 @@ a {
 	box-sizing: border-box;
 	text-decoration: none;
 	transition: 200ms all ease-out;
-	vertical-align: middle;
+	vertical-align: bottom;
 	outline: none;
 	cursor: pointer;
 }

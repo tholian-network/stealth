@@ -1,10 +1,21 @@
 
+import { Assistant          } from '../Assistant.mjs';
 import { Element            } from '../Element.mjs';
 import { Widget             } from '../Widget.mjs';
 import { isObject, isString } from '../../extern/base.mjs';
 import { URL                } from '../../source/parser/URL.mjs';
 
 
+
+const ASSISTANT = new Assistant({
+	name:   'Address',
+	widget: 'appbar/Address',
+	events: {
+		'blur':     null,
+		'focus':    'Enter Site URL.',
+		'navigate': 'Navigating to new Site.'
+	}
+});
 
 const update = function(tab) {
 
@@ -251,7 +262,23 @@ const Address = function(browser) {
 		}
 
 		if (link !== '') {
+
+			if (browser.tab !== null) {
+
+				if (browser.tab.url.link === link) {
+					ASSISTANT.emit('blur');
+				} else {
+					ASSISTANT.emit('navigate');
+				}
+
+			} else {
+				ASSISTANT.emit('navigate');
+			}
+
 			browser.navigate(link);
+
+		} else {
+			ASSISTANT.emit('blur');
 		}
 
 	});
@@ -275,6 +302,7 @@ const Address = function(browser) {
 	this.input.on('focus', () => {
 
 		if (this.input.state() !== 'active') {
+			ASSISTANT.emit('focus');
 			this.input.state('active');
 		}
 

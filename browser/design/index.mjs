@@ -116,10 +116,14 @@ const on_context = function(browser, element) {
 					value: url.link
 				});
 
-				actions.push({
-					label: 'download',
-					value: url.link
-				});
+				if (url.protocol !== 'stealth') {
+
+					actions.push({
+						label: 'download',
+						value: url.link
+					});
+
+				}
 
 			}
 

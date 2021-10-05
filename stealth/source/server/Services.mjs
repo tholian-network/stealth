@@ -196,7 +196,12 @@ Services.prototype = {
 					}
 
 					if (this.stealth !== null && this.stealth._settings.debug === true) {
-						console.log('Services: Client "' + connection.toJSON().remote + '" connected.');
+
+						let info = connection.toJSON();
+						if (info.remote !== null) {
+							console.log('Services: Client "' + info.remote.host + '" connected.');
+						}
+
 					}
 
 				});
@@ -338,7 +343,12 @@ Services.prototype = {
 				connection.once('@disconnect', () => {
 
 					if (this.stealth !== null && this.stealth._settings.debug === true) {
-						console.log('Proxy: Client "' + connection.toJSON().remote + '" disconnected.');
+
+						let info = connection.toJSON();
+						if (info.remote !== null) {
+							console.log('Services: Client "' + info.remote.host + '" disconnected.');
+						}
+
 					}
 
 					if (this.stealth !== null) {

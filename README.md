@@ -185,5 +185,5 @@ Commercial Usage of [Stealth](/stealth), including its [Browser](/browser) and t
 If you want to commercially use the technology behind Stealth, please contact us on
 [https://tholian.network](https://tholian.network) for a license.
 
-`(c) 2019-2020 Tholian(r) Network`
+`(c) 2019-2021 Tholian(r) Network`
 
