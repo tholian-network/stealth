@@ -90,12 +90,6 @@ const ondata = function(connection, url, chunk) {
 			url.headers = frame.headers;
 			url.payload = frame.payload;
 
-			if (frame.overflow !== null) {
-				connection.fragment = frame.overflow;
-			} else {
-				connection.fragment = Buffer.alloc(0);
-			}
-
 			if (connection.type === 'client') {
 
 				if (frame.headers['@status'] >= 400 && frame.headers['@status'] <= 599) {
@@ -105,6 +99,12 @@ const ondata = function(connection, url, chunk) {
 				} else if (frame.headers['@transfer']['length'] !== Infinity) {
 
 					if (frame.payload !== null) {
+
+						if (frame.overflow !== null) {
+							connection.fragment = frame.overflow;
+						} else {
+							connection.fragment = Buffer.alloc(0);
+						}
 
 						connection.emit('response', [{
 							headers: frame.headers,
@@ -138,6 +138,12 @@ const ondata = function(connection, url, chunk) {
 
 					if (frame.payload !== null) {
 
+						if (frame.overflow !== null) {
+							connection.fragment = frame.overflow;
+						} else {
+							connection.fragment = Buffer.alloc(0);
+						}
+
 						connection.emit('request', [{
 							headers: frame.headers,
 							payload: frame.payload
@@ -160,6 +166,13 @@ const ondata = function(connection, url, chunk) {
 
 				} else {
 
+					// Assume that Frames without Content-Length don't submit a payload
+					if (frame.overflow !== null) {
+						connection.fragment = frame.overflow;
+					} else {
+						connection.fragment = Buffer.alloc(0);
+					}
+
 					connection.emit('request', [{
 						headers: frame.headers,
 						payload: frame.payload
@@ -181,6 +194,7 @@ const ondisconnect = function(connection, url) {
 		url.headers === null
 		|| (
 			url.headers !== null
+			&& isObject(url.headers['@transfer']) === true
 			&& url.headers['@transfer']['length'] === Infinity
 			&& url.payload === null
 		)

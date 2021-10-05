@@ -55,7 +55,7 @@ const isConnection = function(obj) {
 const isSocket = function(obj) {
 
 	if (obj !== null && obj !== undefined) {
-		return obj instanceof tls.Socket;
+		return obj instanceof tls.TLSSocket;
 	}
 
 	return false;

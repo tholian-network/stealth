@@ -115,6 +115,9 @@ const onconnect = function(connection, url) {
 							}
 
 						} catch (err) {
+
+							console.error(err);
+
 							protocol = null;
 							tunnel   = null;
 						}
@@ -544,31 +547,30 @@ const SOCKS = {
 
 					try {
 
-						socket = net.connect({
+						connection.socket = net.connect({
 							host: proxy.host || '127.0.0.1',
 							port: proxy.port || 1080
 						}, () => {
 
-							socket.setTimeout(0);
-							socket.setNoDelay(true);
-							socket.setKeepAlive(true, 0);
-							socket.allowHalfOpen = true;
+							connection.socket.setTimeout(0);
+							connection.socket.setNoDelay(true);
+							connection.socket.setKeepAlive(true, 0);
+							connection.socket.allowHalfOpen = true;
 
-							connection.socket = socket;
 							onconnect(connection, url);
 
 						});
 
 					} catch (err) {
-						socket = null;
+						connection.socket = null;
 					}
 
 				} else {
 
-					socket.setTimeout(0);
-					socket.setNoDelay(true);
-					socket.setKeepAlive(true, 0);
-					socket.allowHalfOpen = true;
+					connection.socket.setTimeout(0);
+					connection.socket.setNoDelay(true);
+					connection.socket.setKeepAlive(true, 0);
+					connection.socket.allowHalfOpen = true;
 
 					setTimeout(() => {
 						onconnect(connection, url);
@@ -577,22 +579,14 @@ const SOCKS = {
 				}
 
 
-				if (socket !== null) {
+				if (connection.socket !== null) {
 
-					socket.removeAllListeners('data');
-					socket.removeAllListeners('timeout');
-					socket.removeAllListeners('error');
-					socket.removeAllListeners('end');
+					connection.socket.removeAllListeners('data');
+					connection.socket.removeAllListeners('timeout');
+					connection.socket.removeAllListeners('error');
+					connection.socket.removeAllListeners('end');
 
-					socket.on('timeout', () => {
-
-						if (connection.socket !== null) {
-							ondisconnect(connection, url);
-						}
-
-					});
-
-					socket.on('error', () => {
+					connection.socket.on('timeout', () => {
 
 						if (connection.socket !== null) {
 							ondisconnect(connection, url);
@@ -600,7 +594,25 @@ const SOCKS = {
 
 					});
 
-					socket.on('end', () => {
+					connection.socket.on('error', (err) => {
+
+						if (connection.socket !== null) {
+
+							let code  = (err.code || '');
+							let error = { type: 'connection' };
+
+							if (code === 'ECONNREFUSED') {
+								error = { type: 'connection', cause: 'socket-stability' };
+							}
+
+							connection.emit('error', [ error ]);
+							ondisconnect(connection, url);
+
+						}
+
+					});
+
+					connection.socket.on('end', () => {
 
 						if (connection.socket !== null) {
 							ondisconnect(connection, url);
