@@ -122,25 +122,19 @@ const onconnect = function(connection, url) {
 							tunnel   = null;
 						}
 
-						setTimeout(() => {
+						if (protocol !== null && tunnel !== null) {
 
-							if (protocol !== null && tunnel !== null) {
+							connection.protocol = protocol;
+							connection.tunnel   = tunnel;
 
-								connection.protocol = protocol;
-								connection.tunnel   = tunnel;
+						} else {
 
-								connection.emit('@connect', [ tunnel ]);
+							connection.protocol = null;
+							connection.tunnel   = null;
 
-							} else {
+							connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
 
-								connection.protocol = null;
-								connection.tunnel   = null;
-
-								connection.emit('error', [{ type: 'connection', cause: 'socket-proxy' }]);
-
-							}
-
-						}, 100);
+						}
 
 					} else if (response.headers['@status'] === 0x01) {
 						connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
@@ -448,11 +442,11 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
-			local:   null,
-			remote:  null,
-			tunnel:  null,
-			events:  blob.data.events,
-			journal: blob.data.journal
+			local:    null,
+			protocol: null,
+			remote:   null,
+			events:   blob.data.events,
+			journal:  blob.data.journal
 		};
 
 		if (this.socket !== null) {
@@ -483,8 +477,8 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 
 		}
 
-		if (this.tunnel !== null) {
-			data.tunnel = this.tunnel.toJSON();
+		if (this.protocol !== null) {
+			data.protocol = this.protocol;
 		}
 
 		return {
@@ -527,7 +521,7 @@ const SOCKS = {
 		if (url !== null) {
 
 			let hosts = IP.sort(url.hosts);
-			if (hosts.length > 0 && hosts[0].scope === 'public') {
+			if (hosts.length > 0) {
 
 				let proxy = url.proxy || null;
 				if (proxy === null) {
@@ -626,41 +620,6 @@ const SOCKS = {
 					});
 
 					return connection;
-
-				} else {
-
-					connection.socket = null;
-					connection.emit('error', [{ type: 'connection' }]);
-
-					return null;
-
-				}
-
-			} else if (hosts.length > 0 && hosts[0].scope === 'private') {
-
-				if (url.protocol === 'dnsh') {
-
-					return DNSH.connect(url, connection);
-
-				} else if (url.protocol === 'dnss') {
-
-					return DNSS.connect(url, connection);
-
-				} else if (url.protocol === 'https') {
-
-					return HTTPS.connect(url, connection);
-
-				} else if (url.protocol === 'http') {
-
-					return HTTP.connect(url, connection);
-
-				} else if (url.protocol === 'wss') {
-
-					return WSS.connect(url, connection);
-
-				} else if (url.protocol === 'ws') {
-
-					return WS.connect(url, connection);
 
 				} else {
 
@@ -803,8 +762,6 @@ const SOCKS = {
 
 
 		if (connection !== null && connection.socket !== null) {
-
-			console.log(connection.tunnel, connection.protocol);
 
 			if (connection.protocol === 'socks') {
 

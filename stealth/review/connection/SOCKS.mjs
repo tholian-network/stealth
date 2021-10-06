@@ -7,8 +7,6 @@ import { connect as connect_stealth, disconnect as disconnect_stealth } from '..
 import { IP                                                           } from '../../../stealth/source/parser/IP.mjs';
 import { SOCKS                                                        } from '../../../stealth/source/connection/SOCKS.mjs';
 import { URL                                                          } from '../../../stealth/source/parser/URL.mjs';
-// import { WS                                                           } from '../../../stealth/source/connection/WS.mjs';
-// import { WSS                                                          } from '../../../stealth/source/connection/WSS.mjs';
 
 
 
@@ -303,7 +301,7 @@ describe('SOCKS.send()/https', function(assert) {
 
 });
 
-describe('SOCKS.send()/ws', function(assert, console) {
+describe('SOCKS.send()/ws', function(assert) {
 
 	assert(isFunction(SOCKS.connect), true);
 	assert(isFunction(SOCKS.send),    true);
@@ -313,8 +311,6 @@ describe('SOCKS.send()/ws', function(assert, console) {
 	let connection = SOCKS.connect(url);
 
 	connection.once('@connect', () => {
-
-		console.log(connection);
 
 		SOCKS.send(connection, {
 			headers: {
@@ -331,14 +327,43 @@ describe('SOCKS.send()/ws', function(assert, console) {
 				}
 			}), 'utf8')
 		}, (result) => {
-			console.log(result);
 			assert(result, true);
 		});
 
 	});
 
 	connection.once('response', (response) => {
-		console.log(response);
+
+		assert(isObject(response),         true);
+		assert(isObject(response.headers), true);
+		assert(isBuffer(response.payload), true);
+
+		assert(response.headers['@operator'], 0x02);
+		assert(response.headers['@status'],   null);
+		assert(response.headers['@transfer'], {
+			'encoding': null,
+			'length':   302,
+			'range':    [ 0, 301 ]
+		});
+
+		assert(JSON.parse(response.payload.toString('utf8')), {
+			headers: {
+				service: 'host',
+				event:   'read'
+			},
+			payload: {
+				domain: 'example.com',
+				hosts: [
+					IP.parse('93.184.216.34'),
+					IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
+				]
+			}
+		});
+
+		setTimeout(() => {
+			connection.disconnect();
+		}, 0);
+
 	});
 
 	connection.once('@disconnect', () => {
