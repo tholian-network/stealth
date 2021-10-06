@@ -1,12 +1,9 @@
 
 import net from 'net';
 
-import { isBuffer, isFunction, isObject                               } from '../../../base/index.mjs';
+import { Buffer, isBuffer, isFunction, isObject                       } from '../../../base/index.mjs';
 import { after, before, describe, finish                              } from '../../../covert/index.mjs';
 import { connect as connect_stealth, disconnect as disconnect_stealth } from '../Stealth.mjs';
-import { DNSS                                                         } from '../../../stealth/source/connection/DNSS.mjs';
-import { HTTP                                                         } from '../../../stealth/source/connection/HTTP.mjs';
-import { HTTPS                                                        } from '../../../stealth/source/connection/HTTPS.mjs';
 import { IP                                                           } from '../../../stealth/source/parser/IP.mjs';
 import { SOCKS                                                        } from '../../../stealth/source/connection/SOCKS.mjs';
 import { URL                                                          } from '../../../stealth/source/parser/URL.mjs';
@@ -65,12 +62,78 @@ describe('SOCKS.disconnect()', function(assert) {
 
 });
 
-// TODO: SOCKS.connect()/dnsh
-
-describe('SOCKS.connect()/dnss', function(assert) {
+describe('SOCKS.send()/dnsh', function(assert) {
 
 	assert(isFunction(SOCKS.connect), true);
-	assert(isFunction(DNSS.send),     true);
+	assert(isFunction(SOCKS.send),    true);
+
+	let url        = Object.assign(URL.parse('dnsh://cloudflare-dns.com/dns-query'), { hosts: [ IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111'), IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001') ], proxy: { host: '127.0.0.1', port: 65432 }});
+	let connection = SOCKS.connect(url);
+
+	connection.once('@connect', () => {
+
+		SOCKS.send(connection, {
+			headers: {
+				'@id': 13337
+			},
+			payload: {
+				questions: [{
+					domain: 'example.com',
+					type:   'A',
+					value:  null
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
+		});
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(isObject(response),         true);
+		assert(isObject(response.headers), true);
+		assert(isObject(response.payload), true);
+
+		assert(response.headers['@id'],       13337);
+		assert(response.headers['@type'],     'response');
+		assert(response.headers['@status'],   200);
+		assert(response.headers['@transfer'], {
+			'encoding': 'identity',
+			'length':   45,
+			'range':    [ 0, 44 ]
+		});
+
+		assert(response.headers['content-type'], 'application/dns-message');
+
+		assert(response.payload.questions, [{
+			domain: 'example.com',
+			type:   'A',
+			value:  null
+		}]);
+
+		assert(response.payload.answers, [{
+			domain: 'example.com',
+			type:   'A',
+			value:  IP.parse('93.184.216.34')
+		}]);
+
+		setTimeout(() => {
+			connection.disconnect();
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('SOCKS.send()/dnss', function(assert) {
+
+	assert(isFunction(SOCKS.connect), true);
+	assert(isFunction(SOCKS.send),    true);
 
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com'), { hosts: [ IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111'), IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001') ], proxy: { host: '127.0.0.1', port: 65432 }});
@@ -78,7 +141,7 @@ describe('SOCKS.connect()/dnss', function(assert) {
 
 	connection.once('@connect', () => {
 
-		DNSS.send(connection, {
+		SOCKS.send(connection, {
 			headers: {
 				'@id': 13337
 			},
@@ -128,10 +191,10 @@ describe('SOCKS.connect()/dnss', function(assert) {
 
 });
 
-describe('SOCKS.connect()/http', function(assert) {
+describe('SOCKS.send()/http', function(assert) {
 
 	assert(isFunction(SOCKS.connect), true);
-	assert(isFunction(HTTP.send),     true);
+	assert(isFunction(SOCKS.send),    true);
 
 
 	let url        = Object.assign(URL.parse('http://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ], proxy: { host: '127.0.0.1', port: 65432 }});
@@ -139,7 +202,7 @@ describe('SOCKS.connect()/http', function(assert) {
 
 	connection.once('@connect', () => {
 
-		HTTP.send(connection, {
+		SOCKS.send(connection, {
 			headers: {
 				'@method':         'GET',
 				'@url':            '/index.html',
@@ -159,8 +222,14 @@ describe('SOCKS.connect()/http', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers['@status'],          '200 OK');
-		assert(response.headers['content-encoding'], 'gzip');
+		assert(response.headers['@status'],   200);
+		assert(response.headers['@transfer'], {
+			'encoding': 'gzip',
+			'length':   648,
+			'range':    [ 0, 647 ]
+		});
+
+		assert(response.headers['content-encoding'], 'identity');
 		assert(response.headers['content-type'],     'text/html; charset=UTF-8');
 		assert(response.headers['vary'],             'Accept-Encoding');
 
@@ -178,10 +247,10 @@ describe('SOCKS.connect()/http', function(assert) {
 
 });
 
-describe('SOCKS.connect()/https', function(assert) {
+describe('SOCKS.send()/https', function(assert) {
 
 	assert(isFunction(SOCKS.connect), true);
-	assert(isFunction(HTTPS.send),    true);
+	assert(isFunction(SOCKS.send),    true);
 
 
 	let url        = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ], proxy: { host: '127.0.0.1', port: 65432 }});
@@ -189,7 +258,7 @@ describe('SOCKS.connect()/https', function(assert) {
 
 	connection.once('@connect', () => {
 
-		HTTPS.send(connection, {
+		SOCKS.send(connection, {
 			headers: {
 				'@method':         'GET',
 				'@url':            '/index.html',
@@ -209,8 +278,14 @@ describe('SOCKS.connect()/https', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers['@status'],          '200 OK');
-		assert(response.headers['content-encoding'], 'gzip');
+		assert(response.headers['@status'],   200);
+		assert(response.headers['@transfer'], {
+			'encoding': 'gzip',
+			'length':   648,
+			'range':    [ 0, 647 ]
+		});
+
+		assert(response.headers['content-encoding'], 'identity');
 		assert(response.headers['content-type'],     'text/html; charset=UTF-8');
 		assert(response.headers['vary'],             'Accept-Encoding');
 
@@ -228,7 +303,50 @@ describe('SOCKS.connect()/https', function(assert) {
 
 });
 
-// TODO: SOCKS.connect()/ws
+describe('SOCKS.send()/ws', function(assert, console) {
+
+	assert(isFunction(SOCKS.connect), true);
+	assert(isFunction(SOCKS.send),    true);
+
+
+	let url        = Object.assign(URL.parse('ws://127.0.0.1:65432'), { proxy: { host: '127.0.0.2', port: 65432 }});
+	let connection = SOCKS.connect(url);
+
+	connection.once('@connect', () => {
+
+		console.log(connection);
+
+		SOCKS.send(connection, {
+			headers: {
+				'@operator': 0x02,
+				'@type':     'request'
+			},
+			payload: Buffer.from(JSON.stringify({
+				headers: {
+					service: 'host',
+					method:  'read'
+				},
+				payload: {
+					domain: 'example.com'
+				}
+			}), 'utf8')
+		}, (result) => {
+			console.log(result);
+			assert(result, true);
+		});
+
+	});
+
+	connection.once('response', (response) => {
+		console.log(response);
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
 // TODO: SOCKS.connect()/wss
 
 describe('SOCKS.upgrade()', function(assert) {
@@ -304,9 +422,7 @@ describe('SOCKS.upgrade()', function(assert) {
 			},
 			payload: null
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
 	});
@@ -317,8 +433,14 @@ describe('SOCKS.upgrade()', function(assert) {
 		assert(isObject(response.headers), true);
 		assert(isBuffer(response.payload), true);
 
-		assert(response.headers['@status'],          '200 OK');
-		assert(response.headers['content-encoding'], 'gzip');
+		assert(response.headers['@status'],   200);
+		assert(response.headers['@transfer'], {
+			'encoding': 'gzip',
+			'length':   648,
+			'range':    [ 0, 647 ]
+		});
+
+		assert(response.headers['content-encoding'], 'identity');
 		assert(response.headers['content-type'],     'text/html; charset=UTF-8');
 		assert(response.headers['vary'],             'Accept-Encoding');
 

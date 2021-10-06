@@ -2,7 +2,7 @@
 import crypto from 'crypto';
 import net    from 'net';
 
-import { Buffer, Emitter, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
+import { console, Buffer, Emitter, isBuffer, isFunction, isNumber, isObject } from '../../extern/base.mjs';
 import { HTTP as HANDSHAKE                                         } from '../../source/packet/HTTP.mjs';
 import { WS as PACKET                                              } from '../../source/packet/WS.mjs';
 import { IP                                                        } from '../../source/parser/IP.mjs';
@@ -716,6 +716,8 @@ const WS = {
 
 	send: function(connection, data, callback) {
 
+		console.log(connection);
+
 		connection = isConnection(connection) ? connection : null;
 		data       = isObject(data)           ? data       : { headers: {}, payload: null };
 		callback   = isFunction(callback)     ? callback   : null;
@@ -727,6 +729,8 @@ const WS = {
 				headers: data.headers || {},
 				payload: data.payload || null
 			});
+
+			console.log(buffer);
 
 			if (buffer !== null) {
 

@@ -450,6 +450,7 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 		let data = {
 			local:   null,
 			remote:  null,
+			tunnel:  null,
 			events:  blob.data.events,
 			journal: blob.data.journal
 		};
@@ -480,6 +481,10 @@ Connection.prototype = Object.assign({}, Emitter.prototype, {
 				data.remote = remote;
 			}
 
+		}
+
+		if (this.tunnel !== null) {
+			data.tunnel = this.tunnel.toJSON();
 		}
 
 		return {
@@ -798,6 +803,8 @@ const SOCKS = {
 
 
 		if (connection !== null && connection.socket !== null) {
+
+			console.log(connection.tunnel, connection.protocol);
 
 			if (connection.protocol === 'socks') {
 
