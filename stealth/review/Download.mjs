@@ -3,27 +3,8 @@ import { Buffer, isBuffer, isFunction, isObject } from '../../base/index.mjs';
 import { describe, finish                       } from '../../covert/index.mjs';
 import { Download                               } from '../../stealth/source/Download.mjs';
 import { IP                                     } from '../../stealth/source/parser/IP.mjs';
+import { UA                                     } from '../../stealth/source/parser/UA.mjs';
 import { URL                                    } from '../../stealth/source/parser/URL.mjs';
-
-
-
-const bind_events = (download) => {
-
-	let events = {
-		error:    false,
-		progress: false,
-		redirect: false,
-		response: false
-	};
-
-	download.once('error',    () => { events.error    = true; });
-	download.once('progress', () => { events.progress = true; });
-	download.once('redirect', () => { events.redirect = true; });
-	download.once('response', () => { events.response = true; });
-
-	return events;
-
-};
 
 
 
@@ -35,42 +16,38 @@ describe('Download.from()', function(assert) {
 		type: 'Download',
 		data: {
 			ua:  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0 Safari/537.36',
-			url: 'http://example.com/does-not-exist.html'
+			url: 'https://example.com/index.html'
 		}
 	});
 
-	assert(download.url.link, 'http://example.com/does-not-exist.txt');
-	assert(download.ua,       {
+	assert(download.connection, null);
+	assert(download.url.link,   'https://example.com/index.html');
+	assert(download.ua,         {
 		engine:   'chrome',
 		platform: 'browser',
 		system:   'desktop',
-		version:  88.0
+		version:  '88.0'
 	});
 
-	assert(download.payload, Buffer.from('This is the file content...', 'utf8'));
 
 });
 
 describe('Download.prototype.start()', function(assert) {
 
 	let ua       = { engine: 'chrome', platform: 'browser', system: 'desktop', version: 88.0 };
-	let url      = Object.assign(URL.parse('http://example.com:80/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
+	let url      = Object.assign(URL.parse('https://example.com/index.html'), { hosts: [ IP.parse('93.184.216.34'), IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946') ] });
 	let download = new Download({ ua: ua, url: url });
-	let events   = bind_events(download);
 
 	download.once('response', (response) => {
 
-		assert(events, {
-			error:    false,
-			progress: false,
-			redirect: false,
-			response: true
-		});
+		assert(download.toJSON().data.events, [
+			'response'
+		]);
 
 		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
 
-		assert(response.headers['@status'],   '206 Partial Content');
+		assert(response.headers['@status'],   206);
 		assert(response.headers['@transfer'], {
 			'encoding': 'identity',
 			'length':   1256,
@@ -91,11 +68,10 @@ describe('Download.prototype.start()', function(assert) {
 
 });
 
-describe('Download.prototype.stop()', function(assert, console) {
+describe('Download.prototype.stop()', function(assert) {
 
 	let ua       = { engine: 'chrome', platform: 'browser', system: 'desktop', version: 88.0 };
 	let url      = Object.assign(URL.parse('https://ia802609.us.archive.org/35/items/pdfy-RtCf3CYEbjKrXgFe/A%20Hacker%20Manifesto%20-%20McKenzie%20Wark.pdf'), { hosts: [ IP.parse('207.241.228.229') ] });
-
 	let download = new Download({ ua: ua, url: url });
 
 	download.once('error', (error) => {
@@ -124,10 +100,10 @@ describe('Download.prototype.stop()', function(assert, console) {
 		assert(isObject(response),         true);
 		assert(isObject(response.headers), true);
 
-		assert(response.headers['@status'],   '206 Partial Content');
+		assert(response.headers['@status'],   206);
 		assert(response.headers['@transfer'], {
 			'encoding': 'identity',
-			'length':   2498824,
+			'length':   3498824,
 			'range':    [ 0, 3498823 ]
 		});
 

@@ -1,15 +1,111 @@
 
-import { Buffer, Emitter, isArray, isBuffer, isObject } from '../extern/base.mjs';
-import { HTTP                                         } from '../source/connection/HTTP.mjs';
-import { HTTPS                                        } from '../source/connection/HTTPS.mjs';
-import { SOCKS                                        } from '../source/connection/SOCKS.mjs';
-import { UA                                           } from '../source/parser/UA.mjs';
-import { URL                                          } from '../source/parser/URL.mjs';
+import { Buffer, Emitter, isBuffer, isObject, isString } from '../extern/base.mjs';
+import { HTTP                                          } from '../source/connection/HTTP.mjs';
+import { HTTPS                                         } from '../source/connection/HTTPS.mjs';
+import { SOCKS                                         } from '../source/connection/SOCKS.mjs';
+import { UA                                            } from '../source/parser/UA.mjs';
+import { URL                                           } from '../source/parser/URL.mjs';
 
 
 
 export const isDownload = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Download]';
+};
+
+
+
+const ondisconnect = function() {
+
+	let has_fired = this.__journal.filter((e) => e.event === 'redirect' || e.event === 'response').length > 0;
+	if (has_fired === false) {
+
+		let frame = this.__state.frame || null;
+		if (frame !== null) {
+
+			if (
+				isObject(frame.headers) === true
+				&& isBuffer(frame.payload) === true
+			) {
+
+				if (frame.headers['@status'] === 206) {
+
+					let from = frame.headers['@transfer']['range'][0];
+					if (
+						from > 0
+						&& isBuffer(this.url.payload) === true
+						&& from === this.url.payload.length
+					) {
+
+						frame.payload                   = Buffer.concat([ this.url.payload, frame.payload ]);
+						frame.headers['content-length'] = frame.payload.length;
+
+						if (frame.headers['@status'] === 206) {
+
+							if (frame.payload.length > 0) {
+								frame.headers['@transfer']['range'] = [ 0, frame.payload.length - 1];
+							} else {
+								frame.headers['@transfer']['range'] = [ 0, 0 ];
+							}
+
+						}
+
+					} else if (from > 0) {
+
+						// Invalid Response
+						frame.headers = null;
+						frame.payload = null;
+
+					} else if (from === 0) {
+
+						// Do Nothing
+
+					}
+
+				}
+
+
+				if (frame.headers !== null && frame.payload !== null) {
+
+					let expect = frame.headers['@transfer']['length'];
+
+					if (frame.payload.length === expect) {
+
+						this.url.headers = frame.headers;
+						this.url.payload = frame.payload;
+
+						this.emit('response', [{
+							headers: frame.headers,
+							payload: frame.payload
+						}]);
+
+					} else if (frame.payload.length < expect) {
+
+						this.url.headers = frame.headers;
+						this.url.payload = frame.payload;
+
+						this.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+
+					}
+
+				} else {
+					this.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+				}
+
+			} else {
+
+				this.url.headers = null;
+				this.url.payload = null;
+
+				this.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+
+			}
+
+		} else {
+			this.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+		}
+
+	}
+
 };
 
 
@@ -42,16 +138,55 @@ const Download = function(settings) {
 };
 
 
+Download.from = function(json) {
+
+	json = isObject(json) ? json : null;
+
+
+	if (json !== null) {
+
+		let type = json.type === 'Download' ? json.type : null;
+		let data = isObject(json.data)      ? json.data : null;
+
+		if (type !== null && data !== null) {
+
+			if (isString(data.url) === true) {
+
+				let download = new Download({
+					ua:  isString(data.ua)  ? UA.parse(data.ua)   : null,
+					url: isString(data.url) ? URL.parse(data.url) : null
+				});
+
+				return download;
+
+			}
+
+		}
+
+	}
+
+
+	return null;
+
+};
+
+
+Download.isDownload = isDownload;
+
+
 Download.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Download',
 
 	toJSON: function() {
 
+		let blob = Emitter.prototype.toJSON.call(this);
 		let data = {
 			bandwidth:  this.bandwidth(),
 			connection: null,
-			percentage: '???.??%'
+			percentage: '???.??%',
+			events:     blob.data.events,
+			journal:    blob.data.journal
 		};
 
 		if (this.connection !== null) {
@@ -162,11 +297,6 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 						}
 
-						let user_agent = UA.render(this.ua);
-						if (user_agent !== null) {
-							headers['user-agent'] = user_agent;
-						}
-
 						let content_encoding = this.url.headers['content-encoding'] || null;
 						if (content_encoding !== null) {
 							headers['accept-encoding'] = content_encoding;
@@ -174,6 +304,10 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 
 					}
 
+					let user_agent = UA.render(this.ua);
+					if (user_agent !== null) {
+						headers['user-agent'] = user_agent;
+					}
 
 					if (this.url.protocol === 'https') {
 
@@ -209,91 +343,35 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 				});
 
 				this.connection.once('response', (frame) => {
-					this.emit('response', [ frame ]);
-				});
 
-				this.connection.once('@disconnect', () => {
+					let bytes = 0;
+					let total = Infinity;
 
-					let valid = false;
+					if (isObject(frame.headers['@transfer']) === true) {
 
-					if (
-						this.__state.frame !== null
-						&& isObject(this.__state.frame.headers)
-						&& isBuffer(this.__state.frame.payload)
-					) {
-
-						this.url.headers = this.__state.frame.headers;
-
-
-						let from = 0;
-
-						if (
-							isObject(this.url.headers['@transfer']) === true
-							&& isArray(this.url.headers['@transfer']['range']) === true
-						) {
-							from = this.url.headers['@transfer']['range'][0];
-						}
-
-						if (from > 0) {
-
-							// If payload.length = 13, then from = payload.length
-							// because first range byte is 0, not 1
-
-							if (isBuffer(this.url.payload) === true && from === this.url.payload.length) {
-								this.url.payload = Buffer.concat([ this.url.payload, this.__state.frame.payload ]);
-								valid = true;
-							} else {
-								valid = false;
-							}
-
-						} else {
-
-							this.url.payload = this.__state.frame.payload;
-							valid = true;
-
+						if (frame.headers['@transfer']['length'] !== Infinity) {
+							bytes = frame.headers['@transfer']['length'];
+							total = frame.headers['@transfer']['length'];
 						}
 
 					}
 
+					this.__state.frame    = frame;
+					this.__state.progress = { bytes: bytes, total: total };
+
+					this.connection.disconnect();
+
+				});
+
+				this.connection.once('@disconnect', () => {
 
 					if (this.__state.interval !== null) {
 						clearInterval(this.__state.interval);
 						this.__state.interval = null;
 					}
 
-
-					// XXX: Reset every state
-					this.__state.frame    = { headers: null, payload: null };
-					this.__state.progress = { bytes: 0, total: Infinity };
-
-
-					if (valid === true) {
-
-						if (
-							isObject(this.url.headers) === true
-							&& isObject(this.url.headers['@transfer']) === true
-							&& this.url.headers['@transfer']['length'] !== Infinity
-							&& this.url.headers['@transfer']['length'] === this.url.payload.length
-						) {
-
-							// TODO: Validate headers in regards to range and length for resumed downloads
-
-							this.connection.emit('response', [{
-								headers: this.url.headers,
-								payload: this.url.payload
-							}]);
-
-						} else {
-
-							this.connection.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
-
-						}
-
-					} else {
-
-						this.connection.emit('error', [{ type: 'connection', cause: 'headers-payload' }]);
-
-					}
+					ondisconnect.call(this);
+					this.connection = null;
 
 				});
 
