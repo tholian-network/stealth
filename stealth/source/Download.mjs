@@ -304,7 +304,7 @@ Download.prototype = Object.assign({}, Emitter.prototype, {
 				if (this.url.hosts.length === 0) {
 					this.emit('error', [{ type: 'host' }]);
 				} else {
-					this.emit('error', [{ type: 'block' }]);
+					this.emit('error', [{ type: 'blocker' }]);
 				}
 
 			}

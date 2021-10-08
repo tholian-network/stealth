@@ -615,8 +615,6 @@ const Covert = function(settings) {
 
 		if (this.__state.connected === false) {
 
-			this.renderer.render(reviews, 'complete');
-
 			let need_network  = this.reviews.filter((review) => review.flags.network  === true).length > 0;
 			let need_internet = this.reviews.filter((review) => review.flags.internet === true).length > 0;
 
@@ -635,9 +633,11 @@ const Covert = function(settings) {
 		let interval = this.interval;
 		if (interval === null) {
 
+
 			// XXX: Give the Network and Interceptor some time
 			setTimeout(() => {
 
+				this.renderer.render(reviews, 'complete');
 				this.interval = setInterval(() => {
 
 					let is_busy = update.call(this);

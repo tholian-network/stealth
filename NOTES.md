@@ -1,4 +1,11 @@
 
+# Download Problems
+
+New HTTP Packet Parser doesn't have a partial payload support. If payload is partial,
+the `decode()` method returns `payload = null`. This causes a problem, because the
+`progress` event
+
+
 # Refactor
 
 - [ ] Fix stealth/source/server/Host.mjs's Resolver integration
