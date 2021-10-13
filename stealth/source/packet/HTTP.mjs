@@ -115,7 +115,6 @@ const decode_chunked = function(payload) {
 		return Buffer.from(value, 'utf8');
 	});
 
-
 	while (chunks.length >= 2) {
 
 		let length = parseInt(chunks.shift().toString('utf8'), 16);
@@ -238,6 +237,7 @@ const HTTP = {
 							|| url.startsWith('http://') === true
 							|| url.startsWith('https://') === true
 						) {
+							// TODO: Use URL.parse()
 							packet.headers['@url'] = url;
 						}
 
@@ -265,6 +265,9 @@ const HTTP = {
 
 								let num = parseInt(val, 10);
 								let dat = DATETIME.parse(val);
+
+								// TODO: Support for IP.parse()
+								// TODO: Support for URL.parse()
 
 								if (Number.isNaN(num) === false && (num).toString() === val) {
 									val = num;

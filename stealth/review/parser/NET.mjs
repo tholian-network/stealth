@@ -1,7 +1,7 @@
 
 import { isArray          } from '../../../base/index.mjs';
 import { describe, finish } from '../../../covert/index.mjs';
-import { SUBNET           } from '../../../stealth/source/parser/SUBNET.mjs';
+import { NET              } from '../../../stealth/source/parser/NET.mjs';
 
 
 
@@ -412,7 +412,7 @@ describe('IP.sort()/v6', function(assert) {
 });
 
 
-export default finish('stealth/parser/IP', {
+export default finish('stealth/parser/NET', {
 	internet: false,
 	network:  false
 });

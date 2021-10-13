@@ -1,15 +1,20 @@
 
-# Features
+# Parser
 
-## HTML Features
+This file documents specific Parser quirks and how the implementations might differ
+from the specifications.
 
-TBD
 
-## CSS Features
+## HTML Parser
 
-Currently, the [CSS Parser](./stealth/source/parser/CSS.mjs) tries to achieve maximum
-compatibility with the CSS 3 specification, as long as features don't compromise
-privacy or security of the client system.
+TODO: Document HTML Parser
+
+
+## CSS Parser
+
+Currently, the [CSS Parser](../../stealth/source/parser/CSS.mjs) tries to achieve
+maximum compatibility with the CSS 3 specification, as long as features don't
+compromise privacy or security of the client system.
 
 As the implementation of CSS comes with high risk of exploitation of its features,
 some features were dropped on purpose in their implementations because they were
@@ -17,6 +22,8 @@ abused in the past with already published proof of concepts or cases in the past
 
 Here's the cumulative list of CSS features that Stealth does not support:
 
+
+### Unimplemented CSS Features
 
 | FEATURE                     | REASON                                      |
 |:--------------------------- |:------------------------------------------- |
@@ -70,7 +77,8 @@ Here's the cumulative list of CSS features that Stealth does not support:
 | transition-timing-function  | `<step>` syntax unsupported                 |
 | user-zoom                   | accessibility concerns                      |
 
-## Currently Unsupported CSS Features
+
+### Unsupported CSS Features
 
 These CSS features are currently unsupported because the Browser Engine(s) Stealth
 is using are not supporting them, therefore we currently can't do anything about it.
@@ -104,12 +112,7 @@ either an upgrade mechanism or in their pure forms.
 | rotate                      | specification [1] incomplete                |
 | scale                       | specification [1] incomplete                |
 
-
 Specifications List:
 
 - [1] https://drafts.csswg.org/css-transforms-2/#ctm
-
-
-
-
 

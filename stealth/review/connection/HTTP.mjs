@@ -1031,6 +1031,18 @@ describe('HTTP.send()/server/partial', function(assert) {
 
 });
 
+describe('HTTP.upgrade()', function(assert) {
+
+	// TODO: HTTP.upgrade(tunnel, null); without a handshake packet
+
+});
+
+describe('HTTP.upgrade()/handshake', function(assert) {
+
+	// TODO: HTTP.upgrade(tunnel, url with {headers,payload}); that triggers 'request' event
+
+});
+
 
 export default finish('stealth/connection/HTTP', {
 	internet: true,

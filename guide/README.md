@@ -26,6 +26,11 @@ Currently, the Repository consists of these important folders:
 - [concept/Network.md](./concept/Network.md) explains Network Topology and Service Discovery Workflows.
 
 
+# Implementation Notes
+
+- [implementation/Parser.md](./implementation/Parser.md) documents parser implementation quirks and differences.
+
+
 # Implementation Examples
 
 Each Project has a `/review` folder which contains Reviews for Covert. The idea behind a

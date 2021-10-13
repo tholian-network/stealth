@@ -1,5 +1,5 @@
-FROM node:14-alpine
+FROM node:lts-alpine
 RUN mkdir "/profile"
 RUN node "./make.mjs"
 EXPOSE 65432
-CMD [ "node", "./stealth/stealth.mjs", "--profile=/profile" ]
+CMD [ "node", "./stealth/stealth.mjs", "serve", "--profile=/profile" ]

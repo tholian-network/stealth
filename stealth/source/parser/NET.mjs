@@ -122,7 +122,7 @@ const parse_ipv6 = function(ipv6, prefix) {
 
 
 
-const SUBNET = {
+const NET = {
 
 	compare: function(a, b) {
 
@@ -238,9 +238,9 @@ const SUBNET = {
 		if (array !== null) {
 
 			return array.filter((subnet) => {
-				return SUBNET.isSubnet(subnet) === true;
+				return NET.isSubnet(subnet) === true;
 			}).sort((a, b) => {
-				return SUBNET.compare(a, b);
+				return NET.compare(a, b);
 			});
 
 		}
@@ -253,5 +253,5 @@ const SUBNET = {
 };
 
 
-export { SUBNET };
+export { NET };
 
