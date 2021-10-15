@@ -398,6 +398,35 @@ const DATETIME = {
 					day = tmp_day;
 				}
 
+			} else if (/^([0-9]{8})$/g.test(date_or_num_or_str) === true) {
+
+				let tmp_year  = parseInt(date_or_num_or_str.substr(0, 4), 10);
+				let tmp_month = parseInt(date_or_num_or_str.substr(4, 2), 10);
+				let tmp_day   = parseInt(date_or_num_or_str.substr(6, 2), 10);
+
+				if (
+					Number.isNaN(tmp_year) === false
+					&& tmp_year >= 0
+				) {
+					year = tmp_year;
+				}
+
+				if (
+					Number.isNaN(tmp_month) === false
+					&& tmp_month >= 1
+					&& tmp_month <= 12
+				) {
+					month = tmp_month;
+				}
+
+				if (
+					Number.isNaN(tmp_day) === false
+					&& tmp_day >= 1
+					&& tmp_day <= 31
+				) {
+					day = tmp_day;
+				}
+
 			} else if (/^([0-9]{1,2})\.([0-9]{1,2})\.([0-9]{4})$/g.test(date_or_num_or_str) === true) {
 
 				let tmp_day   = parseInt(date_or_num_or_str.split('.')[0], 10);
