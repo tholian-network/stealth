@@ -438,7 +438,7 @@ const WHOIS = {
 					packet.payload = {
 						network: {
 							id:       'SBI-GENERAL-APNIC-IN',
-							subnet:   SUBNET.parse('202.59.244.0 - 202.59.244.255'),
+							subnet:   NET.parse('202.59.244.0 - 202.59.244.255'),
 							datetime: DATETIME.parse('2020-08-04T13:07:28Z')
 						},
 						organization: {

@@ -30,7 +30,7 @@ import { DATETIME as parser_DATETIME } from './source/parser/DATETIME.mjs';
 import { HOSTS    as parser_HOSTS    } from './source/parser/HOSTS.mjs';
 import { HTML     as parser_HTML     } from './source/parser/HTML.mjs';
 import { IP       as parser_IP       } from './source/parser/IP.mjs';
-import { SUBNET   as parser_SUBNET   } from './source/parser/SUBNET.mjs';
+import { NET      as parser_NET      } from './source/parser/NET.mjs';
 import { UA       as parser_UA       } from './source/parser/UA.mjs';
 import { URL      as parser_URL      } from './source/parser/URL.mjs';
 
@@ -107,7 +107,7 @@ export default {
 		HOSTS:    parser_HOSTS,
 		HTML:     parser_HTML,
 		IP:       parser_IP,
-		SUBNET:   parser_SUBNET,
+		NET:      parser_NET,
 		UA:       parser_UA,
 		URL:      parser_URL
 	},

@@ -9,23 +9,13 @@ import { URL                                             } from '../../../stealt
 
 
 
+// TODO: ERROR event
+// TODO: REDIRECT event
+
 const PAYLOADS = {
 
 	// TODO: gzip encodings
 	// TODO: chunked encodings
-
-	'ERROR': {
-
-		'RESPONSE': Buffer.from([
-			'HTTP/1.1 404 Not Found',
-			'Content-Encoding: identity',
-			'Content-Length: 20',
-			'Content-Type: text/plain',
-			'',
-			'Error 404: Not Found'
-		].join('\r\n'), 'utf8')
-
-	},
 
 	'SIMPLE': {
 
@@ -53,17 +43,6 @@ const PAYLOADS = {
 			'Content-Length: 53',
 			'',
 			'<!doctype html>\n<html>\n<title>Example</title>\n</html>'
-		].join('\r\n'), 'utf8')
-
-	},
-
-	'REDIRECT': {
-
-		'RESPONSE': Buffer.from([
-			'HTTP/1.1 301 Moved Permanently',
-			'Location: /browser/index.html',
-			'',
-			''
 		].join('\r\n'), 'utf8')
 
 	},
@@ -283,85 +262,6 @@ describe('HTTP.disconnect()', function(assert) {
 
 });
 
-describe('HTTP.receive()/client/error', function(assert) {
-
-	assert(isFunction(HTTP.receive), true);
-
-	HTTP.receive(null, PAYLOADS['ERROR']['RESPONSE'], (response) => {
-
-		assert(response, {
-			headers: {
-				'@status':   404,
-				'@transfer': {
-					'encoding': 'identity',
-					'length':   20,
-					'range':    [ 0, 19 ]
-				},
-				'content-encoding': 'identity',
-				'content-length':   20,
-				'content-type':     'text/plain'
-			},
-			payload: Buffer.from('Error 404: Not Found', 'utf8')
-		});
-
-	});
-
-});
-
-describe('HTTP.receive()/client/simple', function(assert) {
-
-	assert(isFunction(HTTP.receive), true);
-
-	HTTP.receive(null, PAYLOADS['SIMPLE']['RESPONSE'], (response) => {
-
-		assert(response, {
-			headers: {
-				'@status':   200,
-				'@transfer': {
-					'encoding': 'identity',
-					'length':   53,
-					'range':    [ 0, 52 ]
-				},
-				'cache-control':    'max-age=604800',
-				'content-encoding': 'identity',
-				'content-length':   53,
-				'content-type':     'text/html; charset=UTF-8',
-				'date': {
-					year:    2019,
-					month:   4,
-					day:     14,
-					hour:    13,
-					minute:  15,
-					second:  9
-				},
-				'etag': '"1541025663"',
-				'expires': {
-					year:    2019,
-					month:   4,
-					day:     21,
-					hour:    13,
-					minute:  15,
-					second:  9
-				},
-				'last-modified': {
-					year:    2013,
-					month:   8,
-					day:     9,
-					hour:    23,
-					minute:  54,
-					second:  35
-				},
-				'server': 'ECS (dcb/7EED)',
-				'vary': 'Accept-Encoding',
-				'x-cache': 'HIT'
-			},
-			payload: Buffer.from('<!doctype html>\n<html>\n<title>Example</title>\n</html>', 'utf8')
-		});
-
-	});
-
-});
-
 describe('HTTP.receive()/client/simple/partial', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
@@ -410,30 +310,6 @@ describe('HTTP.receive()/client/simple/partial', function(assert) {
 				'x-cache': 'HIT'
 			},
 			payload: null
-		});
-
-	});
-
-});
-
-describe('HTTP.receive()/client/redirect', function(assert) {
-
-	assert(isFunction(HTTP.receive), true);
-
-	HTTP.receive(null, PAYLOADS['REDIRECT']['RESPONSE'], (response) => {
-
-		assert(response, {
-			headers: {
-				'@status':   301,
-				'@transfer': {
-					'encoding': 'identity',
-					'length':   Infinity,
-					'range':    [ 0, Infinity ]
-				},
-				'content-encoding': 'identity',
-				'location':         '/browser/index.html'
-			},
-			payload: Buffer.from('', 'utf8')
 		});
 
 	});
@@ -566,32 +442,6 @@ describe('HTTP.send()/client/online', function(assert) {
 
 });
 
-describe('HTTP.receive()/server/simple', function(assert) {
-
-	assert(isFunction(HTTP.receive), true);
-
-	HTTP.receive(null, PAYLOADS['SIMPLE']['REQUEST'], (request) => {
-
-		assert(request, {
-			headers: {
-				'@method':   'GET',
-				'@transfer': {
-					'encoding': 'identity',
-					'length':   20,
-					'range':    [ 0, 19 ]
-				},
-				'@url':             '/path/to/resource?param=value',
-				'accept-encoding':  'identity',
-				'content-encoding': 'identity',
-				'content-length':   20
-			},
-			payload: Buffer.from('{"submitted":"data"}', 'utf8')
-		});
-
-	});
-
-});
-
 describe('HTTP.receive()/server/simple/partial', function(assert) {
 
 	assert(isFunction(HTTP.receive), true);
@@ -611,70 +461,6 @@ describe('HTTP.receive()/server/simple/partial', function(assert) {
 				'content-encoding': 'identity'
 			},
 			payload: Buffer.from('{"sub', 'utf8')
-		});
-
-	});
-
-});
-
-describe('HTTP.receive()/server/partial', function(assert) {
-
-	assert(isFunction(HTTP.receive), true);
-
-	HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST1'], (request) => {
-
-		assert(request, {
-			headers: {
-				'@method':   'GET',
-				'@transfer': {
-					'encoding': null,
-					'length':   Infinity,
-					'range':    [ 0, 127 ]
-				},
-				'@url':            '/path/to/stream?token=value',
-				'accept-encoding': 'identity',
-				'range':           'bytes=0-127'
-			},
-			payload: null
-		});
-
-	});
-
-	HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST2'], (request) => {
-
-		assert(request, {
-			headers: {
-				'@method':   'GET',
-				'@transfer': {
-					'encoding': null,
-					'length':   Infinity,
-					'range':    [ 128, 255 ]
-				},
-				'@url':            '/path/to/stream?token=value',
-				'accept-encoding': 'identity',
-				'range':           'bytes=128-255'
-			},
-			payload: null
-		});
-
-	});
-
-	HTTP.receive(null, PAYLOADS['PARTIAL']['REQUEST3'], (request) => {
-
-		assert(request, {
-			headers: {
-				'@method':   'GET',
-				'@transfer': {
-					'encoding': 'identity',
-					'length':   Infinity,
-					'range':    [ 256, Infinity ]
-				},
-				'@url':             '/path/to/stream?token=value',
-				'accept-encoding':  'identity',
-				'content-encoding': 'identity',
-				'range':            'bytes=256-'
-			},
-			payload: Buffer.from('{"submitted":"data"}', 'utf8')
 		});
 
 	});
