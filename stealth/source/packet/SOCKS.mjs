@@ -39,8 +39,9 @@ const AUTH = {
 };
 
 const METHODS = {
-	0x01: 'connect',
-	0x02: 'bind'
+	0x01: 'connect',  // TCP connect
+	0x02: 'bind',     // TCP bind
+	0x03: 'associate' // UDP relay
 };
 
 const STATUSES = {
@@ -266,6 +267,8 @@ const SOCKS = {
 						packet.headers['@auth'] = 'login';
 					} else if (auth === 0xff) {
 						packet.headers['@auth'] = 'error';
+					} else {
+						packet.headers['@auth'] = 'error';
 					}
 
 					return packet;
@@ -276,6 +279,7 @@ const SOCKS = {
 					if (status === 0x00) {
 						packet.headers['@status'] = 0x00;
 					} else if (isObject(STATUSES[status]) === true) {
+						packet.headers['@error']  = STATUSES[status];
 						packet.headers['@status'] = status;
 					}
 
@@ -294,7 +298,16 @@ const SOCKS = {
 
 			} else if (type === 'server') {
 
-				if (buffer.length === 3) {
+				let is_auth = false;
+
+				if (
+					buffer.length >= 3
+					&& buffer[1] + 2 === buffer.length
+				) {
+					is_auth = true;
+				}
+
+				if (is_auth === true) {
 
 					let length  = buffer[1];
 					let methods = buffer.slice(2, 2 + length);
@@ -326,6 +339,8 @@ const SOCKS = {
 						packet.headers['@method'] = 'connect';
 					} else if (method === 0x02) {
 						packet.headers['@method'] = 'bind';
+					} else if (method === 0x03) {
+						packet.headers['@method'] = 'associate';
 					}
 
 					let payload = decode_payload(buffer.slice(3));
@@ -380,7 +395,11 @@ const SOCKS = {
 				if (isPayload(packet.payload) === true) {
 					payload = packet.payload;
 				} else {
-					payload = URL.parse('0.0.0.0:0');
+					payload = Object.assign(URL.parse('0.0.0.0:0'), {
+						host:  '0.0.0.0',
+						hosts: [ IP.parse('0.0.0.0') ],
+						port:  0
+					});
 				}
 
 
@@ -422,6 +441,38 @@ const SOCKS = {
 
 					}
 
+				} else if (headers['@method'] === 'bind') {
+
+					let buffer = encode_payload(payload);
+					if (buffer !== null) {
+
+						return Buffer.concat([
+							Buffer.from([
+								0x05,
+								0x02,
+								0x00
+							]),
+							buffer
+						]);
+
+					}
+
+				} else if (headers['@method'] === 'associate') {
+
+					let buffer = encode_payload(payload);
+					if (buffer !== null) {
+
+						return Buffer.concat([
+							Buffer.from([
+								0x05,
+								0x03,
+								0x00
+							]),
+							buffer
+						]);
+
+					}
+
 				}
 
 			} else if (connection.type === 'server') {
@@ -446,7 +497,11 @@ const SOCKS = {
 				if (isPayload(packet.payload) === true) {
 					payload = packet.payload;
 				} else {
-					payload = URL.parse('0.0.0.0:0');
+					payload = Object.assign(URL.parse('0.0.0.0:0'), {
+						host:  '0.0.0.0',
+						hosts: [ IP.parse('0.0.0.0') ],
+						port:  0
+					});
 				}
 
 

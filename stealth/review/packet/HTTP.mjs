@@ -1,9 +1,17 @@
 
-import { Buffer, isArray, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
-import { describe, finish                                } from '../../../covert/index.mjs';
-import { HTTP                                            } from '../../../stealth/source/packet/HTTP.mjs';
-import { IP                                              } from '../../../stealth/source/parser/IP.mjs';
-import { URL                                             } from '../../../stealth/source/parser/URL.mjs';
+import { Buffer, isFunction } from '../../../base/index.mjs';
+import { describe, finish   } from '../../../covert/index.mjs';
+import { HTTP               } from '../../../stealth/source/packet/HTTP.mjs';
+
+
+
+const Connection = function(type) {
+	this.type = type;
+};
+
+Connection.prototype = {
+	[Symbol.toStringTag]: 'Connection'
+};
 
 
 
@@ -19,8 +27,7 @@ describe('HTTP.decode()/GET', function(assert) {
 		'',
 		''
 	].join('\r\n'), 'utf8');
-
-	assert(HTTP.decode(null, buffer), {
+	let packet = {
 		headers: {
 			'@method':   'GET',
 			'@transfer': {
@@ -35,7 +42,9 @@ describe('HTTP.decode()/GET', function(assert) {
 		},
 		overflow: null,
 		payload: Buffer.from('{"submitted":"data"}', 'utf8')
-	});
+	};
+
+	assert(HTTP.decode(null, buffer), packet);
 
 });
 
@@ -49,32 +58,7 @@ describe('HTTP.decode()/GET/Range', function(assert) {
 		'Range: bytes=0-',
 		''
 	].join('\r\n'), 'utf8');
-
-	let buffer2 = Buffer.from([
-		'GET https://example.com/stream.avi HTTP/1.1',
-		'Accept-Encoding: identity',
-		'Range: bytes=0-127',
-		''
-	].join('\r\n'), 'utf8');
-
-	let buffer3 = Buffer.from([
-		'GET /path/to/stream HTTP/1.1',
-		'Accept-Encoding: identity',
-		'Range: bytes=128-255',
-		''
-	].join('\r\n'), 'utf8');
-
-	let buffer4 = Buffer.from([
-		'GET /path/to/stream?token=value HTTP/1.1',
-		'Accept-Encoding: identity',
-		'Range: bytes=256-',
-		'',
-		'{"submitted":"data"}',
-		'',
-		''
-	].join('\r\n'), 'utf8');
-
-	assert(HTTP.decode(null, buffer1), {
+	let packet1 = {
 		headers: {
 			'@method':   'GET',
 			'@transfer': {
@@ -88,9 +72,15 @@ describe('HTTP.decode()/GET/Range', function(assert) {
 		},
 		overflow: null,
 		payload: null
-	});
+	};
 
-	assert(HTTP.decode(null, buffer2), {
+	let buffer2 = Buffer.from([
+		'GET https://example.com/stream.avi HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Range: bytes=0-127',
+		''
+	].join('\r\n'), 'utf8');
+	let packet2 = {
 		headers: {
 			'@method':   'GET',
 			'@transfer': {
@@ -104,9 +94,16 @@ describe('HTTP.decode()/GET/Range', function(assert) {
 		},
 		overflow: null,
 		payload: null
-	});
+	};
 
-	assert(HTTP.decode(null, buffer3), {
+	let buffer3 = Buffer.from([
+		'GET /path/to/stream HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Range: bytes=128-255',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet3 = {
 		headers: {
 			'@method':   'GET',
 			'@transfer': {
@@ -120,9 +117,18 @@ describe('HTTP.decode()/GET/Range', function(assert) {
 		},
 		overflow: null,
 		payload: null
-	});
+	};
 
-	assert(HTTP.decode(null, buffer4), {
+	let buffer4 = Buffer.from([
+		'GET /path/to/stream?token=value HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Range: bytes=256-',
+		'',
+		'{"submitted":"data"}',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet4 = {
 		headers: {
 			'@method':   'GET',
 			'@transfer': {
@@ -137,11 +143,48 @@ describe('HTTP.decode()/GET/Range', function(assert) {
 		},
 		overflow: null,
 		payload: Buffer.from('{"submitted":"data"}', 'utf8')
-	});
+	};
+
+	assert(HTTP.decode(null, buffer1), packet1);
+	assert(HTTP.decode(null, buffer2), packet2);
+	assert(HTTP.decode(null, buffer3), packet3);
+	assert(HTTP.decode(null, buffer4), packet4);
 
 });
 
-// TODO: POST, UPDATE, DELETE etc
+describe('HTTP.decode()/POST', function(assert) {
+
+	assert(isFunction(HTTP.decode), true);
+
+	let buffer = Buffer.from([
+		'POST /api?param=value HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Content-Length: 25',
+		'',
+		'This is some binary data.',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet = {
+		headers: {
+			'@method':   'POST',
+			'@transfer': {
+				'encoding': 'identity',
+				'length':   25,
+				'range':    [ 0, 24 ]
+			},
+			'@url':             '/api?param=value',
+			'accept-encoding':  'identity',
+			'content-encoding': 'identity',
+			'content-length':   25
+		},
+		overflow: null,
+		payload: Buffer.from('This is some binary data.', 'utf8')
+	};
+
+	assert(HTTP.decode(null, buffer), packet);
+
+});
 
 describe('HTTP.decode()/404', function(assert) {
 
@@ -155,8 +198,7 @@ describe('HTTP.decode()/404', function(assert) {
 		'',
 		'Error 404: Not Found'
 	].join('\r\n'), 'utf8');
-
-	assert(HTTP.decode(null, buffer), {
+	let packet = {
 		headers: {
 			'@status':   404,
 			'@transfer': {
@@ -170,7 +212,9 @@ describe('HTTP.decode()/404', function(assert) {
 		},
 		overflow: null,
 		payload: Buffer.from('Error 404: Not Found', 'utf8')
-	});
+	};
+
+	assert(HTTP.decode(null, buffer), packet);
 
 });
 
@@ -184,8 +228,7 @@ describe('HTTP.decode()/301', function(assert) {
 		'',
 		''
 	].join('\r\n'), 'utf8');
-
-	assert(HTTP.decode(null, buffer), {
+	let packet = {
 		headers: {
 			'@status':   301,
 			'@transfer': {
@@ -198,7 +241,9 @@ describe('HTTP.decode()/301', function(assert) {
 		},
 		overflow: null,
 		payload: Buffer.from('', 'utf8')
-	});
+	};
+
+	assert(HTTP.decode(null, buffer), packet);
 
 });
 
@@ -212,8 +257,7 @@ describe('HTTP.decode()/307', function(assert) {
 		'',
 		''
 	].join('\r\n'), 'utf8');
-
-	assert(HTTP.decode(null, buffer), {
+	let packet = {
 		headers: {
 			'@status':   307,
 			'@transfer': {
@@ -226,7 +270,9 @@ describe('HTTP.decode()/307', function(assert) {
 		},
 		overflow: null,
 		payload: Buffer.from('', 'utf8')
-	});
+	};
+
+	assert(HTTP.decode(null, buffer), packet);
 
 });
 
@@ -240,8 +286,7 @@ describe('HTTP.decode()/308', function(assert) {
 		'',
 		''
 	].join('\r\n'), 'utf8');
-
-	assert(HTTP.decode(null, buffer), {
+	let packet = {
 		headers: {
 			'@status':   308,
 			'@transfer': {
@@ -254,7 +299,9 @@ describe('HTTP.decode()/308', function(assert) {
 		},
 		overflow: null,
 		payload: Buffer.from('', 'utf8')
-	});
+	};
+
+	assert(HTTP.decode(null, buffer), packet);
 
 });
 
@@ -278,8 +325,7 @@ describe('HTTP.decode()/200', function(assert) {
 		'',
 		'<!doctype html>\n<html>\n<title>Example</title>\n</html>'
 	].join('\r\n'), 'utf8');
-
-	assert(HTTP.decode(null, buffer), {
+	let packet = {
 		headers: {
 			'@status':   200,
 			'@transfer': {
@@ -322,8 +368,310 @@ describe('HTTP.decode()/200', function(assert) {
 		},
 		overflow: null,
 		payload: Buffer.from('<!doctype html>\n<html>\n<title>Example</title>\n</html>', 'utf8')
-	});
+	};
 
+	assert(HTTP.decode(null, buffer), packet);
+
+});
+
+describe('HTTP.decode()/206', function(assert) {
+});
+
+describe('HTTP.encode()/GET', function(assert) {
+
+	assert(isFunction(HTTP.encode), true);
+
+	let connection = new Connection('client');
+
+	let buffer = Buffer.from([
+		'GET /path/to/resource?param=value HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Content-Encoding: identity',
+		'Content-Length: 20',
+		'',
+		'{"submitted":"data"}',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet = {
+		headers: {
+			'@method':          'GET',
+			'@url':             '/path/to/resource?param=value',
+			'accept-encoding':  'identity',
+			'content-encoding': 'identity'
+		},
+		payload: Buffer.from('{"submitted":"data"}', 'utf8')
+	};
+
+	assert(HTTP.encode(connection, packet), buffer);
+
+});
+
+describe('HTTP.encode()/GET/Range', function(assert) {
+
+	assert(isFunction(HTTP.encode), true);
+
+	let connection = new Connection('client');
+
+	let buffer1 = Buffer.from([
+		'GET /path/to/stream.mp4?token=value HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Range: bytes=0-',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet1 = {
+		headers: {
+			'@method':   'GET',
+			'@transfer': {
+				'encoding': null,
+				'length':   Infinity,
+				'range':    [ 0, Infinity ]
+			},
+			'@url':            '/path/to/stream.mp4?token=value',
+			'accept-encoding': 'identity',
+			'range':           'bytes=0-'
+		},
+		overflow: null,
+		payload: null
+	};
+
+	let buffer2 = Buffer.from([
+		'GET https://example.com/stream.avi HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Range: bytes=0-127',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet2 = {
+		headers: {
+			'@method':   'GET',
+			'@transfer': {
+				'encoding': null,
+				'length':   Infinity,
+				'range':    [ 0, 127 ]
+			},
+			'@url':            'https://example.com/stream.avi',
+			'accept-encoding': 'identity',
+			'range':           'bytes=0-127'
+		},
+		overflow: null,
+		payload: null
+	};
+
+	let buffer3 = Buffer.from([
+		'GET /path/to/stream HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Range: bytes=128-255',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet3 = {
+		headers: {
+			'@method':   'GET',
+			'@transfer': {
+				'encoding': null,
+				'length':   Infinity,
+				'range':    [ 128, 255 ]
+			},
+			'@url':            '/path/to/stream',
+			'accept-encoding': 'identity',
+			'range':           'bytes=128-255'
+		},
+		overflow: null,
+		payload: null
+	};
+
+	let buffer4 = Buffer.from([
+		'GET /path/to/stream?token=value HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Content-Encoding: identity',
+		'Range: bytes=256-512',
+		'',
+		[
+			'The sentence #5 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #6 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #7 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #8 inside the big buffer is exactly 64 bytes long.\n'
+		].join(''),
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet4 = {
+		headers: {
+			'@method':   'GET',
+			'@transfer': {
+				'encoding': 'identity',
+				'length':   Infinity,
+				'range':    [ 256, Infinity ]
+			},
+			'@url':             '/path/to/stream?token=value',
+			'accept-encoding':  'identity',
+			'content-encoding': 'identity'
+		},
+		overflow: null,
+		payload: Buffer.from([
+			'The sentence #1 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #2 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #3 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #4 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #5 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #6 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #7 inside the big buffer is exactly 64 bytes long.\n',
+			'The sentence #8 inside the big buffer is exactly 64 bytes long.\n'
+		].join(''), 'utf8')
+	};
+
+	assert(HTTP.encode(connection, packet1), buffer1);
+	assert(HTTP.encode(connection, packet2), buffer2);
+	assert(HTTP.encode(connection, packet3), buffer3);
+	assert(HTTP.encode(connection, packet4), buffer4);
+
+});
+
+describe('HTTP.encode()/POST', function(assert) {
+
+	assert(isFunction(HTTP.encode), true);
+
+	let connection = new Connection('client');
+
+	let buffer = Buffer.from([
+		'POST /api?param=value HTTP/1.1',
+		'Accept-Encoding: identity',
+		'Content-Encoding: identity',
+		'Content-Length: 25',
+		'',
+		'This is some binary data.',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet = {
+		headers: {
+			'@method':          'POST',
+			'@url':             '/api?param=value',
+			'accept-encoding':  'identity',
+			'content-encoding': 'identity',
+			'content-length':   25
+		},
+		payload: Buffer.from('This is some binary data.', 'utf8')
+	};
+
+	assert(HTTP.encode(connection, packet), buffer);
+
+});
+
+describe('HTTP.encode()/404', function(assert) {
+
+	assert(isFunction(HTTP.encode), true);
+
+	let connection = new Connection('server');
+
+	let buffer = Buffer.from([
+		'HTTP/1.1 404 Not Found',
+		'Content-Encoding: identity',
+		'Content-Length: 20',
+		'Content-Type: text/plain',
+		'',
+		'Error 404: Not Found',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet = {
+		headers: {
+			'@status':          404,
+			'content-encoding': 'identity',
+			'content-length':   20,
+			'content-type':     'text/plain'
+		},
+		payload: Buffer.from('Error 404: Not Found', 'utf8')
+	};
+
+	assert(HTTP.encode(connection, packet), buffer);
+
+});
+
+describe('HTTP.encode()/301', function(assert) {
+
+	assert(isFunction(HTTP.encode), true);
+
+	let connection = new Connection('server');
+
+	let buffer = Buffer.from([
+		'HTTP/1.1 301 Moved Permanently',
+		'Content-Encoding: identity',
+		'Location: /browser/index.html',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet = {
+		headers: {
+			'@status':          301,
+			'content-encoding': 'identity',
+			'location':         '/browser/index.html'
+		},
+		payload: null
+	};
+
+	assert(HTTP.encode(connection, packet), buffer);
+
+});
+
+describe('HTTP.encode()/307', function(assert) {
+
+	assert(isFunction(HTTP.encode), true);
+
+	let connection = new Connection('server');
+
+	let buffer = Buffer.from([
+		'HTTP/1.1 307 Temporary Redirect',
+		'Content-Encoding: identity',
+		'Location: https://redirector.example.com/temporary.html?param=value',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet = {
+		headers: {
+			'@status':          307,
+			'content-encoding': 'identity',
+			'location':         'https://redirector.example.com/temporary.html?param=value'
+		},
+		payload: null
+	};
+
+	assert(HTTP.encode(connection, packet), buffer);
+
+});
+
+describe('HTTP.encode()/308', function(assert) {
+
+	assert(isFunction(HTTP.encode), true);
+
+	let connection = new Connection('server');
+
+	let buffer = Buffer.from([
+		'HTTP/1.1 308 Permanent Redirect',
+		'Content-Encoding: identity',
+		'Location: https://images.example.com/whatever.png',
+		'',
+		''
+	].join('\r\n'), 'utf8');
+	let packet = {
+		headers: {
+			'@status':          308,
+			'content-encoding': 'identity',
+			'location':         'https://images.example.com/whatever.png'
+		},
+		payload: null
+	};
+
+	assert(HTTP.encode(connection, packet), buffer);
+
+});
+
+describe('HTTP.encode()/200', function(assert) {
+});
+
+describe('HTTP.encode()/206', function(assert) {
 });
 
 

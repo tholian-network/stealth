@@ -29,7 +29,9 @@ import connection_SOCKS         from './connection/SOCKS.mjs';
 import connection_WHOIS         from './connection/WHOIS.mjs';
 import connection_WS            from './connection/WS.mjs';
 import connection_WSS           from './connection/WSS.mjs';
+import packet_DNS               from './packet/DNS.mjs';
 import packet_HTTP              from './packet/HTTP.mjs';
+import packet_SOCKS             from './packet/SOCKS.mjs';
 import parser_CSS               from './parser/CSS.mjs';
 import parser_DATETIME          from './parser/DATETIME.mjs';
 import parser_HOSTS             from './parser/HOSTS.mjs';
@@ -68,7 +70,9 @@ export const REVIEWS = [
 	parser_URL,
 
 	// Packet Parsers
+	packet_DNS,
 	packet_HTTP,
+	packet_SOCKS,
 
 	// Network
 	connection_DNS,
