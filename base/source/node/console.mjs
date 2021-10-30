@@ -678,12 +678,17 @@ export const console = (function() {
 
 			if (data.length === 0) {
 
-				str = indent + highlight('[]', 'Literal');
+				str += indent;
+				str += highlight('Array', 'Type') + '.from(';
+				str += highlight('[]', 'Literal');
+				str += ')';
 
 			} else if (isMatrix(data) === true) {
 
 				str  = indent;
-				str += highlight('[', 'Literal') + '\n';
+				str += highlight('Array', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+				str += '\n';
 
 				let line = Math.floor(Math.sqrt(data.length));
 				let max  = data.reduce((a, b) => Math.max((' ' + a).length, ('' + b).length), '');
@@ -715,61 +720,100 @@ export const console = (function() {
 
 				}
 
-				str += '\n' + indent + highlight(']', 'Literal');
-
-			} else {
-
-				str  = indent;
-				str += highlight('[', 'Literal') + '\n';
-
-				for (let d = 0, dl = data.length; d < dl; d++) {
-
-					str += stringify(data[d], '\t' + indent);
-
-					if (d < dl - 1) {
-						str += ',';
-					}
-
-					str += '\n';
-
-				}
-
-				str += indent + highlight(']', 'Literal');
-
-			}
-
-		} else if (isBuffer(data) === true) {
-
-			str = indent;
-
-			let tmp = cleanify(data.toString('utf8'));
-			if (tmp.length >= data.length) {
-
-				str += highlight('Buffer', 'Type') + '.from(';
-				str += highlight('"' + tmp + '"', 'String');
-				str += ', ';
-				str += highlight('"utf8"', 'String') + ')';
-
-			} else if (data.length > 0) {
-
-				str += highlight('Buffer', 'Type') + '.from(';
-				str += highlight('[', 'Literal');
-
-				for (let d = 0, dl = data.length; d < dl; d++) {
-
-					str += highlight('0x' + format_hex(data[d]), 'Number');
-
-					if (d < dl - 1) {
-						str += ',';
-					}
-
-				}
-
+				str += '\n';
+				str += indent;
 				str += highlight(']', 'Literal');
 				str += ')';
 
 			} else {
 
+				str  = indent;
+				str += highlight('Array', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+				str += '\n';
+
+				for (let d = 0, dl = data.length; d < dl; d++) {
+
+					if (d > 0) {
+						str += '\n';
+					}
+
+					str += stringify(data[d], '\t' + indent);
+
+					if (d < dl - 1) {
+						str += ', ';
+					} else {
+						str += '  ';
+					}
+
+				}
+
+				str += '\n';
+				str += indent;
+				str += highlight(']', 'Literal');
+				str += ')';
+
+			}
+
+		} else if (isBuffer(data) === true) {
+
+			let tmp = cleanify(data.toString('utf8'));
+			if (tmp.length >= data.length) {
+
+				str = indent;
+				str += highlight('Buffer', 'Type') + '.from(';
+				str += '\n';
+
+				for (let t = 0, tl = tmp.length; t < tl; t += 32) {
+
+					if (t > 0) {
+						str += '\n';
+					}
+
+					str += stringify(tmp.substr(t, 32), '\t' + indent);
+
+					if (t < tl - 33) {
+						str += ' +';
+					} else {
+						str += '  ';
+					}
+
+				}
+
+				str += '\n';
+				str += indent;
+				str += ', ';
+				str += highlight('"utf8"', 'String');
+				str += ')';
+
+			} else if (data.length > 0) {
+
+				str  = indent;
+				str += highlight('Buffer', 'Type') + '.from(';
+				str += highlight('[', 'Literal');
+
+				for (let d = 0, dl = data.length; d < dl; d++) {
+
+					if (d % 8 === 0) {
+						str += '\n' + '\t' + indent;
+					}
+
+					str += highlight('0x' + format_hex(data[d]), 'Number');
+
+					if (d < dl - 1) {
+						str += ', ';
+					}
+
+				}
+
+				str += '\n';
+				str += indent;
+				str += highlight(']', 'Literal');
+				str += ')';
+
+			} else {
+
+				str  = indent;
 				str += highlight('Buffer', 'Type') + '.from(';
 				str += highlight('[', 'Literal');
 				str += highlight(']', 'Literal');
@@ -779,28 +823,34 @@ export const console = (function() {
 
 		} else if (isUint8Array(data) === true) {
 
-			str = indent;
-
 			if (data.length > 0) {
 
+				str = indent;
 				str += highlight('Uint8Array', 'Type') + '.from(';
 				str += highlight('[', 'Literal');
 
 				for (let d = 0, dl = data.byteLength; d < dl; d++) {
 
-					str += highlight(data[d], 'Number');
+					if (d % 8 === 0) {
+						str += '\n' + '\t' + indent;
+					}
+
+					str += highlight('0x' + format_hex(data[d]), 'Number');
 
 					if (d < dl - 1) {
-						str += ',';
+						str += ', ';
 					}
 
 				}
 
+				str += '\n';
+				str += indent;
 				str += highlight(']', 'Literal');
 				str += ')';
 
 			} else {
 
+				str  = indent;
 				str += highlight('Uint8Array', 'Type') + '.from(';
 				str += highlight('[', 'Literal');
 				str += highlight(']', 'Literal');
@@ -1180,7 +1230,7 @@ export const console = (function() {
 					msg += highlight_diff(' ',     'normal');
 					msg += highlight_diff(value_b, 'normal');
 					msg += highlight_diff(' ',     'normal');
-					msg += '\u001b[0m\n';
+					msg += '\u001b[0m';
 
 					write_console(msg, 'diff');
 
@@ -1192,7 +1242,7 @@ export const console = (function() {
 					msg += highlight_diff(' ',     'normal');
 					msg += highlight_diff(value_b, 'insert');
 					msg += highlight_diff(' ',     'normal');
-					msg += '\u001b[0m\n';
+					msg += '\u001b[0m';
 
 					write_console(msg, 'diff');
 
@@ -1251,7 +1301,7 @@ export const console = (function() {
 						msg += highlight_diff(line_b, 'normal');
 						msg += highlight_diff(div_b,  'normal');
 						msg += highlight_diff(' ',    'normal');
-						msg += '\u001b[0m\n';
+						msg += '\u001b[0m';
 
 						write_console(msg, 'diff');
 
@@ -1265,7 +1315,7 @@ export const console = (function() {
 						msg += highlight_diff(line_b, 'insert');
 						msg += highlight_diff(div_b,  'normal');
 						msg += highlight_diff(' ',    'normal');
-						msg += '\u001b[0m\n';
+						msg += '\u001b[0m';
 
 						write_console(msg, 'diff');
 
@@ -1279,7 +1329,7 @@ export const console = (function() {
 						msg += highlight_diff(line_b, 'normal');
 						msg += highlight_diff(div_b,  'normal');
 						msg += highlight_diff(' ',    'normal');
-						msg += '\u001b[0m\n';
+						msg += '\u001b[0m';
 
 						write_console(msg, 'diff');
 
@@ -1300,7 +1350,7 @@ export const console = (function() {
 							msg += highlight_diff(line_b.substr(offset[2]),                        'normal');
 							msg += highlight_diff(div_b,                                           'normal');
 							msg += highlight_diff(' ',                                             'normal');
-							msg += '\u001b[0m\n';
+							msg += '\u001b[0m';
 
 							write_console(msg, 'diff');
 
@@ -1312,7 +1362,7 @@ export const console = (function() {
 							msg += highlight_diff(line_b, 'insert');
 							msg += highlight_diff(div_b,  'normal');
 							msg += highlight_diff(' ',    'normal');
-							msg += '\u001b[0m\n';
+							msg += '\u001b[0m';
 
 							write_console(msg, 'diff');
 
