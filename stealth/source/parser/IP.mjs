@@ -414,7 +414,7 @@ const IP = {
 
 	render: function(ip) {
 
-		ip = isObject(ip) ? ip : null;
+		ip = IP.isIP(ip) ? ip : null;
 
 
 		if (ip !== null) {

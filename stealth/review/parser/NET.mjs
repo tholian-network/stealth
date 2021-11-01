@@ -5,408 +5,486 @@ import { NET              } from '../../../stealth/source/parser/NET.mjs';
 
 
 
-describe('SUBNET.isSubnet()/v4', function(assert) {
+describe('NET.isNET()/v4', function(assert) {
 
-	let ip1 = SUBNET.parse('127.0.0.1');
-	let ip2 = SUBNET.parse('10.1.2.3');
-	let ip3 = SUBNET.parse('172.25.1.2');
-	let ip4 = SUBNET.parse('192.168.0.1');
-	let ip5 = SUBNET.parse('199.0.0.254');
-	let ip6 = SUBNET.parse('192.89.99.123');
-	let ip7 = SUBNET.parse('169.255.123.123');
-	let ip8 = SUBNET.parse('100.129.0.254');
+	let net1 = NET.parse('127.0.0.1/32');
+	let net2 = NET.parse('10.1.2.3/24');
+	let net3 = NET.parse('172.25.1.2/16');
+	let net4 = NET.parse('192.168.0.1/8');
+	let net5 = NET.parse('199.0.0.254/31');
+	let net6 = NET.parse('192.89.99.123/12');
+	let net7 = NET.parse('169.255.123.132/25');
+	let net8 = NET.parse('100.129.0.254');
 
-	assert(IP.isIP(ip1), true);
-	assert(IP.isIP(ip2), true);
-	assert(IP.isIP(ip3), true);
-	assert(IP.isIP(ip4), true);
-	assert(IP.isIP(ip5), true);
-	assert(IP.isIP(ip6), true);
-	assert(IP.isIP(ip7), true);
-	assert(IP.isIP(ip8), true);
-
-});
-
-describe('IP.parse()/v4/private', function(assert) {
-
-	let ip1 = IP.parse('127.0.0.1');
-	let ip2 = IP.parse('10.1.2.3');
-	let ip3 = IP.parse('172.25.1.2');
-	let ip4 = IP.parse('192.168.0.1');
-	let ip5 = IP.parse('198.128.254.254');
-	let ip6 = IP.parse('192.88.99.123');
-	let ip7 = IP.parse('169.254.123.123');
-	let ip8 = IP.parse('100.128.0.254');
-
-	assert(ip1, {
-		ip:    '127.0.0.1',
-		scope: 'private',
-		type:  'v4'
-	});
-
-	assert(ip2, {
-		ip:    '10.1.2.3',
-		scope: 'private',
-		type:  'v4'
-	});
-
-	assert(ip3, {
-		ip:    '172.25.1.2',
-		scope: 'private',
-		type:  'v4'
-	});
-
-	assert(ip4, {
-		ip:    '192.168.0.1',
-		scope: 'private',
-		type:  'v4'
-	});
-
-	assert(ip5, {
-		ip:    '198.128.254.254',
-		scope: 'private',
-		type:  'v4'
-	});
-
-	assert(ip6, {
-		ip:    '192.88.99.123',
-		scope: 'private',
-		type:  'v4'
-	});
-
-	assert(ip7, {
-		ip:    '169.254.123.123',
-		scope: 'private',
-		type:  'v4'
-	});
-
-	assert(ip8, {
-		ip:    '100.128.0.254',
-		scope: 'private',
-		type:  'v4'
-	});
+	assert(NET.isNET(net1), true);
+	assert(NET.isNET(net2), true);
+	assert(NET.isNET(net3), true);
+	assert(NET.isNET(net4), true);
+	assert(NET.isNET(net5), true);
+	assert(NET.isNET(net6), true);
+	assert(NET.isNET(net7), true);
+	assert(NET.isNET(net8), true);
 
 });
 
-describe('IP.parse()/v4/public', function(assert) {
+describe('NET.parse()/v4/private', function(assert) {
 
-	let ip1 = IP.parse('128.1.2.3');
-	let ip2 = IP.parse('11.1.2.3');
-	let ip3 = IP.parse('172.32.1.2');
-	let ip4 = IP.parse('192.169.0.1');
-	let ip5 = IP.parse('199.0.0.254');
-	let ip6 = IP.parse('192.89.99.123');
-	let ip7 = IP.parse('169.255.123.123');
-	let ip8 = IP.parse('100.129.0.254');
+	let net1 = NET.parse('127.0.0.1/32');
+	let net2 = NET.parse('10.1.2.3/24');
+	let net3 = NET.parse('172.25.1.2/16');
+	let net4 = NET.parse('192.168.0.1/8');
+	let net5 = NET.parse('199.0.0.254/31');
+	let net6 = NET.parse('192.89.99.123/12');
+	let net7 = NET.parse('169.255.123.132/25');
+	let net8 = NET.parse('100.129.0.254');
 
-	assert(ip1, {
-		ip:    '128.1.2.3',
-		scope: 'public',
-		type:  'v4'
+	assert(net1, {
+		'bitmask': '11111111111111111111111111111111',
+		'netmask': '01111111000000000000000000000001',
+		'network': '127.0.0.1',
+		'scope':   'private',
+		'type':    'v4'
 	});
 
-	assert(ip2, {
-		ip:    '11.1.2.3',
-		scope: 'public',
-		type:  'v4'
+	assert(net2, {
+		'bitmask': '11111111111111111111111100000000',
+		'netmask': '00001010000000010000001000000000',
+		'network': '10.1.2.0',
+		'scope':   'private',
+		'type':    'v4'
 	});
 
-	assert(ip3, {
-		ip:    '172.32.1.2',
-		scope: 'public',
-		type:  'v4'
+	assert(net3, {
+		'bitmask': '11111111111111110000000000000000',
+		'netmask': '10101100000110010000000000000000',
+		'network': '172.25.0.0',
+		'scope':   'private',
+		'type':    'v4'
 	});
 
-	assert(ip4, {
-		ip:    '192.169.0.1',
-		scope: 'public',
-		type:  'v4'
+	assert(net4, {
+		'bitmask': '11111111000000000000000000000000',
+		'netmask': '11000000000000000000000000000000',
+		'network': '192.0.0.0',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
-	assert(ip5, {
-		ip:    '199.0.0.254',
-		scope: 'public',
-		type:  'v4'
+	assert(net5, {
+		'bitmask': '11111111111111111111111111111110',
+		'netmask': '11000111000000000000000011111110',
+		'network': '199.0.0.254',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
-	assert(ip6, {
-		ip:    '192.89.99.123',
-		scope: 'public',
-		type:  'v4'
+	assert(net6, {
+		'bitmask': '11111111111100000000000000000000',
+		'netmask': '11000000010100000000000000000000',
+		'network': '192.80.0.0',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
-	assert(ip7, {
-		ip:    '169.255.123.123',
-		scope: 'public',
-		type:  'v4'
+	assert(net7, {
+		'bitmask': '11111111111111111111111110000000',
+		'netmask': '10101001111111110111101110000000',
+		'network': '169.255.123.128',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
-	assert(ip8, {
-		ip:    '100.129.0.254',
-		scope: 'public',
-		type:  'v4'
+	assert(net8, {
+		'bitmask': '11111111111111111111111111111111',
+		'netmask': '01100100100000010000000011111110',
+		'network': '100.129.0.254',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
 });
 
-describe('IP.render()/v4', function(assert) {
+describe('NET.parse()/v4/public', function(assert) {
 
-	let ip1 = IP.parse('127.0.0.1');
-	let ip2 = IP.parse('10.1.2.3');
-	let ip3 = IP.parse('172.25.1.2');
-	let ip4 = IP.parse('192.168.0.1');
-	let ip5 = IP.parse('199.0.0.254');
-	let ip6 = IP.parse('192.89.99.123');
-	let ip7 = IP.parse('169.255.123.123');
-	let ip8 = IP.parse('100.129.0.254');
+	let net1 = NET.parse('128.1.2.3/32');
+	let net2 = NET.parse('11.1.2.3/24');
+	let net3 = NET.parse('172.32.1.2/16');
+	let net4 = NET.parse('192.169.0.1/8');
+	let net5 = NET.parse('199.0.0.254/31');
+	let net6 = NET.parse('192.89.99.123/12');
+	let net7 = NET.parse('169.255.123.123/25');
+	let net8 = NET.parse('100.129.0.254');
 
-	assert(IP.render(ip1), '127.0.0.1');
-	assert(IP.render(ip2), '10.1.2.3');
-	assert(IP.render(ip3), '172.25.1.2');
-	assert(IP.render(ip4), '192.168.0.1');
-	assert(IP.render(ip5), '199.0.0.254');
-	assert(IP.render(ip6), '192.89.99.123');
-	assert(IP.render(ip7), '169.255.123.123');
-	assert(IP.render(ip8), '100.129.0.254');
+	assert(net1, {
+		'bitmask': '11111111111111111111111111111111',
+		'netmask': '10000000000000010000001000000011',
+		'network': '128.1.2.3',
+		'scope':   'public',
+		'type':    'v4'
+	});
+
+	assert(net2, {
+		'bitmask': '11111111111111111111111100000000',
+		'netmask': '00001011000000010000001000000000',
+		'network': '11.1.2.0',
+		'scope':   'public',
+		'type':    'v4'
+	});
+
+	assert(net3, {
+		'bitmask': '11111111111111110000000000000000',
+		'netmask': '10101100001000000000000000000000',
+		'network': '172.32.0.0',
+		'scope':   'public',
+		'type':    'v4'
+	});
+
+	assert(net4, {
+		'bitmask': '11111111000000000000000000000000',
+		'netmask': '11000000000000000000000000000000',
+		'network': '192.0.0.0',
+		'scope':   'public',
+		'type':    'v4'
+	});
+
+	assert(net5, {
+		'bitmask': '11111111111111111111111111111110',
+		'netmask': '11000111000000000000000011111110',
+		'network': '199.0.0.254',
+		'scope':   'public',
+		'type':    'v4'
+	});
+
+	assert(net6, {
+		'bitmask': '11111111111100000000000000000000',
+		'netmask': '11000000010100000000000000000000',
+		'network': '192.80.0.0',
+		'scope':   'public',
+		'type':    'v4'
+	});
+
+	assert(net7, {
+		'bitmask': '11111111111111111111111110000000',
+		'netmask': '10101001111111110111101100000000',
+		'network': '169.255.123.0',
+		'scope':   'public',
+		'type':    'v4'
+	});
+
+	assert(net8, {
+		'bitmask': '11111111111111111111111111111111',
+		'netmask': '01100100100000010000000011111110',
+		'network': '100.129.0.254',
+		'scope':   'public',
+		'type':    'v4'
+	});
 
 });
 
-describe('IP.sort()/v4', function(assert) {
+describe('NET.render()/v4', function(assert) {
 
-	let sorted = IP.sort([
-		IP.parse('127.0.0.1'),
-		IP.parse('10.1.2.3'),
-		IP.parse('172.25.1.2'),
-		IP.parse('192.168.0.1'),
-		IP.parse('199.0.0.254'),
-		IP.parse('192.89.99.123'),
-		IP.parse('169.255.123.123'),
-		IP.parse('100.129.0.254')
+	let net1 = NET.parse('128.1.2.3/32');
+	let net2 = NET.parse('11.1.2.3/24');
+	let net3 = NET.parse('172.32.1.2/16');
+	let net4 = NET.parse('192.169.0.1/8');
+	let net5 = NET.parse('199.0.0.254/31');
+	let net6 = NET.parse('192.89.99.123/12');
+	let net7 = NET.parse('169.255.123.123/25');
+	let net8 = NET.parse('100.129.0.254');
+
+	assert(NET.render(net1), '128.1.2.3/32');
+	assert(NET.render(net2), '11.1.2.0/24');
+	assert(NET.render(net3), '172.32.0.0/16');
+	assert(NET.render(net4), '192.0.0.0/8');
+	assert(NET.render(net5), '199.0.0.254/31');
+	assert(NET.render(net6), '192.80.0.0/12');
+	assert(NET.render(net7), '169.255.123.0/25');
+	assert(NET.render(net8), '100.129.0.254/32');
+
+});
+
+describe('NET.sort()/v4', function(assert) {
+
+	let sorted = NET.sort([
+		NET.parse('127.0.0.1/32'),
+		NET.parse('10.1.2.3/24'),
+		NET.parse('172.25.1.2/16'),
+		NET.parse('192.168.0.1/8'),
+		NET.parse('199.0.0.254/31'),
+		NET.parse('192.89.99.123/12'),
+		NET.parse('169.255.123.132/25'),
+		NET.parse('100.129.0.254')
 	]);
 
 	assert(isArray(sorted), true);
 
 	assert(sorted[0], {
-		ip:    '10.1.2.3',
-		scope: 'private',
-		type:  'v4'
+		'bitmask': '11111111111111111111111100000000',
+		'netmask': '00001010000000010000001000000000',
+		'network': '10.1.2.0',
+		'scope':   'private',
+		'type':    'v4'
 	});
 
 	assert(sorted[1], {
-		ip:    '127.0.0.1',
-		scope: 'private',
-		type:  'v4'
+		'bitmask': '11111111111111111111111111111111',
+		'netmask': '01111111000000000000000000000001',
+		'network': '127.0.0.1',
+		'scope':   'private',
+		'type':    'v4'
 	});
 
 	assert(sorted[2], {
-		ip:    '172.25.1.2',
-		scope: 'private',
-		type:  'v4'
+		'bitmask': '11111111111111110000000000000000',
+		'netmask': '10101100000110010000000000000000',
+		'network': '172.25.0.0',
+		'scope':   'private',
+		'type':    'v4'
 	});
 
 	assert(sorted[3], {
-		ip:    '192.168.0.1',
-		scope: 'private',
-		type:  'v4'
+		'bitmask': '11111111111111111111111111111111',
+		'netmask': '01100100100000010000000011111110',
+		'network': '100.129.0.254',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
 	assert(sorted[4], {
-		ip:    '100.129.0.254',
-		scope: 'public',
-		type:  'v4'
+		'bitmask': '11111111111111111111111110000000',
+		'netmask': '10101001111111110111101110000000',
+		'network': '169.255.123.128',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
 	assert(sorted[5], {
-		ip:    '169.255.123.123',
-		scope: 'public',
-		type:  'v4'
+		'bitmask': '11111111000000000000000000000000',
+		'netmask': '11000000000000000000000000000000',
+		'network': '192.0.0.0',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
 	assert(sorted[6], {
-		ip:    '192.89.99.123',
-		scope: 'public',
-		type:  'v4'
+		'bitmask': '11111111111100000000000000000000',
+		'netmask': '11000000010100000000000000000000',
+		'network': '192.80.0.0',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
 	assert(sorted[7], {
-		ip:    '199.0.0.254',
-		scope: 'public',
-		type:  'v4'
+		'bitmask': '11111111111111111111111111111110',
+		'netmask': '11000111000000000000000011111110',
+		'network': '199.0.0.254',
+		'scope':   'public',
+		'type':    'v4'
 	});
 
 });
 
-describe('IP.isIP()/v6', function(assert) {
+describe('NET.isNET()/v6', function(assert) {
 
-	let ip1 = IP.parse('::1');
-	let ip2 = IP.parse('fe80::1234');
-	let ip3 = IP.parse('fe80::1234:abcd');
-	let ip4 = IP.parse('fe80::1234:1234:abcd:abcd');
-	let ip5 = IP.parse('13::37');
-	let ip6 = IP.parse('1:3::3:7');
-	let ip7 = IP.parse('12:34::ab:cd');
-	let ip8 = IP.parse('abcd:1234::abcd:1234');
+	let net1 = NET.parse('::1/128');
+	let net2 = NET.parse('fe80::1234/64');
+	let net3 = NET.parse('fe80:1234:1234:1234:1234:1234:1234:abcd/96');
+	let net4 = NET.parse('fe80::1234:1234:abcd:abcd');
+	let net5 = NET.parse('13::37/31');
+	let net6 = NET.parse('1:3::3:7/127');
+	let net7 = NET.parse('12:34::ab:cd/105');
+	let net8 = NET.parse('abcd:1234::abcd:1234/112');
 
-	assert(IP.isIP(ip1), true);
-	assert(IP.isIP(ip2), true);
-	assert(IP.isIP(ip3), true);
-	assert(IP.isIP(ip4), true);
-	assert(IP.isIP(ip5), true);
-	assert(IP.isIP(ip6), true);
-	assert(IP.isIP(ip7), true);
-	assert(IP.isIP(ip8), true);
-
-});
-
-describe('IP.parse()/v6/private', function(assert) {
-
-	let ip1 = IP.parse('::1');
-	let ip2 = IP.parse('fe80::1234');
-	let ip3 = IP.parse('fe80::1234:abcd');
-	let ip4 = IP.parse('fe80::1234:1234:abcd:abcd');
-
-	assert(ip1, {
-		ip:    '0000:0000:0000:0000:0000:0000:0000:0001',
-		scope: 'private',
-		type:  'v6'
-	});
-
-	assert(ip2, {
-		ip:    'fe80:0000:0000:0000:0000:0000:0000:1234',
-		scope: 'private',
-		type:  'v6'
-	});
-
-	assert(ip3, {
-		ip:    'fe80:0000:0000:0000:0000:0000:1234:abcd',
-		scope: 'private',
-		type:  'v6'
-	});
-
-	assert(ip4, {
-		ip:    'fe80:0000:0000:0000:1234:1234:abcd:abcd',
-		scope: 'private',
-		type:  'v6'
-	});
+	assert(NET.isNET(net1), true);
+	assert(NET.isNET(net2), true);
+	assert(NET.isNET(net3), true);
+	assert(NET.isNET(net4), true);
+	assert(NET.isNET(net5), true);
+	assert(NET.isNET(net6), true);
+	assert(NET.isNET(net7), true);
+	assert(NET.isNET(net8), true);
 
 });
 
-describe('IP.parse()/v6/public', function(assert) {
+describe('NET.parse()/v6/private', function(assert) {
 
-	let ip1 = IP.parse('13::37');
-	let ip2 = IP.parse('1:3::3:7');
-	let ip3 = IP.parse('12:34::ab:cd');
-	let ip4 = IP.parse('abcd:1234::abcd:1234');
+	let net1 = NET.parse('::1/128');
+	let net2 = NET.parse('fe80::1234/64');
+	let net3 = NET.parse('fe80:1234:1234:1234:1234:1234:1234:abcd/96');
+	let net4 = NET.parse('fe80::1234:1234:abcd:abcd/126');
 
-	assert(ip1, {
-		ip:    '0013:0000:0000:0000:0000:0000:0000:0037',
-		scope: 'public',
-		type:  'v6'
+	assert(net1, {
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
+		'netmask': '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001',
+		'network': '0000:0000:0000:0000:0000:0000:0000:0001',
+		'scope':   'private',
+		'type':    'v6'
 	});
 
-	assert(ip2, {
-		ip:    '0001:0003:0000:0000:0000:0000:0003:0007',
-		scope: 'public',
-		type:  'v6'
+	assert(net2, {
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000',
+		'netmask': '11111110100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+		'network': 'fe80:0000:0000:0000:0000:0000:0000:0000',
+		'scope':   'private',
+		'type':    'v6'
 	});
 
-	assert(ip3, {
-		ip:    '0012:0034:0000:0000:0000:0000:00ab:00cd',
-		scope: 'public',
-		type:  'v6'
+	assert(net3, {
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000',
+		'netmask': '11111110100000000001001000110100000100100011010000010010001101000001001000110100000100100011010000000000000000000000000000000000',
+		'network': 'fe80:1234:1234:1234:1234:1234:0000:0000',
+		'scope':   'public',
+		'type':    'v6'
 	});
 
-	assert(ip4, {
-		ip:    'abcd:1234:0000:0000:0000:0000:abcd:1234',
-		scope: 'public',
-		type:  'v6'
+	assert(net4, {
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100',
+		'netmask': '11111110100000000000000000000000000000000000000000000000000000000001001000110100000100100011010010101011110011011010101111001100',
+		'network': 'fe80:0000:0000:0000:1234:1234:abcd:abcc',
+		'scope':   'private',
+		'type':    'v6'
 	});
 
 });
 
-describe('IP.render()/v6', function(assert) {
+describe('NET.parse()/v6/public', function(assert) {
 
-	let ip1 = IP.parse('::1');
-	let ip2 = IP.parse('fe80::1234');
-	let ip3 = IP.parse('fe80::1234:abcd');
-	let ip4 = IP.parse('fe80::1234:1234:abcd:abcd');
-	let ip5 = IP.parse('13::37');
-	let ip6 = IP.parse('1:3::3:7');
-	let ip7 = IP.parse('12:34::ab:cd');
-	let ip8 = IP.parse('abcd:1234::abcd:1234');
+	let net1 = NET.parse('13::37/31');
+	let net2 = NET.parse('1:3::3:7/127');
+	let net3 = NET.parse('12:34::ab:cd/105');
+	let net4 = NET.parse('abcd:1234::abcd:1234/112');
 
-	assert(IP.render(ip1), '::1');
-	assert(IP.render(ip2), 'fe80::1234');
-	assert(IP.render(ip3), 'fe80::1234:abcd');
-	assert(IP.render(ip4), 'fe80::1234:1234:abcd:abcd');
-	assert(IP.render(ip5), '13::37');
-	assert(IP.render(ip6), '1:3::3:7');
-	assert(IP.render(ip7), '12:34::ab:cd');
-	assert(IP.render(ip8), 'abcd:1234::abcd:1234');
+	assert(net1, {
+		'bitmask': '11111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+		'netmask': '00000000000100110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+		'network': '0013:0000:0000:0000:0000:0000:0000:0000',
+		'scope':   'public',
+		'type':    'v6'
+	});
+
+	assert(net2, {
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110',
+		'netmask': '00000000000000010000000000000011000000000000000000000000000000000000000000000000000000000000000000000000000000110000000000000110',
+		'network': '0001:0003:0000:0000:0000:0000:0003:0006',
+		'scope':   'public',
+		'type':    'v6'
+	});
+
+	assert(net3, {
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000',
+		'netmask': '00000000000100100000000000110100000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000',
+		'network': '0012:0034:0000:0000:0000:0000:0080:0000',
+		'scope':   'public',
+		'type':    'v6'
+	});
+
+	assert(net4, {
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110000000000000000',
+		'netmask': '10101011110011010001001000110100000000000000000000000000000000000000000000000000000000000000000010101011110011010000000000000000',
+		'network': 'abcd:1234:0000:0000:0000:0000:abcd:0000',
+		'scope':   'public',
+		'type':    'v6'
+	});
 
 });
 
-describe('IP.sort()/v6', function(assert) {
+describe('NET.render()/v6', function(assert) {
 
-	let sorted = IP.sort([
-		IP.parse('::1'),
-		IP.parse('fe80::1234'),
-		IP.parse('fe80::1234:abcd'),
-		IP.parse('fe80::1234:1234:abcd:abcd'),
-		IP.parse('13::37'),
-		IP.parse('1:3::3:7'),
-		IP.parse('12:34::ab:cd'),
-		IP.parse('abcd:1234::abcd:1234')
+	let net1 = NET.parse('::1/128');
+	let net2 = NET.parse('fe80::1234/64');
+	let net3 = NET.parse('fe80:1234:1234:1234:1234:1234:1234:abcd/96');
+	let net4 = NET.parse('fe80::1234:1234:abcd:abcd');
+	let net5 = NET.parse('13::37/31');
+	let net6 = NET.parse('1:3::3:7/127');
+	let net7 = NET.parse('12:34::ab:cd/105');
+	let net8 = NET.parse('abcd:1234::abcd:1234/112');
+
+	assert(NET.render(net1), '0000:0000:0000:0000:0000:0000:0000:0001/128');
+	assert(NET.render(net2), 'fe80:0000:0000:0000:0000:0000:0000:0000/64');
+	assert(NET.render(net3), 'fe80:1234:1234:1234:1234:1234:0000:0000/96');
+	assert(NET.render(net4), 'fe80:0000:0000:0000:1234:1234:abcd:abcd/128');
+	assert(NET.render(net5), '0013:0000:0000:0000:0000:0000:0000:0000/31');
+	assert(NET.render(net6), '0001:0003:0000:0000:0000:0000:0003:0006/127');
+	assert(NET.render(net7), '0012:0034:0000:0000:0000:0000:0080:0000/105');
+	assert(NET.render(net8), 'abcd:1234:0000:0000:0000:0000:abcd:0000/112');
+
+});
+
+describe('NET.sort()/v6', function(assert) {
+
+	let sorted = NET.sort([
+		NET.parse('::1/128'),
+		NET.parse('fe80::1234/64'),
+		NET.parse('fe80:1234:1234:1234:1234:1234:1234:abcd/96'),
+		NET.parse('fe80::1234:1234:abcd:abcd/126'),
+		NET.parse('13::37/31'),
+		NET.parse('1:3::3:7/127'),
+		NET.parse('12:34::ab:cd/105'),
+		NET.parse('abcd:1234::abcd:1234/112')
 	]);
 
-	assert(isArray(sorted), true);
-
 	assert(sorted[0], {
-		ip:    '0000:0000:0000:0000:0000:0000:0000:0001',
-		scope: 'private',
-		type:  'v6'
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
+		'netmask': '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001',
+		'network': '0000:0000:0000:0000:0000:0000:0000:0001',
+		'scope':   'private',
+		'type':    'v6'
 	});
 
 	assert(sorted[1], {
-		ip:    'fe80:0000:0000:0000:0000:0000:0000:1234',
-		scope: 'private',
-		type:  'v6'
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000',
+		'netmask': '11111110100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+		'network': 'fe80:0000:0000:0000:0000:0000:0000:0000',
+		'scope':   'private',
+		'type':    'v6'
 	});
 
 	assert(sorted[2], {
-		ip:    'fe80:0000:0000:0000:0000:0000:1234:abcd',
-		scope: 'private',
-		type:  'v6'
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100',
+		'netmask': '11111110100000000000000000000000000000000000000000000000000000000001001000110100000100100011010010101011110011011010101111001100',
+		'network': 'fe80:0000:0000:0000:1234:1234:abcd:abcc',
+		'scope':   'private',
+		'type':    'v6'
 	});
 
 	assert(sorted[3], {
-		ip:    'fe80:0000:0000:0000:1234:1234:abcd:abcd',
-		scope: 'private',
-		type:  'v6'
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110',
+		'netmask': '00000000000000010000000000000011000000000000000000000000000000000000000000000000000000000000000000000000000000110000000000000110',
+		'network': '0001:0003:0000:0000:0000:0000:0003:0006',
+		'scope':   'public',
+		'type':    'v6'
 	});
 
 	assert(sorted[4], {
-		ip:    '0001:0003:0000:0000:0000:0000:0003:0007',
-		scope: 'public',
-		type:  'v6'
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000',
+		'netmask': '00000000000100100000000000110100000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000',
+		'network': '0012:0034:0000:0000:0000:0000:0080:0000',
+		'scope':   'public',
+		'type':    'v6'
 	});
 
 	assert(sorted[5], {
-		ip:    '0012:0034:0000:0000:0000:0000:00ab:00cd',
-		scope: 'public',
-		type:  'v6'
+		'bitmask': '11111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+		'netmask': '00000000000100110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+		'network': '0013:0000:0000:0000:0000:0000:0000:0000',
+		'scope':   'public',
+		'type':    'v6'
 	});
 
 	assert(sorted[6], {
-		ip:    '0013:0000:0000:0000:0000:0000:0000:0037',
-		scope: 'public',
-		type:  'v6'
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110000000000000000',
+		'netmask': '10101011110011010001001000110100000000000000000000000000000000000000000000000000000000000000000010101011110011010000000000000000',
+		'network': 'abcd:1234:0000:0000:0000:0000:abcd:0000',
+		'scope':   'public',
+		'type':    'v6'
 	});
 
 	assert(sorted[7], {
-		ip:    'abcd:1234:0000:0000:0000:0000:abcd:1234',
-		scope: 'public',
-		type:  'v6'
+		'bitmask': '11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000',
+		'netmask': '11111110100000000001001000110100000100100011010000010010001101000001001000110100000100100011010000000000000000000000000000000000',
+		'network': 'fe80:1234:1234:1234:1234:1234:0000:0000',
+		'scope':   'public',
+		'type':    'v6'
 	});
 
 });
