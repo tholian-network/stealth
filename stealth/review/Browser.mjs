@@ -5,7 +5,7 @@ import { Browser, isBrowser, isMode                                   } from '..
 import { Request                                                      } from '../../stealth/source/Request.mjs';
 import { isTab                                                        } from '../../stealth/source/Tab.mjs';
 import { URL                                                          } from '../../stealth/source/parser/URL.mjs';
-import { connect as connect_stealth, disconnect as disconnect_stealth } from './Stealth.mjs';
+import { connect as connect_stealth, disconnect as disconnect_stealth } from '../../stealth/review/Stealth.mjs';
 
 
 

@@ -561,15 +561,21 @@ describe('DNS.send()/client/TXT', function(assert) {
 			},
 			payload: {
 				questions: [{
-					domain: 'tholian.network',
+					domain: 'radar.tholian.network',
 					type:   'TXT',
 					value:  null
 				}],
 				answers: [{
-					domain: 'tholian.network',
+					domain: 'radar.tholian.network',
 					type:   'TXT',
 					value:  [
-						Buffer.from('All your data are belong to you, the user.', 'utf8')
+						Buffer.from('connection=broadband', 'utf8')
+					]
+				}, {
+					domain: 'radar.tholian.network',
+					type:   'TXT',
+					value:  [
+						Buffer.from('version=X0:2021-12-31', 'utf8')
 					]
 				}]
 			}
@@ -585,7 +591,7 @@ describe('DNS.send()/client/TXT', function(assert) {
 			},
 			payload: {
 				questions: [{
-					domain: 'tholian.network',
+					domain: 'radar.tholian.network',
 					type:   'TXT',
 					value:  null
 				}]
