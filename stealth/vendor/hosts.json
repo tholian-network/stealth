@@ -1,0 +1,47 @@
+[
+	{
+		"domain": "tholian.network",
+		"hosts": [
+			{
+				"ip": "185.199.108.153",
+				"scope": "public",
+				"type": "v4"
+			}, {
+				"ip": "185.199.109.153",
+				"scope": "public",
+				"type": "v4"
+			}, {
+				"ip": "185.199.110.153",
+				"scope": "public",
+				"type": "v4"
+			}, {
+				"ip": "185.199.111.153",
+				"scope": "public",
+				"type": "v4"
+			}
+		]
+	}, {
+		"domain": "searx.prvcy.eu",
+		"hosts": [
+			{
+				"ip": "95.217.14.39",
+				"scope": "public",
+				"type": "v4"
+			},
+			{
+				"ip": "2a01:4f9:c010:5df1::1",
+				"scope": "public",
+				"type": "v6"
+			}
+		]
+	}, {
+		"domain": "wiby.me",
+		"hosts": [
+			{
+				"ip": "172.93.49.59",
+				"scope": "public",
+				"type": "v4"
+			}
+		]
+	}
+]

@@ -1,0 +1,95 @@
+[
+	{
+		"domain": "amazon.com",
+		"policies": [
+			{
+				"path": "/s/*",
+				"query": "k"
+			}
+		]
+	},
+	{
+		"domain": "bing.com",
+		"policies": [
+			{
+				"path": "/search",
+				"query": "q&search"
+			}
+		]
+	},
+	{
+		"domain": "clickserve.dartsearch.net",
+		"policies": [
+			{
+				"path": "/link/click",
+				"query": "ds_dest_url"
+			}
+		]
+	},
+	{
+		"domain": "ebay.com",
+		"policies": [
+			{
+				"path": "/sch/i.html",
+				"query": "_nkw&_sacat&LH_*"
+			}
+		]
+	},
+	{
+		"domain": "google.com",
+		"policies": [
+			{
+				"path": "/search",
+				"query": "q&tbm"
+			},
+			{
+				"path": "/aclk",
+				"query": "ai&sa"
+			}
+		]
+	},
+	{
+		"domain": "imdb.com",
+		"policies": [
+			{
+				"path": "/find",
+				"query": "q&s&ttype"
+			}
+		]
+	},
+	{
+		"domain": "reddit.com",
+		"policies": [
+			{
+				"path": "/r/*/controversial/",
+				"query": "sort&t"
+			},
+			{
+				"path": "/r/*/top/",
+				"query": "t"
+			}
+		]
+	},
+	{
+		"domain": "shutterstock.com",
+		"policies": [
+			{
+				"path": "/search/",
+				"query": "age&artists&color&editorial&ethnicity&exclude_keywords&gender&image_type&measurement&min_height&min_width&mreleased&number_of_people&orientation&safe&sort"
+			}
+		]
+	},
+	{
+		"domain": "tholian.network",
+		"policies": []
+	},
+	{
+		"domain": "youtube.com",
+		"policies": [
+			{
+				"path": "/watch",
+				"query": "index&list&v"
+			}
+		]
+	}
+]

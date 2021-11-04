@@ -169,7 +169,7 @@ const vendor = (() => {
 
 	let root = path.resolve(url.fileURLToPath(import.meta.url), '../../../');
 
-	return root + '/profile';
+	return root + '/stealth/vendor';
 
 })();
 

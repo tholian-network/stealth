@@ -1,0 +1,43 @@
+[
+	{
+		"domain": "tholian.network",
+		"beacons": [
+			{
+				"path": "/*",
+				"query": null,
+				"select": "article div,article figure,article p,article ul",
+				"term": "article"
+			},
+			{
+				"path": "/*",
+				"query": null,
+				"select": "meta[property=\"og:description\"]",
+				"term": "description"
+			},
+			{
+				"path": "/*",
+				"query": null,
+				"select": "meta[property=\"og:locale\"]",
+				"term": "language"
+			},
+			{
+				"path": "/*",
+				"query": null,
+				"select": "footer",
+				"term": "publisher"
+			},
+			{
+				"path": "/*",
+				"query": null,
+				"select": "meta[property=\"og:title\"]",
+				"term": "title"
+			},
+			{
+				"path": "/*",
+				"query": null,
+				"select": "meta[property=\"og:type\"]",
+				"term": "type"
+			}
+		]
+	}
+]
