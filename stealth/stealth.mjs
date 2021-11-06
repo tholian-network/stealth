@@ -19,7 +19,10 @@ const show_help = () => {
 	console.log('');
 	console.log('Usage Notes:');
 	console.log('');
-	console.log('    Network Port 65432 must be available.');
+	console.log('    The following Network Ports must be available:');
+	console.log('');
+	console.log('    - 5353  (Multicast/UDP)');
+	console.log('    - 65432 (Multicast/UDP and Unicast/TCP)');
 	console.log('');
 	console.log('Available Actions:');
 	console.log('');
@@ -40,6 +43,7 @@ const show_help = () => {
 	console.log('');
 	console.log('Examples:');
 	console.log('');
+	console.log('    stealth discover;');
 	console.log('    stealth serve --debug=true --host=myhostname;');
 	console.log('    stealth serve --profile=/tmp/stealth-profile;');
 	console.log('');

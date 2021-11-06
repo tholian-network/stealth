@@ -1,15 +1,16 @@
 
 import fs      from 'fs';
+import os      from 'os';
 import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { _, copy, remove        } from '../base/make.mjs';
-import { console                } from '../base/source/node/console.mjs';
-import { Buffer                 } from '../base/source/node/Buffer.mjs';
-import { isString               } from '../base/source/String.mjs';
-import { build as build_base    } from '../base/make.mjs';
-import { build as build_browser } from '../browser/make.mjs';
+import { _, copy, rebase, remove, replace } from '../base/make.mjs';
+import { console                          } from '../base/source/node/console.mjs';
+import { Buffer                           } from '../base/source/node/Buffer.mjs';
+import { isString                         } from '../base/source/String.mjs';
+import { build as build_base              } from '../base/make.mjs';
+import { build as build_browser           } from '../browser/make.mjs';
 
 
 const CACHE  = {};
@@ -17,69 +18,42 @@ const FILE   = url.fileURLToPath(import.meta.url);
 const ROOT   = path.dirname(path.resolve(FILE, '../'));
 const TARGET = ROOT;
 
-const rebase = (url) => {
+// TODO: Find out a mechanism to import VERSION
+// without requirement of other dependencies
+const VERSION = 'X0:2021-10-04';
 
-	let buffer = null;
+const mktemp = (sandbox) => {
 
-	try {
-		buffer = fs.readFileSync(path.resolve(url));
-	} catch (err) {
-		buffer = null;
+	let folder   = '/tmp/' + sandbox;
+	let platform = os.platform();
+	let suffix   = '';
+
+	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
+		folder = path.resolve('/tmp/' + sandbox);
+	} else if (platform === 'android') {
+		folder = path.resolve(process.env.TMPDIR + '/' + sandbox);
+	} else if (platform === 'darwin') {
+		folder = path.resolve(process.env.TMPDIR + '/' + sandbox);
+	} else if (platform === 'win32') {
+		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\' + sandbox);
 	}
 
-	if (buffer !== null) {
+	if (folder.endsWith('/') === true) {
+		folder = folder.substr(0, folder.length - 1);
+	}
 
-		let lines = [];
+	for (let a = 0; a < 8; a++) {
 
-		buffer.toString('utf8').split('\n').forEach((line) => {
-
-			if (line.startsWith('import') === true && line.includes(' from ') === true) {
-
-				let index0 = line.indexOf('\'', line.indexOf(' from '));
-				let index1 = line.indexOf('\'', index0 + 1);
-
-				if (index0 !== -1 && index1 !== -1) {
-
-					let source = line.substr(index0 + 1, index1 - index0 - 1);
-					if (source === '../base/index.mjs') {
-						source = './extern/base.mjs';
-					}
-
-					line = line.substr(0, index0 + 1) + source + line.substr(index1);
-
-				}
-
-			}
-
-			lines.push(line);
-
-		});
-
-		let result = false;
-
-		try {
-			fs.writeFileSync(path.resolve(url), Buffer.from(lines.join('\n'), 'utf8'));
-			result = true;
-		} catch (err) {
-			result = false;
+		let val = '' + ((Math.random() * 0xff) | 0).toString(16);
+		if (val.length < 2) {
+			val = '0' + val;
 		}
 
-		if (result === true) {
-
-			return true;
-
-		} else {
-
-			console.error('stealth: rebase("' + _(url) + '")');
-
-			return false;
-
-		}
+		suffix += val;
 
 	}
 
-
-	return false;
+	return folder + '-' + suffix;
 
 };
 
@@ -166,10 +140,12 @@ export const build = async (target) => {
 
 			[
 				build_browser(target),
-				copy(ROOT + '/base/build/node.mjs', target + '/stealth/extern/base.mjs'),
-				copy(ROOT + '/stealth/index.mjs',   target + '/stealth/index.mjs'),
-				copy(ROOT + '/stealth/stealth.mjs', target + '/stealth/stealth.mjs'),
-				copy(ROOT + '/stealth/source',      target + '/stealth/source'),
+				copy(ROOT + '/base/build/node.mjs',     target + '/stealth/extern/base.mjs'),
+				copy(ROOT + '/stealth/index.mjs',       target + '/stealth/index.mjs'),
+				copy(ROOT + '/stealth/stealth.mjs',     target + '/stealth/stealth.mjs'),
+				copy(ROOT + '/stealth/source',          target + '/stealth/source'),
+				copy(ROOT + '/stealth/vendor',          target + '/stealth/vendor'),
+				rebase(target + '/stealth/stealth.mjs', target + '/stealth/extern/base.mjs')
 			].forEach((result) => results.push(result));
 
 		}
@@ -203,22 +179,33 @@ export const pack = async (target) => {
 
 	console.info('stealth: pack("' + _(target) + '")');
 
+	let sandbox = mktemp('stealth-package');
 	let results = [
-		clean(target),
-		build(target)
+		clean(sandbox + '/src'),
+		build(sandbox + '/src'),
+		copy(ROOT + '/stealth/package/archlinux/PKGBUILD',                sandbox + '/PKGBUILD'),
+		copy(ROOT + '/stealth/package/archlinux/tholian-stealth.desktop', sandbox + '/src/tholian-stealth.desktop'),
+		copy(ROOT + '/stealth/package/archlinux/tholian-stealth.mjs',     sandbox + '/src/tholian-stealth.mjs'),
+		copy(ROOT + '/stealth/package/archlinux/tholian-stealth.svg',     sandbox + '/src/tholian-stealth.svg'),
+		replace(sandbox + '/PKGBUILD', {
+			VERSION: VERSION.split(':').pop().split('-').join('.')
+		})
 	];
 
-	if (target === TARGET) {
 
-		// Do Nothing
 
-	} else {
+	// if (target === TARGET) {
 
-		[
-			rebase(target + '/stealth/stealth.mjs')
-		].forEach((result) => results.push(result));
+	// 	// Do Nothing
 
-	}
+	// } else {
+
+	// }
+
+
+	// TODO: copy recursively /stealth/build to /tmp/stealth
+	// TODO: makepkg --noextract
+
 
 
 	if (results.includes(false) === false) {

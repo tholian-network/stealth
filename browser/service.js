@@ -148,7 +148,6 @@ const ASSETS  = [
 	'source/parser/HTML.mjs',
 	'source/parser/IP.mjs',
 	'source/parser/NET.mjs',
-	'source/parser/SUBNET.mjs',
 	'source/parser/UA.mjs',
 	'source/parser/URL.mjs'
 ];

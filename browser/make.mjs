@@ -4,11 +4,11 @@ import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { _, copy, read, remove, write } from '../base/make.mjs';
-import { console                      } from '../base/source/node/console.mjs';
-import { isObject                     } from '../base/source/Object.mjs';
-import { isString                     } from '../base/source/String.mjs';
-import { build as build_base          } from '../base/make.mjs';
+import { _, copy, read, rebase, remove, write } from '../base/make.mjs';
+import { console                              } from '../base/source/node/console.mjs';
+import { isObject                             } from '../base/source/Object.mjs';
+import { isString                             } from '../base/source/String.mjs';
+import { build as build_base                  } from '../base/make.mjs';
 
 
 
@@ -159,6 +159,7 @@ export const clean = async (target) => {
 				remove(target + '/browser/browser.mjs'),
 				remove(target + '/browser/design'),
 				remove(target + '/browser/extern/base.mjs'),
+				remove(target + '/browser/extern/console.mjs'),
 				remove(target + '/browser/index.html'),
 				remove(target + '/browser/index.mjs'),
 				remove(target + '/browser/index.webmanifest'),
@@ -231,6 +232,7 @@ export const build = async (target) => {
 				copy(ROOT + '/browser/browser.mjs',            target + '/browser/browser.mjs'),
 				copy(ROOT + '/browser/design',                 target + '/browser/design'),
 				copy(ROOT + '/base/build/browser.mjs',         target + '/browser/extern/base.mjs'),
+				copy(ROOT + '/base/source/node/console.mjs',   target + '/browser/extern/console.mjs'),
 				copy(ROOT + '/browser/index.html',             target + '/browser/index.html'),
 				copy(ROOT + '/browser/index.mjs',              target + '/browser/index.mjs'),
 				copy(ROOT + '/browser/index.webmanifest',      target + '/browser/index.webmanifest'),
@@ -242,7 +244,8 @@ export const build = async (target) => {
 				copy(ROOT + '/browser/source/ENVIRONMENT.mjs', target + '/browser/source/ENVIRONMENT.mjs'),
 				copy(ROOT + '/stealth/source/parser',          target + '/browser/source/parser'),
 				copy(ROOT + '/browser/source/Session.mjs',     target + '/browser/source/Session.mjs'),
-				copy(ROOT + '/stealth/source/Tab.mjs',         target + '/browser/source/Tab.mjs')
+				copy(ROOT + '/stealth/source/Tab.mjs',         target + '/browser/source/Tab.mjs'),
+				rebase(target + '/browser/browser.mjs',        target + '/browser/extern/console.mjs')
 			].forEach((result) => results.push(result));
 
 		}

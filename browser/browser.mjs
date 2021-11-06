@@ -164,8 +164,15 @@ const which = (program) => {
 	let result = null;
 
 	try {
-		result = child_process.execSync('which ' + program).toString('utf8').trim();
+		result = child_process.execSync('which ' + program + ' 2> /dev/null').toString('utf8').trim();
 	} catch (err) {
+		result = null;
+	}
+
+	if (
+		typeof result === 'string'
+		&& result.trim().length === 0
+	) {
 		result = null;
 	}
 

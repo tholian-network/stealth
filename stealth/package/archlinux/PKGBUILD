@@ -1,0 +1,35 @@
+
+pkgname=tholian-stealth
+pkgver=VERSION
+pkgrel=1
+pkgdesc="Secure, Peer-to-Peer, Private and Automateable Web Browser/Scraper/Proxy"
+arch=(any)
+url="https://github.com/tholian-network/stealth"
+license=("GPL")
+depends=("nodejs")
+optdepends=(
+	"electron: Electron as Webview",
+	"ungoogled-chromium: Chromium as Webview",
+	"gjs+webkit2gtk: Webkit2 (GTK) as Webview"
+)
+
+
+
+package() {
+
+	mkdir -p "$pkgdir/usr/lib/tholian/browser";
+	mkdir -p "$pkgdir/usr/lib/tholian/stealth";
+	mkdir -p "$pkgdir/usr/share/applications";
+	mkdir -p "$pkgdir/usr/share/icons";
+
+	cp -r $srcdir/browser/*              "$pkgdir/usr/lib/tholian/browser/";
+	cp -r $srcdir/stealth/*              "$pkgdir/usr/lib/tholian/stealth/";
+	cp "$srcdir/tholian-stealth.svg"     "$pkgdir/usr/share/icons/tholian-stealth.svg";
+	cp "$srcdir/tholian-stealth.desktop" "$pkgdir/usr/share/applications/tholian-stealth.desktop";
+	cp "$srcdir/tholian-stealth.mjs"     "$pkgdir/usr/bin/tholian-stealth";
+
+	# TODO: Use install to set chmod rights
+	# TODO: Integrate systemd service file
+
+}
+

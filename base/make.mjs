@@ -5,6 +5,7 @@ import process from 'process';
 import url     from 'url';
 
 import { console  } from './source/node/console.mjs';
+import { isObject } from './source/Object.mjs';
 import { isString } from './source/String.mjs';
 
 
@@ -181,6 +182,108 @@ export const read = (url) => {
 		path:   url,
 		buffer: buffer
 	};
+
+};
+
+export const rebase = (url, src) => {
+
+	src = isString(src) ? src : './extern/base.mjs';
+
+
+	if (src.startsWith('/') === true) {
+		src = './' + path.relative(path.dirname(url), src);
+	}
+
+
+	let buffer = null;
+
+	try {
+		buffer = fs.readFileSync(path.resolve(url));
+	} catch (err) {
+		buffer = null;
+	}
+
+	if (buffer !== null) {
+
+		let lines = [];
+
+		buffer.toString('utf8').split('\n').forEach((line) => {
+
+			if (line.startsWith('import') === true && line.includes(' from ') === true) {
+
+				let index0 = line.indexOf('\'', line.indexOf(' from '));
+				let index1 = line.indexOf('\'', index0 + 1);
+
+				if (index0 !== -1 && index1 !== -1) {
+
+					let check = line.substr(index0 + 1, index1 - index0 - 1);
+					if (check === '../base/index.mjs') {
+						line = line.substr(0, index0 + 1) + src + line.substr(index1);
+					}
+
+				}
+
+			}
+
+			lines.push(line);
+
+		});
+
+		let result = false;
+
+		try {
+			fs.writeFileSync(path.resolve(url), Buffer.from(lines.join('\n'), 'utf8'));
+			result = true;
+		} catch (err) {
+			result = false;
+		}
+
+		if (result === true) {
+
+			return true;
+
+		} else {
+
+			console.error('rebase("' + _(url) + '","' + _(src) + '")');
+
+			return false;
+
+		}
+
+	}
+
+
+	return false;
+
+};
+
+export const replace = (url, map) => {
+
+	map = isObject(map) ? map : {};
+
+
+	let file = read(url);
+	if (file.buffer !== null && Object.keys(map).length > 0) {
+
+		let buffer = Buffer.from(file.buffer.toString('utf8').split('\n').map((line) => {
+
+			Object.keys(map).forEach((key) => {
+
+				if (line.includes(key) === true) {
+					line = line.split(key).join(map[key]);
+				}
+
+			});
+
+			return line;
+
+		}).join('\n'), 'utf8');
+
+		return write(url, buffer);
+
+	}
+
+	return false;
 
 };
 

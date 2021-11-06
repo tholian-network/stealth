@@ -177,15 +177,15 @@ const vendor = (() => {
 
 const ENVIRONMENT = {
 
-	action:    action,
-	flags:     flags,
-	hostname:  hostname,
-	hosts:     hosts,
-	ips:       ips,
-	profile:   profile,
-	root:      root,
-	temp:      temp,
-	vendor:    vendor
+	action:   action,
+	flags:    flags,
+	hostname: hostname,
+	hosts:    hosts,
+	ips:      ips,
+	profile:  profile,
+	root:     root,
+	temp:     temp,
+	vendor:   vendor
 
 };
 

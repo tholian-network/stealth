@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+	<rect fill="#000000" x="0" y="0" width="256" height="256"/>
+	<g fill="transparent" stroke="#ffffff" stroke-linejoin="round" stroke-width="8">
+		<path d="M 81 173 l -31 -18 l 62 36 l 0 40 l -92 -56 l 0 -84 l 108 -76 l 108 76 l 0 84 l -92 56 l 0 -40 l 62 -36 l -31 18"/>
+	</g>
+	<g fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-width="8">
+		<polygon points="54,122 112,142 54,98"/>
+		<polygon points="200,122 144,142 200,98"/>
+	</g>
+</svg>
+
