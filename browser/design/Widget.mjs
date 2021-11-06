@@ -6,6 +6,30 @@ import { Element, isElement                                        } from './Ele
 
 const WIDGETS = [];
 
+const isObjectAlike = function(obj) {
+
+	if (obj === null) {
+		return false;
+	} else if (obj === undefined) {
+		return false;
+	} else if (isObject(obj) === true) {
+		return true;
+	} else {
+
+		let str = Object.prototype.toString.call(obj);
+		if (
+			str.startsWith('[object') === true
+			&& str.endsWith(']') === true
+		) {
+			return true;
+		}
+
+	}
+
+	return false;
+
+};
+
 export const isWidget = function(obj) {
 
 	let str = Object.prototype.toString.call(obj);
@@ -92,7 +116,10 @@ const setValue = (element, value) => {
 
 		result = true;
 
-	} else if (isArray(element) === true && isArray(value) === true) {
+	} else if (
+		isArray(element) === true
+		&& isArray(value) === true
+	) {
 
 		let check = [];
 
@@ -117,7 +144,10 @@ const setValue = (element, value) => {
 			result = true;
 		}
 
-	} else if (isArray(element) === true && isArray(value) === false) {
+	} else if (
+		isArray(element) === true
+		&& isArray(value) === false
+	) {
 
 		let check = element.filter((e) => (e.type === 'input' && e.attr('type') === 'radio'));
 		if (element.length > 0 && element.length === check.length) {
@@ -135,7 +165,10 @@ const setValue = (element, value) => {
 
 		}
 
-	} else if (isObject(element) === true && (isObject(value) === true || Object.keys(value).length > 0)) {
+	} else if (
+		isObject(element) === true
+		&& isObjectAlike(value) === true
+	) {
 
 		let check = [];
 

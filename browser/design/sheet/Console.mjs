@@ -34,40 +34,44 @@ const Console = function(/* browser */) {
 
 	});
 
-	this.console.on('contextmenu', (e) => {
+	if (this.console !== null) {
 
-		let context = Widget.query('browser-menu-context');
-		if (context !== null) {
+		this.console.on('contextmenu', (e) => {
 
-			let element = Element.toElement(e.target);
-			if (element.type === 'i') {
-				element = Element.toElement(e.target.parentNode);
-			}
+			let context = Widget.query('browser-menu-context');
+			if (context !== null) {
 
-			if (element.type === 'base-console-line') {
+				let element = Element.toElement(e.target);
+				if (element.type === 'i') {
+					element = Element.toElement(e.target.parentNode);
+				}
 
-				let area = element.area();
-				if (area !== null) {
+				if (element.type === 'base-console-line') {
 
-					context.value([{
-						label: 'copy',
-						value: element.value()
-					}]);
+					let area = element.area();
+					if (area !== null) {
 
-					context.area({
-						x: e.x,
-						y: e.y
-					});
+						context.value([{
+							label: 'copy',
+							value: element.value()
+						}]);
 
-					context.emit('show');
+						context.area({
+							x: e.x,
+							y: e.y
+						});
+
+						context.emit('show');
+
+					}
 
 				}
 
 			}
 
-		}
+		});
 
-	});
+	}
 
 	this.element.on('show', () => {
 
