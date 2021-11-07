@@ -3,13 +3,14 @@ import fs   from 'fs';
 import net  from 'net';
 import path from 'path';
 
-import { console, Buffer, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { ENVIRONMENT                                               } from '../../source/ENVIRONMENT.mjs';
-import { isStealth                                                 } from '../../source/Stealth.mjs';
-import { HTTP                                                      } from '../../source/connection/HTTP.mjs';
-import { HTTP as PACKET                                            } from '../../source/packet/HTTP.mjs';
-import { isServices                                                } from '../../source/server/Services.mjs';
-import { URL                                                       } from '../../source/parser/URL.mjs';
+import { console, Buffer, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { ENVIRONMENT                                                         } from '../../source/ENVIRONMENT.mjs';
+import { isStealth                                                           } from '../../source/Stealth.mjs';
+import { HTTP                                                                } from '../../source/connection/HTTP.mjs';
+import { HTTP as PACKET                                                      } from '../../source/packet/HTTP.mjs';
+import { isServices                                                          } from '../../source/server/Services.mjs';
+import { IP                                                                  } from '../../source/parser/IP.mjs';
+import { URL                                                                 } from '../../source/parser/URL.mjs';
 
 
 
@@ -337,6 +338,10 @@ const Webserver = function(services, stealth) {
 
 	this.stealth = stealth;
 
+	this.__state = {
+		connections: {}
+	};
+
 };
 
 
@@ -407,15 +412,25 @@ Webserver.prototype = {
 			) {
 
 				let connection = HTTP.upgrade(socket, packet);
+
 				if (connection !== null) {
+
+					let remote = connection.toJSON().data['remote'];
 
 					connection.once('@connect', () => {
 
 						if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-							let info = connection.toJSON();
-							if (info.remote !== null) {
-								console.log('Webserver: Client "' + info.remote.host + '" connected.');
+							let host = IP.render(remote['host']);
+							if (host !== null) {
+
+								if (this.__state.connections[host] === undefined) {
+									console.log('Webserver: Client "' + host + '" connected.');
+									this.__state.connections[host] = 1;
+								} else if (isNumber(this.__state.connections[host]) === true) {
+									this.__state.connections[host]++;
+								}
+
 							}
 
 						}
@@ -471,9 +486,22 @@ Webserver.prototype = {
 
 						if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-							let info = connection.toJSON();
-							if (info.remote !== null) {
-								console.log('Webserver: Client "' + info.remote.host + '" disconnected.');
+							let host = IP.render(remote['host']);
+							if (host !== null) {
+
+								if (isNumber(this.__state.connections[host]) === true) {
+									this.__state.connections[host]--;
+								}
+
+								setTimeout(() => {
+
+									if (this.__state.connections[host] === 0) {
+										console.log('Webserver: Client "' + host + '" disconnected.');
+										delete this.__state.connections[host];
+									}
+
+								}, 60000);
+
 							}
 
 						}

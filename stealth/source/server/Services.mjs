@@ -1,20 +1,21 @@
 
 import net from 'net';
 
-import { console, Buffer, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { isStealth                                                 } from '../../source/Stealth.mjs';
-import { WS                                                        } from '../../source/connection/WS.mjs';
-import { HTTP as PACKET                                            } from '../../source/packet/HTTP.mjs';
-import { Beacon                                                    } from '../../source/server/service/Beacon.mjs';
-import { Blocker                                                   } from '../../source/server/service/Blocker.mjs';
-import { Cache                                                     } from '../../source/server/service/Cache.mjs';
-import { Host                                                      } from '../../source/server/service/Host.mjs';
-import { Mode                                                      } from '../../source/server/service/Mode.mjs';
-import { Peer                                                      } from '../../source/server/service/Peer.mjs';
-import { Policy                                                    } from '../../source/server/service/Policy.mjs';
-import { Redirect                                                  } from '../../source/server/service/Redirect.mjs';
-import { Session                                                   } from '../../source/server/service/Session.mjs';
-import { Settings                                                  } from '../../source/server/service/Settings.mjs';
+import { console, Buffer, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { isStealth                                                           } from '../../source/Stealth.mjs';
+import { WS                                                                  } from '../../source/connection/WS.mjs';
+import { HTTP as PACKET                                                      } from '../../source/packet/HTTP.mjs';
+import { IP                                                                  } from '../../source/parser/IP.mjs';
+import { Beacon                                                              } from '../../source/server/service/Beacon.mjs';
+import { Blocker                                                             } from '../../source/server/service/Blocker.mjs';
+import { Cache                                                               } from '../../source/server/service/Cache.mjs';
+import { Host                                                                } from '../../source/server/service/Host.mjs';
+import { Mode                                                                } from '../../source/server/service/Mode.mjs';
+import { Peer                                                                } from '../../source/server/service/Peer.mjs';
+import { Policy                                                              } from '../../source/server/service/Policy.mjs';
+import { Redirect                                                            } from '../../source/server/service/Redirect.mjs';
+import { Session                                                             } from '../../source/server/service/Session.mjs';
+import { Settings                                                            } from '../../source/server/service/Settings.mjs';
 
 
 
@@ -41,7 +42,11 @@ const Services = function(stealth) {
 
 	if (stealth !== null) {
 
-		this.stealth     = stealth;
+		this.stealth = stealth;
+
+		this.__state = {
+			connections: {}
+		};
 
 		this['beacon']   = new Beacon(stealth);
 		this['blocker']  = new Blocker(stealth);
@@ -56,7 +61,11 @@ const Services = function(stealth) {
 
 	} else {
 
-		this.stealth     = null;
+		this.stealth = null;
+
+		this.__state = {
+			connections: {}
+		};
 
 		this['beacon']   = null;
 		this['blocker']  = null;
@@ -189,6 +198,8 @@ Services.prototype = {
 			let connection = WS.upgrade(socket, packet);
 			if (connection !== null) {
 
+				let remote = connection.toJSON().data['remote'];
+
 				connection.once('@connect', () => {
 
 					if (this.stealth !== null) {
@@ -197,9 +208,16 @@ Services.prototype = {
 
 					if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-						let info = connection.toJSON();
-						if (info.remote !== null) {
-							console.log('Services: Client "' + info.remote.host + '" connected.');
+						let host = IP.render(remote['host']);
+						if (host !== null) {
+
+							if (this.__state.connections[host] === undefined) {
+								console.log('Services: Client "' + host + '" connected.');
+								this.__state.connections[host] = 1;
+							} else if (isNumber(this.__state.connections[host]) === true) {
+								this.__state.connections[host]++;
+							}
+
 						}
 
 					}
@@ -243,7 +261,7 @@ Services.prototype = {
 							let service = request.headers['service'] || null;
 
 							// XXX: Nice try though
-							if (service === 'stealth') {
+							if (service === 'stealth' || service === '__state') {
 								service = null;
 							}
 
@@ -344,9 +362,22 @@ Services.prototype = {
 
 					if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-						let info = connection.toJSON();
-						if (info.remote !== null) {
-							console.log('Services: Client "' + info.remote.host + '" disconnected.');
+						let host = IP.render(remote['host']);
+						if (host !== null) {
+
+							if (isNumber(this.__state.connections[host]) === true) {
+								this.__state.connections[host]--;
+							}
+
+							setTimeout(() => {
+
+								if (this.__state.connections[host] === 0) {
+									console.log('Services: Client "' + host + '" disconnected.');
+									delete this.__state.connections[host];
+								}
+
+							}, 60000);
+
 						}
 
 					}

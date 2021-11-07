@@ -6,6 +6,7 @@ import { isStealth                           } from '../../source/Stealth.mjs';
 import { HTTP                                } from '../../source/connection/HTTP.mjs';
 import { HTTP as PACKET                      } from '../../source/packet/HTTP.mjs';
 import { isServices                          } from '../../source/server/Services.mjs';
+import { IP                                  } from '../../source/parser/IP.mjs';
 import { URL                                 } from '../../source/parser/URL.mjs';
 import { Request                             } from '../../source/Request.mjs';
 
@@ -51,6 +52,10 @@ const proxy_http_connect = function(socket, request) {
 
 
 						let tunnel = null;
+						let remote = {
+							host: IP.parse(socket.remoteAddress),
+							port: socket.remotePort
+						};
 
 						try {
 
@@ -62,12 +67,50 @@ const proxy_http_connect = function(socket, request) {
 								socket.pipe(tunnel);
 								tunnel.pipe(socket);
 
+								if (this.stealth !== null && this.stealth._settings.debug === true) {
+
+									let host = IP.render(remote['host']);
+									if (host !== null) {
+
+										if (this.__state.connections[host] === undefined) {
+											console.log('Webproxy: Client "' + host + '" connected.');
+											this.__state.connections[host] = 1;
+										} else if (isNumber(this.__state.connections[host]) === true) {
+											this.__state.connections[host]++;
+										}
+
+									}
+
+								}
+
 								socket.write(PACKET.encode(null, {
 									headers: {
 										'@status': 200
 									},
 									payload: null
 								}));
+
+							});
+
+							tunnel.on('close', () => {
+
+								let host = IP.render(remote['host']);
+								if (host !== null) {
+
+									if (isNumber(this.__state.connections[host]) === true) {
+										this.__state.connections[host]--;
+									}
+
+									setTimeout(() => {
+
+										if (this.__state.connections[host] === 0) {
+											console.log('Webserver: Client "' + host + '" disconnected.');
+											delete this.__state.connections[host];
+										}
+
+									}, 60000);
+
+								}
 
 							});
 
@@ -194,14 +237,13 @@ const proxy_http_connect = function(socket, request) {
 
 const proxy_http_request = function(socket, packet) {
 
-	console.log(packet);
-
 	let connection = HTTP.upgrade(socket, packet);
 	if (connection !== null) {
 
-		let link  = (packet.headers['@url'] || '');
-		let flags = [];
-		let tab   = null;
+		let link   = (packet.headers['@url'] || '');
+		let flags  = [];
+		let remote = connection.toJSON().data['remote'];
+		let tab    = null;
 
 		if (link.startsWith('https://') === true || link.startsWith('http://') === true) {
 
@@ -503,9 +545,16 @@ const proxy_http_request = function(socket, packet) {
 
 				if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-					let info = connection.toJSON();
-					if (info.remote !== null) {
-						console.log('Webproxy: Client "' + info.remote.host + '" connected.');
+					let host = IP.render(remote['host']);
+					if (host !== null) {
+
+						if (this.__state.connections[host] === undefined) {
+							console.log('Webproxy: Client "' + host + '" connected.');
+							this.__state.connections[host] = 1;
+						} else if (isNumber(this.__state.connections[host]) === true) {
+							this.__state.connections[host]++;
+						}
+
 					}
 
 				}
@@ -516,9 +565,22 @@ const proxy_http_request = function(socket, packet) {
 
 				if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-					let info = connection.toJSON();
-					if (info.remote !== null) {
-						console.log('Webproxy: Client "' + info.remote.host + '" disconnected.');
+					let host = IP.render(remote['host']);
+					if (host !== null) {
+
+						if (isNumber(this.__state.connections[host]) === true) {
+							this.__state.connections[host]--;
+						}
+
+						setTimeout(() => {
+
+							if (this.__state.connections[host] === 0) {
+								console.log('Webproxy: Client "' + host + '" disconnected.');
+								delete this.__state.connections[host];
+							}
+
+						}, 60000);
+
 					}
 
 				}
@@ -562,6 +624,10 @@ const Webproxy = function(services, stealth) {
 
 	this.services = services;
 	this.stealth  = stealth;
+
+	this.__state = {
+		connections: {}
+	};
 
 };
 
