@@ -193,12 +193,24 @@ if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 
 	let chromium = which('ungoogled-chromium') || which('chromium');
 	let electron = which('electron');
-	let gjs      = which('gjs');
 	let xdg_open = which('xdg-open');
 	let results  = [];
 
 
-	if (chromium !== null) {
+	if (electron !== null) {
+
+		[
+			mkdir(TEMP),
+			spawn(electron, [
+				ROOT + '/browser/app/index.js',
+				'--user-data-dir=' + TEMP,
+				'--app=http://localhost:65432/browser/index.html'
+			], {
+				cwd: TEMP
+			})
+		].forEach((result) => results.push(result));
+
+	} else if (chromium !== null) {
 
 		[
 			mkdir(TEMP),
@@ -209,33 +221,6 @@ if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
 			], {
 				cwd: TEMP
 			})
-		].forEach((result) => results.push(result));
-
-	} else if (electron !== null) {
-
-		[
-			mkdir(TEMP),
-			spawn(electron, [
-				ROOT + '/browser/app/electron.js',
-				'--user-data-dir=' + TEMP,
-				'--app=http://localhost:65432/browser/index.html'
-			], {
-				cwd: TEMP
-			})
-		].forEach((result) => results.push(result));
-
-	} else if (gjs !== null) {
-
-		[
-			mkdir(TEMP),
-			spawn(gjs, [
-				ROOT + '/browser/app/gjs.js',
-				'--user-data-dir=' + TEMP,
-				'--app=http://localhost:65432/browser/index.html'
-			], {
-				cwd: TEMP
-			})
-
 		].forEach((result) => results.push(result));
 
 	} else if (xdg_open !== null) {
