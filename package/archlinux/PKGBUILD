@@ -4,14 +4,9 @@ pkgver=VERSION
 pkgrel=1
 pkgdesc="Secure, Peer-to-Peer, Private and Automateable Web Browser/Scraper/Proxy"
 arch=(any)
-url="https://github.com/tholian-network/stealth"
+url="https://tholian.network/index.html"
 license=("GPL")
-depends=("nodejs")
-optdepends=(
-	"electron: Electron as Webview",
-	"ungoogled-chromium: Chromium as Webview",
-	"gjs+webkit2gtk: Webkit2 (GTK) as Webview"
-)
+depends=("nodejs", "electron")
 
 
 

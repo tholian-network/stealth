@@ -179,18 +179,58 @@ export const pack = async (target) => {
 
 	console.info('stealth: pack("' + _(target) + '")');
 
-	let sandbox = mktemp('stealth-package');
-	let results = [
-		clean(sandbox + '/src'),
-		build(sandbox + '/src'),
-		copy(ROOT + '/stealth/package/archlinux/PKGBUILD',                sandbox + '/PKGBUILD'),
-		copy(ROOT + '/stealth/package/archlinux/tholian-stealth.desktop', sandbox + '/src/tholian-stealth.desktop'),
-		copy(ROOT + '/stealth/package/archlinux/tholian-stealth.mjs',     sandbox + '/src/tholian-stealth.mjs'),
-		copy(ROOT + '/stealth/package/archlinux/tholian-stealth.svg',     sandbox + '/src/tholian-stealth.svg'),
-		replace(sandbox + '/PKGBUILD', {
-			VERSION: VERSION.split(':').pop().split('-').join('.')
-		})
-	];
+	let results = [];
+
+
+	let sandbox_archlinux = mktemp('stealth-pack-archlinux');
+	if (sandbox_archlinux !== null) {
+
+		// ArchLinux Package
+		[
+			clean(sandbox_archlinux + '/src'),
+			build(sandbox_archlinux + '/src'),
+			copy(ROOT + '/stealth/package/archlinux/PKGBUILD',                sandbox_archlinux + '/PKGBUILD'),
+			copy(ROOT + '/stealth/package/archlinux/tholian-stealth.desktop', sandbox_archlinux + '/src/tholian-stealth.desktop'),
+			copy(ROOT + '/stealth/package/archlinux/tholian-stealth.mjs',     sandbox_archlinux + '/src/tholian-stealth.mjs'),
+			copy(ROOT + '/stealth/package/archlinux/tholian-stealth.svg',     sandbox_archlinux + '/src/tholian-stealth.svg'),
+			replace(sandbox_archlinux + '/PKGBUILD', {
+				VERSION: VERSION.split(':').pop().split('-').join('.')
+			})
+		].forEach((result) => {
+			results.push(result);
+		});
+
+		// TODO: Run makepkg --noextract inside the sandbox_archlinux folder
+
+	}
+
+	// Debian Package
+	let sandbox_ubuntu = mktemp('stealth-pack-ubuntu');
+	if (sandbox_ubuntu !== null) {
+
+		// TODO: Get filesize of /data folder in bytes via du -s /path
+		let filesize = 1024;
+
+		[
+			copy(ROOT + '/stealth/package/ubuntu', sandbox_ubuntu),
+			clean(sandbox_ubuntu + '/data/usr/lib/tholian'),
+			build(sandbox_ubuntu + '/data/usr/lib/tholian'),
+			replace(sandbox_ubuntu + '/control/control', {
+				SIZE:    filesize,
+				VERSION: VERSION.split(':').pop().split('-').join('.')
+			})
+
+			// TODO: cd /path/to/data; tar czf 'sandbox_ubuntu + '/data.tar.gz *'
+			// TODO: cd /path/to/control; tar czf 'sandbox_ubuntu + '/control.tar.gz *'
+			//
+			// TODO: cd sandbox_ubuntu; ar r "filename.deb" debian-binary control.tar.gz data.tar.gz;
+		].forEach((result) => {
+			results.push(result);
+		});
+
+		// TODO: Replace VERSION and SIZE in /DEBIAN/control file
+
+	}
 
 
 

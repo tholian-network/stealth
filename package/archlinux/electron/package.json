@@ -1,0 +1,7 @@
+{
+	"name":        "tholian-stealth",
+	"version":     "VERSION",
+	"description": "Tholian Stealth",
+	"main":        "index.js",
+	"author":      "Tholian Network (https://tholian.network)"
+}
