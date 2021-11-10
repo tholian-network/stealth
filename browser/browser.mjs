@@ -5,60 +5,14 @@ import fs            from 'fs';
 import os            from 'os';
 import path          from 'path';
 import process       from 'process';
+import url           from 'url';
 
 import { console } from '../base/index.mjs';
 
 
 
-const ROOT = (() => {
-
-	let folder   = '/tmp/stealth';
-	let platform = os.platform();
-
-	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd' || platform === 'darwin') {
-
-		let pwd = process.env.PWD || null;
-		if (pwd !== null) {
-			folder = path.resolve(pwd);
-		}
-
-		if (folder.endsWith('/')) {
-			folder = folder.substr(0, folder.length - 1);
-		}
-
-	} else if (platform === 'win32') {
-
-		if (process.env.MSYSTEM === 'MINGW64') {
-
-			let pwd = process.env.PWD || null;
-			if (pwd.startsWith('/c/') === true) {
-				folder = path.resolve('C:\\' + pwd.substr(3).split('/').join('\\'));
-			}
-
-			if (folder.endsWith('/')) {
-				folder = folder.substr(0, folder.length - 1);
-			}
-
-		} else {
-
-			let cwd = null;
-			try {
-				cwd = child_process.execSync('echo %cd%').toString('utf8').trim();
-			} catch (err) {
-				cwd = null;
-			}
-
-			if (cwd !== null) {
-				folder = cwd;
-			}
-
-		}
-
-	}
-
-	return folder;
-
-})();
+const FILE = url.fileURLToPath(import.meta.url);
+const ROOT = path.dirname(path.resolve(FILE, '../'));
 
 const TEMP = (() => {
 

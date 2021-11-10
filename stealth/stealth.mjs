@@ -11,7 +11,7 @@ import { ENVIRONMENT } from './source/ENVIRONMENT.mjs';
 const show_help = () => {
 
 	console.info('');
-	console.info('Stealth');
+	console.info('Tholian Stealth (node.js build)');
 	console.info('');
 
 	console.log('');

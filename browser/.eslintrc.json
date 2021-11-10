@@ -18,15 +18,17 @@
 		"files": [ "*.mjs" ],
 		"rules": {}
 	}, {
-		"files": [ "app/electron.js" ],
+		"files": [ "app/index.js" ],
 		"env": {
 			"node": true
+		},
+		"globals": {
+			"require": true
 		}
 	}, {
-		"files": [ "app/gjs.js" ],
-		"globals": {
-			"ARGV":    true,
-			"imports": true
+		"files": [ "app/console.js" ],
+		"env": {
+			"node": true
 		}
 	}, {
 		"files": [ "service.js" ],

@@ -33,8 +33,8 @@ ${settings.sessions.length} Session${settings.sessions.length === 1 ? '' : 's'}.
 
 const init = function(debug, callback) {
 
-	callback = isFunction(callback) ? callback : null;
 	debug    = isBoolean(debug)     ? debug    : false;
+	callback = isFunction(callback) ? callback : null;
 
 
 	let result = false;
