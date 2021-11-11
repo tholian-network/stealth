@@ -36,26 +36,25 @@ const VERSION = (() => {
 		return json['version'];
 	}
 
-	return null;
+	return 'X0:SECRET';
 
 })();
 
-const replace_version = (url) => {
+const patch = (url) => {
 
 	let file = read(url);
 	if (file.buffer !== null) {
 
-		let buffer = Buffer.from(file.buffer.toString('utf8').split('\n').map((line) => {
+		let text = file.buffer.toString('utf8');
 
-			if (line.startsWith('export const VERSION = ') === true) {
-				line = 'export const VERSION = \'' + VERSION + '\';';
-			}
+		let index0 = text.indexOf('export const VERSION = \'') + 24;
+		let index1 = text.indexOf('\';', index0);
 
-			return line;
+		if (index0 !== -1 && index1 !== -1) {
+			text = text.substr(0, index0) + VERSION + text.substr(index1);
+		}
 
-		}).join('\n'), 'utf8');
-
-		return write(url, buffer);
+		return write(url, Buffer.from(text, 'utf8'));
 
 	}
 
@@ -140,7 +139,7 @@ export const build = async (target) => {
 			[
 				build_browser(),
 				copy(ROOT + '/base/build/node.mjs', target + '/stealth/extern/base.mjs'),
-				replace_version(target + '/stealth/source/Stealth.mjs')
+				patch(target + '/stealth/source/Stealth.mjs')
 			].forEach((result) => results.push(result));
 
 		} else {
@@ -153,7 +152,7 @@ export const build = async (target) => {
 				copy(ROOT + '/stealth/source',          target + '/stealth/source'),
 				copy(ROOT + '/stealth/vendor',          target + '/stealth/vendor'),
 				rebase(target + '/stealth/stealth.mjs', target + '/stealth/extern/base.mjs'),
-				replace_version(target + '/stealth/source/Stealth.mjs')
+				patch(target + '/stealth/source/Stealth.mjs')
 			].forEach((result) => results.push(result));
 
 		}

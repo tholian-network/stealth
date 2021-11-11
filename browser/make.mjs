@@ -17,7 +17,26 @@ const FILE   = url.fileURLToPath(import.meta.url);
 const ROOT   = path.dirname(path.resolve(FILE, '../'));
 const TARGET = ROOT;
 
+const VERSION = (() => {
 
+	let json = null;
+
+	try {
+		json = JSON.parse(fs.readFileSync(ROOT + '/package.json', 'utf8'));
+	} catch (err) {
+		json = null;
+	}
+
+	if (
+		isObject(json) === true
+		&& isString(json['version']) === true
+	) {
+		return json['version'];
+	}
+
+	return 'X0:SECRET';
+
+})();
 
 const IGNORED = [
 	path.resolve(ROOT + '/browser/app'),
@@ -25,6 +44,47 @@ const IGNORED = [
 	path.resolve(ROOT + '/browser/README.md'),
 	path.resolve(ROOT + '/browser/make.mjs')
 ];
+
+const patch = (url) => {
+
+	let file = read(url);
+	if (file.buffer !== null) {
+
+		let root  = path.dirname(url);
+		let text  = file.buffer.toString('utf8');
+		let files = walk(root).map((file) => {
+			return file.substr(root.length + 1);
+		}).sort((a, b) => {
+			if (a < b) return -1;
+			if (b < a) return  1;
+			return 0;
+		});
+
+		let index0 = text.indexOf('const VERSION = \'') + 17;
+		let index1 = text.indexOf('\';', index0);
+
+		if (index0 !== -1 && index1 !== -1) {
+			text = text.substr(0, index0) + VERSION + text.substr(index1);
+		}
+
+		let index2 = text.indexOf('const ASSETS  = [') + 17;
+		let index3 = text.indexOf('];', index2);
+
+		if (index2 !== -1 && index3 !== -1) {
+			text = text.substr(0, index2) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + text.substr(index3);
+		}
+
+		if (file.buffer.toString('utf8') !== text) {
+			return write(url, Buffer.from(text, 'utf8'));
+		} else {
+			return true;
+		}
+
+	}
+
+	return false;
+
+};
 
 const walk = (url, result) => {
 
@@ -77,52 +137,6 @@ const walk = (url, result) => {
 	}
 
 	return result;
-
-};
-
-const patch = (text, target) => {
-
-	let meta  = read(ROOT + '/package.json');
-	let files = walk(target + '/browser').map((url) => {
-		return url.substr((target + '/browser').length + 1);
-	}).sort((a, b) => {
-		if (a < b) return -1;
-		if (b < a) return  1;
-		return 0;
-	});
-	let version = 'X0:SECRET';
-
-	if (meta.buffer !== null) {
-
-		try {
-
-			let object = JSON.parse(meta.buffer.toString('utf8'));
-
-			if (isObject(object) === true && isString(object.version) === true) {
-				version = object.version;
-			}
-
-		} catch (err) {
-			version = 'X0:SECRET';
-		}
-
-	}
-
-	let index0 = text.indexOf('const VERSION = \'') + 17;
-	let index1 = text.indexOf('\';', index0);
-
-	if (index0 > 17 && index1 > 18) {
-		text = text.substr(0, index0) + version + text.substr(index1);
-	}
-
-	let index2 = text.indexOf('const ASSETS  = [') + 17;
-	let index3 = text.indexOf('];', index2);
-
-	if (index2 > 17 && index3 > 18) {
-		text = text.substr(0, index2) + '\n\t\'' + files.join('\',\n\t\'') + '\'\n' + text.substr(index3);
-	}
-
-	return text;
 
 };
 
@@ -222,7 +236,8 @@ export const build = async (target) => {
 				copy(ROOT + '/stealth/source/Browser.mjs', target + '/browser/source/Browser.mjs'),
 				copy(ROOT + '/stealth/source/client',      target + '/browser/source/client'),
 				copy(ROOT + '/stealth/source/parser',      target + '/browser/source/parser'),
-				copy(ROOT + '/stealth/source/Tab.mjs',     target + '/browser/source/Tab.mjs')
+				copy(ROOT + '/stealth/source/Tab.mjs',     target + '/browser/source/Tab.mjs'),
+				patch(target + '/browser/service.js')
 			].forEach((result) => results.push(result));
 
 		} else {
@@ -245,20 +260,9 @@ export const build = async (target) => {
 				copy(ROOT + '/stealth/source/parser',          target + '/browser/source/parser'),
 				copy(ROOT + '/browser/source/Session.mjs',     target + '/browser/source/Session.mjs'),
 				copy(ROOT + '/stealth/source/Tab.mjs',         target + '/browser/source/Tab.mjs'),
-				rebase(target + '/browser/browser.mjs',        target + '/browser/extern/console.mjs')
+				rebase(target + '/browser/browser.mjs',        target + '/browser/extern/console.mjs'),
+				patch(target + '/browser/service.js')
 			].forEach((result) => results.push(result));
-
-		}
-
-
-		let service_worker = read(target + '/browser/service.js');
-		if (service_worker.buffer !== null) {
-
-			let old_text = service_worker.buffer.toString('utf8');
-			let new_text = patch(old_text, target);
-			if (new_text !== old_text) {
-				results.push(write(target + '/browser/service.js', Buffer.from(new_text, 'utf8')));
-			}
 
 		}
 
