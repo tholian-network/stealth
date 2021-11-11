@@ -1,10 +1,9 @@
+#!/usr/bin/env electron
 
 const { app, BrowserWindow } = require('electron');
 const child_process          = require('child_process');
-const fs                     = require('fs');
-const path                   = require('path');
 const process                = require('process');
-const console                = require('./console.js');
+const console                = require('/usr/lib/tholian/browser/app/console.js');
 
 
 
@@ -15,7 +14,6 @@ const FLAGS = (() => {
 		'help':          null,
 		'host':          null,
 		'profile':       null,
-		'app':           'http://localhost:65432/browser/index.html',
 		'user-data-dir': '/tmp/tholian-browser'
 	};
 
@@ -80,27 +78,6 @@ const ARGS = ((flags) => {
 
 })(FLAGS);
 
-const ROOT = (() => {
-
-	let root = null;
-	let stat = null;
-
-	try {
-		root = path.resolve(__dirname, '../../');
-		stat = fs.lstatSync(root + '/stealth/stealth.mjs');
-	} catch (err) {
-		root = null;
-		stat = null;
-	}
-
-	if (stat !== null && stat.isFile() === true) {
-		return root;
-	}
-
-	return null;
-
-})();
-
 
 
 if (FLAGS.help === true) {
@@ -164,7 +141,7 @@ if (FLAGS.help === true) {
 	app.whenReady().then(() => {
 
 		setTimeout(() => {
-			STEALTH = child_process.fork(ROOT + '/stealth/stealth.mjs', ARGS, { cwd: ROOT });
+			STEALTH = child_process.fork('/usr/lib/tholian/stealth/stealth.mjs', ARGS, { cwd: '/usr/lib/tholian' });
 		}, 0);
 
 		setTimeout(() => {

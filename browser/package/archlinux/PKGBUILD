@@ -1,25 +1,24 @@
 
-pkgname=tholian-stealth
+pkgname=tholian-browser
 pkgver=VERSION
 pkgrel=1
 pkgdesc="Secure, Peer-to-Peer, Private and Automateable Web Browser/Scraper/Proxy"
 arch=(any)
 url="https://tholian.network/index.html"
 license=("GPL")
-depends=("nodejs")
-optdepends=("systemd: System Daemon Integration")
-conflicts=("tholian-browser")
+depends=("electron")
+conflicts=("tholian-stealth")
 
 
 
 package() {
 
 	mkdir -p "$pkgdir/usr/bin";
-	mkdir -p "$pkgdir/usr/lib/systemd/system";
 	mkdir -p "$pkgdir/usr/lib/tholian/browser";
 	mkdir -p "$pkgdir/usr/lib/tholian/stealth";
 	mkdir -p "$pkgdir/usr/lib/tholian/stealth/vendor/cache/headers";
 	mkdir -p "$pkgdir/usr/lib/tholian/stealth/vendor/cache/payload";
+	mkdir -p "$pkgdir/usr/share/applications";
 
 	cp -r $srcdir/browser/* "$pkgdir/usr/lib/tholian/browser/";
 	find "$pkgdir/usr/lib/tholian/browser" -type d -exec chmod 755 {} \;
@@ -29,8 +28,9 @@ package() {
 	find "$pkgdir/usr/lib/tholian/stealth" -type d -exec chmod 755 {} \;
 	find "$pkgdir/usr/lib/tholian/stealth" -type f -exec chmod 644 {} \;
 
-	install -Dm755 "$srcdir/tholian-stealth.mjs"     "$pkgdir/usr/bin/tholian-stealth";
-	install -Dm644 "$srcdir/tholian-stealth.service" "$pkgdir/usr/lib/systemd/system/tholian-stealth.service";
+	install -Dm644 "$srcdir/tholian-browser.desktop" "$pkgdir/usr/share/applications/tholian-browser.desktop";
+	install -Dm755 "$srcdir/tholian-browser.js"      "$pkgdir/usr/bin/tholian-browser";
+	install -Dm644 "$srcdir/tholian-browser.svg"     "$pkgdir/usr/share/icons/tholian-browser.svg";
 
 }
 

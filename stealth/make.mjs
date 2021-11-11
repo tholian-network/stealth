@@ -189,14 +189,13 @@ export const pack = async (target) => {
 	let results = [];
 
 
-	let sandbox_archlinux = mktemp('stealth-package-archlinux');
+	let sandbox_archlinux = mktemp('tholian-stealth-archlinux');
 	let version_archlinux = VERSION.split(':').pop().split('-').join('.');
 
 	if (sandbox_archlinux !== null) {
 
 		// ArchLinux Package
 		[
-			clean(sandbox_archlinux + '/src'),
 			build(sandbox_archlinux + '/src'),
 			remove(sandbox_archlinux + '/src/browser/app'),
 			remove(sandbox_archlinux + '/src/browser/browser.mjs'),
@@ -259,7 +258,6 @@ export const pack = async (target) => {
 			CACHE[TARGET] = true;
 			results.push(await clean());
 			results.push(await build());
-			results.push(await pack());
 		}
 
 

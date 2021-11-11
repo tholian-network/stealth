@@ -628,10 +628,7 @@ const setup = function(profile, callback) {
 					let check = [
 						setup_dir(profile + '/cache'),
 						setup_dir(profile + '/cache/headers'),
-						setup_dir(profile + '/cache/payload'),
-						setup_dir(profile + '/stash'),
-						setup_dir(profile + '/stash/headers'),
-						setup_dir(profile + '/stash/payload')
+						setup_dir(profile + '/cache/payload')
 					].filter((v) => v === false);
 
 					if (check.length !== 0) {
@@ -659,10 +656,7 @@ const setup = function(profile, callback) {
 			let check = [
 				setup_dir(profile + '/cache'),
 				setup_dir(profile + '/cache/headers'),
-				setup_dir(profile + '/cache/payload'),
-				setup_dir(profile + '/stash'),
-				setup_dir(profile + '/stash/headers'),
-				setup_dir(profile + '/stash/payload')
+				setup_dir(profile + '/cache/payload')
 			].filter((v) => v === false);
 
 			if (check.length !== 0) {

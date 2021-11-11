@@ -4,11 +4,12 @@ import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { _, copy, read, rebase, remove, write } from '../base/make.mjs';
-import { console                              } from '../base/source/node/console.mjs';
-import { isObject                             } from '../base/source/Object.mjs';
-import { isString                             } from '../base/source/String.mjs';
-import { build as build_base                  } from '../base/make.mjs';
+import { _, copy, exec, mktemp, read, rebase, remove, replace, write } from '../base/make.mjs';
+import { console                                                     } from '../base/source/node/console.mjs';
+import { isObject                                                    } from '../base/source/Object.mjs';
+import { isString                                                    } from '../base/source/String.mjs';
+import { build as build_base                                         } from '../base/make.mjs';
+import { build as build_stealth                                      } from '../stealth/make.mjs';
 
 
 
@@ -40,9 +41,11 @@ const VERSION = (() => {
 
 const IGNORED = [
 	path.resolve(ROOT + '/browser/app'),
+	path.resolve(ROOT + '/browser/build'),
+	path.resolve(ROOT + '/browser/package'),
 	path.resolve(ROOT + '/browser/browser.mjs'),
-	path.resolve(ROOT + '/browser/README.md'),
-	path.resolve(ROOT + '/browser/make.mjs')
+	path.resolve(ROOT + '/browser/make.mjs'),
+	path.resolve(ROOT + '/browser/README.md')
 ];
 
 const patch = (url) => {
@@ -79,6 +82,31 @@ const patch = (url) => {
 		} else {
 			return true;
 		}
+
+	}
+
+	return false;
+
+};
+
+const patch_json = (url) => {
+
+	let file = read(url);
+	if (file.buffer !== null) {
+
+		let json = null;
+
+		try {
+			json = JSON.parse(file.buffer.toString('utf8'));
+		} catch (err) {
+			json = null;
+		}
+
+		if (isObject(json) === true && isString(json['version']) === true) {
+			json['version'] = VERSION;
+		}
+
+		return write(url, Buffer.from(JSON.stringify(json, null, '\t'), 'utf8'));
 
 	}
 
@@ -237,6 +265,7 @@ export const build = async (target) => {
 				copy(ROOT + '/stealth/source/client',      target + '/browser/source/client'),
 				copy(ROOT + '/stealth/source/parser',      target + '/browser/source/parser'),
 				copy(ROOT + '/stealth/source/Tab.mjs',     target + '/browser/source/Tab.mjs'),
+				patch_json(target + '/browser/app/package.json'),
 				patch(target + '/browser/service.js')
 			].forEach((result) => results.push(result));
 
@@ -261,6 +290,7 @@ export const build = async (target) => {
 				copy(ROOT + '/browser/source/Session.mjs',     target + '/browser/source/Session.mjs'),
 				copy(ROOT + '/stealth/source/Tab.mjs',         target + '/browser/source/Tab.mjs'),
 				rebase(target + '/browser/browser.mjs',        target + '/browser/extern/console.mjs'),
+				patch_json(target + '/browser/app/package.json'),
 				patch(target + '/browser/service.js')
 			].forEach((result) => results.push(result));
 
@@ -295,12 +325,37 @@ export const pack = async (target) => {
 
 	console.info('browser: pack("' + _(target) + '")');
 
-	let results = [
-		clean(target),
-		build(target)
-	];
+	let results = [];
 
-	// TODO: Copy binaries and bundle them?
+
+	let sandbox_archlinux = mktemp('tholian-browser-archlinux');
+	let version_archlinux = VERSION.split(':').pop().split('-').join('.');
+
+	if (sandbox_archlinux !== null) {
+
+		// ArchLinux Package
+		[
+			build_stealth(sandbox_archlinux + '/src'),
+			copy(ROOT + '/browser/package/archlinux/PKGBUILD',                sandbox_archlinux + '/PKGBUILD'),
+			copy(ROOT + '/browser/package/archlinux/tholian-browser.desktop', sandbox_archlinux + '/src/tholian-browser.desktop'),
+			copy(ROOT + '/browser/package/archlinux/tholian-browser.js',      sandbox_archlinux + '/src/tholian-browser.js'),
+			copy(ROOT + '/browser/package/archlinux/tholian-browser.svg',     sandbox_archlinux + '/src/tholian-browser.svg'),
+			replace(sandbox_archlinux + '/PKGBUILD', {
+				VERSION: version_archlinux
+			}),
+			exec('makepkg --noextract', {
+				cwd: sandbox_archlinux
+			}),
+			copy(
+				sandbox_archlinux + '/tholian-browser-' + version_archlinux + '-1-any.pkg.tar.zst',
+				ROOT + '/browser/build/tholian-browser-' + version_archlinux + '-1-any.pkg.tar.zst'
+			)
+		].forEach((result) => {
+			results.push(result);
+		});
+
+	}
+
 
 	if (results.includes(false) === false) {
 
@@ -331,6 +386,10 @@ export const pack = async (target) => {
 
 		if (args.includes('build')) {
 			results.push(await build());
+		}
+
+		if (args.includes('pack')) {
+			results.push(await pack());
 		}
 
 		if (results.length === 0) {

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Tholian Browser
+Name[en_US]=Tholian Browser
+GenericName=Stealth
+Exec=/usr/bin/tholian-browser
+Icon=tholian-browser
+Type=Application
+NoDisplay=false
+Categories=Network;
+

@@ -1,7 +1,8 @@
 {
-	"name":        "tholian-stealth",
-	"version":     "VERSION",
-	"description": "Tholian Stealth",
-	"main":        "index.js",
-	"author":      "Tholian Network (https://tholian.network)"
+	"name": "tholian-browser",
+	"version": "X0:2021-11-11",
+	"description": "Tholian Browser",
+	"main": "index.js",
+	"author": "Tholian Network (https://tholian.network)",
+	"url": "https://tholian.network"
 }
