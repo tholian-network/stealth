@@ -1,0 +1,12 @@
+[Unit]
+Description=Tholian Stealth
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/tholian-stealth serve
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+

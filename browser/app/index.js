@@ -1,6 +1,7 @@
 
 const { app, BrowserWindow } = require('electron');
 const child_process          = require('child_process');
+const fs                     = require('fs');
 const path                   = require('path');
 const process                = require('process');
 const console                = require('./console.js');
@@ -59,6 +60,59 @@ const FLAGS = (() => {
 
 })();
 
+const ARGS = ((flags) => {
+
+	let args = [ 'serve' ];
+
+	if (flags.debug === true) {
+		args.push('--debug=true');
+	}
+
+	if (flags.host !== null) {
+		args.push('--host=' + flags.host);
+	}
+
+	if (flags.profile !== null) {
+		args.push('--profile=' + flags.profile);
+	}
+
+	return args;
+
+})(FLAGS);
+
+const ROOT = (() => {
+
+	let root = null;
+	let stat = null;
+
+	try {
+		root = path.resolve(__dirname);
+		stat = fs.lstatSync(root + '/stealth/stealth.mjs');
+	} catch (err) {
+		root = null;
+		stat = null;
+	}
+
+	if (stat === null) {
+
+		try {
+			root = path.resolve(__dirname, '../../');
+			stat = fs.lstatSync(root + '/stealth/stealth.mjs');
+		} catch (err) {
+			root = null;
+			stat = null;
+		}
+
+	}
+
+	if (stat !== null && stat.isFile() === true) {
+		return root;
+	}
+
+	return null;
+
+})();
+
 
 
 if (FLAGS.help === true) {
@@ -97,39 +151,43 @@ if (FLAGS.help === true) {
 
 } else {
 
-	const ARGS = [ 'serve' ];
-
-	if (FLAGS.debug === true) {
-		ARGS.push('--debug=true');
-	}
-
-	if (FLAGS.host !== null) {
-		ARGS.push('--host=' + FLAGS.host);
-	}
-
-	if (FLAGS.profile !== null) {
-		ARGS.push('--profile=' + FLAGS.profile);
-	}
-
-	console.log(FLAGS);
-
-
-	const ROOT    = path.resolve(__dirname, '../../');
-	const STEALTH = child_process.fork(ROOT + '/stealth/stealth.mjs', ARGS, { cwd: ROOT });
+	let BROWSER = null;
+	let STEALTH = null;
 
 	app.setPath('appData',  FLAGS['user-data-dir']);
 	app.setPath('userData', FLAGS['user-data-dir'] + '/userdata');
 
+	app.on('window-all-closed', () => {
+
+		if (BROWSER !== null) {
+			BROWSER = null;
+		}
+
+		if (STEALTH !== null) {
+			STEALTH.kill('SIGTERM');
+			STEALTH = null;
+		}
+
+		app.quit();
+		process.exit(0);
+
+	});
+
 	app.whenReady().then(() => {
 
 		setTimeout(() => {
+			STEALTH = child_process.fork(ROOT + '/stealth/stealth.mjs', ARGS, { cwd: ROOT });
+		}, 0);
 
-			let BROWSER = new BrowserWindow({
+		setTimeout(() => {
+
+			BROWSER = new BrowserWindow({
 				width:  800,
 				height: 600,
 				webPreferences: {
 					plugins:    false,
-					spellcheck: false
+					spellcheck: false,
+					sandbox:    true
 				}
 			});
 
@@ -142,15 +200,6 @@ if (FLAGS.help === true) {
 			});
 
 		}, 1000);
-
-	});
-
-	app.on('window-all-closed', () => {
-
-		STEALTH.kill('SIGTERM');
-		app.quit();
-
-		process.exit(0);
 
 	});
 

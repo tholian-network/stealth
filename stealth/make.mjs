@@ -1,16 +1,17 @@
 
 import fs      from 'fs';
-import os      from 'os';
 import path    from 'path';
 import process from 'process';
 import url     from 'url';
 
-import { _, copy, rebase, remove, replace } from '../base/make.mjs';
-import { console                          } from '../base/source/node/console.mjs';
-import { Buffer                           } from '../base/source/node/Buffer.mjs';
-import { isString                         } from '../base/source/String.mjs';
-import { build as build_base              } from '../base/make.mjs';
-import { build as build_browser           } from '../browser/make.mjs';
+import { _, copy, exec, mktemp, read, rebase, remove, replace, write } from '../base/make.mjs';
+import { console                                                     } from '../base/source/node/console.mjs';
+import { Buffer                                                      } from '../base/source/node/Buffer.mjs';
+import { isObject                                                    } from '../base/source/Object.mjs';
+import { isString                                                    } from '../base/source/String.mjs';
+import { build as build_base                                         } from '../base/make.mjs';
+import { build as build_browser                                      } from '../browser/make.mjs';
+
 
 
 const CACHE  = {};
@@ -18,42 +19,47 @@ const FILE   = url.fileURLToPath(import.meta.url);
 const ROOT   = path.dirname(path.resolve(FILE, '../'));
 const TARGET = ROOT;
 
-// TODO: Find out a mechanism to import VERSION
-// without requirement of other dependencies
-const VERSION = 'X0:2021-10-04';
+const VERSION = (() => {
 
-const mktemp = (sandbox) => {
+	let json = null;
 
-	let folder   = '/tmp/' + sandbox;
-	let platform = os.platform();
-	let suffix   = '';
-
-	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
-		folder = path.resolve('/tmp/' + sandbox);
-	} else if (platform === 'android') {
-		folder = path.resolve(process.env.TMPDIR + '/' + sandbox);
-	} else if (platform === 'darwin') {
-		folder = path.resolve(process.env.TMPDIR + '/' + sandbox);
-	} else if (platform === 'win32') {
-		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\' + sandbox);
+	try {
+		json = JSON.parse(fs.readFileSync(ROOT + '/package.json', 'utf8'));
+	} catch (err) {
+		json = null;
 	}
 
-	if (folder.endsWith('/') === true) {
-		folder = folder.substr(0, folder.length - 1);
+	if (
+		isObject(json) === true
+		&& isString(json['version']) === true
+	) {
+		return json['version'];
 	}
 
-	for (let a = 0; a < 8; a++) {
+	return null;
 
-		let val = '' + ((Math.random() * 0xff) | 0).toString(16);
-		if (val.length < 2) {
-			val = '0' + val;
-		}
+})();
 
-		suffix += val;
+const replace_version = (url) => {
+
+	let file = read(url);
+	if (file.buffer !== null) {
+
+		let buffer = Buffer.from(file.buffer.toString('utf8').split('\n').map((line) => {
+
+			if (line.startsWith('export const VERSION = ') === true) {
+				line = 'export const VERSION = \'' + VERSION + '\';';
+			}
+
+			return line;
+
+		}).join('\n'), 'utf8');
+
+		return write(url, buffer);
 
 	}
 
-	return folder + '-' + suffix;
+	return false;
 
 };
 
@@ -133,7 +139,8 @@ export const build = async (target) => {
 
 			[
 				build_browser(),
-				copy(ROOT + '/base/build/node.mjs', target + '/stealth/extern/base.mjs')
+				copy(ROOT + '/base/build/node.mjs', target + '/stealth/extern/base.mjs'),
+				replace_version(target + '/stealth/source/Stealth.mjs')
 			].forEach((result) => results.push(result));
 
 		} else {
@@ -145,7 +152,8 @@ export const build = async (target) => {
 				copy(ROOT + '/stealth/stealth.mjs',     target + '/stealth/stealth.mjs'),
 				copy(ROOT + '/stealth/source',          target + '/stealth/source'),
 				copy(ROOT + '/stealth/vendor',          target + '/stealth/vendor'),
-				rebase(target + '/stealth/stealth.mjs', target + '/stealth/extern/base.mjs')
+				rebase(target + '/stealth/stealth.mjs', target + '/stealth/extern/base.mjs'),
+				replace_version(target + '/stealth/source/Stealth.mjs')
 			].forEach((result) => results.push(result));
 
 		}
@@ -182,70 +190,35 @@ export const pack = async (target) => {
 	let results = [];
 
 
-	let sandbox_archlinux = mktemp('stealth-pack-archlinux');
+	let sandbox_archlinux = mktemp('stealth-package-archlinux');
+	let version_archlinux = VERSION.split(':').pop().split('-').join('.');
+
 	if (sandbox_archlinux !== null) {
 
 		// ArchLinux Package
 		[
 			clean(sandbox_archlinux + '/src'),
 			build(sandbox_archlinux + '/src'),
+			remove(sandbox_archlinux + '/src/browser/app'),
+			remove(sandbox_archlinux + '/src/browser/browser.mjs'),
 			copy(ROOT + '/stealth/package/archlinux/PKGBUILD',                sandbox_archlinux + '/PKGBUILD'),
-			copy(ROOT + '/stealth/package/archlinux/tholian-stealth.desktop', sandbox_archlinux + '/src/tholian-stealth.desktop'),
 			copy(ROOT + '/stealth/package/archlinux/tholian-stealth.mjs',     sandbox_archlinux + '/src/tholian-stealth.mjs'),
-			copy(ROOT + '/stealth/package/archlinux/tholian-stealth.svg',     sandbox_archlinux + '/src/tholian-stealth.svg'),
+			copy(ROOT + '/stealth/package/archlinux/tholian-stealth.service', sandbox_archlinux + '/src/tholian-stealth.service'),
 			replace(sandbox_archlinux + '/PKGBUILD', {
-				VERSION: VERSION.split(':').pop().split('-').join('.')
-			})
+				VERSION: version_archlinux
+			}),
+			exec('makepkg --noextract', {
+				cwd: sandbox_archlinux
+			}),
+			copy(
+				sandbox_archlinux + '/tholian-stealth-' + version_archlinux + '-1-any.pkg.tar.zst',
+				ROOT + '/stealth/build/tholian-stealth-' + version_archlinux + '-1-any.pkg.tar.zst'
+			)
 		].forEach((result) => {
 			results.push(result);
 		});
 
-		// TODO: Run makepkg --noextract inside the sandbox_archlinux folder
-
 	}
-
-	// Debian Package
-	let sandbox_ubuntu = mktemp('stealth-pack-ubuntu');
-	if (sandbox_ubuntu !== null) {
-
-		// TODO: Get filesize of /data folder in bytes via du -s /path
-		let filesize = 1024;
-
-		[
-			copy(ROOT + '/stealth/package/ubuntu', sandbox_ubuntu),
-			clean(sandbox_ubuntu + '/data/usr/lib/tholian'),
-			build(sandbox_ubuntu + '/data/usr/lib/tholian'),
-			replace(sandbox_ubuntu + '/control/control', {
-				SIZE:    filesize,
-				VERSION: VERSION.split(':').pop().split('-').join('.')
-			})
-
-			// TODO: cd /path/to/data; tar czf 'sandbox_ubuntu + '/data.tar.gz *'
-			// TODO: cd /path/to/control; tar czf 'sandbox_ubuntu + '/control.tar.gz *'
-			//
-			// TODO: cd sandbox_ubuntu; ar r "filename.deb" debian-binary control.tar.gz data.tar.gz;
-		].forEach((result) => {
-			results.push(result);
-		});
-
-		// TODO: Replace VERSION and SIZE in /DEBIAN/control file
-
-	}
-
-
-
-	// if (target === TARGET) {
-
-	// 	// Do Nothing
-
-	// } else {
-
-	// }
-
-
-	// TODO: copy recursively /stealth/build to /tmp/stealth
-	// TODO: makepkg --noextract
-
 
 
 	if (results.includes(false) === false) {

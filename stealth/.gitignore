@@ -1,4 +1,7 @@
 
+# packages
+/build/*
+
 # shared with /base
 /extern/base.mjs
 

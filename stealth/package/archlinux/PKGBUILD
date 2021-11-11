@@ -1,0 +1,27 @@
+
+pkgname=tholian-stealth
+pkgver=VERSION
+pkgrel=1
+pkgdesc="Secure, Peer-to-Peer, Private and Automateable Web Browser/Scraper/Proxy"
+arch=(any)
+url="https://tholian.network/index.html"
+license=("GPL")
+depends=("nodejs")
+optdepends=("systemd: System Daemon Integration")
+
+
+
+package() {
+
+	mkdir -p "$pkgdir/usr/bin";
+	mkdir -p "$pkgdir/usr/lib/systemd/system";
+	mkdir -p "$pkgdir/usr/lib/tholian/browser";
+	mkdir -p "$pkgdir/usr/lib/tholian/stealth";
+
+	cp -r $srcdir/browser/*                          "$pkgdir/usr/lib/tholian/browser/";
+	cp -r $srcdir/stealth/*                          "$pkgdir/usr/lib/tholian/stealth/";
+	install -Dm755 "$srcdir/tholian-stealth.mjs"     "$pkgdir/usr/bin/tholian-stealth";
+	install -Dm644 "$srcdir/tholian-stealth.service" "$pkgdir/usr/lib/systemd/system/tholian-stealth.service";
+
+}
+

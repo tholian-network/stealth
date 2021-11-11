@@ -1,8 +1,10 @@
 
-import fs      from 'fs';
-import path    from 'path';
-import process from 'process';
-import url     from 'url';
+import child_process from 'child_process';
+import fs            from 'fs';
+import os            from 'os';
+import path          from 'path';
+import process       from 'process';
+import url           from 'url';
 
 import { console  } from './source/node/console.mjs';
 import { isObject } from './source/Object.mjs';
@@ -113,6 +115,31 @@ export const copy = (origin, target) => {
 
 };
 
+export const exec = (command, options) => {
+
+	options = options || {};
+
+
+	let result = null;
+
+	try {
+		result = child_process.execSync(command + ' && echo "EXITCODE: $?"', options).toString('utf8').trim();
+	} catch (err) {
+		result = null;
+	}
+
+	if (typeof result === 'string') {
+
+		if (result.endsWith('EXITCODE: 0') === true) {
+			return true;
+		}
+
+	}
+
+	return false;
+
+};
+
 const generate = (target, files) => {
 
 	let errors  = 0;
@@ -165,6 +192,44 @@ const generate = (target, files) => {
 		return false;
 
 	}
+
+};
+
+export const mktemp = (sandbox) => {
+
+	sandbox = isString(sandbox) ? sandbox : 'sandbox';
+
+
+	let folder   = '/tmp/' + sandbox;
+	let platform = os.platform();
+	let suffix   = '';
+
+	if (platform === 'linux' || platform === 'freebsd' || platform === 'openbsd') {
+		folder = path.resolve('/tmp/' + sandbox);
+	} else if (platform === 'android') {
+		folder = path.resolve(process.env.TMPDIR + '/' + sandbox);
+	} else if (platform === 'darwin') {
+		folder = path.resolve(process.env.TMPDIR + '/' + sandbox);
+	} else if (platform === 'win32') {
+		folder = path.resolve(process.env.USERPROFILE + '\\AppData\\Local\\Temp\\' + sandbox);
+	}
+
+	if (folder.endsWith('/') === true) {
+		folder = folder.substr(0, folder.length - 1);
+	}
+
+	for (let a = 0; a < 8; a++) {
+
+		let val = '' + ((Math.random() * 0xff) | 0).toString(16);
+		if (val.length < 2) {
+			val = '0' + val;
+		}
+
+		suffix += val;
+
+	}
+
+	return folder + '-' + suffix;
 
 };
 

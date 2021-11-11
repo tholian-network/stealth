@@ -12,12 +12,8 @@ import { URL                                  } from '../source/parser/URL.mjs';
 
 
 
-const RELEASE = 'X0';
-const DATE    = '2021-10-04';
-
-export const VERSION = RELEASE + ':' + DATE;
-
-
+// XXX: Automatically patched by stealth/make.mjs
+export const VERSION = 'X0:2021-11-11';
 
 export const isStealth = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Stealth]';
