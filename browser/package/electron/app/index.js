@@ -86,7 +86,7 @@ const ROOT = (() => {
 	let stat = null;
 
 	try {
-		root = path.resolve(__dirname, '../../');
+		root = path.resolve(__dirname);
 		stat = fs.lstatSync(root + '/stealth/stealth.mjs');
 	} catch (err) {
 		root = null;
@@ -94,7 +94,13 @@ const ROOT = (() => {
 	}
 
 	if (stat !== null && stat.isFile() === true) {
+
+		if (root.endsWith('/app.asar') === true) {
+			root = root.split('/').slice(0, -1).join('/') + '/app.asar.unpacked';
+		}
+
 		return root;
+
 	}
 
 	return null;

@@ -1,6 +1,10 @@
 {
 	"appId": "tholian-browser",
-	"asar": false,
+	"asar": true,
+	"asarUnpack": [
+		"browser/**/*",
+		"stealth/**/*"
+	],
 	"artifactName": "${name}-${version}-${os}-${arch}.${ext}",
 	"directories": {
 		"app": "app",

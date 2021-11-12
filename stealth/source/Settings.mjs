@@ -594,9 +594,9 @@ const setup_dir = function(url) {
 
 	} catch (err) {
 
-		fs.mkdirSync(path.resolve(url));
-
 		try {
+
+			fs.mkdirSync(path.resolve(url));
 
 			let stat = fs.lstatSync(path.resolve(url));
 			if (stat.isDirectory() === true) {

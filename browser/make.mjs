@@ -387,15 +387,15 @@ export const pack = async (target) => {
 			exec('node ./node_modules/.bin/electron-builder --linux appimage', {
 				cwd: sandbox_electron
 			}),
-			exec('node ./node_modules/.bin/electron-builder --linux zip', {
-				cwd: sandbox_electron
-			}),
-			exec('node ./node_modules/.bin/electron-builder --macos zip', {
-				cwd: sandbox_electron
-			}),
-			exec('node ./node_modules/.bin/electron-builder --windows zip', {
-				cwd: sandbox_electron
-			}),
+			// exec('node ./node_modules/.bin/electron-builder --linux zip', {
+			// 	cwd: sandbox_electron
+			// }),
+			// exec('node ./node_modules/.bin/electron-builder --macos zip', {
+			// 	cwd: sandbox_electron
+			// }),
+			// exec('node ./node_modules/.bin/electron-builder --windows zip', {
+			// 	cwd: sandbox_electron
+			// }),
 			// TODO: Copy back the built package files
 			// copy(
 			// 	sandbox_archlinux + '/tholian-browser-' + version_archlinux + '-1-any.pkg.tar.zst',
