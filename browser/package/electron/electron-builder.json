@@ -16,10 +16,7 @@
 	"linux": {
 		"category": "Network",
 		"target": [
-			"apk",
-			"deb",
 			"appimage",
-			"rpm",
 			"zip"
 		]
 	},

@@ -128,15 +128,17 @@ export const exec = (command, options) => {
 		result = null;
 	}
 
-	if (typeof result === 'string') {
+	if (typeof result === 'string' && result.endsWith('EXITCODE: 0') === true) {
 
-		if (result.endsWith('EXITCODE: 0') === true) {
-			return true;
-		}
+		return true;
+
+	} else {
+
+		console.error('> exec("' + _(command) + '")');
+
+		return false;
 
 	}
-
-	return false;
 
 };
 

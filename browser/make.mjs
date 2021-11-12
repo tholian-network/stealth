@@ -368,6 +368,8 @@ export const pack = async (target) => {
 
 
 	let sandbox_electron = mktemp('tholian-browser-electron');
+	let version_electron = VERSION.split(':').pop().split('-').join('.');
+
 	if (sandbox_electron !== null) {
 
 		// Electron Package
@@ -387,25 +389,34 @@ export const pack = async (target) => {
 			exec('node ./node_modules/.bin/electron-builder --linux appimage', {
 				cwd: sandbox_electron
 			}),
-			// exec('node ./node_modules/.bin/electron-builder --linux zip', {
-			// 	cwd: sandbox_electron
-			// }),
-			// exec('node ./node_modules/.bin/electron-builder --macos zip', {
-			// 	cwd: sandbox_electron
-			// }),
-			// exec('node ./node_modules/.bin/electron-builder --windows zip', {
-			// 	cwd: sandbox_electron
-			// }),
-			// TODO: Copy back the built package files
-			// copy(
-			// 	sandbox_archlinux + '/tholian-browser-' + version_archlinux + '-1-any.pkg.tar.zst',
-			// 	ROOT + '/browser/build/tholian-browser-' + version_archlinux + '-1-any.pkg.tar.zst'
-			// )
+			copy(
+				sandbox_archlinux + '/dist/tholian-browser-' + version_electron + '-linux-x86_64.AppImage',
+				ROOT + '/browser/build/tholian-browser-' + version_electron + '-linux-x86_64.AppImage'
+			),
+			exec('node ./node_modules/.bin/electron-builder --linux zip', {
+				cwd: sandbox_electron
+			}),
+			copy(
+				sandbox_archlinux + '/dist/tholian-browser-' + version_electron + '-linux-x64.zip',
+				ROOT + '/browser/build/tholian-browser-' + version_electron + '-linux-x64.zip'
+			),
+			exec('node ./node_modules/.bin/electron-builder --macos zip', {
+				cwd: sandbox_electron
+			}),
+			copy(
+				sandbox_archlinux + '/dist/tholian-browser-' + version_electron + '-mac-x64.zip',
+				ROOT + '/browser/build/tholian-browser-' + version_electron + '-mac-x64.zip'
+			),
+			exec('node ./node_modules/.bin/electron-builder --windows zip', {
+				cwd: sandbox_electron
+			}),
+			copy(
+				sandbox_archlinux + '/dist/tholian-browser-' + version_electron + '-win-x64.zip',
+				ROOT + '/browser/build/tholian-browser-' + version_electron + '-win-x64.zip'
+			),
 		].forEach((result) => {
 			results.push(result);
 		});
-
-		console.log(results);
 
 	}
 
