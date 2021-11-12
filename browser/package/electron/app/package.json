@@ -8,5 +8,8 @@
 	"author": {
 		"name": "Tholian Network",
 		"email": "void@tholian.network"
+	},
+	"devDependencies": {
+		"electron": "15.3.0"
 	}
 }

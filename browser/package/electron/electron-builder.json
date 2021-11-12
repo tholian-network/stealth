@@ -1,0 +1,34 @@
+{
+	"appId": "tholian-browser",
+	"asar": false,
+	"artifactName": "${name}-${version}-${os}-${arch}.${ext}",
+	"directories": {
+		"app": "app",
+		"buildResources": "build",
+		"output": "dist"
+	},
+	"productName": "Tholian Browser",
+	"copyright": "Copyright (2021) Tholian Network",
+	"linux": {
+		"category": "Network",
+		"target": [
+			"apk",
+			"deb",
+			"appimage",
+			"rpm",
+			"zip"
+		]
+	},
+	"mac": {
+		"category": "public.app-category.productivity",
+		"darkModeSupport": true,
+		"target": [
+			"zip"
+		]
+	},
+	"win": {
+		"target": [
+			"zip"
+		]
+	}
+}

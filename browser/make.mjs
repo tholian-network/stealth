@@ -6,6 +6,7 @@ import url     from 'url';
 
 import { _, copy, exec, mktemp, read, rebase, remove, replace, write } from '../base/make.mjs';
 import { console                                                     } from '../base/source/node/console.mjs';
+import { isBoolean                                                   } from '../base/source/Boolean.mjs';
 import { isObject                                                    } from '../base/source/Object.mjs';
 import { isString                                                    } from '../base/source/String.mjs';
 import { build as build_base                                         } from '../base/make.mjs';
@@ -89,7 +90,10 @@ const patch = (url) => {
 
 };
 
-const patch_json = (url) => {
+const patch_json = (url, semver) => {
+
+	semver = isBoolean(semver) ? semver : false;
+
 
 	let file = read(url);
 	if (file.buffer !== null) {
@@ -103,7 +107,13 @@ const patch_json = (url) => {
 		}
 
 		if (isObject(json) === true && isString(json['version']) === true) {
-			json['version'] = VERSION;
+
+			if (semver === true) {
+				json['version'] = VERSION.split(':').pop().split('-').join('.');
+			} else {
+				json['version'] = VERSION;
+			}
+
 		}
 
 		return write(url, Buffer.from(JSON.stringify(json, null, '\t'), 'utf8'));
@@ -335,7 +345,7 @@ export const pack = async (target) => {
 
 		// ArchLinux Package
 		[
-			build_stealth(sandbox_archlinux + '/src'),
+			await build_stealth(sandbox_archlinux + '/src'),
 			copy(ROOT + '/browser/package/archlinux/PKGBUILD',                sandbox_archlinux + '/PKGBUILD'),
 			copy(ROOT + '/browser/package/archlinux/tholian-browser.desktop', sandbox_archlinux + '/src/tholian-browser.desktop'),
 			copy(ROOT + '/browser/package/archlinux/tholian-browser.js',      sandbox_archlinux + '/src/tholian-browser.js'),
@@ -353,6 +363,49 @@ export const pack = async (target) => {
 		].forEach((result) => {
 			results.push(result);
 		});
+
+	}
+
+
+	let sandbox_electron = mktemp('tholian-browser-electron');
+	if (sandbox_electron !== null) {
+
+		// Electron Package
+		[
+			await build_stealth(sandbox_electron + '/app'),
+			remove(sandbox_electron + '/app/browser/app'),
+			remove(sandbox_electron + '/app/browser/browser.mjs'),
+			copy(ROOT + '/browser/package/electron/electron-builder.json', sandbox_electron + '/electron-builder.json'),
+			copy(ROOT + '/browser/package/electron/app/console.js',        sandbox_electron + '/app/console.js'),
+			copy(ROOT + '/browser/package/electron/app/index.js',          sandbox_electron + '/app/index.js'),
+			copy(ROOT + '/browser/package/electron/app/package.json',      sandbox_electron + '/app/package.json'),
+			copy(ROOT + '/browser/package/electron/build/icon.png',        sandbox_electron + '/build/icon.png'),
+			patch_json(sandbox_electron + '/app/package.json', true),
+			exec('npm install electron-builder', {
+				cwd: sandbox_electron
+			}),
+			exec('node ./node_modules/.bin/electron-builder --linux appimage', {
+				cwd: sandbox_electron
+			}),
+			exec('node ./node_modules/.bin/electron-builder --linux zip', {
+				cwd: sandbox_electron
+			}),
+			exec('node ./node_modules/.bin/electron-builder --macos zip', {
+				cwd: sandbox_electron
+			}),
+			exec('node ./node_modules/.bin/electron-builder --windows zip', {
+				cwd: sandbox_electron
+			}),
+			// TODO: Copy back the built package files
+			// copy(
+			// 	sandbox_archlinux + '/tholian-browser-' + version_archlinux + '-1-any.pkg.tar.zst',
+			// 	ROOT + '/browser/build/tholian-browser-' + version_archlinux + '-1-any.pkg.tar.zst'
+			// )
+		].forEach((result) => {
+			results.push(result);
+		});
+
+		console.log(results);
 
 	}
 
