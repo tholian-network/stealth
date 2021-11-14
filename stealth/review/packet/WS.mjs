@@ -20,6 +20,218 @@ const create_mask = () => {
 
 
 
+describe('WS.decode()/CONTINUE/request', function(assert) {
+
+	assert(isFunction(WS.decode), true);
+
+	let mask   = create_mask();
+	let buffer = Buffer.concat([
+		Buffer.from([
+			128 + 0x00,
+			128 + 64
+		]),
+		mask,
+		Buffer.from('This sentence inside this utf-8 Buffer is exactly 64 bytes long.', 'utf8').map((value, index) => {
+			return value ^ mask[index % mask.length];
+		})
+	]);
+	let packet = {
+		headers: {
+			'@operator': 0x00,
+			'@status':   null,
+			'@transfer': {
+				'encoding': null,
+				'length':   64,
+				'range':    [ 0, 63 ]
+			},
+			'@type': 'request'
+		},
+		overflow: null,
+		payload: Buffer.from('This sentence inside this utf-8 Buffer is exactly 64 bytes long.', 'utf8')
+	};
+
+	assert(WS.decode(null, buffer), packet);
+
+});
+
+describe('WS.decode()/CONTINUE/response', function(assert) {
+
+	assert(isFunction(WS.decode), true);
+
+	let buffer = Buffer.concat([
+		Buffer.from([
+			128 + 0x00,
+			0   + 64
+		]),
+		Buffer.from('This sentence inside this utf-8 Buffer is exactly 64 bytes long.', 'utf8')
+	]);
+	let packet = {
+		headers: {
+			'@operator': 0x00,
+			'@status':   null,
+			'@transfer': {
+				'encoding': null,
+				'length':   64,
+				'range':    [ 0, 63 ]
+			},
+			'@type': 'response'
+		},
+		overflow: null,
+		payload: Buffer.from('This sentence inside this utf-8 Buffer is exactly 64 bytes long.', 'utf8')
+	};
+
+	assert(WS.decode(null, buffer), packet);
+
+});
+
+describe('WS.decode()/TEXT/request', function(assert) {
+
+	assert(isFunction(WS.decode), true);
+
+	let mask   = create_mask();
+	let buffer = Buffer.concat([
+		Buffer.from([
+			128 + 0x01,
+			128 + 64
+		]),
+		mask,
+		Buffer.from('This sentence inside this utf-8 Buffer is exactly 64 bytes long.', 'utf8').map((value, index) => {
+			return value ^ mask[index % mask.length];
+		})
+	]);
+	let packet = {
+		headers: {
+			'@operator': 0x01,
+			'@status':   null,
+			'@transfer': {
+				'encoding': null,
+				'length':   64,
+				'range':    [ 0, 63 ]
+			},
+			'@type': 'request'
+		},
+		overflow: null,
+		payload: Buffer.from('This sentence inside this utf-8 Buffer is exactly 64 bytes long.', 'utf8')
+	};
+
+	assert(WS.decode(null, buffer), packet);
+
+});
+
+describe('WS.decode()/TEXT/response', function(assert) {
+
+	assert(isFunction(WS.decode), true);
+
+	let buffer = Buffer.concat([
+		Buffer.from([
+			128 + 0x01,
+			0   + 64
+		]),
+		Buffer.from('This sentence inside this utf-8 Buffer is exactly 64 bytes long.', 'utf8')
+	]);
+	let packet = {
+		headers: {
+			'@operator': 0x01,
+			'@status':   null,
+			'@transfer': {
+				'encoding': null,
+				'length':   64,
+				'range':    [ 0, 63 ]
+			},
+			'@type': 'response'
+		},
+		overflow: null,
+		payload: Buffer.from('This sentence inside this utf-8 Buffer is exactly 64 bytes long.', 'utf8')
+	};
+
+	assert(WS.decode(null, buffer), packet);
+
+});
+
+describe('WS.decode()/BINARY/request', function(assert) {
+
+	assert(isFunction(WS.decode), true);
+
+	let mask   = create_mask();
+	let buffer = Buffer.concat([
+		Buffer.from([
+			128 + 0x02,
+			128 + 32
+		]),
+		mask,
+		Buffer.from([
+			1,  2,  3,  4,  5,  6,  7,  8,
+			9,  10, 11, 12, 13, 14, 15, 16,
+			17, 18, 19, 20, 21, 22, 23, 24,
+			25, 26, 27, 28, 29, 30, 31, 32
+		]).map((value, index) => {
+			return value ^ mask[index % mask.length];
+		})
+	]);
+	let packet = {
+		headers: {
+			'@operator': 0x02,
+			'@status':   null,
+			'@transfer': {
+				'encoding': null,
+				'length':   32,
+				'range':    [ 0, 31 ]
+			},
+			'@type': 'request'
+		},
+		overflow: null,
+		payload: Buffer.from([
+			1,  2,  3,  4,  5,  6,  7,  8,
+			9,  10, 11, 12, 13, 14, 15, 16,
+			17, 18, 19, 20, 21, 22, 23, 24,
+			25, 26, 27, 28, 29, 30, 31, 32
+		])
+	};
+
+	assert(WS.decode(null, buffer), packet);
+
+});
+
+describe('WS.decode()/BINARY/response', function(assert) {
+
+	assert(isFunction(WS.decode), true);
+
+	let buffer = Buffer.concat([
+		Buffer.from([
+			128 + 0x02,
+			0   + 32
+		]),
+		Buffer.from([
+			1,  2,  3,  4,  5,  6,  7,  8,
+			9,  10, 11, 12, 13, 14, 15, 16,
+			17, 18, 19, 20, 21, 22, 23, 24,
+			25, 26, 27, 28, 29, 30, 31, 32
+		])
+	]);
+	let packet = {
+		headers: {
+			'@operator': 0x02,
+			'@status':   null,
+			'@transfer': {
+				'encoding': null,
+				'length':   32,
+				'range':    [ 0, 31 ]
+			},
+			'@type': 'response'
+		},
+		overflow: null,
+		payload: Buffer.from([
+			1,  2,  3,  4,  5,  6,  7,  8,
+			9,  10, 11, 12, 13, 14, 15, 16,
+			17, 18, 19, 20, 21, 22, 23, 24,
+			25, 26, 27, 28, 29, 30, 31, 32
+		])
+	};
+
+	assert(WS.decode(null, buffer), packet);
+
+});
+
 describe('WS.decode()/CLOSE/request', function(assert) {
 
 	assert(isFunction(WS.decode), true);
