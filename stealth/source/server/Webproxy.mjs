@@ -28,6 +28,93 @@ export const isWebproxy = function(obj) {
 
 
 
+const encodeResponse = function(request, response) {
+
+	if (
+		DATETIME.isDATETIME(request.headers['if-modified-since']) === true
+		&& DATETIME.isDATETIME(response.headers['last-modified']) === true
+	) {
+
+		let not_modified = DATETIME.compare(request.headers['if-modified-since'], response.headers['last-modified']) === 0;
+		if (not_modified === true) {
+			response.headers['@status'] = 204;
+		}
+
+	}
+
+
+	if (
+		response.headers['@status'] === 100
+		|| response.headers['@status'] === 101
+		|| response.headers['@status'] === 204
+		|| response.headers['@status'] === 304
+	) {
+
+		response.payload = null;
+
+	} else {
+
+		if (request.headers['@method'] === 'HEAD' || request.headers['@method'] === 'OPTIONS') {
+			response.payload = null;
+		} else if (response.payload === null) {
+			response.payload = Buffer.from('', 'utf8');
+		}
+
+
+		if (isObject(response.headers['@transfer']) === false) {
+			response.headers['@transfer'] = {};
+		}
+
+		if (isString(request.headers['accept-encoding']) === true) {
+
+			let encoding = null;
+
+			if (request.headers['accept-encoding'].includes(',') === true) {
+
+				let candidates = request.headers['accept-encoding'].split(',').map((v) => v.trim());
+
+				for (let c = 0, cl = candidates.length; c < cl; c++) {
+
+					if (ENCODINGS.includes(candidates[c]) === true) {
+						response.headers['@transfer']['encoding'] = candidates[c];
+						break;
+					}
+
+				}
+
+			} else {
+
+				if (ENCODINGS.includes(request.headers['accept-encoding']) === true) {
+					response.headers['@transfer']['encoding'] = request.headers['accept-encoding'];
+				}
+
+			}
+
+		}
+
+		if (isArray(request.headers['@transfer']['range']) === true) {
+
+			if (
+				isString(request.headers['range']) === true
+				&& request.headers['@transfer']['range'] !== Infinity
+			) {
+
+				response.headers['@transfer']['range'] = request.headers['@transfer']['range'];
+
+				if (response.headers['@status'] === 200) {
+					response.headers['@status'] = 206;
+				}
+
+			}
+
+		}
+
+	}
+
+	return response;
+
+};
+
 const proxy_http_connect = function(socket, request) {
 
 	let url    = URL.parse('https://' + request.headers['host']);
@@ -515,14 +602,15 @@ const proxy_http_request = function(socket, packet) {
 
 				if (response !== null && response.payload !== null) {
 
-					// Strip out all unnecessary HTTP headers
-					response.headers = {
-						'content-length': response.payload.length,
-						'content-type':   url.mime.format,
-						'last-modified':  response.headers['last-modified'] || null
-					};
-
-					HTTP.send(connection, response);
+					HTTP.send(connection, encodeResponse(packet, {
+						headers: {
+							'@status':        response.headers['@status'],
+							'content-length': response.payload.length,
+							'content-type':   url.mime.format,
+							'last-modified':  response.headers['last-modified'] || null
+						},
+						payload: response.payload
+					}));
 
 				} else {
 

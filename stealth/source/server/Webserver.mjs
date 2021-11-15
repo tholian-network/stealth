@@ -3,14 +3,15 @@ import fs   from 'fs';
 import net  from 'net';
 import path from 'path';
 
-import { console, Buffer, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
-import { ENVIRONMENT                                                         } from '../../source/ENVIRONMENT.mjs';
-import { isStealth                                                           } from '../../source/Stealth.mjs';
-import { HTTP                                                                } from '../../source/connection/HTTP.mjs';
-import { HTTP as PACKET                                                      } from '../../source/packet/HTTP.mjs';
-import { isServices                                                          } from '../../source/server/Services.mjs';
-import { IP                                                                  } from '../../source/parser/IP.mjs';
-import { URL                                                                 } from '../../source/parser/URL.mjs';
+import { console, Buffer, isArray, isBuffer, isFunction, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { ENVIRONMENT                                                                  } from '../../source/ENVIRONMENT.mjs';
+import { isStealth                                                                    } from '../../source/Stealth.mjs';
+import { HTTP                                                                         } from '../../source/connection/HTTP.mjs';
+import { HTTP as PACKET                                                               } from '../../source/packet/HTTP.mjs';
+import { isServices                                                                   } from '../../source/server/Services.mjs';
+import { DATETIME                                                                     } from '../../source/parser/DATETIME.mjs';
+import { IP                                                                           } from '../../source/parser/IP.mjs';
+import { URL                                                                          } from '../../source/parser/URL.mjs';
 
 
 
@@ -32,6 +33,93 @@ export const isWebserver = function(obj) {
 
 
 
+const encodeResponse = function(request, response) {
+
+	if (
+		DATETIME.isDATETIME(request.headers['if-modified-since']) === true
+		&& DATETIME.isDATETIME(response.headers['last-modified']) === true
+	) {
+
+		let not_modified = DATETIME.compare(request.headers['if-modified-since'], response.headers['last-modified']) === 0;
+		if (not_modified === true) {
+			response.headers['@status'] = 204;
+		}
+
+	}
+
+
+	if (
+		response.headers['@status'] === 100
+		|| response.headers['@status'] === 101
+		|| response.headers['@status'] === 204
+		|| response.headers['@status'] === 304
+	) {
+
+		response.payload = null;
+
+	} else {
+
+		if (request.headers['@method'] === 'HEAD' || request.headers['@method'] === 'OPTIONS') {
+			response.payload = null;
+		} else if (response.payload === null) {
+			response.payload = Buffer.from('', 'utf8');
+		}
+
+
+		if (isObject(response.headers['@transfer']) === false) {
+			response.headers['@transfer'] = {};
+		}
+
+		if (isString(request.headers['accept-encoding']) === true) {
+
+			let encoding = null;
+
+			if (request.headers['accept-encoding'].includes(',') === true) {
+
+				let candidates = request.headers['accept-encoding'].split(',').map((v) => v.trim());
+
+				for (let c = 0, cl = candidates.length; c < cl; c++) {
+
+					if (ENCODINGS.includes(candidates[c]) === true) {
+						response.headers['@transfer']['encoding'] = candidates[c];
+						break;
+					}
+
+				}
+
+			} else {
+
+				if (ENCODINGS.includes(request.headers['accept-encoding']) === true) {
+					response.headers['@transfer']['encoding'] = request.headers['accept-encoding'];
+				}
+
+			}
+
+		}
+
+		if (isArray(request.headers['@transfer']['range']) === true) {
+
+			if (
+				isString(request.headers['range']) === true
+				&& request.headers['@transfer']['range'] !== Infinity
+			) {
+
+				response.headers['@transfer']['range'] = request.headers['@transfer']['range'];
+
+				if (response.headers['@status'] === 200) {
+					response.headers['@status'] = 206;
+				}
+
+			}
+
+		}
+
+	}
+
+	return response;
+
+};
+
 const toFile = function(url, callback) {
 
 	url      = URL.isURL(url)       ? url      : null;
@@ -46,26 +134,39 @@ const toFile = function(url, callback) {
 
 				if (err === null) {
 
-					callback(Object.assign(url, {
-						headers: {
-							'@status':        200,
-							'@transfer':      {
-								'encoding': 'identity'
+					fs.stat(path.resolve(ENVIRONMENT.root + url.path), (err, stat) => {
+
+						let response = {
+							headers: {
+								'@status':        200,
+								'@transfer':      { 'encoding': 'identity' },
+								'accept-ranges':  'bytes',
+								'content-type':   url.mime.format,
+								'content-length': Buffer.byteLength(buffer)
 							},
-							'content-type':   url.mime.format,
-							'content-length': Buffer.byteLength(buffer)
-						},
-						payload: buffer
-					}));
+							payload: buffer
+						};
+
+
+						if (err === null) {
+
+							let modified = DATETIME.parse(stat.mtime);
+							if (DATETIME.isDATETIME(modified) === true) {
+								response.headers['last-modified'] = modified;
+							}
+
+						}
+
+						callback(response);
+
+					});
 
 				} else {
 
 					callback({
 						headers: {
-							'@status':   404,
-							'@transfer': {
-								'encoding': 'identity'
-							},
+							'@status':        404,
+							'@transfer':      { 'encoding': 'identity' },
 							'content-type':   url.mime.format,
 							'content-length': 0
 						},
@@ -84,10 +185,8 @@ const toFile = function(url, callback) {
 
 			callback({
 				headers: {
-					'@status':   403,
-					'@transfer': {
-						'encoding': 'identity'
-					},
+					'@status':        403,
+					'@transfer':      { 'encoding': 'identity' },
 					'content-type':   url.mime.format,
 					'content-length': 0
 				},
@@ -190,17 +289,6 @@ const toProxyAutoConfig = function(url, callback) {
 
 const toResponse = function(request, callback) {
 
-	let encoding = 'identity';
-
-	if (isString(request.headers['accept-encoding']) === true) {
-
-		if (ENCODINGS.includes(request.headers['accept-encoding']) === true) {
-			encoding = request.headers['accept-encoding'];
-		}
-
-	}
-
-
 	let url = URL.parse(request.headers['@url']);
 	if (url.path === '/') {
 
@@ -222,7 +310,6 @@ const toResponse = function(request, callback) {
 
 		toFile(url, (response) => {
 
-			response.headers['@transfer']['encoding']   = encoding;
 			response.headers['Content-Security-Policy'] = 'worker-src \'self\'; script-src \'self\' \'unsafe-inline\'; frame-src \'self\'';
 			response.headers['Service-Worker-Allowed']  = '/browser';
 
@@ -233,11 +320,7 @@ const toResponse = function(request, callback) {
 	} else if (url.path.startsWith('/browser/') === true) {
 
 		toFile(url, (response) => {
-
-			response.headers['@transfer']['encoding'] = encoding;
-
 			callback(response);
-
 		});
 
 	} else if (url.path === '/favicon.ico') {
@@ -283,21 +366,15 @@ const toResponse = function(request, callback) {
 		if (pac_url !== null) {
 
 			toProxyAutoConfig(pac_url, (response) => {
-
-				response.headers['@transfer']['encoding'] = encoding;
-
 				callback(response);
-
 			});
 
 		} else {
 
 			callback({
 				headers: {
-					'@status':   403,
-					'@transfer': {
-						'encoding': encoding
-					},
+					'@status':        403,
+					'@transfer':      { 'encoding': 'identity' },
 					'connection':     'close',
 					'content-type':   url.mime.format,
 					'content-length': 0
@@ -311,10 +388,8 @@ const toResponse = function(request, callback) {
 
 		callback({
 			headers: {
-				'@status':   403,
-				'@transfer': {
-					'encoding': encoding
-				},
+				'@status':        403,
+				'@transfer':      { 'encoding': encoding },
 				'connection':     'close',
 				'content-type':   url.mime.format,
 				'content-length': 0
@@ -323,8 +398,6 @@ const toResponse = function(request, callback) {
 		});
 
 	}
-
-	// TODO: Support 206 Partial Content requests
 
 };
 
@@ -467,8 +540,7 @@ Webserver.prototype = {
 
 						toResponse.call(this, request, (response) => {
 
-							HTTP.send(connection, response);
-
+							HTTP.send(connection, encodeResponse(request, response));
 
 							if (response.headers['connection'] === 'close') {
 

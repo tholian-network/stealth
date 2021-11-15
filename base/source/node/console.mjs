@@ -764,19 +764,27 @@ export const console = (function() {
 				str += highlight('Buffer', 'Type') + '.from(';
 				str += '\n';
 
-				for (let t = 0, tl = tmp.length; t < tl; t += 32) {
+				if (tmp.length > 0) {
 
-					if (t > 0) {
-						str += '\n';
+					for (let t = 0, tl = tmp.length; t < tl; t += 32) {
+
+						if (t > 0) {
+							str += '\n';
+						}
+
+						str += stringify(tmp.substr(t, 32), '\t' + indent);
+
+						if (t < tl - 33) {
+							str += ' +';
+						} else {
+							str += '  ';
+						}
+
 					}
 
-					str += stringify(tmp.substr(t, 32), '\t' + indent);
+				} else {
 
-					if (t < tl - 33) {
-						str += ' +';
-					} else {
-						str += '  ';
-					}
+					str += stringify(tmp, '\t' + indent);
 
 				}
 

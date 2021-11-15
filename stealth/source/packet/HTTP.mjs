@@ -806,6 +806,7 @@ const HTTP = {
 
 						headers['content-range'] = headers['content-range'].split('/').shift() + '/' + msg_payload.length;
 						msg_payload = msg_payload.slice(content_range[0], content_range[1] + 1);
+						headers['content-length'] = msg_payload.length;
 
 					} else {
 
@@ -856,6 +857,16 @@ const HTTP = {
 					}
 
 					fields.push('HTTP/1.1 ' + code + ' ' + message);
+
+					// RFC2616 forbids response payloads for these status codes
+					if (
+						code === 100
+						|| code === 101
+						|| code === 204
+						|| code === 304
+					) {
+						msg_payload = Buffer.alloc(0);
+					}
 
 				} else {
 					fields.push('HTTP/1.1 200 OK');
