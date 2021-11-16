@@ -186,36 +186,18 @@ const HTTP = {
 			};
 
 
-			let msg_headers      = null;
-			let msg_payload      = null;
-			let msg_overflow     = null;
-			let payload_complete = false;
+			let msg_headers  = null;
+			let msg_payload  = null;
+			let msg_overflow = null;
 
 
 			let msg_headers_index = buffer.indexOf(EMPTYLINE);
 			if (msg_headers_index !== -1) {
-
 				msg_headers = buffer.slice(0, msg_headers_index);
 				msg_payload = buffer.slice(msg_headers_index + 4);
-
-
-				let msg_payload_index = buffer.indexOf(EMPTYLINE, msg_headers_index + 4);
-				if (msg_payload_index !== -1) {
-					msg_headers      = buffer.slice(0, msg_headers_index);
-					msg_payload      = buffer.slice(msg_headers_index + 4, msg_payload_index);
-					msg_overflow     = buffer.slice(msg_payload_index + 4);
-					payload_complete = true;
-				} else {
-					msg_headers      = buffer.slice(0, msg_headers_index);
-					msg_payload      = buffer.slice(msg_headers_index + 4);
-					msg_overflow     = null;
-					payload_complete = false;
-				}
-
 			} else {
-
 				msg_headers = buffer;
-
+				msg_payload = null;
 			}
 
 
@@ -292,11 +274,11 @@ const HTTP = {
 				}
 
 
-				let method         = packet.headers['@method']        || null;
-				let status         = packet.headers['@status']        || null;
-				let content_length = packet.headers['content-length'] || null;
-				let content_range  = packet.headers['content-range']  || null;
-				let range          = packet.headers['range']          || null;
+				let method         = isString(packet.headers['@method'])        ? packet.headers['@method']        : null;
+				let status         = isNumber(packet.headers['@status'])        ? packet.headers['@status']        : null;
+				let content_length = isNumber(packet.headers['content-length']) ? packet.headers['content-length'] : null;
+				let content_range  = isString(packet.headers['content-range'])  ? packet.headers['content-range']  : null;
+				let range          = isString(packet.headers['range'])          ? packet.headers['range']          : null;
 
 				if (status === 206 && content_range !== null) {
 
@@ -402,16 +384,11 @@ const HTTP = {
 
 					}
 
-				} else if (isNumber(content_length) === true && content_length > 0) {
+				} else if (isNumber(content_length) === true) {
 
-					packet.headers['@transfer']['length'] = content_length;
-					packet.headers['@transfer']['range']  = [ 0, content_length - 1 ];
-
-				} else if (payload_complete === true) {
-
-					if (msg_payload.length > 0) {
-						packet.headers['@transfer']['length'] = msg_payload.length;
-						packet.headers['@transfer']['range']  = [ 0, msg_payload.length - 1 ];
+					if (content_length > 0) {
+						packet.headers['@transfer']['length'] = content_length;
+						packet.headers['@transfer']['range']  = [ 0, content_length - 1 ];
 					} else {
 						packet.headers['@transfer']['length'] = 0;
 						packet.headers['@transfer']['range']  = [ 0, 0 ];
@@ -438,6 +415,19 @@ const HTTP = {
 
 			}
 
+			if (msg_payload !== null) {
+
+				let content_length = packet.headers['@transfer']['length'];
+				if (content_length !== Infinity) {
+
+					if (msg_payload.length > content_length) {
+						msg_overflow = msg_payload.slice(content_length);
+						msg_payload  = msg_payload.slice(0, content_length);
+					}
+
+				}
+
+			}
 
 			if (msg_overflow !== null) {
 
@@ -446,7 +436,6 @@ const HTTP = {
 				}
 
 			}
-
 
 			if (msg_payload !== null) {
 
@@ -844,6 +833,11 @@ const HTTP = {
 					fields.push('GET / HTTP/1.1');
 				}
 
+				// RFC2616 forbids request message body for these methods
+				if (method === 'HEAD' || method === 'OPTIONS') {
+					msg_payload = null;
+				}
+
 			} else if (type === 'server') {
 
 				if (isNumber(headers['@status']) === true) {
@@ -865,7 +859,7 @@ const HTTP = {
 						|| code === 204
 						|| code === 304
 					) {
-						msg_payload = Buffer.alloc(0);
+						msg_payload = null;
 					}
 
 				} else {
@@ -900,14 +894,12 @@ const HTTP = {
 
 			let msg_headers = Buffer.from(fields.join('\r\n'), 'utf8');
 
-
-			if (msg_payload.length > 0) {
+			if (msg_payload !== null) {
 
 				return Buffer.concat([
 					msg_headers,
 					EMPTYLINE,
-					msg_payload,
-					headers['@transfer']['encoding'] === 'chunked' ? Buffer.alloc(0) : EMPTYLINE
+					msg_payload
 				]);
 
 			} else {

@@ -72,8 +72,6 @@ const encodeResponse = function(request, response) {
 
 		if (isString(request.headers['accept-encoding']) === true) {
 
-			let encoding = null;
-
 			if (request.headers['accept-encoding'].includes(',') === true) {
 
 				let candidates = request.headers['accept-encoding'].split(',').map((v) => v.trim());
@@ -389,7 +387,7 @@ const toResponse = function(request, callback) {
 		callback({
 			headers: {
 				'@status':        403,
-				'@transfer':      { 'encoding': encoding },
+				'@transfer':      { 'encoding': 'identity' },
 				'connection':     'close',
 				'content-type':   url.mime.format,
 				'content-length': 0

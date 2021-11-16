@@ -92,7 +92,25 @@ const ondata = function(connection, url, chunk) {
 
 			if (connection.type === 'client') {
 
-				if (frame.headers['@status'] >= 400 && frame.headers['@status'] <= 599) {
+				if (
+					frame.headers['@status'] === 100
+					|| frame.headers['@status'] === 101
+					|| frame.headers['@status'] === 204
+					|| frame.headers['@status'] === 304
+				) {
+
+					if (frame.overflow !== null) {
+						connection.fragment = frame.overflow;
+					} else {
+						connection.fragment = Buffer.alloc(0);
+					}
+
+					connection.emit('response', [{
+						headers: frame.headers,
+						payload: frame.payload
+					}]);
+
+				} else if (frame.headers['@status'] >= 400 && frame.headers['@status'] <= 599) {
 
 					connection.socket.end();
 

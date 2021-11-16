@@ -10,7 +10,7 @@ import { connect, disconnect             } from '../../../stealth/review/Stealth
 
 before(connect);
 
-describe('HTTP.send()/GET/', function(assert) {
+describe('Webserver.prototype.upgrade()/GET/', function(assert) {
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -63,7 +63,7 @@ describe('HTTP.send()/GET/', function(assert) {
 
 });
 
-describe('HTTP.send()/GET/browser/index.html', function(assert) {
+describe('Webserver.prototype.upgrade()/GET/browser/index.html', function(assert) {
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -95,19 +95,19 @@ describe('HTTP.send()/GET/browser/index.html', function(assert) {
 		assert(response.headers['@status'],   200);
 		assert(response.headers['@transfer'], {
 			'encoding': 'identity',
-			'length':   3995,
-			'range':    [ 0, 3994 ]
+			'length':   4001,
+			'range':    [ 0, 4000 ]
 		});
 
 		assert(response.headers['content-encoding'], 'identity');
-		assert(response.headers['content-length'],   3995);
+		assert(response.headers['content-length'],   4001);
 		assert(response.headers['content-type'],     'text/html');
 
 		assert(response.headers['content-security-policy'], 'worker-src \'self\'; script-src \'self\' \'unsafe-inline\'; frame-src \'self\'');
 		assert(response.headers['service-worker-allowed'],  '/browser');
 
 		assert(isBuffer(response.payload), true);
-		assert(response.payload.length,    3995);
+		assert(response.payload.length,    4001);
 
 		setTimeout(() => {
 			connection.disconnect();
@@ -121,7 +121,7 @@ describe('HTTP.send()/GET/browser/index.html', function(assert) {
 
 });
 
-describe('HTTP.send()/GET/favicon.ico', function(assert) {
+describe('Webserver.prototype.upgrade()/GET/favicon.ico', function(assert) {
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -174,7 +174,7 @@ describe('HTTP.send()/GET/favicon.ico', function(assert) {
 
 });
 
-describe('HTTP.send()/GET/browser/design/common/tholian.ico', function(assert) {
+describe('Webserver.prototype.upgrade()/GET/browser/design/common/tholian.ico', function(assert) {
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -229,7 +229,7 @@ describe('HTTP.send()/GET/browser/design/common/tholian.ico', function(assert) {
 
 });
 
-describe('HTTP.send()/GET/proxy.pac/127.0.0.1', function(assert) {
+describe('Webserver.prototype.upgrade()/GET/proxy.pac/127.0.0.1', function(assert) {
 
 	let url        = URL.parse('http://127.0.0.1:65432');
 	let connection = HTTP.connect(url);
@@ -287,7 +287,7 @@ describe('HTTP.send()/GET/proxy.pac/127.0.0.1', function(assert) {
 
 });
 
-describe('HTTP.send()/GET/proxy.pac/127.0.0.2', function(assert) {
+describe('Webserver.prototype.upgrade()/GET/proxy.pac/127.0.0.2', function(assert) {
 
 	let url        = URL.parse('http://127.0.0.2:65432');
 	let connection = HTTP.connect(url);
