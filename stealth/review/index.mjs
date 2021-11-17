@@ -42,6 +42,7 @@ import parser_UA                from './parser/UA.mjs';
 import parser_URL               from './parser/URL.mjs';
 import peer_Cache               from './peer/Cache.mjs';
 import request_Unicode          from './request/Unicode.mjs';
+import server_Proxy             from './server/Proxy.mjs';
 import server_Webproxy          from './server/Webproxy.mjs';
 import server_Webserver         from './server/Webserver.mjs';
 import server_service_Beacon    from './server/service/Beacon.mjs';
@@ -104,7 +105,7 @@ export const REVIEWS = [
 	Browser,
 
 	// Stealth Server
-	// server_Proxy,
+	server_Proxy,
 	// server_Router,
 	// server_Services,
 	server_Webproxy,

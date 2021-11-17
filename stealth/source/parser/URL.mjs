@@ -183,7 +183,7 @@ const DOUBLE_TOPLEVELDOMAINS = [
 
 const INVALID_TOPLEVELDOMAINS = [
 
-	// DNS RFC
+	// DNS RFC2606
 	'domain',
 	'example',
 	'invalid',
@@ -195,6 +195,7 @@ const INVALID_TOPLEVELDOMAINS = [
 	'belkin',
 	'corp',
 	'home',
+	'host',
 	'lan',
 	'localdomain',
 	'mail',

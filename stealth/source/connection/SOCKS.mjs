@@ -77,6 +77,16 @@ const onconnect = function(connection, url) {
 
 					if (response.headers['@status'] === 0x00) {
 
+						if (
+							url.hosts.length === 0
+							&& isObject(response.payload) === true
+							&& IP.isIP(response.payload.hosts[0]) === true
+							&& response.payload.hosts[0].ip !== '0.0.0.0'
+						) {
+							url.hosts.push(response.payload.hosts[0]);
+						}
+
+
 						let protocol = null;
 						let tunnel   = null;
 
@@ -115,9 +125,6 @@ const onconnect = function(connection, url) {
 							}
 
 						} catch (err) {
-
-							console.error(err);
-
 							protocol = null;
 							tunnel   = null;
 						}
@@ -520,120 +527,108 @@ const SOCKS = {
 
 		if (url !== null) {
 
-			let hosts = IP.sort(url.hosts);
-			if (hosts.length > 0) {
+			let proxy = url.proxy || null;
+			if (proxy === null) {
 
-				let proxy = url.proxy || null;
-				if (proxy === null) {
+				proxy = { host: null, port: null };
 
-					proxy = { host: null, port: null };
-
-					if (url.protocol === 'socks') {
-						proxy.host   = '127.0.0.1';
-						proxy.port   = url.port || 1080;
-						url.port     = 443;
-						url.protocol = 'https';
-					} else {
-						proxy.host   = '127.0.0.1';
-						proxy.port   = 1080;
-					}
-
+				if (url.protocol === 'socks') {
+					proxy.host   = '127.0.0.1';
+					proxy.port   = url.port || 1080;
+					url.port     = 443;
+					url.protocol = 'https';
+				} else {
+					proxy.host   = '127.0.0.1';
+					proxy.port   = 1080;
 				}
 
+			}
 
-				let socket = connection.socket || null;
-				if (socket === null) {
 
-					try {
+			let socket = connection.socket || null;
+			if (socket === null) {
 
-						connection.socket = net.connect({
-							host: proxy.host || '127.0.0.1',
-							port: proxy.port || 1080
-						}, () => {
+				try {
 
-							connection.socket.setTimeout(0);
-							connection.socket.setNoDelay(true);
-							connection.socket.setKeepAlive(true, 0);
-							connection.socket.allowHalfOpen = true;
+					connection.socket = net.connect({
+						host: proxy.host || '127.0.0.1',
+						port: proxy.port || 1080
+					}, () => {
 
-							onconnect(connection, url);
+						connection.socket.setTimeout(0);
+						connection.socket.setNoDelay(true);
+						connection.socket.setKeepAlive(true, 0);
+						connection.socket.allowHalfOpen = true;
 
-						});
-
-					} catch (err) {
-						connection.socket = null;
-					}
-
-				} else {
-
-					connection.socket.setTimeout(0);
-					connection.socket.setNoDelay(true);
-					connection.socket.setKeepAlive(true, 0);
-					connection.socket.allowHalfOpen = true;
-
-					setTimeout(() => {
 						onconnect(connection, url);
-					}, 0);
-
-				}
-
-
-				if (connection.socket !== null) {
-
-					connection.socket.removeAllListeners('data');
-					connection.socket.removeAllListeners('timeout');
-					connection.socket.removeAllListeners('error');
-					connection.socket.removeAllListeners('end');
-
-					connection.socket.on('timeout', () => {
-
-						if (connection.socket !== null) {
-							ondisconnect(connection, url);
-						}
 
 					});
 
-					connection.socket.on('error', (err) => {
-
-						if (connection.socket !== null) {
-
-							let code  = (err.code || '');
-							let error = { type: 'connection' };
-
-							if (code === 'ECONNREFUSED') {
-								error = { type: 'connection', cause: 'socket-stability' };
-							}
-
-							connection.emit('error', [ error ]);
-							ondisconnect(connection, url);
-
-						}
-
-					});
-
-					connection.socket.on('end', () => {
-
-						if (connection.socket !== null) {
-							ondisconnect(connection, url);
-						}
-
-					});
-
-					return connection;
-
-				} else {
-
+				} catch (err) {
 					connection.socket = null;
-					connection.emit('error', [{ type: 'connection' }]);
-
-					return null;
-
 				}
 
 			} else {
 
+				connection.socket.setTimeout(0);
+				connection.socket.setNoDelay(true);
+				connection.socket.setKeepAlive(true, 0);
+				connection.socket.allowHalfOpen = true;
+
+				setTimeout(() => {
+					onconnect(connection, url);
+				}, 0);
+
+			}
+
+
+			if (connection.socket !== null) {
+
+				connection.socket.removeAllListeners('data');
+				connection.socket.removeAllListeners('timeout');
+				connection.socket.removeAllListeners('error');
+				connection.socket.removeAllListeners('end');
+
+				connection.socket.on('timeout', () => {
+
+					if (connection.socket !== null) {
+						ondisconnect(connection, url);
+					}
+
+				});
+
+				connection.socket.on('error', (err) => {
+
+					if (connection.socket !== null) {
+
+						let code  = (err.code || '');
+						let error = { type: 'connection' };
+
+						if (code === 'ECONNREFUSED') {
+							error = { type: 'connection', cause: 'socket-stability' };
+						}
+
+						connection.emit('error', [ error ]);
+						ondisconnect(connection, url);
+
+					}
+
+				});
+
+				connection.socket.on('end', () => {
+
+					if (connection.socket !== null) {
+						ondisconnect(connection, url);
+					}
+
+				});
+
+				return connection;
+
+			} else {
+
 				connection.socket = null;
-				connection.emit('error', [{ type: 'host' }]);
+				connection.emit('error', [{ type: 'connection' }]);
 
 				return null;
 

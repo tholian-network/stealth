@@ -6,6 +6,7 @@ import { console, isBuffer } from '../../extern/base.mjs';
 import { isStealth         } from '../../source/Stealth.mjs';
 import { SOCKS             } from '../../source/connection/SOCKS.mjs';
 import { SOCKS as PACKET   } from '../../source/packet/SOCKS.mjs';
+import { IP                } from '../../source/parser/IP.mjs';
 import { URL               } from '../../source/parser/URL.mjs';
 import { isServices        } from '../../source/server/Services.mjs';
 
@@ -96,11 +97,12 @@ Proxy.prototype = {
 
 				connection.once('@connect', () => {
 
+
 					if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-						let info = connection.toJSON();
-						if (info.remote !== null) {
-							console.log('Proxy: Client "' + info.remote.host + '" connected.');
+						let remote = connection.toJSON().data['remote'];
+						if (remote !== null) {
+							console.log('Proxy: Client "' + IP.render(remote['host']) + '" connected.');
 						}
 
 					}
@@ -232,9 +234,9 @@ Proxy.prototype = {
 
 					if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-						let info = connection.toJSON();
-						if (info.remote !== null) {
-							console.log('Proxy: Client "' + info.remote.host + '" disconnected.');
+						let remote = connection.toJSON().data['remote'];
+						if (remote !== null) {
+							console.log('Proxy: Client "' + IP.render(remote['host']) + '" disconnected.');
 						}
 
 					}
