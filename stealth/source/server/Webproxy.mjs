@@ -1,14 +1,15 @@
 
 import net from 'net';
 
-import { console, Buffer, isBuffer, isString } from '../../extern/base.mjs';
-import { isStealth                           } from '../../source/Stealth.mjs';
-import { HTTP                                } from '../../source/connection/HTTP.mjs';
-import { HTTP as PACKET                      } from '../../source/packet/HTTP.mjs';
-import { isServices                          } from '../../source/server/Services.mjs';
-import { IP                                  } from '../../source/parser/IP.mjs';
-import { URL                                 } from '../../source/parser/URL.mjs';
-import { Request                             } from '../../source/Request.mjs';
+import { console, Buffer, isBuffer, isObject, isString } from '../../extern/base.mjs';
+import { isStealth                                     } from '../../source/Stealth.mjs';
+import { HTTP                                          } from '../../source/connection/HTTP.mjs';
+import { HTTP as PACKET                                } from '../../source/packet/HTTP.mjs';
+import { isServices                                    } from '../../source/server/Services.mjs';
+import { DATETIME                                      } from '../../source/parser/DATETIME.mjs';
+import { IP                                            } from '../../source/parser/IP.mjs';
+import { URL                                           } from '../../source/parser/URL.mjs';
+import { Request                                       } from '../../source/Request.mjs';
 
 
 
@@ -66,8 +67,6 @@ const encodeResponse = function(request, response) {
 		}
 
 		if (isString(request.headers['accept-encoding']) === true) {
-
-			let encoding = null;
 
 			if (request.headers['accept-encoding'].includes(',') === true) {
 
