@@ -80,6 +80,10 @@ describe('HTTPS.send()/client/200', function(assert) {
 		assert(response.headers['content-type'],     'text/html; charset=UTF-8');
 		assert(response.headers['vary'],             'Accept-Encoding');
 
+		setTimeout(() => {
+			assert(HTTPS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -93,11 +97,13 @@ describe('HTTPS.send()/client/200', function(assert) {
 			},
 			payload: null
 		}, (result) => {
-
 			assert(result, true);
-
 		});
 
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 });

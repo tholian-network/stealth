@@ -2,6 +2,7 @@
 import { Emitter, isBoolean, isObject, isString } from '../extern/base.mjs';
 import { Download                               } from '../source/Download.mjs';
 import { DATETIME                               } from '../source/parser/DATETIME.mjs';
+import { UA                                     } from '../source/parser/UA.mjs';
 import { URL                                    } from '../source/parser/URL.mjs';
 import { isServices                             } from '../source/server/Services.mjs';
 import { Mode                                   } from '../source/server/service/Mode.mjs';
@@ -57,10 +58,12 @@ const Request = function(settings, services) {
 
 
 	settings = Object.freeze({
-		mode:     Mode.isMode(settings.mode)             ? settings.mode     : null,
-		policy:   Policy.isPolicy(settings.policy)       ? settings.policy   : null,
-		redirect: Redirect.isRedirect(settings.redirect) ? settings.redirect : null,
-		url:      URL.isURL(settings.url)                ? settings.url      : null
+		mode:      Mode.isMode(settings.mode)             ? settings.mode      : null,
+		policy:    Policy.isPolicy(settings.policy)       ? settings.policy    : null,
+		redirect:  Redirect.isRedirect(settings.redirect) ? settings.redirect  : null,
+		refresh:   isBoolean(settings.refresh)            ? settings.refresh   : false,
+		useragent: UA.isUA(settings.ua)                   ? settings.useragent : null,
+		url:       URL.isURL(settings.url)                ? settings.url       : null
 	});
 
 
@@ -97,6 +100,12 @@ const Request = function(settings, services) {
 		};
 	}
 
+	if (isBoolean(settings.refresh) === true) {
+		this.refresh = settings.refresh;
+	} else {
+		this.refresh = false;
+	}
+
 	if (URL.isURL(settings.url) === true) {
 
 		this.url = settings.url;
@@ -120,6 +129,12 @@ const Request = function(settings, services) {
 		this.url = null;
 	}
 
+	if (UA.isUA(settings.useragent) === true) {
+		this.useragent = settings.useragent;
+	} else {
+		this.useragent = null;
+	}
+
 
 	if (isServices(services) === true) {
 		this.services = services;
@@ -130,23 +145,22 @@ const Request = function(settings, services) {
 
 	this.download = null;
 	this.flags    = {
-		connect:   true,
 		proxy:     false,
-		refresh:   false,
-		useragent: null,
 		webview:   false
 	};
-	this.response = null;
-	this.retries  = 0;
-	this.timeline = [];
 
+	this.__state = {
+		response: null,
+		retries:  0,
+		timeline: []
+	};
 
 	Emitter.call(this);
 
 
 	this.on('@blocker', () => {
 
-		this.timeline.push({
+		this.__state.timeline.push({
 			event:    '@blocker',
 			datetime: DATETIME.parse(new Date())
 		});
@@ -199,7 +213,7 @@ const Request = function(settings, services) {
 		let mime    = this.url.mime;
 		let allowed = this.mode.mode[mime.type] === true;
 
-		this.timeline.push({
+		this.__state.timeline.push({
 			event:    '@mode',
 			datetime: DATETIME.parse(new Date())
 		});
@@ -214,7 +228,7 @@ const Request = function(settings, services) {
 
 	this.on('@policy', () => {
 
-		this.timeline.push({
+		this.__state.timeline.push({
 			event:    '@policy',
 			datetime: DATETIME.parse(new Date())
 		});
@@ -263,13 +277,9 @@ const Request = function(settings, services) {
 
 	this.on('@cache', () => {
 
-		if (this.flags.refresh === true) {
+		if (this.refresh === true) {
 
-			if (this.flags.connect === true) {
-				this.emit('@host');
-			} else {
-				// External Scheduler calls emit('@host')
-			}
+			this.emit('@host');
 
 		} else {
 
@@ -277,13 +287,13 @@ const Request = function(settings, services) {
 
 				this.services.cache.read(this.url, (response) => {
 
-					this.timeline.push({
+					this.__state.timeline.push({
 						event:    '@cache',
 						datetime: DATETIME.parse(new Date())
 					});
 
 					if (response.payload !== null) {
-						this.response = response.payload;
+						this.__state.response = response.payload;
 						this.emit('@optimize');
 					} else {
 						this.emit('@host');
@@ -293,7 +303,7 @@ const Request = function(settings, services) {
 
 			} else {
 
-				this.timeline.push({
+				this.__state.timeline.push({
 					event:    '@cache',
 					datetime: DATETIME.parse(new Date())
 				});
@@ -310,7 +320,7 @@ const Request = function(settings, services) {
 
 		if (this.url.hosts.length > 0) {
 
-			this.timeline.push({
+			this.__state.timeline.push({
 				event:    '@host',
 				datetime: DATETIME.parse(new Date())
 			});
@@ -319,7 +329,7 @@ const Request = function(settings, services) {
 
 		} else {
 
-			this.timeline.push({
+			this.__state.timeline.push({
 				event:    '@host',
 				datetime: DATETIME.parse(new Date())
 			});
@@ -368,14 +378,13 @@ const Request = function(settings, services) {
 
 	this.on('@download', () => {
 
-		this.timeline.push({
+		this.__state.timeline.push({
 			event:    '@download',
 			datetime: DATETIME.parse(new Date())
 		});
 
 
-		let useragent = this.get('useragent');
-		if (useragent !== null) {
+		if (this.useragent !== null) {
 
 			if (this.url.headers === null) {
 				this.url.headers = {};
@@ -387,17 +396,17 @@ const Request = function(settings, services) {
 				this.url.headers['accept'] = '*/*';
 			}
 
-			this.url.headers['user-agent'] = useragent;
+			this.url.headers['user-agent'] = UA.render(this.useragent);
 
 		} else {
 
 			if (this.url.headers !== null) {
 
-				if (this.url.headers['user-agent'] !== undefined) {
+				if (isString(this.url.headers['user-agent']) === true) {
 					delete this.url.headers['user-agent'];
 				}
 
-				if (this.url.headers['accept'] !== undefined) {
+				if (isString(this.url.headers['accept']) === true) {
 					delete this.url.headers['accept'];
 				}
 
@@ -419,9 +428,9 @@ const Request = function(settings, services) {
 
 			if (error.cause === 'socket-stability') {
 
-				this.retries++;
+				this.__state.retries++;
 
-				if (this.retries < 10) {
+				if (this.__state.retries < 10) {
 					this.emit('@download');
 				} else {
 					this.emit('error', [ error ]);
@@ -455,7 +464,7 @@ const Request = function(settings, services) {
 				this.download = null;
 			}
 
-			this.response = response;
+			this.__state.response = response;
 			this.emit('@optimize');
 
 		});
@@ -466,7 +475,7 @@ const Request = function(settings, services) {
 
 	this.on('@optimize', () => {
 
-		this.timeline.push({
+		this.__state.timeline.push({
 			event:    '@optimize',
 			datetime: DATETIME.parse(new Date())
 		});
@@ -477,22 +486,22 @@ const Request = function(settings, services) {
 
 		// 	if (mime.type === 'text' && mime.format === 'text/html') {
 
-		// 		let parsed   = HTML.parse(this.response.payload);
+		// 		let parsed   = HTML.parse(this.__state.response.payload);
 		// 		let filtered = HTML.filter(parsed);
 		// 		let rendered = HTML.render(filtered);
 
 		// 		if (rendered !== null) {
-		// 			this.response.payload = rendered;
+		// 			this.__state.response.payload = rendered;
 		// 		}
 
 		// 	} else if (mime.type === 'text' && mime.format === 'text/css') {
 
-		// 		let parsed   = CSS.parse(this.response.payload);
+		// 		let parsed   = CSS.parse(this.__state.response.payload);
 		// 		let filtered = CSS.filter(parsed);
 		// 		let rendered = CSS.render(filtered);
 
 		// 		if (rendered !== null) {
-		// 			this.response.payload = rendered;
+		// 			this.__state.response.payload = rendered;
 		// 		}
 
 		// 	} else if (mime.type === 'image' && mime.format === 'image/jpeg') {
@@ -504,13 +513,13 @@ const Request = function(settings, services) {
 		// }
 
 
-		this.emit('response', [ this.response ]);
+		this.emit('response', [ this.__state.response ]);
 
 	});
 
 	this.on('error', () => {
 
-		this.timeline.push({
+		this.__state.timeline.push({
 			event:    'error',
 			datetime: DATETIME.parse(new Date())
 		});
@@ -522,7 +531,7 @@ const Request = function(settings, services) {
 		ignore = isBoolean(ignore) ? ignore : false;
 
 
-		this.timeline.push({
+		this.__state.timeline.push({
 			event:    'redirect',
 			datetime: DATETIME.parse(new Date())
 		});
@@ -578,18 +587,18 @@ const Request = function(settings, services) {
 
 		if (response !== null && response.payload !== null) {
 
-			this.timeline.push({
+			this.__state.timeline.push({
 				event:    'response',
 				datetime: DATETIME.parse(new Date())
 			});
 
-			if (this.response !== response) {
-				this.response = response;
+			if (this.__state.response !== response) {
+				this.__state.response = response;
 			}
 
 			if (this.services !== null) {
 
-				this.services.cache.save(Object.assign({}, this.url, this.response), () => {
+				this.services.cache.save(Object.assign({}, this.url, this.__state.response), () => {
 					// Do Nothing
 				});
 
@@ -672,9 +681,9 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 			journal:  blob.data.journal
 		};
 
-		if (this.timeline.length > 0) {
+		if (this.__state.timeline.length > 0) {
 
-			this.timeline.forEach((entry) => {
+			this.__state.timeline.forEach((entry) => {
 				data.timeline.push(entry);
 			});
 
@@ -691,30 +700,11 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	get: function(key) {
-
-		key = isString(key) ? key : null;
-
-
-		if (key !== null) {
-
-			let value = this.flags[key];
-			if (value !== undefined) {
-				return value;
-			}
-
-		}
-
-
-		return null;
-
-	},
-
 	start: function() {
 
 		if (this.url !== null) {
 
-			let check = this.timeline.find((e) => e.event === '@start') || null;
+			let check = this.__state.timeline.find((e) => e.event === '@start') || null;
 			if (check === null) {
 
 				if (this.services !== null) {
@@ -794,45 +784,12 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 					this.emit('@blocker');
 				}
 
+				this.__state.timeline.push({
+					event:    '@start',
+					datetime: DATETIME.parse(new Date())
+				});
+
 				return true;
-
-			}
-
-		}
-
-
-		return false;
-
-	},
-
-	set: function(key, val) {
-
-		key = isString(key) ? key : null;
-
-
-		if (key !== null) {
-
-			if (isBoolean(val) === true) {
-
-				let check = this.flags[key];
-				if (isBoolean(check) === true) {
-
-					this.flags[key] = val;
-
-					return true;
-
-				}
-
-			} else if (isString(val) === true || val === null) {
-
-				let check = this.flags[key];
-				if (isString(check) === true || check === null) {
-
-					this.flags[key] = val;
-
-					return true;
-
-				}
 
 			}
 
@@ -845,7 +802,7 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 	stop: function() {
 
-		let check = this.timeline.find((e) => e.event === '@stop') || null;
+		let check = this.__state.timeline.find((e) => e.event === '@stop') || null;
 		if (check === null) {
 
 			if (this.download !== null) {
@@ -854,6 +811,11 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 				this.download = null;
 
 			}
+
+			this.__state.timeline.push({
+				event:    '@stop',
+				datetime: DATETIME.parse(new Date())
+			});
 
 			// XXX: This error event is fired by Download automatically
 			// this.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);

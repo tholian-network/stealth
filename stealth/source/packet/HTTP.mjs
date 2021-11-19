@@ -564,14 +564,23 @@ const HTTP = {
 
 				if (isObject(packet.headers) === true) {
 
-					if (
-						isString(packet.headers['@method']) === true
-						&& METHODS.includes(packet.headers['@method']) === true
-						&& isString(packet.headers['@url']) === true
-						// TODO: Validate @url header string and characters ([A-Za-z etc])
-					) {
-						headers['@method'] = packet.headers['@method'];
-						headers['@url']    = packet.headers['@url'];
+					if (isString(packet.headers['@method']) === true) {
+
+						if (
+							packet.headers['@method'] === 'CONNECT'
+							&& isString(packet.headers['host']) === true
+						) {
+							headers['@method'] = packet.headers['@method'];
+							headers['@url']    = packet.headers['host'];
+						} else if (
+							METHODS.includes(packet.headers['@method']) === true
+							&& isString(packet.headers['@url']) === true
+							// TODO: Validate @url header string and characters ([A-Za-z etc])
+						) {
+							headers['@method'] = packet.headers['@method'];
+							headers['@url']    = packet.headers['@url'];
+						}
+
 					}
 
 				}
@@ -931,13 +940,37 @@ const HTTP = {
 				let start_line = fields.shift();
 				let check      = start_line.split(' ').shift();
 
-				if (METHODS.includes(check) === true) {
+				if (check === 'CONNECT') {
 
-					let url = start_line.split(' ').slice(1).shift();
+					let host     = start_line.split(' ').slice(1).shift();
+					let protocol = start_line.split(' ').pop();
+
 					if (
-						url.startsWith('/') === true
-						|| url.startsWith('http://') === true
-						|| url.startsWith('https://') === true
+						(
+							protocol === 'HTTP/1.1'
+							|| protocol === 'HTTP/1.0'
+							|| protocol === 'HTTP/0.9'
+						) && (
+							host.includes(':') === true
+						)
+					) {
+						return true;
+					}
+
+				} else if (METHODS.includes(check) === true) {
+
+					let url      = start_line.split(' ').slice(1).shift();
+					let protocol = start_line.split(' ').pop();
+					if (
+						(
+							protocol === 'HTTP/1.1'
+							|| protocol === 'HTTP/1.0'
+							|| protocol === 'HTTP/0.9'
+						) && (
+							url.startsWith('/') === true
+							|| url.startsWith('http://') === true
+							|| url.startsWith('https://') === true
+						)
 					) {
 						return true;
 					}

@@ -1,17 +1,19 @@
 
 import net from 'net';
 
-import { console, Buffer, isBuffer, isObject, isString } from '../../extern/base.mjs';
-import { isStealth                                     } from '../../source/Stealth.mjs';
-import { HTTP                                          } from '../../source/connection/HTTP.mjs';
-import { HTTP as PACKET                                } from '../../source/packet/HTTP.mjs';
-import { isServices                                    } from '../../source/server/Services.mjs';
-import { DATETIME                                      } from '../../source/parser/DATETIME.mjs';
-import { IP                                            } from '../../source/parser/IP.mjs';
-import { URL                                           } from '../../source/parser/URL.mjs';
-import { Request                                       } from '../../source/Request.mjs';
+import { console, Buffer, isArray, isBuffer, isNumber, isObject, isString } from '../../extern/base.mjs';
+import { isStealth                                                        } from '../../source/Stealth.mjs';
+import { HTTP                                                             } from '../../source/connection/HTTP.mjs';
+import { HTTP as PACKET                                                   } from '../../source/packet/HTTP.mjs';
+import { DATETIME                                                         } from '../../source/parser/DATETIME.mjs';
+import { IP                                                               } from '../../source/parser/IP.mjs';
+import { URL                                                              } from '../../source/parser/URL.mjs';
+import { isServices                                                       } from '../../source/server/Services.mjs';
+import { isRequest                                                        } from '../../source/Request.mjs';
 
 
+
+const ENCODINGS = [ 'br', 'chunked', 'deflate', 'gzip', 'identity' ];
 
 const isSocket = function(obj) {
 
@@ -173,7 +175,7 @@ const proxy_http_connect = function(socket, request) {
 									headers: {
 										'@status': 200
 									},
-									payload: null
+									payload: Buffer.from('', 'utf8')
 								}));
 
 							});
@@ -326,104 +328,32 @@ const proxy_http_request = function(socket, packet) {
 	let connection = HTTP.upgrade(socket, packet);
 	if (connection !== null) {
 
-		let link   = (packet.headers['@url'] || '');
-		let flags  = [];
 		let remote = connection.toJSON().data['remote'];
-		let tab    = null;
+		let url    = null;
 
-		if (link.startsWith('https://') === true || link.startsWith('http://') === true) {
-
-			flags.push('proxy');
-
-		} else if (link.startsWith('/stealth/') === true) {
-
-			if (link.startsWith('/stealth/:') === true) {
-
-				let tmp = link.substr(9).split('/').shift();
-				if (tmp.startsWith(':') === true && tmp.endsWith(':') === true) {
-
-					tmp = tmp.substr(1, tmp.length - 2);
-
-					// /stealth/:tab-id,flag1,flag2:/https://domain.tld/path
-					if (tmp.includes(',') === true) {
-
-						tab   = tmp.split(',').shift();
-						flags = tmp.split(',').slice(1);
-						link  = link.substr(9).split('/').slice(1).join('/');
-
-					// /stealth/:tab-id:/https://domain.tld/path
-					} else {
-
-						let num = parseInt(tmp, 10);
-						if (Number.isNaN(num) === false) {
-							tab  = tmp;
-							link = link.substr(9).split('/').slice(1).join('/');
-						} else {
-							flags.push(tmp);
-							link = link.substr(9).split('/').slice(1).join('/');
-						}
-
-					}
-
-				}
-
-			// /stealth/https://domain.tld/path
-			} else if (link.startsWith('/stealth/') === true) {
-				link = link.substr(9);
-			}
-
+		if (
+			packet.headers['@url'].startsWith('http://') === true
+			|| packet.headers['@url'].startsWith('https://') === true
+		) {
+			url = URL.parse(packet.headers['@url']);
 		}
 
 
-		let session = null;
-		let request = null;
+		if (
+			this.stealth !== null
+			&& URL.isURL(url) === true
+		) {
 
-		if (this.stealth !== null) {
+			let session = this.stealth.track(null, packet.headers);
+			let request = this.stealth.open(url);
 
-			session = this.stealth.track(null, packet.headers);
-			request = this.stealth.open(link);
+			if (isRequest(request) === true) {
 
-		} else {
+				request.once('error', () => {
 
-			request = new Request({
-				mode: {
-					mode: {
-						text:  true,
-						image: true,
-						audio: true,
-						video: true,
-						other: true
-					}
-				},
-				url: URL.parse(link)
-			}, this.services);
-
-		}
-
-
-		if (request !== null) {
-
-			if (flags.includes('proxy') === true) {
-				request.set('proxy', true);
-			}
-
-			if (flags.includes('refresh') === true) {
-				request.set('refresh', true);
-			}
-
-			if (flags.includes('webview') === true) {
-				request.set('webview', true);
-			}
-
-
-			request.once('error', (err) => {
-
-				request.off('redirect');
-				request.off('response');
-				request.stop();
-
-
-				if (request.get('proxy') === true) {
+					request.off('redirect');
+					request.off('response');
+					request.stop();
 
 					HTTP.send(connection, {
 						headers: {
@@ -432,7 +362,180 @@ const proxy_http_request = function(socket, packet) {
 						payload: Buffer.from('403: Forbidden', 'utf8')
 					});
 
-				} else if (request.get('webview') === true) {
+				});
+
+				request.once('redirect', (response) => {
+
+					request.off('error');
+					request.off('response');
+					request.stop();
+
+
+					let redirect = URL.parse(response.headers['location']);
+
+					if (this.stealth._settings.debug === true) {
+						console.warn('Webproxy: "' + url.link + '" redirected to "' + redirect.link + '".');
+					}
+
+					HTTP.send(connection, {
+						headers: {
+							'@status':  307,
+							'location': redirect.link
+						},
+						payload: null
+					});
+
+				});
+
+				request.once('response', (response) => {
+
+					request.off('error');
+					request.off('redirect');
+					request.stop();
+
+
+					if (response !== null && response.payload !== null) {
+
+						HTTP.send(connection, encodeResponse(packet, {
+							headers: {
+								'@status':        response.headers['@status'],
+								'content-length': response.payload.length,
+								'content-type':   url.mime.format,
+								'last-modified':  response.headers['last-modified'] || null
+							},
+							payload: response.payload
+						}));
+
+					} else {
+
+						HTTP.send(connection, {
+							headers: {
+								'@status': 404
+							},
+							payload: Buffer.from('404: Not Found', 'utf8')
+						});
+
+					}
+
+				});
+
+				if (session !== null) {
+					session.track(request, '0');
+				}
+
+				connection.once('@connect', () => {
+
+					if (this.stealth !== null && this.stealth._settings.debug === true) {
+
+						let host = IP.render(remote['host']);
+						if (host !== null) {
+
+							if (this.__state.connections[host] === undefined) {
+								console.log('Webproxy: Client "' + host + '" connected.');
+								this.__state.connections[host] = 1;
+							} else if (isNumber(this.__state.connections[host]) === true) {
+								this.__state.connections[host]++;
+							}
+
+						}
+
+					}
+
+				});
+
+				connection.once('@disconnect', () => {
+
+					if (this.stealth !== null && this.stealth._settings.debug === true) {
+
+						let host = IP.render(remote['host']);
+						if (host !== null) {
+
+							if (isNumber(this.__state.connections[host]) === true) {
+								this.__state.connections[host]--;
+							}
+
+							setTimeout(() => {
+
+								if (this.__state.connections[host] === 0) {
+									console.log('Webproxy: Client "' + host + '" disconnected.');
+									delete this.__state.connections[host];
+								}
+
+							}, 60000);
+
+						}
+
+					}
+
+				});
+
+				return connection;
+
+			} else {
+
+				HTTP.send(connection, {
+					headers: {
+						'@status': 404
+					},
+					payload: Buffer.from('404: Not Found', 'utf8')
+				});
+
+			}
+
+		} else {
+
+			HTTP.send(connection, {
+				headers: {
+					'@status': 500
+				},
+				payload: Buffer.from('500: Internal Server Error', 'utf8')
+			});
+
+		}
+
+	} else {
+
+		socket.end();
+
+	}
+
+
+	return null;
+
+};
+
+const proxy_webview_request = function(socket, packet) {
+
+	let connection = HTTP.upgrade(socket, packet);
+	if (connection !== null) {
+
+		let remote = connection.toJSON().data['remote'];
+		let tab    = null;
+		let url    = null;
+
+		if (packet.headers['@url'].startsWith('/stealth/') === true) {
+			tab = packet.headers['@url'].substr(9).split('/').shift();
+			url = URL.parse(packet.headers['@url'].substr(9).split('/').slice(1).join('/'));
+		}
+
+
+		if (
+			this.stealth !== null
+			&& URL.isURL(url) === true
+			&& isString(tab) === true
+		) {
+
+			let session = this.stealth.track(null, packet.headers);
+			let request = this.stealth.open(url);
+
+			if (isRequest(request) === true) {
+
+				request.once('error', (err) => {
+
+					request.off('redirect');
+					request.off('response');
+					request.stop();
+
 
 					if (
 						err.type === 'connection'
@@ -447,8 +550,8 @@ const proxy_http_request = function(socket, packet) {
 							params.push('cause=' + encodeURIComponent(err.cause));
 						}
 
-						if (isString(link) === true) {
-							params.push('url=' + encodeURIComponent(link));
+						if (isString(url) === true) {
+							params.push('url=' + encodeURIComponent(url));
 						}
 
 						if (params.length > 0) {
@@ -467,50 +570,33 @@ const proxy_http_request = function(socket, packet) {
 
 						HTTP.send(connection, {
 							headers: {
-								'@status': 403
+								'@status': 500
 							},
-							payload: Buffer.from('403: Forbidden', 'utf8')
+							payload: Buffer.from('500: Internal Server Error', 'utf8')
 						});
 
 					}
 
-				} else {
+				});
 
-					HTTP.send(connection, {
-						headers: {
-							'@status': 403
-						},
-						payload: Buffer.from('403: Forbidden', 'utf8')
-					});
+				request.once('redirect', (response) => {
 
-				}
-
-			});
-
-			request.once('redirect', (response) => {
-
-				request.off('error');
-				request.off('response');
-				request.stop();
+					request.off('error');
+					request.off('response');
+					request.stop();
 
 
-				let hostname = null;
-				let redirect = null;
+					let hostname = 'localhost';
+					let domain   = URL.toDomain(url);
+					let host     = URL.toHost(url);
 
-				let url    = URL.parse(link);
-				let domain = URL.toDomain(url);
-				let host   = URL.toHost(url);
+					if (domain !== null) {
+						hostname = domain;
+					} else if (host !== null) {
+						hostname = host;
+					}
 
-				if (domain !== null) {
-					hostname = domain;
-				} else if (host !== null) {
-					hostname = host;
-				}
-
-
-				if (request.get('proxy') === true) {
-
-					redirect = URL.parse(response.headers['location']);
+					let redirect = URL.parse('http://' + hostname + ':65432/stealth/' + tab.id + '/' + response.headers['location']);
 
 					if (this.stealth._settings.debug === true) {
 						console.warn('Webproxy: "' + url.link + '" redirected to "' + redirect.link + '".');
@@ -524,168 +610,121 @@ const proxy_http_request = function(socket, packet) {
 						payload: null
 					});
 
-				} else if (request.get('webview') === true) {
+				});
 
-					if (tab !== null) {
-						redirect = URL.parse('http://' + hostname + ':65432/stealth/:' + tab + ',webview:/' + response.headers['location']);
+				request.once('response', (response) => {
+
+					request.off('error');
+					request.off('redirect');
+					request.stop();
+
+
+					if (response !== null && response.payload !== null) {
+
+						if (url.mime.ext === 'css') {
+
+							// TODO: Replace URLs inside response payload with "/stealth/<tab.id>/" prefix
+
+						} else if (url.mime.ext === 'html') {
+
+							// TODO: Replace <a href> inside response payload with "/stealth/<tab.id>/" prefix
+
+						}
+
+
+						HTTP.send(connection, encodeResponse(packet, {
+							headers: {
+								'@status':        response.headers['@status'],
+								'content-length': response.payload.length,
+								'content-type':   url.mime.format,
+								'last-modified':  response.headers['last-modified'] || null
+							},
+							payload: response.payload
+						}));
+
 					} else {
-						redirect = URL.parse('http://' + hostname + ':65432/stealth/' + response.headers['location']);
+
+						HTTP.send(connection, {
+							headers: {
+								'@status': 404
+							},
+							payload: Buffer.from('404: Not Found', 'utf8')
+						});
+
 					}
 
-					if (this.stealth._settings.debug === true) {
-						console.warn('Webproxy: "' + url.link + '" redirected to "' + redirect.link + '".');
-					}
+				});
 
-					HTTP.send(connection, {
-						headers: {
-							'@status':  307,
-							'location': redirect.link
-						},
-						payload: null
-					});
-
-				} else {
-
-					if (tab !== null) {
-						redirect = URL.parse('http://' + hostname + ':65432/stealth/:' + tab + ':/' + response.headers['location']);
-					} else {
-						redirect = URL.parse('http://' + hostname + ':65432/stealth/' + response.headers['location']);
-					}
-
-					if (this.stealth._settings.debug === true) {
-						console.warn('Webproxy: "' + url.link + '" redirected to "' + redirect.link + '".');
-					}
-
-					HTTP.send(connection, {
-						headers: {
-							'@status':  307,
-							'location': redirect.link
-						},
-						payload: null
-					});
-
+				if (session !== null) {
+					session.track(request, tab);
 				}
 
-			});
+				connection.once('@connect', () => {
 
-			request.once('response', (response) => {
+					if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-				request.off('error');
-				request.off('redirect');
-				request.stop();
+						let host = IP.render(remote['host']);
+						if (host !== null) {
 
-
-				let url = URL.parse(link);
-				if (url.mime.ext === 'css') {
-
-					if (request.get('webview') === true) {
-						// TODO: Replace URLs inside response payload with "/stealth/" prefix
-					}
-
-				} else if (url.mime.ext === 'html') {
-
-					if (request.get('webview') === true) {
-
-						if (tab !== null) {
-							// TODO: Replace CSS and asset URLs in response payload with "/stealth/:" + tab + ":/" prefix
-							// TODO: Replace href with "/stealth/:" + tab + ",webview:/" prefix
-						} else {
-							// TODO: Replace CSS and asset URLs in response payload with "/stealth/" prefix
-							// TODO: Replace href with "/stealth/" prefix
-						}
-
-					}
-
-				}
-
-
-				if (response !== null && response.payload !== null) {
-
-					HTTP.send(connection, encodeResponse(packet, {
-						headers: {
-							'@status':        response.headers['@status'],
-							'content-length': response.payload.length,
-							'content-type':   url.mime.format,
-							'last-modified':  response.headers['last-modified'] || null
-						},
-						payload: response.payload
-					}));
-
-				} else {
-
-					HTTP.send(connection, {
-						headers: {
-							'@status': 404
-						},
-						payload: Buffer.from('404: Not Found', 'utf8')
-					});
-
-				}
-
-			});
-
-			if (session !== null) {
-				session.track(request, tab);
-			}
-
-			connection.once('@connect', () => {
-
-				if (this.stealth !== null && this.stealth._settings.debug === true) {
-
-					let host = IP.render(remote['host']);
-					if (host !== null) {
-
-						if (this.__state.connections[host] === undefined) {
-							console.log('Webproxy: Client "' + host + '" connected.');
-							this.__state.connections[host] = 1;
-						} else if (isNumber(this.__state.connections[host]) === true) {
-							this.__state.connections[host]++;
-						}
-
-					}
-
-				}
-
-			});
-
-			connection.once('@disconnect', () => {
-
-				if (this.stealth !== null && this.stealth._settings.debug === true) {
-
-					let host = IP.render(remote['host']);
-					if (host !== null) {
-
-						if (isNumber(this.__state.connections[host]) === true) {
-							this.__state.connections[host]--;
-						}
-
-						setTimeout(() => {
-
-							if (this.__state.connections[host] === 0) {
-								console.log('Webproxy: Client "' + host + '" disconnected.');
-								delete this.__state.connections[host];
+							if (this.__state.connections[host] === undefined) {
+								console.log('Webproxy: Client "' + host + '" connected.');
+								this.__state.connections[host] = 1;
+							} else if (isNumber(this.__state.connections[host]) === true) {
+								this.__state.connections[host]++;
 							}
 
-						}, 60000);
+						}
 
 					}
 
-				}
+				});
 
-			});
+				connection.once('@disconnect', () => {
 
-			request.start();
+					if (this.stealth !== null && this.stealth._settings.debug === true) {
 
+						let host = IP.render(remote['host']);
+						if (host !== null) {
 
-			return connection;
+							if (isNumber(this.__state.connections[host]) === true) {
+								this.__state.connections[host]--;
+							}
+
+							setTimeout(() => {
+
+								if (this.__state.connections[host] === 0) {
+									console.log('Webproxy: Client "' + host + '" disconnected.');
+									delete this.__state.connections[host];
+								}
+
+							}, 60000);
+
+						}
+
+					}
+
+				});
+
+				return connection;
+
+			} else {
+
+				HTTP.send(connection, {
+					headers: {
+						'@status': 404
+					},
+					payload: Buffer.from('404: Not Found', 'utf8')
+				});
+
+			}
 
 		} else {
 
 			HTTP.send(connection, {
 				headers: {
-					'@status': 404
+					'@status': 500
 				},
-				payload: Buffer.from('404: Not Found', 'utf8')
+				payload: Buffer.from('500: Internal Server Error', 'utf8')
 			});
 
 		}
@@ -758,10 +797,13 @@ Webproxy.prototype = {
 						) || (
 							packet.headers['@method'] === 'GET'
 							&& isString(packet.headers['@url']) === true
+							&& packet.headers['@url'].startsWith('/stealth/') === true
+						) || (
+							packet.headers['@method'] === 'GET'
+							&& isString(packet.headers['@url']) === true
 							&& (
 								packet.headers['@url'].startsWith('http://') === true
 								|| packet.headers['@url'].startsWith('https://') === true
-								|| packet.headers['@url'].startsWith('/stealth/') === true
 							)
 						)
 					) {
@@ -799,7 +841,31 @@ Webproxy.prototype = {
 
 				if (this.services !== null) {
 
-					proxy_http_connect.call(this, socket, packet);
+					return proxy_http_connect.call(this, socket, packet);
+
+				} else {
+
+					socket.write(PACKET.encode(null, {
+						headers: {
+							'@status':    403,
+							'connection': 'close'
+						},
+						payload: null
+					}));
+
+					socket.end();
+
+				}
+
+			} else if (
+				packet.headers['@method'] === 'GET'
+				&& isString(packet.headers['@url']) === true
+				&& packet.headers['@url'].startsWith('/stealth/') === true
+			) {
+
+				if (this.services !== null) {
+
+					return proxy_webview_request.call(this, socket, packet);
 
 				} else {
 
@@ -821,7 +887,6 @@ Webproxy.prototype = {
 				&& (
 					packet.headers['@url'].startsWith('http://') === true
 					|| packet.headers['@url'].startsWith('https://') === true
-					|| packet.headers['@url'].startsWith('/stealth/') === true
 				)
 			) {
 
@@ -842,6 +907,10 @@ Webproxy.prototype = {
 					socket.end();
 
 				}
+
+			} else {
+
+				socket.end();
 
 			}
 

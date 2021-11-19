@@ -117,50 +117,37 @@ const Stealth = function(settings) {
 
 			this.interval = setInterval(() => {
 
-				let cur_downloads = 0;
-				let max_downloads = 0;
+				let connections = 0;
+
+				let connection = this.settings.internet.connection;
+				if (connection === 'mobile') {
+					connections = 2;
+				} else if (connection === 'broadband') {
+					connections = 8;
+				} else if (connection === 'peer') {
+					connections = 2;
+				} else if (connection === 'tor') {
+					connections = 2;
+				}
+
+				if (this._settings.debug === true) {
+					connections = 1;
+				}
+
+
+				let active = [];
 
 				for (let r = 0; r < this.requests.length; r++) {
 
 					let request = this.requests[r];
-					if (request.timeline.connect !== null) {
-						cur_downloads++;
-					}
 
-				}
-
-
-				let connection = this.settings.internet.connection;
-				if (connection === 'mobile') {
-					max_downloads = 2;
-				} else if (connection === 'broadband') {
-					max_downloads = 8;
-				} else if (connection === 'peer') {
-					max_downloads = 2;
-				} else if (connection === 'tor') {
-					max_downloads = 2;
-				}
-
-				if (this._settings.debug === true) {
-					max_downloads = 1;
-				}
-
-
-				for (let r = 0; r < this.requests.length; r++) {
-
-					if (cur_downloads <= max_downloads) {
-
-						let request = this.requests[r];
-						if (request.flags.connect === false) {
-
-							if (request.timeline.connect === null) {
-								request.emit('connect');
-								cur_downloads++;
-							}
-
-						}
-
-					} else {
+					let started = request.toJSON().data['timeline'].find((e) => e.event === '@start') || null;
+					if (started !== null) {
+						active.push(request);
+					} else if (active.length < connections) {
+						active.push(request);
+						request.start();
+					} else if (active.length === connections) {
 						break;
 					}
 
@@ -351,10 +338,6 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 				request.on('error',    () => this.requests.remove(request));
 				request.on('redirect', () => this.requests.remove(request));
 				request.on('response', () => this.requests.remove(request));
-
-				// Allow non-scheduled cached requests
-				// Disallow non-scheduled networked requests
-				request.set('connect', false);
 
 				this.requests.push(request);
 
