@@ -19,6 +19,8 @@ Currently, the Repository consists of these important folders:
 # Guide Contents
 
 - [README.md](./README.md) is this file.
+- [security/Network.md](./security/Networking.md) contains the Network Security guide and explains potential Attack Vectors.
+- [security/Site.md](./security/Site.md) contains the Site Security guide and explains potential Attack Vectors.
 - [concept/Browser.md](./concept/Browser.md) explains the Browser and Browser UI.
 - [concept/Covert.md](./concept/Covert.md) explains the Covert Testrunner.
 - [concept/Stealth.md](./concept/Stealth.md) explains the Stealth Service.
