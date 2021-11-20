@@ -24,9 +24,9 @@ const RESERVED = [
 
 ];
 
-const find_option = (records, key) => {
+const toOptionValue = (packet, key) => {
 
-	return records.find((record) => {
+	let txt = packet.payload.answers.find((record) => {
 
 		if (
 			record.type === 'TXT'
@@ -40,6 +40,26 @@ const find_option = (records, key) => {
 		return false;
 
 	}) || null;
+
+	if (txt !== null) {
+
+		let str = txt.value[0].toString('utf8');
+		let val = str.substr((key + '=').length);
+
+		let num = parseInt(val, 10);
+		if (Number.isNaN(num) === false && (num).toString() === val) {
+			val = num;
+		}
+
+		if (val === 'true')  val = true;
+		if (val === 'false') val = false;
+		if (val === 'null')  val = null;
+
+		return val;
+
+	}
+
+	return null;
 
 };
 
@@ -131,11 +151,11 @@ const isServiceDiscoveryResponse = function(packet) {
 		&& packet.payload.answers.length > 3
 	) {
 
-		let ptr  = packet.payload.answers.find((a) => a.type === 'PTR') || null;
-		let srv  = packet.payload.answers.find((a) => a.type === 'SRV') || null;
-		let txt1 = find_option(packet.payload.answers, 'version');
-		let txt2 = find_option(packet.payload.answers, 'certificate');
-		let txt3 = find_option(packet.payload.answers, 'connection');
+		let ptr         = packet.payload.answers.find((a) => a.type === 'PTR') || null;
+		let srv         = packet.payload.answers.find((a) => a.type === 'SRV') || null;
+		let version     = toOptionValue(packet, 'version');
+		let certificate = toOptionValue(packet, 'certificate');
+		let connection  = toOptionValue(packet, 'connection');
 
 		if (
 			ptr !== null
@@ -148,15 +168,24 @@ const isServiceDiscoveryResponse = function(packet) {
 				srv.domain === '_stealth._wss.tholian.local'
 				|| srv.domain === '_stealth._ws.tholian.local'
 			)
-			&& isString(srv.value) === true
-			&& srv.value.endsWith('.tholian.local') === true
-			&& srv.port === 65432
-			&& srv.weight === 0
-			&& txt1 !== null
-			&& txt2 !== null
-			&& txt3 !== null
-			&& txt1.value[0].toString('utf8').substr(8) === VERSION
-			&& CONNECTION.includes(txt3.value[0].toString('utf8').substr(11)) === true
+			&& (
+				(
+					isString(srv.value) === true
+					&& srv.value.endsWith('.tholian.local') === true
+					&& srv.port === 65432
+					&& srv.weight === 0
+					&& isString(certificate) === true
+				) || (
+					isString(srv.value) === true
+					&& srv.port === 65432
+					&& srv.weight === 0
+					&& certificate === null
+				)
+			)
+			&& isString(connection) === true
+			&& isString(version) === true
+			&& version === VERSION
+			&& CONNECTION.includes(connection) === true
 		) {
 
 			let has_ipv4 = ENVIRONMENT.ips.filter((ip) => ip.type === 'v4').length > 0;
@@ -254,13 +283,13 @@ const toServiceDiscoveryResponse = function(request) {
 
 	if (this.stealth !== null) {
 
-		if (isObject(this.stealth._settings.account) === true) {
-			certificate = this.stealth._settings.account.certificate;
-			hostname    = this.stealth._settings.account.username + '.tholian.local';
+		if (isObject(this.stealth.settings.account) === true) {
+			certificate = this.stealth.settings.account.certificate;
+			hostname    = this.stealth.settings.account.username + '.tholian.local';
 		}
 
-		if (isObject(this.stealth._settings.internet) === true) {
-			connection = this.stealth._settings.internet.connection;
+		if (isObject(this.stealth.settings.internet) === true) {
+			connection = this.stealth.settings.internet.connection;
 		}
 
 	}
@@ -663,38 +692,26 @@ Peerer.prototype = {
 						if (srv.value.endsWith('.tholian.local') === true) {
 							host.domain = srv.value;
 							peer.domain = srv.value;
+						} else {
+							host.domain = srv.value;
+							peer.domain = srv.value;
 						}
 
 					}
 
-					let txt1 = find_option(packet.payload.answers, 'version');
-					if (txt1 !== null) {
-
-						let value = txt1.value[0].toString('utf8').substr(8);
-						if (value === VERSION) {
-							peer.peer.version = value;
-						}
-
+					let version = toOptionValue(packet, 'version');
+					if (version === VERSION) {
+						peer.peer.version = version;
 					}
 
-					let txt2 = find_option(packet.payload.answers, 'certificate');
-					if (txt2 !== null) {
-
-						let value = txt2.value[0].toString('utf8').substr(12);
-						if (value !== 'null') {
-							peer.peer.certificate = value;
-						}
-
+					let certificate = toOptionValue(packet, 'certificate');
+					if (certificate !== null) {
+						peer.peer.certificate = certificate;
 					}
 
-					let txt3 = find_option(packet.payload.answers, 'connection');
-					if (txt3 !== null) {
-
-						let value = txt3.value[0].toString('utf8').substr(11);
-						if (CONNECTION.includes(value) === true) {
-							peer.peer.connection = value;
-						}
-
+					let connection = toOptionValue(packet, 'connection');
+					if (CONNECTION.includes(connection) === true) {
+						peer.peer.connection = connection;
 					}
 
 					let ipv4s = packet.payload.answers.filter((a) => a.type === 'A').map((a) => a.value);
@@ -725,12 +742,22 @@ Peerer.prototype = {
 
 					}
 
+
 					if (
 						host.domain !== null
 						&& peer.domain !== null
 					) {
 
-						this.services.read({
+						if (
+							peer.domain.endsWith('.tholian.local')
+							&& peer.peer.certificate !== null
+						) {
+							console.info('Peerer: Trusted Peer "' + peer.domain + '" updated.');
+						} else {
+							console.warn('Peerer: Untrusted Peer "' + peer.domain + '" updated.');
+						}
+
+						this.services.host.read({
 							domain: host.domain
 						}, (response) => {
 
