@@ -24,9 +24,9 @@ const RESERVED = [
 
 ];
 
-const find_option = (packet, key) => {
+const find_option = (records, key) => {
 
-	return packet.payload.answers.find((record) => {
+	return records.find((record) => {
 
 		if (
 			record.type === 'TXT'
@@ -131,8 +131,8 @@ const isServiceDiscoveryResponse = function(packet) {
 		&& packet.payload.answers.length > 3
 	) {
 
-		let ptr = packet.payload.answers.find((a) => a.type === 'PTR') || null;
-		let srv = packet.payload.answers.find((a) => a.type === 'SRV') || null;
+		let ptr  = packet.payload.answers.find((a) => a.type === 'PTR') || null;
+		let srv  = packet.payload.answers.find((a) => a.type === 'SRV') || null;
 		let txt1 = find_option(packet.payload.answers, 'version');
 		let txt2 = find_option(packet.payload.answers, 'certificate');
 		let txt3 = find_option(packet.payload.answers, 'connection');
@@ -616,9 +616,9 @@ Peerer.prototype = {
 
 			if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-				let info = connection.toJSON();
-				if (info.remote !== null) {
-					console.log('Peerer: Client "' + info.remote.host + '" sent a Multicast DNS-SD Request.');
+				let remote = connection.toJSON().data['remote'];
+				if (remote !== null) {
+					console.log('Peerer: Client "' + IP.render(remote['host']) + '" sent a Multicast DNS-SD Request.');
 				}
 
 			}
@@ -632,9 +632,9 @@ Peerer.prototype = {
 
 			if (this.stealth !== null && this.stealth._settings.debug === true) {
 
-				let info = connection.toJSON();
-				if (info.remote !== null) {
-					console.log('Peerer: Client "' + info.remote.host + '" sent a Multicast DNS-SD Response.');
+				let remote = connection.toJSON().data['remote'];
+				if (remote !== null) {
+					console.log('Peerer: Client "' + IP.render(remote['host']) + '" sent a Multicast DNS-SD Response.');
 				}
 
 			}

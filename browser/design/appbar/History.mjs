@@ -9,11 +9,10 @@ const ASSISTANT = new Assistant({
 	name:   'History',
 	widget: 'appbar/History',
 	events: {
-		'back':    'Visiting earlier Site in Tab History.',
-		'next':    'Visiting later Site in Tab History.',
-		'open':    'Opening new Tab.',
-		'pause':   'Pausing current Tab.',
-		'refresh': 'Refreshing Tab.'
+		'back':   'Visiting earlier Site in Tab History.',
+		'next':   'Visiting later Site in Tab History.',
+		'open':   'Opening new Tab.',
+		'reload': 'Reload current Tab.'
 	}
 });
 
@@ -23,14 +22,13 @@ const update = function(tab) {
 
 		this.buttons.back.state(tab.can('back') ? 'enabled' : 'disabled');
 		this.buttons.next.state(tab.can('next') ? 'enabled' : 'disabled');
-		this.buttons.action.value(tab.can('pause') ? 'pause' : 'refresh');
-		this.buttons.action.state('enabled');
+		this.buttons.reload.state('enabled');
 
 	} else {
 
 		this.buttons.back.state('disabled');
 		this.buttons.next.state('disabled');
-		this.buttons.action.state('disabled');
+		this.buttons.reload.state('disabled');
 
 	}
 
@@ -43,14 +41,14 @@ const History = function(browser) {
 	this.element = new Element('browser-appbar-history', [
 		'<button title="Visit earlier Site in Tab History" data-key="back" disabled></button>',
 		'<button title="Visit later Site in Tab History" data-key="next" disabled></button>',
-		'<button title="Refresh/Pause current Tab" data-key="action" data-val="refresh" disabled></button>',
+		'<button title="Reload current Tab" data-key="reload" disabled></button>',
 		'<button title="Open new Tab" data-key="open" disabled></button>'
 	].join(''));
 
 	this.buttons = {
 		back:   this.element.query('[data-key="back"]'),
 		next:   this.element.query('[data-key="next"]'),
-		action: this.element.query('[data-key="action"]'),
+		reload: this.element.query('[data-key="reload"]'),
 		open:   this.element.query('[data-key="open"]')
 	};
 
@@ -87,8 +85,8 @@ const History = function(browser) {
 			|| (key.mods.includes('ctrl') === true && key.name === 'r')
 		) {
 
-			if (this.buttons.action.state() !== 'disabled') {
-				this.buttons.action.emit('click');
+			if (this.buttons.reload.state() !== 'disabled') {
+				this.buttons.reload.emit('click');
 			}
 
 		} else if (
@@ -114,16 +112,9 @@ const History = function(browser) {
 		browser.next();
 	});
 
-	this.buttons.action.on('click', () => {
-
-		let val = this.buttons.action.value();
-		if (val === 'refresh') {
-			ASSISTANT.emit('refresh');
-		} else if (val === 'pause') {
-			ASSISTANT.emit('pause');
-			browser.pause();
-		}
-
+	this.buttons.reload.on('click', () => {
+		ASSISTANT.emit('reload');
+		browser.reload();
 	});
 
 	this.buttons.open.state('enabled');

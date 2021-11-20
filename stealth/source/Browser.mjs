@@ -315,7 +315,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			let result = this.tab.back();
 			if (result === true) {
 
-				this.emit('refresh', [ this.tab, this.tabs, false ]);
+				this.emit('refresh', [ this.tab, this.tabs ]);
 
 				return true;
 
@@ -521,7 +521,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 				let result = this.tab.navigate(link, toMode.call(this, URL.parse(link)));
 				if (result === true) {
 
-					this.refresh();
+					this.emit('refresh', [ this.tab, this.tabs ]);
 
 					return true;
 
@@ -569,7 +569,7 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 			let result = this.tab.next();
 			if (result === true) {
 
-				this.emit('refresh', [ this.tab, this.tabs, false ]);
+				this.emit('refresh', [ this.tab, this.tabs ]);
 
 				return true;
 
@@ -609,26 +609,6 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 
 		return null;
-
-	},
-
-	pause: function() {
-
-		if (this.tab !== null) {
-
-			let result = this.tab.pause();
-			if (result === true) {
-
-				this.emit('pause', [ this.tab, this.tabs, true ]);
-
-				return true;
-
-			}
-
-		}
-
-
-		return false;
 
 	},
 
@@ -675,11 +655,11 @@ Browser.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	refresh: function() {
+	reload: function() {
 
 		if (this.tab !== null) {
 
-			this.emit('refresh', [ this.tab, this.tabs, true ]);
+			// TODO: Re-request this.tab.url via Service API
 
 			return true;
 

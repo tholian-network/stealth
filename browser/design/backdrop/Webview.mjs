@@ -9,11 +9,10 @@ import { URL                          } from '../../source/parser/URL.mjs';
 
 
 
-const toSRC = function(url, id, refresh) {
+const toSRC = function(url, id) {
 
-	url     = URL.isURL(url)     ? url     : null;
-	id      = isString(id)       ? id      : null;
-	refresh = isBoolean(refresh) ? refresh : false;
+	url = URL.isURL(url) ? url : null;
+	id  = isString(id)   ? id  : '0';
 
 
 	let src = null;
@@ -36,17 +35,7 @@ const toSRC = function(url, id, refresh) {
 				}
 
 			} else if (url.protocol === 'https' || url.protocol === 'http') {
-
-				if (id !== null) {
-
-					if (refresh === true) {
-						src = '/stealth/:' + id + ',refresh,webview:/' + url.link;
-					} else {
-						src = '/stealth/:' + id + ',webview:/' + url.link;
-					}
-
-				}
-
+				src = '/stealth/' + id + '/' + url.link;
 			} else {
 				src = '/browser/internal/fix-connection.html?url=' + encodeURIComponent(url.link);
 			}
@@ -146,7 +135,10 @@ const update_title = function(tab) {
 
 const update = function(tab, refresh) {
 
-	let src = toSRC(tab.url, tab.id, refresh);
+	refresh = isBoolean(refresh) ? refresh : false;
+
+
+	let src = toSRC(tab.url, tab.id);
 	if (src !== null) {
 
 		if (refresh === true) {
@@ -275,9 +267,9 @@ const Webview = function(browser) {
 
 	});
 
-	browser.on('theme',   (theme)              => update_theme.call(this, theme));
-	browser.on('show',    (tab, tabs, refresh) => update.call(this, tab, refresh));
-	browser.on('refresh', (tab, tabs, refresh) => update.call(this, tab, refresh));
+	browser.on('theme',   (theme) => update_theme.call(this, theme));
+	browser.on('show',    (tab)   => update.call(this, tab, false));
+	browser.on('refresh', (tab)   => update.call(this, tab, true));
 
 
 	Widget.call(this);

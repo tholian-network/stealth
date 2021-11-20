@@ -15,7 +15,7 @@ const KEYMAP = [{
 	'title':    'or use [Alt] + [Arrow Right] or use [Ctrl] + []]'
 }, {
 	'key':      'f3',
-	'content':  'Refresh/Pause current Tab',
+	'content':  'Reload current Tab',
 	'title':    'or use [Ctrl] + [R]'
 }, {
 	'key':      'f4',
@@ -133,7 +133,7 @@ const update = function() {
 
 			this.buttons['f1'].area(history.buttons.back.area());
 			this.buttons['f2'].area(history.buttons.next.area());
-			this.buttons['f3'].area(history.buttons.action.area());
+			this.buttons['f3'].area(history.buttons.reload.area());
 			this.buttons['f4'].area(history.buttons.open.area());
 
 		} else {

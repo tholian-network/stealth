@@ -65,10 +65,8 @@ browser-appbar-history button::-moz-focus-inner {
 	border: 0px solid transparent;
 }
 
-browser-appbar-history button[data-key="back"]:before                       { content: '\e5c4'; }
-browser-appbar-history button[data-key="next"]:before                       { content: '\e5c8'; }
-browser-appbar-history button[data-key="action"]:before                     { content: '\e5d5'; }
-browser-appbar-history button[data-key="action"][data-val="refresh"]:before { content: '\e5d5'; }
-browser-appbar-history button[data-key="action"][data-val="pause"]:before   { content: '\e034'; }
-browser-appbar-history button[data-key="open"]:before                       { content: '\e145'; }
+browser-appbar-history button[data-key="back"]:before   { content: '\e5c4'; }
+browser-appbar-history button[data-key="next"]:before   { content: '\e5c8'; }
+browser-appbar-history button[data-key="reload"]:before { content: '\e5d5'; }
+browser-appbar-history button[data-key="open"]:before   { content: '\e145'; }
 
