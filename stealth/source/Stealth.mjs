@@ -308,22 +308,7 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 		let url = URL.parse(link);
 		if (URL.isURL(url) === true) {
 
-			let request = null;
-
-			for (let s = 0, sl = this.settings.sessions.length; s < sl; s++) {
-
-				let cached = this.settings.sessions[s].get(url.link);
-				if (cached !== null) {
-					request = cached;
-					break;
-				}
-
-			}
-
-			if (request === null) {
-				request = this.requests.find((r) => r.url.link === url.link) || null;
-			}
-
+			let request = this.requests.find((r) => r.url.link === url.link) || null;
 			if (request === null) {
 
 				if (this.settings.internet.connection === 'tor') {

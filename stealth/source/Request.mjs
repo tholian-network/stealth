@@ -58,12 +58,12 @@ const Request = function(settings, services) {
 
 
 	settings = Object.freeze({
-		mode:      Mode.isMode(settings.mode)             ? settings.mode      : null,
-		policy:    Policy.isPolicy(settings.policy)       ? settings.policy    : null,
-		redirect:  Redirect.isRedirect(settings.redirect) ? settings.redirect  : null,
-		refresh:   isBoolean(settings.refresh)            ? settings.refresh   : false,
-		useragent: UA.isUA(settings.ua)                   ? settings.useragent : null,
-		url:       URL.isURL(settings.url)                ? settings.url       : null
+		mode:     Mode.isMode(settings.mode)             ? settings.mode     : null,
+		policy:   Policy.isPolicy(settings.policy)       ? settings.policy   : null,
+		redirect: Redirect.isRedirect(settings.redirect) ? settings.redirect : null,
+		refresh:  isBoolean(settings.refresh)            ? settings.refresh  : false,
+		ua:       UA.isUA(settings.ua)                   ? settings.ua       : null,
+		url:      URL.isURL(settings.url)                ? settings.url      : null
 	});
 
 
@@ -129,10 +129,10 @@ const Request = function(settings, services) {
 		this.url = null;
 	}
 
-	if (UA.isUA(settings.useragent) === true) {
-		this.useragent = settings.useragent;
+	if (UA.isUA(settings.ua) === true) {
+		this.ua = settings.ua;
 	} else {
-		this.useragent = null;
+		this.ua = null;
 	}
 
 
@@ -144,10 +144,6 @@ const Request = function(settings, services) {
 
 
 	this.download = null;
-	this.flags    = {
-		proxy:     false,
-		webview:   false
-	};
 
 	this.__state = {
 		response: null,
@@ -384,19 +380,84 @@ const Request = function(settings, services) {
 		});
 
 
-		if (this.useragent !== null) {
+		if (this.ua !== null) {
 
 			if (this.url.headers === null) {
 				this.url.headers = {};
 			}
 
-			if (this.url.mime !== null) {
-				this.url.headers['accept'] = this.url.mime.format;
-			} else {
-				this.url.headers['accept'] = '*/*';
-			}
 
-			this.url.headers['user-agent'] = UA.render(this.useragent);
+			if (this.ua.engine === 'chrome') {
+
+				this.url.headers['accept-encoding']           = 'gzip, deflate, br';
+				this.url.headers['accept-language']           = 'en-US,en;q=0.9';
+				this.url.headers['sec-ch-ua-mobile']          = '?0';
+				this.url.headers['sec-fetch-dest']            = 'document';
+				this.url.headers['sec-fetch-mode']            = 'navigate';
+				this.url.headers['sec-fetch-site']            = 'none';
+				this.url.headers['sec-fetch-user']            = '?1';
+				this.url.headers['upgrade-insecure-requests'] = '1';
+				this.url.headers['user-agent']                = UA.render(this.ua);
+
+				if (this.url.mime !== null) {
+
+					this.url.headers['accept'] = this.url.mime.format;
+
+					if (this.url.mime.format === 'text/html') {
+						this.url.headers['sec-fetch-site'] = 'none';
+					} else {
+						this.url.headers['sec-fetch-site'] = 'same-origin';
+					}
+
+				} else {
+
+					this.url.headers['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8';
+
+				}
+
+			} else if (this.ua.engine === 'firefox') {
+
+				this.url.headers['accept-encoding']           = 'gzip, deflate, br';
+				this.url.headers['accept-language']           = 'en-US,en;q=0.5';
+				this.url.headers['cache-control']             = 'max-age=0';
+				this.url.headers['sec-fetch-dest']            = 'document';
+				this.url.headers['sec-fetch-mode']            = 'navigate';
+				this.url.headers['sec-fetch-site']            = 'none';
+				this.url.headers['sec-fetch-user']            = '?1';
+				this.url.headers['upgrade-insecure-requests'] = '1';
+				this.url.headers['user-agent']                = UA.render(this.ua);
+
+				if (this.url.mime !== null) {
+
+					this.url.headers['accept'] = this.url.mime.format;
+
+					if (this.url.mime.format === 'text/html') {
+						this.url.headers['sec-fetch-site'] = 'none';
+					} else {
+						this.url.headers['sec-fetch-site'] = 'same-origin';
+					}
+
+				} else {
+
+					if (this.ua.version >= 92) {
+						this.url.headers['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
+					} else if (this.ua.version >= 72) {
+						this.url.headers['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8';
+					} else if (this.ua.version >= 66) {
+						this.url.headers['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+					} else {
+						this.url.headers['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+					}
+
+				}
+
+			} else if (this.ua.engine === 'safari') {
+
+				this.url.headers['accept-encoding'] = 'gzip, deflate';
+				this.url.headers['accept-language'] = 'en-us';
+				this.url.headers['accept']          = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+
+			}
 
 		} else {
 
@@ -415,7 +476,10 @@ const Request = function(settings, services) {
 		}
 
 
-		this.download = new Download(this.url);
+		this.download = new Download({
+			ua:  this.ua,
+			url: this.url
+		});
 
 		this.download.once('error', (error) => {
 
@@ -442,6 +506,10 @@ const Request = function(settings, services) {
 
 			}
 
+		});
+
+		this.download.on('progress', (frame, progress) => {
+			this.emit('progress', [ frame, progress ]);
 		});
 
 		this.download.once('redirect', (response) => {
@@ -513,7 +581,23 @@ const Request = function(settings, services) {
 		// }
 
 
-		this.emit('response', [ this.__state.response ]);
+		if (this.__state.response !== null) {
+
+			this.emit('response', [{
+				headers: {
+					'@status':        200,
+					'content-length': this.__state.response.payload.length,
+					'content-type':   this.url.mime.format,
+					'last-modified':  this.__state.response.headers['last-modified'] || null
+				},
+				payload: this.__state.response.payload
+			}]);
+
+		} else {
+
+			this.emit('error', [{ type: 'connection', cause: 'headers' }]);
+
+		}
 
 	});
 
@@ -630,16 +714,9 @@ Request.from = function(json) {
 					mode:     Mode.isMode(data.mode)             ? data.mode           : null,
 					policy:   Policy.isPolicy(data.policy)       ? data.policy         : null,
 					redirect: Redirect.isRedirect(data.redirect) ? data.redirect       : null,
+					refresh:  isBoolean(data.refresh)            ? data.refresh        : false,
 					url:      isString(data.url)                 ? URL.parse(data.url) : null
 				});
-
-				if (isObject(data.flags) === true) {
-
-					Object.keys(data.flags).forEach((key) => {
-						request.set(key, data.flags[key]);
-					});
-
-				}
 
 				return request;
 
@@ -675,7 +752,6 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 				connection: null,
 				percentage: '???.??%'
 			},
-			flags:    Object.assign({}, this.flags),
 			timeline: [],
 			events:   blob.data.events,
 			journal:  blob.data.journal
@@ -706,6 +782,14 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 			let check = this.__state.timeline.find((e) => e.event === '@start') || null;
 			if (check === null) {
+
+				this.__state.timeline.push({
+					event:    '@start',
+					datetime: DATETIME.parse(new Date())
+				});
+
+				this.emit('start');
+
 
 				if (this.services !== null) {
 
@@ -784,11 +868,6 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 					this.emit('@blocker');
 				}
 
-				this.__state.timeline.push({
-					event:    '@start',
-					datetime: DATETIME.parse(new Date())
-				});
-
 				return true;
 
 			}
@@ -807,6 +886,10 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (this.download !== null) {
 
+				this.download.off('error');
+				this.download.off('redirect');
+				this.download.off('response');
+
 				this.download.stop();
 				this.download = null;
 
@@ -817,8 +900,8 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 				datetime: DATETIME.parse(new Date())
 			});
 
-			// XXX: This error event is fired by Download automatically
-			// this.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+			this.emit('error', [{ type: 'connection', cause: 'socket-stability' }]);
+			this.emit('stop');
 
 			return true;
 

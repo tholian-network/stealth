@@ -217,9 +217,9 @@ const BROWSER = {
 				if (data.version === null) {
 
 					if (data.system === 'desktop') {
-						data.version = randomize([ 7.0, 18.0, 36.0, 38.0, 40.1, 54.0, 65.0, 66.0, 67.0 ]);
+						data.version = randomize([ 7.0, 18.0, 36.0, 38.0, 40.1, 54.0, 65.0, 66.0, 67.0, 68.0, 91.0, 92.0, 93.0 ]);
 					} else if (data.system === 'mobile') {
-						data.version = randomize([ 7.0, 8.0, 9.0, 10.0 ]);
+						data.version = randomize([ 7.0, 8.0, 9.0, 10.0, 68.0, 91.0, 92.0, 93.0, 94.0 ]);
 					}
 
 				}
@@ -236,11 +236,23 @@ const BROWSER = {
 
 				} else if (data.system === 'mobile') {
 
-					return randomize([
-						'Mozilla/5.0 (Android; Linux armv7l; rv:' + data.version + ') Gecko/20111216 Firefox/' + data.version + ' Fennec/' + data.version,
-						'Mozilla/5.0 (Android; Mobile; rv:' + data.version + ') Gecko/' + data.version + ' Firefox/' + data.version + ' Fennec/' + data.version,
-						'Mozilla/5.0 (Android; Tablet; rv:' + data.version + ') Gecko/' + data.version + ' Firefox/' + data.version + ' Fennec/' + data.version,
-					]);
+					if (data.version > 10) {
+
+						return randomize([
+							'Mozilla/5.0 (Android 8; Mobile; rv:' + data.version + ') Gecko/' + data.version + ' Firefox/' + data.version,
+							'Mozilla/5.0 (Android 9; Mobile; rv:' + data.version + ') Gecko/' + data.version + ' Firefox/' + data.version,
+							'Mozilla/5.0 (Android 10; Mobile; rv:' + data.version + ') Gecko/' + data.version + ' Firefox/' + data.version,
+						]);
+
+					} else {
+
+						return randomize([
+							'Mozilla/5.0 (Android; Linux armv7l; rv:' + data.version + ') Gecko/20111216 Firefox/' + data.version + ' Fennec/' + data.version,
+							'Mozilla/5.0 (Android; Mobile; rv:' + data.version + ') Gecko/' + data.version + ' Firefox/' + data.version + ' Fennec/' + data.version,
+							'Mozilla/5.0 (Android; Tablet; rv:' + data.version + ') Gecko/' + data.version + ' Firefox/' + data.version + ' Fennec/' + data.version,
+						]);
+
+					}
 
 				}
 
@@ -301,16 +313,22 @@ const BROWSER = {
 				if (data.version === null) {
 
 					if (data.system === 'desktop') {
-						data.version = randomize([ 9.1, 10.1, 11.1, 12.0 ]);
+						data.version = randomize([ 9.1, 10.1, 11.1, 12.0, 13.0, 14.0, 15.0 ]);
 					} else if (data.system === 'mobile') {
-						data.version = randomize([ 9.0, 10.0, 11.0, 12.0 ]);
+						data.version = randomize([ 9.0, 10.0, 11.0, 12.0, 13.0, 14.1 ]);
 					}
 
 				}
 
 				if (data.system === 'desktop') {
 
-					if (data.version === '12.0') {
+					if (data.version === '15.0') {
+						return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15';
+					} else if (data.version === '14.0') {
+						return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15';
+					} else if (data.version === '13.0') {
+						return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0 Safari/605.1.15';
+					} else if (data.version === '12.0') {
 						return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.1 Safari/605.1.15';
 					} else if (data.version === '11.1') {
 						return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15';
@@ -322,10 +340,12 @@ const BROWSER = {
 
 				} else if (data.system === 'mobile') {
 
-					if (data.version === '12.0') {
-
+					if (data.version === '14.1') {
+						return 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1';
+					} else if (data.version === '13.0') {
+						return 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.5 Mobile/15E148 Safari/604.1';
+					} else if (data.version === '12.0') {
 						return 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1';
-
 					} else if (data.version === '11.0') {
 
 						return randomize([

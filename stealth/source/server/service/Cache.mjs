@@ -8,6 +8,27 @@ import { URL                                                                    
 
 
 
+const toDatetime = function(payload) {
+
+	let datetime = DATETIME.parse(new Date());
+
+	if (
+		isObject(payload) === true
+		&& isObject(payload.headers) === true
+		&& DATETIME.isDATETIME(payload.headers['last-modified']) === true
+	) {
+
+		let last_modified = DATETIME.parse(DATETIME.render(payload.headers['last-modified']));
+		if (last_modified !== null) {
+			datetime = last_modified;
+		}
+
+	}
+
+	return datetime;
+
+};
+
 const toDomain = function(payload) {
 
 	let domain = null;
@@ -474,7 +495,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 					Object.assign(cache_headers, {
 						'content-type':   mime.format,
 						'content-length': Buffer.byteLength(cache_payload),
-						'last-modified':  DATETIME.toIMF(datetime)
+						'last-modified':  datetime
 					});
 
 					response = {
@@ -567,7 +588,7 @@ Cache.prototype = Object.assign({}, Emitter.prototype, {
 
 			if (cache !== null) {
 
-				let datetime       = DATETIME.parse(new Date());
+				let datetime       = toDatetime(payload);
 				let result_headers = save(this.stealth.settings.profile + '/cache/headers/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''), cache.headers);
 				let result_payload = save(this.stealth.settings.profile + '/cache/payload/' + DATETIME.render(datetime) + '/' + domain + path + (query !== '' ? ('?' + query) : ''), cache.payload);
 

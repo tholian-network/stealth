@@ -3,48 +3,9 @@ import { isFunction                      } from '../../base/index.mjs';
 import { after, before, describe, finish } from '../../covert/index.mjs';
 import { Request, isRequest              } from '../../stealth/source/Request.mjs';
 import { DATETIME                        } from '../../stealth/source/parser/DATETIME.mjs';
+import { UA                              } from '../../stealth/source/parser/UA.mjs';
 import { URL                             } from '../../stealth/source/parser/URL.mjs';
 import { connect, disconnect             } from '../../stealth/review/Server.mjs';
-
-
-
-const bind_events = (request) => {
-
-	let events = {
-
-		error:    false,
-		redirect: false,
-		stop:     false,
-
-		start:    false,
-		block:    false,
-		mode:     false,
-		policy:   false,
-		cache:    false,
-		connect:  false,
-		download: false,
-		optimize: false,
-		response: false
-
-	};
-
-	request.once('error',    () => { events.error    = true; });
-	request.once('redirect', () => { events.redirect = true; });
-	request.once('stop',     () => { events.stop     = true; });
-
-	request.once('start',    () => { events.start    = true; });
-	request.once('block',    () => { events.block    = true; });
-	request.once('mode',     () => { events.mode     = true; });
-	request.once('policy',   () => { events.policy   = true; });
-	request.once('cache',    () => { events.cache    = true; });
-	request.once('connect',  () => { events.connect  = true; });
-	request.once('download', () => { events.download = true; });
-	request.once('optimize', () => { events.optimize = true; });
-	request.once('response', () => { events.response = true; });
-
-	return events;
-
-};
 
 
 
@@ -70,29 +31,29 @@ describe('Request.from()', function(assert) {
 
 	assert(isFunction(Request.from), true);
 
-	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
+	let mode      = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
+	let useragent = { engine: 'safari', platform: 'browser', system: 'desktop', version: '12.0' };
+	let policy    = { domain: 'example.com', policies: [{ path: '/clickbait.html', query: 'ad&tracker' }] };
+	let redirect  = { domain: 'example.com', redirects: [{ path: '/redirect', query: 'origin=123', location: 'https://example.com/location.html' }] };
+	let refresh   = true;
+	let url       = URL.parse('https://example.com/does-not-exist.html');
+
 	let request = Request.from({
 		type: 'Request',
 		data: {
-			mode:  mode,
-			url:   'https://example.com/does-not-exist.html',
-			flags: {
-				connect:   false,
-				proxy:     true,
-				refresh:   true,
-				useragent: 'Some User/Agent 13.37',
-				webview:   true
-			}
+			mode:      mode,
+			policy:    policy,
+			redirect:  redirect,
+			refresh:   refresh,
+			useragent: UA.render(useragent),
+			url:       URL.render(url)
 		}
 	});
 
-	assert(request.get('connect'),   false);
-	assert(request.get('proxy'),     true);
-	assert(request.get('refresh'),   true);
-	assert(request.get('useragent'), 'Some User/Agent 13.37');
-	assert(request.get('webview'),   true);
-
 	assert(request.mode,     mode);
+	assert(request.policy,   policy);
+	assert(request.redirect, redirect);
+	assert(request.refresh,  refresh);
 	assert(request.url.link, 'https://example.com/does-not-exist.html');
 
 });
@@ -119,41 +80,42 @@ describe('isRequest()', function(assert) {
 
 describe('Request.prototype.toJSON()', function(assert) {
 
-	let mode     = {
-		domain: 'example.com',
-		mode: {
-			text:  true,
-			image: false,
-			audio: false,
-			video: false,
-			other: false
-		}
-	};
-	let policy   = {
-		domain:   'example.com',
-		policies: [{
-			path:  '/clickbait.html',
-			query: 'ad&tracker'
-		}]
-	};
-	let redirect = {
-		domain:    'example.com',
-		redirects: [{
-			path:     '/redirect',
-			query:    'origin=123',
-			location: 'https://example.com/location.html'
-		}]
-	};
-	let request  = Request.from({
+	let request = Request.from({
 		type: 'Request',
 		data: {
-			mode:     mode,
-			policy:   policy,
-			redirect: redirect,
-			url:      'https://example.com/does-not-exist.html',
-			flags: {
-				webview: true
-			}
+			mode: {
+				domain: 'example.com',
+				mode: {
+					text:  true,
+					image: false,
+					audio: false,
+					video: false,
+					other: false
+				}
+			},
+			policy: {
+				domain:   'example.com',
+				policies: [{
+					path:  '/clickbait.html',
+					query: 'ad&tracker'
+				}]
+			},
+			redirect: {
+				domain:    'example.com',
+				redirects: [{
+					path:     '/redirect',
+					query:    'origin=123',
+					location: 'https://example.com/location.html'
+				}]
+			},
+			refresh: true,
+			useragent: UA.render({
+				engine:   'safari',
+				platform: 'browser',
+				system:   'desktop',
+				version:  '12.0'
+			}),
+			url: 'https://example.com/does-not-exist.html'
 		}
 	});
 
@@ -161,89 +123,52 @@ describe('Request.prototype.toJSON()', function(assert) {
 
 	assert(json.type, 'Request');
 	assert(json.data, {
-		mode:     mode,
-		policy:   policy,
-		redirect: redirect,
-		url:      'https://example.com/does-not-exist.html',
+		mode: {
+			domain: 'example.com',
+			mode: {
+				text:  true,
+				image: false,
+				audio: false,
+				video: false,
+				other: false
+			}
+		},
+		policy: {
+			domain:   'example.com',
+			policies: [{
+				path:  '/clickbait.html',
+				query: 'ad&tracker'
+			}]
+		},
+		redirect: {
+			domain:    'example.com',
+			redirects: [{
+				path:     '/redirect',
+				query:    'origin=123',
+				location: 'https://example.com/location.html'
+			}]
+		},
+		url: 'https://example.com/does-not-exist.html',
 		download: {
 			bandwidth:  -1,
 			connection: null,
 			percentage: '???.??%'
 		},
-		flags:    {
-			connect:   true,
-			proxy:     false,
-			refresh:   false,
-			useragent: null,
-			webview:   true
-		},
-		timeline: {
-			error:    null,
-			redirect: null,
-			stop:     null,
-			start:    null,
-			block:    null,
-			mode:     null,
-			policy:   null,
-			cache:    null,
-			connect:  null,
-			download: null,
-			optimize: null,
-			response: null
-		},
+		timeline: [],
 		events: [
-			'start',
-			'stop',
-			'block',
-			'mode',
-			'policy',
-			'cache',
-			'connect',
-			'download',
-			'optimize',
+			'@blocker',
+			'@mode',
+			'@policy',
+			'@cache',
+			'@host',
+			'@download',
+			'@optimize',
+			'error',
 			'redirect',
 			'response'
 		],
 		journal: []
 	});
-
-});
-
-describe('Request.prototype.get()', function(assert) {
-
-	let request = new Request();
-
-	assert(request.get(null),        null);
-	assert(request.get('connect'),   true);
-	assert(request.get('proxy'),     false);
-	assert(request.get('refresh'),   false);
-	assert(request.get('useragent'), null);
-	assert(request.get('webview'),   false);
-
-	assert(request.get('does-not-exist'), null);
-
-});
-
-describe('Request.prototype.set()', function(assert) {
-
-	let request = new Request();
-
-	assert(request.get('connect'),        true);
-	assert(request.set('connect', false), true);
-	assert(request.get('connect'),        false);
-
-	assert(request.get('useragent'),                          null);
-	assert(request.set('useragent', 'Some User/Agent 13.37'), true);
-	assert(request.get('useragent'),                          'Some User/Agent 13.37');
-
-	assert(request.get('does-not-exist'),         null);
-	assert(request.set('does-not-exist', '1337'), false);
-	assert(request.get('does-not-exist'),         null);
-	assert(request.get('does-not-exist'),         null);
-	assert(request.set('does-not-exist', true),   false);
-	assert(request.get('does-not-exist'),         null);
-	assert(request.set('does-not-exist', false),  false);
-	assert(request.get('does-not-exist'),         null);
 
 });
 
@@ -262,42 +187,30 @@ describe('Request.prototype.start()', function(assert) {
 		},
 		url: URL.parse('https://example.com/index.html')
 	}, this.server.services);
-	let events  = bind_events(request);
 
-	request.once('response', () => {
+	request.once('response', (response) => {
 
-		setTimeout(() => {
+		let data   = request.toJSON().data;
+		let events = data.timeline.map((e) => e.event);
 
-			assert(events, {
-				error:    false,
-				redirect: false,
-				stop:     false,
-				start:    true,
-				block:    true,
-				mode:     true,
-				policy:   true,
-				cache:    true,
-				connect:  true,
-				download: true,
-				optimize: true,
-				response: true
-			});
+		assert(events, [
+			'@start',
+			'@blocker',
+			'@mode',
+			'@policy',
+			'@cache',
+			'@host',
+			'@download',
+			'@optimize',
+			'response'
+		]);
 
-			assert(request.timeline.error,                         null);
-			assert(request.timeline.redirect,                      null);
-			assert(request.timeline.stop,                          null);
-
-			assert(DATETIME.isDATETIME(request.timeline.start),    true);
-			assert(DATETIME.isDATETIME(request.timeline.block),    true);
-			assert(DATETIME.isDATETIME(request.timeline.mode),     true);
-			assert(DATETIME.isDATETIME(request.timeline.policy),   true);
-			assert(DATETIME.isDATETIME(request.timeline.cache),    true);
-			assert(DATETIME.isDATETIME(request.timeline.connect),  true);
-			assert(DATETIME.isDATETIME(request.timeline.download), true);
-			assert(DATETIME.isDATETIME(request.timeline.optimize), true);
-			assert(DATETIME.isDATETIME(request.timeline.response), true);
-
-		}, 0);
+		assert(response.headers, {
+			'@status':        200,
+			'content-length': 1256,
+			'content-type':   'text/html',
+			'last-modified':  DATETIME.parse('2019-10-17 07:18:26')
+		});
 
 	});
 
@@ -320,43 +233,30 @@ describe('Request.prototype.start()/cache', function(assert) {
 		},
 		url: URL.parse('https://example.com/index.html')
 	}, this.server.services);
-	let events  = bind_events(request);
 
-	setTimeout(() => {
+	request.once('response', (response) => {
 
-		assert(events, {
+		let data   = request.toJSON().data;
+		let events = data.timeline.map((e) => e.event);
 
-			error:    false,
-			redirect: false,
-			stop:     false,
+		assert(events, [
+			'@start',
+			'@blocker',
+			'@mode',
+			'@policy',
+			'@cache',
+			'@optimize',
+			'response'
+		]);
 
-			start:    true,
-			block:    true,
-			mode:     true,
-			policy:   true,
-			cache:    true,
-			connect:  false,
-			download: false,
-			optimize: true,
-			response: true
-
+		assert(response.headers, {
+			'@status':        200,
+			'content-length': 1256,
+			'content-type':   'text/html',
+			'last-modified':  DATETIME.parse('2019-10-17 07:18:26')
 		});
 
-		assert(request.timeline.error,                         null);
-		assert(request.timeline.redirect,                      null);
-		assert(request.timeline.stop,                          null);
-
-		assert(DATETIME.isDATETIME(request.timeline.start),    true);
-		assert(DATETIME.isDATETIME(request.timeline.block),    true);
-		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
-		assert(DATETIME.isDATETIME(request.timeline.policy),   true);
-		assert(DATETIME.isDATETIME(request.timeline.cache),    true);
-		assert(request.timeline.connect,                       null);
-		assert(request.timeline.download,                      null);
-		assert(DATETIME.isDATETIME(request.timeline.optimize), true);
-		assert(DATETIME.isDATETIME(request.timeline.response), true);
-
-	}, 500);
+	});
 
 	assert(request.start(), true);
 
@@ -402,45 +302,19 @@ describe('Request.prototype.start()/policy', function(assert) {
 		},
 		url: URL.parse('https://example.com/policy.html?foo=bar&bar123=456&track=123')
 	}, this.server.services);
-	let events  = bind_events(request);
-
-	setTimeout(() => {
-
-		assert(events, {
-
-			error:    false,
-			redirect: true,
-			stop:     false,
-
-			start:    true,
-			block:    true,
-			mode:     true,
-			policy:   true,
-			cache:    false,
-			connect:  false,
-			download: false,
-			optimize: false,
-			response: false
-
-		});
-
-		assert(request.timeline.error,                         null);
-		assert(DATETIME.isDATETIME(request.timeline.redirect), true);
-		assert(request.timeline.stop,                          null);
-
-		assert(DATETIME.isDATETIME(request.timeline.start),    true);
-		assert(DATETIME.isDATETIME(request.timeline.block),    true);
-		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
-		assert(DATETIME.isDATETIME(request.timeline.policy),   true);
-		assert(request.timeline.cache,                         null);
-		assert(request.timeline.connect,                       null);
-		assert(request.timeline.download,                      null);
-		assert(request.timeline.optimize,                      null);
-		assert(request.timeline.response,                      null);
-
-	}, 500);
 
 	request.once('redirect', (response) => {
+
+		let data   = request.toJSON().data;
+		let events = data.timeline.map((e) => e.event);
+
+		assert(events, [
+			'@start',
+			'@blocker',
+			'@mode',
+			'@policy',
+			'redirect'
+		]);
 
 		assert(response, {
 			headers: {
@@ -499,6 +373,14 @@ describe('Request.prototype.start()/redirect', function(assert) {
 
 	request.once('redirect', (response) => {
 
+		let data   = request.toJSON().data;
+		let events = data.timeline.map((e) => e.event);
+
+		assert(events, [
+			'@start',
+			'redirect'
+		]);
+
 		assert(response, {
 			headers: {
 				location: 'https://example.com/index.html'
@@ -549,49 +431,35 @@ describe('Request.prototype.stop()', function(assert) {
 		},
 		url: URL.parse('https://example.com/index.html')
 	}, this.server.services);
-	let events  = bind_events(request);
 
 
-	request.once('connect', () => {
+	request.once('@download', () => {
 		assert(request.stop(), true);
 	});
 
+	request.once('error', (err) => {
 
-	setTimeout(() => {
+		let data   = request.toJSON().data;
+		let events = data.timeline.map((e) => e.event);
 
-		assert(events, {
+		assert(events, [
+			'@start',
+			'@blocker',
+			'@mode',
+			'@policy',
+			'@cache',
+			'@host',
+			'@download',
+			'@stop',
+			'error'
+		]);
 
-			error:    false,
-			redirect: false,
-			stop:     true,
-
-			start:    true,
-			block:    true,
-			mode:     true,
-			policy:   true,
-			cache:    true,
-			connect:  true,
-			download: true,
-			optimize: false,
-			response: false
-
+		assert(err, {
+			type:  'connection',
+			cause: 'socket-stability'
 		});
 
-		assert(request.timeline.error,                         null);
-		assert(request.timeline.redirect,                      null);
-		assert(DATETIME.isDATETIME(request.timeline.stop),     true);
-
-		assert(DATETIME.isDATETIME(request.timeline.start),    true);
-		assert(DATETIME.isDATETIME(request.timeline.block),    true);
-		assert(DATETIME.isDATETIME(request.timeline.mode),     true);
-		assert(DATETIME.isDATETIME(request.timeline.policy),   true);
-		assert(DATETIME.isDATETIME(request.timeline.cache),    true);
-		assert(DATETIME.isDATETIME(request.timeline.connect),  true);
-		assert(DATETIME.isDATETIME(request.timeline.download), true);
-		assert(request.timeline.optimize,                      null);
-		assert(request.timeline.response,                      null);
-
-	}, 500);
+	});
 
 	assert(request.start(), true);
 

@@ -5,7 +5,6 @@ import { isStealth                                      } from '../source/Stealt
 import { Tab                                            } from '../source/Tab.mjs';
 import { IP                                             } from '../source/parser/IP.mjs';
 import { UA                                             } from '../source/parser/UA.mjs';
-import { URL                                            } from '../source/parser/URL.mjs';
 
 
 
@@ -13,7 +12,7 @@ export const isSession = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Session]';
 };
 
-const randomize_useragent = function(platform) {
+const toUserAgent = function(platform) {
 
 	let useragent = null;
 
@@ -51,7 +50,7 @@ const randomize_useragent = function(platform) {
 
 	} else {
 
-		useragent = UA.render({});
+		useragent = null;
 
 	}
 
@@ -78,10 +77,10 @@ const Session = function(stealth) {
 	stealth = isStealth(stealth) ? stealth : null;
 
 
-	this.agent   = null;
 	this.domain  = Date.now() + '.tholian.network';
 	this.stealth = stealth;
 	this.tabs    = [];
+	this.ua      = null;
 	this.warning = 0;
 
 };
@@ -101,20 +100,20 @@ Session.from = function(json) {
 
 			let session = new Session();
 
-			if (UA.isUA(data.agent) === true) {
-				session.agent = data.agent;
-			}
-
 			if (isString(data.domain) === true) {
 				session.domain = data.domain;
 			}
 
-			if (isNumber(data.warning) === true) {
-				session.warning = data.warning;
-			}
-
 			if (isArray(data.tabs) === true) {
 				session.tabs = data.tabs.map((data) => Tab.from(data)).filter((tab) => tab !== null);
+			}
+
+			if (UA.isUA(data.ua) === true) {
+				session.ua = data.ua;
+			}
+
+			if (isNumber(data.warning) === true) {
+				session.warning = data.warning;
 			}
 
 			return session;
@@ -140,10 +139,6 @@ Session.merge = function(target, source) {
 
 	if (target !== null && source !== null) {
 
-		if (UA.isUA(source.agent) === true) {
-			target.agent = source.agent;
-		}
-
 		if (isString(source.domain) === true) {
 			target.domain = source.domain;
 		}
@@ -163,6 +158,10 @@ Session.merge = function(target, source) {
 
 		}
 
+		if (UA.isUA(source.ua) === true) {
+			target.ua = source.ua;
+		}
+
 	}
 
 
@@ -178,9 +177,9 @@ Session.prototype = {
 	toJSON: function() {
 
 		let data = {
-			agent:   this.agent,
 			domain:  this.domain,
 			tabs:    this.tabs.map((tab) => tab.toJSON()),
+			ua:      this.ua,
 			warning: this.warning
 		};
 
@@ -207,10 +206,10 @@ Session.prototype = {
 		});
 
 
-		this.agent   = null;
 		this.domain  = Date.now() + '.tholian.network';
 		this.stealth = null;
 		this.tabs    = [];
+		this.ua      = null;
 		this.warning = 0;
 
 
@@ -246,7 +245,7 @@ Session.prototype = {
 
 			let useragent = headers['user-agent'] || null;
 			if (useragent !== null) {
-				this.agent = UA.parse(headers['user-agent']);
+				this.ua = UA.parse(headers['user-agent']);
 			}
 
 			return true;
@@ -255,40 +254,6 @@ Session.prototype = {
 
 
 		return false;
-
-	},
-
-	get: function(link) {
-
-		link = isString(link) ? link : null;
-
-
-		if (link !== null) {
-
-			let url = URL.parse(link);
-			if (URL.isURL(url) === true) {
-
-				let found = null;
-
-				for (let t = 0, tl = this.tabs.length; t < tl; t++) {
-
-					let tab     = this.tabs[t];
-					let request = tab.requests.find((r) => r.url.link === url.link) || null;
-					if (request !== null) {
-						found = request;
-						break;
-					}
-
-				}
-
-				return found;
-
-			}
-
-		}
-
-
-		return null;
 
 	},
 
@@ -306,32 +271,25 @@ Session.prototype = {
 				this.tabs.push(tab);
 			}
 
-			if (request.get('webview') === true) {
-				tab.navigate(request.url.link);
-			}
-
 			if (tab.includes(request) === false) {
 
 				request.once('start', () => {
 
-					if (request.get('useragent') === null) {
+					if (request.ua === null) {
 
-						let useragent = 'stealth';
+						let useragent = null;
+
 						if (this.stealth !== null) {
-							useragent = this.stealth.settings.useragent || 'stealth';
+							useragent = toUserAgent(this.stealth.settings.useragent || 'stealth');
 						}
 
-						request.set('useragent', randomize_useragent(useragent));
+						request.ua = useragent;
 
 					}
 
 				});
 
-				request.once('connect', () => {
-					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url.link + '".');
-				});
-
-				request.on('progress', (response, progress) => {
+				request.on('progress', (frame, progress) => {
 					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url.link + '" (' + progress.bytes + '/' + progress.total + ').');
 				});
 

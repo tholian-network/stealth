@@ -16,7 +16,7 @@ export const isDownload = function(obj) {
 
 const ondisconnect = function() {
 
-	let has_fired = this.__journal.filter((e) => e.event === 'redirect' || e.event === 'response').length > 0;
+	let has_fired = this.__journal.filter((e) => e.event === 'error' || e.event === 'redirect' || e.event === 'response').length > 0;
 	if (has_fired === false) {
 
 		let frame = this.__state.frame || null;
