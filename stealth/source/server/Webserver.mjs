@@ -108,6 +108,10 @@ const encodeResponse = function(request, response) {
 					response.headers['@status'] = 206;
 				}
 
+			} else {
+
+				response.headers['accept-ranges'] = 'bytes';
+
 			}
 
 		}

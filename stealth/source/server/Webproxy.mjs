@@ -345,15 +345,17 @@ const proxy_http_request = function(socket, packet) {
 		) {
 
 			let session = this.stealth.track(null, packet.headers);
-			let request = this.stealth.open(url);
+			let request = this.stealth.request(url);
 
 			if (isRequest(request) === true) {
 
 				request.once('error', () => {
 
+					request.off('error');
 					request.off('redirect');
 					request.off('response');
 					request.stop();
+
 
 					HTTP.send(connection, {
 						headers: {
@@ -367,6 +369,7 @@ const proxy_http_request = function(socket, packet) {
 				request.once('redirect', (response) => {
 
 					request.off('error');
+					request.off('redirect');
 					request.off('response');
 					request.stop();
 
@@ -391,18 +394,14 @@ const proxy_http_request = function(socket, packet) {
 
 					request.off('error');
 					request.off('redirect');
+					request.off('response');
 					request.stop();
 
 
 					if (response !== null && response.payload !== null) {
 
 						HTTP.send(connection, encodeResponse(packet, {
-							headers: {
-								'@status':        response.headers['@status'],
-								'content-length': response.payload.length,
-								'content-type':   url.mime.format,
-								'last-modified':  response.headers['last-modified'] || null
-							},
+							headers: response.headers,
 							payload: response.payload
 						}));
 
@@ -420,7 +419,7 @@ const proxy_http_request = function(socket, packet) {
 				});
 
 				if (session !== null) {
-					session.track(request, '0');
+					session.track(request, 'webproxy');
 				}
 
 				connection.once('@connect', () => {
@@ -526,12 +525,13 @@ const proxy_webview_request = function(socket, packet) {
 		) {
 
 			let session = this.stealth.track(null, packet.headers);
-			let request = this.stealth.open(url);
+			let request = this.stealth.request(url);
 
 			if (isRequest(request) === true) {
 
 				request.once('error', (err) => {
 
+					request.off('error');
 					request.off('redirect');
 					request.off('response');
 					request.stop();
@@ -582,6 +582,7 @@ const proxy_webview_request = function(socket, packet) {
 				request.once('redirect', (response) => {
 
 					request.off('error');
+					request.off('redirect');
 					request.off('response');
 					request.stop();
 
@@ -616,6 +617,7 @@ const proxy_webview_request = function(socket, packet) {
 
 					request.off('error');
 					request.off('redirect');
+					request.off('response');
 					request.stop();
 
 
@@ -633,12 +635,7 @@ const proxy_webview_request = function(socket, packet) {
 
 
 						HTTP.send(connection, encodeResponse(packet, {
-							headers: {
-								'@status':        response.headers['@status'],
-								'content-length': response.payload.length,
-								'content-type':   url.mime.format,
-								'last-modified':  response.headers['last-modified'] || null
-							},
+							headers: response.headers,
 							payload: response.payload
 						}));
 

@@ -59,7 +59,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	download: function(payload, callback) {
+	request: function(payload, callback) {
 
 		payload  = URL.isURL(payload)   ? payload  : null;
 		callback = isFunction(callback) ? callback : null;
@@ -67,7 +67,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 		if (payload !== null) {
 
-			let request = this.stealth.open(URL.render(payload));
+			let request = this.stealth.request(payload);
 			if (request !== null) {
 
 				request.on('error', () => {

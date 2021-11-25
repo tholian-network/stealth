@@ -300,13 +300,12 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	open: function(link) {
+	request: function(url) {
 
-		link = isString(link) ? link : null;
+		url = URL.isURL(url) ? url : null;
 
 
-		let url = URL.parse(link);
-		if (URL.isURL(url) === true) {
+		if (url !== null) {
 
 			let request = this.requests.find((r) => r.url.link === url.link) || null;
 			if (request === null) {

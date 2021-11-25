@@ -1,7 +1,6 @@
 
-import { Buffer, isBuffer, isObject      } from '../../../base/index.mjs';
+import { isBuffer, isFunction, isObject  } from '../../../base/index.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
-import { ENVIRONMENT                     } from '../../../stealth/source/ENVIRONMENT.mjs';
 import { HTTP                            } from '../../../stealth/source/connection/HTTP.mjs';
 import { HTTPS                           } from '../../../stealth/source/connection/HTTPS.mjs';
 import { IP                              } from '../../../stealth/source/parser/IP.mjs';
@@ -107,7 +106,7 @@ describe('Webproxy.prototype.upgrade()/CONNECT', function(assert) {
 
 });
 
-describe('Webproxy.prototype.upgrade()/GET', function(assert, console) {
+describe('Webproxy.prototype.upgrade()/GET/failure', function(assert) {
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -128,11 +127,13 @@ describe('Webproxy.prototype.upgrade()/GET', function(assert, console) {
 
 	});
 
-	connection.once('response', (response) => {
+	connection.once('error', (err) => {
 
-		console.log(response);
-
-		assert(false);
+		assert(err, {
+			code:  403,
+			type:  'connection',
+			cause: 'headers'
+		});
 
 	});
 
@@ -142,11 +143,134 @@ describe('Webproxy.prototype.upgrade()/GET', function(assert, console) {
 
 });
 
+describe('Mode.prototype.save()', function(assert) {
 
-// TODO: HTTP Proxy usage with GET http://url
-// TODO: GET /stealth/ usage with :tabid:
-// TODO: GET /stealth/ usage with :tabid: and flags
-// TODO: GET /stealth/ usage without any flags
+	assert(this.server !== null);
+	assert(isFunction(this.server.services.mode.save), true);
+
+	this.server.services.mode.save({
+		domain: 'example.com',
+		mode: {
+			text:  true,
+			image: false,
+			audio: false,
+			video: false,
+			other: false
+		}
+	}, (response) => {
+
+		assert(response, {
+			headers: {
+				service: 'mode',
+				event:   'save'
+			},
+			payload: true
+		});
+
+	});
+
+});
+
+describe('Webproxy.prototype.upgrade()/GET/success', function(assert) {
+
+	let url        = URL.parse('http://localhost:65432');
+	let connection = HTTP.connect(url);
+
+	connection.once('@connect', () => {
+
+		assert(true);
+
+		HTTP.send(connection, {
+			headers: {
+				'@method':         'GET',
+				'@url':            'https://example.com/index.html',
+				'accept-encoding': 'gzip'
+			},
+			payload: null
+		}, (result) => {
+			assert(result, true);
+		});
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(isObject(response),         true);
+		assert(isObject(response.headers), true);
+		assert(isBuffer(response.payload), true);
+
+		assert(response.headers['@status'],   200);
+		assert(response.headers['@transfer'], {
+			'encoding': 'gzip',
+			'length':   648,
+			'range':    [ 0, 647 ]
+		});
+
+		assert(response.headers['content-encoding'], 'identity');
+		assert(response.headers['content-length'],   1256);
+		assert(response.headers['content-type'],     'text/html');
+
+		setTimeout(() => {
+			assert(HTTP.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('Webproxy.prototype.upgrade()/GET/webview', function(assert) {
+
+	let url        = URL.parse('http://localhost:65432');
+	let connection = HTTP.connect(url);
+
+	connection.once('@connect', () => {
+
+		assert(true);
+
+		HTTP.send(connection, {
+			headers: {
+				'@method': 'GET',
+				'@url':    '/stealth/1337/https://example.com/index.html',
+			},
+			payload: null
+		}, (result) => {
+			assert(result, true);
+		});
+
+	});
+
+	connection.once('response', (response) => {
+
+		assert(isObject(response),         true);
+		assert(isObject(response.headers), true);
+		assert(isBuffer(response.payload), true);
+
+		assert(response.headers['@status'],   200);
+		assert(response.headers['@transfer'], {
+			'encoding': 'identity',
+			'length':   1256,
+			'range':    [ 0, 1255 ]
+		});
+
+		assert(response.headers['content-encoding'], 'identity');
+		assert(response.headers['content-length'],   1256);
+		assert(response.headers['content-type'],     'text/html');
+
+		setTimeout(() => {
+			assert(HTTP.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
 
 after(disconnect);
 
