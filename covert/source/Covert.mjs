@@ -833,7 +833,12 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 
 		} else {
 
-			console.error('Covert: No Review(s) match the patterns "' + this._settings.patterns.join('" or "') + '".');
+			if (this._settings.inspect !== null) {
+				console.error('Covert: No Review(s) match the patterns "' + this._settings.patterns.join('" or "') + '" that contain a Test "' + this._settings.inspect + '".');
+			} else {
+				console.error('Covert: No Review(s) match the patterns "' + this._settings.patterns.join('" or "') + '".');
+			}
+
 			this.emit('disconnect', [[]]);
 
 			return false;

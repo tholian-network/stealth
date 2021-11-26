@@ -1,14 +1,14 @@
 
 import { console, isArray, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { isStealth                               } from '../../source/Stealth.mjs';
-import { ENVIRONMENT                             } from '../../source/ENVIRONMENT.mjs';
-import { DNS                                     } from '../../source/connection/DNS.mjs';
-import { DNSH                                    } from '../../source/connection/DNSH.mjs';
-import { DNSS                                    } from '../../source/connection/DNSS.mjs';
-import { SOCKS                                   } from '../../source/connection/SOCKS.mjs';
-import { isServices                              } from '../../source/server/Services.mjs';
-import { IP                                      } from '../../source/parser/IP.mjs';
-import { URL                                     } from '../../source/parser/URL.mjs';
+import { isStealth                                        } from '../../source/Stealth.mjs';
+import { ENVIRONMENT                                      } from '../../source/ENVIRONMENT.mjs';
+import { DNS                                              } from '../../source/connection/DNS.mjs';
+import { DNSH                                             } from '../../source/connection/DNSH.mjs';
+import { DNSS                                             } from '../../source/connection/DNSS.mjs';
+import { SOCKS                                            } from '../../source/connection/SOCKS.mjs';
+import { isServices                                       } from '../../source/server/Services.mjs';
+import { IP                                               } from '../../source/parser/IP.mjs';
+import { URL                                              } from '../../source/parser/URL.mjs';
 
 
 
@@ -16,6 +16,7 @@ const RESERVED = [
 
 	'beacon',
 	'browser',
+	'oversight',
 	'radar',
 	'recon',
 	'sonar',
@@ -259,36 +260,6 @@ const isResolveRequest = function(packet) {
 
 };
 
-const isResolveResponse = function(packet) {
-
-	if (
-		isObject(packet) === true
-		&& isObject(packet.headers) === true
-		&& packet.headers['@type'] === 'response'
-		&& isObject(packet.payload) === true
-		&& isArray(packet.payload.questions) === true
-		&& isArray(packet.payload.answers) === true
-		&& packet.payload.questions.length > 0
-		&& packet.payload.answers.length > 0
-	) {
-
-		let check1 = packet.payload.questions.filter((q) => isValid(q));
-		let check2 = packet.payload.answers.filter((a) => isValid(a));
-
-		if (
-			check1.length === packet.payload.questions.length
-			&& check2.length === packet.payload.answers.length
-		) {
-			return true;
-		}
-
-	}
-
-
-	return false;
-
-};
-
 const toDomain = function(payload) {
 
 	let domain = null;
@@ -508,8 +479,6 @@ Router.prototype = {
 
 		if (isResolveRequest(packet) === true) {
 			return true;
-		} else if (isResolveResponse(packet) === true) {
-			return true;
 		}
 
 
@@ -718,99 +687,96 @@ Router.prototype = {
 				});
 
 
-				if (unresolved.length > 0) {
+				setTimeout(() => {
 
-					let remaining = unresolved.length;
+					if (unresolved.length > 0) {
 
-					unresolved.forEach((question) => {
+						let remaining = unresolved.length;
 
-						let domain = question.domain;
-						let type   = question.type;
-						let url    = URL.parse('https://' + domain + '/');
+						unresolved.forEach((question) => {
 
-						this.resolve({
-							domain:    url.domain,
-							subdomain: url.subdomain
-						}, (host) => {
+							let domain = question.domain;
+							let type   = question.type;
+							let url    = URL.parse('https://' + domain + '/');
 
-							if (host !== null) {
+							this.resolve({
+								domain:    url.domain,
+								subdomain: url.subdomain
+							}, (host) => {
 
-								if (type === 'A') {
+								if (host !== null) {
 
-									host.hosts.filter((ip) => ip.type === 'v4').forEach((ip) => {
-										packet.payload.answers.push({
-											domain: domain,
-											type:   'A',
-											value:  ip
+									if (type === 'A') {
+
+										host.hosts.filter((ip) => ip.type === 'v4').forEach((ip) => {
+											packet.payload.answers.push({
+												domain: domain,
+												type:   'A',
+												value:  ip
+											});
 										});
-									});
 
-								} else if (type === 'AAAA') {
+									} else if (type === 'AAAA') {
 
-									host.hosts.filter((ip) => ip.type === 'v6').forEach((ip) => {
-										packet.payload.answers.push({
-											domain: domain,
-											type:   'AAAA',
-											value:  ip
+										host.hosts.filter((ip) => ip.type === 'v6').forEach((ip) => {
+											packet.payload.answers.push({
+												domain: domain,
+												type:   'AAAA',
+												value:  ip
+											});
 										});
-									});
+
+									}
+
+									if (this.services !== null) {
+										this.services.host.save(host);
+									}
 
 								}
 
-								if (this.services !== null) {
-									this.services.host.save(host);
-								}
+								remaining--;
 
-							}
-
-							remaining--;
+							});
 
 						});
 
-					});
+						let interval = setInterval(() => {
 
-					let interval = setInterval(() => {
+							if (remaining === 0) {
 
-						if (remaining === 0) {
+								clearInterval(interval);
+								interval = null;
 
-							clearInterval(interval);
-							interval = null;
+								connection.remote = remote;
 
-							connection.remote = remote;
+								DNS.send(connection, {
+									headers: {
+										'@id':   packet.headers['@id'],
+										'@type': 'response'
+									},
+									payload: packet.payload
+								});
 
-							DNS.send(connection, {
-								headers: {
-									'@id':   packet.headers['@id'],
-									'@type': 'response'
-								},
-								payload: packet.payload
-							});
+							}
 
-						}
+						}, 100);
 
-					}, 100);
+					} else {
 
-				} else {
+						connection.remote = remote;
 
-					connection.remote = remote;
 
-					DNS.send(connection, {
-						headers: {
-							'@id':   packet.headers['@id'],
-							'@type': 'response'
-						},
-						payload: packet.payload
-					});
+						DNS.send(connection, {
+							headers: {
+								'@id':   packet.headers['@id'],
+								'@type': 'response'
+							},
+							payload: packet.payload
+						});
 
-				}
+					}
 
-			} else if (isResolveResponse(packet) === true) {
-
-				// TODO: If origin is a trusted Peer with a certificate, then cache response.
-				// TODO: Reuse toHost() for A/AAAA entries
-
-				console.log('need to cache response nao');
-				console.log(packet);
+				}, 1000);
 
 			}
 
