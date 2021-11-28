@@ -78,7 +78,7 @@ const Session = function(stealth) {
 	stealth = isStealth(stealth) ? stealth : null;
 
 
-	this.domain   = Date.now() + '.tholian.local';
+	this.domain   = 'session-' + Date.now() + '.tholian.local';
 	this.hosts    = [];
 	this.stealth  = stealth;
 	this.tabs     = [];
@@ -171,8 +171,34 @@ Session.merge = function(target, source) {
 
 	if (target !== null && source !== null) {
 
-		if (isString(source.domain) === true) {
+		if (
+			(
+				isString(target.domain) === true
+				&& target.domain.startsWith('session-') === true
+				&& target.domain.endsWith('.tholian.local') === true
+			) && (
+				isString(source.domain) === true
+				&& source.domain.startsWith('session-') === false
+			)
+		) {
 			target.domain = source.domain;
+		}
+
+		if (isArray(source.hosts) === true) {
+
+			source.hosts.forEach((host) => {
+
+				let found = target.hosts.find((h) => h.ip === host.ip) || null;
+				if (found === null) {
+					target.hosts.push(host);
+				}
+
+			});
+
+			target.hosts.sort((a, b) => {
+				return IP.compare(a, b);
+			});
+
 		}
 
 		if (isArray(source.tabs) === true) {
@@ -188,10 +214,50 @@ Session.merge = function(target, source) {
 
 			});
 
+			target.tabs.sort((a, b) => {
+
+				if (a.id < b.id) return -1;
+				if (b.id < a.id) return  1;
+
+				return 0;
+
+			});
+
 		}
 
-		if (UA.isUA(source.ua) === true) {
+		if (target.ua === null && UA.isUA(source.ua) === true) {
 			target.ua = source.ua;
+		}
+
+		if (isArray(source.warnings) === true) {
+
+			source.warnings.forEach((warning) => {
+				target.warnings.push(warning);
+			});
+
+			target.warnings.sort((a, b) => {
+
+				let cmp_date = DATETIME.compare(a.date, b.date);
+				if (cmp_date === 0) {
+
+					let cmp_time = DATETIME.compare(a.time, b.time);
+					if (cmp_time === 0) {
+
+						if (a.origin < b.origin) return -1;
+						if (b.origin < a.origin) return  1;
+
+						return 0;
+
+					} else {
+						return cmp_time;
+					}
+
+				} else {
+					return cmp_date;
+				}
+
+			});
+
 		}
 
 	}
