@@ -1,14 +1,14 @@
 
 import process from 'process';
 
-import { console, Emitter, isObject, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                          } from '../source/ENVIRONMENT.mjs';
-import { Request                              } from '../source/Request.mjs';
-import { Server                               } from '../source/Server.mjs';
-import { Session                              } from '../source/Session.mjs';
-import { Settings                             } from '../source/Settings.mjs';
-import { IP                                   } from '../source/parser/IP.mjs';
-import { URL                                  } from '../source/parser/URL.mjs';
+import { console, Emitter, isNumber, isObject, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                    } from '../source/ENVIRONMENT.mjs';
+import { Request                                        } from '../source/Request.mjs';
+import { Server                                         } from '../source/Server.mjs';
+import { Session, isSession                             } from '../source/Session.mjs';
+import { Settings                                       } from '../source/Settings.mjs';
+import { IP                                             } from '../source/parser/IP.mjs';
+import { URL                                            } from '../source/parser/URL.mjs';
 
 
 
@@ -20,6 +20,21 @@ export const VERSION = 'X0:2021-11-11';
 
 export const isStealth = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Stealth]';
+};
+
+const isRemote = function(payload) {
+
+	if (
+		isObject(payload) === true
+		&& IP.isIP(payload.host) === true
+		&& isNumber(payload.port) === true
+	) {
+		return true;
+	}
+
+
+	return false;
+
 };
 
 const toMode = function(url) {
@@ -336,10 +351,10 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	track: function(session, headers) {
+	track: function(session, remote) {
 
-		session = session instanceof Session ? session : null;
-		headers = isObject(headers)          ? headers : null;
+		session = isSession(session) ? session : null;
+		remote  = isRemote(remote)   ? remote  : null;
 
 
 		if (session !== null) {
@@ -350,95 +365,127 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 			return session;
 
-		} else if (headers !== null) {
+		} else if (remote !== null) {
 
-			let address = headers['@remote'] || null;
-			if (address !== null) {
+			if (remote.host.ip === '::1') {
+				remote.host = IP.parse('127.0.0.1');
+			}
 
-				// XXX: This is a Chromium Bug, two parallel connections
-				// lead to ::ffff:127.0.0.2-255 remote address
-				// whereas the initial connection uses ::1
-				if (address === '::1' || address.startsWith('127.0.0.') === true) {
-					address = '127.0.0.1';
+			// XXX: Chromium Bug, which leads to "::ffff:127.0.0.2-255" address
+			if (remote.host.ip.startsWith('127.0.0.') === true) {
+				remote.host = IP.parse('127.0.0.1');
+			}
+
+			let host = this.settings.hosts.find((host) => {
+
+				let found = host.hosts.find((h) => h.ip === remote.host.ip) || null;
+				if (found !== null) {
+					return true;
 				}
 
+				return false;
 
-				let ip   = IP.parse(address);
-				let host = this.settings.hosts.find((host) => {
+			}) || null;
 
-					let found = host.hosts.find((h) => h.ip === ip.ip) || null;
+
+			let sessions = [];
+
+			if (host !== null) {
+
+				this.settings.sessions.filter((session) => {
+
+					if (session.domain === host.domain) {
+						return true;
+					}
+
+					return false;
+
+				}).forEach((session) => {
+					sessions.push(session);
+				});
+
+			} else {
+
+				this.settings.sessions.filter((session) => {
+
+					let found = session.hosts.find((h) => h.ip === remote.host.ip) || null;
 					if (found !== null) {
 						return true;
 					}
 
 					return false;
 
-				}) || null;
-
-				let sdomain = ip.ip || null;
-				if (sdomain === '::1') {
-					headers['domain'] = sdomain = ENVIRONMENT.hostname;
-				} else if (sdomain === '127.0.0.1') {
-					headers['domain'] = sdomain = ENVIRONMENT.hostname;
-				} else if (host !== null) {
-					headers['domain'] = sdomain = host.domain;
-				}
-
-
-				if (sdomain !== null) {
-					session = this.settings.sessions.find((s) => s.domain === sdomain) || null;
-				}
+				}).forEach((session) => {
+					sessions.push(session);
+				});
 
 			}
 
-			if (session !== null) {
 
-				session.dispatch(headers);
+			if (sessions.length > 1) {
+
+				session = new Session(this);
+
+				sessions.forEach((other) => {
+
+					Session.merge(session, other);
+
+					if (this.settings.sessions.includes(other) === true) {
+						this.settings.sessions.remove(other);
+					}
+
+				});
+
+			} else if (sessions.length > 0) {
+
+				session = sessions[0];
 
 			} else {
 
 				session = new Session(this);
-				session.dispatch(headers);
 
-				if (this.settings.sessions.includes(session) === false) {
-					this.settings.sessions.push(session);
+			}
+
+
+			if (host !== null) {
+
+				session.domain = host.domain;
+
+				host.hosts.forEach((ip) => {
+
+					let found = session.hosts.find((h) => h.ip === ip.ip) || null;
+					if (found === null) {
+						session.hosts.push(ip);
+					}
+
+				});
+
+			} else {
+
+				session.domain = remote.host.ip;
+
+				let found = session.hosts.find((h) => h.ip === remote.host.ip) || null;
+				if (found === null) {
+					session.hosts.push(remote.host);
 				}
 
+			}
+
+			if (this.settings.sessions.includes(session) === false) {
+				this.settings.sessions.push(session);
 			}
 
 			return session;
 
-		}
+		} else {
 
-
-		return null;
-
-	},
-
-	untrack: function(session) {
-
-		session = session instanceof Session ? session : null;
-
-
-		if (session !== null) {
-
-			let sessions = this.settings.sessions;
-			if (sessions.includes(session) === true) {
-
-				let index = sessions.indexOf(session);
-				if (index !== -1) {
-					sessions.splice(index, 1);
-					session.destroy();
-				}
-
-				return true;
-
+			if (this.settings.sessions.includes(session) === false) {
+				this.settings.sessions.push(session);
 			}
 
+			return new Session(this);
+
 		}
-
-
-		return false;
 
 	}
 

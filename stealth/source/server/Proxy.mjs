@@ -2,13 +2,13 @@
 import net from 'net';
 
 
-import { console, isBuffer } from '../../extern/base.mjs';
-import { isStealth         } from '../../source/Stealth.mjs';
-import { SOCKS             } from '../../source/connection/SOCKS.mjs';
-import { SOCKS as PACKET   } from '../../source/packet/SOCKS.mjs';
-import { IP                } from '../../source/parser/IP.mjs';
-import { URL               } from '../../source/parser/URL.mjs';
-import { isServices        } from '../../source/server/Services.mjs';
+import { console, isArray, isBuffer } from '../../extern/base.mjs';
+import { isStealth                  } from '../../source/Stealth.mjs';
+import { SOCKS                      } from '../../source/connection/SOCKS.mjs';
+import { SOCKS as PACKET            } from '../../source/packet/SOCKS.mjs';
+import { IP                         } from '../../source/parser/IP.mjs';
+import { URL                        } from '../../source/parser/URL.mjs';
+import { isServices                 } from '../../source/server/Services.mjs';
 
 
 
@@ -67,7 +67,14 @@ Proxy.prototype = {
 
 				let packet = PACKET.decode(null, buffer);
 				if (packet !== null) {
-					return true;
+
+					if (
+						isArray(packet.headers['@auth']) === true
+						&& packet.headers['@auth'].includes('none') === true
+					) {
+						return true;
+					}
+
 				}
 
 			}
@@ -95,19 +102,54 @@ Proxy.prototype = {
 			let connection = SOCKS.upgrade(socket, packet);
 			if (connection !== null) {
 
+				let remote = connection.toJSON().data['remote'];
+
 				connection.once('@connect', () => {
 
+					if (this.stealth !== null) {
 
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
+						connection.session = this.stealth.track(null, remote);
 
-						let remote = connection.toJSON().data['remote'];
-						if (remote !== null) {
-							console.log('Proxy: Client "' + IP.render(remote['host']) + '" connected.');
+						if (this.stealth._settings.debug === true) {
+
+							if (remote !== null) {
+								console.log('Proxy: Client "' + IP.render(remote['host']) + '" connected.');
+							}
+
 						}
 
 					}
 
 				});
+
+				connection.once('error', (err) => {
+
+					if (connection.session !== null) {
+						connection.session.warn('Proxy:error', err);
+					}
+
+					connection.off('@connect-tunnel');
+					connection.disconnect();
+
+				});
+
+				connection.once('@disconnect', () => {
+
+					if (this.stealth !== null) {
+
+						if (this.stealth._settings.debug === true) {
+
+							let remote = connection.toJSON().data['remote'];
+							if (remote !== null) {
+								console.log('Proxy: Client "' + IP.render(remote['host']) + '" disconnected.');
+							}
+
+						}
+
+					}
+
+				});
+
 
 				if (this.services !== null) {
 
@@ -229,19 +271,6 @@ Proxy.prototype = {
 					});
 
 				}
-
-				connection.once('@disconnect', () => {
-
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
-
-						let remote = connection.toJSON().data['remote'];
-						if (remote !== null) {
-							console.log('Proxy: Client "' + IP.render(remote['host']) + '" disconnected.');
-						}
-
-					}
-
-				});
 
 				return connection;
 

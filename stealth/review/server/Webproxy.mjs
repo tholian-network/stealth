@@ -2,6 +2,7 @@
 import { isBuffer, isFunction, isObject  } from '../../../base/index.mjs';
 import { after, before, describe, finish } from '../../../covert/index.mjs';
 import { HTTP                            } from '../../../stealth/source/connection/HTTP.mjs';
+import { HTTP as PACKET                  } from '../../../stealth/source/packet/HTTP.mjs';
 import { HTTPS                           } from '../../../stealth/source/connection/HTTPS.mjs';
 import { IP                              } from '../../../stealth/source/parser/IP.mjs';
 import { URL                             } from '../../../stealth/source/parser/URL.mjs';
@@ -9,9 +10,49 @@ import { connect, disconnect             } from '../../../stealth/review/Stealth
 
 
 
+const Connection = function(type) {
+	this.type = type;
+};
+
+Connection.prototype = {
+	[Symbol.toStringTag]: 'Connection'
+};
+
+
+
 before(connect);
 
+describe('Webproxy.prototype.can()/CONNECT', function(assert) {
+
+	assert(isFunction(this.stealth.server.webproxy.can), true);
+
+	let connection = new Connection('client');
+
+	let buffer1 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'CONNECT',
+			'host':    'example.com:80'
+		},
+		payload: null
+	});
+	let buffer2 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'CONNECT',
+			'host':    'example.com:443'
+		},
+		payload: null
+	});
+
+	assert(this.stealth.server.webproxy.can(buffer1), true);
+	assert(this.stealth.server.webproxy.can(buffer2), true);
+
+});
+
 describe('Webproxy.prototype.upgrade()/CONNECT', function(assert) {
+
+	assert(isFunction(this.stealth.server.webproxy.upgrade), true);
+	assert(isFunction(HTTP.connect),                         true);
+	assert(isFunction(HTTP.send),                            true);
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -106,7 +147,37 @@ describe('Webproxy.prototype.upgrade()/CONNECT', function(assert) {
 
 });
 
+describe('Webproxy.prototype.can()/GET', function(assert) {
+
+	assert(isFunction(this.stealth.server.webproxy.can), true);
+
+	let connection = new Connection('client');
+
+	let buffer1 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    'https://example.com/index.html'
+		},
+		payload: null
+	});
+	let buffer2 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    '/stealth/1337/https://example.com/index.html'
+		},
+		payload: null
+	});
+
+	assert(this.stealth.server.webproxy.can(buffer1), true);
+	assert(this.stealth.server.webproxy.can(buffer2), true);
+
+});
+
 describe('Webproxy.prototype.upgrade()/GET/failure', function(assert) {
+
+	assert(isFunction(this.stealth.server.webproxy.upgrade), true);
+	assert(isFunction(HTTP.connect),                         true);
+	assert(isFunction(HTTP.send),                            true);
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -173,6 +244,10 @@ describe('Mode.prototype.save()', function(assert) {
 
 describe('Webproxy.prototype.upgrade()/GET/success', function(assert) {
 
+	assert(isFunction(this.stealth.server.webproxy.upgrade), true);
+	assert(isFunction(HTTP.connect),                         true);
+	assert(isFunction(HTTP.send),                            true);
+
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
 
@@ -223,6 +298,10 @@ describe('Webproxy.prototype.upgrade()/GET/success', function(assert) {
 });
 
 describe('Webproxy.prototype.upgrade()/GET/webview', function(assert) {
+
+	assert(isFunction(this.stealth.server.webproxy.upgrade), true);
+	assert(isFunction(HTTP.connect),                         true);
+	assert(isFunction(HTTP.send),                            true);
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);

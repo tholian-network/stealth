@@ -1,16 +1,57 @@
 
-import { Buffer, isBuffer, isObject      } from '../../../base/index.mjs';
-import { after, before, describe, finish } from '../../../covert/index.mjs';
-import { ENVIRONMENT                     } from '../../../stealth/source/ENVIRONMENT.mjs';
-import { HTTP                            } from '../../../stealth/source/connection/HTTP.mjs';
-import { URL                             } from '../../../stealth/source/parser/URL.mjs';
-import { connect, disconnect             } from '../../../stealth/review/Stealth.mjs';
+import { Buffer, isBuffer, isFunction, isObject } from '../../../base/index.mjs';
+import { after, before, describe, finish        } from '../../../covert/index.mjs';
+import { ENVIRONMENT                            } from '../../../stealth/source/ENVIRONMENT.mjs';
+import { HTTP                                   } from '../../../stealth/source/connection/HTTP.mjs';
+import { HTTP as PACKET                         } from '../../../stealth/source/packet/HTTP.mjs';
+import { URL                                    } from '../../../stealth/source/parser/URL.mjs';
+import { connect, disconnect                    } from '../../../stealth/review/Stealth.mjs';
+
+
+
+const Connection = function(type) {
+	this.type = type;
+};
+
+Connection.prototype = {
+	[Symbol.toStringTag]: 'Connection'
+};
 
 
 
 before(connect);
 
+describe('Webserver.prototype.can()/GET/', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.can), true);
+
+	let connection = new Connection('client');
+
+	let buffer1 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    '/'
+		},
+		payload: null
+	});
+	let buffer2 = PACKET.encode(connection, {
+		headers: {
+			'@method':    'GET',
+			'@url':       '/',
+			'connection': 'upgrade',
+			'upgrade':    'WebSocket'
+		},
+		payload: null
+	});
+
+	assert(this.stealth.server.webserver.can(buffer1), true);
+	assert(this.stealth.server.webserver.can(buffer2), false);
+
+});
+
 describe('Webserver.prototype.upgrade()/GET/', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.upgrade), true);
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -44,6 +85,7 @@ describe('Webserver.prototype.upgrade()/GET/', function(assert) {
 					'length':   0,
 					'range':    [ 0, 0 ]
 				},
+				'accept-ranges':    'bytes',
 				'location':         '/browser/index.html',
 				'content-encoding': 'identity',
 				'content-length':   0
@@ -63,7 +105,35 @@ describe('Webserver.prototype.upgrade()/GET/', function(assert) {
 
 });
 
+describe('Webserver.prototype.can()/GET/browser/index.html', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.can), true);
+
+	let connection = new Connection('client');
+
+	let buffer1 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    '/browser/index.html'
+		},
+		payload: null
+	});
+	let buffer2 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    '/browser/index.html?debug=true'
+		},
+		payload: null
+	});
+
+	assert(this.stealth.server.webserver.can(buffer1), true);
+	assert(this.stealth.server.webserver.can(buffer2), true);
+
+});
+
 describe('Webserver.prototype.upgrade()/GET/browser/index.html', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.upgrade), true);
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -99,6 +169,7 @@ describe('Webserver.prototype.upgrade()/GET/browser/index.html', function(assert
 			'range':    [ 0, 4000 ]
 		});
 
+		assert(response.headers['accept-ranges'],    'bytes');
 		assert(response.headers['content-encoding'], 'identity');
 		assert(response.headers['content-length'],   4001);
 		assert(response.headers['content-type'],     'text/html');
@@ -121,7 +192,35 @@ describe('Webserver.prototype.upgrade()/GET/browser/index.html', function(assert
 
 });
 
+describe('Webserver.prototype.can()/GET/favicon.ico', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.can), true);
+
+	let connection = new Connection('client');
+
+	let buffer1 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    '/favicon.ico'
+		},
+		payload: null
+	});
+	let buffer2 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    '/browser/design/common/tholian.ico'
+		},
+		payload: null
+	});
+
+	assert(this.stealth.server.webserver.can(buffer1), true);
+	assert(this.stealth.server.webserver.can(buffer2), true);
+
+});
+
 describe('Webserver.prototype.upgrade()/GET/favicon.ico', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.upgrade), true);
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -155,6 +254,7 @@ describe('Webserver.prototype.upgrade()/GET/favicon.ico', function(assert) {
 					'length':   0,
 					'range':    [ 0, 0 ]
 				},
+				'accept-ranges':    'bytes',
 				'location':         '/browser/design/common/tholian.ico',
 				'content-encoding': 'identity',
 				'content-length':   0
@@ -175,6 +275,8 @@ describe('Webserver.prototype.upgrade()/GET/favicon.ico', function(assert) {
 });
 
 describe('Webserver.prototype.upgrade()/GET/browser/design/common/tholian.ico', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.upgrade), true);
 
 	let url        = URL.parse('http://localhost:65432');
 	let connection = HTTP.connect(url);
@@ -229,7 +331,37 @@ describe('Webserver.prototype.upgrade()/GET/browser/design/common/tholian.ico', 
 
 });
 
+describe('Webserver.prototype.can()/GET/proxy.pac', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.can), true);
+
+	let connection = new Connection('client');
+
+	let buffer1 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    '/proxy.pac',
+			'host':    'localhost'
+		},
+		payload: null
+	});
+	let buffer2 = PACKET.encode(connection, {
+		headers: {
+			'@method': 'GET',
+			'@url':    '/proxy.pac',
+			'host':    '127.0.0.2'
+		},
+		payload: null
+	});
+
+	assert(this.stealth.server.webserver.can(buffer1), true);
+	assert(this.stealth.server.webserver.can(buffer2), true);
+
+});
+
 describe('Webserver.prototype.upgrade()/GET/proxy.pac/127.0.0.1', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.upgrade), true);
 
 	let url        = URL.parse('http://127.0.0.1:65432');
 	let connection = HTTP.connect(url);
@@ -261,16 +393,16 @@ describe('Webserver.prototype.upgrade()/GET/proxy.pac/127.0.0.1', function(asser
 		assert(response.headers['@status'],   200);
 		assert(response.headers['@transfer'], {
 			'encoding': 'identity',
-			'length':   157,
-			'range':    [ 0, 156 ]
+			'length':   159,
+			'range':    [ 0, 158 ]
 		});
 
 		assert(response.headers['content-encoding'], 'identity');
-		assert(response.headers['content-length'],   157);
+		assert(response.headers['content-length'],   159);
 		assert(response.headers['content-type'],     'application/x-ns-proxy-autoconfig');
 
 		assert(isBuffer(response.payload), true);
-		assert(response.payload.length,    157);
+		assert(response.payload.length,    159);
 
 		assert(response.payload.toString('utf8').includes('(host === "' + ENVIRONMENT.hostname + '")'));
 		assert(response.payload.toString('utf8').includes('(host === "' + url.host + '")'));
@@ -288,6 +420,8 @@ describe('Webserver.prototype.upgrade()/GET/proxy.pac/127.0.0.1', function(asser
 });
 
 describe('Webserver.prototype.upgrade()/GET/proxy.pac/127.0.0.2', function(assert) {
+
+	assert(isFunction(this.stealth.server.webserver.upgrade), true);
 
 	let url        = URL.parse('http://127.0.0.2:65432');
 	let connection = HTTP.connect(url);
@@ -319,16 +453,16 @@ describe('Webserver.prototype.upgrade()/GET/proxy.pac/127.0.0.2', function(asser
 		assert(response.headers['@status'],   200);
 		assert(response.headers['@transfer'], {
 			'encoding': 'identity',
-			'length':   157,
-			'range':    [ 0, 156 ]
+			'length':   159,
+			'range':    [ 0, 158 ]
 		});
 
 		assert(response.headers['content-encoding'], 'identity');
-		assert(response.headers['content-length'],   157);
+		assert(response.headers['content-length'],   159);
 		assert(response.headers['content-type'],     'application/x-ns-proxy-autoconfig');
 
 		assert(isBuffer(response.payload), true);
-		assert(response.payload.length,    157);
+		assert(response.payload.length,    159);
 
 		assert(response.payload.toString('utf8').includes('(host === "' + ENVIRONMENT.hostname + '")'));
 		assert(response.payload.toString('utf8').includes('(host === "' + url.host + '")'));

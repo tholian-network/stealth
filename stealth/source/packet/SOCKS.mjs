@@ -420,7 +420,7 @@ const SOCKS = {
 					return Buffer.concat([
 						Buffer.from([
 							0x05,
-							methods.length,
+							methods.length
 						]),
 						Buffer.from(methods)
 					]);
@@ -570,16 +570,19 @@ const SOCKS = {
 					return true;
 				}
 
-			} else if (buffer.length === 3) {
-
-				if (buffer[0] === 0x05) {
-					return true;
-				}
-
-			} else if (buffer.length > 4) {
+			} else if (buffer.length > 2) {
 
 				if (
-					buffer[0] === 0x05
+					buffer.length >= 3
+					&& buffer[0] === 0x05
+					&& buffer[1] === buffer.slice(2).length
+				) {
+
+					return true;
+
+				} else if (
+					buffer.length > 4
+					&& buffer[0] === 0x05
 					&& buffer[1] >= 0x00
 					&& buffer[1] <= 0x10
 					&& buffer[2] === 0x00
@@ -589,7 +592,9 @@ const SOCKS = {
 						|| buffer[3] === 0x04
 					)
 				) {
+
 					return true;
+
 				}
 
 			}

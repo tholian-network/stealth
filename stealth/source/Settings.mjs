@@ -431,7 +431,13 @@ const read = function(profile, keepdata, callback) {
 					this.sessions = sessions.map((raw) => {
 
 						let session = Session.from(raw);
-						if (session !== null && session.tabs.length > 0) {
+						if (
+							session !== null
+							&& (
+								session.tabs.length > 0
+								|| session.warnings.length > 0
+							)
+						) {
 							return session;
 						}
 
@@ -444,7 +450,13 @@ const read = function(profile, keepdata, callback) {
 					sessions.map((raw) => {
 
 						let session = Session.from(raw);
-						if (session !== null && session.tabs.length > 0) {
+						if (
+							session !== null
+							&& (
+								session.tabs.length > 0
+								|| session.warnings.length > 0
+							)
+						) {
 							return session;
 						}
 
@@ -537,15 +549,17 @@ const save = function(profile, keepdata, callback) {
 
 			if (this.sessions.length > 0) {
 
-				if (this.internet.history !== 'forever') {
+				for (let s = 0, sl = this.sessions.length; s < sl; s++) {
 
-					this.sessions.forEach((session) => {
+					let session = this.sessions[s];
 
-						session.tabs.forEach((tab) => {
-							tab.forget(this.internet.history);
-						});
+					session.forget(this.internet.history, true);
 
-					});
+					if (session.tabs.length === 0 && session.warnings.length === 0) {
+						this.sessions.splice(s, 1);
+						sl--;
+						s--;
+					}
 
 				}
 

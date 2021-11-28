@@ -221,7 +221,12 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 					} else {
 
 						// Probably a port scan
-						socket.write('💻 They\'re trashing our rights! They\'re trashing the flow of data! Hack the planet! 🌍');
+						socket.write('💻 They\'re trashing our rights!');
+						socket.write('🌊 They\'re trashing the flow of data!');
+						socket.write('🌍 Hack the planet!');
+						socket.write('\r\n\r\r\r\n');
+						socket.write('Calling fgets("/root/.workspace/.garbage")');
+						socket.write('🗡️ Bye. Bye.  لُلُصّبُلُلصّبُررً ॣ ॣh ॣ ॣ 冗');
 						socket.end();
 
 					}

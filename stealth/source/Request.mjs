@@ -746,7 +746,9 @@ Request.prototype = Object.assign({}, Emitter.prototype, {
 			mode:     this.mode,
 			policy:   this.policy,
 			redirect: this.redirect,
+			refresh:  this.refresh,
 			url:      URL.render(this.url),
+			ua:       UA.render(this.ua),
 			download: {
 				bandwidth:  -1,
 				connection: null,

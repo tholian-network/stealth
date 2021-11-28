@@ -1,10 +1,11 @@
 
-import { console, isArray, isNumber, isObject, isString } from '../extern/base.mjs';
-import { isRequest                                      } from '../source/Request.mjs';
-import { isStealth                                      } from '../source/Stealth.mjs';
-import { Tab                                            } from '../source/Tab.mjs';
-import { IP                                             } from '../source/parser/IP.mjs';
-import { UA                                             } from '../source/parser/UA.mjs';
+import { console, isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
+import { isRequest                                       } from '../source/Request.mjs';
+import { isStealth                                       } from '../source/Stealth.mjs';
+import { Tab                                             } from '../source/Tab.mjs';
+import { DATETIME                                        } from '../source/parser/DATETIME.mjs';
+import { IP                                              } from '../source/parser/IP.mjs';
+import { UA                                              } from '../source/parser/UA.mjs';
 
 
 
@@ -77,11 +78,12 @@ const Session = function(stealth) {
 	stealth = isStealth(stealth) ? stealth : null;
 
 
-	this.domain  = Date.now() + '.tholian.network';
-	this.stealth = stealth;
-	this.tabs    = [];
-	this.ua      = null;
-	this.warning = 0;
+	this.domain   = Date.now() + '.tholian.local';
+	this.hosts    = [];
+	this.stealth  = stealth;
+	this.tabs     = [];
+	this.ua       = null;
+	this.warnings = [];
 
 };
 
@@ -104,16 +106,46 @@ Session.from = function(json) {
 				session.domain = data.domain;
 			}
 
+			if (isArray(data.hosts) === true) {
+				session.hosts = data.hosts.map((host) => {
+					return IP.parse(host);
+				}).filter((ip) => {
+					return IP.isIP(ip) === true;
+				});
+			}
+
 			if (isArray(data.tabs) === true) {
-				session.tabs = data.tabs.map((data) => Tab.from(data)).filter((tab) => tab !== null);
+				session.tabs = data.tabs.map((data) => {
+					return Tab.from(data);
+				}).filter((tab) => tab !== null);
 			}
 
 			if (UA.isUA(data.ua) === true) {
 				session.ua = data.ua;
 			}
 
-			if (isNumber(data.warning) === true) {
-				session.warning = data.warning;
+			if (isArray(data.warnings) === true) {
+				session.warnings = data.warnings.map((warning) => {
+					return {
+						date:   DATETIME.parse(warning.date),
+						time:   DATETIME.parse(warning.time),
+						origin: warning.origin,
+						reason: warning.reason
+					};
+				}).filter((warning) => {
+
+					if (
+						DATETIME.isDate(warning.date) === true
+						&& DATETIME.isTime(warning.time) === true
+						&& isString(warning.origin) === true
+						&& (isObject(warning.reason) === true || warning.reason === null)
+					) {
+						return true;
+					}
+
+					return false;
+
+				});
 			}
 
 			return session;
@@ -177,11 +209,35 @@ Session.prototype = {
 	toJSON: function() {
 
 		let data = {
-			domain:  this.domain,
-			tabs:    this.tabs.map((tab) => tab.toJSON()),
-			ua:      this.ua,
-			warning: this.warning
+			domain:   this.domain,
+			hosts:    [],
+			tabs:     [],
+			ua:       this.ua,
+			warnings: []
 		};
+
+		if (this.hosts.length > 0) {
+			this.hosts.forEach((ip) => {
+				data.hosts.push(IP.render(ip));
+			});
+		}
+
+		if (this.tabs.length > 0) {
+			this.tabs.forEach((tab) => {
+				data.tabs.push(tab.toJSON());
+			});
+		}
+
+		if (this.warnings.length > 0) {
+			this.warnings.forEach((warning) => {
+				data.warnings.push({
+					date:   DATETIME.render(warning.date),
+					time:   DATETIME.render(warning.time),
+					origin: warning.origin,
+					reason: warning.reason
+				});
+			});
+		}
 
 		return {
 			'type': 'Session',
@@ -190,65 +246,96 @@ Session.prototype = {
 
 	},
 
-	destroy: function() {
+	forget: function(until, force) {
 
-		this.tabs.forEach((tab) => {
-
-			tab.requests.forEach((request) => {
-
-				console.log('Session "' + this.domain + '" tab #' + tab.id + ' remains "' + request.url.link + '".');
-				request.off('progress');
-
-			});
-
-			tab.destroy();
-
-		});
+		until = isString(until)  ? until : null;
+		force = isBoolean(force) ? force : false;
 
 
-		this.domain  = Date.now() + '.tholian.network';
-		this.stealth = null;
-		this.tabs    = [];
-		this.ua      = null;
-		this.warning = 0;
+		if (until !== null) {
 
+			if (this.tabs.length > 0) {
 
-		return true;
+				for (let t = 0, tl = this.tabs.length; t < tl; t++) {
 
-	},
+					let tab = this.tabs[t];
 
-	dispatch: function(headers) {
+					tab.forget(until, force);
 
-		headers = isObject(headers) ? headers : null;
+					if (tab.requests.length > 0) {
 
+						tab.requests.forEach((request) => {
 
-		if (headers !== null) {
+							if (this.stealth !== null && this.stealth._settings.debug === true) {
+								console.log('Session: "' + this.domain + '"\'s Tab "' + tab.id + '" still requests "' + request.url.link + '" ...');
+							}
 
-			let domain = headers['domain'] || null;
-			if (domain !== null) {
-				this.domain = domain;
-			}
+							request.off('start');
+							request.off('progress');
 
-			if (this.domain.endsWith('.tholian.network') === true) {
+						});
 
-				let address = headers['@remote'] || null;
-				if (address !== null) {
+					}
 
-					let ip = IP.parse(address);
-					if (ip.type !== null) {
-						this.domain = IP.render(ip);
+					if (tab.history.length === 0) {
+
+						this.tabs.splice(t, 1);
+						tl--;
+						t--;
+
 					}
 
 				}
 
 			}
 
-			let useragent = headers['user-agent'] || null;
-			if (useragent !== null) {
-				this.ua = UA.parse(headers['user-agent']);
+
+			let limit = null;
+
+			if (until === 'stealth') {
+				limit = DATETIME.parse(new Date());
+			} else if (until === 'day') {
+				limit = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24)));
+			} else if (until === 'week') {
+				limit = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 7)));
+			} else if (until === 'month') {
+				limit = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 31)));
+			} else if (until === 'forever') {
+				limit = DATETIME.parse('1582-01-01 00:00:00');
 			}
 
-			return true;
+			if (limit !== null) {
+
+				for (let w = 0, wl = this.warnings.length; w < wl; w++) {
+
+					let clear = false;
+					let event = this.warnings[w];
+
+					let cmp_date = DATETIME.compare(event.date, DATETIME.toDate(limit));
+					if (cmp_date === -1) {
+
+						clear = true;
+
+					} else if (cmp_date === 0) {
+
+						let cmp_time = DATETIME.compare(event.time, DATETIME.toTime(limit));
+						if (cmp_time === -1) {
+							clear = true;
+						}
+
+					}
+
+					if (clear === true) {
+						this.warnings.splice(w, 1);
+						wl--;
+						w--;
+					}
+
+				}
+
+				return true;
+
+			}
 
 		}
 
@@ -290,7 +377,11 @@ Session.prototype = {
 				});
 
 				request.on('progress', (frame, progress) => {
-					console.log('Session "' + this.domain + '" tab #' + tab.id + ' requests "' + request.url.link + '" (' + progress.bytes + '/' + progress.total + ').');
+
+					if (this.stealth !== null && this.stealth._settings.debug === true) {
+						console.log('Session: "' + this.domain + '"\'s Tab "' + tab.id + '" requests "' + request.url.link + '" (' + progress.bytes + '/' + progress.total + ').');
+					}
+
 				});
 
 				request.once('error',    () => remove_request.call(this, request));
@@ -354,36 +445,28 @@ Session.prototype = {
 
 	},
 
-	warn: function(service, method, event) {
+	warn: function(origin, reason) {
 
-		service = isString(service) ? service : null;
-		method  = isString(method)  ? method  : null;
-		event   = isString(event)   ? event   : null;
-
-
-		this.warning++;
+		origin = isString(origin) ? origin : null;
+		reason = isObject(reason) ? reason : null;
 
 
-		if (service !== null) {
+		if (origin !== null) {
 
-			if (method !== null) {
-				console.warn('Session "' + this.domain + '" received warning #' + this.warning + ' for ' + service + '.' + method + '() call.');
-			} else if (event !== null) {
-				console.warn('Session "' + this.domain + '" received warning #' + this.warning + ' for ' + service + '@' + event + ' call.');
-			} else {
-				console.warn('Session "' + this.domain + '" received warning #' + this.warning + ' for ' + service + ' abuse.');
+			let datetime = DATETIME.parse(new Date());
+
+			this.warnings.push({
+				date:   DATETIME.toDate(datetime),
+				time:   DATETIME.toTime(datetime),
+				origin: origin,
+				reason: reason
+			});
+
+			if (this.stealth !== null && this.stealth._settings.debug === true) {
+				console.warn('Session: "' + this.domain + '" received warning #' + this.warnings.length + ' from "' + origin + '".');
 			}
 
-		} else {
-			console.warn('Session "' + this.domain + '" received warning #' + this.warning + '.');
 		}
-
-		if (this.warning > 3) {
-			this.destroy();
-		}
-
-
-		return true;
 
 	}
 

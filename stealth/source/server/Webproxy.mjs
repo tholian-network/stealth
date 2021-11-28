@@ -339,12 +339,79 @@ const proxy_http_request = function(socket, packet) {
 		}
 
 
+		connection.once('@connect', () => {
+
+			if (this.stealth !== null) {
+
+				connection.session = this.stealth.track(null, remote);
+
+				if (this.stealth._settings.debug === true) {
+
+					let host = IP.render(remote['host']);
+					if (host !== null) {
+
+						if (this.__state.connections[host] === undefined) {
+							console.log('Webproxy: Client "' + host + '" connected.');
+							this.__state.connections[host] = 1;
+						} else if (isNumber(this.__state.connections[host]) === true) {
+							this.__state.connections[host]++;
+						}
+
+					}
+
+				}
+
+			}
+
+		});
+
+		connection.once('error', (err) => {
+
+			if (connection.session !== null) {
+				connection.session.warn('Webproxy:error', err);
+			}
+
+			connection.off('request');
+			connection.disconnect();
+
+		});
+
+		connection.once('@disconnect', () => {
+
+			if (this.stealth !== null) {
+
+				if (this.stealth._settings.debug === true) {
+
+					let host = IP.render(remote['host']);
+					if (host !== null) {
+
+						if (isNumber(this.__state.connections[host]) === true) {
+							this.__state.connections[host]--;
+						}
+
+						setTimeout(() => {
+
+							if (this.__state.connections[host] === 0) {
+								console.log('Webproxy: Client "' + host + '" disconnected.');
+								delete this.__state.connections[host];
+							}
+
+						}, 60000);
+
+					}
+
+				}
+
+			}
+
+		});
+
+
 		if (
 			this.stealth !== null
 			&& URL.isURL(url) === true
 		) {
 
-			let session = this.stealth.track(null, packet.headers);
 			let request = this.stealth.request(url);
 
 			if (isRequest(request) === true) {
@@ -356,6 +423,12 @@ const proxy_http_request = function(socket, packet) {
 					request.off('response');
 					request.stop();
 
+					if (connection.session !== null) {
+						connection.session.warn('Webproxy:request', {
+							'@method': 'GET',
+							'@url':    packet.headers['@url']
+						});
+					}
 
 					HTTP.send(connection, {
 						headers: {
@@ -418,70 +491,41 @@ const proxy_http_request = function(socket, packet) {
 
 				});
 
-				if (session !== null) {
-					session.track(request, 'webproxy');
+
+				if (connection.session !== null) {
+					connection.session.track(request, 'webproxy');
 				}
-
-				connection.once('@connect', () => {
-
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
-
-						let host = IP.render(remote['host']);
-						if (host !== null) {
-
-							if (this.__state.connections[host] === undefined) {
-								console.log('Webproxy: Client "' + host + '" connected.');
-								this.__state.connections[host] = 1;
-							} else if (isNumber(this.__state.connections[host]) === true) {
-								this.__state.connections[host]++;
-							}
-
-						}
-
-					}
-
-				});
-
-				connection.once('@disconnect', () => {
-
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
-
-						let host = IP.render(remote['host']);
-						if (host !== null) {
-
-							if (isNumber(this.__state.connections[host]) === true) {
-								this.__state.connections[host]--;
-							}
-
-							setTimeout(() => {
-
-								if (this.__state.connections[host] === 0) {
-									console.log('Webproxy: Client "' + host + '" disconnected.');
-									delete this.__state.connections[host];
-								}
-
-							}, 60000);
-
-						}
-
-					}
-
-				});
 
 				return connection;
 
 			} else {
 
+				if (connection.session !== null) {
+					connection.session.warn('Webproxy:request', {
+						'@method': 'GET',
+						'@url':    packet.headers['@url']
+					});
+				}
+
 				HTTP.send(connection, {
 					headers: {
-						'@status': 404
+						'@status': 400
 					},
-					payload: Buffer.from('404: Not Found', 'utf8')
+					payload: Buffer.from('400: Bad Request', 'utf8')
 				});
+
+				connection.disconnect();
 
 			}
 
 		} else {
+
+			if (connection.session !== null) {
+				connection.session.warn('Webproxy:request', {
+					'@method': 'GET',
+					'@url':    packet.headers['@url']
+				});
+			}
 
 			HTTP.send(connection, {
 				headers: {
@@ -489,6 +533,8 @@ const proxy_http_request = function(socket, packet) {
 				},
 				payload: Buffer.from('500: Internal Server Error', 'utf8')
 			});
+
+			connection.disconnect();
 
 		}
 
@@ -518,13 +564,80 @@ const proxy_webview_request = function(socket, packet) {
 		}
 
 
+		connection.once('@connect', () => {
+
+			if (this.stealth !== null) {
+
+				connection.session = this.stealth.track(null, remote);
+
+				if (this.stealth._settings.debug === true) {
+
+					let host = IP.render(remote['host']);
+					if (host !== null) {
+
+						if (this.__state.connections[host] === undefined) {
+							console.log('Webproxy: Client "' + host + '" connected.');
+							this.__state.connections[host] = 1;
+						} else if (isNumber(this.__state.connections[host]) === true) {
+							this.__state.connections[host]++;
+						}
+
+					}
+
+				}
+
+			}
+
+		});
+
+		connection.once('error', (err) => {
+
+			if (connection.session !== null) {
+				connection.session.warn('Webproxy:error', err);
+			}
+
+			connection.off('request');
+			connection.disconnect();
+
+		});
+
+		connection.once('@disconnect', () => {
+
+			if (this.stealth !== null) {
+
+				if (this.stealth._settings.debug === true) {
+
+					let host = IP.render(remote['host']);
+					if (host !== null) {
+
+						if (isNumber(this.__state.connections[host]) === true) {
+							this.__state.connections[host]--;
+						}
+
+						setTimeout(() => {
+
+							if (this.__state.connections[host] === 0) {
+								console.log('Webproxy: Client "' + host + '" disconnected.');
+								delete this.__state.connections[host];
+							}
+
+						}, 60000);
+
+					}
+
+				}
+
+			}
+
+		});
+
+
 		if (
 			this.stealth !== null
 			&& URL.isURL(url) === true
 			&& isString(tab) === true
 		) {
 
-			let session = this.stealth.track(null, packet.headers);
 			let request = this.stealth.request(url);
 
 			if (isRequest(request) === true) {
@@ -652,70 +765,40 @@ const proxy_webview_request = function(socket, packet) {
 
 				});
 
-				if (session !== null) {
-					session.track(request, tab);
+				if (connection.session !== null) {
+					connection.session.track(request, tab);
 				}
-
-				connection.once('@connect', () => {
-
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
-
-						let host = IP.render(remote['host']);
-						if (host !== null) {
-
-							if (this.__state.connections[host] === undefined) {
-								console.log('Webproxy: Client "' + host + '" connected.');
-								this.__state.connections[host] = 1;
-							} else if (isNumber(this.__state.connections[host]) === true) {
-								this.__state.connections[host]++;
-							}
-
-						}
-
-					}
-
-				});
-
-				connection.once('@disconnect', () => {
-
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
-
-						let host = IP.render(remote['host']);
-						if (host !== null) {
-
-							if (isNumber(this.__state.connections[host]) === true) {
-								this.__state.connections[host]--;
-							}
-
-							setTimeout(() => {
-
-								if (this.__state.connections[host] === 0) {
-									console.log('Webproxy: Client "' + host + '" disconnected.');
-									delete this.__state.connections[host];
-								}
-
-							}, 60000);
-
-						}
-
-					}
-
-				});
 
 				return connection;
 
 			} else {
 
+				if (connection.session !== null) {
+					connection.session.warn('Webproxy:request', {
+						'@method': 'GET',
+						'@url':    packet.headers['@url']
+					});
+				}
+
 				HTTP.send(connection, {
 					headers: {
-						'@status': 404
+						'@status': 400
 					},
-					payload: Buffer.from('404: Not Found', 'utf8')
+					payload: Buffer.from('400: Bad Request', 'utf8')
 				});
+
+				connection.disconnect();
 
 			}
 
 		} else {
+
+			if (connection.session !== null) {
+				connection.session.warn('Webproxy:request', {
+					'@method': 'GET',
+					'@url':    packet.headers['@url']
+				});
+			}
 
 			HTTP.send(connection, {
 				headers: {
@@ -723,6 +806,8 @@ const proxy_webview_request = function(socket, packet) {
 				},
 				payload: Buffer.from('500: Internal Server Error', 'utf8')
 			});
+
+			connection.disconnect();
 
 		}
 

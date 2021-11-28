@@ -1,8 +1,8 @@
 
-import { isArray, isObject, isString } from '../extern/base.mjs';
-import { DATETIME                    } from '../source/parser/DATETIME.mjs';
-import { URL                         } from '../source/parser/URL.mjs';
-import { isMode                      } from '../source/Browser.mjs';
+import { isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
+import { DATETIME                               } from '../source/parser/DATETIME.mjs';
+import { URL                                    } from '../source/parser/URL.mjs';
+import { isMode                                 } from '../source/Browser.mjs';
 
 
 
@@ -342,9 +342,10 @@ Tab.prototype = {
 
 	},
 
-	forget: function(until) {
+	forget: function(until, force) {
 
-		until = isString(until) ? until : null;
+		until = isString(until)  ? until : null;
+		force = isBoolean(force) ? force : false;
 
 
 		let limit = null;
@@ -390,7 +391,7 @@ Tab.prototype = {
 
 			}
 
-			if (this.history.length === 0 && this.url !== null) {
+			if (force === false && this.history.length === 0 && this.url !== null) {
 
 				let datetime = DATETIME.parse(new Date());
 

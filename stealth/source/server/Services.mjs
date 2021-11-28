@@ -165,8 +165,13 @@ Services.prototype = {
 
 					if (
 						packet.headers['@method'] === 'GET'
-						&& (packet.headers['connection'] || '').toLowerCase() === 'upgrade'
-						&& (packet.headers['upgrade'] || '').toLowerCase() === 'websocket'
+						&& isString(packet.headers['connection']) === true
+						&& packet.headers['connection'].toLowerCase() === 'upgrade'
+						&& isString(packet.headers['upgrade']) === true
+						&& packet.headers['upgrade'].toLowerCase() === 'websocket'
+						&& isString(packet.headers['sec-websocket-key']) === true
+						&& isNumber(packet.headers['sec-websocket-version']) === true
+						&& packet.headers['sec-websocket-version'] === 13
 					) {
 						return true;
 					}
@@ -203,19 +208,21 @@ Services.prototype = {
 				connection.once('@connect', () => {
 
 					if (this.stealth !== null) {
-						connection.session = this.stealth.track(null, packet.headers);
-					}
 
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
+						connection.session = this.stealth.track(null, remote);
 
-						let host = IP.render(remote['host']);
-						if (host !== null) {
+						if (this.stealth._settings.debug === true) {
 
-							if (this.__state.connections[host] === undefined) {
-								console.log('Services: Client "' + host + '" connected.');
-								this.__state.connections[host] = 1;
-							} else if (isNumber(this.__state.connections[host]) === true) {
-								this.__state.connections[host]++;
+							let host = IP.render(remote['host']);
+							if (host !== null) {
+
+								if (this.__state.connections[host] === undefined) {
+									console.log('Services: Client "' + host + '" connected.');
+									this.__state.connections[host] = 1;
+								} else if (isNumber(this.__state.connections[host]) === true) {
+									this.__state.connections[host]++;
+								}
+
 							}
 
 						}
@@ -224,12 +231,14 @@ Services.prototype = {
 
 				});
 
-				connection.once('error', () => {
+				connection.once('error', (err) => {
 
-					if (this.stealth !== null) {
-						this.stealth.untrack(connection.session);
-						connection.session = null;
+					if (connection.session !== null) {
+						connection.session.warn('Services:error', err);
 					}
+
+					connection.off('request');
+					connection.disconnect();
 
 				});
 
@@ -295,13 +304,26 @@ Services.prototype = {
 
 										if (response._warn_ === true) {
 
-											let session = connection.session || null;
-											if (session !== null) {
-												session.warn(service, null, event);
+											if (connection.session !== null) {
+												connection.session.warn('Services:request', {
+													service: service,
+													method:  method,
+													event:   event
+												});
 											}
 
 										}
 
+									}
+
+								} else {
+
+									if (connection.session !== null) {
+										connection.session.warn('Services:request', {
+											service: service,
+											method:  method,
+											event:   event
+										});
 									}
 
 								}
@@ -337,9 +359,12 @@ Services.prototype = {
 
 											if (response._warn_ === true) {
 
-												let session = connection.session || null;
-												if (session !== null) {
-													session.warn(service, method, null);
+												if (connection.session !== null) {
+													connection.session.warn('Services:request', {
+														service: service,
+														method:  method,
+														event:   event
+													});
 												}
 
 											}
@@ -348,7 +373,29 @@ Services.prototype = {
 
 									}, connection.session);
 
+								} else {
+
+									if (connection.session !== null) {
+										connection.session.warn('Services:request', {
+											service: service,
+											method:  method,
+											event:   event
+										});
+									}
+
 								}
+
+							} else {
+
+								if (connection.session !== null) {
+									connection.session.warn('Services:request', {
+										service: service,
+										method:  method,
+										event:   event
+									});
+								}
+
+								connection.disconnect();
 
 							}
 
@@ -360,31 +407,30 @@ Services.prototype = {
 
 				connection.once('@disconnect', () => {
 
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
+					if (this.stealth !== null) {
 
-						let host = IP.render(remote['host']);
-						if (host !== null) {
+						if (this.stealth._settings.debug === true) {
 
-							if (isNumber(this.__state.connections[host]) === true) {
-								this.__state.connections[host]--;
-							}
+							let host = IP.render(remote['host']);
+							if (host !== null) {
 
-							setTimeout(() => {
-
-								if (this.__state.connections[host] === 0) {
-									console.log('Services: Client "' + host + '" disconnected.');
-									delete this.__state.connections[host];
+								if (isNumber(this.__state.connections[host]) === true) {
+									this.__state.connections[host]--;
 								}
 
-							}, 60000);
+								setTimeout(() => {
+
+									if (this.__state.connections[host] === 0) {
+										console.log('Services: Client "' + host + '" disconnected.');
+										delete this.__state.connections[host];
+									}
+
+								}, 60000);
+
+							}
 
 						}
 
-					}
-
-					if (this.stealth !== null) {
-						this.stealth.untrack(connection.session);
-						connection.session = null;
 					}
 
 				});
