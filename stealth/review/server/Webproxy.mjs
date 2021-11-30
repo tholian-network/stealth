@@ -163,7 +163,7 @@ describe('Webproxy.prototype.can()/GET', function(assert) {
 	let buffer2 = PACKET.encode(connection, {
 		headers: {
 			'@method': 'GET',
-			'@url':    '/stealth/1337/https://example.com/index.html'
+			'@url':    '/stealth/https://example.com/index.html'
 		},
 		payload: null
 	});
@@ -313,7 +313,7 @@ describe('Webproxy.prototype.upgrade()/GET/webview', function(assert) {
 		HTTP.send(connection, {
 			headers: {
 				'@method': 'GET',
-				'@url':    '/stealth/1337/https://example.com/index.html',
+				'@url':    '/stealth/https://example.com/index.html',
 			},
 			payload: null
 		}, (result) => {

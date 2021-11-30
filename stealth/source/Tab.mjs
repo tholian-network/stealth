@@ -114,20 +114,52 @@ Tab.from = function(json) {
 				data.history.map((event) => {
 
 					if (
-						isString(event.date) === true
+						isObject(event) === true
+						&& isString(event.date) === true
 						&& isString(event.link) === true
-						&& isMode(event.mode) === true
 						&& isString(event.time) === true
 					) {
 
-						return {
-							date: DATETIME.parse(event.date),
-							link: event.link,
-							mode: event.mode,
-							time: DATETIME.parse(event.time)
-						};
+						let date = DATETIME.parse(event.date);
+						let time = DATETIME.parse(event.time);
+						let url  = URL.parse(event.link);
+
+						if (
+							DATETIME.isDate(date) === true
+							&& DATETIME.isTime(time) === true
+							&& URL.isURL(url) === true
+						) {
+
+							if (isMode(event.mode) === false) {
+
+								let mode = {
+									domain: URL.toDomain(url),
+									mode: {
+										text:  false,
+										image: false,
+										audio: false,
+										video: false,
+										other: false
+									}
+								};
+
+								mode[url.mime.type] = true;
+
+								event.mode = mode;
+
+							}
+
+							return {
+								date: date,
+								link: event.link,
+								mode: event.mode,
+								time: time
+							};
+
+						}
 
 					}
+
 
 					return null;
 

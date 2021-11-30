@@ -491,11 +491,6 @@ const proxy_http_request = function(socket, packet) {
 
 				});
 
-
-				if (connection.session !== null) {
-					connection.session.track(request, 'webproxy');
-				}
-
 				return connection;
 
 			} else {
@@ -555,12 +550,10 @@ const proxy_webview_request = function(socket, packet) {
 	if (connection !== null) {
 
 		let remote = connection.toJSON().data['remote'];
-		let tab    = null;
 		let url    = null;
 
 		if (packet.headers['@url'].startsWith('/stealth/') === true) {
-			tab = packet.headers['@url'].substr(9).split('/').shift();
-			url = URL.parse(packet.headers['@url'].substr(9).split('/').slice(1).join('/'));
+			url = URL.parse(packet.headers['@url'].substr(9));
 		}
 
 
@@ -635,7 +628,6 @@ const proxy_webview_request = function(socket, packet) {
 		if (
 			this.stealth !== null
 			&& URL.isURL(url) === true
-			&& isString(tab) === true
 		) {
 
 			let request = this.stealth.request(url);
@@ -710,7 +702,7 @@ const proxy_webview_request = function(socket, packet) {
 						hostname = host;
 					}
 
-					let redirect = URL.parse('http://' + hostname + ':65432/stealth/' + tab.id + '/' + response.headers['location']);
+					let redirect = URL.parse('http://' + hostname + ':65432/stealth/' + response.headers['location']);
 
 					if (this.stealth._settings.debug === true) {
 						console.warn('Webproxy: "' + url.link + '" redirected to "' + redirect.link + '".');
@@ -738,11 +730,11 @@ const proxy_webview_request = function(socket, packet) {
 
 						if (url.mime.ext === 'css') {
 
-							// TODO: Replace URLs inside response payload with "/stealth/<tab.id>/" prefix
+							// TODO: Replace URLs inside response payload with "/stealth/" prefix
 
 						} else if (url.mime.ext === 'html') {
 
-							// TODO: Replace <a href> inside response payload with "/stealth/<tab.id>/" prefix
+							// TODO: Replace <a href> inside response payload with "/stealth/" prefix
 
 						}
 
@@ -764,10 +756,6 @@ const proxy_webview_request = function(socket, packet) {
 					}
 
 				});
-
-				if (connection.session !== null) {
-					connection.session.track(request, tab);
-				}
 
 				return connection;
 

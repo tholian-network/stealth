@@ -9,10 +9,9 @@ import { URL                          } from '../../source/parser/URL.mjs';
 
 
 
-const toSRC = function(url, id) {
+const toSRC = function(url) {
 
 	url = URL.isURL(url) ? url : null;
-	id  = isString(id)   ? id  : '0';
 
 
 	let src = null;
@@ -35,7 +34,7 @@ const toSRC = function(url, id) {
 				}
 
 			} else if (url.protocol === 'https' || url.protocol === 'http') {
-				src = '/stealth/' + id + '/' + url.link;
+				src = '/stealth/' + url.link;
 			} else {
 				src = '/browser/internal/fix-connection.html?url=' + encodeURIComponent(url.link);
 			}
@@ -138,7 +137,7 @@ const update = function(tab, refresh) {
 	refresh = isBoolean(refresh) ? refresh : false;
 
 
-	let src = toSRC(tab.url, tab.id);
+	let src = toSRC(tab.url);
 	if (src !== null) {
 
 		if (refresh === true) {

@@ -8,6 +8,7 @@ import { Server                                         } from '../source/Server
 import { Session, isSession                             } from '../source/Session.mjs';
 import { Settings                                       } from '../source/Settings.mjs';
 import { IP                                             } from '../source/parser/IP.mjs';
+import { UA                                             } from '../source/parser/UA.mjs';
 import { URL                                            } from '../source/parser/URL.mjs';
 
 
@@ -82,6 +83,60 @@ const toMode = function(url) {
 	}
 
 	return mode;
+
+};
+
+const toUserAgent = function(url) {
+
+	url = URL.isURL(url) ? url : null;
+
+
+	let useragent = null;
+	let platform  = this.settings.useragent || 'stealth';
+
+	if (url !== null) {
+
+		if (platform === 'stealth') {
+
+			useragent = null;
+
+		} else if (platform === 'browser-desktop') {
+
+			useragent = UA.parse(UA.render({
+				platform: 'browser',
+				system:   'desktop'
+			}));
+
+		} else if (platform === 'browser-mobile') {
+
+			useragent = UA.parse(UA.render({
+				platform: 'browser',
+				system:   'mobile'
+			}));
+
+		} else if (platform === 'spider-desktop') {
+
+			useragent = UA.parse(UA.render({
+				platform: 'spider',
+				system:   'desktop'
+			}));
+
+		} else if (platform === 'spider-mobile') {
+
+			useragent = UA.parse(UA.render({
+				platform: 'spider',
+				system:   'mobile'
+			}));
+
+		} else {
+
+			useragent = null;
+
+		}
+
+	}
+
+	return useragent;
 
 };
 
@@ -331,6 +386,7 @@ Stealth.prototype = Object.assign({}, Emitter.prototype, {
 
 				request = new Request({
 					mode: toMode.call(this, url),
+					ua:   toUserAgent.call(this, url),
 					url:  url
 				}, this.server.services);
 

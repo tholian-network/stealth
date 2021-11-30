@@ -1,18 +1,12 @@
 
 import { isArray, isFunction, isString } from '../../base/index.mjs';
 import { describe, finish              } from '../../covert/index.mjs';
-import { Request                       } from '../../stealth/source/Request.mjs';
 import { Session, isSession            } from '../../stealth/source/Session.mjs';
 import { isTab                         } from '../../stealth/source/Tab.mjs';
 import { DATETIME                      } from '../../stealth/source/parser/DATETIME.mjs';
 import { IP                            } from '../../stealth/source/parser/IP.mjs';
 import { URL                           } from '../../stealth/source/parser/URL.mjs';
 
-
-
-const mock_date_prefix = () => {
-	return (Date.now()).toString().substr(0, 10);
-};
 
 
 describe('new Session()', function(assert) {
@@ -538,33 +532,21 @@ describe('isSession()', function(assert) {
 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 describe('Session.prototype.toJSON()', function(assert) {
 
 	let session = Session.from({
 		type: 'Session',
 		data: {
-			domain: 'peer.tholian.network',
-			tabs:    [{
+			domain: 'peer-id.tholian.local',
+			hosts: [
+				'192.168.13.37'
+			],
+			tabs: [{
 				type: 'Tab',
 				data: {
 					id: '1337',
 					history: [{
+						date: '2020-12-31',
 						link: 'https://example.com/index.html',
 						mode: {
 							domain: 'example.com',
@@ -576,7 +558,7 @@ describe('Session.prototype.toJSON()', function(assert) {
 								other: true
 							}
 						},
-						time: Date.now()
+						time: '01:02:03'
 					}]
 				}
 			}],
@@ -586,7 +568,15 @@ describe('Session.prototype.toJSON()', function(assert) {
 				system:   'desktop',
 				version:  '12.0'
 			},
-			warning: 1
+			warnings: [{
+				date:   '2020-12-31',
+				time:   '01:02:00',
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url': 'https://malware.com/download.exe'
+				}
+			}]
 		}
 	});
 
@@ -594,8 +584,11 @@ describe('Session.prototype.toJSON()', function(assert) {
 
 	assert(json.type, 'Session');
 	assert(json.data, {
-		domain: 'peer.tholian.network',
-		tabs:    [{
+		domain: 'peer-id.tholian.local',
+		hosts: [
+			'192.168.13.37'
+		],
+		tabs: [{
 			type: 'Tab',
 			data: {
 				id: '1337',
@@ -610,6 +603,7 @@ describe('Session.prototype.toJSON()', function(assert) {
 					}
 				},
 				history: [{
+					date: '2020-12-31',
 					link: 'https://example.com/index.html',
 					mode: {
 						domain: 'example.com',
@@ -621,7 +615,7 @@ describe('Session.prototype.toJSON()', function(assert) {
 							other: true
 						}
 					},
-					time: Date.now()
+					time: '01:02:03'
 				}],
 				requests: [],
 				url: 'stealth:welcome'
@@ -633,209 +627,343 @@ describe('Session.prototype.toJSON()', function(assert) {
 			system:   'desktop',
 			version:  '12.0'
 		},
-		warning: 1
+		warnings: [{
+			date:   '2020-12-31',
+			time:   '01:02:00',
+			origin: 'Webproxy:request',
+			reason: {
+				'@method': 'GET',
+				'@url': 'https://malware.com/download.exe'
+			}
+		}]
 	});
 
 });
 
-describe('Session.prototype.destroy()', function(assert) {
+describe('Session.prototype.forget()/forever', function(assert) {
 
-	let session = Session.from({
+	let year_ago = Date.now() - (1000 * 60 * 60 * 24 * 31 * 12);
+	let datetime = DATETIME.parse(new Date(year_ago));
+	let session  = Session.from({
 		type: 'Session',
 		data: {
-			domain: 'peer.tholian.network',
-			tabs:    [{
+			tabs: [{
 				type: 'Tab',
 				data: {
 					id: '1337',
 					history: [{
-						link: 'https://example.com/index.html',
-						mode: {
-							domain: 'example.com',
-							mode: {
-								text:  true,
-								image: false,
-								audio: false,
-								video: false,
-								other: true
-							}
-						},
-						time: Date.now()
+						date: DATETIME.render(DATETIME.toDate(datetime)),
+						link: 'https://a-year-ago.com/index.html',
+						time: DATETIME.render(DATETIME.toTime(datetime))
 					}]
 				}
 			}],
-			ua: {
-				engine:   'safari',
-				platform: 'browser',
-				system:   'desktop',
-				version:  '12.0'
-			},
-			warning: 1
+			warnings: [{
+				date:   DATETIME.render(DATETIME.toDate(datetime)),
+				time:   DATETIME.render(DATETIME.toTime(datetime)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-year-ago.com/index.html'
+				}
+			}]
 		}
 	});
 
-	assert(session.destroy(), true);
+	assert(session.forget('forever'), true);
 
-	assert(isString(session.domain),                      true);
-	assert(session.domain.startsWith(mock_date_prefix()), true);
-	assert(session.domain.endsWith('.tholian.network'),   true);
-	assert(session.stealth,                               null);
-	assert(session.tabs,                                  []);
-	assert(session.ua,                                    null);
-	assert(session.warning,                               0);
+	assert(session.tabs.length,             1);
+	assert(session.tabs[0].history.length,  1);
+	assert(session.tabs[0].history[0].link, 'https://a-year-ago.com/index.html');
+	assert(session.warnings.length,         1);
+	assert(session.warnings[0].reason,      { '@method': 'GET', '@url': 'https://a-year-ago.com/index.html' });
 
 });
 
-describe('Session.prototype.dispatch()', function(assert) {
+describe('Session.prototype.forget()/month', function(assert) {
 
-	let session = new Session(null);
-
-	assert(session.dispatch({
-		'domain': 'remote.tholian.network'
-	}), true);
-	assert(session.domain, 'remote.tholian.network');
-
-	assert(session.dispatch({
-		'@remote': '192.168.0.1',
-	}), true);
-	assert(session.domain, '192.168.0.1');
-
-	assert(session.dispatch({
-		'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:66.0) Gecko/20100101 Firefox/66.0'
-	}), true);
-	assert(session.ua, {
-		engine:   'firefox',
-		platform: 'browser',
-		system:   'desktop',
-		version:  '66.0'
-	});
-
-});
-
-describe('Session.prototype.get()', function(assert) {
-
-	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
-	let request = Request.from({
-		type: 'Request',
-		data: {
-			url:  'https://example.com/does-not-exist.html',
-			mode: mode
-		}
-	});
-
-	let session = Session.from({
+	let month_ago = Date.now() - (1000 * 60 * 60 * 24 * 31);
+	let datetime  = DATETIME.parse(new Date(month_ago));
+	let before    = DATETIME.parse(new Date(month_ago - (1000 * 60)));
+	let after     = DATETIME.parse(new Date(month_ago + (1000 * 60)));
+	let session   = Session.from({
 		type: 'Session',
 		data: {
-			agent: {
-				engine:   'safari',
-				platform: 'browser',
-				system:   'desktop',
-				version:  '12.0'
-			},
-			domain: 'peer.tholian.network',
-			tabs:    [{
+			tabs: [{
 				type: 'Tab',
 				data: {
 					id: '1337',
 					history: [{
-						link: 'https://example.com/index.html',
-						mode: {
-							domain: 'example.com',
-							mode: {
-								text:  true,
-								image: false,
-								audio: false,
-								video: false,
-								other: true
-							}
-						},
-						time: Date.now()
+						date: DATETIME.render(DATETIME.toDate(before)),
+						link: 'https://a-month-ago.com/a-minute-earlier.html',
+						time: DATETIME.render(DATETIME.toTime(before))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(datetime)),
+						link: 'https://a-month-ago.com/index.html',
+						time: DATETIME.render(DATETIME.toTime(datetime))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(after)),
+						link: 'https://a-month-ago.com/a-minute-later.html',
+						time: DATETIME.render(DATETIME.toTime(after))
 					}]
 				}
 			}],
-			warning: 1
+			warnings: [{
+				date:   DATETIME.render(DATETIME.toDate(before)),
+				time:   DATETIME.render(DATETIME.toTime(before)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-month-ago.com/a-minute-earlier.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(datetime)),
+				time:   DATETIME.render(DATETIME.toTime(datetime)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-month-ago.com/index.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(after)),
+				time:   DATETIME.render(DATETIME.toTime(after)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-month-ago.com/a-minute-later.html'
+				}
+			}]
 		}
 	});
 
-	assert(session.get('https://example.com/does-not-exist.html'), null);
+	assert(session.forget('month'), true);
 
-	assert(session.track(request, '1337'),                         true);
-	assert(session.get('https://example.com/does-not-exist.html'), request);
-
-	assert(session.untrack(request, '1337'),                       true);
-	assert(session.get('https://example.com/does-not-exist.html'), null);
+	assert(session.tabs.length,             1);
+	assert(session.tabs[0].history.length,  2);
+	assert(session.tabs[0].history[0].link, 'https://a-month-ago.com/index.html');
+	assert(session.tabs[0].history[1].link, 'https://a-month-ago.com/a-minute-later.html');
+	assert(session.warnings.length,         2);
+	assert(session.warnings[0].reason,      { '@method': 'GET', '@url': 'https://a-month-ago.com/index.html' });
+	assert(session.warnings[1].reason,      { '@method': 'GET', '@url': 'https://a-month-ago.com/a-minute-later.html' });
 
 });
 
-describe('Session.prototype.track()', function(assert) {
+describe('Session.prototype.forget()/week', function(assert) {
 
-	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
-	let request = Request.from({
-		type: 'Request',
-		data: {
-			url:  'https://example.com/does-not-exist.html',
-			mode: mode
-		}
-	});
-
-	let session1 = new Session(null);
-	let session2 = new Session(null);
-	let session3 = new Session(null);
-	let session4 = Session.from({
+	let week_ago = Date.now() - (1000 * 60 * 60 * 24 * 7);
+	let datetime = DATETIME.parse(new Date(week_ago));
+	let before   = DATETIME.parse(new Date(week_ago - (1000 * 60)));
+	let after    = DATETIME.parse(new Date(week_ago + (1000 * 60)));
+	let session  = Session.from({
 		type: 'Session',
 		data: {
-			tabs:    [{
+			tabs: [{
 				type: 'Tab',
 				data: {
 					id: '1337',
-					history: []
+					history: [{
+						date: DATETIME.render(DATETIME.toDate(before)),
+						link: 'https://a-week-ago.com/a-minute-earlier.html',
+						time: DATETIME.render(DATETIME.toTime(before))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(datetime)),
+						link: 'https://a-week-ago.com/index.html',
+						time: DATETIME.render(DATETIME.toTime(datetime))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(after)),
+						link: 'https://a-week-ago.com/a-minute-later.html',
+						time: DATETIME.render(DATETIME.toTime(after))
+					}]
 				}
 			}],
-			warning: 1
+			warnings: [{
+				date:   DATETIME.render(DATETIME.toDate(before)),
+				time:   DATETIME.render(DATETIME.toTime(before)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-week-ago.com/a-minute-earlier.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(datetime)),
+				time:   DATETIME.render(DATETIME.toTime(datetime)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-week-ago.com/index.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(after)),
+				time:   DATETIME.render(DATETIME.toTime(after)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-week-ago.com/a-minute-later.html'
+				}
+			}]
 		}
 	});
 
-	assert(session1.track(null), false);
+	assert(session.forget('week'), true);
 
-	assert(session2.track(request),            true);
-	assert(isTab(session2.tabs[0]),            true);
-	assert(session2.tabs[0].id,                '0');
-	assert(session2.tabs[0].includes(request), true);
-
-	assert(session3.track(request, null),      true);
-	assert(isTab(session3.tabs[0]),            true);
-	assert(session3.tabs[0].id,                '0');
-	assert(session3.tabs[0].includes(request), true);
-
-	assert(session4.track(request, '1337'),    true);
-	assert(isTab(session4.tabs[0]),            true);
-	assert(session4.tabs[0].id,                '1337');
-	assert(session4.tabs[0].includes(request), true);
+	assert(session.tabs.length,             1);
+	assert(session.tabs[0].history.length,  2);
+	assert(session.tabs[0].history[0].link, 'https://a-week-ago.com/index.html');
+	assert(session.tabs[0].history[1].link, 'https://a-week-ago.com/a-minute-later.html');
+	assert(session.warnings.length,         2);
+	assert(session.warnings[0].reason,      { '@method': 'GET', '@url': 'https://a-week-ago.com/index.html' });
+	assert(session.warnings[1].reason,      { '@method': 'GET', '@url': 'https://a-week-ago.com/a-minute-later.html' });
 
 });
 
-describe('Session.prototype.untrack()', function(assert) {
+describe('Session.prototype.forget()/day', function(assert) {
 
-	let mode    = { domain: 'example.com', mode: { text: true, image: false, audio: false, video: false, other: false }};
-	let request = Request.from({
-		type: 'Request',
+	let day_ago  = Date.now() - (1000 * 60 * 60 * 24);
+	let datetime = DATETIME.parse(new Date(day_ago));
+	let before   = DATETIME.parse(new Date(day_ago - (1000 * 60)));
+	let after    = DATETIME.parse(new Date(day_ago + (1000 * 60)));
+	let session  = Session.from({
+		type: 'Session',
 		data: {
-			url:  'https://example.com/does-not-exist.html',
-			mode: mode
+			tabs: [{
+				type: 'Tab',
+				data: {
+					id: '1337',
+					history: [{
+						date: DATETIME.render(DATETIME.toDate(before)),
+						link: 'https://a-day-ago.com/a-minute-earlier.html',
+						time: DATETIME.render(DATETIME.toTime(before))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(datetime)),
+						link: 'https://a-day-ago.com/index.html',
+						time: DATETIME.render(DATETIME.toTime(datetime))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(after)),
+						link: 'https://a-day-ago.com/a-minute-later.html',
+						time: DATETIME.render(DATETIME.toTime(after))
+					}]
+				}
+			}],
+			warnings: [{
+				date:   DATETIME.render(DATETIME.toDate(before)),
+				time:   DATETIME.render(DATETIME.toTime(before)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-day-ago.com/a-minute-earlier.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(datetime)),
+				time:   DATETIME.render(DATETIME.toTime(datetime)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-day-ago.com/index.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(after)),
+				time:   DATETIME.render(DATETIME.toTime(after)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-day-ago.com/a-minute-later.html'
+				}
+			}]
 		}
 	});
 
-	let session = new Session(null);
+	assert(session.forget('day'), true);
 
-	assert(session.track(request),            true);
-	assert(isTab(session.tabs[0]),            true);
-	assert(session.tabs[0].id,                '0');
-	assert(session.tabs[0].includes(request), true);
+	assert(session.tabs.length,             1);
+	assert(session.tabs[0].history.length,  2);
+	assert(session.tabs[0].history[0].link, 'https://a-day-ago.com/index.html');
+	assert(session.tabs[0].history[1].link, 'https://a-day-ago.com/a-minute-later.html');
+	assert(session.warnings.length,         2);
+	assert(session.warnings[0].reason,      { '@method': 'GET', '@url': 'https://a-day-ago.com/index.html' });
+	assert(session.warnings[1].reason,      { '@method': 'GET', '@url': 'https://a-day-ago.com/a-minute-later.html' });
 
-	assert(session.untrack(request),          true);
-	assert(isTab(session.tabs[0]),            true);
-	assert(session.tabs[0].id,                '0');
-	assert(session.tabs[0].includes(request), false);
+});
+
+describe('Session.prototype.forget()/stealth', function(assert) {
+
+	let year_ago  = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 31 * 12)));
+	let month_ago = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 31)));
+	let week_ago  = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24 * 7)));
+	let day_ago   = DATETIME.parse(new Date(Date.now() - (1000 * 60 * 60 * 24)));
+	let session1  = Session.from({
+		type: 'Session',
+		data: {
+			tabs: [{
+				type: 'Tab',
+				data: {
+					id: '1337',
+					history: [{
+						date: DATETIME.render(DATETIME.toDate(year_ago)),
+						link: 'https://a-year-ago.com/index.html',
+						time: DATETIME.render(DATETIME.toTime(year_ago))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(month_ago)),
+						link: 'https://a-month-ago.com/index.html',
+						time: DATETIME.render(DATETIME.toTime(month_ago))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(week_ago)),
+						link: 'https://a-week-ago.com/index.html',
+						time: DATETIME.render(DATETIME.toTime(week_ago))
+					}, {
+						date: DATETIME.render(DATETIME.toDate(day_ago)),
+						link: 'https://a-day-ago.com/index.html',
+						time: DATETIME.render(DATETIME.toTime(day_ago))
+					}]
+				}
+			}],
+			warnings: [{
+				date:   DATETIME.render(DATETIME.toDate(year_ago)),
+				time:   DATETIME.render(DATETIME.toTime(year_ago)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-year-ago.com/index.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(month_ago)),
+				time:   DATETIME.render(DATETIME.toTime(month_ago)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-month-ago.com/index.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(week_ago)),
+				time:   DATETIME.render(DATETIME.toTime(week_ago)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-week-ago.com/index.html'
+				}
+			}, {
+				date:   DATETIME.render(DATETIME.toDate(day_ago)),
+				time:   DATETIME.render(DATETIME.toTime(day_ago)),
+				origin: 'Webproxy:request',
+				reason: {
+					'@method': 'GET',
+					'@url':    'https://a-day-ago.com/index.html'
+				}
+			}]
+		}
+	});
+	let session2 = Session.from(session1.toJSON());
+
+	assert(session1.forget('stealth'), true);
+
+	assert(session1.tabs.length,             1);
+	assert(session1.tabs[0].history.length,  1);
+	assert(session1.tabs[0].history[0].link, 'stealth:welcome');
+	assert(session1.warnings.length,         0);
+
+	assert(session2.forget('stealth', true), true);
+
+	assert(session2.tabs.length,             0);
+	assert(session2.warnings.length,         0);
 
 });
 
@@ -844,33 +972,43 @@ describe('Session.prototype.warn()', function(assert) {
 	let session = Session.from({
 		type: 'Session',
 		data: {
-			domain: 'peer.tholian.network'
+			domain: 'peer-id.tholian.network'
 		}
 	});
 
-	assert(session.warn(null), true);
-	assert(session.warning,    1);
-	assert(session.domain,     'peer.tholian.network');
+	assert(session.warnings.length, 0);
 
-	assert(session.warn('service'), true);
-	assert(session.warning,         2);
-	assert(session.domain,          'peer.tholian.network');
+	session.warn('Webproxy:request', null);
 
-	assert(session.warn('service', 'method'), true);
-	assert(session.warning,                   3);
-	assert(session.domain,                    'peer.tholian.network');
+	assert(session.warnings.length,  1);
+	assert(session.warnings[0],      [{
+		date:   DATETIME.toDate(DATETIME.parse(new Date())),
+		time:   DATETIME.toTime(DATETIME.parse(new Date())),
+		origin: 'Webproxy:request',
+		reason: null
+	}]);
 
-	assert(session.warn('service', null, 'event'),        true);
-	assert(session.warning,                               0);
-	assert(isString(session.domain),                      true);
-	assert(session.domain.startsWith(mock_date_prefix()), true);
-	assert(session.domain.endsWith('.tholian.network'),   true);
+	session.warn('Webproxy:error', {
+		type:  'connection',
+		cause: 'socket-stability'
+	});
+
+	assert(session.warnings.length,  2);
+	assert(session.warnings[1],      [{
+		date:   DATETIME.toDate(DATETIME.parse(new Date())),
+		time:   DATETIME.toTime(DATETIME.parse(new Date())),
+		origin: 'Webproxy:error',
+		reason: {
+			type:  'connection',
+			cause: 'socket-stability'
+		}
+	}]);
 
 });
 
 
 export default finish('stealth/Session', {
-	internet: true,
-	network:  true
+	internet: false,
+	network:  false
 });
 

@@ -1,6 +1,5 @@
 
 import { console, isArray, isBoolean, isObject, isString } from '../extern/base.mjs';
-import { isRequest                                       } from '../source/Request.mjs';
 import { isStealth                                       } from '../source/Stealth.mjs';
 import { Tab                                             } from '../source/Tab.mjs';
 import { DATETIME                                        } from '../source/parser/DATETIME.mjs';
@@ -11,64 +10,6 @@ import { UA                                              } from '../source/parse
 
 export const isSession = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Session]';
-};
-
-const toUserAgent = function(platform) {
-
-	let useragent = null;
-
-	if (platform === 'stealth') {
-
-		useragent = null;
-
-	} else if (platform === 'browser-desktop') {
-
-		useragent = UA.render({
-			platform: 'browser',
-			system:   'desktop'
-		});
-
-	} else if (platform === 'browser-mobile') {
-
-		useragent = UA.render({
-			platform: 'browser',
-			system:   'mobile'
-		});
-
-	} else if (platform === 'spider-desktop') {
-
-		useragent = UA.render({
-			platform: 'spider',
-			system:   'desktop'
-		});
-
-	} else if (platform === 'spider-mobile') {
-
-		useragent = UA.render({
-			platform: 'spider',
-			system:   'mobile'
-		});
-
-	} else {
-
-		useragent = null;
-
-	}
-
-	return useragent;
-
-};
-
-const remove_request = function(request) {
-
-	this.tabs.forEach((tab) => {
-
-		if (tab.includes(request) === true) {
-			tab.untrack(request);
-		}
-
-	});
-
 };
 
 
@@ -328,21 +269,6 @@ Session.prototype = {
 
 					tab.forget(until, force);
 
-					if (tab.requests.length > 0) {
-
-						tab.requests.forEach((request) => {
-
-							if (this.stealth !== null && this.stealth._settings.debug === true) {
-								console.log('Session: "' + this.domain + '"\'s Tab "' + tab.id + '" still requests "' + request.url.link + '" ...');
-							}
-
-							request.off('start');
-							request.off('progress');
-
-						});
-
-					}
-
 					if (tab.history.length === 0) {
 
 						this.tabs.splice(t, 1);
@@ -402,107 +328,6 @@ Session.prototype = {
 				return true;
 
 			}
-
-		}
-
-
-		return false;
-
-	},
-
-	track: function(request, tid) {
-
-		request = isRequest(request) ? request : null;
-		tid     = isString(tid)      ? tid     : '0';
-
-
-		if (request !== null && tid !== null) {
-
-			let tab = this.tabs.find((t) => t.id === tid) || null;
-			if (tab === null) {
-				tab = new Tab({ id: tid });
-				this.tabs.push(tab);
-			}
-
-			if (tab.includes(request) === false) {
-
-				request.once('start', () => {
-
-					if (request.ua === null) {
-
-						let useragent = null;
-
-						if (this.stealth !== null) {
-							useragent = toUserAgent(this.stealth.settings.useragent || 'stealth');
-						}
-
-						request.ua = useragent;
-
-					}
-
-				});
-
-				request.on('progress', (frame, progress) => {
-
-					if (this.stealth !== null && this.stealth._settings.debug === true) {
-						console.log('Session: "' + this.domain + '"\'s Tab "' + tab.id + '" requests "' + request.url.link + '" (' + progress.bytes + '/' + progress.total + ').');
-					}
-
-				});
-
-				request.once('error',    () => remove_request.call(this, request));
-				request.once('redirect', () => remove_request.call(this, request));
-				request.once('response', () => remove_request.call(this, request));
-
-				tab.track(request);
-
-
-				return true;
-
-			}
-
-		}
-
-
-		return false;
-
-	},
-
-	untrack: function(request, tid) {
-
-		request = isRequest(request) ? request : null;
-		tid     = isString(tid)      ? tid     : null;
-
-
-		if (request !== null) {
-
-			if (tid !== null) {
-
-				let tab = this.tabs.find((t) => t.id === tid) || null;
-				if (tab !== null) {
-
-					if (tab.includes(request) === true) {
-						request.off('progress');
-						tab.untrack(request);
-					}
-
-				}
-
-			} else {
-
-				request.off('progress');
-
-				this.tabs.forEach((tab) => {
-
-					if (tab.includes(request) === true) {
-						tab.untrack(request);
-					}
-
-				});
-
-			}
-
-			return true;
 
 		}
 
