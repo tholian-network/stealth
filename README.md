@@ -106,7 +106,6 @@ is how to get started as quickly as possible:
 
 ```bash
 git clone https://github.com/tholian-network/stealth.git;
-cd ./stealth;
 
 # Make everything
 node ./make.mjs;

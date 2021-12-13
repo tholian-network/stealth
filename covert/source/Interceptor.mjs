@@ -15,7 +15,7 @@ const connect_tls = function() {
 
 	if (tls.COVERT_INTERCEPTING !== true) {
 
-		let covert      = this;
+		let interceptor = this;
 		let tls_connect = tls.connect;
 
 		tls.connect = function() {
@@ -30,7 +30,7 @@ const connect_tls = function() {
 			socket = tls_connect.apply(tls, args);
 
 			socket.on('keylog', (line) => {
-				covert.emit('keys', [ line ]);
+				interceptor.emit('keys', [ line ]);
 			});
 
 			return socket;
@@ -162,7 +162,7 @@ const Interceptor = function(settings) {
 		this.__state.pcap = Buffer.concat([ this.__state.pcap, data ]);
 
 		if (this._settings.report !== null) {
-			this.filesystem.write(this._settings.report + '.pcap', this.__state.pcap, 'utf8');
+			this.filesystem.write(this._settings.report + '.pcap', this.__state.pcap, 'binary');
 		}
 
 	});
@@ -173,9 +173,6 @@ const Interceptor = function(settings) {
 Interceptor.prototype = Object.assign({}, Emitter.prototype, {
 
 	[Symbol.toStringTag]: 'Interceptor',
-
-	toJSON: function() {
-	},
 
 	connect: function() {
 

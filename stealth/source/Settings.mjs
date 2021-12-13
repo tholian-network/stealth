@@ -2,17 +2,17 @@
 import fs   from 'fs';
 import path from 'path';
 
-import { console, isArray, isBoolean, isFunction, isObject, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                                                 } from '../source/ENVIRONMENT.mjs';
-import { Session, isSession                                          } from '../source/Session.mjs';
-import { HOSTS                                                       } from '../source/parser/HOSTS.mjs';
-import { Beacon                                                      } from '../source/server/service/Beacon.mjs';
-import { Blocker                                                     } from '../source/server/service/Blocker.mjs';
-import { Host                                                        } from '../source/server/service/Host.mjs';
-import { Mode                                                        } from '../source/server/service/Mode.mjs';
-import { Peer                                                        } from '../source/server/service/Peer.mjs';
-import { Policy                                                      } from '../source/server/service/Policy.mjs';
-import { Redirect                                                    } from '../source/server/service/Redirect.mjs';
+import { console, Buffer, isArray, isBoolean, isBuffer, isFunction, isObject, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                                                   } from '../source/ENVIRONMENT.mjs';
+import { Session, isSession                                                            } from '../source/Session.mjs';
+import { HOSTS                                                                         } from '../source/parser/HOSTS.mjs';
+import { Beacon                                                                        } from '../source/server/service/Beacon.mjs';
+import { Blocker                                                                       } from '../source/server/service/Blocker.mjs';
+import { Host                                                                          } from '../source/server/service/Host.mjs';
+import { Mode                                                                          } from '../source/server/service/Mode.mjs';
+import { Peer                                                                          } from '../source/server/service/Peer.mjs';
+import { Policy                                                                        } from '../source/server/service/Policy.mjs';
+import { Redirect                                                                      } from '../source/server/service/Redirect.mjs';
 
 
 
@@ -409,9 +409,11 @@ const read = function(profile, keepdata, callback) {
 
 		if (result === true) {
 
+			let account  = {};
 			let sessions = [];
 
 			let check = [
+				read_file.call(this, profile + '/account.json',   account,           keepdata),
 				read_file.call(this, profile + '/interface.json', this['interface'], keepdata),
 				read_file.call(this, profile + '/internet.json',  this['internet'],  keepdata),
 				read_file.call(this, profile + '/beacons.json',   this['beacons'],   keepdata, Beacon.isBeacon),
@@ -424,11 +426,42 @@ const read = function(profile, keepdata, callback) {
 				read_file.call(this, profile + '/sessions.json',  sessions,          keepdata)
 			].filter((v) => v === false);
 
+			if (
+				isObject(account) === true
+				&& isString(account['username']) === true
+				&& isObject(account['certificate']) === true
+			) {
+
+				if (
+					isObject(account['certificate']['public']) === true
+					&& account['certificate']['public']['type'] === 'Buffer'
+				) {
+					account['certificate']['public'] = Buffer.from(account['certificate']['public']['data']);
+				}
+
+				if (
+					isObject(account['certificate']['private']) === true
+					&& account['certificate']['private']['type'] === 'Buffer'
+				) {
+					account['certificate']['private'] = Buffer.from(account['certificate']['private']['data']);
+				}
+
+				if (
+					isString(account['username']) === true
+					&& isObject(account['certificate']) === true
+					&& isBuffer(account['certificate']['private']) === true
+					&& isBuffer(account['certificate']['public']) === true
+				) {
+					this.account = account;
+				}
+
+			}
+
 			if (sessions.length > 0) {
 
 				if (keepdata === false) {
 
-					this.sessions = sessions.map((raw) => {
+					this['sessions'] = sessions.map((raw) => {
 
 						let session = Session.from(raw);
 						if (
@@ -464,11 +497,11 @@ const read = function(profile, keepdata, callback) {
 
 					}).filter((session) => session !== null).forEach((session) => {
 
-						let other = this.sessions.find((s) => s.domain === session.domain) || null;
+						let other = this['sessions'].find((s) => s.domain === session.domain) || null;
 						if (other !== null) {
 							Session.merge(other, session);
 						} else {
-							this.sessions.push(session);
+							this['sessions'].push(session);
 						}
 
 					});
@@ -547,16 +580,16 @@ const save = function(profile, keepdata, callback) {
 
 		if (result === true) {
 
-			if (this.sessions.length > 0) {
+			if (this['sessions'].length > 0) {
 
-				for (let s = 0, sl = this.sessions.length; s < sl; s++) {
+				for (let s = 0, sl = this['sessions'].length; s < sl; s++) {
 
-					let session = this.sessions[s];
+					let session = this['sessions'][s];
 
-					session.forget(this.internet.history, true);
+					session.forget(this['internet']['history'], true);
 
 					if (session.tabs.length === 0 && session.warnings.length === 0) {
-						this.sessions.splice(s, 1);
+						this['sessions'].splice(s, 1);
 						sl--;
 						s--;
 					}
@@ -565,8 +598,8 @@ const save = function(profile, keepdata, callback) {
 
 			}
 
-
 			let check = [
+				save_file.call(this, profile + '/account.json',   this['account']),
 				save_file.call(this, profile + '/interface.json', this['interface']),
 				save_file.call(this, profile + '/internet.json',  this['internet']),
 				save_file.call(this, profile + '/beacons.json',   this['beacons'],   Beacon.isBeacon),
@@ -708,6 +741,13 @@ const Settings = function(settings) {
 		vendor:  isString(settings.vendor)  ? settings.vendor  : null
 	});
 
+	this['account'] = {
+		username: null,
+		certificate: {
+			'public':  null,
+			'private': null
+		}
+	};
 	this['interface'] = {
 		assistant: false,
 		theme:     'dark',
@@ -906,6 +946,10 @@ Settings.prototype = {
 			'sessions':  [],
 			'vendor':    null
 		};
+
+		Object.keys(this['account']).forEach((key) => {
+			data['account'][key] = this['account'][key];
+		});
 
 		Object.keys(this['interface']).forEach((key) => {
 			data['interface'][key] = this['interface'][key];

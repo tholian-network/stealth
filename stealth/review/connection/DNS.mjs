@@ -43,6 +43,7 @@ describe('DNS.connect()', function(assert) {
 
 describe('DNS.disconnect()', function(assert) {
 
+	assert(isFunction(DNS.connect),    true);
 	assert(isFunction(DNS.disconnect), true);
 
 
@@ -67,7 +68,8 @@ describe('DNS.disconnect()', function(assert) {
 
 describe('DNS.send()/client/A', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -118,7 +120,8 @@ describe('DNS.send()/client/A', function(assert) {
 
 describe('DNS.send()/client/AAAA', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -169,7 +172,8 @@ describe('DNS.send()/client/AAAA', function(assert) {
 
 describe('DNS.send()/client/CNAME', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -220,7 +224,8 @@ describe('DNS.send()/client/CNAME', function(assert) {
 
 describe('DNS.send()/client/MX', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -292,7 +297,8 @@ describe('DNS.send()/client/MX', function(assert) {
 
 describe('DNS.send()/client/NS', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -347,7 +353,8 @@ describe('DNS.send()/client/NS', function(assert) {
 
 describe('DNS.send()/client/PTR/v4', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -398,7 +405,8 @@ describe('DNS.send()/client/PTR/v4', function(assert) {
 
 describe('DNS.send()/client/PTR/v6', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -449,7 +457,8 @@ describe('DNS.send()/client/PTR/v6', function(assert) {
 
 describe('DNS.send()/client/SRV', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url         = URL.parse('dns://1.0.0.1:53');
 	let connection1 = DNS.connect(url);
@@ -547,7 +556,8 @@ describe('DNS.send()/client/SRV', function(assert) {
 
 describe('DNS.send()/client/TXT', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect), true);
+	assert(isFunction(DNS.send),    true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -1569,7 +1579,6 @@ after('DNS.disconnect()', function(assert) {
 	assert(DNS.disconnect(this.connection), true);
 
 	this.connection = null;
-	this.server     = null;
 
 });
 

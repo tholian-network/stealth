@@ -106,8 +106,23 @@ const encodeResponse = function(request, response) {
 					response.headers['@status'] = 206;
 				}
 
+			} else {
+
+				response.headers['accept-ranges'] = 'bytes';
+
 			}
 
+		}
+
+	}
+
+	if (isString(response.headers['content-type']) === true) {
+
+		if (
+			response.headers['content-type'].startsWith('audio/')
+			|| response.headers['content-type'].startsWith('video/')
+		) {
+			response.headers['access-control-allow-origin'] = '*';
 		}
 
 	}

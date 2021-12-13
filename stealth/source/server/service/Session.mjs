@@ -29,6 +29,9 @@ const toDomain = function(payload) {
 
 };
 
+const isTab = function(payload) {
+};
+
 
 
 const Session = function(stealth) {
@@ -59,7 +62,62 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	request: function(payload, callback) {
+	/*
+	 * TAB API
+	 */
+
+	open: function(payload, callback, local) {
+
+		payload = isTab(payload) ? payload : null;
+
+
+		if (payload !== null) {
+
+			// TODO: Open Tab with given ID and URL
+
+		} else {
+
+			if (callback !== null) {
+
+				callback({
+					headers: {
+						service: 'session',
+						event:   'open'
+					},
+					payload: false
+				});
+
+			}
+
+		}
+
+	},
+
+	close: function(payload, callback, local) {
+
+		// Close Tab with given ID
+
+	},
+
+	refresh: function(payload, callback, local) {
+
+		// Refresh Tab with given ID, which leads to new Request()
+		// via stealth.request()
+
+	},
+
+	navigate: function(payload, callback, local) {
+
+		// Navigate Tab with given ID to given URL and Mode
+
+	},
+
+
+	/*
+	 * SESSION API
+	 */
+
+	request__OLD: function(payload, callback) {
 
 		payload  = URL.isURL(payload)   ? payload  : null;
 		callback = isFunction(callback) ? callback : null;
@@ -250,7 +308,7 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 
 	},
 
-	remove: function(payload, callback) {
+	remove: function(payload, callback, local) {
 
 		callback = isFunction(callback) ? callback : null;
 
@@ -261,7 +319,12 @@ Session.prototype = Object.assign({}, Emitter.prototype, {
 			session = this.stealth.settings.sessions.find((h) => h.domain === domain) || null;
 		}
 
-		if (session !== null) {
+		if (
+			session !== null
+			&& session !== local
+			&& session.domain !== '127.0.0.1'
+			&& session.domain !== 'localhost'
+		) {
 			this.stealth.settings.sessions.remove(session);
 			this.stealth.settings.save();
 		}

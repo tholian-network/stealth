@@ -16,6 +16,7 @@ const RESERVED = [
 	'beacon',
 	'browser',
 	'intel',
+	'oversight',
 	'radar',
 	'recon',
 	'sonar',
@@ -217,7 +218,13 @@ const toDomain = function(payload) {
 
 	if (isObject(payload) === true) {
 
-		if (isString(payload.domain) === true) {
+		if (
+			isString(payload.domain) === true
+			&& (
+				payload.domain === 'tholian.local'
+				|| payload.domain === 'tholian.network'
+			)
+		) {
 			domain = payload.domain;
 		}
 
@@ -283,9 +290,15 @@ const toServiceDiscoveryResponse = function(request) {
 
 	if (this.stealth !== null) {
 
-		if (isObject(this.stealth.settings.account) === true) {
-			certificate = this.stealth.settings.account.certificate;
-			hostname    = this.stealth.settings.account.username + '.tholian.local';
+		if (
+			isObject(this.stealth.settings.account) === true
+			&& isObject(this.stealth.settings.account['certificate']) === true
+			&& isBuffer(this.stealth.settings.account['certificate']['private']) === true
+			&& isBuffer(this.stealth.settings.account['certificate']['public']) === true
+			&& isString(this.stealth.settings.account['username']) === true
+		) {
+			certificate = this.stealth.settings.account['certificate']['public'].toString('base64');
+			hostname    = this.stealth.settings.account['username'] + '.tholian.local';
 		}
 
 		if (isObject(this.stealth.settings.internet) === true) {
@@ -363,7 +376,7 @@ const toServiceDiscoveryResponse = function(request) {
 			type:   'TXT',
 			domain: hostname,
 			value:  [
-				Buffer.from('version=' + VERSION)
+				Buffer.from('version=' + VERSION, 'utf8')
 			]
 		});
 
@@ -371,7 +384,7 @@ const toServiceDiscoveryResponse = function(request) {
 			domain: hostname,
 			type:   'TXT',
 			value:  [
-				Buffer.from('certificate=' + certificate)
+				Buffer.from('certificate=' + certificate, 'utf8')
 			]
 		});
 
@@ -379,7 +392,7 @@ const toServiceDiscoveryResponse = function(request) {
 			domain: hostname,
 			type:   'TXT',
 			value:  [
-				Buffer.from('connection=' + connection)
+				Buffer.from('connection=' + connection, 'utf8')
 			]
 		});
 
@@ -811,16 +824,15 @@ Peerer.prototype = {
 			&& ENVIRONMENT.ips.length > 0
 		) {
 
-			let domain   = toDomain(query);
 			let username = toUsername(query);
+			if (username !== null) {
 
-			if (domain !== null && username !== null) {
-
+				let domain = toDomain(query);
 				if (domain === 'tholian.local') {
 
 					if (this.stealth !== null) {
 
-						let host = this.stealth.settings.hosts.find((h) => h.domain === username + '.' + domain) || null;
+						let host = this.stealth.settings.hosts.find((h) => h.domain === username + '.tholian.local') || null;
 						if (host !== null) {
 
 							if (callback !== null) {
@@ -846,14 +858,6 @@ Peerer.prototype = {
 				} else if (domain === 'tholian.network') {
 
 					// TODO: Use Radar Service API to resolve username.tholian.network
-
-					if (callback !== null) {
-						callback(null);
-					}
-
-				} else {
-
-					// TODO: Do Multicast DNS request to resolve via local Peers
 
 					if (callback !== null) {
 						callback(null);

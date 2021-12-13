@@ -207,7 +207,7 @@ after(disconnect);
 
 
 export default finish('stealth/server/Router', {
-	internet: false,
+	internet: true,
 	network:  true
 });
 
