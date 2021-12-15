@@ -9,6 +9,8 @@ import { URL                             } from '../../../stealth/source/parser/
 
 before('DNSS.upgrade()', function(assert) {
 
+	assert(isFunction(DNSS.upgrade), true);
+
 	this.connection = DNSS.upgrade(null, URL.parse('dnss://127.0.0.1:13337'));
 
 	this.connection.once('@connect', () => {
@@ -66,8 +68,9 @@ describe('DNSS.disconnect()', function(assert) {
 
 describe('DNSS.send()/client/A', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection = DNSS.connect(url);
@@ -93,6 +96,10 @@ describe('DNSS.send()/client/A', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -114,12 +121,17 @@ describe('DNSS.send()/client/A', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNSS.send()/client/AAAA', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection = DNSS.connect(url);
@@ -145,6 +157,10 @@ describe('DNSS.send()/client/AAAA', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -166,12 +182,17 @@ describe('DNSS.send()/client/AAAA', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNSS.send()/client/CNAME', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection = DNSS.connect(url);
@@ -197,6 +218,10 @@ describe('DNSS.send()/client/CNAME', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -218,12 +243,17 @@ describe('DNSS.send()/client/CNAME', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNSS.send()/client/MX', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection = DNSS.connect(url);
@@ -270,6 +300,10 @@ describe('DNSS.send()/client/MX', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -291,12 +325,17 @@ describe('DNSS.send()/client/MX', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNSS.send()/client/NS', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection = DNSS.connect(url);
@@ -326,6 +365,10 @@ describe('DNSS.send()/client/NS', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -347,12 +390,17 @@ describe('DNSS.send()/client/NS', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNSS.send()/client/PTR/v4', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection = DNSS.connect(url);
@@ -378,6 +426,10 @@ describe('DNSS.send()/client/PTR/v4', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -397,14 +449,19 @@ describe('DNSS.send()/client/PTR/v4', function(assert) {
 			assert(result, true);
 		});
 
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 });
 
 describe('DNSS.send()/client/PTR/v6', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection = DNSS.connect(url);
@@ -430,6 +487,10 @@ describe('DNSS.send()/client/PTR/v6', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -451,12 +512,17 @@ describe('DNSS.send()/client/PTR/v6', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNSS.send()/client/SRV', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url         = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection1 = DNSS.connect(url);
@@ -485,6 +551,10 @@ describe('DNSS.send()/client/SRV', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection1), true);
+		}, 0);
+
 	});
 
 	connection1.once('@connect', () => {
@@ -504,6 +574,10 @@ describe('DNSS.send()/client/SRV', function(assert) {
 			assert(result, true);
 		});
 
+	});
+
+	connection1.once('@disconnect', () => {
+		assert(true);
 	});
 
 	connection2.once('response', (response) => {
@@ -529,6 +603,10 @@ describe('DNSS.send()/client/SRV', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection2), true);
+		}, 0);
+
 	});
 
 	connection2.once('@connect', () => {
@@ -550,12 +628,17 @@ describe('DNSS.send()/client/SRV', function(assert) {
 
 	});
 
+	connection2.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNSS.send()/client/TXT', function(assert) {
 
-	assert(isFunction(DNSS.connect), true);
-	assert(isFunction(DNSS.send),    true);
+	assert(isFunction(DNSS.connect),    true);
+	assert(isFunction(DNSS.disconnect), true);
+	assert(isFunction(DNSS.send),       true);
 
 	let url        = Object.assign(URL.parse('dnss://cloudflare-dns.com:853'), { hosts: [ IP.parse('1.0.0.1'), IP.parse('2606:4700:4700::1001'), IP.parse('1.1.1.1'), IP.parse('2606:4700:4700::1111') ]});
 	let connection = DNSS.connect(url);
@@ -577,17 +660,21 @@ describe('DNSS.send()/client/TXT', function(assert) {
 					domain: 'radar.tholian.network',
 					type:   'TXT',
 					value:  [
-						Buffer.from('connection=broadband', 'utf8')
+						Buffer.from('version=X0:2021-12-31', 'utf8')
 					]
 				}, {
 					domain: 'radar.tholian.network',
 					type:   'TXT',
 					value:  [
-						Buffer.from('version=X0:2021-12-31', 'utf8')
+						Buffer.from('connection=broadband', 'utf8')
 					]
 				}]
 			}
 		});
+
+		setTimeout(() => {
+			assert(DNSS.disconnect(connection), true);
+		}, 0);
 
 	});
 
@@ -608,6 +695,10 @@ describe('DNSS.send()/client/TXT', function(assert) {
 			assert(result, true);
 		});
 
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 });

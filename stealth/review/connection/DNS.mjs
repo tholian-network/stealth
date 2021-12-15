@@ -21,7 +21,6 @@ describe('DNS.connect()', function(assert) {
 
 	assert(isFunction(DNS.connect), true);
 
-
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
@@ -46,7 +45,6 @@ describe('DNS.disconnect()', function(assert) {
 	assert(isFunction(DNS.connect),    true);
 	assert(isFunction(DNS.disconnect), true);
 
-
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
 
@@ -68,8 +66,9 @@ describe('DNS.disconnect()', function(assert) {
 
 describe('DNS.send()/client/A', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -95,6 +94,10 @@ describe('DNS.send()/client/A', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -116,12 +119,17 @@ describe('DNS.send()/client/A', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNS.send()/client/AAAA', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -147,6 +155,10 @@ describe('DNS.send()/client/AAAA', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -168,12 +180,17 @@ describe('DNS.send()/client/AAAA', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNS.send()/client/CNAME', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -199,6 +216,10 @@ describe('DNS.send()/client/CNAME', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -220,12 +241,17 @@ describe('DNS.send()/client/CNAME', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNS.send()/client/MX', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -272,6 +298,10 @@ describe('DNS.send()/client/MX', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -293,12 +323,17 @@ describe('DNS.send()/client/MX', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNS.send()/client/NS', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -328,6 +363,10 @@ describe('DNS.send()/client/NS', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -349,12 +388,17 @@ describe('DNS.send()/client/NS', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNS.send()/client/PTR/v4', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -380,6 +424,10 @@ describe('DNS.send()/client/PTR/v4', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -399,14 +447,19 @@ describe('DNS.send()/client/PTR/v4', function(assert) {
 			assert(result, true);
 		});
 
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 });
 
 describe('DNS.send()/client/PTR/v6', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -432,6 +485,10 @@ describe('DNS.send()/client/PTR/v6', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
 	});
 
 	connection.once('@connect', () => {
@@ -453,12 +510,17 @@ describe('DNS.send()/client/PTR/v6', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNS.send()/client/SRV', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url         = URL.parse('dns://1.0.0.1:53');
 	let connection1 = DNS.connect(url);
@@ -487,6 +549,10 @@ describe('DNS.send()/client/SRV', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection1), true);
+		}, 0);
+
 	});
 
 	connection1.once('@connect', () => {
@@ -506,6 +572,10 @@ describe('DNS.send()/client/SRV', function(assert) {
 			assert(result, true);
 		});
 
+	});
+
+	connection1.once('@disconnect', () => {
+		assert(true);
 	});
 
 	connection2.once('response', (response) => {
@@ -531,6 +601,10 @@ describe('DNS.send()/client/SRV', function(assert) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(DNS.disconnect(connection2), true);
+		}, 0);
+
 	});
 
 	connection2.once('@connect', () => {
@@ -552,12 +626,17 @@ describe('DNS.send()/client/SRV', function(assert) {
 
 	});
 
+	connection2.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNS.send()/client/TXT', function(assert) {
 
-	assert(isFunction(DNS.connect), true);
-	assert(isFunction(DNS.send),    true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	let url        = URL.parse('dns://1.0.0.1:53');
 	let connection = DNS.connect(url);
@@ -579,17 +658,21 @@ describe('DNS.send()/client/TXT', function(assert) {
 					domain: 'radar.tholian.network',
 					type:   'TXT',
 					value:  [
-						Buffer.from('connection=broadband', 'utf8')
+						Buffer.from('version=X0:2021-12-31', 'utf8')
 					]
 				}, {
 					domain: 'radar.tholian.network',
 					type:   'TXT',
 					value:  [
-						Buffer.from('version=X0:2021-12-31', 'utf8')
+						Buffer.from('connection=broadband', 'utf8')
 					]
 				}]
 			}
 		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
 
 	});
 
@@ -612,11 +695,17 @@ describe('DNS.send()/client/TXT', function(assert) {
 
 	});
 
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
 });
 
 describe('DNS.send()/server/A', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -662,33 +751,6 @@ describe('DNS.send()/server/A', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1337
-				},
-				payload: {
-					questions: [{
-						domain: 'tholian.local',
-						type:   'A',
-						value:  null
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -708,6 +770,29 @@ describe('DNS.send()/server/A', function(assert) {
 					value:  IP.parse('192.168.0.123')
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1337
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'A',
+					value:  null
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});
@@ -720,7 +805,9 @@ describe('DNS.send()/server/A', function(assert) {
 
 describe('DNS.send()/server/AAAA', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -766,33 +853,6 @@ describe('DNS.send()/server/AAAA', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1338
-				},
-				payload: {
-					questions: [{
-						domain: 'tholian.local',
-						type:   'AAAA',
-						value:  null
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -812,6 +872,29 @@ describe('DNS.send()/server/AAAA', function(assert) {
 					value:  IP.parse('fe80::1337')
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1338
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'AAAA',
+					value:  null
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});
@@ -824,7 +907,9 @@ describe('DNS.send()/server/AAAA', function(assert) {
 
 describe('DNS.send()/server/CNAME', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -870,33 +955,6 @@ describe('DNS.send()/server/CNAME', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1339
-				},
-				payload: {
-					questions: [{
-						domain: 'peers.tholian.local',
-						type:   'CNAME',
-						value:  null
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -916,6 +974,29 @@ describe('DNS.send()/server/CNAME', function(assert) {
 					value:  'peers.tholian.network'
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1339
+			},
+			payload: {
+				questions: [{
+					domain: 'peers.tholian.local',
+					type:   'CNAME',
+					value:  null
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});
@@ -928,7 +1009,9 @@ describe('DNS.send()/server/CNAME', function(assert) {
 
 describe('DNS.send()/server/MX', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -975,33 +1058,6 @@ describe('DNS.send()/server/MX', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1340
-				},
-				payload: {
-					questions: [{
-						domain: 'mail.tholian.local',
-						type:   'MX',
-						value:  null
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -1022,6 +1078,29 @@ describe('DNS.send()/server/MX', function(assert) {
 					weight: 1337
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1340
+			},
+			payload: {
+				questions: [{
+					domain: 'mail.tholian.local',
+					type:   'MX',
+					value:  null
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});
@@ -1034,7 +1113,9 @@ describe('DNS.send()/server/MX', function(assert) {
 
 describe('DNS.send()/server/NS', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -1084,33 +1165,6 @@ describe('DNS.send()/server/NS', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1341
-				},
-				payload: {
-					questions: [{
-						domain: 'tholian.local',
-						type:   'NS',
-						value:  null
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -1134,6 +1188,29 @@ describe('DNS.send()/server/NS', function(assert) {
 					value:  'covert-two.tholian.local'
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1341
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'NS',
+					value:  null
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});
@@ -1146,7 +1223,9 @@ describe('DNS.send()/server/NS', function(assert) {
 
 describe('DNS.send()/server/PTR/v4', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -1192,33 +1271,6 @@ describe('DNS.send()/server/PTR/v4', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1342
-				},
-				payload: {
-					questions: [{
-						domain: null,
-						type:   'PTR',
-						value:  IP.parse('192.168.0.123')
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -1238,6 +1290,29 @@ describe('DNS.send()/server/PTR/v4', function(assert) {
 					value:  IP.parse('192.168.0.123')
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1342
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('192.168.0.123')
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});
@@ -1250,7 +1325,9 @@ describe('DNS.send()/server/PTR/v4', function(assert) {
 
 describe('DNS.send()/server/PTR/v6', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -1296,33 +1373,6 @@ describe('DNS.send()/server/PTR/v6', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1343
-				},
-				payload: {
-					questions: [{
-						domain: null,
-						type:   'PTR',
-						value:  IP.parse('fe80::1337')
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -1342,6 +1392,29 @@ describe('DNS.send()/server/PTR/v6', function(assert) {
 					value:  IP.parse('fe80::1337')
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1343
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  IP.parse('fe80::1337')
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});
@@ -1354,7 +1427,9 @@ describe('DNS.send()/server/PTR/v6', function(assert) {
 
 describe('DNS.send()/server/SRV', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -1402,33 +1477,6 @@ describe('DNS.send()/server/SRV', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1344
-				},
-				payload: {
-					questions: [{
-						domain: '_stealth._wss.tholian.local',
-						type:   'SRV',
-						value:  null
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -1450,6 +1498,29 @@ describe('DNS.send()/server/SRV', function(assert) {
 					port:   65432
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1344
+			},
+			payload: {
+				questions: [{
+					domain: '_stealth._wss.tholian.local',
+					type:   'SRV',
+					value:  null
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});
@@ -1462,7 +1533,9 @@ describe('DNS.send()/server/SRV', function(assert) {
 
 describe('DNS.send()/server/TXT', function(assert) {
 
-	assert(isFunction(DNS.send), true);
+	assert(isFunction(DNS.connect),    true);
+	assert(isFunction(DNS.disconnect), true);
+	assert(isFunction(DNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
@@ -1510,33 +1583,6 @@ describe('DNS.send()/server/TXT', function(assert) {
 	let url        = URL.parse('dns://localhost:13337');
 	let connection = DNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			DNS.send(connection, {
-				headers: {
-					'@id': 1345
-				},
-				payload: {
-					questions: [{
-						domain: 'tholian.local',
-						type:   'TXT',
-						value:  null
-					}]
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		setTimeout(() => {
-			DNS.disconnect(connection);
-		}, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -1558,6 +1604,29 @@ describe('DNS.send()/server/TXT', function(assert) {
 					]
 				}]
 			}
+		});
+
+		setTimeout(() => {
+			assert(DNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		DNS.send(connection, {
+			headers: {
+				'@id': 1345
+			},
+			payload: {
+				questions: [{
+					domain: 'tholian.local',
+					type:   'TXT',
+					value:  null
+				}]
+			}
+		}, (result) => {
+			assert(result, true);
 		});
 
 	});

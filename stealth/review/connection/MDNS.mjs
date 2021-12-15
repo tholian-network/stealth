@@ -141,6 +141,7 @@ describe('MDNS.connect()', function(assert) {
 
 describe('MDNS.disconnect()', function(assert) {
 
+	assert(isFunction(MDNS.connect),    true);
 	assert(isFunction(MDNS.disconnect), true);
 
 	let url        = URL.parse('mdns://224.0.0.251:13337');
@@ -164,7 +165,9 @@ describe('MDNS.disconnect()', function(assert) {
 
 describe('MDNS.receive()/client/DNS-SD', function(assert) {
 
-	assert(isFunction(MDNS.receive), true);
+	assert(isFunction(MDNS.connect),    true);
+	assert(isFunction(MDNS.disconnect), true);
+	assert(isFunction(MDNS.receive),    true);
 
 	let url        = URL.parse('mdns://224.0.0.251:13337');
 	let connection = MDNS.connect(url);
@@ -222,13 +225,23 @@ describe('MDNS.receive()/client/DNS-SD', function(assert) {
 
 		});
 
+		setTimeout(() => {
+			assert(MDNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 });
 
 describe('MDNS.receive()/server/DNS-SD', function(assert) {
 
-	assert(isFunction(MDNS.receive), true);
+	assert(isFunction(MDNS.connect),    true);
+	assert(isFunction(MDNS.disconnect), true);
+	assert(isFunction(MDNS.receive),    true);
 
 	let url        = URL.parse('mdns://224.0.0.251:13337');
 	let connection = MDNS.connect(url);
@@ -258,17 +271,28 @@ describe('MDNS.receive()/server/DNS-SD', function(assert) {
 
 		});
 
+		setTimeout(() => {
+			assert(MDNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
 	});
 
 });
 
-describe('MDNS.send()/DNS-SD', function(assert, console) {
+describe('MDNS.send()/server/DNS-SD', function(assert, console) {
 
-	assert(isFunction(MDNS.send), true);
+	assert(isFunction(MDNS.connect),    true);
+	assert(isFunction(MDNS.disconnect), true);
+	assert(isFunction(MDNS.send),       true);
 
 	this.connection.once('request', (request) => {
 
-		console.log('request!!!');
+		// TODO: This event does not fire
+		console.warn('REQUEST', request);
 
 		assert(request, {
 			headers: {
@@ -340,39 +364,6 @@ describe('MDNS.send()/DNS-SD', function(assert, console) {
 	let url        = URL.parse('mdns://224.0.0.251:13337');
 	let connection = MDNS.connect(url);
 
-	connection.once('@connect', () => {
-
-		setTimeout(() => {
-
-			MDNS.send(connection, {
-				headers: {
-					'@id':    12345,
-					'@type': 'request'
-				},
-				payload: {
-					questions: [{
-						domain: null,
-						type:   'PTR',
-						value:  '_stealth._wss.tholian.local'
-					}, {
-						domain: null,
-						type:   'PTR',
-						value:  '_stealth._ws.tholian.local'
-					}],
-					answers: []
-				}
-			}, (result) => {
-				assert(result, true);
-			});
-
-		}, 100);
-
-		// setTimeout(() => {
-		// 	MDNS.disconnect(connection);
-		// }, 500);
-
-	});
-
 	connection.once('response', (response) => {
 
 		assert(response, {
@@ -418,16 +409,40 @@ describe('MDNS.send()/DNS-SD', function(assert, console) {
 			}
 		});
 
+		setTimeout(() => {
+			assert(MDNS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		MDNS.send(connection, {
+			headers: {
+				'@id':    12345,
+				'@type': 'request'
+			},
+			payload: {
+				questions: [{
+					domain: null,
+					type:   'PTR',
+					value:  '_stealth._wss.tholian.local'
+				}, {
+					domain: null,
+					type:   'PTR',
+					value:  '_stealth._ws.tholian.local'
+				}],
+				answers: []
+			}
+		}, (result) => {
+			assert(result, true);
+		});
+
 	});
 
 	connection.once('@disconnect', () => {
 		assert(true);
 	});
-
-	setTimeout(() => {
-		console.log(this.connection);
-		console.log(connection);
-	}, 500);
 
 });
 
