@@ -1,13 +1,13 @@
 
 import process from 'process';
 
-import { console, Emitter, isBoolean, isNumber, isString } from '../extern/base.mjs';
-import { ENVIRONMENT                                     } from '../source/ENVIRONMENT.mjs';
-import { Filesystem                                      } from '../source/Filesystem.mjs';
-import { Interceptor                                     } from '../source/Interceptor.mjs';
-import { Network                                         } from '../source/Network.mjs';
-import { Renderer                                        } from '../source/Renderer.mjs';
-import { isReview                                        } from '../source/Review.mjs';
+import { console, Emitter, isArray, isBoolean, isNumber, isString } from '../extern/base.mjs';
+import { ENVIRONMENT                                              } from '../source/ENVIRONMENT.mjs';
+import { Filesystem                                               } from '../source/Filesystem.mjs';
+import { Interceptor                                              } from '../source/Interceptor.mjs';
+import { Network                                                  } from '../source/Network.mjs';
+import { Renderer                                                 } from '../source/Renderer.mjs';
+import { isReview                                                 } from '../source/Review.mjs';
 
 
 
@@ -633,7 +633,6 @@ const Covert = function(settings) {
 		let interval = this.interval;
 		if (interval === null) {
 
-
 			// XXX: Give the Network and Interceptor some time
 			setTimeout(() => {
 
@@ -778,6 +777,33 @@ const Covert = function(settings) {
 		this.disconnect();
 	});
 
+	process.on('uncaughtException', (err) => {
+
+		if (isError(err) === true) {
+
+			let message = toMessage(err);
+			if (message !== null) {
+
+				let review  = this.__state.review || null;
+				let test    = this.__state.test   || null;
+				if (review !== null && test !== null) {
+
+					review.errors.push(test.name + ' throws ' + message);
+					this.disconnect();
+
+				} else {
+
+					console.error(err);
+					this.disconnect();
+
+				}
+
+			}
+
+		}
+
+	});
+
 
 	init.call(this, this._settings);
 
@@ -814,20 +840,54 @@ Covert.prototype = Object.assign({}, Emitter.prototype, {
 			this.__state.review = review;
 			this.__state.test   = test;
 
-			this.network.check(65432, (result) => {
 
-				if (result === true) {
+			let required_ports = [];
 
-					this.emit('connect', [ this.reviews ]);
+			this.reviews.forEach((review) => {
 
-				} else {
+				if (isArray(review.flags.ports) === true) {
 
-					console.error('Covert: Cannot bind to Network Port 65432.');
-					this.emit('disconnect', [[]]);
+					review.flags.ports.forEach((port) => {
+
+						this.network.check(port, (result) => {
+
+							if (result === false) {
+								required_ports.push(port);
+							}
+
+						});
+
+					});
 
 				}
 
 			});
+
+			this.network.check(65432, (result) => {
+
+				if (result === false) {
+					required_ports.push(65432);
+				}
+
+			});
+
+			setTimeout(() => {
+
+				if (required_ports.length > 0) {
+
+					required_ports.forEach((port) => {
+						console.error('Covert: Cannot bind to Network Port ' + port + '.');
+					});
+
+					this.emit('disconnect', [[]]);
+
+				} else {
+
+					this.emit('connect', [ this.reviews ]);
+
+				}
+
+			}, 1000);
 
 			return true;
 
