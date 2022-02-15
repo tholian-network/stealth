@@ -129,12 +129,16 @@ from your mobile phone.
 ## Releases
 
 At this point in Development, Stealth is implemented as a headless node.js Browser/Scraper/Proxy
-which serves its own HTML5-based User Interface. At a later point in time, there will be native
-builds available that will most likely include a custom fork of another Browser Engine with
-a reduced featureset (such as without WebRTC, WebUSB etc.); but currently Stealth's Browser
-uses a Webview that is preinstalled on your target Operating System.
+which serves its own HTML5-based User Interface.
 
-It is heavily recommended to use [Ungoogled Chromium](https://ungoogled-software.github.io)
+At a later point in time, Stealth will be released as a bundle of a node.js fork and with a WebKit
+fork called [RetroKit](https://github.com/tholian-network/retrokit.git).
+
+As Stealth is implemented in node.js, RetroKit only functions as a WebView for rendering, and its
+purpose is to be a WebView with a reduced attack surface, so it removes a lot of APIs that could
+otherwise be used for tracking and exploitation.
+
+As of today, it is heavily recommended to use [Ungoogled Chromium](https://ungoogled-software.github.io)
 as a Webview if you want to run Stealth via [browser/browser.mjs](/browser/browser.mjs).
 
 (Links will be inserted here once the Stealth releases are ready for the public)

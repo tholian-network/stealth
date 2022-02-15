@@ -13,6 +13,7 @@ import { Mode                                                                   
 import { Peer                                                                          } from '../source/server/service/Peer.mjs';
 import { Policy                                                                        } from '../source/server/service/Policy.mjs';
 import { Redirect                                                                      } from '../source/server/service/Redirect.mjs';
+import { Task                                                                          } from '../source/server/service/Task.mjs';
 
 
 
@@ -28,7 +29,8 @@ ${settings.modes.length} Mode${settings.modes.length === 1 ? '' : 's'}, \
 ${settings.peers.length} Peer${settings.peers.length === 1 ? '' : 's'}, \
 ${settings.policies.length} Polic${settings.policies.length === 1 ? 'y' : 'ies'}, \
 ${settings.redirects.length} Redirect${settings.redirects.length === 1 ? '' : 's'}, \
-${settings.sessions.length} Session${settings.sessions.length === 1 ? '' : 's'}.
+${settings.sessions.length} Session${settings.sessions.length === 1 ? '' : 's'}, \
+${settings.tasks.length} Task${settings.tasks.length === 1 ? '' : 's'}.
 `;
 
 const init = function(debug, callback) {
@@ -423,7 +425,8 @@ const read = function(profile, keepdata, callback) {
 				read_file.call(this, profile + '/peers.json',     this['peers'],     keepdata, Peer.isPeer),
 				read_file.call(this, profile + '/policies.json',  this['policies'],  keepdata, Policy.isPolicy),
 				read_file.call(this, profile + '/redirects.json', this['redirects'], keepdata, Redirect.isRedirect),
-				read_file.call(this, profile + '/sessions.json',  sessions,          keepdata)
+				read_file.call(this, profile + '/sessions.json',  sessions,          keepdata),
+				read_file.call(this, profile + '/tasks.json',     this['tasks'],     keepdata, Task.isTask)
 			].filter((v) => v === false);
 
 			if (
@@ -609,7 +612,8 @@ const save = function(profile, keepdata, callback) {
 				save_file.call(this, profile + '/peers.json',     this['peers'],     Peer.isPeer),
 				save_file.call(this, profile + '/policies.json',  this['policies'],  Policy.isPolicy),
 				save_file.call(this, profile + '/redirects.json', this['redirects'], Redirect.isRedirect),
-				save_file.call(this, profile + '/sessions.json',  this['sessions'],  isSession)
+				save_file.call(this, profile + '/sessions.json',  this['sessions'],  isSession),
+				save_file.call(this, profile + '/tasks.json',     this['tasks'],     Task.isTask)
 			].filter((v) => v === false);
 
 			if (callback !== null) {
@@ -767,6 +771,7 @@ const Settings = function(settings) {
 	this['policies']  = [];
 	this['redirects'] = [];
 	this['sessions']  = [];
+	this['tasks']     = [];
 
 
 	if (settings.debug === true) {
@@ -911,6 +916,10 @@ Settings.from = function(json) {
 				settings['sessions'] = data['sessions'].map((session) => Session.from(session)).filter((session) => session !== null);
 			}
 
+			if (isArray(data['tasks']) === true) {
+				settings['tasks'] = data['tasks'].filter((task) => Task.isTask(task));
+			}
+
 			return settings;
 
 		}
@@ -944,6 +953,7 @@ Settings.prototype = {
 			'profile':   null,
 			'redirects': [],
 			'sessions':  [],
+			'tasks':     [],
 			'vendor':    null
 		};
 
@@ -1023,6 +1033,14 @@ Settings.prototype = {
 
 			if (isSession(session) === true) {
 				data['sessions'].push(session.toJSON());
+			}
+
+		});
+
+		this['tasks'].forEach((task) => {
+
+			if (Task.isTask(task) === true) {
+				data['tasks'].push(task);
 			}
 
 		});

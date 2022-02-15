@@ -1,86 +1,14 @@
 
 import net from 'net';
 
-import { Buffer, isFunction } from '../../../base/index.mjs';
-import { describe, finish   } from '../../../covert/index.mjs';
-import { URL                } from '../../../stealth/source/parser/URL.mjs';
-import { WS                 } from '../../../stealth/source/connection/WS.mjs';
+import { Buffer, isFunction, isObject    } from '../../../base/index.mjs';
+import { after, before, describe, finish } from '../../../covert/index.mjs';
+import { URL                             } from '../../../stealth/source/parser/URL.mjs';
+import { WS                              } from '../../../stealth/source/connection/WS.mjs';
 
 
 
 const PAYLOADS = {
-
-	'CLOSE': {
-
-		'RESPONSE': Buffer.from([
-			128 + 0x08,
-			0   + 0x02,
-			(1000 >> 8) & 0xff,
-			(1000 >> 0) & 0xff
-		])
-
-	},
-
-	'ERROR': {
-
-		'RESPONSE': Buffer.from([
-			128 + 0x08,
-			0   + 0x02,
-			(1002 >> 8) & 0xff,
-			(1002 >> 0) & 0xff
-		])
-
-	},
-
-	'PINGPONG': {
-
-		'REQUEST': Buffer.from([
-			128 + 0x09,
-			0   + 0x00
-		]),
-
-		'RESPONSE': Buffer.from([
-			128 + 0x0a,
-			0   + 0x00
-		])
-
-	},
-
-	'SIMPLE': {
-
-		'REQUEST': (() => {
-
-			let headers = Buffer.from([
-				128 + 0x01,
-				128 + 64
-			]);
-
-			let mask = Buffer.alloc(4);
-
-			mask[0] = (Math.random() * 0xff) | 0;
-			mask[1] = (Math.random() * 0xff) | 0;
-			mask[2] = (Math.random() * 0xff) | 0;
-			mask[3] = (Math.random() * 0xff) | 0;
-
-			let payload = Buffer.from('This sentence inside this utf-8 buffer is exactly 64 bytes long.', 'utf8');
-
-			return Buffer.concat([
-				headers,
-				mask,
-				payload.map((value, index) => value ^ mask[index % mask.length])
-			]);
-
-		})(),
-
-		'RESPONSE': Buffer.concat([
-			Buffer.from([
-				128 + 0x01,
-				0 + 64
-			]),
-			Buffer.from('This sentence inside this utf-8 buffer is exactly 64 bytes long.', 'utf8')
-		])
-
-	},
 
 	'PARTIAL': {
 
@@ -184,58 +112,35 @@ const PAYLOADS = {
 
 };
 
-const PACKETS = {
-
-	'SIMPLE': {
-
-		'REQUEST': {
-			headers: {
-				'@operator': 0x01,
-				'@type':     'request'
-			},
-			payload: Buffer.from('{"status":1337}', 'utf8')
-		}
-
-	}
-
-};
 
 
+before('WS.upgrade()', function(assert) {
 
-describe('WS.connect()', function(assert) {
-
-	assert(isFunction(WS.connect), true);
-	assert(isFunction(WS.upgrade), true);
-
-	let server = new net.Server({
+	this.server = new net.Server({
 		allowHalfOpen:  true,
 		pauseOnConnect: true
 	});
 
-	server.once('connection', (socket) => {
+	this.server.on('connection', (socket) => {
 
-		let connection = WS.upgrade(socket);
-
-		connection.once('@connect', () => {
-			assert(true);
-		});
-
-		connection.once('@disconnect', () => {
-			assert(true);
-		});
+		this.connection = WS.upgrade(socket);
 
 		socket.resume();
 
 	});
 
-	server.once('close', () => {
-		assert(true);
-	});
+	let handle = this.server.listen(13337, null);
 
-	server.listen(13337, null);
+	assert(isObject(handle),         true);
+	assert(isObject(handle._handle), true);
 
+});
 
-	let url        = URL.parse('ws://localhost:13337');
+describe('WS.connect()', function(assert) {
+
+	assert(isFunction(WS.connect), true);
+
+	let url        = URL.parse('ws://127.0.0.1:13337');
 	let connection = WS.connect(url);
 
 	connection.once('@connect', () => {
@@ -244,6 +149,147 @@ describe('WS.connect()', function(assert) {
 
 		setTimeout(() => {
 			connection.disconnect();
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('WS.disconnect()', function(assert) {
+
+	assert(isFunction(WS.connect),    true);
+	assert(isFunction(WS.disconnect), true);
+
+	let url        = URL.parse('ws://127.0.0.1:13337');
+	let connection = WS.connect(url);
+
+	connection.once('@connect', () => {
+
+		assert(true);
+
+		setTimeout(() => {
+			assert(WS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@disconnect', () => {
+		assert(true);
+	});
+
+});
+
+describe('WS.send()/CONTINUE', function(assert) {
+
+	// TODO: Test Partial Frames (Continue Frame)
+
+	// XXX: First Frame
+	// WS.send(connection, {
+	//   headers: {
+	//     '@operator': 0x01,
+	//     '@transfer': {
+	//         'range': [ 0, 128 ] // if range[1] is lower than payload.length
+	//     }
+	//   },
+	//   payload: Buffer.from('the complete payload with more than 256 bytes', 'utf8')
+	// });
+	//
+	// XXX: Second Frame
+	// WS.send(connection, {
+	//   headers: {
+	//     '@operator': 0x00,
+	//     '@transfer': {
+	//       'range': [ 128, 256 ]
+	//     }
+	//   },
+	//   payload: Buffer.from('the complete payload with more than 256 bytes', 'utf8')
+	// });
+	//
+	//
+	// XXX: Receiving side gets range = [ 0, Infinity ] for all Continuation Frames
+	// XXX: Last Continuation Frame is range = [ 0, length ]
+
+});
+
+describe('WS.send()/TEXT', function(assert) {
+
+	assert(isFunction(WS.connect),    true);
+	assert(isFunction(WS.disconnect), true);
+	assert(isFunction(WS.send),       true);
+
+	let url        = URL.parse('ws://127.0.0.1:13337');
+	let connection = WS.connect(url);
+
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@operator': 0x01,
+				'@status':   null,
+				'@transfer': {
+					'encoding': null,
+					'length':   27,
+					'range':    [ 0, 26 ]
+				},
+				'@type': 'response'
+			},
+			payload: Buffer.from('This is another text frame.', 'utf8')
+		});
+
+		setTimeout(() => {
+			assert(WS.disconnect(connection), true);
+		}, 0);
+
+	});
+
+	connection.once('@connect', () => {
+
+		setTimeout(() => {
+
+			this.connection.once('request', (request) => {
+
+				assert(request, {
+					headers: {
+						'@operator': 0x01,
+						'@status':   null,
+						'@transfer': {
+							'encoding': null,
+							'length':   21,
+							'range':    [ 0, 20 ]
+						},
+						'@type': 'request'
+					},
+					payload: Buffer.from('This is a text frame.', 'utf8')
+				});
+
+				WS.send(this.connection, {
+					headers: {
+						'@operator': 0x01,
+						'@type':     'response'
+					},
+					payload: Buffer.from('This is another text frame.', 'utf8')
+				});
+
+			});
+
+		}, 0);
+
+		setTimeout(() => {
+
+			WS.send(connection, {
+				headers: {
+					'@operator': 0x01,
+					'@type':     'request'
+				},
+				payload: Buffer.from('This is a text frame.', 'utf8')
+			}, (result) => {
+				assert(result, true);
+			});
+
 		}, 500);
 
 	});
@@ -252,172 +298,133 @@ describe('WS.connect()', function(assert) {
 		assert(true);
 	});
 
-	setTimeout(() => {
-
-		server.close(() => {
-			assert(true);
-		});
-
-	}, 1000);
-
 });
 
-describe('WS.disconnect()', function(assert) {
+describe('WS.send()/BINARY', function(assert) {
 
 	assert(isFunction(WS.connect),    true);
 	assert(isFunction(WS.disconnect), true);
-	assert(isFunction(WS.upgrade),    true);
+	assert(isFunction(WS.send),       true);
 
-	let server = new net.Server({
-		allowHalfOpen:  true,
-		pauseOnConnect: true
-	});
+	let buffer1 = Buffer.from([
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0
+	]);
 
-	server.once('connection', (socket) => {
+	let buffer2 = Buffer.from([
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0,
+		(Math.random() * 0xff) | 0
+	]);
 
-		let connection = WS.upgrade(socket);
-
-		connection.once('@connect', () => {
-
-			assert(true);
-
-			setTimeout(() => {
-				assert(WS.disconnect(connection), true);
-			}, 500);
-
-		});
-
-		connection.once('@disconnect', () => {
-			assert(true);
-		});
-
-		socket.resume();
-
-	});
-
-	server.once('close', () => {
-		assert(true);
-	});
-
-	server.listen(13337, null);
-
-
-	let url        = URL.parse('ws://localhost:13337');
+	let url        = URL.parse('ws://127.0.0.1:13337');
 	let connection = WS.connect(url);
 
+	connection.once('response', (response) => {
+
+		assert(response, {
+			headers: {
+				'@operator': 0x02,
+				'@status':   null,
+				'@transfer': {
+					'encoding': null,
+					'length':   buffer2.length,
+					'range':    [ 0, buffer2.length - 1 ]
+				},
+				'@type': 'response'
+			},
+			payload: buffer2
+		});
+
+		setTimeout(() => {
+			assert(WS.disconnect(connection), true);
+		}, 0);
+
+	});
+
 	connection.once('@connect', () => {
-		assert(true);
+
+		setTimeout(() => {
+
+			this.connection.once('request', (request) => {
+
+				assert(request, {
+					headers: {
+						'@operator': 0x02,
+						'@status':   null,
+						'@transfer': {
+							'encoding': null,
+							'length':   buffer1.length,
+							'range':    [ 0, buffer1.length - 1 ]
+						},
+						'@type': 'request'
+					},
+					payload: buffer1
+				});
+
+				WS.send(this.connection, {
+					headers: {
+						'@operator': 0x02,
+						'@type':     'response'
+					},
+					payload: buffer2
+				});
+
+			});
+
+		}, 0);
+
+		setTimeout(() => {
+
+			WS.send(connection, {
+				headers: {
+					'@operator': 0x02,
+					'@type':     'request'
+				},
+				payload: buffer1
+			}, (result) => {
+				assert(result, true);
+			});
+
+		}, 500);
+
 	});
 
 	connection.once('@disconnect', () => {
 		assert(true);
 	});
 
-	setTimeout(() => {
-
-		server.close(() => {
-			assert(true);
-		});
-
-	}, 1000);
-
 });
 
-describe('WS.receive()/client/close', function(assert) {
 
-	assert(isFunction(WS.receive), true);
 
-	WS.receive(null, PAYLOADS['CLOSE']['RESPONSE'], (response) => {
 
-		assert(response, {
-			headers: {
-				'@operator': 0x08,
-				'@status':   1000,
-				'@transfer': {
-					'encoding': null,
-					'length':   null,
-					'range':    [ 0, Infinity ]
-				},
-				'@type': 'response'
-			},
-			payload: null
-		});
 
-	});
 
-});
 
-describe('WS.receive()/client/error', function(assert) {
 
-	assert(isFunction(WS.receive), true);
 
-	WS.receive(null, PAYLOADS['ERROR']['RESPONSE'], (response) => {
 
-		assert(response, {
-			headers: {
-				'@operator': 0x08,
-				'@status':   1002,
-				'@transfer': {
-					'encoding': null,
-					'length':   null,
-					'range':    [ 0, Infinity ]
-				},
-				'@type': 'response'
-			},
-			payload: null
-		});
 
-	});
 
-});
 
-describe('WS.receive()/client/pingpong', function(assert) {
 
-	assert(isFunction(WS.receive), true);
 
-	WS.receive(null, PAYLOADS['PINGPONG']['RESPONSE'], (response) => {
 
-		assert(response, {
-			headers: {
-				'@operator': 0x0a,
-				'@status':   null,
-				'@transfer': {
-					'encoding': null,
-					'length':   null,
-					'range':    [ 0, Infinity ]
-				},
-				'@type': 'response'
-			},
-			payload: null
-		});
 
-	});
 
-});
 
-describe('WS.receive()/client/simple', function(assert) {
 
-	assert(isFunction(WS.receive), true);
 
-	WS.receive(null, PAYLOADS['SIMPLE']['RESPONSE'], (response) => {
 
-		assert(response, {
-			headers: {
-				'@operator': 0x01,
-				'@status':   null,
-				'@transfer': {
-					'encoding': null,
-					'length':   64,
-					'range':    [ 0, 63 ]
-				},
-				'@type': 'response'
-			},
-			payload: Buffer.from('This sentence inside this utf-8 buffer is exactly 64 bytes long.', 'utf8')
-		});
-
-	});
-
-});
 
 describe('WS.receive()/client/partial', function(assert) {
 
@@ -473,54 +480,6 @@ describe('WS.receive()/client/partial', function(assert) {
 				'@type': 'response'
 			},
 			payload: Buffer.from('The sentence #3 inside the big buffer is exactly 64 bytes long.\n', 'utf8')
-		});
-
-	});
-
-});
-
-describe('WS.receive()/server/pingpong', function(assert) {
-
-	assert(isFunction(WS.receive), true);
-
-	WS.receive(null, PAYLOADS['PINGPONG']['REQUEST'], (request) => {
-
-		assert(request, {
-			headers: {
-				'@operator': 0x09,
-				'@status':   null,
-				'@transfer': {
-					'encoding': null,
-					'length':   null,
-					'range':    [ 0, Infinity ]
-				},
-				'@type': 'request'
-			},
-			payload: null
-		});
-
-	});
-
-});
-
-describe('WS.receive()/server/simple', function(assert) {
-
-	assert(isFunction(WS.receive), true);
-
-	WS.receive(null, PAYLOADS['SIMPLE']['REQUEST'], (request) => {
-
-		assert(request, {
-			headers: {
-				'@operator': 0x01,
-				'@status':   null,
-				'@transfer': {
-					'encoding': null,
-					'length':   64,
-					'range':    [ 0, 63 ]
-				},
-				'@type': 'request'
-			},
-			payload: Buffer.from('This sentence inside this utf-8 buffer is exactly 64 bytes long.', 'utf8')
 		});
 
 	});
@@ -587,87 +546,6 @@ describe('WS.receive()/server/partial', function(assert) {
 
 });
 
-describe('WS.send()/server/simple', function(assert) {
-
-	assert(isFunction(WS.upgrade), true);
-	assert(isFunction(WS.send),    true);
-
-	let server = new net.Server({
-		allowHalfOpen:  true,
-		pauseOnConnect: true
-	});
-
-	server.once('connection', (socket) => {
-
-		let connection = WS.upgrade(socket);
-
-		connection.once('@connect', () => {
-			assert(true);
-		});
-
-		connection.once('request', (request) => {
-
-			assert(request, {
-				headers: {
-					'@operator': 0x01,
-					'@status':   null,
-					'@transfer': {
-						'encoding': null,
-						'length':   15,
-						'range':    [ 0, 14 ]
-					},
-					'@type': 'request'
-				},
-				payload: Buffer.from('{"status":1337}', 'utf8')
-			});
-
-		});
-
-		connection.once('@disconnect', () => {
-			assert(true);
-		});
-
-		socket.resume();
-
-	});
-
-	server.once('close', () => {
-		assert(true);
-	});
-
-	server.listen(13337, null);
-
-
-	let url        = URL.parse('ws://localhost:13337');
-	let connection = WS.connect(url);
-
-	connection.once('@connect', () => {
-
-		assert(true);
-
-		WS.send(connection, PACKETS['SIMPLE']['REQUEST'], (result) => {
-			assert(result, true);
-		});
-
-		setTimeout(() => {
-			assert(WS.disconnect(connection), true);
-		}, 500);
-
-	});
-
-	connection.once('@disconnect', () => {
-		assert(true);
-	});
-
-	setTimeout(() => {
-
-		server.close(() => {
-			assert(true);
-		});
-
-	}, 1000);
-
-});
 
 
 

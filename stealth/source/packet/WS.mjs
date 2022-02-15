@@ -67,14 +67,14 @@ const WS = {
 			};
 
 
-			let msg_payload    = null;
-			let msg_overflow   = null;
-			let fin            = (buffer[0] & 128) === 128;
-			// let rsv1           = (buffer[0] &  64) === 64;
-			// let rsv2           = (buffer[0] &  32) === 32;
-			// let rsv3           = (buffer[0] &  16) === 16;
-			let operator       = (buffer[0] &  15);
-			let mask           = (buffer[1] & 128) === 128;
+			let msg_payload  = null;
+			let msg_overflow = null;
+			let fin          = (buffer[0] & 128) === 128;
+			// let rsv1         = (buffer[0] &  64) === 64;
+			// let rsv2         = (buffer[0] &  32) === 32;
+			// let rsv3         = (buffer[0] &  16) === 16;
+			let operator     = (buffer[0] &  15);
+			let mask         = (buffer[1] & 128) === 128;
 
 
 			let payload_length = buffer[1] & 127;

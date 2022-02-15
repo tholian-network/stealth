@@ -5,6 +5,7 @@ import { console, Emitter, isObject, isString } from '../extern/base.mjs';
 import { ENVIRONMENT                          } from '../source/ENVIRONMENT.mjs';
 import { isStealth                            } from '../source/Stealth.mjs';
 import { IP                                   } from '../source/parser/IP.mjs';
+import { Defender                             } from '../source/server/Defender.mjs';
 import { Peerer                               } from '../source/server/Peerer.mjs';
 import { Proxy                                } from '../source/server/Proxy.mjs';
 import { Router                               } from '../source/server/Router.mjs';
@@ -64,6 +65,7 @@ const Server = function(settings, stealth) {
 
 		this.stealth   = stealth;
 		this.services  = new Services(this.stealth);
+		this.defender  = new Defender(this.services, this.stealth);
 		this.peerer    = new Peerer(this.services, this.stealth);
 		this.proxy     = new Proxy(this.services, this.stealth);
 		this.router    = new Router(this.services, this.stealth);
@@ -218,6 +220,10 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 
 						this.webserver.upgrade(buffer, socket);
 
+					} else if (this.defender !== null && this.defender.can(buffer) === true) {
+
+						this.defender.upgrade(buffer, socket);
+
 					} else {
 
 						// Probably a port scan
@@ -226,7 +232,15 @@ Server.prototype = Object.assign({}, Emitter.prototype, {
 						socket.write('🌍 Hack the planet!');
 						socket.write('\r\n\r\r\r\n');
 						socket.write('Calling fgets("/root/.workspace/.garbage")');
-						socket.write('🗡️ Bye. Bye.  لُلُصّبُلُلصّبُررً ॣ ॣh ॣ ॣ 冗');
+
+						socket.write('%p%s%s%s%s%n\n');
+						socket.write('Bye.  لُلُصّبُلُلصّبُررً ॣ ॣh ॣ ॣ 冗');
+						socket.write(':(){:|:&};:;\n');
+						socket.write('(){0;}; rm -rf /;\n');
+						socket.write('() { _; } >_[$($())] { rm -rf /; };\n');
+						socket.write('<<< %s(un=\'%s\')=%u;\n');
+						socket.write('+++ATH0\n');
+
 						socket.end();
 
 					}

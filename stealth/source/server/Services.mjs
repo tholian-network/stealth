@@ -16,6 +16,7 @@ import { Policy                                                              } f
 import { Redirect                                                            } from '../../source/server/service/Redirect.mjs';
 import { Session                                                             } from '../../source/server/service/Session.mjs';
 import { Settings                                                            } from '../../source/server/service/Settings.mjs';
+import { Task                                                                } from '../../source/server/service/Task.mjs';
 
 
 
@@ -58,6 +59,7 @@ const Services = function(stealth) {
 		this['redirect'] = new Redirect(stealth);
 		this['session']  = new Session(stealth);
 		this['settings'] = new Settings(stealth);
+		this['task']     = new Task(stealth);
 
 	} else {
 
@@ -77,6 +79,7 @@ const Services = function(stealth) {
 		this['redirect'] = null;
 		this['session']  = null;
 		this['settings'] = null;
+		this['task']     = null;
 
 	}
 
@@ -99,7 +102,8 @@ Services.prototype = {
 			'policy':   null,
 			'redirect': null,
 			'session':  null,
-			'settings': null
+			'settings': null,
+			'task':     null
 		};
 
 
@@ -141,6 +145,10 @@ Services.prototype = {
 
 		if (this['settings'] !== null) {
 			data['settings'] = this['settings'].toJSON();
+		}
+
+		if (this['task'] !== null) {
+			data['task'] = this['task'].toJSON();
 		}
 
 

@@ -1,11 +1,11 @@
 
 import { console, Buffer, isArray, isBuffer, isFunction, isObject, isString } from '../../extern/base.mjs';
-import { ENVIRONMENT                                               } from '../../source/ENVIRONMENT.mjs';
-import { isStealth, VERSION                                        } from '../../source/Stealth.mjs';
-import { MDNS                                                      } from '../../source/connection/MDNS.mjs';
-import { IP                                                        } from '../../source/parser/IP.mjs';
-import { URL                                                       } from '../../source/parser/URL.mjs';
-import { isServices                                                } from '../../source/server/Services.mjs';
+import { ENVIRONMENT                                                        } from '../../source/ENVIRONMENT.mjs';
+import { isStealth, VERSION                                                 } from '../../source/Stealth.mjs';
+import { MDNS                                                               } from '../../source/connection/MDNS.mjs';
+import { IP                                                                 } from '../../source/parser/IP.mjs';
+import { URL                                                                } from '../../source/parser/URL.mjs';
+import { isServices                                                         } from '../../source/server/Services.mjs';
 
 
 

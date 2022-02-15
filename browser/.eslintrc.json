@@ -65,7 +65,7 @@
 		],
 		"no-unused-vars": [
 			"error", {
-				"varsIgnorePattern": "^(BROWSER|WIDGETS)$"
+				"varsIgnorePattern": "^(BROWSER|ELEMENTS|WIDGETS)$"
 			}
 		],
 		"quotes": [
