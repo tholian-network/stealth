@@ -4,6 +4,7 @@ import { isStealth                                                 } from '../so
 import { Beacon                                                    } from '../source/client/service/Beacon.mjs';
 import { Blocker                                                   } from '../source/client/service/Blocker.mjs';
 import { Cache                                                     } from '../source/client/service/Cache.mjs';
+import { Echo                                                      } from '../source/client/service/Echo.mjs';
 import { Host                                                      } from '../source/client/service/Host.mjs';
 import { Mode                                                      } from '../source/client/service/Mode.mjs';
 import { Peer                                                      } from '../source/client/service/Peer.mjs';
@@ -50,6 +51,7 @@ const Client = function(settings, stealth) {
 	this.services['beacon']   = new Beacon(this);
 	this.services['blocker']  = new Blocker(this);
 	this.services['cache']    = new Cache(this);
+	this.services['echo']     = new Echo(this);
 	this.services['host']     = new Host(this);
 	this.services['mode']     = new Mode(this);
 	this.services['peer']     = new Peer(this);

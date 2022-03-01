@@ -139,7 +139,7 @@ describe('Beacon.prototype.read()/success', function(assert) {
 
 });
 
-describe('Beacon.prototype.remove()/success', function(assert) {
+describe('Beacon.prototype.remove()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.beacon.remove), true);

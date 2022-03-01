@@ -118,17 +118,18 @@ browser-card-interface-article > ul li label a {
 	vertical-align: top;
 }
 
-browser-card-interface-article > ul li input[type="radio"][name="theme"][value="dark"]:before              { content: '\e1ad'; }
-browser-card-interface-article > ul li input[type="radio"][name="theme"][value="light"]:before             { content: '\e1ac'; }
-browser-card-interface-article > ul li input[type="radio"][name="enforce"][value="false"]:before           { content: '\e234'; }
-browser-card-interface-article > ul li input[type="radio"][name="enforce"][value="true"]:before            { content: '\e235'; }
-browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:blank"]:before   { content: '\e32a'; }
-browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:history"]:before { content: '\e889'; }
-browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:media"]:before   { content: '\e038'; }
-browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:search"]:before  { content: '\e52e'; }
-browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:welcome"]:before { content: '\e80c'; }
-browser-card-interface-article > ul li input[type="radio"][name="assistant"][value="false"]:before         { content: '\e04f'; }
-browser-card-interface-article > ul li input[type="radio"][name="assistant"][value="true"]:before          { content: '\e050'; }
+browser-card-interface-article > ul li input[type="radio"][name="theme"][value="dark"]:before               { content: '\e1ad'; }
+browser-card-interface-article > ul li input[type="radio"][name="theme"][value="light"]:before              { content: '\e1ac'; }
+browser-card-interface-article > ul li input[type="radio"][name="enforce"][value="false"]:before            { content: '\e234'; }
+browser-card-interface-article > ul li input[type="radio"][name="enforce"][value="true"]:before             { content: '\e235'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:blank"]:before    { content: '\e32a'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:history"]:before  { content: '\e889'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:media"]:before    { content: '\e038'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:search"]:before   { content: '\e52e'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:welcome"]:before  { content: '\e80c'; }
+browser-card-interface-article > ul li input[type="radio"][name="opentab"][value="stealth:schedule"]:before { content: '\e916'; }
+browser-card-interface-article > ul li input[type="radio"][name="assistant"][value="false"]:before          { content: '\e04f'; }
+browser-card-interface-article > ul li input[type="radio"][name="assistant"][value="true"]:before           { content: '\e050'; }
 
 browser-card-interface-article > ul li input[type="radio"]:focus + label,
 browser-card-interface-article > ul li input[type="radio"]:hover + label {

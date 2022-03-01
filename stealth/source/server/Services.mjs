@@ -9,6 +9,7 @@ import { IP                                                                  } f
 import { Beacon                                                              } from '../../source/server/service/Beacon.mjs';
 import { Blocker                                                             } from '../../source/server/service/Blocker.mjs';
 import { Cache                                                               } from '../../source/server/service/Cache.mjs';
+import { Echo                                                                } from '../../source/server/service/Echo.mjs';
 import { Host                                                                } from '../../source/server/service/Host.mjs';
 import { Mode                                                                } from '../../source/server/service/Mode.mjs';
 import { Peer                                                                } from '../../source/server/service/Peer.mjs';
@@ -52,6 +53,7 @@ const Services = function(stealth) {
 		this['beacon']   = new Beacon(stealth);
 		this['blocker']  = new Blocker(stealth);
 		this['cache']    = new Cache(stealth);
+		this['echo']     = new Echo(stealth);
 		this['host']     = new Host(stealth);
 		this['mode']     = new Mode(stealth);
 		this['peer']     = new Peer(stealth);
@@ -72,6 +74,7 @@ const Services = function(stealth) {
 		this['beacon']   = null;
 		this['blocker']  = null;
 		this['cache']    = null;
+		this['echo']     = null;
 		this['host']     = null;
 		this['mode']     = null;
 		this['peer']     = null;
@@ -96,6 +99,7 @@ Services.prototype = {
 			'beacon':   null,
 			'blocker':  null,
 			'cache':    null,
+			'echo':     null,
 			'host':     null,
 			'mode':     null,
 			'peer':     null,
@@ -117,6 +121,10 @@ Services.prototype = {
 
 		if (this['cache'] !== null) {
 			data['cache'] = this['cache'].toJSON();
+		}
+
+		if (this['echo'] !== null) {
+			data['echo'] = this['echo'].toJSON();
 		}
 
 		if (this['host'] !== null) {

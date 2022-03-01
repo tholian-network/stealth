@@ -3,12 +3,14 @@ import { Element                     } from '../Element.mjs';
 import { Widget                      } from '../Widget.mjs';
 import { Beacon                      } from '../card/Beacon.mjs';
 import { Blocker                     } from '../card/Blocker.mjs';
+import { Echo                        } from '../card/Echo.mjs';
 import { Host                        } from '../card/Host.mjs';
 import { Mode                        } from '../card/Mode.mjs';
 import { Peer                        } from '../card/Peer.mjs';
 import { Policy                      } from '../card/Policy.mjs';
 import { Redirect                    } from '../card/Redirect.mjs';
 import { Session                     } from '../card/Session.mjs';
+import { Task                        } from '../card/Task.mjs';
 import { isArray, isObject, isString } from '../../extern/base.mjs';
 
 
@@ -60,12 +62,14 @@ const update = function(browser) {
 						this.results[entry.domain] = {
 							beacons:   [],
 							blockers:  [],
+							echos:     [],
 							hosts:     [],
 							modes:     [],
 							peers:     [],
 							policies:  [],
 							redirects: [],
-							sessions:  []
+							sessions:  [],
+							tasks:     []
 						};
 
 					}
@@ -178,6 +182,28 @@ const update = function(browser) {
 
 					try {
 						return Blocker.from(blocker, []);
+					} catch (err) {
+						this.emit('error', [ err ]);
+					}
+
+					return null;
+
+				}).forEach((card) => cards.push(card));
+
+			}
+
+			if (entry.echos.length > 0) {
+
+				entry.echos.map((echo) => {
+
+					try {
+
+						if (this.actions.includes('remove') === true) {
+							return Echo.from(echo, [ 'remove', 'save' ]);
+						} else {
+							return Echo.from(echo, [ 'save' ]);
+						}
+
 					} catch (err) {
 						this.emit('error', [ err ]);
 					}
@@ -320,6 +346,28 @@ const update = function(browser) {
 
 			}
 
+			if (entry.tasks.length > 0) {
+
+				entry.tasks.map((task) => {
+
+					try {
+
+						if (this.actions.includes('remove') === true) {
+							return Task.from(task, [ 'remove', 'save' ]);
+						} else {
+							return Task.from(task, [ 'save' ]);
+						}
+
+					} catch (err) {
+						this.emit('error', [ err ]);
+					}
+
+					return null;
+
+				}).forEach((card) => cards.push(card));
+
+			}
+
 			if (cards.length > 0) {
 
 				cards.forEach((card) => {
@@ -342,7 +390,7 @@ const update = function(browser) {
 
 const Settings = function(browser, allowed, actions) {
 
-	this.allowed = isArray(allowed) ? allowed : [ 'beacons', 'blockers', 'hosts', 'modes', 'peers', 'policies', 'redirects', 'sessions' ];
+	this.allowed = isArray(allowed) ? allowed : [ 'beacons', 'blockers', 'echos', 'hosts', 'modes', 'peers', 'policies', 'redirects', 'sessions', 'tasks' ];
 	this.actions = isArray(actions) ? actions : [ 'refresh', 'remove' ];
 	this.element = new Element('browser-card-settings', [
 		'<h3>Settings</h3>',
@@ -350,7 +398,7 @@ const Settings = function(browser, allowed, actions) {
 		'<browser-card-settings-header>',
 		'<p>Search for Sites-specific Settings via their Domain:</p>',
 		'<input title="Domain" type="text" data-key="domain" pattern="([A-Za-z0-9._\\-*]+).([A-Za-z*]+)" placeholder="domain.tld" disabled/>',
-		'<p data-key="results">0 of 0 Beacons, 0 of 0 Blockers, 0 of 0 Hosts, 0 of 0 Modes, 0 of 0 Peers, 0 of 0 Policies, 0 of 0 Redirects, 0 of 0 Sessions</p>',
+		'<p data-key="results">0 of 0 Beacons, 0 of 0 Blockers, 0 of 0 Echos, 0 of 0 Hosts, 0 of 0 Modes, 0 of 0 Peers, 0 of 0 Policies, 0 of 0 Redirects, 0 of 0 Sessions, 0 of 0 Tasks</p>',
 		'</browser-card-settings-header>',
 		'<browser-card-settings-article>',
 		'</browser-card-settings-article>',

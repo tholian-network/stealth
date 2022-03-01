@@ -19,6 +19,7 @@ import client_service_Policy    from './client/service/Policy.mjs';
 import client_service_Redirect  from './client/service/Redirect.mjs';
 import client_service_Session   from './client/service/Session.mjs';
 import client_service_Settings  from './client/service/Settings.mjs';
+import client_service_Task      from './client/service/Task.mjs';
 import connection_DNS           from './connection/DNS.mjs';
 import connection_DNSH          from './connection/DNSH.mjs';
 import connection_DNSS          from './connection/DNSS.mjs';
@@ -58,6 +59,7 @@ import server_service_Policy    from './server/service/Policy.mjs';
 import server_service_Redirect  from './server/service/Redirect.mjs';
 import server_service_Session   from './server/service/Session.mjs';
 import server_service_Settings  from './server/service/Settings.mjs';
+import server_service_Task      from './server/service/Task.mjs';
 
 
 
@@ -126,6 +128,7 @@ export const REVIEWS = [
 	server_service_Redirect,
 	server_service_Session,
 	server_service_Settings,
+	server_service_Task,
 
 	// Client Services
 	client_service_Beacon,
@@ -138,6 +141,7 @@ export const REVIEWS = [
 	client_service_Redirect,
 	client_service_Session,
 	client_service_Settings,
+	client_service_Task,
 
 	// Peer-to-Peer
 	peer_Cache

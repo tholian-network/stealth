@@ -8,6 +8,7 @@ import { Session, isSession                                                     
 import { HOSTS                                                                         } from '../source/parser/HOSTS.mjs';
 import { Beacon                                                                        } from '../source/server/service/Beacon.mjs';
 import { Blocker                                                                       } from '../source/server/service/Blocker.mjs';
+import { Echo                                                                          } from '../source/server/service/Echo.mjs';
 import { Host                                                                          } from '../source/server/service/Host.mjs';
 import { Mode                                                                          } from '../source/server/service/Mode.mjs';
 import { Peer                                                                          } from '../source/server/service/Peer.mjs';
@@ -24,6 +25,7 @@ export const isSettings = function(obj) {
 const get_message = (settings) => `
 ${settings.beacons.length} Beacon${settings.beacons.length === 1 ? '' : 's'}, \
 ${settings.blockers.length} Blocker${settings.blockers.length === 1 ? '' : 's'}, \
+${settings.echos.length} Echo${settings.tasks.length === 1 ? '' : 's'}, \
 ${settings.hosts.length} Host${settings.hosts.length === 1 ? '' : 's'}, \
 ${settings.modes.length} Mode${settings.modes.length === 1 ? '' : 's'}, \
 ${settings.peers.length} Peer${settings.peers.length === 1 ? '' : 's'}, \
@@ -420,6 +422,7 @@ const read = function(profile, keepdata, callback) {
 				read_file.call(this, profile + '/internet.json',  this['internet'],  keepdata),
 				read_file.call(this, profile + '/beacons.json',   this['beacons'],   keepdata, Beacon.isBeacon),
 				read_file.call(this, profile + '/blockers.json',  this['blockers'],  keepdata, Blocker.isBlocker),
+				read_file.call(this, profile + '/echos.json',     this['echos'],     keepdata, Echo.isEcho),
 				read_file.call(this, profile + '/hosts.json',     this['hosts'],     keepdata, Host.isHost),
 				read_file.call(this, profile + '/modes.json',     this['modes'],     keepdata, Mode.isMode),
 				read_file.call(this, profile + '/peers.json',     this['peers'],     keepdata, Peer.isPeer),
@@ -607,6 +610,7 @@ const save = function(profile, keepdata, callback) {
 				save_file.call(this, profile + '/internet.json',  this['internet']),
 				save_file.call(this, profile + '/beacons.json',   this['beacons'],   Beacon.isBeacon),
 				true, // blockers cannot be saved
+				save_file.call(this, profile + '/echos.json',     this['echos'],     Echo.isEcho),
 				save_file.call(this, profile + '/hosts.json',     this['hosts'],     Host.isHost),
 				save_file.call(this, profile + '/modes.json',     this['modes'],     Mode.isMode),
 				save_file.call(this, profile + '/peers.json',     this['peers'],     Peer.isPeer),
@@ -746,7 +750,7 @@ const Settings = function(settings) {
 	});
 
 	this['account'] = {
-		username: null,
+		username:    null,
 		certificate: {
 			'public':  null,
 			'private': null
@@ -765,6 +769,7 @@ const Settings = function(settings) {
 	};
 	this['beacons']   = [];
 	this['blockers']  = [];
+	this['echos']     = [];
 	this['hosts']     = [];
 	this['modes']     = [];
 	this['peers']     = [];
@@ -868,6 +873,14 @@ Settings.from = function(json) {
 				vendor:  isString(data.vendor)  ? data.vendor  : null
 			});
 
+			if (isObject(data['account']) === true) {
+
+				Object.keys(data['account']).forEach((key) => {
+					settings['account'][key] = data['account'][key];
+				});
+
+			}
+
 			if (isObject(data['interface']) === true) {
 
 				Object.keys(data['interface']).forEach((key) => {
@@ -890,6 +903,10 @@ Settings.from = function(json) {
 
 			if (isArray(data['blockers']) === true) {
 				settings['blockers'] = data['blockers'].filter((blocker) => Blocker.isBlocker(blocker));
+			}
+
+			if (isArray(data['echos']) === true) {
+				settings['echos'] = data['echos'].filter((echo) => Echo.isEcho(echo));
 			}
 
 			if (isArray(data['hosts']) === true) {
@@ -942,10 +959,12 @@ Settings.prototype = {
 	toJSON: function() {
 
 		let data = {
+			'account':   {},
 			'interface': {},
 			'internet':  {},
 			'beacons':   [],
 			'blockers':  [],
+			'echos':     [],
 			'hosts':     [],
 			'modes':     [],
 			'peers':     [],
@@ -981,6 +1000,14 @@ Settings.prototype = {
 
 			if (Blocker.isBlocker(blocker) === true) {
 				data['blockers'].push(blocker);
+			}
+
+		});
+
+		this['echos'].forEach((echo) => {
+
+			if (Echo.isEcho(echo) === true) {
+				data['echos'].push(echo);
 			}
 
 		});

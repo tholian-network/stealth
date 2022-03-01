@@ -187,7 +187,7 @@ describe('Host.prototype.read()/success', function(assert) {
 
 });
 
-describe('Host.prototype.remove()/success', function(assert) {
+describe('Host.prototype.remove()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.host.remove), true);
@@ -229,27 +229,6 @@ describe('Host.prototype.read()/success', function(assert) {
 					IP.parse('2606:2800:0220:0001:0248:1893:25c8:1946')
 				]
 			}
-		});
-
-	});
-
-});
-
-describe('Host.prototype.remove()/success', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.host.remove), true);
-
-	this.server.services.host.remove({
-		domain: 'example.com'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'host',
-				event:   'remove'
-			},
-			payload: true
 		});
 
 	});

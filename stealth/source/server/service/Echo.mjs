@@ -29,7 +29,7 @@ const toDomain = function(payload) {
 
 
 
-const Policy = function(stealth) {
+const Echo = function(stealth) {
 
 	this.stealth = stealth;
 	Emitter.call(this);
@@ -39,39 +39,30 @@ const Policy = function(stealth) {
 
 /*
  * {
- *   "domain":   "example.com",
- *   "policies": [
- *     {
- *       "path":  "/search",
- *       "query": "q&type"
- *     }
- *   ]
+ *   "domain": "example.com",
+ *   "echos":  [{
+ *     TODO: Echo Schema
+ *   }]
  * }
  */
 
-Policy.isPolicy = function(payload) {
+Echo.isEcho = function(payload) {
 
 	if (
 		isObject(payload) === true
 		&& isString(payload.domain) === true
-		&& isArray(payload.policies) === true
+		&& isArray(payload.echos) === true
 	) {
 
-		let check = payload.policies.filter((policy) => {
+		let check = payload.echos.filter((echo) => {
 
-			if (
-				isObject(policy) === true
-				&& isString(policy.path) === true
-				&& isString(policy.query) === true
-			) {
-				return true;
-			}
+			// TODO: Echo Schema Validation
 
-			return false;
+			return true;
 
 		});
 
-		if (check.length === payload.policies.length) {
+		if (check.length === payload.echos.length) {
 			return true;
 		}
 
@@ -82,7 +73,7 @@ Policy.isPolicy = function(payload) {
 
 };
 
-Policy.toPolicy = function(payload) {
+Echo.toEcho = function(payload) {
 
 	if (isObject(payload) === true) {
 
@@ -100,29 +91,22 @@ Policy.toPolicy = function(payload) {
 			domain = payload.host;
 		}
 
-		if (domain !== null && isArray(payload.policies) === true) {
+		if (domain !== null && isArray(payload.echos) === true) {
 
-			let check = payload.policies.filter((policy) => {
+			let check = payload.echos.filter((echo) => {
 
-				if (
-					isObject(policy) === true
-					&& isString(policy.path) === true
-					&& (isString(policy.query) === true || policy.query === null)
-				) {
-					return true;
-				}
+				// TODO: Echo Schema Validation
 
-				return false;
+				return true;
 
 			});
 
-			if (check.length === payload.policies.length) {
+			if (check.length === payload.echos.length) {
 
 				return {
-					domain:   domain,
-					policies: payload.policies.map((policy) => ({
-						path:  policy.path,
-						query: isString(policy.query) ? policy.query : null
+					domain: domain,
+					echos:  payload.echos.map((echo) => ({
+						// TODO: Echo Schema
 					}))
 				};
 
@@ -138,7 +122,7 @@ Policy.toPolicy = function(payload) {
 };
 
 
-Policy.prototype = Object.assign({}, Emitter.prototype, {
+Echo.prototype = Object.assign({}, Emitter.prototype, {
 
 	toJSON: function() {
 
@@ -149,7 +133,7 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 		};
 
 		return {
-			'type': 'Policy Service',
+			'type': 'Echo Service',
 			'data': data
 		};
 
@@ -160,10 +144,10 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 		callback = isFunction(callback) ? callback : null;
 
 
-		let policy = null;
+		let echo   = null;
 		let domain = toDomain(payload);
 		if (domain !== null) {
-			policy = this.stealth.settings.policies.find((p) => p.domain === domain) || null;
+			echo = this.stealth.settings.echos.find((e) => e.domain === domain) || null;
 		}
 
 
@@ -171,10 +155,10 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'policy',
+					service: 'echo',
 					event:   'read'
 				},
-				payload: policy
+				payload: echo
 			});
 
 		}
@@ -186,14 +170,14 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 		callback = isFunction(callback) ? callback : null;
 
 
-		let policy = null;
+		let echo   = null;
 		let domain = toDomain(payload);
 		if (domain !== null) {
-			policy = this.stealth.settings.policies.find((p) => p.domain === domain) || null;
+			echo = this.stealth.settings.echos.find((e) => e.domain === domain) || null;
 		}
 
-		if (policy !== null) {
-			this.stealth.settings.policies.remove(policy);
+		if (echo !== null) {
+			this.stealth.settings.echos.remove(echo);
 			this.stealth.settings.save();
 		}
 
@@ -202,10 +186,10 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'policy',
+					service: 'echo',
 					event:   'remove'
 				},
-				payload: (domain !== null)
+				payload: (echo !== null)
 			});
 
 		}
@@ -217,20 +201,20 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 		callback = isFunction(callback) ? callback : null;
 
 
-		let policy_old = null;
-		let policy_new = Policy.toPolicy(payload);
+		let echo_old = null;
+		let echo_new = Echo.toEcho(payload);
 
 		let domain = toDomain(payload);
 		if (domain !== null) {
-			policy_old = this.stealth.settings.policies.find((p) => p.domain === domain) || null;
+			echo_old = this.stealth.settings.echos.find((e) => e.domain === domain) || null;
 		}
 
-		if (policy_new !== null) {
+		if (echo_new !== null) {
 
-			if (policy_old !== null) {
-				policy_old.policies = policy_new.policies;
+			if (echo_old !== null) {
+				echo_old.echos = echo_new.echos;
 			} else {
-				this.stealth.settings.policies.push(policy_new);
+				this.stealth.settings.echos.push(echo_new);
 			}
 
 			this.stealth.settings.save();
@@ -242,10 +226,10 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 
 			callback({
 				headers: {
-					service: 'policy',
+					service: 'echo',
 					event:   'save'
 				},
-				payload: (policy_new !== null)
+				payload: (echo_new !== null)
 			});
 
 		}
@@ -255,5 +239,5 @@ Policy.prototype = Object.assign({}, Emitter.prototype, {
 });
 
 
-export { Policy };
+export { Echo };
 

@@ -75,7 +75,7 @@ describe('Redirect.prototype.read()/success', function(assert) {
 
 });
 
-describe('Redirect.prototype.remove()/success', function(assert) {
+describe('Redirect.prototype.remove()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.redirect.remove), true);
@@ -102,22 +102,6 @@ describe('Redirect.prototype.read()/failure', function(assert) {
 	}, (response) => {
 
 		assert(response, null);
-
-	});
-
-});
-
-describe('Redirect.prototype.remove()/success', function(assert) {
-
-	assert(this.client !== null);
-	assert(isFunction(this.client.services.redirect.remove), true);
-
-	this.client.services.redirect.remove({
-		domain: 'example.com',
-		path:   '/review/client/redirect'
-	}, (response) => {
-
-		assert(response, true);
 
 	});
 

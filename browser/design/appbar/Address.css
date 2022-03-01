@@ -103,6 +103,7 @@ browser-appbar-address ul li[data-key="protocol"][title="stealth:welcome"]:befor
 browser-appbar-address ul li[data-key="protocol"][title="stealth:debug"]:before    { content: '\e868'; }
 browser-appbar-address ul li[data-key="protocol"][title="stealth:history"]:before  { content: '\e889'; }
 browser-appbar-address ul li[data-key="protocol"][title="stealth:media"]:before    { content: '\e038'; }
+browser-appbar-address ul li[data-key="protocol"][title="stealth:schedule"]:before { content: '\e916'; }
 browser-appbar-address ul li[data-key="protocol"][title="stealth:search"]:before   { content: '\e52e'; }
 browser-appbar-address ul li[data-key="protocol"][title="stealth:settings"]:before { content: '\e8b8'; }
 

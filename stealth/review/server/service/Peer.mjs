@@ -220,7 +220,7 @@ describe('Peer.prototype.refresh()', function(assert) {
 
 });
 
-describe('Peer.prototype.remove()/success', function(assert) {
+describe('Peer.prototype.remove()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.peer.remove), true);
@@ -264,27 +264,6 @@ describe('Peer.prototype.proxy()/failure', function(assert) {
 				event:   'proxy'
 			},
 			payload: null
-		});
-
-	});
-
-});
-
-describe('Peer.prototype.remove()/success', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.peer.remove), true);
-
-	this.server.services.peer.remove({
-		host: '127.0.0.3'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'peer',
-				event:   'remove'
-			},
-			payload: true
 		});
 
 	});

@@ -49,7 +49,7 @@ const connect = (network) => {
 	let profile = PROFILES[network] || null;
 	if (profile !== null) {
 
-		console.info('Network connect(' + network + ')');
+		console.info('Covert Network: Enabling ' + network + ' network bandwidth throttling.');
 
 		if (exec('lsmod | grep ifb') === false) {
 
@@ -90,7 +90,7 @@ const connect = (network) => {
 
 const disconnect = () => {
 
-	console.info('Network disconnect()');
+	console.info('Covert Network: Disabling network bandwidth throttling.');
 
 	if (exec('ip link | grep ifb0') === true) {
 
@@ -275,6 +275,8 @@ Network.prototype = {
 
 	connect: function() {
 
+		console.info('Covert Network: Connect local peer network');
+
 		if (os.platform() === 'darwin') {
 
 			sudo('ifconfig lo0 alias 127.0.0.2 up');
@@ -318,6 +320,8 @@ Network.prototype = {
 	},
 
 	disconnect: function() {
+
+		console.info('Covert Network: Disconnect local peer network');
 
 		if (os.platform() === 'darwin') {
 

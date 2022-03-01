@@ -149,7 +149,7 @@ describe('Mode.prototype.read()/success', function(assert) {
 
 });
 
-describe('Mode.prototype.remove()/success', function(assert) {
+describe('Mode.prototype.remove()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.mode.remove), true);
@@ -185,27 +185,6 @@ describe('Mode.prototype.read()/failure', function(assert) {
 				event:   'read'
 			},
 			payload: null
-		});
-
-	});
-
-});
-
-describe('Mode.prototype.remove()/failure', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.mode.remove), true);
-
-	this.server.services.mode.remove({
-		domain: 'example.com'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'mode',
-				event:   'remove'
-			},
-			payload: true
 		});
 
 	});

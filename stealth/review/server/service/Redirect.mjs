@@ -139,7 +139,7 @@ describe('Redirect.prototype.read()/success', function(assert) {
 
 });
 
-describe('Redirect.prototype.remove()/success', function(assert) {
+describe('Redirect.prototype.remove()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.redirect.remove), true);
@@ -177,28 +177,6 @@ describe('Redirect.prototype.read()/failure', function(assert) {
 				event:   'read'
 			},
 			payload: null
-		});
-
-	});
-
-});
-
-describe('Redirect.prototype.remove()/success', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.redirect.remove), true);
-
-	this.server.services.redirect.remove({
-		domain: 'example.com',
-		path:   '/review/server/redirect'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'redirect',
-				event:   'remove'
-			},
-			payload: true
 		});
 
 	});

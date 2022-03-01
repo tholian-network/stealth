@@ -138,6 +138,13 @@ describe('Client.prototype.toJSON()', function(assert) {
 					events: [],
 					journal: []
 				}
+			},
+			task: {
+				type: 'Task Service',
+				data: {
+					events: [],
+					journal: []
+				}
 			}
 		},
 		state: {

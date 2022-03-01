@@ -108,7 +108,7 @@ describe('Policy.prototype.read()/success', function(assert) {
 
 });
 
-describe('Policy.prototype.remove()/success', function(assert) {
+describe('Policy.prototype.remove()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.policy.remove), true);
@@ -133,21 +133,6 @@ describe('Policy.prototype.read()/failure', function(assert) {
 	}, (response) => {
 
 		assert(response, null);
-
-	});
-
-});
-
-describe('Policy.prototype.remove()/failure', function(assert) {
-
-	assert(this.client !== null);
-	assert(isFunction(this.client.services.policy.remove), true);
-
-	this.client.services.policy.remove({
-		domain: 'example.com'
-	}, (response) => {
-
-		assert(response, false);
 
 	});
 

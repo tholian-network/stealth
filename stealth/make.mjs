@@ -90,7 +90,8 @@ export const clean = async (target) => {
 				remove(target + '/stealth/extern/base.mjs'),
 				remove(target + '/stealth/index.mjs'),
 				remove(target + '/stealth/stealth.mjs'),
-				remove(target + '/stealth/source')
+				remove(target + '/stealth/source'),
+				remove(target + '/stealth/vendor')
 			].forEach((result) => results.push(result));
 
 		}
@@ -210,7 +211,7 @@ export const pack = async (target) => {
 			}),
 			copy(
 				sandbox_archlinux + '/tholian-stealth-' + version_archlinux + '-1-any.pkg.tar.zst',
-				ROOT + '/stealth/build/tholian-stealth-' + version_archlinux + '-1-any.pkg.tar.zst'
+				target + '/stealth/build/tholian-stealth-' + version_archlinux + '-1-any.pkg.tar.zst'
 			)
 		].forEach((result) => {
 			results.push(result);

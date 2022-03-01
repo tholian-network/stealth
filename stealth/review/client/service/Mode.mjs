@@ -78,7 +78,7 @@ describe('Mode.prototype.read()/success', function(assert) {
 
 });
 
-describe('Mode.prototype.remove()/success', function(assert) {
+describe('Mode.prototype.remove()', function(assert) {
 
 	assert(this.client !== null);
 	assert(isFunction(this.client.services.mode.remove), true);
@@ -103,21 +103,6 @@ describe('Mode.prototype.read()/failure', function(assert) {
 	}, (response) => {
 
 		assert(response, null);
-
-	});
-
-});
-
-describe('Mode.prototype.remove()/failure', function(assert) {
-
-	assert(this.client !== null);
-	assert(isFunction(this.client.services.mode.remove), true);
-
-	this.client.services.mode.remove({
-		domain: 'example.com'
-	}, (response) => {
-
-		assert(response, true);
 
 	});
 

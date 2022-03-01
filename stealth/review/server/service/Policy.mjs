@@ -204,7 +204,7 @@ describe('Policy.prototype.read()/success', function(assert) {
 
 });
 
-describe('Policy.prototype.remove()/success', function(assert) {
+describe('Policy.prototype.remove()', function(assert) {
 
 	assert(this.server !== null);
 	assert(isFunction(this.server.services.policy.remove), true);
@@ -240,27 +240,6 @@ describe('Policy.prototype.read()/failure', function(assert) {
 				event:   'read'
 			},
 			payload: null
-		});
-
-	});
-
-});
-
-describe('Policy.prototype.remove()/failure', function(assert) {
-
-	assert(this.server !== null);
-	assert(isFunction(this.server.services.policy.remove), true);
-
-	this.server.services.policy.remove({
-		domain: 'example.com'
-	}, (response) => {
-
-		assert(response, {
-			headers: {
-				service: 'policy',
-				event:   'remove'
-			},
-			payload: false
 		});
 
 	});

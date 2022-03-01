@@ -130,7 +130,7 @@ const Address = function(browser) {
 
 	this.element = new Element('browser-appbar-address', [
 		'<ul><li data-key="protocol" data-val="stealth"></li></ul>',
-		'<input data-key="url" type="text" data-map="URL" placeholder="Enter URL or Keywords" spellcheck="false" value="stealth:blank">'
+		'<input data-key="url" type="text" data-map="URL" placeholder="Enter URL or Keywords" spellcheck="false" value="stealth:blank"/>'
 	].join(''));
 
 	this.protocol = this.element.query('[data-key="protocol"]');
