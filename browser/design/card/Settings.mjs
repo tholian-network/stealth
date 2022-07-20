@@ -3,14 +3,14 @@ import { Element                     } from '../Element.mjs';
 import { Widget                      } from '../Widget.mjs';
 import { Beacon                      } from '../card/Beacon.mjs';
 import { Blocker                     } from '../card/Blocker.mjs';
-import { Echo                        } from '../card/Echo.mjs';
+// import { Echo                        } from '../card/Echo.mjs';
 import { Host                        } from '../card/Host.mjs';
 import { Mode                        } from '../card/Mode.mjs';
 import { Peer                        } from '../card/Peer.mjs';
 import { Policy                      } from '../card/Policy.mjs';
 import { Redirect                    } from '../card/Redirect.mjs';
 import { Session                     } from '../card/Session.mjs';
-import { Task                        } from '../card/Task.mjs';
+// import { Task                        } from '../card/Task.mjs';
 import { isArray, isObject, isString } from '../../extern/base.mjs';
 
 
@@ -194,23 +194,23 @@ const update = function(browser) {
 
 			if (entry.echos.length > 0) {
 
-				entry.echos.map((echo) => {
+				// entry.echos.map((echo) => {
 
-					try {
+				// 	try {
 
-						if (this.actions.includes('remove') === true) {
-							return Echo.from(echo, [ 'remove', 'save' ]);
-						} else {
-							return Echo.from(echo, [ 'save' ]);
-						}
+				// 		if (this.actions.includes('remove') === true) {
+				// 			return Echo.from(echo, [ 'remove', 'save' ]);
+				// 		} else {
+				// 			return Echo.from(echo, [ 'save' ]);
+				// 		}
 
-					} catch (err) {
-						this.emit('error', [ err ]);
-					}
+				// 	} catch (err) {
+				// 		this.emit('error', [ err ]);
+				// 	}
 
-					return null;
+				// 	return null;
 
-				}).forEach((card) => cards.push(card));
+				// }).forEach((card) => cards.push(card));
 
 			}
 
@@ -348,23 +348,23 @@ const update = function(browser) {
 
 			if (entry.tasks.length > 0) {
 
-				entry.tasks.map((task) => {
+				// entry.tasks.map((task) => {
 
-					try {
+				// 	try {
 
-						if (this.actions.includes('remove') === true) {
-							return Task.from(task, [ 'remove', 'save' ]);
-						} else {
-							return Task.from(task, [ 'save' ]);
-						}
+				// 		if (this.actions.includes('remove') === true) {
+				// 			return Task.from(task, [ 'remove', 'save' ]);
+				// 		} else {
+				// 			return Task.from(task, [ 'save' ]);
+				// 		}
 
-					} catch (err) {
-						this.emit('error', [ err ]);
-					}
+				// 	} catch (err) {
+				// 		this.emit('error', [ err ]);
+				// 	}
 
-					return null;
+				// 	return null;
 
-				}).forEach((card) => cards.push(card));
+				// }).forEach((card) => cards.push(card));
 
 			}
 
